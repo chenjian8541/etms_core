@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewData["Title"] = "Etms";
+}
+
+<div class="my-content">
+    <form action="~/Home/CreateTenant" method="post">
+        <div class="my-item">机构名称：<input type="text" name="TenantName" /></div>
+        <div class="my-item">机构编码：<input type="text" name="TenantCode" /></div>
+        <div class="my-item">手机号码：<input type="text" name="TenantPhone" /></div>
+        <div class="my-item">联系人：<input type="text" name="UserName" /></div>
+        <div class="my-item">仓库编码：<input type="text" name="ConnectionId" value="1" /></div>
+        <div class="my-item">备注：<input type="text" name="Remark" /></div>
+        <div class="my-item"> <input type="submit" value="提交" /></div>
+    </form>
+</div>
+
+
+<style>
+    .my-content {
+        margin-top: 100px;
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .my-item {
+        line-height: 28px;
+        margin-top: 5px;
+    }
+</style>
+

@@ -1,0 +1,44 @@
+﻿[
+  {
+    "Name": "GenerateClassTimesJob",
+    "Cron": "0 0 2 * * ?", //每天凌晨2点执行
+    "Title": "定时生成班级课次",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "StudentCourseConsumeJob",
+    "Cron": "0 0 1 * * ?", //每天凌晨1点执行
+    "Title": "学员剩余课程按天消耗",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "AnalyzeStudentCourse",
+    "Cron": "0 0 3 * * ?", //每天凌晨3点执行
+    "Title": "定时统计学员剩余课程",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentsOfClassBeforeDayJob",
+    "Cron": "0 */30 * * * ?", //每隔30分种执行
+    "Title": "定时发送上课提醒(提前一天)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentsOfClassTodayGenerateJob",
+    "Cron": "0 0 20 * * ?", //每天晚上8点执行
+    "Title": "定时发送上课提醒(当天)(生成提醒信息)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentsOfClassTodayJob",
+    "Cron": "0 */5 * * * ?", //每隔5分种执行
+    "Title": "定时发送上课提醒(提前几分钟)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  }
+]

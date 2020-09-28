@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ETMS.ServiceBus</id>
+    <version>1.0.0</version>
+    <authors>ETMS.ServiceBus</authors>
+    <owners>ETMS.ServiceBus</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="ETMS.EventConsumer" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="ETMS.IEventProvider" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="ETMS.IOC" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="MassTransit.RabbitMQ" version="6.2.4" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\培训班\ETMS\mySvnRe\ETMS\ETMS.ServiceBus\bin\Debug\netcoreapp3.1\ETMS.ServiceBus.dll" target="lib\netcoreapp3.1\ETMS.ServiceBus.dll" />
+  </files>
+</package>

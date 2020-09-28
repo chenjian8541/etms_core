@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="init.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="init.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.11" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.7.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0-preview1.19506.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0-preview1.19506.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0-preview1-19509-03" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ETMS.Authority\ETMS.Authority.csproj" />
+    <ProjectReference Include="..\ETMS.Business\ETMS.Business.csproj" />
+    <ProjectReference Include="..\ETMS.Cache.Redis\ETMS.Cache.Redis.csproj" />
+    <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Event.DataContract\ETMS.Event.DataContract.csproj" />
+    <ProjectReference Include="..\ETMS.ExternalService\ETMS.ExternalService.csproj" />
+    <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
+    <ProjectReference Include="..\ETMS.ICache\ETMS.ICache.csproj" />
+    <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
+    <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
+    <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.Manage.Entity\ETMS.Manage.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Manage.Jobs\ETMS.Manage.Jobs.csproj" />
+    <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
+    <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="hangfireJobs.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="hosting.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="logger.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties hangfirejobs_1json__JsonSchema="https://gitpod.io/schemas/gitpod-schema.json" /></VisualStudio></ProjectExtensions>
+
+
+
+</Project>

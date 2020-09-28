@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
+    <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
+    <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
+    <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.Manage.Entity\ETMS.Manage.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+  </ItemGroup>
+
+</Project>

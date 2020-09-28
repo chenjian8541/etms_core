@@ -1,0 +1,7 @@
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\bin\Release\netcoreapp3.1\ETMS.Manage.Entity.deps.json
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\bin\Release\netcoreapp3.1\ETMS.Manage.Entity.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\bin\Release\netcoreapp3.1\ETMS.Manage.Entity.pdb
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\obj\Release\netcoreapp3.1\ETMS.Manage.Entity.AssemblyInfoInputs.cache
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\obj\Release\netcoreapp3.1\ETMS.Manage.Entity.AssemblyInfo.cs
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\obj\Release\netcoreapp3.1\ETMS.Manage.Entity.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Manage.Entity\obj\Release\netcoreapp3.1\ETMS.Manage.Entity.pdb

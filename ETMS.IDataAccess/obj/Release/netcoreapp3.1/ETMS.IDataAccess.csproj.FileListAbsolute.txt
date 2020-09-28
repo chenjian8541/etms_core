@@ -1,0 +1,15 @@
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.IDataAccess.deps.json
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.IDataAccess.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.IDataAccess.pdb
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.Entity.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.LOG.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.Utility.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.Entity.pdb
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.LOG.pdb
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\bin\Release\netcoreapp3.1\ETMS.Utility.pdb
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.csprojAssemblyReference.cache
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.AssemblyInfoInputs.cache
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.AssemblyInfo.cs
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.csproj.CopyComplete
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.dll
+E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IDataAccess\obj\Release\netcoreapp3.1\ETMS.IDataAccess.pdb

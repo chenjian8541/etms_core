@@ -1,0 +1,119 @@
+﻿using ETMS.DataAccess.Core;
+using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
+using ETMS.Entity.View;
+using ETMS.IDataAccess;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ETMS.DataAccess
+{
+    public class ClassRecordDAL : DataAccessBase, IClassRecordDAL
+    {
+        public ClassRecordDAL(IDbWrapper dbWrapper) : base(dbWrapper)
+        {
+        }
+
+        public async Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents)
+        {
+            await this._dbWrapper.Insert(etClassRecord);
+            foreach (var s in classRecordStudents)
+            {
+                s.ClassRecordId = etClassRecord.Id;
+            }
+            this._dbWrapper.InsertRange(classRecordStudents);
+            return etClassRecord.Id;
+        }
+
+        public void AddClassRecordAbsenceLog(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs)
+        {
+            this._dbWrapper.InsertRange(classRecordAbsenceLogs);
+        }
+
+        public void AddClassRecordPointsApplyLog(List<EtClassRecordPointsApplyLog> classRecordPointsApplyLog)
+        {
+            _dbWrapper.InsertRange(classRecordPointsApplyLog);
+        }
+
+        public async Task<Tuple<IEnumerable<EtClassRecord>, int>> GetPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtClassRecord>("EtClassRecord", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<EtClassRecord> GetClassRecord(long classRecordId)
+        {
+            return await _dbWrapper.Find<EtClassRecord>(classRecordId);
+        }
+
+        public async Task<List<EtClassRecordStudent>> GetClassRecordStudents(long classRecordId)
+        {
+            return await _dbWrapper.FindList<EtClassRecordStudent>(p => p.ClassRecordId == classRecordId);
+        }
+
+        public async Task<Tuple<IEnumerable<ClassRecordAbsenceLogView>, int>> GetClassRecordAbsenceLogPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<ClassRecordAbsenceLogView>("ClassRecordAbsenceLogView", "*", request.PageSize, request.PageCurrent, "[HandleStatus] ASC,Id DESC", request.ToString());
+        }
+
+        public async Task<EtClassRecordAbsenceLog> GetClassRecordAbsenceLog(long id)
+        {
+            return await _dbWrapper.Find<EtClassRecordAbsenceLog>(id);
+        }
+
+        public async Task<List<EtClassRecordAbsenceLog>> GetClassRecordAbsenceLogByClassRecordId(long classRecordId)
+        {
+            return await _dbWrapper.FindList<EtClassRecordAbsenceLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<bool> UpdateClassRecordAbsenceLog(EtClassRecordAbsenceLog log)
+        {
+            return await _dbWrapper.Update(log);
+        }
+
+        public async Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLog(long id)
+        {
+            return await _dbWrapper.Find<EtClassRecordPointsApplyLog>(id);
+        }
+
+        public async Task<bool> EditClassRecordPointsApplyLog(EtClassRecordPointsApplyLog log)
+        {
+            return await _dbWrapper.Update(log);
+        }
+
+        public async Task<Tuple<IEnumerable<EtClassRecordStudent>, int>> GetClassRecordStudentPaging(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtClassRecordStudent>("EtClassRecordStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<EtClassRecordStudent> GetEtClassRecordStudentById(long id)
+        {
+            return await _dbWrapper.Find<EtClassRecordStudent>(id);
+        }
+
+        public async Task<Tuple<IEnumerable<ClassRecordPointsApplyLogView>, int>> GetClassRecordPointsApplyLog(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<ClassRecordPointsApplyLogView>("ClassRecordPointsApplyLogView", "*", request.PageSize, request.PageCurrent, "[HandleStatus] ASC,Id DESC", request.ToString());
+        }
+
+        public async Task<List<EtClassRecordPointsApplyLog>> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId)
+        {
+            return await _dbWrapper.FindList<EtClassRecordPointsApplyLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<bool> SetClassRecordRevoke(long classRecordId)
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtClassRecord SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND id = {classRecordId};");
+            sql.Append($"UPDATE EtClassRecordStudent SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
+            sql.Append($"UPDATE EtClassRecordEvaluateTeacher SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
+            sql.Append($"UPDATE EtClassRecordEvaluateStudent SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
+            sql.Append($"UPDATE EtClassRecordPointsApplyLog SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
+            sql.Append($"UPDATE EtClassRecordAbsenceLog SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+    }
+}
