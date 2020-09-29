@@ -17,8 +17,8 @@ E:\培训班\ETMS\mySvnRe\ETMS\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.csprojA
 E:\培训班\ETMS\etms_core\ETMS.Log\bin\Debug\netcoreapp3.1\ETMS.LOG.deps.json
 E:\培训班\ETMS\etms_core\ETMS.Log\bin\Debug\netcoreapp3.1\ETMS.LOG.dll
 E:\培训班\ETMS\etms_core\ETMS.Log\bin\Debug\netcoreapp3.1\ETMS.LOG.pdb
-E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.csprojAssemblyReference.cache
 E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.AssemblyInfoInputs.cache
 E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.AssemblyInfo.cs
 E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.dll
 E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.pdb
+E:\培训班\ETMS\etms_core\ETMS.Log\obj\Debug\netcoreapp3.1\ETMS.LOG.csprojAssemblyReference.cache

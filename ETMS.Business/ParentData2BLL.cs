@@ -91,10 +91,11 @@ namespace ETMS.Business
             var output = new List<ClassRecordGetParentOutput>();
             var tempBoxUser = new DataTempBox<EtUser>();
             var tempBoxStudent = new DataTempBox<EtStudent>();
+            var courseTempBox = new DataTempBox<EtCourse>();
             foreach (var p in pagingData.Item1)
             {
                 var etClass = await _classDAL.GetClassBucket(p.ClassId);
-                var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers);
+                var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
                 var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
                 output.Add(new ClassRecordGetParentOutput()
                 {
@@ -114,7 +115,8 @@ namespace ETMS.Business
                     Week = p.Week,
                     Id = p.Id,
                     WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
-                    StudentName = student.Name
+                    StudentName = student.Name,
+                    CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetParentOutput>(pagingData.Item2, output));
@@ -126,7 +128,7 @@ namespace ETMS.Business
             var courseTempBox = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
             var etClass = await _classDAL.GetClassBucket(p.ClassId);
-            var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers);
+            var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
             var classRoomIdsDesc = string.Empty;
             if (!string.IsNullOrEmpty(p.ClassRoomIds))
             {
@@ -412,7 +414,7 @@ namespace ETMS.Business
                     EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
                     StudentName = p.StudentName,
                     CouponsValueDesc = ComBusiness.GetCouponsValueDesc(p.CouponsType, p.CouponsValue),
-                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用", 
+                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用",
                 };
             })));
         }
@@ -421,6 +423,12 @@ namespace ETMS.Business
         {
             var student = (await _studentDAL.GetStudent(request.StudentId)).Student;
             var studentRelationship = await _studentRelationshipDAL.GetAllStudentRelationship();
+            var learningManager = string.Empty;
+            if (student.LearningManager != null)
+            {
+                var user = await _userDAL.GetUser(student.LearningManager.Value);
+                learningManager = ComBusiness2.GetParentTeacherName(user);
+            }
             var studentGetOutput = new StudentDetailInfoOutput()
             {
                 Id = student.Id,
@@ -437,7 +445,8 @@ namespace ETMS.Business
                 BirthdayDesc = student.Birthday.EtmsToDateString(),
                 Age = student.Age,
                 PhoneBakRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneBakRelationship, "备用号码"),
-                PhoneRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneRelationship, "手机号码")
+                PhoneRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneRelationship, "手机号码"),
+                LearningManager = learningManager
             };
             return ResponseBase.Success(studentGetOutput);
         }

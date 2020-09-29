@@ -71,5 +71,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 积分
         /// </summary>
         public int Points { get; set; }
+
+        public string LearningManager { get; set; }
     }
 }

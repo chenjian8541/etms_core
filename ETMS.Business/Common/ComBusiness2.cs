@@ -21,5 +21,18 @@ namespace ETMS.Business.Common
             }
             return relationships.Name;
         }
+
+        internal static string GetParentTeacherName(EtUser user)
+        {
+            if (user == null)
+            {
+                return string.Empty;
+            }
+            if (string.IsNullOrEmpty(user.NickName))
+            {
+                return user.Name;
+            }
+            return user.NickName;
+        }
     }
 }

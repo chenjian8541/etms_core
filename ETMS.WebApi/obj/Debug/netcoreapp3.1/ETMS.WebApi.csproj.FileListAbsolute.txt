@@ -336,3 +336,13 @@ E:\培训班\ETMS\etms_core\ETMS.WebApi\obj\Debug\netcoreapp3.1\ETMS.WebApi.Razo
 E:\培训班\ETMS\etms_core\ETMS.WebApi\obj\Debug\netcoreapp3.1\ETMS.WebApi.csproj.CopyComplete
 E:\培训班\ETMS\etms_core\ETMS.WebApi\obj\Debug\netcoreapp3.1\ETMS.WebApi.dll
 E:\培训班\ETMS\etms_core\ETMS.WebApi\obj\Debug\netcoreapp3.1\ETMS.WebApi.pdb
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\NPOI.OOXML.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\NPOI.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\NPOI.OpenXml4Net.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\NPOI.OpenXmlFormats.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\Microsoft.Win32.SystemEvents.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\ICSharpCode.SharpZipLib.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\System.Drawing.Common.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\Microsoft.Win32.SystemEvents.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Drawing.Common.dll
+E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Drawing.Common.dll

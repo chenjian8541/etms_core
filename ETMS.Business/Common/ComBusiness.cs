@@ -274,6 +274,40 @@ namespace ETMS.Business.Common
             return teacherDesc.ToString().TrimEnd(',');
         }
 
+        internal static async Task<string> GetParentTeachers(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users)
+        {
+            if (string.IsNullOrEmpty(users))
+            {
+                return string.Empty;
+            }
+            var teacherIds = users.Split(',');
+            var teacherDesc = new StringBuilder();
+            foreach (var id in teacherIds)
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    continue;
+                }
+                var tempId = id.ToLong();
+                var user = await tempBox.GetData(tempId, async () =>
+                {
+                    return await userDAL.GetUser(tempId);
+                });
+                if (user != null)
+                {
+                    if (string.IsNullOrEmpty(user.NickName))
+                    {
+                        teacherDesc.Append($"{user.Name},");
+                    }
+                    else
+                    {
+                        teacherDesc.Append($"{user.NickName},");
+                    }
+                }
+            }
+            return teacherDesc.ToString().TrimEnd(',');
+        }
+
         internal static async Task<EtStudent> GetStudent(DataTempBox<EtStudent> tempBox, IStudentDAL studentDAL, long studentId)
         {
             var student = await tempBox.GetData(studentId, async () =>

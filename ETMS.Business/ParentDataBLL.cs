@@ -187,7 +187,7 @@ namespace ETMS.Business
                 className = etClass.EtClass.Name;
                 courseListDesc = courseInfo.Item1;
                 courseStyleColor = courseInfo.Item2;
-                teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, classTimes.Teachers);
                 var studentName = string.Empty;
                 if (myStudentCount == 1)
                 {
