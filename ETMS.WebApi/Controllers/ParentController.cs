@@ -372,12 +372,40 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> StudentCouponsGet(StudentCouponsGetRequest request)
+        public async Task<ResponseBase> StudentCouponsNormalGet(StudentCouponsNormalGetRequest request)
         {
             try
             {
                 _parentData2BLL.InitTenantId(request.LoginTenantId);
-                return await _parentData2BLL.StudentCouponsGet(request);
+                return await _parentData2BLL.StudentCouponsNormalGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCouponsUsedGet(StudentCouponsUsedGetRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.StudentCouponsUsedGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCouponsExpiredGet(StudentCouponsExpiredGetRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.StudentCouponsExpiredGet(request);
             }
             catch (Exception ex)
             {

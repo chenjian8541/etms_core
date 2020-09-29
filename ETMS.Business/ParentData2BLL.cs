@@ -393,13 +393,12 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<StudentPointsLogGetOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> StudentCouponsGet(StudentCouponsGetRequest request)
+        public async Task<ResponseBase> StudentCouponsNormalGet(StudentCouponsNormalGetRequest request)
         {
             var pagingData = await _couponsDAL.CouponsStudentGetPaging(request);
-            return ResponseBase.Success(new ResponsePagingDataBase<StudentCouponsGetOutput>(pagingData.Item2, pagingData.Item1.Select(p =>
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCouponsNormalGetOutput>(pagingData.Item2, pagingData.Item1.Select(p =>
             {
-                var logStatusDesc = ComBusiness.GetCouponsLogStatusDesc(p);
-                return new StudentCouponsGetOutput()
+                return new StudentCouponsNormalGetOutput()
                 {
                     Id = p.Id,
                     CouponsMinLimit = p.CouponsMinLimit,
@@ -407,14 +406,52 @@ namespace ETMS.Business
                     CouponsType = p.CouponsType,
                     CouponsValue = p.CouponsValue,
                     CouponsTypeDesc = EmCouponsType.GetCouponsTypeDesc(p.CouponsType),
-                    GetTime = p.GetTime,
-                    OrderNo = p.OrderNo,
-                    LogStatus = logStatusDesc.Item1,
-                    LogStatusDesc = logStatusDesc.Item2,
                     EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
                     StudentName = p.StudentName,
                     CouponsValueDesc = ComBusiness.GetCouponsValueDesc(p.CouponsType, p.CouponsValue),
-                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用",
+                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用"
+                };
+            })));
+        }
+
+        public async Task<ResponseBase> StudentCouponsUsedGet(StudentCouponsUsedGetRequest request)
+        {
+            var pagingData = await _couponsDAL.CouponsStudentGetPaging(request);
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCouponsUsedGetOutput>(pagingData.Item2, pagingData.Item1.Select(p =>
+            {
+                return new StudentCouponsUsedGetOutput()
+                {
+                    Id = p.Id,
+                    CouponsMinLimit = p.CouponsMinLimit,
+                    CouponsTitle = p.CouponsTitle,
+                    CouponsType = p.CouponsType,
+                    CouponsValue = p.CouponsValue,
+                    CouponsTypeDesc = EmCouponsType.GetCouponsTypeDesc(p.CouponsType),
+                    EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
+                    StudentName = p.StudentName,
+                    CouponsValueDesc = ComBusiness.GetCouponsValueDesc(p.CouponsType, p.CouponsValue),
+                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用"
+                };
+            })));
+        }
+
+        public async Task<ResponseBase> StudentCouponsExpiredGet(StudentCouponsExpiredGetRequest request)
+        {
+            var pagingData = await _couponsDAL.CouponsStudentGetPaging(request);
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCouponsExpiredGetOutput>(pagingData.Item2, pagingData.Item1.Select(p =>
+            {
+                return new StudentCouponsExpiredGetOutput()
+                {
+                    Id = p.Id,
+                    CouponsMinLimit = p.CouponsMinLimit,
+                    CouponsTitle = p.CouponsTitle,
+                    CouponsType = p.CouponsType,
+                    CouponsValue = p.CouponsValue,
+                    CouponsTypeDesc = EmCouponsType.GetCouponsTypeDesc(p.CouponsType),
+                    EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
+                    StudentName = p.StudentName,
+                    CouponsValueDesc = ComBusiness.GetCouponsValueDesc(p.CouponsType, p.CouponsValue),
+                    MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用"
                 };
             })));
         }
