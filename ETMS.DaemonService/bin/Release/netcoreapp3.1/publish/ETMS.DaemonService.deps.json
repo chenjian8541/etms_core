@@ -132,6 +132,54 @@
           }
         }
       },
+      "DotNetCore.NPOI/1.2.2": {
+        "dependencies": {
+          "DotNetCore.NPOI.Core": "1.2.2",
+          "DotNetCore.NPOI.OpenXml4Net": "1.2.2",
+          "DotNetCore.NPOI.OpenXmlFormats": "1.2.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NPOI.OOXML.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
+      "DotNetCore.NPOI.Core/1.2.2": {
+        "dependencies": {
+          "SharpZipLib": "1.2.0",
+          "System.Drawing.Common": "4.5.0",
+          "System.Text.Encoding.CodePages": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NPOI.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
+      "DotNetCore.NPOI.OpenXml4Net/1.2.2": {
+        "dependencies": {
+          "DotNetCore.NPOI.Core": "1.2.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NPOI.OpenXml4Net.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
+      "DotNetCore.NPOI.OpenXmlFormats/1.2.2": {
+        "dependencies": {
+          "DotNetCore.NPOI.OpenXml4Net": "1.2.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NPOI.OpenXmlFormats.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
       "GreenPipes/3.0.1": {
         "dependencies": {
           "Microsoft.Extensions.PlatformAbstractions": "1.1.0",
@@ -791,6 +839,25 @@
           "System.Security.Principal.Windows": "4.7.0"
         }
       },
+      "Microsoft.Win32.SystemEvents/4.5.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "3.1.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          }
+        }
+      },
       "NETStandard.Library/1.6.1": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "3.1.0",
@@ -954,6 +1021,14 @@
             "rid": "win-x86",
             "assetType": "native",
             "fileVersion": "4.6.25512.1"
+          }
+        }
+      },
+      "SharpZipLib/1.2.0": {
+        "runtime": {
+          "lib/netstandard2.0/ICSharpCode.SharpZipLib.dll": {
+            "assemblyVersion": "1.2.0.246",
+            "fileVersion": "1.2.0.246"
           }
         }
       },
@@ -1134,6 +1209,32 @@
           "Microsoft.NETCore.Platforms": "3.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0"
+        }
+      },
+      "System.Drawing.Common/4.5.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "3.1.0",
+          "Microsoft.Win32.SystemEvents": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/System.Drawing.Common.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/netcoreapp2.0/System.Drawing.Common.dll": {
+            "rid": "unix",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          },
+          "runtimes/win/lib/netcoreapp2.0/System.Drawing.Common.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          }
         }
       },
       "System.Dynamic.Runtime/4.3.0": {
@@ -1920,6 +2021,7 @@
       },
       "ETMS.Business/1.0.0": {
         "dependencies": {
+          "DotNetCore.NPOI": "1.2.2",
           "ETMS.Authority": "1.0.0",
           "ETMS.DataAccess": "1.0.0",
           "ETMS.Entity": "1.0.0",
@@ -2137,6 +2239,34 @@
       "sha512": "sha512-/xAgd8BO8EDnJ0sURWEV8LptHHvTKxoYiT63YUF2U/yWE2VyUCqR2jcrtEyNngT9Kjzppecz95UKiBla3PnR7g==",
       "path": "dapper/2.0.35",
       "hashPath": "dapper.2.0.35.nupkg.sha512"
+    },
+    "DotNetCore.NPOI/1.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DACoUvopt/8z6PhWQdMoXogVdVqI8k6Z++oEWUO5PToUwcK73hsTDOeaqh2hgHHxdRsRtzImqG7Cbw1gPPOAjA==",
+      "path": "dotnetcore.npoi/1.2.2",
+      "hashPath": "dotnetcore.npoi.1.2.2.nupkg.sha512"
+    },
+    "DotNetCore.NPOI.Core/1.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ohnR015XcwKUvtWR2AKIAbTH3sS8DbhjDZcPYShwToVKPgAekP5jn1LsyfWJYYFxDuPv4hha0WYfBGVx1BMMLg==",
+      "path": "dotnetcore.npoi.core/1.2.2",
+      "hashPath": "dotnetcore.npoi.core.1.2.2.nupkg.sha512"
+    },
+    "DotNetCore.NPOI.OpenXml4Net/1.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-l41xh1GMbb6c41bQe2ipm6GJwBF9A+N6Bt9aYhKeI/Ak6XKaijIU7g4V28VuuMRoZjPhEp7gL7RP5ChTWUdLzA==",
+      "path": "dotnetcore.npoi.openxml4net/1.2.2",
+      "hashPath": "dotnetcore.npoi.openxml4net.1.2.2.nupkg.sha512"
+    },
+    "DotNetCore.NPOI.OpenXmlFormats/1.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+Y5IZfiF/ls+opIMMmolRZdnYcxguErVk9eOfmz5s/wnNnPeBWR1mxGOpvBWsbqch75isU5Lk0CZWtAXVgYCPQ==",
+      "path": "dotnetcore.npoi.openxmlformats/1.2.2",
+      "hashPath": "dotnetcore.npoi.openxmlformats.1.2.2.nupkg.sha512"
     },
     "GreenPipes/3.0.1": {
       "type": "package",
@@ -2551,6 +2681,13 @@
       "path": "microsoft.win32.registry/4.7.0",
       "hashPath": "microsoft.win32.registry.4.7.0.nupkg.sha512"
     },
+    "Microsoft.Win32.SystemEvents/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LuI1oG+24TUj1ZRQQjM5Ew73BKnZE5NZ/7eAdh1o8ST5dPhUnJvIkiIn2re3MwnkRy6ELRnvEbBxHP8uALKhJw==",
+      "path": "microsoft.win32.systemevents/4.5.0",
+      "hashPath": "microsoft.win32.systemevents.4.5.0.nupkg.sha512"
+    },
     "NETStandard.Library/1.6.1": {
       "type": "package",
       "serviceable": true,
@@ -2726,6 +2863,13 @@
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
     },
+    "SharpZipLib/1.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zvWa/L02JHNatdtjya6Swpudb2YEHaOLHL1eRrqpjm71iGRNUNONO5adUF/9CHbSJbzhELW1UoH4NGy7n7+3bQ==",
+      "path": "sharpziplib/1.2.0",
+      "hashPath": "sharpziplib.1.2.0.nupkg.sha512"
+    },
     "System.AppContext/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -2872,6 +3016,13 @@
       "sha512": "sha512-rswfv0f/Cqkh78rA5S8eN8Neocz234+emGCtTF3lxPY96F+mmmUen6tbn0glN6PMvlKQb9bPAY5e9u7fgPTkKw==",
       "path": "system.diagnostics.tracing/4.3.0",
       "hashPath": "system.diagnostics.tracing.4.3.0.nupkg.sha512"
+    },
+    "System.Drawing.Common/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AiJFxxVPdeITstiRS5aAu8+8Dpf5NawTMoapZ53Gfirml24p7HIfhjmCRxdXnmmf3IUA3AX3CcW7G73CjWxW/Q==",
+      "path": "system.drawing.common/4.5.0",
+      "hashPath": "system.drawing.common.4.5.0.nupkg.sha512"
     },
     "System.Dynamic.Runtime/4.3.0": {
       "type": "package",

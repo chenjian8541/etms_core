@@ -7,18 +7,21 @@ namespace ETMS.Utility
 {
     public class FileHelper
     {
+        public const string ImportStudentTemplateFolderTag = "export_file";
+
+        public const string ImgFolderTag = "img";
+
         public static CheckImportStudentTemplateFileResult CheckImportStudentTemplateFile(string serverPath, string fileFullName)
         {
             var timeStr = DateTime.Now.ToString("yyyyMMdd");
-            var imgTag = "export_file";
-            var strFolder = Path.Combine(serverPath, imgTag, timeStr);
+            var strFolder = Path.Combine(serverPath, ImportStudentTemplateFolderTag, timeStr);
             if (!Directory.Exists(strFolder))
             {
                 Directory.CreateDirectory(strFolder);
             }
             var strFileFullPath = Path.Combine(strFolder, fileFullName);
             var isExist = File.Exists(strFileFullPath);
-            var urlKey = $"{imgTag}/{timeStr}/{fileFullName}";
+            var urlKey = $"{ImportStudentTemplateFolderTag}/{timeStr}/{fileFullName}";
             return new CheckImportStudentTemplateFileResult()
             {
                 IsExist = isExist,
@@ -31,13 +34,12 @@ namespace ETMS.Utility
         public static Tuple<string, string> PreProcessImgFolder(string serverPath)
         {
             var timeStr = DateTime.Now.ToString("yyyyMMdd");
-            var imgTag = "img";
-            var strFolder = Path.Combine(serverPath, imgTag, timeStr);
+            var strFolder = Path.Combine(serverPath, ImgFolderTag, timeStr);
             if (!Directory.Exists(strFolder))
             {
                 Directory.CreateDirectory(strFolder);
             }
-            return Tuple.Create(strFolder, $"{imgTag}/{timeStr}/");
+            return Tuple.Create(strFolder, $"{ImgFolderTag}/{timeStr}/");
         }
 
         public static string GetFilePath(string filePath)

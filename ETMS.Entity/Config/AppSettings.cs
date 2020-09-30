@@ -56,6 +56,8 @@ namespace ETMS.Entity.Config
         public long UploadFileSizeLimit { get; set; }
 
         public string UploadImageFileTypeLimit { get; set; }
+
+        public string UploadExcelFileTypeLimit { get; set; }
     }
 
     /// <summary>

@@ -6,3 +6,11 @@ E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.Assem
 E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.dll
 E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.pdb
 E:\培训班\ETMS\mySvnRe\ETMS\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.csprojAssemblyReference.cache
+E:\培训班\ETMS\etms_core\ETMS.IOC\bin\Release\netcoreapp3.1\ETMS.IOC.deps.json
+E:\培训班\ETMS\etms_core\ETMS.IOC\bin\Release\netcoreapp3.1\ETMS.IOC.dll
+E:\培训班\ETMS\etms_core\ETMS.IOC\bin\Release\netcoreapp3.1\ETMS.IOC.pdb
+E:\培训班\ETMS\etms_core\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.csprojAssemblyReference.cache
+E:\培训班\ETMS\etms_core\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.AssemblyInfoInputs.cache
+E:\培训班\ETMS\etms_core\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.AssemblyInfo.cs
+E:\培训班\ETMS\etms_core\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.dll
+E:\培训班\ETMS\etms_core\ETMS.IOC\obj\Release\netcoreapp3.1\ETMS.IOC.pdb
