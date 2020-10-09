@@ -12,12 +12,12 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 男
         /// </summary>
-        public const int Man = 0;
+        public const byte Man = 0;
 
         /// <summary>
         /// 女
         /// </summary>
-        public const int Woman = 1;
+        public const byte Woman = 1;
 
         public static string GetGenderDesc(byte? gender)
         {

@@ -41,6 +41,11 @@ namespace ETMS.DataAccess
             return await this.GetCache(_tenantId, studentId);
         }
 
+        public void AddStudent(List<EtStudent> students)
+        {
+            _dbWrapper.InsertRange(students);
+        }
+
         public async Task<long> AddStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos)
         {
             await _dbWrapper.Insert(student);

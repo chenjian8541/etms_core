@@ -13,6 +13,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using ETMS.Event.DataContract;
+using ETMS.IEventProvider;
+using ETMS.Entity.Dto.External.Output;
 
 namespace ETMS.Business
 {
@@ -32,10 +36,14 @@ namespace ETMS.Business
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
 
         public ImportBLL(IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentSourceDAL studentSourceDAL, IStudentRelationshipDAL studentRelationshipDAL, IGradeDAL gradeDAL, ISysTenantDAL sysTenantDAL,
-            IStudentDAL studentDAL)
+            IStudentDAL studentDAL, IEventPublisher eventPublisher, IUserOperationLogDAL userOperationLogDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -44,11 +52,13 @@ namespace ETMS.Business
             this._gradeDAL = gradeDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._studentDAL = studentDAL;
+            this._eventPublisher = eventPublisher;
+            this._userOperationLogDAL = userOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentSourceDAL, _studentRelationshipDAL, _gradeDAL);
+            this.InitDataAccess(tenantId, _studentSourceDAL, _studentRelationshipDAL, _gradeDAL, _studentDAL, _userOperationLogDAL);
         }
 
         public async Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request)
@@ -86,72 +96,100 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                //byte? gender = null;
-                //if (!string.IsNullOrEmpty(p.GenderDesc))
-                //{ 
-                
-                //}
-                //var etStudent = new EtStudent()
-                //{
-                //    Age = p.Birthday.EtmsGetAge(),
-                //    Name = p.StudentName,
-                //    Avatar = string.Empty,
-                //    Birthday = p.Birthday,
-                //    CardNo = string.Empty,
-                //    CreateBy = request.LoginUserId,
-                //    EndClassOt = null,
-                //    Gender = p.,
-                //    GradeId = request.GradeId,
-                //    HomeAddress = request.HomeAddress,
-                //    IntentionLevel = request.IntentionLevel,
-                //    IsBindingWechat = EmStudentIsBindingWechat.No,
-                //    IsDeleted = EmIsDeleted.Normal,
-                //    LastJobProcessTime = now,
-                //    LastTrackTime = null,
-                //    LearningManager = null,
-                //    NextTrackTime = null,
-                //    Ot = now.Date,
-                //    Phone = request.Phone,
-                //    PhoneBak = request.PhoneBak,
-                //    PhoneBakRelationship = request.PhoneBakRelationship,
-                //    PhoneRelationship = request.PhoneRelationship ?? 0,
-                //    Points = 0,
-                //    Remark = request.Remark,
-                //    SchoolName = request.SchoolName,
-                //    SourceId = request.SourceId,
-                //    StudentType = EmStudentType.HiddenStudent,
-                //    Tags = tags,
-                //    TenantId = request.LoginTenantId,
-                //    TrackStatus = EmStudentTrackStatus.NotTrack,
-                //    TrackUser = request.TrackUser
-                //};
+
+                var phoneRelationship = 0L;
+                if (!string.IsNullOrEmpty(p.PhoneRelationshipDesc))
+                {
+                    var myPhoneRelationship = studentRelationshipAll.FirstOrDefault(j => j.Name == p.PhoneRelationshipDesc);
+                    if (myPhoneRelationship != null)
+                    {
+                        phoneRelationship = myPhoneRelationship.Id;
+                    }
+                }
+
+                byte? gender = null;
+                if (!string.IsNullOrEmpty(p.GenderDesc))
+                {
+                    gender = p.GenderDesc.Trim() == "男" ? EmGender.Man : EmGender.Woman;
+                }
+
+                long? gradeId = null;
+                if (!string.IsNullOrEmpty(p.GradeDesc))
+                {
+                    var myGenderDesc = gradeAll.FirstOrDefault(j => j.Name == p.GradeDesc);
+                    gradeId = myGenderDesc?.Id;
+                }
+
+                long? sourceId = null;
+                if (!string.IsNullOrEmpty(p.SourceDesc))
+                {
+                    var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
+                    sourceId = mySourceDesc?.Id;
+                }
+
+                studentList.Add(new EtStudent()
+                {
+                    Age = p.Birthday.EtmsGetAge(),
+                    Name = p.StudentName,
+                    Avatar = string.Empty,
+                    Birthday = p.Birthday,
+                    CardNo = string.Empty,
+                    CreateBy = request.LoginUserId,
+                    EndClassOt = null,
+                    Gender = gender,
+                    GradeId = gradeId,
+                    HomeAddress = p.HomeAddress,
+                    IntentionLevel = EmStudentIntentionLevel.Middle,
+                    IsBindingWechat = EmStudentIsBindingWechat.No,
+                    IsDeleted = EmIsDeleted.Normal,
+                    LastJobProcessTime = now,
+                    LastTrackTime = null,
+                    LearningManager = null,
+                    NextTrackTime = null,
+                    Ot = now.Date,
+                    Phone = p.Phone,
+                    PhoneBak = p.PhoneBak,
+                    PhoneBakRelationship = null,
+                    PhoneRelationship = phoneRelationship,
+                    Points = 0,
+                    Remark = p.Remark,
+                    SchoolName = p.SchoolName,
+                    SourceId = sourceId,
+                    StudentType = EmStudentType.HiddenStudent,
+                    Tags = string.Empty,
+                    TenantId = request.LoginTenantId,
+                    TrackStatus = EmStudentTrackStatus.NotTrack,
+                    TrackUser = null
+                });
             }
-            return null;
-            //var studentExtendInfos = new List<EtStudentExtendInfo>();
-            //if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
-            //{
-            //    foreach (var s in request.StudentExtendItems)
-            //    {
-            //        studentExtendInfos.Add(new EtStudentExtendInfo()
-            //        {
-            //            ExtendFieldId = s.CId,
-            //            IsDeleted = EmIsDeleted.Normal,
-            //            Remark = string.Empty,
-            //            StudentId = 0,
-            //            TenantId = request.LoginTenantId,
-            //            Value1 = s.Value
-            //        });
-            //    }
-            //}
-            //var studentId = await _studentDAL.AddStudent(etStudent, studentExtendInfos);
-            //SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
-            //{
-            //    ChangeCount = 1,
-            //    OpType = StatisticsStudentOpType.Add,
-            //    Time = now
-            //}, request, etStudent.Ot, true);
-            //await _userOperationLogDAL.AddUserLog(request, $"添加学员：姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
-            //return ResponseBase.Success(studentId);
+            if (studentList.Count > 0)
+            {
+                _studentDAL.AddStudent(studentList);
+                SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
+                {
+                    ChangeCount = studentList.Count,
+                    OpType = StatisticsStudentOpType.Add,
+                    Time = now
+                }, request, now.Date, true);
+                await _userOperationLogDAL.AddUserLog(request, $"批量导入潜在学员，成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
+            }
+            return ResponseBase.Success(new ImportStudentOutput()
+            {
+                SuccessCount = studentList.Count
+            });
+        }
+
+        private void SyncStatisticsStudentInfo(StatisticsStudentCountEvent studentCountEvent, RequestBase request, DateTime ot, bool isChangeStudentSource)
+        {
+            if (studentCountEvent != null)
+            {
+                _eventPublisher.Publish(studentCountEvent);
+            }
+            if (isChangeStudentSource)
+            {
+                _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentSource, StatisticsDate = ot });
+            }
+            _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = ot });
         }
     }
 }

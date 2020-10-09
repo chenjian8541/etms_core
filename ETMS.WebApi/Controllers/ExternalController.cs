@@ -5,6 +5,7 @@ using ETMS.Entity.Dto.Product.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.External;
+using ETMS.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,16 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new ImportStudentAction();
-                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings);
+                var userInfo = this.HttpContext.Request.GetTokenInfo();
+                var request = new ImportStudentRequest()
+                {
+                    IpAddress = string.Empty,
+                    IsDataLimit = false,
+                    LoginTenantId = userInfo.Item1,
+                    LoginUserId = userInfo.Item2
+                };
+                _importBLL.InitTenantId(request.LoginTenantId);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL);
             }
             catch (Exception ex)
             {

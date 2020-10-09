@@ -10,5 +10,7 @@ namespace ETMS.IBusiness
     public interface IImportBLL : IBaseBLL
     {
         Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request);
+
+        Task<ResponseBase> ImportStudent(ImportStudentRequest request);
     }
 }

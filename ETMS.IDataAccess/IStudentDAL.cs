@@ -12,6 +12,8 @@ namespace ETMS.IDataAccess
     {
         Task<StudentBucket> GetStudent(long studentId);
 
+        void AddStudent(List<EtStudent> students);
+
         Task<long> AddStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos);
 
         Task<bool> EditStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos);
