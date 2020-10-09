@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
+using ETMS.Entity.Dto.Common.Request;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,26 @@ namespace ETMS.WebApi.Controllers
             {
                 var action = new UploadImgAction();
                 return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
+
+        /// <summary>
+        /// 使用base64方式上传图片
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("upImg2")]
+        public ResponseBase UploadImg2(UploadImg2Request request)
+        {
+            try
+            {
+                var action = new UploadImg2Action();
+                return action.ProcessAction(_httpContextAccessor, _appConfigurtaionServices.AppSettings, request);
             }
             catch (Exception ex)
             {
