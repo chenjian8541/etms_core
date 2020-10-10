@@ -80,6 +80,20 @@ namespace ETMS.Business
             });
         }
 
+        public async Task<ResponseBase> GetLoginInfoH5(GetLoginInfoRequest request)
+        {
+            var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
+            var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            return ResponseBase.Success(new GetLoginInfoH5Output()
+            {
+                Name = userInfo.Name,
+                NickName = userInfo.NickName,
+                AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
+                Phone = userInfo.Phone,
+                OrgName = tenant.Name
+            });
+        }
+
         public async Task<ResponseBase> GetLoginPermission(GetLoginPermissionRequest request)
         {
             var user = await _etUserDAL.GetUser(request.LoginUserId);

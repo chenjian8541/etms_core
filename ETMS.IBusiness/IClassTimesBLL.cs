@@ -37,7 +37,9 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassTimesCancelTryClassStudent(ClassTimesCancelTryClassStudentRequest request);
 
-        Task<ResponseBase> ClassTimesGetMy(ClassTimesGetMyRequest request);
+        Task<ResponseBase> ClassTimesGetMyWeek(ClassTimesGetMyRequest request);
+
+        Task<ResponseBase> ClassTimesGetMyOt(ClassTimesGetMyOtRequest request);
 
         Task<ResponseBase> ClassTimesGetOfWeekTimeTeacher(ClassTimesGetOfWeekTimeTeacherRequest request);
 

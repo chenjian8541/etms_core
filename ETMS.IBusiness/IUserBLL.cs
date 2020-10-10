@@ -16,6 +16,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> UpdateUserInfo(UpdateUserInfoRequest request);
 
+        Task<ResponseBase> GetLoginInfoH5(GetLoginInfoRequest request);
+
         //Task<ResponseBase> ChangPwdSendSms(ChangPwdSendSmsRequest request);
 
         Task<ResponseBase> ChangPwd(ChangPwdRequest request);

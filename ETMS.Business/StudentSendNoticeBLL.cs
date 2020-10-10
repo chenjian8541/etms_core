@@ -432,7 +432,14 @@ namespace ETMS.Business
                     {
                         temp.Append(ComBusiness.GetSurplusQuantityDesc(deDay.SurplusQuantity, deDay.SurplusSmallQuantity, deDay.DeType));
                     }
-                    surplusClassTimesDesc = temp.ToString();
+                    if (temp.Length == 0)
+                    {
+                        surplusClassTimesDesc = "0课时";
+                    }
+                    else
+                    {
+                        surplusClassTimesDesc = temp.ToString();
+                    }
                 }
                 req.Students.Add(new NoticeClassCheckSignStudent()
                 {

@@ -467,7 +467,21 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 _classTimesBLL.InitTenantId(request.LoginTenantId);
-                return await _classTimesBLL.ClassTimesGetMy(request);
+                return await _classTimesBLL.ClassTimesGetMyWeek(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassTimesGetMyOt(ClassTimesGetMyOtRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.ClassTimesGetMyOt(request);
             }
             catch (Exception ex)
             {
@@ -524,6 +538,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _classRecordBLL.InitTenantId(request.LoginTenantId);
                 return await _classRecordBLL.ClassRecordGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingH5Request request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordGetPagingH5(request);
             }
             catch (Exception ex)
             {

@@ -91,6 +91,27 @@ namespace ETMS.WebApi.Controllers
         }
 
         /// <summary>
+        /// 短信登陆H5
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [ActionName("smsLoginH5")]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ResponseBase> UserLoginBySmsH5(UserLoginBySmsH5Request request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserLoginBySmsH5(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        /// <summary>
         /// 获取登陆信息
         /// </summary>
         /// <param name="request"></param>
@@ -103,6 +124,27 @@ namespace ETMS.WebApi.Controllers
             {
                 _userBLL.InitTenantId(request.LoginTenantId);
                 return await _userBLL.GetLoginInfo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        /// <summary>
+        /// 获取登陆信息
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [ActionName("loginInfoH5")]
+        [HttpPost]
+        public async Task<ResponseBase> GetLoginInfoH5(GetLoginInfoRequest request)
+        {
+            try
+            {
+                _userBLL.InitTenantId(request.LoginTenantId);
+                return await _userBLL.GetLoginInfoH5(request);
             }
             catch (Exception ex)
             {

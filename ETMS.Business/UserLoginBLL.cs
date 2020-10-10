@@ -193,6 +193,27 @@ namespace ETMS.Business
             return response.GetResponseSuccess(userLoginOutput);
         }
 
+        public async Task<ResponseBase> UserLoginBySmsH5(UserLoginBySmsH5Request request)
+        {
+            var res = await UserLoginBySms(new UserLoginBySmsRequest()
+            {
+                Code = request.Code,
+                IpAddress = request.IpAddress,
+                Phone = request.Phone,
+                SmsCode = request.SmsCode
+            });
+            if (res.IsResponseSuccess())
+            {
+                var result = (UserLoginOutput)res.resultData;
+                return ResponseBase.Success(new UserLoginBySmsH5Output()
+                {
+                    ExpiresTime = result.ExpiresTime,
+                    Token = result.Token
+                });
+            }
+            return res;
+        }
+
         private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress, string code, string phone)
         {
             var token = JwtHelper.GenerateToken(userInfo.TenantId, userInfo.Id, out var exTime);

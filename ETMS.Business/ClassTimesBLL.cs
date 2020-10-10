@@ -767,10 +767,84 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> ClassTimesGetMy(ClassTimesGetMyRequest request)
+        public async Task<ResponseBase> ClassTimesGetMyWeek(ClassTimesGetMyRequest request)
         {
             request.TeacherId = request.LoginUserId;
             return await ClassTimestableMgrGet(request);
+        }
+
+        public async Task<ResponseBase> ClassTimesGetMyOt(ClassTimesGetMyOtRequest request)
+        {
+            request.TeacherId = request.LoginUserId;
+            var classTimesData = (await _classTimesDAL.GetList(request)).OrderByDescending(p => p.ClassOt).ThenBy(p => p.StartTime);
+            var output = new List<ClassTimesGetOfWeekTimeItem>();
+            if (classTimesData != null && classTimesData.Any())
+            {
+                var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempClass = new DataTempBox<EtClass>();
+                foreach (var classTimes in classTimesData)
+                {
+                    var classRoomIdsDesc = string.Empty;
+                    var courseListDesc = string.Empty;
+                    var courseStyleColor = string.Empty;
+                    var className = string.Empty;
+                    var teachersDesc = string.Empty;
+                    var etClass = await ComBusiness.GetClass(tempClass, _classDAL, classTimes.ClassId);
+                    var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
+                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                    className = etClass.Name;
+                    courseListDesc = courseInfo.Item1;
+                    courseStyleColor = courseInfo.Item2;
+                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                    if (string.IsNullOrEmpty(courseStyleColor))
+                    {
+                        courseStyleColor = "#1E90FF";
+                    }
+                    if (classTimes.Status == EmClassTimesStatus.BeRollcall)
+                    {
+                        courseStyleColor = "#C0C4CC";
+                    }
+                    var classTimesDesc = string.Empty;
+                    if (string.IsNullOrEmpty(teachersDesc))
+                    {
+                        classTimesDesc = className;
+                    }
+                    else
+                    {
+                        classTimesDesc = $"{className}({teachersDesc})";
+                    }
+                    var temp = new ClassTimesGetOfWeekTimeItem()
+                    {
+                        CId = classTimes.Id,
+                        ClassContent = classTimes.ClassContent,
+                        ClassId = classTimes.ClassId,
+                        ClassName = className,
+                        ClassOt = classTimes.ClassOt.EtmsToDateString(),
+                        ClassRoomIds = classTimes.ClassRoomIds,
+                        ClassRoomIdsDesc = classRoomIdsDesc,
+                        CourseList = classTimes.CourseList,
+                        CourseListDesc = courseListDesc,
+                        ClassTimesColor = courseStyleColor,
+                        EndTime = EtmsHelper.GetTimeDesc(classTimes.EndTime),
+                        StartTime = EtmsHelper.GetTimeDesc(classTimes.StartTime),
+                        Startop = EtmsHelper.GetTimeDesc(classTimes.StartTime),
+                        Status = classTimes.Status,
+                        Week = classTimes.Week,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
+                        TimeDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                        TeacherNum = classTimes.TeacherNum,
+                        Teachers = classTimes.Teachers,
+                        TeachersDesc = teachersDesc,
+                        Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
+                        ClassTimesDesc = classTimesDesc,
+                        DefaultClassTimes = etClass.DefaultClassTimes
+                    };
+                    output.Add(temp);
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         private async Task<ResponseBase> ClassTimestableMgrGet(RequestBase request)
