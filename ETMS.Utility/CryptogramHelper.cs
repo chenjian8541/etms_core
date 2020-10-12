@@ -176,6 +176,26 @@ namespace ETMS.Utility
         }
 
         /// <summary>
+        /// SHA1加密
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string EncryptSHA1(string str)
+        {
+            using (var sha1 = SHA1.Create())
+            {
+                var buffer = Encoding.UTF8.GetBytes(str);
+                var SHA1buffer = sha1.ComputeHash(buffer);
+                var newstr = new StringBuilder();
+                for (int i = 0; i < SHA1buffer.Length; i++)
+                {
+                    newstr.Append(SHA1buffer[i].ToString("x2"));
+                }
+                return newstr.ToString();
+            }
+        }
+
+        /// <summary>
         /// 静态构造函数
         /// 初始化默认key
         /// </summary>

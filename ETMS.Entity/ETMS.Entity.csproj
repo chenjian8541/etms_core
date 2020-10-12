@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Dto\Wx\Output\" />
     <Folder Include="EtmsManage\Dto\TenantManage\Output\" />
     <Folder Include="Web\" />
   </ItemGroup>

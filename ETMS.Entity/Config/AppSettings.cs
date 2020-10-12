@@ -37,6 +37,18 @@ namespace ETMS.Entity.Config
         /// 家长端配置
         /// </summary>
         public ParentConfig ParentConfig { get; set; }
+
+        public WxConfig WxConfig { get; set; }
+    }
+
+    public class WxConfig {
+        public string Token { get; set; }
+
+        public string EncodingAESKey { get; set; }
+
+        public string Appid { get; set; }
+
+        public string Secret { get; set; }
     }
 
     public class ServerConfig
