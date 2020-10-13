@@ -17,5 +17,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request);
 
         ResponseBase ParentRefreshToken(ParentRefreshTokenRequest request);
+
+        ResponseBase ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request);
+
+        Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request);
+
+        Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request);
     }
 }

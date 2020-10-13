@@ -1,5 +1,7 @@
 ﻿using ETMS.Utility;
 using System;
+using WxApi;
+using WxApi.ReceiveEntity;
 
 namespace ETMS.WxApi
 {
@@ -22,6 +24,18 @@ namespace ETMS.WxApi
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 获取AccessToken
+        /// </summary>
+        /// <param name="appid"></param>
+        /// <param name="appSecret"></param>
+        /// <returns></returns>
+        public static AccessToken GetAccessToken(string appid, string appSecret)
+        {
+            var url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", appid, appSecret);
+            return Utils.GetResult<AccessToken>(url);
         }
     }
 }

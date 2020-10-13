@@ -165,5 +165,23 @@ namespace ETMS.DataAccess
             await base.UpdateCache(_tenantId, studentId);
             return true;
         }
+
+        public async Task UpdateStudentIsBindingWechat(List<long> studentIds)
+        {
+            var sql = string.Empty;
+            if (studentIds.Count == 1)
+            {
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.Yes} WHERE Id = {studentIds[0]}";
+            }
+            else
+            {
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.Yes} WHERE Id IN ({string.Join(',', studentIds)})";
+            }
+            await _dbWrapper.Execute(sql);
+            foreach (var studentId in studentIds)
+            {
+                await base.UpdateCache(_tenantId, studentId);
+            }
+        }
     }
 }

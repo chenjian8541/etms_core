@@ -23,9 +23,9 @@ namespace ETMS.Entity.Dto.Product.Request
             {
                 return "名称不能为空";
             }
-            if (Price <= 0)
+            if (Price < 0)
             {
-                return "零售单价必须大于0";
+                return "零售单价必须大于等于0";
             }
             return base.Validate();
         }

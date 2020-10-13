@@ -32,6 +32,16 @@ namespace ETMS.Entity.Database.Manage
         public string WechatOpenid { get; set; }
 
         /// <summary>
+        /// 昵称
+        /// </summary>
+        public string Nickname { get; set; }
+
+        /// <summary>
+        /// 头像
+        /// </summary>
+        public string Headimgurl { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

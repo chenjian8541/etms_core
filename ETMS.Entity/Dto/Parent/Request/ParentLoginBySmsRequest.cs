@@ -13,6 +13,8 @@ namespace ETMS.Entity.Dto.Parent.Request
 
         public string SmsCode { get; set; }
 
+        public string StudentWechartId { get; set; }
+
         public string IpAddress { get; set; }
 
         public string Validate()
@@ -28,6 +30,10 @@ namespace ETMS.Entity.Dto.Parent.Request
             if (string.IsNullOrEmpty(SmsCode))
             {
                 return "验证码不能为空";
+            }
+            if (string.IsNullOrEmpty(StudentWechartId))
+            {
+                return "请先授权用户信息";
             }
             return string.Empty;
         }

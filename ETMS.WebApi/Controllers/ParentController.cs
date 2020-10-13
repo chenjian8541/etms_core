@@ -90,6 +90,47 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public ResponseBase ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
+        {
+            try
+            {
+                return _parentBLL.ParentGetAuthorizeUrl(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
+        {
+            try
+            {
+                return await _parentBLL.ParentLoginByCode(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request)
+        {
+            try
+            {
+                return await _parentBLL.ParentInfoGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentListGet(StudentListGetRequest request)
         {
             try

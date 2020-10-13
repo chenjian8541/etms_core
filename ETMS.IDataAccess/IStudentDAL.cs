@@ -39,5 +39,7 @@ namespace ETMS.IDataAccess
         Task<bool> EditStudentLearningManager(List<long> studentIds, long newLearningManager);
 
         Task<bool> EditStudentType(long studentId, byte newStudentType, DateTime? endClassOt );
+
+        Task UpdateStudentIsBindingWechat(List<long> studentIds);
     }
 }

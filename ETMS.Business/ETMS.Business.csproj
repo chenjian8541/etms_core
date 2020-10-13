@@ -19,6 +19,7 @@
     <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
     <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+    <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
   </ItemGroup>
 
 </Project>
