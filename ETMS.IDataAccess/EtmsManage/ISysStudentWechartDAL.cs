@@ -14,6 +14,8 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task AddSysStudentWechart(SysStudentWechart entity);
 
+        Task EditSysStudentWechart(SysStudentWechart entity);
+
         Task DelSysStudentWechart(string openid);
     }
 }

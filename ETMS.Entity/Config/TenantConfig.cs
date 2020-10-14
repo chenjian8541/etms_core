@@ -179,6 +179,11 @@ namespace ETMS.Entity.Config
         /// 学员请假审核结果通知(微信)
         /// </summary>
         public bool StudentAskForLeaveCheckWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 微信推送后缀
+        /// </summary>
+        public string WeChatNoticeRemark { get; set; }
     }
 
     public class ClassCheckSignConfig

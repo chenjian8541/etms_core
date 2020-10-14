@@ -4,19 +4,33 @@ using System.Text;
 
 namespace ETMS.Entity.ExternalService.Dto.Request
 {
-    public class NoticeStudentLeaveApplyRequest
+    public class NoticeStudentLeaveApplyRequest: NoticeRequestBase
     {
+        public NoticeStudentLeaveApplyRequest(int tenantId) : base(tenantId)
+        {
+        }
+
         public string TimeDesc { get; set; }
+
+        public string StartTimeDesc { get; set; }
+
+        public string EndTimeDesc { get; set; }
 
         public List<NoticeStudentLeaveApplyStudent> Students { get; set; }
     }
 
     public class NoticeStudentLeaveApplyStudent
     {
+        public string OpendId { get; set; }
+
         public string Name { get; set; }
 
         public string Phone { get; set; }
 
         public string HandleStatusDesc { get; set; }
+
+        public byte HandleStatus { get; set; }
+
+        public string HandleUser { get; set; }
     }
 }

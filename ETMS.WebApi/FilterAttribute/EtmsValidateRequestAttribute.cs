@@ -8,6 +8,7 @@ using ETMS.IOC;
 using ETMS.IBusiness;
 using System;
 using ETMS.Utility;
+using Newtonsoft.Json;
 
 namespace ETMS.WebApi.FilterAttribute
 {
@@ -32,7 +33,7 @@ namespace ETMS.WebApi.FilterAttribute
                     context.Result = new JsonResult(new ResponseBase().GetResponseBadRequest(errMsg));
                     return;
                 }
-                Log.Debug(validateRequest, this.GetType());
+                Log.Debug($"[OnActionExecuting]action:{context.ActionDescriptor.DisplayName},参数:{JsonConvert.SerializeObject(validateRequest)}", this.GetType());
                 if (context.ActionArguments.First().Value is RequestBase)
                 {
                     var request = context.ActionArguments.First().Value as RequestBase;

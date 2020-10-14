@@ -242,7 +242,7 @@ namespace ETMS.Business
             var response = await CheckParentCouponsReceive(coupons, request.StudentId, request.CouponsId);
             if (!response.IsResponseSuccess())
             {
-                Log.Debug($"{request.Id},{response.message}", this.GetType());
+                Log.Info($"{request.Id},{response.message}", this.GetType());
                 return;
             }
             await _couponsDAL.AddCouponsGetCount(request.CouponsId, 1);

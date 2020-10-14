@@ -21,7 +21,7 @@ namespace ETMS.DataAccess.EtmsManage
         {
             var initSql = EtmsSourceScript.InitSql;
             var processSql = string.Format(initSql, tenantId, tenantName, userName, userPhone);
-            Log.Debug(processSql, this.GetType());
+            Log.Info(processSql, this.GetType());
             var sqls = processSql.Split("GO");
             using (var ts = GetTransactionScope())
             {

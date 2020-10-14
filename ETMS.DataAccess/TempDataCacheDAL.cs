@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.CacheBucket.TempShortTime;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using System;
@@ -29,6 +30,17 @@ namespace ETMS.DataAccess
             };
             var key = bucket.GetKeyFormat(tenantId, classOt);
             _cacheProvider.Set(tenantId, key, bucket, bucket.TimeOut);
+        }
+
+        public WxGzhAccessTokenBucket GetWxGzhAccessTokenBucket(string appid)
+        {
+            return _cacheProvider.Get<WxGzhAccessTokenBucket>(0, new WxGzhAccessTokenBucket().GetKeyFormat(appid));
+        }
+
+        public void SetWxGzhAccessTokenBucket(WxGzhAccessTokenBucket bucket, string appid)
+        {
+            var key = bucket.GetKeyFormat(appid);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace WxApi
         /// <returns></returns>
         public static List<StoreCategory> GetCategory()
         {
-            return JsonConvert.DeserializeObject<List<StoreCategory>>(Code.StoreCategory);
+            return new List<StoreCategory>();
         }
 
         public static Business GetPoi(string poiId, string accessToken)

@@ -134,7 +134,7 @@ namespace ETMS.ExternalService.Implement
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
                     {
-                        Log.Debug($"NoticeStudentsOfClassBeforeDay发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                        Log.Info($"NoticeStudentsOfClassBeforeDay发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
                 }
                 return SmsOutput.Success();
@@ -175,7 +175,7 @@ namespace ETMS.ExternalService.Implement
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
                     {
-                        Log.Debug($"NoticeStudentsOfClassToday发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                        Log.Info($"NoticeStudentsOfClassToday发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
                 }
                 return SmsOutput.Success();
@@ -209,7 +209,7 @@ namespace ETMS.ExternalService.Implement
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
                     {
-                        Log.Debug($"[NoticeClassCheckSign]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                        Log.Info($"[NoticeClassCheckSign]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
                 }
                 return SmsOutput.Success();
@@ -242,7 +242,7 @@ namespace ETMS.ExternalService.Implement
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
                     {
-                        Log.Debug($"[NoticeStudentLeaveApply]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                        Log.Info($"[NoticeStudentLeaveApply]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
                 }
                 return SmsOutput.Success();
@@ -275,7 +275,7 @@ namespace ETMS.ExternalService.Implement
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
                     {
-                        Log.Debug($"[NoticeStudentContracts]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                        Log.Info($"[NoticeStudentContracts]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
                 }
                 return SmsOutput.Success();

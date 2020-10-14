@@ -208,7 +208,7 @@ namespace ETMS.Business
 
             var arrearsSum = aptSum - paySum;
             var status = EmOrderStatus.Normal;
-            if (paySum == 0)
+            if (paySum == 0 && aptSum > 0)
             {
                 status = EmOrderStatus.Unpaid;
             }

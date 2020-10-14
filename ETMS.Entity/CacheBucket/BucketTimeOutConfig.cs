@@ -30,5 +30,10 @@ namespace ETMS.Entity.CacheBucket
         /// 上课提醒数据
         /// </summary>
         public const int TempStudentClassNotice = 4;
+
+        /// <summary>
+        /// 微信access_token过期时间(2小时)
+        /// </summary>
+        public const int WxAccessTokenBucket = 2;
     }
 }

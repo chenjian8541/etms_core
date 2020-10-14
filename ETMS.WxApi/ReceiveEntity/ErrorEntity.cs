@@ -33,17 +33,7 @@ namespace WxApi.ReceiveEntity
         {
             get
             {
-                if (_errorDic != null&&_errorDic.Count>0)
-                    return _errorDic;
-                _errorDic = new Dictionary<int, string>();
-                var temp = Code.CodeInfo.Split(new char[]{'\r','\n'},
-                    StringSplitOptions.RemoveEmptyEntries);
-                foreach (var strArr in temp.Select(str => str.Split(new char[] { '\t', ' ' },
-                    StringSplitOptions.RemoveEmptyEntries)))
-                {
-                    _errorDic.Add(int.Parse(strArr[0]),strArr[1]);
-                }
-                return _errorDic;
+                return new Dictionary<int, string>();
             }
         }
     }

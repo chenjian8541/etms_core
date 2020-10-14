@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ETMS.IDataAccess;
+using System.Threading.Tasks;
 
 namespace ETMS.Business.Common
 {
@@ -24,6 +26,24 @@ namespace ETMS.Business.Common
 
         internal static string GetParentTeacherName(EtUser user)
         {
+            if (user == null)
+            {
+                return string.Empty;
+            }
+            if (string.IsNullOrEmpty(user.NickName))
+            {
+                return user.Name;
+            }
+            return user.NickName;
+        }
+
+        internal static async Task<string> GetParentTeacherName(IUserDAL userDAL, long? userId)
+        {
+            if (userId == null)
+            {
+                return string.Empty;
+            }
+            var user = await userDAL.GetUser(userId.Value);
             if (user == null)
             {
                 return string.Empty;

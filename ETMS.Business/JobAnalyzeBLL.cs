@@ -174,7 +174,7 @@ namespace ETMS.Business
             }
             if (studentCourseDetail.LastJobProcessTime != null && studentCourseDetail.LastJobProcessTime >= request.DeTime)
             {
-                Log.Debug($"[定时扣减学员剩余课程,重复处理],tenantId:{request.TenantId},StudentCourseDetailId:{request.StudentCourseDetailId}", this.GetType());
+                Log.Info($"[定时扣减学员剩余课程,重复处理],tenantId:{request.TenantId},StudentCourseDetailId:{request.StudentCourseDetailId}", this.GetType());
                 return;
             }
             if (studentCourseDetail.DeType != EmDeClassTimesType.Day)

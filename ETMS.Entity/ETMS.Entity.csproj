@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+    <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
   </ItemGroup>
 
 </Project>

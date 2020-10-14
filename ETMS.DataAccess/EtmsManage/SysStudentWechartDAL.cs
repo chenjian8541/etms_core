@@ -26,6 +26,11 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Insert(entity);
         }
 
+        public async Task EditSysStudentWechart(SysStudentWechart entity)
+        {
+            await this.Update(entity);
+        }
+
         public async Task DelSysStudentWechart(string openid)
         {
             await this.Execute($"DELETE SysStudentWechart WHERE WechatOpenid = '{openid}'");

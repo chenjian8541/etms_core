@@ -14,6 +14,8 @@ namespace ETMS.Event.DataContract
         public bool IsSendSms { get; set; }
 
         public bool IsSendWeChat { get; set; }
+
+        public string WeChatNoticeRemark { get; set; }
     }
 }
 

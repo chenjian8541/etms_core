@@ -105,6 +105,15 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> WeChatNoticeRemarkSave(WeChatNoticeRemarkSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentNoticeConfig.WeChatNoticeRemark = request.WeChatNoticeRemark;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentCourseRenewalConfigSave(StudentCourseRenewalConfigSaveRequest request)
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
@@ -186,5 +195,7 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "家长端设置-首页banner图设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
+
+
     }
 }

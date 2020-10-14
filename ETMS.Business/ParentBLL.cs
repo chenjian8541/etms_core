@@ -121,6 +121,8 @@ namespace ETMS.Business
                 _studentWechatDAL.InitTenantId(tenantId);
                 _studentDAL.InitTenantId(tenantId);
                 var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(studentWechartId.ToLong());
+                sysStudentWechartLog.TenantId = tenantId;
+                await _sysStudentWechartDAL.EditSysStudentWechart(sysStudentWechartLog);
                 await _studentWechatDAL.DelStudentWechat(phone, sysStudentWechartLog.WechatOpenid);
                 await _studentWechatDAL.AddStudentWechat(new Entity.Database.Source.EtStudentWechat()
                 {
@@ -181,17 +183,17 @@ namespace ETMS.Business
         {
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             var url = OAuth.GetAuthUrl(wxConfig.Appid, request.SourceUrl, "1", AuthType.snsapi_userinfo);
-            Log.Debug($"[家长端获取授权地址]{url}", this.GetType());
+            Log.Info($"[家长端获取授权地址]{url}", this.GetType());
             return ResponseBase.Success(url);
         }
 
         public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
         {
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            Log.Debug($"家长端通过code登录请求:{request.Code}", this.GetType());
+            Log.Info($"家长端通过code登录请求:{request.Code}", this.GetType());
             var authToken = OAuth.GetAuthToken(wxConfig.Appid, wxConfig.Secret, request.Code);
             var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(authToken.openid);
-            if (sysStudentWechartLog == null)
+            if (sysStudentWechartLog == null || sysStudentWechartLog.TenantId == 0)
             {
                 return await ResetSysStudentWechart(authToken);
             }

@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.CacheBucket.TempShortTime;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,9 @@ namespace ETMS.IDataAccess
         NoticeStudentsOfClassDayBucket GetNoticeStudentsOfClassDayBucket(int tenantId, DateTime classOt);
 
         void SetNoticeStudentsOfClassDayBucket(int tenantId, DateTime classOt);
+
+        WxGzhAccessTokenBucket GetWxGzhAccessTokenBucket(string appid);
+
+        void SetWxGzhAccessTokenBucket(WxGzhAccessTokenBucket bucket, string appid);
     }
 }

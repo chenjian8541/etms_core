@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ETMS.LOG;
 using Newtonsoft.Json;
 using WxApi.MsgEntity;
 using WxApi.ReceiveEntity;
@@ -20,10 +21,7 @@ namespace WxApi
         {
             get
             {
-                if (_IndustryList == null)
-                    _IndustryList =
-                        JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, int>>>(Code.IndustryCode);
-                return _IndustryList;
+                return new Dictionary<string, Dictionary<string, int>>();
             }
         }
         /// <summary>
@@ -35,7 +33,7 @@ namespace WxApi
         public static ErrorEntity SetIndustry(string id1, string id2, string accessToken)
         {
             var url = string.Format("https://api.weixin.qq.com/cgi-bin/template/api_set_industry?access_token={0}", accessToken);
-            var json = new  {industry_id1 = id1,industry_id2 = id2 };
+            var json = new { industry_id1 = id1, industry_id2 = id2 };
             return Utils.PostResult<ErrorEntity>(json, url);
         }
         /// <summary>
@@ -65,13 +63,18 @@ namespace WxApi
             var turl = string.Format("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={0}", accessToken);
             var json = new
             {
-                touser=touser,
-                template_id=template_id,
-                url=url,
-                topcolor=topcolor,
-                data=dataKeys
+                touser = touser,
+                template_id = template_id,
+                url = url,
+                topcolor = topcolor,
+                data = dataKeys
             };
-            return Utils.PostResult<TemplateMsg>(json, turl);
+            var result = Utils.PostResult<TemplateMsg>(json, turl);
+            if (result.ErrCode != 0)
+            {
+                Log.Info($"[TemplateNotice_Send发送失败]request:{JsonConvert.SerializeObject(json)},result:{JsonConvert.SerializeObject(result)}", typeof(TemplateNotice));
+            }
+            return result;
         }
     }
 }

@@ -41,7 +41,8 @@ namespace ETMS.Entity.Config
         public WxConfig WxConfig { get; set; }
     }
 
-    public class WxConfig {
+    public class WxConfig
+    {
         public string Token { get; set; }
 
         public string EncodingAESKey { get; set; }
@@ -49,6 +50,25 @@ namespace ETMS.Entity.Config
         public string Appid { get; set; }
 
         public string Secret { get; set; }
+
+        public TemplateNoticeConfig TemplateNoticeConfig { get; set; }
+    }
+
+    public class TemplateNoticeConfig
+    {
+        public string NoticeStudentsOfClass { get; set; }
+
+        public string StudentContracts { get; set; }
+
+        public string StudentLeaveApply { get; set; }
+
+        public string ClassCheckSign { get; set; }
+
+        public string ClassRecordDetailFrontUrl { get; set; }
+
+        public string StudentLeaveApplyDetailFrontUrl { get; set; }
+
+        public string StudentOrderDetailFrontUrl { get; set; }
     }
 
     public class ServerConfig

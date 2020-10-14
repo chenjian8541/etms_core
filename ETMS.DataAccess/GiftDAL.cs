@@ -74,7 +74,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> AddGiftExchange(EtGiftExchangeLog giftExchangeLog, List<EtGiftExchangeLogDetail> giftExchangeLogDetails)
         {
-            LOG.Log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(giftExchangeLog), this.GetType());
+            LOG.Log.Info(Newtonsoft.Json.JsonConvert.SerializeObject(giftExchangeLog), this.GetType());
             await _dbWrapper.Insert(giftExchangeLog);
             foreach (var detail in giftExchangeLogDetails)
             {
