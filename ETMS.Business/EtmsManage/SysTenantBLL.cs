@@ -75,7 +75,7 @@ namespace ETMS.Business.EtmsManage
                     Phone = p.Phone,
                     Remark = p.Remark,
                     SmsCount = p.SmsCount,
-                    Status = p.Status,
+                    Status = EmSysTenantStatus.GetSysTenantStatus(p.Status, p.ExDate),
                     StatusDesc = EmSysTenantStatus.GetSysTenantStatusDesc(p.Status, p.ExDate),
                     TenantCode = p.TenantCode,
                     VersionDesc = version?.Name,
@@ -215,7 +215,7 @@ namespace ETMS.Business.EtmsManage
                 Phone = tenant.Phone,
                 Remark = tenant.Remark,
                 SmsCount = tenant.SmsCount,
-                Status = tenant.Status,
+                Status = EmSysTenantStatus.GetSysTenantStatus(tenant.Status, tenant.ExDate),
                 TenantCode = tenant.TenantCode,
                 VersionName = version?.Name,
                 SmsSignature = tenant.SmsSignature

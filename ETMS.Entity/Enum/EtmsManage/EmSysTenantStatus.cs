@@ -21,6 +21,15 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const byte Expired = 2;
 
+        public static byte GetSysTenantStatus(byte t, DateTime exDate)
+        {
+            if (exDate < DateTime.Now.Date)
+            {
+                return Expired;
+            }
+            return t;
+        }
+
         public static string GetSysTenantStatusDesc(byte t, DateTime exDate)
         {
             if (exDate < DateTime.Now.Date)

@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.Business
 {
@@ -71,6 +73,10 @@ namespace ETMS.Business
             {
                 return response;
             }
+            if (!CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return response.GetResponseError(myMsg);
+            }
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
             var userInfo = await _etUserDAL.GetUser(request.Phone);
@@ -112,6 +118,27 @@ namespace ETMS.Business
             return true;
         }
 
+        private bool CheckTenantCanLogin(SysTenant sysTenant, out string msg)
+        {
+            msg = string.Empty;
+            if (sysTenant == null)
+            {
+                msg = "机构不存在,无法登陆";
+                return false;
+            }
+            if (sysTenant.ExDate < DateTime.Now.Date)
+            {
+                msg = "机构已过期,无法登陆";
+                return false;
+            }
+            if (sysTenant.Status == EmSysTenantStatus.IsLock)
+            {
+                msg = "机构已锁定,无法登陆";
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// 账户是否允许登录
         /// </summary>
@@ -138,6 +165,10 @@ namespace ETMS.Business
             if (sysTenantInfo == null)
             {
                 return response;
+            }
+            if (!CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return response.GetResponseError(myMsg);
             }
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
@@ -172,6 +203,10 @@ namespace ETMS.Business
             if (sysTenantInfo == null)
             {
                 return response;
+            }
+            if (!CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return response.GetResponseError(myMsg);
             }
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
@@ -242,6 +277,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> CheckUserCanLogin(RequestBase request)
         {
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (!CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
             _etUserDAL.InitTenantId(request.LoginTenantId);
             var user = await _etUserDAL.GetUser(request.LoginUserId);
             if (!CheckUserCanLogin(user, out var msg))
