@@ -5,6 +5,8 @@ using System.Text;
 using System.Linq;
 using ETMS.IDataAccess;
 using System.Threading.Tasks;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.Business.Common
 {
@@ -53,6 +55,27 @@ namespace ETMS.Business.Common
                 return user.Name;
             }
             return user.NickName;
+        }
+
+        internal static bool CheckTenantCanLogin(SysTenant sysTenant, out string msg)
+        {
+            msg = string.Empty;
+            if (sysTenant == null)
+            {
+                msg = "机构不存在,无法登陆";
+                return false;
+            }
+            if (sysTenant.ExDate < DateTime.Now.Date)
+            {
+                msg = "机构已过期,无法登陆";
+                return false;
+            }
+            if (sysTenant.Status == EmSysTenantStatus.IsLock)
+            {
+                msg = "机构已锁定,无法登陆";
+                return false;
+            }
+            return true;
         }
     }
 }

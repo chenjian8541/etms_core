@@ -67,6 +67,13 @@ namespace ETMS.WebApi.FilterAttribute
                         return;
                     }
                     var parentBLL = CustomServiceLocator.GetInstance<IParentBLL>();
+                    var checkParentCanLoginResult = parentBLL.CheckParentCanLogin(request).Result;
+                    if (!checkParentCanLoginResult.IsResponseSuccess())
+                    {
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
+                        context.Result = new JsonResult(checkParentCanLoginResult);
+                        return;
+                    }
                     var myStudents = parentBLL.GetMyStudent(request).Result;
                     if (myStudents == null || !myStudents.Any())
                     {

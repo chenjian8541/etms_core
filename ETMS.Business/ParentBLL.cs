@@ -72,6 +72,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("机构不存在");
             }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
             _parentStudentDAL.InitTenantId(sysTenantInfo.Id);
             var students = await _parentStudentDAL.UpdateCacheAndGetParentStudents(sysTenantInfo.Id, request.Phone);
             if (students == null || !students.Any())
@@ -98,6 +102,10 @@ namespace ETMS.Business
             if (sysTenantInfo == null)
             {
                 return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
             }
             var loginSms = _parentLoginSmsCodeDAL.GetParentLoginSmsCode(request.Code, request.Phone);
             if (loginSms == null || loginSms.ExpireAtTime < DateTime.Now || loginSms.SmsCode != request.SmsCode)
@@ -197,6 +205,11 @@ namespace ETMS.Business
             {
                 return await ResetSysStudentWechart(authToken);
             }
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(sysStudentWechartLog.TenantId);
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
             _studentWechatDAL.InitTenantId(sysStudentWechartLog.TenantId);
             var myStudentWechatLog = await _studentWechatDAL.GetStudentWechat(authToken.openid);
             if (myStudentWechatLog == null)
@@ -252,6 +265,16 @@ namespace ETMS.Business
                 output.Phone = myStudentWechat.Phone;
             }
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> CheckParentCanLogin(ParentRequestBase request)
+        {
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            return ResponseBase.Success();
         }
     }
 }
