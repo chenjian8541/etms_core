@@ -164,8 +164,25 @@ namespace ETMS.Utility
 
         public static bool IsMobilePhone(string input)
         {
-            var regex = new Regex("^1[34578]\\d{9}$");
+            var regex = new Regex("^1[3456789]\\d{9}$");
             return regex.IsMatch(input);
+        }
+
+        public static bool CheckIsDigitOrLetter(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return true;
+            }
+            var pattern = @"^[a-zA-Z0-9]*$";
+            if (Regex.IsMatch(str, pattern))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

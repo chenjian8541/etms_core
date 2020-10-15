@@ -1,0 +1,166 @@
+﻿[
+  {
+    "Id": 1,
+    "Name": "机构",
+    "Type": 0,
+    "ChildrenPage": [
+      {
+        "Id": 2,
+        "Name": "机构列表",
+        "Type": 0
+      },
+      {
+        "Id": 3,
+        "Name": "授权变动记录",
+        "Type": 0
+      },
+      {
+        "Id": 4,
+        "Name": "短信变动记录",
+        "Type": 0
+      }
+    ],
+    "ChildrenAction": [
+      {
+        "ActionId": 1,
+        "Name": "添加机构",
+        "Type": 1
+      },
+      {
+        "ActionId": 17,
+        "Name": "设置机构到期时间",
+        "Type": 1
+      },
+      {
+        "ActionId": 2,
+        "Name": "编辑机构",
+        "Type": 1
+      },
+      {
+        "ActionId": 3,
+        "Name": "删除机构",
+        "Type": 1
+      },
+      {
+        "ActionId": 4,
+        "Name": "机构授权充值",
+        "Type": 1
+      },
+      {
+        "ActionId": 5,
+        "Name": "机构短信管理",
+        "Type": 1
+      }
+    ]
+  },
+  {
+    "Id": 5,
+    "Name": "代理商",
+    "Type": 0,
+    "ChildrenPage": [
+      {
+        "Id": 6,
+        "Name": "授权变动记录",
+        "Type": 0
+      },
+      {
+        "Id": 7,
+        "Name": "短信变动记录",
+        "Type": 0
+      }
+    ]
+  },
+  {
+    "Id": 8,
+    "Name": "系统设置",
+    "Type": 0,
+    "ChildrenPage": [
+      {
+        "Id": 9,
+        "Name": "版本设置",
+        "Type": 0,
+        "ChildrenAction": [
+          {
+            "ActionId": 6,
+            "Name": "添加版本",
+            "Type": 1
+          },
+          {
+            "ActionId": 7,
+            "Name": "编辑版本",
+            "Type": 1
+          },
+          {
+            "ActionId": 8,
+            "Name": "删除版本",
+            "Type": 1
+          }
+        ]
+      },
+      {
+        "Id": 10,
+        "Name": "代理商管理",
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 11,
+            "Name": "代理商列表",
+            "Type": 0
+          },
+          {
+            "Id": 12,
+            "Name": "角色管理",
+            "Type": 0
+          }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 9,
+            "Name": "添加代理商",
+            "Type": 1
+          },
+          {
+            "ActionId": 10,
+            "Name": "编辑代理商",
+            "Type": 1
+          },
+          {
+            "ActionId": 11,
+            "Name": "删除代理商",
+            "Type": 1
+          },
+          {
+            "ActionId": 12,
+            "Name": "代理商授权管理",
+            "Type": 1
+          },
+          {
+            "ActionId": 13,
+            "Name": "代理商短信管理",
+            "Type": 1
+          },
+          {
+            "ActionId": 14,
+            "Name": "添加角色",
+            "Type": 1
+          },
+          {
+            "ActionId": 15,
+            "Name": "编辑角色",
+            "Type": 1
+          },
+          {
+            "ActionId": 16,
+            "Name": "删除角色",
+            "Type": 1
+          }
+        ]
+      },
+      {
+        "Id": 13,
+        "Name": "操作日志",
+        "Type": 0
+      }
+    ]
+  }
+]

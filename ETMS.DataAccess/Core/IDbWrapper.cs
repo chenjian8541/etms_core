@@ -134,6 +134,13 @@ namespace ETMS.DataAccess.Core
         Task<int> Execute(string commandText);
 
         /// <summary>
+        /// 执行SQL返回受影响的行数
+        /// </summary>
+        /// <param name="commandText"></param>
+        /// <returns></returns>
+        int ExecuteSync(string commandText);
+
+        /// <summary>
         /// 分页获取数据
         /// </summary>
         /// <typeparam name="T"></typeparam>

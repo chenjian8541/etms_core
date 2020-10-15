@@ -9,12 +9,32 @@ namespace ETMS.Entity.Database.Manage
     /// 机构
     /// </summary>
     [Table("SysTenant")]
-    public class SysTenant
+    public class SysTenant : EManageEntity<int>
     {
         /// <summary>
-        /// 主键
+        /// 所属代理商
         /// </summary>
-        public int Id { get; set; }
+        public int AgentId { get; set; }
+
+        /// <summary>
+        /// etms系统版本
+        /// </summary>
+        public int VersionId { get; set; }
+
+        /// <summary>
+        /// 过期日期
+        /// </summary>
+        public DateTime ExDate { get; set; }
+
+        /// <summary>
+        /// 短信数量
+        /// </summary>
+        public int SmsCount { get; set; }
+
+        /// <summary>
+        /// 状态 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
 
         /// <summary>
         /// 机构名称
@@ -42,13 +62,23 @@ namespace ETMS.Entity.Database.Manage
         public int ConnectionId { get; set; }
 
         /// <summary>
-        /// 备注
+        /// 联系人名称
         /// </summary>
-        public string Remark { get; set; }
+        public string LinkMan { get; set; }
 
         /// <summary>
-        /// 数据状态
+        /// 身份证号码
         /// </summary>
-        public byte IsDeleted { get; set; }
+        public string IdCard { get; set; }
+
+        /// <summary>
+        /// 地址
+        /// </summary>
+        public string Address { get; set; }
+
+        /// <summary>
+        /// 短信签名
+        /// </summary>
+        public string SmsSignature { get; set; }
     }
 }

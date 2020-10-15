@@ -12,6 +12,9 @@ using System.Linq;
 using ETMS.DataAccess.Lib;
 using ETMS.Entity.Config;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Entity.EtmsManage.Common;
+using ETMS.Entity.EtmsManage.View;
+using ETMS.Utility;
 
 namespace ETMS.DataAccess.EtmsManage
 {
@@ -24,37 +27,69 @@ namespace ETMS.DataAccess.EtmsManage
         }
         protected override async Task<SysTenantBucket> GetDb(params object[] keys)
         {
-            var sysTenants = await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal);
+            var id = keys[0].ToInt();
+            var sysTenant = await this.Find<SysTenant>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
             return new SysTenantBucket()
             {
-                SysTenants = sysTenants
+                SysTenant = sysTenant
             };
         }
 
         public async Task<SysTenant> GetTenant(string tenantCode)
         {
-            var sysTenantBucket = await base.GetCache();
-            return sysTenantBucket.SysTenants.FirstOrDefault(p => p.TenantCode == tenantCode);
+            return await this.Find<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.TenantCode == tenantCode);
         }
 
         public async Task<SysTenant> GetTenant(int id)
         {
-            var sysTenantBucket = await base.GetCache();
-            return sysTenantBucket.SysTenants.FirstOrDefault(p => p.Id == id);
+            var bucket = await base.GetCache(id);
+            return bucket?.SysTenant;
         }
 
         public async Task<List<SysTenant>> GetTenants()
         {
-            var sysTenantBucket = await base.GetCache();
-            return sysTenantBucket.SysTenants;
+            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal);
         }
 
         public async Task<int> AddTenant(SysTenant sysTenant)
         {
             await this.Insert(sysTenant);
-            await UpdateCache(new SysTenantBucket().GetKeyFormat());
+            await UpdateCache(sysTenant.Id);
             await _tenantConfigWrapper.TenantConnectionUpdate();
             return sysTenant.Id;
+        }
+
+        public async Task<bool> EditTenant(SysTenant sysTenant)
+        {
+            await this.Update(sysTenant);
+            await UpdateCache(sysTenant.Id);
+            await _tenantConfigWrapper.TenantConnectionUpdate();
+            return true;
+        }
+
+        public async Task<bool> DelTenant(SysTenant sysTenant)
+        {
+            sysTenant.IsDeleted = EmIsDeleted.Normal;
+            await this.Update(sysTenant);
+            RemoveCache(sysTenant.Id);
+            return true;
+        }
+
+        public async Task<Tuple<IEnumerable<SysTenantView>, int>> GetPaging(AgentPagingBase request)
+        {
+            return await this.ExecutePage<SysTenantView>("SysTenantView", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<bool> ExistPhone(string phone, int id = 0)
+        {
+            var oldLog = await this.Find<SysTenant>(p => p.Phone == phone && p.Id != id);
+            return oldLog != null;
+        }
+
+        public async Task<bool> ExistTenantCode(string tenantCode)
+        {
+            var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode);
+            return oldLog != null;
         }
     }
 }

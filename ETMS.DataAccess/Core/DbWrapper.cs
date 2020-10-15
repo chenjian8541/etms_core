@@ -292,6 +292,16 @@ namespace ETMS.DataAccess.Core
         }
 
         /// <summary>
+        /// 执行SQL返回受影响的行数
+        /// </summary>
+        /// <param name="commandText"></param>
+        /// <returns></returns>
+        public int ExecuteSync(string commandText)
+        {
+            return DapperProvider.ExecuteSync(ConnectionString, commandText);
+        }
+
+        /// <summary>
         /// 分页获取数据
         /// </summary>
         /// <typeparam name="T"></typeparam>

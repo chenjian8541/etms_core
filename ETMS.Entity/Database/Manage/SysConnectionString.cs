@@ -9,13 +9,8 @@ namespace ETMS.Entity.Database.Manage
     /// 数据库配置
     /// </summary>
     [Table("SysConnectionString")]
-    public class SysConnectionString
+    public class SysConnectionString : EManageEntity<int>
     {
-        /// <summary>
-        /// 主键
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// 索引
         /// </summary>
@@ -35,15 +30,5 @@ namespace ETMS.Entity.Database.Manage
         /// 连接字符串
         /// </summary>
         public string Value { get; set; }
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Remark { get; set; }
-
-        /// <summary>
-        /// 数据状态  <see cref="ETMS.Entity.Enum.EmIsDeleted"/>
-        /// </summary>
-        public byte IsDeleted { get; set; }
     }
 }

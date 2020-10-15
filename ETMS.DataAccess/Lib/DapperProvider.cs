@@ -89,6 +89,20 @@ namespace ETMS.DataAccess.Lib
         /// <param name="conStr"></param>
         /// <param name="commandText"></param>
         /// <returns></returns>
+        internal static int ExecuteSync(string conStr, string commandText)
+        {
+            using (var connection = new SqlConnection(conStr))
+            {
+                return connection.Execute(commandText, commandTimeout: commandTimeout);
+            }
+        }
+
+        /// <summary>
+        /// 执行SQL返回受影响的行数
+        /// </summary>
+        /// <param name="conStr"></param>
+        /// <param name="commandText"></param>
+        /// <returns></returns>
         private static async Task<int> Execute(DbConnection connection, string commandText)
         {
             return await connection.ExecuteAsync(commandText, commandTimeout: commandTimeout);

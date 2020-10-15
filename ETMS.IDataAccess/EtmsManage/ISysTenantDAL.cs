@@ -1,4 +1,6 @@
 ﻿using ETMS.Entity.Database.Manage;
+using ETMS.Entity.EtmsManage.Common;
+using ETMS.Entity.EtmsManage.View;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,5 +16,15 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<List<SysTenant>> GetTenants();
 
         Task<int> AddTenant(SysTenant sysTenant);
+
+        Task<bool> EditTenant(SysTenant sysTenant);
+
+        Task<bool> DelTenant(SysTenant sysTenant);
+
+        Task<Tuple<IEnumerable<SysTenantView>, int>> GetPaging(AgentPagingBase request);
+
+        Task<bool> ExistPhone(string phone, int id = 0);
+
+        Task<bool> ExistTenantCode(string tenantCode);
     }
 }

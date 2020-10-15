@@ -9,13 +9,8 @@ namespace ETMS.Entity.Database.Manage
     /// 家长微信绑定机构
     /// </summary>
     [Table("SysStudentWechart")]
-    public class SysStudentWechart
+    public class SysStudentWechart: EManageEntity<long>
     {
-        /// <summary>
-        /// 主键
-        /// </summary>
-        public long Id { get; set; }
-
         /// <summary>
         /// 机构ID
         /// </summary>
@@ -40,15 +35,5 @@ namespace ETMS.Entity.Database.Manage
         /// 头像
         /// </summary>
         public string Headimgurl { get; set; }
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Remark { get; set; }
-
-        /// <summary>
-        /// 数据状态  <see cref="ETMS.Entity.Enum.EmIsDeleted"/>
-        /// </summary>
-        public byte IsDeleted { get; set; }
     }
 }

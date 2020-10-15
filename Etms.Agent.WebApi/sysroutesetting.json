@@ -1,0 +1,174 @@
+﻿[
+  {
+    "Id": 1,
+    "Path": "/tenant",
+    "Name": "tenant",
+    "Type": 0,
+    "Meta": {
+      "Title": "机构",
+      "Icon": "tenant"
+    },
+    "Children": [
+      {
+        "Id": 2,
+        "Path": "tenantList",
+        "Name": "tenantList",
+        "Type": 1,
+        "Component": "@/views/TenantMgr/TenantList",
+        "Meta": {
+          "Title": "机构列表",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 3,
+        "Path": "tenantEtmsAccountLog",
+        "Name": "tenantEtmsAccountLog",
+        "Type": 1,
+        "Component": "@/views/TenantMgr/TenantEtmsAccountLog",
+        "Meta": {
+          "Title": "授权变动记录",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 4,
+        "Path": "tenantSmsLog",
+        "Name": "tenantSmsLog",
+        "Type": 1,
+        "Component": "@/views/TenantMgr/TenantSmsLog",
+        "Meta": {
+          "Title": "短信变动记录",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
+    "Id": 5,
+    "Path": "/agent",
+    "Name": "agent",
+    "Type": 0,
+    "Meta": {
+      "Title": "代理商",
+      "Icon": "agent"
+    },
+    "Children": [
+      {
+        "Id": 6,
+        "Path": "etmsLog",
+        "Name": "etmsLog",
+        "Type": 1,
+        "Component": "@/views/agentMgr/etmsLog",
+        "Meta": {
+          "Title": "授权变动记录",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 7,
+        "Path": "smsLog",
+        "Name": "smsLog",
+        "Type": 1,
+        "Component": "@/views/agentMgr/smsLog",
+        "Meta": {
+          "Title": "短信变动记录",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
+    "Id": 8,
+    "Path": "/systemMgr",
+    "Name": "systemMgr",
+    "Type": 0,
+    "Meta": {
+      "Title": "系统设置",
+      "Icon": "tenantset"
+    },
+    "Children": [
+      {
+        "Id": 9,
+        "Path": "versionMgr",
+        "Name": "versionMgr",
+        "Type": 1,
+        "Component": "@/views/sysMgr/versionMgr",
+        "Meta": {
+          "Title": "版本设置",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "versionEdit/:cId",
+        "Name": "versionEdit",
+        "Type": 1,
+        "Component": "@/components/sysMgr/versionEdit",
+        "Meta": {
+          "Title": "编辑版本",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "versionAdd",
+        "Name": "versionAdd",
+        "Type": 1,
+        "Component": "@/components/sysMgr/versionEdit",
+        "Meta": {
+          "Title": "添加版本",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 10,
+        "Path": "agentMgr",
+        "Name": "agentMgr",
+        "Type": 1,
+        "Component": "@/views/sysMgr/agentMgr",
+        "Meta": {
+          "Title": "代理商管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "roleAdd",
+        "Name": "roleAdd",
+        "Type": 1,
+        "Component": "@/components/sysMgr/roleEdit",
+        "Meta": {
+          "Title": "添加角色",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "roleEdit/:cid",
+        "Name": "roleEdit",
+        "Type": 1,
+        "Component": "@/components/sysMgr/roleEdit",
+        "Meta": {
+          "Title": "编辑角色",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 13,
+        "Path": "oplog",
+        "Name": "oplog",
+        "Type": 1,
+        "Component": "@/views/sysMgr/opLogMgr",
+        "Meta": {
+          "Title": "操作日志",
+          "Icon": "item"
+        }
+      }
+    ]
+  }
+]
