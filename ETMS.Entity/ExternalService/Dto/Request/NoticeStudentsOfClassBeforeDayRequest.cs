@@ -21,6 +21,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 
     public class NoticeStudentsOfClassBeforeDayStudent
     {
+        public long StudentId { get; set; }
+
         public string OpendId { get; set; }
 
         public string Phone { get; set; }

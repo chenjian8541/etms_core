@@ -1,11 +1,15 @@
 ﻿using ETMS.Entity.Config;
+using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
 using ETMS.Entity.ExternalService.Dto.Output;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Request;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Request.TemplatesParms;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Response;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 using ETMS.LOG;
 using ETMS.Utility;
 using System;
@@ -23,11 +27,15 @@ namespace ETMS.ExternalService.Implement
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
-        public SmsService(IAppConfigurtaionServices appConfigurtaionServices, IHttpClient httpClient, ISysTenantDAL sysTenantDAL)
+        private readonly IEventPublisher _eventPublisher;
+
+        public SmsService(IAppConfigurtaionServices appConfigurtaionServices, IHttpClient httpClient, ISysTenantDAL sysTenantDAL,
+            IEventPublisher eventPublisher)
         {
             this._smsConfig = appConfigurtaionServices.AppSettings.SmsConfig;
             this._httpClient = httpClient;
             this._sysTenantDAL = sysTenantDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         private Tuple<string, string> GetTKeyAndPwd()
@@ -123,10 +131,17 @@ namespace ETMS.ExternalService.Implement
 
         public async Task<SmsOutput> NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[SmsService]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
-                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
                 var smsSignature = _smsConfig.ZhuTong.Signature;
                 if (!string.IsNullOrEmpty(myTenant.SmsSignature))
                 {
@@ -158,6 +173,21 @@ namespace ETMS.ExternalService.Implement
                     {
                         Log.Info($"NoticeStudentsOfClassBeforeDay发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.NoticeStudentsOfClassBeforeDay
+                        });
+                    }
                 }
                 return SmsOutput.Success();
             }
@@ -166,14 +196,28 @@ namespace ETMS.ExternalService.Implement
                 Log.Error($"NoticeStudentsOfClassBeforeDay发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
             }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
+            }
         }
 
         public async Task<SmsOutput> NoticeStudentsOfClassToday(NoticeStudentsOfClassTodayRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[SmsService]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
-                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
                 var smsSignature = _smsConfig.ZhuTong.Signature;
                 if (!string.IsNullOrEmpty(myTenant.SmsSignature))
                 {
@@ -205,6 +249,21 @@ namespace ETMS.ExternalService.Implement
                     {
                         Log.Info($"NoticeStudentsOfClassToday发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.NoticeStudentsOfClassToday
+                        });
+                    }
                 }
                 return SmsOutput.Success();
             }
@@ -213,14 +272,28 @@ namespace ETMS.ExternalService.Implement
                 Log.Error($"NoticeStudentsOfClassToday发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
             }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
+            }
         }
 
         public async Task<SmsOutput> NoticeClassCheckSign(NoticeClassCheckSignRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[SmsService]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
-                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
                 var smsSignature = _smsConfig.ZhuTong.Signature;
                 if (!string.IsNullOrEmpty(myTenant.SmsSignature))
                 {
@@ -245,6 +318,21 @@ namespace ETMS.ExternalService.Implement
                     {
                         Log.Info($"[NoticeClassCheckSign]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.NoticeClassCheckSign
+                        });
+                    }
                 }
                 return SmsOutput.Success();
             }
@@ -253,14 +341,28 @@ namespace ETMS.ExternalService.Implement
                 Log.Error($"[NoticeClassCheckSign]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
             }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
+            }
         }
 
         public async Task<SmsOutput> NoticeStudentLeaveApply(NoticeStudentLeaveApplyRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[SmsService]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
-                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
                 var smsSignature = _smsConfig.ZhuTong.Signature;
                 if (!string.IsNullOrEmpty(myTenant.SmsSignature))
                 {
@@ -284,6 +386,21 @@ namespace ETMS.ExternalService.Implement
                     {
                         Log.Info($"[NoticeStudentLeaveApply]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.NoticeStudentLeaveApply
+                        });
+                    }
                 }
                 return SmsOutput.Success();
             }
@@ -292,14 +409,28 @@ namespace ETMS.ExternalService.Implement
                 Log.Error($"[NoticeStudentLeaveApply]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
             }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
+            }
         }
 
         public async Task<SmsOutput> NoticeStudentContracts(NoticeStudentContractsRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[SmsService]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
-                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
                 var smsSignature = _smsConfig.ZhuTong.Signature;
                 if (!string.IsNullOrEmpty(myTenant.SmsSignature))
                 {
@@ -323,6 +454,21 @@ namespace ETMS.ExternalService.Implement
                     {
                         Log.Info($"[NoticeStudentContracts]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
                     }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.NoticeStudentContracts
+                        });
+                    }
                 }
                 return SmsOutput.Success();
             }
@@ -330,6 +476,13 @@ namespace ETMS.ExternalService.Implement
             {
                 Log.Error($"[NoticeStudentContracts]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
+            }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
             }
         }
     }

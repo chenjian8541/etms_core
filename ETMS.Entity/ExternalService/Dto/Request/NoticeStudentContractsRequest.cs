@@ -25,6 +25,7 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 
     public class NoticeStudentContractsStudent
     {
+        public long StudentId { get; set; }
 
         public string OpendId { get; set; }
 

@@ -26,5 +26,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<bool> ExistPhone(string phone, int id = 0);
 
         Task<bool> ExistTenantCode(string tenantCode);
+
+        Task<bool> TenantSmsDeduction(int id, int deSmsCount);
     }
 }

@@ -21,6 +21,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 
     public class NoticeClassCheckSignStudent
     {
+        public long StudentId { get; set; }
+
         public string OpendId { get; set; }
 
         public string Name { get; set; }

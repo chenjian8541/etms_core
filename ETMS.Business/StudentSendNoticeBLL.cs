@@ -178,6 +178,7 @@ namespace ETMS.Business
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassBeforeDayStudent()
                     {
+                        StudentId = student.Id,
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
@@ -187,6 +188,7 @@ namespace ETMS.Business
                     {
                         smsReq.Students.Add(new NoticeStudentsOfClassBeforeDayStudent()
                         {
+                            StudentId = student.Id,
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
@@ -212,6 +214,7 @@ namespace ETMS.Business
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassBeforeDayStudent()
                     {
+                        StudentId = student.Id,
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
@@ -221,6 +224,7 @@ namespace ETMS.Business
                     {
                         smsReq.Students.Add(new NoticeStudentsOfClassBeforeDayStudent()
                         {
+                            StudentId = student.Id,
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
@@ -363,6 +367,7 @@ namespace ETMS.Business
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassTodayStudent()
                     {
+                        StudentId = student.Id,
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
@@ -372,6 +377,7 @@ namespace ETMS.Business
                     {
                         smsReq.Students.Add(new NoticeStudentsOfClassTodayStudent()
                         {
+                            StudentId = student.Id,
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
@@ -397,6 +403,7 @@ namespace ETMS.Business
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassTodayStudent()
                     {
+                        StudentId = student.Id,
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
@@ -406,6 +413,7 @@ namespace ETMS.Business
                     {
                         smsReq.Students.Add(new NoticeStudentsOfClassTodayStudent()
                         {
+                            StudentId = student.Id,
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
@@ -509,6 +517,7 @@ namespace ETMS.Business
                 }
                 req.Students.Add(new NoticeClassCheckSignStudent()
                 {
+                    StudentId = student.Id,
                     CourseName = courseName,
                     Name = student.Name,
                     Phone = student.Phone,
@@ -523,6 +532,7 @@ namespace ETMS.Business
                 {
                     req.Students.Add(new NoticeClassCheckSignStudent()
                     {
+                        StudentId = student.Id,
                         CourseName = courseName,
                         Name = student.Name,
                         Phone = student.PhoneBak,
@@ -586,6 +596,7 @@ namespace ETMS.Business
             var handleUser = await ComBusiness2.GetParentTeacherName(_userDAL, request.StudentLeaveApplyLog.HandleUser);
             req.Students.Add(new NoticeStudentLeaveApplyStudent()
             {
+                StudentId = student.Id,
                 HandleStatusDesc = handleStatusDesc,
                 Name = student.Name,
                 Phone = student.Phone,
@@ -597,6 +608,7 @@ namespace ETMS.Business
             {
                 req.Students.Add(new NoticeStudentLeaveApplyStudent()
                 {
+                    StudentId = student.Id,
                     HandleStatusDesc = handleStatusDesc,
                     Name = student.Name,
                     Phone = student.PhoneBak,
@@ -698,6 +710,7 @@ namespace ETMS.Business
             req.BuyDesc = buyDesc.ToString();
             req.Students.Add(new NoticeStudentContractsStudent()
             {
+                StudentId = student.Id,
                 Name = student.Name,
                 Phone = student.Phone,
                 OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.Phone)
@@ -706,6 +719,7 @@ namespace ETMS.Business
             {
                 req.Students.Add(new NoticeStudentContractsStudent()
                 {
+                    StudentId = student.Id,
                     Name = student.Name,
                     Phone = student.PhoneBak,
                     OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.PhoneBak)

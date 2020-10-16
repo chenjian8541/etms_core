@@ -91,5 +91,12 @@ namespace ETMS.DataAccess.EtmsManage
             var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode);
             return oldLog != null;
         }
+
+        public async Task<bool> TenantSmsDeduction(int id, int deSmsCount)
+        {
+            await this.Execute($"UPDATE SysTenant SET SmsCount = SmsCount - {deSmsCount} WHERE Id = {id}");
+            await UpdateCache(id);
+            return true;
+        }
     }
 }
