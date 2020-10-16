@@ -31,8 +31,6 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
-        private readonly ISmsService _smsService;
-
         private readonly IUserChangePwdSmsCodeDAL _userChangePwdSmsCodeDAL;
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
@@ -43,19 +41,21 @@ namespace ETMS.Business
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
-        public UserBLL(IHttpContextAccessor httpContextAccessor, ISmsService smsService, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
+        private readonly IAppAuthorityDAL _appAuthorityDAL;
+
+        public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
-            IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL)
+            IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._etUserDAL = etUserDAL;
-            this._smsService = smsService;
             this._userChangePwdSmsCodeDAL = userChangePwdSmsCodeDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._roleDAL = roleDAL;
             this._subjectDAL = subjectDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._appAuthorityDAL = appAuthorityDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -68,6 +68,7 @@ namespace ETMS.Business
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var myAllRouteConfigs = await _appAuthorityDAL.GetTenantRouteConfig(request.LoginTenantId);
             return ResponseBase.Success(new GetLoginInfoOutput()
             {
                 Name = userInfo.Name,
@@ -75,7 +76,7 @@ namespace ETMS.Business
                 AvatarKey = userInfo.Avatar,
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
-                RouteConfigs = ComBusiness.GetRouteConfigs(role.AuthorityValueMenu),
+                RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu),
                 OrgName = tenant.Name
             });
         }
@@ -98,7 +99,8 @@ namespace ETMS.Business
         {
             var user = await _etUserDAL.GetUser(request.LoginUserId);
             var role = await _roleDAL.GetRole(user.RoleId);
-            return ResponseBase.Success(ComBusiness.GetPermissionOutput(role.AuthorityValueMenu));
+            var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
+            return ResponseBase.Success(ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu));
         }
 
         public async Task<ResponseBase> UpdateUserInfo(UpdateUserInfoRequest request)
@@ -240,20 +242,21 @@ namespace ETMS.Business
             var actionWeight = myAuthorityValueMenu[1].ToBigInteger();
             var authorityCorePage = new AuthorityCore(pageWeight);
             var authorityCoreAction = new AuthorityCore(actionWeight);
-            var myMenuConfigs = EtmsHelper.DeepCopy(PermissionData.MenuConfigs);
-            MenuConfigsHandle(myMenuConfigs, authorityCorePage, authorityCoreAction);
+            var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
+            MenuConfigsHandle(myAllMenus, authorityCorePage, authorityCoreAction);
             return ResponseBase.Success(new RoleGetOutput()
             {
                 Name = role.Name,
                 Remark = role.Remark,
-                Menus = GetRoleMenuViewOutputs(myMenuConfigs),
+                Menus = GetRoleMenuViewOutputs(myAllMenus),
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData)
             });
         }
 
-        public ResponseBase RoleDefaultGet(RoleDefaultGetRequest request)
+        public async Task<ResponseBase> RoleDefaultGet(RoleDefaultGetRequest request)
         {
-            return ResponseBase.Success(GetRoleMenuViewOutputs(PermissionData.MenuConfigs));
+            var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
+            return ResponseBase.Success(GetRoleMenuViewOutputs(myAllMenus));
         }
 
         private List<RoleMenuViewOutput> GetRoleMenuViewOutputs(List<MenuConfig> menuConfigs)

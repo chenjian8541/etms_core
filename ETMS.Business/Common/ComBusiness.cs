@@ -515,11 +515,10 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
-        internal static List<RouteConfig> GetRouteConfigs(string roleAuthorityValueMenu)
+        internal static List<RouteConfig> GetRouteConfigs(List<RouteConfig> pageRoute, string roleAuthorityValueMenu)
         {
             var pageWeight = roleAuthorityValueMenu.Split('|')[2].ToBigInteger();
             var authorityCorePage = new AuthorityCore(pageWeight);
-            var pageRoute = EtmsHelper.DeepCopy(PermissionData.RouteConfigs);
             PageRouteHandle(pageRoute, authorityCorePage);
             return pageRoute;
         }
@@ -539,14 +538,13 @@ namespace ETMS.Business.Common
             }
         }
 
-        internal static PermissionOutput GetPermissionOutput(string roleAuthorityValueMenu)
+        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, string roleAuthorityValueMenu)
         {
             var strMenuCategory = roleAuthorityValueMenu.Split('|');
             var pageWeight = strMenuCategory[2].ToBigInteger();
             var actionWeight = strMenuCategory[1].ToBigInteger();
             var authorityCoreLeafPage = new AuthorityCore(pageWeight);
             var authorityCoreActionPage = new AuthorityCore(actionWeight);
-            var menus = EtmsHelper.DeepCopy(PermissionData.MenuConfigs);
             var output = new PermissionOutput()
             {
                 Action = new List<int>(),

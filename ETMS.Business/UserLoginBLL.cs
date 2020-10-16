@@ -42,9 +42,12 @@ namespace ETMS.Business
 
         private readonly IRoleDAL _roleDAL;
 
+        private readonly IAppAuthorityDAL _appAuthorityDAL;
+
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL)
+            ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
+            IAppAuthorityDAL appAuthorityDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._etUserDAL = etUserDAL;
@@ -54,6 +57,7 @@ namespace ETMS.Business
             this._smsService = smsService;
             this._userLoginSmsCodeDAL = userLoginSmsCodeDAL;
             this._roleDAL = roleDAL;
+            this._appAuthorityDAL = appAuthorityDAL;
         }
 
         /// <summary>
@@ -246,11 +250,12 @@ namespace ETMS.Business
             });
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(userInfo.TenantId);
             return new UserLoginOutput()
             {
                 Token = token,
                 ExpiresTime = exTime,
-                Permission = ComBusiness.GetPermissionOutput(role.AuthorityValueMenu)
+                Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu)
             };
         }
 

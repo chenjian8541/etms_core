@@ -309,12 +309,12 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public ResponseBase RoleDefaultGet(RoleDefaultGetRequest request)
+        public async Task<ResponseBase> RoleDefaultGet(RoleDefaultGetRequest request)
         {
             try
             {
                 _userBLL.InitTenantId(request.LoginTenantId);
-                return _userBLL.RoleDefaultGet(request);
+                return await _userBLL.RoleDefaultGet(request);
             }
             catch (Exception ex)
             {

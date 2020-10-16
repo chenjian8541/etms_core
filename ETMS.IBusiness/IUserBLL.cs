@@ -32,7 +32,7 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> RoleGet(RoleGetRequest request);
 
-        ResponseBase RoleDefaultGet(RoleDefaultGetRequest request);
+        Task<ResponseBase> RoleDefaultGet(RoleDefaultGetRequest request);
 
         Task<ResponseBase> RoleDel(RoleDelRequest request);
 

@@ -330,7 +330,7 @@ INSERT [EtRole] ([TenantId],
                  [AuthorityValueData],
                  [Remark],
                  [IsDeleted])
-VALUES ('{0}', N'校长', N'18446744073709551614|1073741822|18446744073709551614', N'0', N'校长', 0);
+VALUES ('{0}', N'校长', N'73786976294838206462|4398046511102|73786976294838206462', N'0', N'校长', 0);
 GO
 --[EtUser]
 INSERT [EtUser] ([TenantId],

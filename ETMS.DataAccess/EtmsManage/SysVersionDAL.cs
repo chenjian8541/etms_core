@@ -17,8 +17,16 @@ namespace ETMS.DataAccess.EtmsManage
 {
     public class SysVersionDAL : BaseCacheDAL<SysVersionBucket>, ISysVersionDAL, IEtmsManage
     {
-        public SysVersionDAL(ICacheProvider cacheProvider) : base(cacheProvider)
+        private readonly ISysVersionMenuConfigDAL _sysVersionMenuConfigDAL;
+
+        private readonly ISysVersionRouteConfigDAL _sysVersionRouteConfigDAL;
+
+        public SysVersionDAL(ICacheProvider cacheProvider,
+            ISysVersionMenuConfigDAL sysVersionMenuConfigDAL,
+            ISysVersionRouteConfigDAL sysVersionRouteConfigDAL) : base(cacheProvider)
         {
+            this._sysVersionMenuConfigDAL = sysVersionMenuConfigDAL;
+            this._sysVersionRouteConfigDAL = sysVersionRouteConfigDAL;
         }
 
         protected override async Task<SysVersionBucket> GetDb(params object[] keys)
@@ -50,6 +58,8 @@ namespace ETMS.DataAccess.EtmsManage
         {
             await this.Insert(entity);
             await UpdateCache();
+            await _sysVersionMenuConfigDAL.Update(entity.Id);
+            await _sysVersionRouteConfigDAL.Update(entity.Id);
             return true;
         }
 
@@ -57,6 +67,8 @@ namespace ETMS.DataAccess.EtmsManage
         {
             await this.Update(entity);
             await UpdateCache();
+            await _sysVersionMenuConfigDAL.Update(entity.Id);
+            await _sysVersionRouteConfigDAL.Update(entity.Id);
             return true;
         }
 
