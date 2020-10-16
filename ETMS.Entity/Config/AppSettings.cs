@@ -189,6 +189,11 @@ namespace ETMS.Entity.Config
         /// EtmsManage库连接字符串
         /// </summary>
         public string EtmsManageConnectionString { get; set; }
+
+        /// <summary>
+        /// hangfire jobs setting
+        /// </summary>
+        public string EtmsHangfireJobConnectionString { get; set; }
     }
 
     /// <summary>

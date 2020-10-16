@@ -49,7 +49,7 @@ namespace ETMS.DaemonService
         {
             //appsettings
             var appsettingsJson = File.ReadAllText(FileHelper.GetFilePath("appsettings.json"));
-            var appSettings = JsonConvert.DeserializeObject<AppSettings>(appsettingsJson);
+            var appSettings = JsonConvert.DeserializeObject<MyAppSettings>(appsettingsJson).AppSettings;
             var appConfigurtaionServices = new AppConfigurtaionServices(null) { AppSettings = appSettings };
             container.RegisterInstance(appConfigurtaionServices).As<IAppConfigurtaionServices>();
             //RedisConfig

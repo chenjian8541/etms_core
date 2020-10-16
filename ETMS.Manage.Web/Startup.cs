@@ -33,11 +33,9 @@ namespace ETMS.Manage.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var manageSettingsSection = Configuration.GetSection("ManageSettings");
-            services.Configure<ManageSettings>(manageSettingsSection);
-            services.AddHangfire(x => x.UseSqlServerStorage(manageSettingsSection.Get<ManageSettings>().EtmsHangfireJobConnectionString));
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
+            services.AddHangfire(x => x.UseSqlServerStorage(appSettingsSection.Get<AppSettings>().DatabseConfig.EtmsHangfireJobConnectionString));
             services.AddSession();
             services.AddResponseCompression();
             services.AddResponseCaching();
