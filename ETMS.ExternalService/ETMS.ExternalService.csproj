@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
     <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
   </ItemGroup>

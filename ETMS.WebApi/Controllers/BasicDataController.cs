@@ -43,10 +43,13 @@ namespace ETMS.WebApi.Controllers
         private readonly IAppConfigBLL _appConfigBLL;
 
         private readonly IIncomeProjectTypeBLL _incomeProjectTypeBLL;
+
+        private readonly ITenantBLL _tenantBLL;
+
         public BasicDataController(IHolidaySettingBLL holidaySettingBLL, IStudentExtendFieldBLL studentExtendFieldBLL, ISubjectBLL subjectBLL,
             IStudentSourceBLL studentSourceBLL, IGradeBLL gradeBLL, IClassSetBLL classSetBLL, IStudentGrowingTagBLL studentGrowingTagBLL,
             IClassRoomBLL classRoomBLL, IStudentTagBLL studentTagBLL, IStudentRelationshipBLL studentRelationshipBLL, IClassCategoryBLL classCategoryBLL,
-            IGiftCategoryBLL giftCategoryBLL, IAppConfigBLL appConfigBLL, IIncomeProjectTypeBLL incomeProjectTypeBLL)
+            IGiftCategoryBLL giftCategoryBLL, IAppConfigBLL appConfigBLL, IIncomeProjectTypeBLL incomeProjectTypeBLL, ITenantBLL tenantBLL)
         {
             this._holidaySettingBLL = holidaySettingBLL;
             this._studentExtendFieldBLL = studentExtendFieldBLL;
@@ -62,6 +65,7 @@ namespace ETMS.WebApi.Controllers
             this._giftCategoryBLL = giftCategoryBLL;
             this._appConfigBLL = appConfigBLL;
             this._incomeProjectTypeBLL = incomeProjectTypeBLL;
+            this._tenantBLL = tenantBLL;
         }
 
         /// <summary>
@@ -829,6 +833,20 @@ namespace ETMS.WebApi.Controllers
             {
                 this._appConfigBLL.InitTenantId(request.LoginTenantId);
                 return await _appConfigBLL.ParentBannerSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantGet(TenantGetRequest request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return await _tenantBLL.TenantGet(request);
             }
             catch (Exception ex)
             {

@@ -5,6 +5,7 @@ using ETMS.ExternalService.Contract;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Request;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Request.TemplatesParms;
 using ETMS.ExternalService.ExProtocol.ZhuTong.Response;
+using ETMS.IDataAccess.EtmsManage;
 using ETMS.LOG;
 using ETMS.Utility;
 using System;
@@ -20,10 +21,13 @@ namespace ETMS.ExternalService.Implement
 
         private readonly IHttpClient _httpClient;
 
-        public SmsService(IAppConfigurtaionServices appConfigurtaionServices, IHttpClient httpClient)
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        public SmsService(IAppConfigurtaionServices appConfigurtaionServices, IHttpClient httpClient, ISysTenantDAL sysTenantDAL)
         {
             this._smsConfig = appConfigurtaionServices.AppSettings.SmsConfig;
             this._httpClient = httpClient;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         private Tuple<string, string> GetTKeyAndPwd()
@@ -38,12 +42,18 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 var sendSmsRequest = new SendSmsTpRequest<ValidCode>()
                 {
                     username = _smsConfig.ZhuTong.UserName,
                     password = tKeyAndPwd.Item2,
                     tKey = tKeyAndPwd.Item1,
-                    signature = _smsConfig.ZhuTong.Signature,
+                    signature = smsSignature,
                     tpId = _smsConfig.ZhuTong.TemplatesLogin.TpId,
                     records = new List<Records<ValidCode>>() {
                      new Records<ValidCode>(){
@@ -74,12 +84,18 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 var sendSmsRequest = new SendSmsTpRequest<ValidCode>()
                 {
                     username = _smsConfig.ZhuTong.UserName,
                     password = tKeyAndPwd.Item2,
                     tKey = tKeyAndPwd.Item1,
-                    signature = _smsConfig.ZhuTong.Signature,
+                    signature = smsSignature,
                     tpId = _smsConfig.ZhuTong.TemplatesParentLogin.TpId,
                     records = new List<Records<ValidCode>>() {
                      new Records<ValidCode>(){
@@ -110,6 +126,12 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 foreach (var student in request.Students)
                 {
                     var sendSmsRequest = new SendSmsRequest()
@@ -129,7 +151,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassBeforeDay.HasRoom, student.StudentName, request.ClassTimeDesc, student.CourseName, request.ClassRoom);
                     }
-                    content = $"{_smsConfig.ZhuTong.Signature}{content}";
+                    content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
@@ -151,6 +173,12 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 foreach (var student in request.Students)
                 {
                     var sendSmsRequest = new SendSmsRequest()
@@ -170,7 +198,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassToday.HasRoom, student.StudentName, student.CourseName, request.ClassTimeDesc, request.ClassRoom);
                     }
-                    content = $"{_smsConfig.ZhuTong.Signature}{content}";
+                    content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
@@ -192,6 +220,12 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 foreach (var student in request.Students)
                 {
                     var sendSmsRequest = new SendSmsRequest()
@@ -204,7 +238,7 @@ namespace ETMS.ExternalService.Implement
                     };
                     var content = string.Format(_smsConfig.ZhuTong.ClassCheckSign.Com, student.Name, request.ClassTimeDesc, student.CourseName, student.StudentCheckStatusDesc,
                         student.DeClassTimesDesc, student.SurplusClassTimesDesc);
-                    content = $"{_smsConfig.ZhuTong.Signature}{content}";
+                    content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
@@ -226,6 +260,12 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 foreach (var student in request.Students)
                 {
                     var sendSmsRequest = new SendSmsRequest()
@@ -237,7 +277,7 @@ namespace ETMS.ExternalService.Implement
                         username = _smsConfig.ZhuTong.UserName
                     };
                     var content = string.Format(_smsConfig.ZhuTong.StudentLeaveApply.Com, student.Name, request.TimeDesc, student.HandleStatusDesc);
-                    content = $"{_smsConfig.ZhuTong.Signature}{content}";
+                    content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
@@ -259,6 +299,12 @@ namespace ETMS.ExternalService.Implement
             try
             {
                 var tKeyAndPwd = GetTKeyAndPwd();
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
                 foreach (var student in request.Students)
                 {
                     var sendSmsRequest = new SendSmsRequest()
@@ -270,7 +316,7 @@ namespace ETMS.ExternalService.Implement
                         username = _smsConfig.ZhuTong.UserName
                     };
                     var content = string.Format(_smsConfig.ZhuTong.StudentContracts.Com, student.Name, request.TimeDedc, request.BuyDesc, request.AptSumDesc, request.PaySumDesc);
-                    content = $"{_smsConfig.ZhuTong.Signature}{content}";
+                    content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
                     if (!SendSmsRes.IsSuccess(res))
