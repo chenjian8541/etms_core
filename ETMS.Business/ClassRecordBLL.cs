@@ -109,7 +109,7 @@ namespace ETMS.Business
                 IpAddress = request.IpAddress,
                 PageCurrent = request.PageCurrent,
                 PageSize = request.PageSize,
-                TeacherId = request.LoginTenantId,
+                TeacherId = request.LoginUserId,
                 IsDataLimit = true
             };
             return ResponseBase.Success(await ClassRecordGetPaging(req));

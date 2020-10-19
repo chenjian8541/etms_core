@@ -40,6 +40,13 @@ namespace ETMS.DataAccess
             return useLog != null;
         }
 
+        public async Task<bool> IsUserCanNotBeDelete2(long userId)
+        {
+            var sql = $"SELECT TOP 1 0 FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Teachers LIKE '%,{userId},%';";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj != null;
+        }
+
         public async Task<Tuple<IEnumerable<UserOperationLogView>, int>> GetPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<UserOperationLogView>("UserOperationLogView", "*", request.PageSize, request.PageCurrent, "Ot DESC", request.ToString());

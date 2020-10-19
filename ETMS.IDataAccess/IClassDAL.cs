@@ -63,5 +63,7 @@ namespace ETMS.IDataAccess
         Task RemoveStudent(long studentId);
 
         Task<List<EtClass>> GetEtClassByOrderId(long orderId);
+
+        Task<IEnumerable<EtClass>> GetClassOfTeacher(long teacherId);
     }
 }

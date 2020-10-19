@@ -42,5 +42,7 @@ namespace ETMS.IBusiness
         Task SyncClassInfoProcessEvent(SyncClassInfoEvent request);
 
         Task<ResponseBase> ClassTimesRuleGet(ClassTimesRuleGetRequest request);
+
+        Task<ResponseBase> ClassMyGet(ClassMyGetRequest request);
     }
 }

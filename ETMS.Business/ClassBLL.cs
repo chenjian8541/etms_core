@@ -1312,5 +1312,32 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(output);
         }
+
+        public async Task<ResponseBase> ClassMyGet(ClassMyGetRequest request)
+        {
+            var myClass = await _classDAL.GetClassOfTeacher(request.LoginUserId);
+            var classViewList = new List<ClassMyGetOutput>();
+            var classRooms = await _classRoomDAL.GetAllClassRoom();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            foreach (var p in myClass)
+            {
+                classViewList.Add(new ClassMyGetOutput()
+                {
+                    CId = p.Id,
+                    Type = p.Type,
+                    CourseList = p.CourseList,
+                    LimitStudentNums = p.LimitStudentNums,
+                    LimitStudentNumsDesc = p.LimitStudentNums == null ? "未设置" : p.LimitStudentNums.Value.ToString(),
+                    Name = p.Name,
+                    StudentNums = p.StudentNums,
+                    ClassRoomDesc = ComBusiness.GetClassRoomDesc(classRooms, p.ClassRoomIds),
+                    TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers),
+                    CourseDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, p.CourseList),
+                    TypeDesc = EmClassType.GetClassTypeDesc(p.Type)
+                });
+            }
+            return ResponseBase.Success(classViewList);
+        }
     }
 }

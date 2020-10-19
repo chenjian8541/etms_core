@@ -17,6 +17,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> IsUserCanNotBeDelete(long userId);
 
+        Task<bool> IsUserCanNotBeDelete2(long userId);
+
         Task<Tuple<IEnumerable<UserOperationLogView>, int>> GetPaging(RequestPagingBase request);
     }
 }

@@ -448,6 +448,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("用户已使用，不允许删除");
             }
+            if (await _userOperationLogDAL.IsUserCanNotBeDelete2(request.CId))
+            {
+                return ResponseBase.CommonError("此用户存在上课信息，不允许删除");
+            }
             await _etUserDAL.DelUser(request.CId);
             await _userOperationLogDAL.AddUserLog(request, $"删除员工：名称:{user.Name},昵称:{user.NickName},手机号码{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();

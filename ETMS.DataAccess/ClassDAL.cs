@@ -264,5 +264,11 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.FindList<EtClass>(p => p.TenantId == _tenantId && p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);
         }
+
+        public async Task<IEnumerable<EtClass>> GetClassOfTeacher(long teacherId)
+        {
+            var sql = $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND Teachers LIKE '%,{teacherId},%'";
+            return await _dbWrapper.ExecuteObject<EtClass>(sql);
+        }
     }
 }
