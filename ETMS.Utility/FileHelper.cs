@@ -31,15 +31,15 @@ namespace ETMS.Utility
             };
         }
 
-        public static Tuple<string, string> PreProcessImgFolder(string serverPath)
+        public static Tuple<string, string> PreProcessFolder(string serverPath, string folderTag = ImgFolderTag)
         {
             var timeStr = DateTime.Now.ToString("yyyyMMdd");
-            var strFolder = Path.Combine(serverPath, ImgFolderTag, timeStr);
+            var strFolder = Path.Combine(serverPath, folderTag, timeStr);
             if (!Directory.Exists(strFolder))
             {
                 Directory.CreateDirectory(strFolder);
             }
-            return Tuple.Create(strFolder, $"{ImgFolderTag}/{timeStr}/");
+            return Tuple.Create(strFolder, $"{folderTag}/{timeStr}/");
         }
 
         public static string GetFilePath(string filePath)

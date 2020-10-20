@@ -90,6 +90,14 @@ namespace ETMS.Entity.Config
         public string UploadImageFileTypeLimit { get; set; }
 
         public string UploadExcelFileTypeLimit { get; set; }
+
+        public long UploadVideoFileSizeLimit { get; set; }
+
+        public string UploadVideoFileTypeLimit { get; set; }
+
+        public long UploadAudioFileSizeLimit { get; set; }
+
+        public string UploadAudioFileTypeLimit { get; set; }
     }
 
     /// <summary>

@@ -184,5 +184,27 @@ namespace ETMS.Utility
                 return false;
             }
         }
+
+        public static string GetOtFriendlyDesc(DateTime getTime)
+        {
+            var time = DateTime.Now - getTime;
+            if (time.TotalDays > 7)
+            {
+                return getTime.EtmsToMinuteString();
+            }
+            if (time.TotalHours > 24)
+            {
+                return $"{Math.Floor(time.TotalDays)}天前";
+            }
+            if (time.TotalHours > 1)
+            {
+                return $"{Math.Floor(time.TotalHours)}小时前";
+            }
+            if (time.TotalMinutes > 1)
+            {
+                return $"{Math.Floor(time.TotalMinutes)}分钟前";
+            }
+            return $"{Math.Floor(time.TotalSeconds)}秒前";
+        }
     }
 }

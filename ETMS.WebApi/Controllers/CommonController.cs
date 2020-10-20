@@ -67,5 +67,45 @@ namespace ETMS.WebApi.Controllers
                 return new ResponseBase().GetResponseCodeError();
             }
         }
+
+        /// <summary>
+        /// 上传视频文件
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("upVideo")]
+        public async Task<ResponseBase> UploadVideo([FromForm]IFormCollection collection)
+        {
+            try
+            {
+                var action = new UploadVideoAction();
+                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
+
+        /// <summary>
+        /// 上传音频文件
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("upAudio")]
+        public async Task<ResponseBase> UploadAudio([FromForm]IFormCollection collection)
+        {
+            try
+            {
+                var action = new UploadAudioAction();
+                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Common.Output
 {
-    public class UploadImgOutput
+    public class UploadFileOutput
     {
         public string Url { get; set; }
 

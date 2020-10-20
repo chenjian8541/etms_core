@@ -1,9 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Config;
-using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Dto.Common.Output;
 using ETMS.Utility;
-using ETMS.WebApi.Lib;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -13,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.WebApi.Controllers.Common
 {
-    public class UploadImgAction
+    public class UploadAudioAction
     {
         public async Task<ResponseBase> ProcessAction(IFormCollection collection, IHttpContextAccessor _httpContextAccessor, AppSettings appSettings)
         {
@@ -24,16 +22,16 @@ namespace ETMS.WebApi.Controllers.Common
             }
             var file = collection.Files[0];
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
-            if (string.IsNullOrEmpty(fileExtension) || Array.IndexOf(appSettings.StaticFilesConfig.UploadImageFileTypeLimit.Split('|'), fileExtension) == -1)
+            if (string.IsNullOrEmpty(fileExtension) || Array.IndexOf(appSettings.StaticFilesConfig.UploadAudioFileTypeLimit.Split('|'), fileExtension) == -1)
             {
-                return response.GetResponseError("请上传图片文件");
+                return response.GetResponseError("请上传音频文件");
             }
-            if (file.Length > appSettings.StaticFilesConfig.UploadFileSizeLimit)
+            if (file.Length > appSettings.StaticFilesConfig.UploadAudioFileSizeLimit)
             {
                 return response.GetResponseError("文件大小被限制");
             }
             var newFileName = $"{System.Guid.NewGuid().ToString().Replace("-", "")}{fileExtension}";
-            var imgFolderPreInfo = FileHelper.PreProcessFolder(appSettings.StaticFilesConfig.ServerPath);
+            var imgFolderPreInfo = FileHelper.PreProcessFolder(appSettings.StaticFilesConfig.ServerPath, "audio");
             var filePath = Path.Combine(imgFolderPreInfo.Item1, newFileName);
             var urlKey = $"{imgFolderPreInfo.Item2}{newFileName}";
             using (var content = file.OpenReadStream())

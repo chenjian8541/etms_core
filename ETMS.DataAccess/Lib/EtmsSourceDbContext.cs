@@ -98,5 +98,8 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsClassAttendanceTag> EtStatisticsClassAttendanceTags { get; set; }
         public DbSet<EtTempStudentClassNotice> EtTempStudentClassNotices { get; set; }
         public DbSet<EtStudentSmsLog> EtStudentSmsLogs { get; set; }
+        public DbSet<EtActiveHomework> EtActiveHomeworks { get; set; }
+        public DbSet<EtActiveHomeworkDetail> EtActiveHomeworkDetails { get; set; }
+        public DbSet<EtActiveHomeworkDetailComment> EtActiveHomeworkDetailComments { get; set; }
     }
 }

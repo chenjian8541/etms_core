@@ -125,6 +125,9 @@ namespace ETMS.Entity.Enum
         TryCalssApplyLogManage = 68,
 
         [Description("订单管理")]
-        OrderMgr = 69
+        OrderMgr = 69,
+
+        [Description("课后作业")]
+        ActiveHomeworkMgr = 70
     }
 }

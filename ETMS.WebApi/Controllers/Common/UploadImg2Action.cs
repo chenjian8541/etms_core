@@ -18,7 +18,7 @@ namespace ETMS.WebApi.Controllers.Common
         {
             var fileExtension = ".png";
             var newFileName = $"{System.Guid.NewGuid().ToString().Replace("-", "")}{fileExtension}";
-            var imgFolderPreInfo = FileHelper.PreProcessImgFolder(appSettings.StaticFilesConfig.ServerPath);
+            var imgFolderPreInfo = FileHelper.PreProcessFolder(appSettings.StaticFilesConfig.ServerPath);
             var filePath = Path.Combine(imgFolderPreInfo.Item1, newFileName);
             var urlKey = $"{imgFolderPreInfo.Item2}{newFileName}";
             var strBase64 = request.ImgData.Substring(request.ImgData.IndexOf(",") + 1);
@@ -26,7 +26,7 @@ namespace ETMS.WebApi.Controllers.Common
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 stream.Write(imgByte, 0, imgByte.Length);
-                return ResponseBase.Success(new UploadImgOutput()
+                return ResponseBase.Success(new UploadFileOutput()
                 {
                     Key = urlKey,
                     Url = UrlHelper.GetUrl(_httpContextAccessor, appSettings.StaticFilesConfig.VirtualPath, urlKey)
