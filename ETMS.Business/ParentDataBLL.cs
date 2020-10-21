@@ -14,6 +14,8 @@ using ETMS.Business.Common;
 using ETMS.Entity.Database.Source;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
+using ETMS.LOG;
+using Newtonsoft.Json;
 
 namespace ETMS.Business
 {
@@ -47,10 +49,17 @@ namespace ETMS.Business
 
         private readonly IGiftDAL _giftDAL;
 
+        private readonly IActiveHomeworkDAL _activeHomeworkDAL;
+
+        private readonly IActiveHomeworkDetailDAL _activeHomeworkDetailDAL;
+
+        private readonly IStudentWechatDAL _studentWechatDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
-            IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL)
+            IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
+           IStudentWechatDAL studentWechatDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -66,13 +75,16 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._giftCategoryDAL = giftCategoryDAL;
             this._giftDAL = giftDAL;
+            this._activeHomeworkDAL = activeHomeworkDAL;
+            this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
+            this._studentWechatDAL = studentWechatDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentLeaveApplyLogDAL, _parentStudentDAL, _studentDAL,
                 _studentOperationLogDAL, _classTimesDAL, _classRoomDAL, _userDAL, _courseDAL, _classDAL,
-                _tenantConfigDAL, _giftCategoryDAL, _giftDAL);
+                _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL, _studentWechatDAL);
         }
 
         public async Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request)
@@ -252,6 +264,313 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(outPut);
+        }
+
+        public async Task<ResponseBase> HomeworkUnansweredGetPaging(HomeworkUnansweredGetPagingRequest request)
+        {
+            var pagingData = await _activeHomeworkDetailDAL.GetPaging(request);
+            var output = new List<HomeworkUnansweredGetPagingOutput>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            foreach (var p in pagingData.Item1)
+            {
+                var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                if (student == null)
+                {
+                    continue;
+                }
+                var overdueStatusOutput = EmOverdueStatusOutput.GetOverdueStatusOutput(p.ExDate, DateTime.Now);
+                output.Add(new HomeworkUnansweredGetPagingOutput()
+                {
+                    ClassId = p.ClassId,
+                    ClassName = myClass?.Name,
+                    TeacherName = await ComBusiness.GetParentTeacher(tempBoxUser, _userDAL, p.CreateUserId),
+                    ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString(),
+                    OtDesc = p.Ot.EtmsToMinuteString(),
+                    Title = p.Title,
+                    Type = p.Type,
+                    TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
+                    AnswerStatus = p.AnswerStatus,
+                    ReadStatus = p.ReadStatus,
+                    StudentId = p.StudentId,
+                    HomeworkDetailId = p.Id,
+                    HomeworkId = p.HomeworkId,
+                    StudentName = student.Name,
+                    AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
+                    OverdueStatus = overdueStatusOutput.Item1,
+                    OverdueStatusDesc = overdueStatusOutput.Item2
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<HomeworkUnansweredGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> HomeworkAnsweredGetPaging(HomeworkAnsweredGetPagingRequest request)
+        {
+            var pagingData = await _activeHomeworkDetailDAL.GetPaging(request);
+            var output = new List<HomeworkAnsweredGetPagingOutput>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            foreach (var p in pagingData.Item1)
+            {
+                var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                if (student == null)
+                {
+                    continue;
+                }
+                output.Add(new HomeworkAnsweredGetPagingOutput()
+                {
+                    ClassId = p.ClassId,
+                    ClassName = myClass?.Name,
+                    TeacherName = await ComBusiness.GetParentTeacher(tempBoxUser, _userDAL, p.CreateUserId),
+                    OtDesc = p.Ot.EtmsToMinuteString(),
+                    Title = p.Title,
+                    Type = p.Type,
+                    TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
+                    AnswerStatus = p.AnswerStatus,
+                    StudentId = p.StudentId,
+                    HomeworkDetailId = p.Id,
+                    HomeworkId = p.HomeworkId,
+                    StudentName = student.Name,
+                    AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
+                    AnswerOtDesc = p.AnswerOt.EtmsToMinuteString()
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<HomeworkAnsweredGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        private List<string> GetMediasUrl(string workMedias)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(workMedias))
+            {
+                return result;
+            }
+            var myMedias = workMedias.Split('|');
+            foreach (var p in myMedias)
+            {
+                if (!string.IsNullOrEmpty(p))
+                {
+                    result.Add(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p));
+                }
+            }
+            return result;
+        }
+
+        public async Task<ResponseBase> HomeworkDetailGet(HomeworkDetailGetRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var p = homeworkDetailBucket.ActiveHomeworkDetail;
+            var classInfo = await _classDAL.GetClassBucket(p.ClassId);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.CreateUserId);
+            var output = new HomeworkDetailGetOutput()
+            {
+                ClassId = p.ClassId,
+                ClassName = classInfo?.EtClass.Name,
+                ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString(),
+                HomeworkDetailId = p.Id,
+                HomeworkId = p.HomeworkId,
+                OtDesc = p.Ot.EtmsToMinuteString(),
+                ReadStatus = p.ReadStatus,
+                TeacherName = ComBusiness2.GetParentTeacherName(teacher),
+                TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
+                Title = p.Title,
+                Type = p.Type,
+                TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
+                WorkContent = p.WorkContent,
+                WorkMediasUrl = GetMediasUrl(p.WorkMedias),
+                AnswerStatus = p.AnswerStatus,
+                AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
+                AnswerInfo = null
+            };
+            if (p.AnswerStatus == EmActiveHomeworkDetailAnswerStatus.Answered)
+            {
+                output.AnswerInfo = new HomeworkDetailAnswerInfo()
+                {
+                    AnswerContent = p.AnswerContent,
+                    AnswerMediasUrl = GetMediasUrl(p.AnswerMedias),
+                    AnswerOtDesc = p.AnswerOt.EtmsToMinuteString(),
+                    CommentOutputs = await GetCommentOutput(homeworkDetailBucket.ActiveHomeworkDetailComments, tempBoxUser)
+                };
+            }
+            return ResponseBase.Success(output);
+        }
+
+        private async Task<List<ParentCommentOutput>> GetCommentOutput(List<EtActiveHomeworkDetailComment> activeHomeworkDetailComments, DataTempBox<EtUser> tempBoxUser)
+        {
+            var commentOutputs = new List<ParentCommentOutput>();
+            if (activeHomeworkDetailComments != null || activeHomeworkDetailComments.Count > 0)
+            {
+                var first = activeHomeworkDetailComments.Where(j => j.ReplyId == null).OrderBy(j => j.Ot);
+                foreach (var myFirstComment in first)
+                {
+                    var firstrelatedManName = string.Empty;
+                    var firstrelatedManAvatar = string.Empty;
+                    if (myFirstComment.SourceType == EmActiveHomeworkDetailCommentSourceType.Teacher)
+                    {
+                        var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, myFirstComment.SourceId);
+                        if (myRelatedUser != null)
+                        {
+                            firstrelatedManName = ComBusiness2.GetParentTeacherName(myRelatedUser);
+                            firstrelatedManAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myRelatedUser.Avatar);
+                        }
+                    }
+                    else
+                    {
+                        firstrelatedManName = myFirstComment.Nickname;
+                        firstrelatedManAvatar = myFirstComment.Headimgurl;
+                    }
+                    commentOutputs.Add(new ParentCommentOutput()
+                    {
+                        CommentContent = myFirstComment.CommentContent,
+                        CommentId = myFirstComment.Id,
+                        Ot = myFirstComment.Ot.EtmsToMinuteString(),
+                        ReplyId = myFirstComment.ReplyId,
+                        SourceType = myFirstComment.SourceType,
+                        RelatedManAvatar = firstrelatedManAvatar,
+                        RelatedManName = firstrelatedManName,
+                        OtDesc = EtmsHelper.GetOtFriendlyDesc(myFirstComment.Ot)
+                    });
+                    var second = activeHomeworkDetailComments.Where(p => p.ReplyId == myFirstComment.Id).OrderBy(j => j.Ot);
+                    foreach (var mySecondComment in second)
+                    {
+                        var secondfirstrelatedManName = string.Empty;
+                        var secondfirstrelatedManAvatar = string.Empty;
+                        if (mySecondComment.SourceType == EmActiveHomeworkDetailCommentSourceType.Teacher)
+                        {
+                            var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, mySecondComment.SourceId);
+                            if (myRelatedUser != null)
+                            {
+                                secondfirstrelatedManName = ComBusiness2.GetParentTeacherName(myRelatedUser);
+                                secondfirstrelatedManAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myRelatedUser.Avatar);
+                            }
+                        }
+                        else
+                        {
+                            secondfirstrelatedManName = mySecondComment.Nickname;
+                            secondfirstrelatedManAvatar = mySecondComment.Headimgurl;
+                        }
+                        commentOutputs.Add(new ParentCommentOutput()
+                        {
+                            CommentContent = mySecondComment.CommentContent,
+                            CommentId = mySecondComment.Id,
+                            Ot = mySecondComment.Ot.EtmsToMinuteString(),
+                            OtDesc = EtmsHelper.GetOtFriendlyDesc(mySecondComment.Ot),
+                            RelatedManAvatar = secondfirstrelatedManName,
+                            RelatedManName = secondfirstrelatedManAvatar,
+                            ReplyId = mySecondComment.ReplyId,
+                            SourceType = mySecondComment.SourceType,
+                            ReplyRelatedManName = firstrelatedManName
+                        });
+                    }
+                }
+            }
+            return commentOutputs;
+        }
+
+        public async Task<ResponseBase> HomeworkDetailSetRead(HomeworkDetailSetReadRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            if (homeworkDetailBucket.ActiveHomeworkDetail.ReadStatus == EmActiveHomeworkDetailReadStatus.Yes)
+            {
+                Log.Warn($"[HomeworkDetailSetRead]重复提交设置作业已读请求:HomeworkDetailId:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return ResponseBase.Success();
+            }
+            var activeHomeworkDetail = homeworkDetailBucket.ActiveHomeworkDetail;
+            activeHomeworkDetail.ReadStatus = EmActiveHomeworkDetailReadStatus.Yes;
+            await _activeHomeworkDetailDAL.EditActiveHomeworkDetail(activeHomeworkDetail);
+
+            var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
+            activeHomework.ReadCount += 1;
+            await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+
+            await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, $"阅读课后作业：{activeHomeworkDetail.Title}", EmStudentOperationLogType.Homework);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> HomeworkSubmitAnswer(HomeworkSubmitAnswerRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            if (homeworkDetailBucket.ActiveHomeworkDetail.AnswerStatus == EmActiveHomeworkDetailAnswerStatus.Answered)
+            {
+                Log.Warn($"[HomeworkSubmitAnswer]重复提交作业:HomeworkDetailId:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return ResponseBase.CommonError("请勿重复提交作业");
+            }
+            var activeHomeworkDetail = homeworkDetailBucket.ActiveHomeworkDetail;
+            activeHomeworkDetail.AnswerStatus = EmActiveHomeworkDetailAnswerStatus.Answered;
+            activeHomeworkDetail.AnswerContent = request.AnswerContent;
+            activeHomeworkDetail.AnswerMedias = string.Empty;
+            if (request.AnswerMediasKeys != null && request.AnswerMediasKeys.Count > 0)
+            {
+                activeHomeworkDetail.AnswerMedias = string.Join('|', request.AnswerMediasKeys);
+            }
+            activeHomeworkDetail.AnswerOt = DateTime.Now;
+            await _activeHomeworkDetailDAL.EditActiveHomeworkDetail(activeHomeworkDetail);
+
+            var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
+            activeHomework.FinishCount += 1;
+            await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+
+            await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, $"提交课后作业：{activeHomeworkDetail.Title}", EmStudentOperationLogType.Homework);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> HomeworkAddComment(HomeworkAddCommentRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var activeHomeworkDetail = homeworkDetailBucket.ActiveHomeworkDetail;
+            var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
+            var comment = new EtActiveHomeworkDetailComment()
+            {
+                CommentContent = request.CommentContent,
+                Headimgurl = myStudentWechat?.Headimgurl,
+                Nickname = myStudentWechat?.Nickname,
+                HomeworkDetailId = request.HomeworkDetailId,
+                HomeworkId = activeHomeworkDetail.HomeworkId,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = DateTime.Now,
+                ReplyId = null,
+                SourceId = activeHomeworkDetail.StudentId,
+                SourceType = EmActiveHomeworkDetailCommentSourceType.Student,
+                TenantId = request.LoginTenantId
+            };
+            await _activeHomeworkDetailDAL.AddActiveHomeworkDetailComment(comment);
+
+            await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, $"评论课后作业：{activeHomeworkDetail.Title}", EmStudentOperationLogType.Homework);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> HomeworkDelComment(HomeworkDelCommentRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var activeHomeworkDetail = homeworkDetailBucket.ActiveHomeworkDetail;
+            await _activeHomeworkDetailDAL.DelActiveHomeworkDetailComment(request.HomeworkDetailId, request.CommentId);
+            await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, "删除课后作业评论", EmStudentOperationLogType.Homework);
+            return ResponseBase.Success();
         }
     }
 }

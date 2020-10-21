@@ -468,5 +468,103 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> HomeworkUnansweredGetPaging(HomeworkUnansweredGetPagingRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkUnansweredGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkAnsweredGetPaging(HomeworkAnsweredGetPagingRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkAnsweredGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkDetailGet(HomeworkDetailGetRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkDetailSetRead(HomeworkDetailSetReadRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkDetailSetRead(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkSubmitAnswer(HomeworkSubmitAnswerRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkSubmitAnswer(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkAddComment(HomeworkAddCommentRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkAddComment(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> HomeworkDelComment(HomeworkDelCommentRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.HomeworkDelComment(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

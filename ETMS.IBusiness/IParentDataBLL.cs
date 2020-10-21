@@ -22,5 +22,19 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentClassTimetableDetailGet(StudentClassTimetableDetailGetRequest request);
 
         Task<ResponseBase> IndexBannerGet(IndexBannerGetRequest request);
+
+        Task<ResponseBase> HomeworkUnansweredGetPaging(HomeworkUnansweredGetPagingRequest request);
+
+        Task<ResponseBase> HomeworkAnsweredGetPaging(HomeworkAnsweredGetPagingRequest request);
+
+        Task<ResponseBase> HomeworkDetailGet(HomeworkDetailGetRequest request);
+
+        Task<ResponseBase> HomeworkDetailSetRead(HomeworkDetailSetReadRequest request);
+
+        Task<ResponseBase> HomeworkSubmitAnswer(HomeworkSubmitAnswerRequest request);
+
+        Task<ResponseBase> HomeworkAddComment(HomeworkAddCommentRequest request);
+
+        Task<ResponseBase> HomeworkDelComment(HomeworkDelCommentRequest request);
     }
 }

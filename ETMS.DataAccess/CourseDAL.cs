@@ -95,5 +95,11 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtCourse>("EtCourse", "*", request.PageSize, request.PageCurrent, "[Status] ASC,Id DESC", request.ToString());
         }
+
+        public async Task<bool> IsCanNotDelete(long id)
+        {
+            var myClassTimes = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND CourseList LIKE '%,{id},%'");
+            return myClassTimes != null;
+        }
     }
 }

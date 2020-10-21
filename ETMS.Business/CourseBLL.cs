@@ -199,6 +199,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课程不存在");
             }
+            if (await _courseDAL.IsCanNotDelete(request.CId))
+            {
+                return ResponseBase.CommonError("此课程已使用，无法删除");
+            }
             if (await _orderDAL.ExistProduct(EmOrderProductType.Course, request.CId))
             {
                 return ResponseBase.CommonError("此课程已使用，无法删除");

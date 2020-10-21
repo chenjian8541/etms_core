@@ -206,6 +206,7 @@ namespace ETMS.Business
                     continue;
                 }
                 var student = studentBucket.Student;
+                var answerStatus = AnsweredOutputAnswerStatus.GetAnswerStatus(detail.ExDate, detail.AnswerOt.Value);
                 var myDetail = new ActiveHomeworkStudentGetAnsweredOutput()
                 {
                     HomeworkDetailId = detail.Id,
@@ -214,6 +215,8 @@ namespace ETMS.Business
                     AnswerOtDesc = detail.AnswerOt.EtmsToMinuteString(),
                     StudentId = detail.StudentId,
                     StudentName = student.Name,
+                    AnswerStatus = answerStatus.Item1,
+                    AnswerStatusDesc = answerStatus.Item2,
                     StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
                     CommentOutputs = await GetCommentOutput(p.ActiveHomeworkDetailComments, tempBoxUser)
                 };
