@@ -16,9 +16,12 @@ namespace ETMS.WebApi.Controllers
     {
         private readonly IActiveHomeworkBLL _activeHomeworkBLL;
 
-        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL)
+        private readonly IActiveGrowthRecordBLL _activeGrowthRecordBLL;
+
+        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL)
         {
             this._activeHomeworkBLL = activeHomeworkBLL;
+            this._activeGrowthRecordBLL = activeGrowthRecordBLL;
         }
 
         public async Task<ResponseBase> ActiveHomeworkGetPaging(ActiveHomeworkGetPagingRequest request)
@@ -125,6 +128,118 @@ namespace ETMS.WebApi.Controllers
             {
                 _activeHomeworkBLL.InitTenantId(request.LoginTenantId);
                 return await _activeHomeworkBLL.ActiveHomeworkCommentDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordClassGetPaging(ActiveGrowthRecordClassGetPagingRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordClassGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordStudentGetPaging(ActiveGrowthRecordStudentGetPagingRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordStudentGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordClassAdd(ActiveGrowthRecordClassAddRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordClassAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordStudentAdd(ActiveGrowthRecordStudentAddRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordStudentAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordGet(ActiveGrowthRecordGetRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordDel(ActiveGrowthRecordDelRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthCommentAdd(ActiveGrowthCommentAddRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthCommentAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthCommentDel(ActiveGrowthCommentDelRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthCommentDel(request);
             }
             catch (Exception ex)
             {

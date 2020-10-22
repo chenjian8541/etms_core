@@ -335,6 +335,38 @@ namespace ETMS.Business.Common
             return student;
         }
 
+        internal static async Task<string> GetStudentNames(DataTempBox<EtStudent> tempBox, IStudentDAL studentDAL, string studentIds)
+        {
+            if (string.IsNullOrEmpty(studentIds))
+            {
+                return string.Empty;
+            }
+            var studentSplitIds = studentIds.Split(',');
+            var studentNameDesc = new StringBuilder();
+            foreach (var id in studentSplitIds)
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    continue;
+                }
+                var tempId = id.ToLong();
+                var myStudent = await tempBox.GetData(tempId, async () =>
+                {
+                    var studentBucket = await studentDAL.GetStudent(tempId);
+                    if (studentBucket == null || studentBucket.Student == null)
+                    {
+                        return null;
+                    }
+                    return studentBucket.Student;
+                });
+                if (myStudent != null)
+                {
+                    studentNameDesc.Append($"{myStudent.Name},");
+                }
+            }
+            return studentNameDesc.ToString().TrimEnd(',');
+        }
+
         internal static async Task<EtClass> GetClass(DataTempBox<EtClass> tempBox, IClassDAL classDAL, long classId)
         {
             return await tempBox.GetData(classId, async () =>
@@ -342,6 +374,38 @@ namespace ETMS.Business.Common
                 var classBucket = await classDAL.GetClassBucket(classId);
                 return classBucket?.EtClass;
             });
+        }
+
+        internal static async Task<string> GetClassNames(DataTempBox<EtClass> tempBox, IClassDAL classDAL, string classIds)
+        {
+            if (string.IsNullOrEmpty(classIds))
+            {
+                return string.Empty;
+            }
+            var classSplitIds = classIds.Split(',');
+            var classNameDesc = new StringBuilder();
+            foreach (var id in classSplitIds)
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    continue;
+                }
+                var tempId = id.ToLong();
+                var myClass = await tempBox.GetData(tempId, async () =>
+                {
+                    var classBucket = await classDAL.GetClassBucket(tempId);
+                    if (classBucket == null || classBucket.EtClass == null)
+                    {
+                        return null;
+                    }
+                    return classBucket.EtClass;
+                });
+                if (myClass != null)
+                {
+                    classNameDesc.Append($"{myClass.Name},");
+                }
+            }
+            return classNameDesc.ToString().TrimEnd(',');
         }
 
         internal static async Task<List<MultiSelectValueRequest>> GetUserMultiSelectValue(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users)

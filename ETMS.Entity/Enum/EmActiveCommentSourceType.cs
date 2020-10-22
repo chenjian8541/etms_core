@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Enum
 {
-    public struct EmActiveHomeworkDetailCommentSourceType
+    public struct EmActiveCommentSourceType
     {
         /// <summary>
         /// 学员
@@ -14,6 +14,6 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 老师
         /// </summary>
-        public const byte Teacher = 1;
+        public const byte User = 1;
     }
 }

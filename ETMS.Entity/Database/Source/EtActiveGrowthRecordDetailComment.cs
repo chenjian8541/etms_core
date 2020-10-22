@@ -5,21 +5,18 @@ using System.Text;
 
 namespace ETMS.Entity.Database.Source
 {
-    /// <summary>
-    /// 作业评论
-    /// </summary>
-    [Table("EtActiveHomeworkDetailComment")]
-    public class EtActiveHomeworkDetailComment : Entity<long>
+    [Table("EtActiveGrowthRecordDetailComment")]
+    public class EtActiveGrowthRecordDetailComment : Entity<long>
     {
         /// <summary>
-        /// 作业ID
+        /// 成长档案ID
         /// </summary>
-        public long HomeworkId { get; set; }
+        public long GrowthRecordId { get; set; }
 
         /// <summary>
-        /// 作业详情ID
+        /// 成长档案详情ID
         /// </summary>
-        public long HomeworkDetailId { get; set; }
+        public long GrowthRecordDetailId { get; set; }
 
         /// <summary>
         /// 回复ID
@@ -32,7 +29,7 @@ namespace ETMS.Entity.Database.Source
         public string CommentContent { get; set; }
 
         /// <summary>
-        ///来源类型  <see cref="ETMS.Entity.Enum.EmActiveCommentSourceType"/>
+        /// 数据来源 <see cref="ETMS.Entity.Enum.EmActiveCommentSourceType"/>
         /// </summary>
         public byte SourceType { get; set; }
 
@@ -42,12 +39,12 @@ namespace ETMS.Entity.Database.Source
         public long SourceId { get; set; }
 
         /// <summary>
-        /// 如果是学生则记录家长的昵称
+        /// 昵称
         /// </summary>
         public string Nickname { get; set; }
 
         /// <summary>
-        /// 如果是学生则记录家长的头像
+        /// 头像
         /// </summary>
         public string Headimgurl { get; set; }
 

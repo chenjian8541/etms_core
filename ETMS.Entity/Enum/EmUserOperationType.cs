@@ -128,6 +128,9 @@ namespace ETMS.Entity.Enum
         OrderMgr = 69,
 
         [Description("课后作业")]
-        ActiveHomeworkMgr = 70
+        ActiveHomeworkMgr = 70,
+
+        [Description("成长档案")]
+        ActiveGrowthRecord = 71
     }
 }

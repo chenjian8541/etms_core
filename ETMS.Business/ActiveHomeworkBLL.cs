@@ -235,7 +235,7 @@ namespace ETMS.Business
                 {
                     var firstrelatedManName = string.Empty;
                     var firstrelatedManAvatar = string.Empty;
-                    if (myFirstComment.SourceType == EmActiveHomeworkDetailCommentSourceType.Teacher)
+                    if (myFirstComment.SourceType == EmActiveCommentSourceType.User)
                     {
                         var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, myFirstComment.SourceId);
                         if (myRelatedUser != null)
@@ -265,7 +265,7 @@ namespace ETMS.Business
                     {
                         var secondfirstrelatedManName = string.Empty;
                         var secondfirstrelatedManAvatar = string.Empty;
-                        if (mySecondComment.SourceType == EmActiveHomeworkDetailCommentSourceType.Teacher)
+                        if (mySecondComment.SourceType == EmActiveCommentSourceType.User)
                         {
                             var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, mySecondComment.SourceId);
                             if (myRelatedUser != null)
@@ -352,7 +352,7 @@ namespace ETMS.Business
                 Ot = DateTime.Now,
                 ReplyId = request.ReplyId,
                 SourceId = request.LoginUserId,
-                SourceType = EmActiveHomeworkDetailCommentSourceType.Teacher,
+                SourceType = EmActiveCommentSourceType.User,
                 TenantId = request.LoginTenantId
             };
             await _activeHomeworkDetailDAL.AddActiveHomeworkDetailComment(comment);

@@ -47,7 +47,7 @@ namespace ETMS.WebApi
                 RegisterGlobalFilters(op.Filters);
             }).AddNewtonsoftJson(jsonOptions =>
             {
-                jsonOptions.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
+                jsonOptions.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm";
                 jsonOptions.SerializerSettings.ContractResolver = new EtmsContractResolver()
                 {
                     NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()

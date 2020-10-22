@@ -101,5 +101,8 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtActiveHomework> EtActiveHomeworks { get; set; }
         public DbSet<EtActiveHomeworkDetail> EtActiveHomeworkDetails { get; set; }
         public DbSet<EtActiveHomeworkDetailComment> EtActiveHomeworkDetailComments { get; set; }
+        public DbSet<EtActiveGrowthRecord> EtActiveGrowthRecords { get; set; }
+        public DbSet<EtActiveGrowthRecordDetail> EtActiveGrowthRecordDetails { get; set; }
+        public DbSet<EtActiveGrowthRecordDetailComment> EtActiveGrowthRecordDetailComments { get; set; }
     }
 }
