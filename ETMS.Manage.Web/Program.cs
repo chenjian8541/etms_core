@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ETMS.Manage.Web.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,21 +16,30 @@ namespace ETMS.Manage.Web
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("hosting.json")
-                .Build();
-            CreateHostBuilder(args, config).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args, IConfigurationRoot config) =>
-            Host.CreateDefaultBuilder(args)
-               .UseServiceProviderFactory(new EtmsServiceProviderFactory())
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseConfiguration(config);
-                    webBuilder.UseIIS();
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var hostBuilder = Host.CreateDefaultBuilder(args)
+                   .UseWindowsService()
+                   .UseServiceProviderFactory(new EtmsServiceProviderFactory())
+                       .ConfigureServices((hostContext, services) =>
+                       {
+                           hostContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
+                           services.AddHostedService<EtmsJobService>();
+                       });
+
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("hosting.json")
+                .Build();
+
+            hostBuilder.ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseConfiguration(config);
+                webBuilder.UseStartup<Startup>();
+            });
+            return hostBuilder;
+        }
     }
 }

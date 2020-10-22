@@ -1,6 +1,7 @@
 ﻿using ETMS.IOC;
 using ETMS.Manage.Entity.Config;
 using ETMS.Manage.Jobs;
+using ETMS.Utility;
 using Hangfire;
 using Newtonsoft.Json;
 using System;
@@ -16,7 +17,7 @@ namespace ETMS.Manage.Web.Core
     {
         public static void InitJobs()
         {
-            var hangfireJobsJson = File.ReadAllText("hangfireJobs.json");
+            var hangfireJobsJson = File.ReadAllText(FileHelper.GetFilePath("hangfireJobs.json"));
             var hangfireJobConfigs = JsonConvert.DeserializeObject<List<HangfireJobConfig>>(hangfireJobsJson);
             var jobsAssemblyTypes = Assembly.Load("ETMS.Manage.Jobs").GetTypes();
             foreach (var t in jobsAssemblyTypes)
