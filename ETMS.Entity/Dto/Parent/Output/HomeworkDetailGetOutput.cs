@@ -60,6 +60,8 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string AnswerStatusDesc { get; set; }
 
         public HomeworkDetailAnswerInfo AnswerInfo { get; set; }
+
+        public List<ParentCommentOutput> CommentOutputs { get; set; }
     }
 
     public class HomeworkDetailAnswerInfo
@@ -69,8 +71,6 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string AnswerContent { get; set; }
 
         public List<string> AnswerMediasUrl { get; set; }
-
-        public List<ParentCommentOutput> CommentOutputs { get; set; }
     }
 
     public class ParentCommentOutput

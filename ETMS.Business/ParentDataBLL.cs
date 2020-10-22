@@ -389,7 +389,8 @@ namespace ETMS.Business
                 WorkMediasUrl = GetMediasUrl(p.WorkMedias),
                 AnswerStatus = p.AnswerStatus,
                 AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
-                AnswerInfo = null
+                AnswerInfo = null,
+                CommentOutputs = await GetCommentOutput(homeworkDetailBucket.ActiveHomeworkDetailComments, tempBoxUser)
             };
             if (p.AnswerStatus == EmActiveHomeworkDetailAnswerStatus.Answered)
             {
@@ -397,8 +398,7 @@ namespace ETMS.Business
                 {
                     AnswerContent = p.AnswerContent,
                     AnswerMediasUrl = GetMediasUrl(p.AnswerMedias),
-                    AnswerOtDesc = p.AnswerOt.EtmsToMinuteString(),
-                    CommentOutputs = await GetCommentOutput(homeworkDetailBucket.ActiveHomeworkDetailComments, tempBoxUser)
+                    AnswerOtDesc = p.AnswerOt.EtmsToMinuteString()
                 };
             }
             return ResponseBase.Success(output);
