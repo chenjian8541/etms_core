@@ -17,5 +17,9 @@ namespace ETMS.IDataAccess
         WxGzhAccessTokenBucket GetWxGzhAccessTokenBucket(string appid);
 
         void SetWxGzhAccessTokenBucket(WxGzhAccessTokenBucket bucket, string appid);
+
+        UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId);
+
+        void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime);
     }
 }

@@ -44,10 +44,12 @@ namespace ETMS.Business
 
         private readonly IAppAuthorityDAL _appAuthorityDAL;
 
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
-            IAppAuthorityDAL appAuthorityDAL)
+            IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._etUserDAL = etUserDAL;
@@ -58,6 +60,7 @@ namespace ETMS.Business
             this._userLoginSmsCodeDAL = userLoginSmsCodeDAL;
             this._roleDAL = roleDAL;
             this._appAuthorityDAL = appAuthorityDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         /// <summary>
@@ -234,8 +237,9 @@ namespace ETMS.Business
 
         private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress, string code, string phone)
         {
-            var token = JwtHelper.GenerateToken(userInfo.TenantId, userInfo.Id, out var exTime);
             var time = DateTime.Now;
+            var nowTimestamp = time.EtmsGetTimestamp().ToString();
+            var token = JwtHelper.GenerateToken(userInfo.TenantId, userInfo.Id, nowTimestamp, out var exTime);
             await _etUserDAL.UpdateUserLastLoginTime(userInfo.Id, time);
             _userLoginFailedRecordDAL.RemoveUserLoginFailedRecord(code, phone);
             _userLoginSmsCodeDAL.RemoveUserLoginSmsCode(code, phone);
@@ -251,6 +255,7 @@ namespace ETMS.Business
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(userInfo.TenantId);
+            _tempDataCacheDAL.SetUserLoginOnlineBucket(userInfo.TenantId, userInfo.Id, nowTimestamp);
             return new UserLoginOutput()
             {
                 Token = token,
@@ -272,6 +277,19 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(msg);
             }
+
+            var userLoginOnlineBucket = _tempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginTenantId, request.LoginUserId);
+            if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
+            {
+                var strLoginTenantUser = $"{request.LoginTenantId}_{request.LoginUserId}";
+                if (_appConfigurtaionServices.AppSettings.UserConfig == null
+                    || _appConfigurtaionServices.AppSettings.UserConfig.LoginWhitelistTenantUser == null
+                    || !_appConfigurtaionServices.AppSettings.UserConfig.LoginWhitelistTenantUser.Exists(p => p == strLoginTenantUser))
+                {
+                    return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
+                }
+            }
+
             return ResponseBase.Success();
         }
 

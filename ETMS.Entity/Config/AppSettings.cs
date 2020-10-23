@@ -39,6 +39,13 @@ namespace ETMS.Entity.Config
         public ParentConfig ParentConfig { get; set; }
 
         public WxConfig WxConfig { get; set; }
+
+        public UserConfig UserConfig { get; set; }
+    }
+
+    public class UserConfig
+    {
+        public List<string> LoginWhitelistTenantUser { get; set; }
     }
 
     public class WxConfig

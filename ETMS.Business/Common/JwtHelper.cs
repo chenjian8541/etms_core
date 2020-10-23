@@ -17,10 +17,11 @@ namespace ETMS.Business.Common
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="expiresTime"></param>
+        /// 
         /// <returns></returns>
-        internal static string GenerateToken(int tenantId, long userId, out DateTime expiresTime)
+        internal static string GenerateToken(int tenantId, long userId, string nowTimestamp, out DateTime expiresTime)
         {
-            var tokenValue = $"{tenantId},{userId}";
+            var tokenValue = $"{tenantId},{userId},{nowTimestamp}";
             var claims = new[]
                {
                    new Claim(SystemConfig.AuthenticationConfig.ClaimType,tokenValue)

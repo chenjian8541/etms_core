@@ -35,5 +35,10 @@ namespace ETMS.Entity.CacheBucket
         /// 微信access_token过期时间(2小时)
         /// </summary>
         public const int WxAccessTokenBucket = 2;
+
+        /// <summary>
+        /// 用户登录信息
+        /// </summary>
+        public const int UserLoginOnlineDay = 60;
     }
 }

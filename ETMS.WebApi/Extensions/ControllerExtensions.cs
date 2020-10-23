@@ -13,15 +13,15 @@ namespace ETMS.WebApi.Extensions
     public static class ControllerExtensions
     {
         /// <summary>
-        /// 解密用户信息 “机构ID,用户ID”
+        /// 解密用户信息 “机构ID,用户ID,登录时间戳”
         /// </summary>
         /// <param name="this"></param>
         /// <returns></returns>
-        public static Tuple<int, long> GetTokenInfo(this HttpRequest @this)
+        public static Tuple<int, long, string> GetTokenInfo(this HttpRequest @this)
         {
             var tokenValue = @this.HttpContext.User?.Claims?.FirstOrDefault(p => p.Type.Equals(SystemConfig.AuthenticationConfig.ClaimType))?.Value;
             var userInfo = tokenValue.Split(',');
-            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong());
+            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong(), userInfo[2].ToString());
         }
 
         /// <summary>

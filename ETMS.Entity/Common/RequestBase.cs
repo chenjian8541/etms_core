@@ -21,6 +21,11 @@ namespace ETMS.Entity.Common
         public int LoginTenantId { get; set; }
 
         /// <summary>
+        /// 登录时间戳
+        /// </summary>
+        public string LoginTimestamp { get; set; }
+
+        /// <summary>
         /// IP地址
         /// </summary>
         public string IpAddress { get; set; }
