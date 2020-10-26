@@ -28,6 +28,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> ExistStudent(string name, string phone, long id = 0);
 
+        Task<EtStudent> GetStudent(string name, string phone);
+
         Task<bool> DeductionPoint(long studentId, int dePoint);
 
         Task<bool> AddPoint(long studentId, int addPoint);

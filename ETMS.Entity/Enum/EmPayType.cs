@@ -58,5 +58,37 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string[] GetPayTypeAll()
+        {
+            return new string[] {
+            "支付宝",
+            "微信支付",
+            "现金支付",
+            "银联支付",
+            "POS机",
+            "其他支付",
+            };
+        }
+
+        public static byte GetPayType(string name)
+        {
+            switch (name)
+            {
+                case "支付宝":
+                    return Alipay;
+                case "微信支付":
+                    return WeChat;
+                case "现金支付":
+                    return Cash;
+                case "银联支付":
+                    return Bank;
+                case "POS机":
+                    return Pos;
+                case "其他支付":
+                    return Other;
+            }
+            return Cash;
+        }
     }
 }

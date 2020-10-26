@@ -20,6 +20,8 @@ namespace ETMS.IDataAccess
 
         Task<Tuple<EtCourse, List<EtCoursePriceRule>>> GetCourse(long id);
 
+        Task<EtCourse> GetCourse(string name);
+
         Task<bool> DelCourse(long id);
 
         Task<Tuple<IEnumerable<EtCourse>, int>> GetPaging(RequestPagingBase request);

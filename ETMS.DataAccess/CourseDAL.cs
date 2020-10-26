@@ -84,6 +84,11 @@ namespace ETMS.DataAccess
             return Tuple.Create(courseBucket.Course, courseBucket.CoursePriceRules);
         }
 
+        public async Task<EtCourse> GetCourse(string name)
+        {
+            return await _dbWrapper.Find<EtCourse>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Name == name);
+        }
+
         public async Task<bool> DelCourse(long id)
         {
             await _dbWrapper.Execute($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtCoursePriceRule WHERE CourseId = {id}");

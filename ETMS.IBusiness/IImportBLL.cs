@@ -12,5 +12,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request);
 
         Task<ResponseBase> ImportStudent(ImportStudentRequest request);
+
+        Task<ResponseBase> GetImportCourseTimesExcelTemplate(GetImportCourseTimesExcelTemplateRequest request);
+
+        Task<ResponseBase> ImportCourseTimes(ImportCourseTimesRequest request);
     }
 }

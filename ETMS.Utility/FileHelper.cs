@@ -11,7 +11,7 @@ namespace ETMS.Utility
 
         public const string ImgFolderTag = "img";
 
-        public static CheckImportStudentTemplateFileResult CheckImportStudentTemplateFile(string serverPath, string fileFullName)
+        public static CheckImportStudentTemplateFileResult CheckImportExcelTemplateFile(string serverPath, string fileFullName)
         {
             var timeStr = DateTime.Now.ToString("yyyyMMdd");
             var strFolder = Path.Combine(serverPath, ImportStudentTemplateFolderTag, timeStr);

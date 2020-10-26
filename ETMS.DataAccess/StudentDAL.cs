@@ -103,6 +103,11 @@ namespace ETMS.DataAccess
             return user != null;
         }
 
+        public async Task<EtStudent> GetStudent(string name, string phone)
+        {
+            return await _dbWrapper.Find<EtStudent>(p => p.TenantId == _tenantId && p.Phone == phone && p.Name == name && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
         public async Task<bool> DeductionPoint(long studentId, int dePoint)
         {
             await _dbWrapper.Execute($"UPDATE EtStudent SET Points = Points - {dePoint} WHERE Id = {studentId}");

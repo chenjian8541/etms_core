@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Config;
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Config;
 using ETMS.Utility;
 using System;
 using System.Data.SqlClient;
@@ -12,6 +13,16 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
+            var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
+            var parentTokenConfig = new ParentTokenConfig()
+            {
+                ExTimestamp = exTime,
+                Phone = "18671724053",
+                TenantId = 1
+            };
+            var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
+            Console.WriteLine(signatureInfo.Item1);
+            Console.WriteLine(signatureInfo.Item2);
             while (true)
             {
                 var s = Console.ReadLine();

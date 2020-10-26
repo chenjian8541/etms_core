@@ -67,5 +67,42 @@ namespace ETMS.WebApi.Controllers
                 return new ResponseBase().GetResponseCodeError();
             }
         }
+
+        public async Task<ResponseBase> ImportCourseTimesExcelTemplateGet(GetImportCourseTimesExcelTemplateRequest request)
+        {
+            try
+            {
+                _importBLL.InitTenantId(request.LoginTenantId);
+                return await _importBLL.GetImportCourseTimesExcelTemplate(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return null;
+            }
+        }
+
+        public async Task<ResponseBase> ImportCourseTimes([FromForm]IFormCollection collection)
+        {
+            try
+            {
+                var action = new ImportCourseTimesAction();
+                var userInfo = this.HttpContext.Request.GetTokenInfo();
+                var request = new ImportCourseTimesRequest()
+                {
+                    IpAddress = string.Empty,
+                    IsDataLimit = false,
+                    LoginTenantId = userInfo.Item1,
+                    LoginUserId = userInfo.Item2
+                };
+                _importBLL.InitTenantId(request.LoginTenantId);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
     }
 }
