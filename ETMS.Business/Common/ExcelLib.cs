@@ -58,9 +58,10 @@ namespace ETMS.Business.Common
             noteString.Append("2.此表不允许做如增加列、删除列、修改表头名称等操作\n");
             noteString.Append("3.模板中标识为*号的栏目为必填项，导入时不能为空\n");
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
+            noteString.Append("5.文档中日期信息请按yyyy-MM-dd格式填写\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 1800; ;
+            rowRemind.Height = 2200; ;
             var headTitleDesc = GetImportStudentHeadDesc();
 
             var rowHead = sheet1.CreateRow(1);
@@ -272,7 +273,7 @@ namespace ETMS.Business.Common
 
         public static CheckImportStudentTemplateFileResult CheckImportCourseTimesExcelTemplate(string tenantCode, string serverPath)
         {
-            var fileName = $"学员课程导入模板(按课时收费)_{tenantCode}.xlsx";
+            var fileName = $"学员课程导入模板(按课时)_{tenantCode}.xlsx";
             return FileHelper.CheckImportExcelTemplateFile(serverPath, fileName);
         }
 
@@ -300,7 +301,7 @@ namespace ETMS.Business.Common
         public static void GenerateImportCourseTimesExcelTemplate(ImportCourseHeadDescTimesExcelTemplateRequest request)
         {
             var workMbrTemplate = new XSSFWorkbook();
-            var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按课时收费)");
+            var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按课时)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
             sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 12));
@@ -314,9 +315,10 @@ namespace ETMS.Business.Common
             noteString.Append("2.此表不允许做如增加列、删除列、修改表头名称等操作\n");
             noteString.Append("3.模板中标识为*号的栏目为必填项，导入时不能为空\n");
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
+            noteString.Append("5.文档中日期信息请按yyyy-MM-dd格式填写\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 1800; ;
+            rowRemind.Height = 2200; ;
             var headTitleDesc = GetImportCourseHeadDescTimes();
 
             var rowHead = sheet1.CreateRow(1);
@@ -610,6 +612,301 @@ namespace ETMS.Business.Common
         }
 
         #endregion
+
+        #region 导入学员课时(按月收费课程)
+
+        public static CheckImportStudentTemplateFileResult CheckImportCourseDayExcelTemplate(string tenantCode, string serverPath)
+        {
+            var fileName = $"学员课程导入模板(按时间)_{tenantCode}.xlsx";
+            return FileHelper.CheckImportExcelTemplateFile(serverPath, fileName);
+        }
+
+        /// <summary>
+        /// 按课时导入
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetImportCourseHeadDescDay()
+        {
+            var headList = new List<string>();
+            headList.Add("学员姓名(*)");
+            headList.Add("手机号码(*)");
+            headList.Add("课程名称(*)");
+            headList.Add("课程开始日期(*)");
+            headList.Add("课程结束日期(*)");
+            headList.Add("应收金额(*)");
+            headList.Add("实收金额(*)");
+            headList.Add("支付方式");
+            headList.Add("经办日期");
+            return headList;
+        }
+
+        public static void GenerateImportCourseDayExcelTemplate(ImportCourseHeadDescDayExcelTemplateRequest request)
+        {
+            var workMbrTemplate = new XSSFWorkbook();
+            var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按时间)");
+            sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
+
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+            var rowRemind = sheet1.CreateRow(0);
+            var notesTitle = rowRemind.CreateCell(0);
+            var notesStyle = workMbrTemplate.CreateCellStyle();
+            notesStyle.WrapText = true;
+            var noteString = new StringBuilder();
+            noteString.Append("注意事项： \n");
+            noteString.Append("1.请严格按照模版格式录入内容\n");
+            noteString.Append("2.此表不允许做如增加列、删除列、修改表头名称等操作\n");
+            noteString.Append("3.模板中标识为*号的栏目为必填项，导入时不能为空\n");
+            noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
+            noteString.Append("5.文档中日期信息请按yyyy-MM-dd格式填写\n");
+            notesTitle.SetCellValue(noteString.ToString());
+            notesTitle.CellStyle = notesStyle;
+            rowRemind.Height = 2200; ;
+            var headTitleDesc = GetImportCourseHeadDescDay();
+
+            var rowHead = sheet1.CreateRow(1);
+            var styleHead = workMbrTemplate.CreateCellStyle();
+            var fontHead = workMbrTemplate.CreateFont();
+            fontHead.Boldweight = (short)FontBoldWeight.Bold; ;
+            styleHead.SetFont(fontHead);
+            var formatHead = workMbrTemplate.CreateDataFormat();
+            styleHead.DataFormat = formatHead.GetFormat("text");
+
+            var cellHead0 = rowHead.CreateCell(0);  //学员姓名
+            cellHead0.CellStyle = styleHead;
+            cellHead0.SetCellValue(headTitleDesc[0]);
+
+
+            var cellHead1 = rowHead.CreateCell(1);  //手机号码
+            cellHead1.CellStyle = styleHead;
+            cellHead1.SetCellValue(headTitleDesc[1]);
+
+            var dvHelper = new XSSFDataValidationHelper((XSSFSheet)sheet1);
+
+            var cellHead2 = rowHead.CreateCell(2);  //课程名称
+            cellHead2.CellStyle = styleHead;
+            cellHead2.SetCellValue(headTitleDesc[2]);
+
+            var cellHead3 = rowHead.CreateCell(3);  //课程开始日期
+            cellHead3.CellStyle = styleHead;
+            cellHead3.SetCellValue(headTitleDesc[3]);
+            var cellStyle3 = workMbrTemplate.CreateCellStyle();
+            var format3 = workMbrTemplate.CreateDataFormat();
+            cellStyle3.DataFormat = format3.GetFormat("yyyy-MM-dd");
+            sheet1.SetDefaultColumnStyle(3, cellStyle3);
+
+            var cellHead4 = rowHead.CreateCell(4);  //课程结束日期
+            cellHead4.CellStyle = styleHead;
+            cellHead4.SetCellValue(headTitleDesc[4]);
+            var cellStyle4 = workMbrTemplate.CreateCellStyle();
+            var format4 = workMbrTemplate.CreateDataFormat();
+            cellStyle4.DataFormat = format4.GetFormat("yyyy-MM-dd");
+            sheet1.SetDefaultColumnStyle(4, cellStyle4);
+
+            var cellHead5 = rowHead.CreateCell(5);  //应收金额
+            cellHead5.CellStyle = styleHead;
+            cellHead5.SetCellValue(headTitleDesc[5]);
+            var regions5 = new CellRangeAddressList(1, 65535, 5, 5);
+            var dataValidate5 = dvHelper.CreateValidation(dvHelper.CreateNumericConstraint(ValidationType.DECIMAL, OperatorType.BETWEEN, "1", "10000000"), regions5);
+            dataValidate5.CreatePromptBox("错误", "应收金额必须为数值类型");
+            sheet1.AddValidationData(dataValidate5);
+
+            var cellHead6 = rowHead.CreateCell(6);  //实收金额
+            cellHead6.CellStyle = styleHead;
+            cellHead6.SetCellValue(headTitleDesc[6]);
+            var regions6 = new CellRangeAddressList(1, 65535, 6, 6);
+            var dataValidate6 = dvHelper.CreateValidation(dvHelper.CreateNumericConstraint(ValidationType.DECIMAL, OperatorType.BETWEEN, "1", "10000000"), regions6);
+            dataValidate6.CreatePromptBox("错误", "应收金额必须为数值类型");
+            sheet1.AddValidationData(dataValidate6);
+
+
+            var cellHead7 = rowHead.CreateCell(7);  //支付方式
+            cellHead7.CellStyle = styleHead;
+            cellHead7.SetCellValue(headTitleDesc[7]);
+            var regions7 = new CellRangeAddressList(1, 65535, 7, 7);
+            var dataValidate7 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.PayTypeAll), regions7);
+            sheet1.AddValidationData(dataValidate7);
+
+            var cellHead8 = rowHead.CreateCell(8);  //经办日期
+            cellHead8.CellStyle = styleHead;
+            cellHead8.SetCellValue(headTitleDesc[8]);
+            var cellStyle8 = workMbrTemplate.CreateCellStyle();
+            var format8 = workMbrTemplate.CreateDataFormat();
+            cellStyle8.DataFormat = format8.GetFormat("yyyy-MM-dd");
+            sheet1.SetDefaultColumnStyle(8, cellStyle8);
+
+            using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
+            {
+                workMbrTemplate.Write(fs);
+            }
+        }
+
+        public static Tuple<string, List<ImportCourseDayItem>> ReadImportCourseDayExcelContent(Stream excelStream, int sheetIndex, int validDataRowIndex)
+        {
+            var workbook = WorkbookFactory.Create(excelStream);
+            var workSheet = workbook.GetSheetAt(sheetIndex);
+            var outStudentContent = new List<ImportCourseDayItem>();
+            if (workSheet.LastRowNum <= 1)
+            {
+                return Tuple.Create("请按要求填写学员信息", outStudentContent);
+            }
+            if (workSheet.LastRowNum > 1005)
+            {
+                return Tuple.Create("一次性最多导入1000条数据", outStudentContent);
+            }
+
+            var headRow = workSheet.GetRow(validDataRowIndex - 1);
+            var headTitleDesc = GetImportCourseHeadDescDay();
+            for (var i = 0; i < headTitleDesc.Count; i++)
+            {
+                if (GetCellValue(headRow.GetCell(i)) != headTitleDesc[i])
+                {
+                    return Tuple.Create("请选择正确的excel模板文件导入", outStudentContent);
+                }
+            }
+
+            var strError = new StringBuilder();
+            var readRowIndex = validDataRowIndex;
+            var now = DateTime.Now;
+            while (readRowIndex <= workSheet.LastRowNum)
+            {
+                var myRow = workSheet.GetRow(readRowIndex);
+                if (myRow == null)
+                {
+                    strError.Append($"第{readRowIndex + 1}行数据无效，请重新检验</br>");
+                    continue;
+                }
+                var myStudentCourseItem = new ImportCourseDayItem();
+                var i = myRow.FirstCellNum;
+
+                var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
+                if (string.IsNullOrEmpty(studentNameValue))
+                {
+                    strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
+                }
+                else
+                {
+                    myStudentCourseItem.StudentName = studentNameValue;
+                }
+
+                var phoneCellValue = GetCellValue(myRow.GetCell(++i));   //手机号码
+                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue))
+                {
+                    strError.Append($"第{readRowIndex + 1}行手机号码不正确</br>");
+                }
+                else
+                {
+                    myStudentCourseItem.Phone = phoneCellValue;
+                }
+
+                var courseNameCellValue = GetCellValue(myRow.GetCell(++i));   //课程名称
+                if (string.IsNullOrEmpty(courseNameCellValue))
+                {
+                    strError.Append($"第{readRowIndex + 1}行课程名称不能为空</br>");
+                }
+                else
+                {
+                    myStudentCourseItem.CourseName = courseNameCellValue;
+                }
+
+                var startTime = GetCellValue(myRow.GetCell(++i));  //课程开始日期
+                if (string.IsNullOrEmpty(startTime))
+                {
+                    strError.Append($"第{readRowIndex + 1}行课程开始日期不能为空</br>");
+                }
+                else
+                {
+                    if (DateTime.TryParse(startTime, out DateTime mytempstartTime))
+                    {
+                        myStudentCourseItem.StartTime = mytempstartTime.Date;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行课程开始日期格式不正确</br>");
+                    }
+                }
+
+
+                var endTime = GetCellValue(myRow.GetCell(++i));  //课程结束日期
+                if (string.IsNullOrEmpty(endTime))
+                {
+                    strError.Append($"第{readRowIndex + 1}行课程结束日期不能为空</br>");
+                }
+                else
+                {
+                    if (DateTime.TryParse(endTime, out DateTime mytempendTime))
+                    {
+                        myStudentCourseItem.EndTime = mytempendTime.Date;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行课程结束日期格式不正确</br>");
+                    }
+                }
+                if (myStudentCourseItem.StartTime > myStudentCourseItem.EndTime)
+                {
+                    strError.Append($"第{readRowIndex + 1}行课程开始日期不能大于结束日期</br>");
+                }
+
+                var aptSum = GetCellValue(myRow.GetCell(++i));  //应收金额
+                if (string.IsNullOrEmpty(aptSum))
+                {
+                    strError.Append($"第{readRowIndex + 1}行应收金额不能为空</br>");
+                }
+                else
+                {
+                    if (decimal.TryParse(aptSum, out var mytempaptSum))
+                    {
+                        myStudentCourseItem.AptSum = mytempaptSum;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行应收金额必须为数值类型</br>");
+                    }
+                }
+
+                var paySum = GetCellValue(myRow.GetCell(++i));  //实收金额
+                if (string.IsNullOrEmpty(paySum))
+                {
+                    strError.Append($"第{readRowIndex + 1}行实收金额不能为空</br>");
+                }
+                else
+                {
+                    if (decimal.TryParse(paySum, out var mytemppaySum))
+                    {
+                        myStudentCourseItem.PaySum = mytemppaySum;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行实收金额必须为数值类型</br>");
+                    }
+                }
+
+                myStudentCourseItem.PayTypeName = GetCellValue(myRow.GetCell(++i));   //支付方式
+
+                var orderOt = GetCellValue(myRow.GetCell(++i));   //经办日期
+                if (string.IsNullOrEmpty(orderOt))
+                {
+                    myStudentCourseItem.OrderOt = now;
+                }
+                else
+                {
+                    if (DateTime.TryParse(orderOt, out DateTime mytemporderOt))
+                    {
+                        myStudentCourseItem.OrderOt = mytemporderOt;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行经办日期格式不正确</br>");
+                    }
+                }
+
+
+                outStudentContent.Add(myStudentCourseItem);
+                readRowIndex++;
+            }
+            return Tuple.Create(strError.ToString(), outStudentContent);
+        }
+        #endregion
     }
 
     public class ImportStudentExcelTemplateRequest
@@ -629,5 +926,13 @@ namespace ETMS.Business.Common
         public CheckImportStudentTemplateFileResult CheckResult { get; set; }
 
         public string[] PayTypeAll { get; set; }
+    }
+
+    public class ImportCourseHeadDescDayExcelTemplateRequest
+    {
+        public CheckImportStudentTemplateFileResult CheckResult { get; set; }
+
+        public string[] PayTypeAll { get; set; }
+
     }
 }

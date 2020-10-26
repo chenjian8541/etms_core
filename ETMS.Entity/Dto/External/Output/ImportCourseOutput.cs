@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.External.Output
 {
-    public class ImportCourseTimesOutput
+    public class ImportCourseOutput
     {
         public int SuccessCount { get; set; }
     }
