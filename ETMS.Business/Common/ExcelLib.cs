@@ -492,6 +492,10 @@ namespace ETMS.Business.Common
                 {
                     if (int.TryParse(buyQuantityCellValue, out var mytempBuyQuantity))
                     {
+                        if (mytempBuyQuantity <= 0)
+                        {
+                            strError.Append($"第{readRowIndex + 1}行购买课时数量必须大于0</br>");
+                        }
                         myStudentCourseItem.BuyQuantity = mytempBuyQuantity;
                     }
                     else

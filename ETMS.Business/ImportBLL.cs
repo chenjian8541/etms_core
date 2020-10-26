@@ -466,7 +466,6 @@ namespace ETMS.Business
             });
         }
 
-
         public async Task<ResponseBase> GetImportCourseDayExcelTemplate(GetImportCourseDayExcelTemplateRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
@@ -542,6 +541,10 @@ namespace ETMS.Business
                 var course = await _courseDAL.GetCourse(p.CourseName);
                 var dayDeff = EtmsHelper.GetDffTime(p.StartTime, p.EndTime.AddDays(1));
                 var myMonths = dayDeff.Item1;
+                if (myMonths == 0)
+                {
+                    myMonths = 1;
+                }
                 var myDays = dayDeff.Item2;
                 decimal price = 0;
                 if (myMonths > 0)

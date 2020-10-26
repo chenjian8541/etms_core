@@ -52,6 +52,11 @@
             "Type": 1
           },
           {
+            "ActionId": 42,
+            "Name": "导入潜在学员",
+            "Type": 1
+          },
+          {
             "ActionId": 5,
             "Name": "分配跟进人",
             "Type": 1
@@ -193,6 +198,13 @@
             "Id": 63,
             "Name": "试听申请",
             "Type": 0
+          }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 43,
+            "Name": "导入学员课程",
+            "Type": 1
           }
         ]
       },
