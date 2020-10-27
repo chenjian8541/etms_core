@@ -285,8 +285,8 @@ namespace ETMS.Business
                             CommentId = mySecondComment.Id,
                             Ot = mySecondComment.Ot.EtmsToMinuteString(),
                             OtDesc = EtmsHelper.GetOtFriendlyDesc(mySecondComment.Ot),
-                            RelatedManAvatar = secondfirstrelatedManName,
-                            RelatedManName = secondfirstrelatedManAvatar,
+                            RelatedManAvatar = secondfirstrelatedManAvatar,
+                            RelatedManName = secondfirstrelatedManName,
                             ReplyId = mySecondComment.ReplyId,
                             SourceType = mySecondComment.SourceType,
                             ReplyRelatedManName = firstrelatedManName
