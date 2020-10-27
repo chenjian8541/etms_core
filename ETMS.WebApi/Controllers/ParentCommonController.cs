@@ -54,6 +54,26 @@ namespace ETMS.WebApi.Controllers
         }
 
         /// <summary>
+        /// 使用base64方式上传图片
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("upFileBase64")]
+        public ResponseBase UploadFileBase64(UploadFileBase64Request request)
+        {
+            try
+            {
+                var action = new UploadFileBase64Action();
+                return action.ProcessAction(_httpContextAccessor, _appConfigurtaionServices.AppSettings, request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
+
+        /// <summary>
         /// 上传视频文件
         /// </summary>
         /// <param name="collection"></param>
