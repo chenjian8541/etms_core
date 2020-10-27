@@ -22,6 +22,10 @@ namespace ETMS.Entity.Dto.Parent.Request
             {
                 return "请填写作答信息";
             }
+            if (AnswerMediasKeys != null && AnswerMediasKeys.Count > 5)
+            {
+                return "最多保存5个媒体文件";
+            }
             return string.Empty;
         }
     }
