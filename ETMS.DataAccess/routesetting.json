@@ -264,6 +264,53 @@
     ]
   },
   {
+    "Id": 66,
+    "Path": "/interaction",
+    "Name": "interaction",
+    "Type": 0,
+    "Meta": {
+      "Title": "家校互动",
+      "Icon": "interaction"
+    },
+    "Children": [
+      {
+        "Id": 67,
+        "Path": "homework",
+        "Name": "homework",
+        "Type": 1,
+        "Component": "@/views/Interaction/homework",
+        "Meta": {
+          "Title": "课后作业",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "homeworkAdd",
+        "Name": "homeworkAdd",
+        "Type": 1,
+        "Component": "@/components/Homework/AddHomeWork",
+        "Meta": {
+          "Title": "布置单次作业",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "homeworkDetail",
+        "Name": "homeworkDetail",
+        "Type": 1,
+        "Component": "@/components/Homework/HomeworkDetail",
+        "Meta": {
+          "Title": "作业详情",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
     "Id": 37,
     "Path": "/marketingMgr",
     "Name": "marketingMgr",

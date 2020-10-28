@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Interaction.Request
 {
-    public class ActiveGrowthRecordStudentGetPagingRequest : RequestPagingBase
+    public class ActiveGrowthRecordStudentGetPagingRequest : RequestPagingBase, IDataLimit
     {
         public long? GrowingTagId { get; set; }
 
@@ -62,6 +62,11 @@ namespace ETMS.Entity.Dto.Interaction.Request
             }
         }
 
+        public string GetDataLimitFilterWhere()
+        {
+            return $" AND CreateUserId = {LoginUserId}";
+        }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -85,6 +90,10 @@ namespace ETMS.Entity.Dto.Interaction.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToString()}'");
+            }
+            if (IsDataLimit)
+            {
+                condition.Append(GetDataLimitFilterWhere());
             }
             return condition.ToString();
         }

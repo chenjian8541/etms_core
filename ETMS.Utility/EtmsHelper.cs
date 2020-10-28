@@ -204,6 +204,10 @@ namespace ETMS.Utility
             {
                 return $"{Math.Floor(time.TotalMinutes)}分钟前";
             }
+            if (time.TotalSeconds == 0)
+            {
+                return "1秒前";
+            }
             return $"{Math.Floor(time.TotalSeconds)}秒前";
         }
     }
