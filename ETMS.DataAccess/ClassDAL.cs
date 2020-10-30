@@ -55,6 +55,11 @@ namespace ETMS.DataAccess
 
         public async Task<bool> DelClass(long classId)
         {
+            var classRecord = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassRecord WHERE ClassId = {classId}");
+            if (classRecord != null)
+            {
+                return false;
+            }
             var strSql = new StringBuilder();
             strSql.Append($"UPDATE EtClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {classId}; ");
             strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
