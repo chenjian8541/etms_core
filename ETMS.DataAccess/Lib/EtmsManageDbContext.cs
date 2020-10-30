@@ -32,5 +32,9 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysAgentSmsLog> SysAgentSmsLogs { get; set; }
         public DbSet<SysTenantEtmsAccountLog> SysTenantEtmsAccountLogs { get; set; }
         public DbSet<SysTenantSmsLog> SysTenantSmsLogs { get; set; }
+        public DbSet<SysTenantWechartAuth> SysTenantWechartAuths { get; set; }
+        public DbSet<SysWechartVerifyTicket> SysWechartVerifyTickets { get; set; }
+        public DbSet<SysWechartAuthorizerToken> SysWechartAuthorizerTokens { get; set; }
+        public DbSet<SysAppsettings> SysAppsettingss { get; set; }
     }
 }

@@ -16,8 +16,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Senparc.CO2NET;
 using System;
 using System.Text;
+using Senparc.CO2NET.AspNet;
+using Senparc.Weixin;
+using Senparc.Weixin.Cache.CsRedis;
+using Senparc.Weixin.Open;
+using ETMS.IBusiness.Wechart;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum;
+using Senparc.Weixin.RegisterServices;
 
 namespace ETMS.WebApi
 {
@@ -59,6 +68,7 @@ namespace ETMS.WebApi
                 options.AddPolicy(PolicyName, builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
             });
             Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            services.AddSenparcWeixinServices(Configuration);
             InitCustomIoc(services);
         }
 
@@ -115,9 +125,86 @@ namespace ETMS.WebApi
                 EnableDirectoryBrowsing = false
             });
 
+            this.InitSenparcService(app, env, appConfig);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+
+        public void InitSenparcService(IApplicationBuilder app, IWebHostEnvironment env, AppSettings appSettings)
+        {
+            var mySenparcSetting = appSettings.SenparcConfig;
+            var senparcSetting = new Senparc.CO2NET.SenparcSetting()
+            {
+                Cache_Memcached_Configuration = string.Empty,
+                Cache_Redis_Configuration = mySenparcSetting.SenparcSetting.CacheRedisConfiguration,
+                DefaultCacheNamespace = mySenparcSetting.SenparcSetting.DefaultCacheNamespace,
+                IsDebug = mySenparcSetting.SenparcSetting.IsDebug,
+                SenparcUnionAgentKey = mySenparcSetting.SenparcSetting.SenparcUnionAgentKey
+            };
+            var senparcWeixinSetting = new Senparc.Weixin.Entities.SenparcWeixinSetting()
+            {
+                Component_Appid = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentAppid,
+                Component_Secret = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentSecret,
+                Component_Token = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentToken,
+                Component_EncodingAESKey = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentEncodingAESKey
+            };
+            var registerService = app.UseSenparcGlobal(env, senparcSetting, globalRegister =>
+            {
+                globalRegister.ChangeDefaultCacheNamespace("ETMSDefaultCacheNamespace");
+                Senparc.CO2NET.Cache.CsRedis.Register.SetConfigurationOption(mySenparcSetting.SenparcSetting.CacheRedisConfiguration);
+                Senparc.CO2NET.Cache.CsRedis.Register.UseKeyValueRedisNow();
+            }, true).UseSenparcWeixin(senparcWeixinSetting, weixinRegister =>
+            {
+                weixinRegister.UseSenparcWeixinCacheCsRedis();
+                weixinRegister.RegisterOpenComponent(senparcWeixinSetting,
+                    async componentAppId =>
+                    {
+                        //getComponentVerifyTicketFunc 
+                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                        return await componentAccessBLL.GetSysWechartVerifyTicket(componentAppId);
+                    },
+                    async (componentAppId, auhtorizerId) =>
+                    {
+                        //getAuthorizerRefreshTokenFunc
+                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                        var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
+                        if (wechartAuthorizerToken == null)
+                        {
+                            return null;
+                        }
+                        return wechartAuthorizerToken.AuthorizerRefreshToken;
+                    },
+                    async (componentAppId, auhtorizerId, refreshResult) =>
+                    {
+                        //authorizerTokenRefreshedFunc
+                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                        var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
+                        if (wechartAuthorizerToken == null)
+                        {
+                            wechartAuthorizerToken = new SysWechartAuthorizerToken()
+                            {
+                                IsDeleted = EmIsDeleted.Normal,
+                                ModifyOt = DateTime.Now,
+                                Remark = string.Empty,
+                                ComponentAppId = componentAppId,
+                                AuthorizerAppid = auhtorizerId,
+                                AuthorizerAccessToken = refreshResult.authorizer_access_token,
+                                AuthorizerRefreshToken = refreshResult.authorizer_refresh_token,
+                                ExpiresIn = refreshResult.expires_in
+                            };
+                        }
+                        else
+                        {
+                            wechartAuthorizerToken.AuthorizerAccessToken = refreshResult.authorizer_access_token;
+                            wechartAuthorizerToken.AuthorizerRefreshToken = refreshResult.authorizer_refresh_token;
+                            wechartAuthorizerToken.ExpiresIn = refreshResult.expires_in;
+                            wechartAuthorizerToken.ModifyOt = DateTime.Now;
+                        }
+                        await componentAccessBLL.SaveSysWechartAuthorizerToken(wechartAuthorizerToken);
+                    }, "【小禾帮培训管理系统】开放平台");
             });
         }
     }

@@ -41,6 +41,46 @@ namespace ETMS.Entity.Config
         public WxConfig WxConfig { get; set; }
 
         public UserConfig UserConfig { get; set; }
+
+        public SenparcConfig SenparcConfig { get; set; }
+    }
+
+    public class SenparcConfig
+    {
+        public bool CheckPublish { get; set; }
+
+        public SenparcSetting SenparcSetting { get; set; }
+
+        public SenparcWeixinSetting SenparcWeixinSetting { get; set; }
+    }
+
+    public class SenparcSetting
+    {
+        public bool IsDebug { get; set; }
+
+        public string DefaultCacheNamespace { get; set; }
+
+        public string CacheRedisConfiguration { get; set; }
+
+        public string SenparcUnionAgentKey { get; set; }
+    }
+
+    public class SenparcWeixinSetting
+    {
+        public ComponentConfig ComponentConfig { get; set; }
+    }
+
+    public class ComponentConfig
+    {
+        public string ComponentAppid { get; set; }
+
+        public string ComponentSecret { get; set; }
+
+        public string ComponentToken { get; set; }
+
+        public string ComponentEncodingAESKey { get; set; }
+
+        public string ComponentOAuthCallbackUrl { get; set; }
     }
 
     public class UserConfig
