@@ -163,47 +163,70 @@ namespace ETMS.WebApi
                     async componentAppId =>
                     {
                         //getComponentVerifyTicketFunc 
-                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
-                        return await componentAccessBLL.GetSysWechartVerifyTicket(componentAppId);
+                        try
+                        {
+                            var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                            return await componentAccessBLL.GetSysWechartVerifyTicket(componentAppId);
+                        }
+                        catch (Exception ex)
+                        {
+                            LOG.Log.Error($"[getComponentVerifyTicketFunc]componentAppId:{componentAppId}", ex, this.GetType());
+                            return string.Empty;
+                        }
                     },
                     async (componentAppId, auhtorizerId) =>
                     {
                         //getAuthorizerRefreshTokenFunc
-                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
-                        var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
-                        if (wechartAuthorizerToken == null)
+                        try
                         {
-                            return null;
+                            var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                            var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
+                            if (wechartAuthorizerToken == null)
+                            {
+                                return null;
+                            }
+                            return wechartAuthorizerToken.AuthorizerRefreshToken;
                         }
-                        return wechartAuthorizerToken.AuthorizerRefreshToken;
+                        catch (Exception ex)
+                        {
+                            LOG.Log.Error($"[getAuthorizerRefreshTokenFunc]componentAppId:{componentAppId},auhtorizerId:{auhtorizerId}", ex, this.GetType());
+                            return string.Empty;
+                        }
                     },
                     async (componentAppId, auhtorizerId, refreshResult) =>
                     {
                         //authorizerTokenRefreshedFunc
-                        var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
-                        var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
-                        if (wechartAuthorizerToken == null)
+                        try
                         {
-                            wechartAuthorizerToken = new SysWechartAuthorizerToken()
+                            var componentAccessBLL = CustomServiceLocator.GetInstance<IComponentAccessBLL>();
+                            var wechartAuthorizerToken = await componentAccessBLL.GetSysWechartAuthorizerToken(auhtorizerId);
+                            if (wechartAuthorizerToken == null)
                             {
-                                IsDeleted = EmIsDeleted.Normal,
-                                ModifyOt = DateTime.Now,
-                                Remark = string.Empty,
-                                ComponentAppId = componentAppId,
-                                AuthorizerAppid = auhtorizerId,
-                                AuthorizerAccessToken = refreshResult.authorizer_access_token,
-                                AuthorizerRefreshToken = refreshResult.authorizer_refresh_token,
-                                ExpiresIn = refreshResult.expires_in
-                            };
+                                wechartAuthorizerToken = new SysWechartAuthorizerToken()
+                                {
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    ModifyOt = DateTime.Now,
+                                    Remark = string.Empty,
+                                    ComponentAppId = componentAppId,
+                                    AuthorizerAppid = auhtorizerId,
+                                    AuthorizerAccessToken = refreshResult.authorizer_access_token,
+                                    AuthorizerRefreshToken = refreshResult.authorizer_refresh_token,
+                                    ExpiresIn = refreshResult.expires_in
+                                };
+                            }
+                            else
+                            {
+                                wechartAuthorizerToken.AuthorizerAccessToken = refreshResult.authorizer_access_token;
+                                wechartAuthorizerToken.AuthorizerRefreshToken = refreshResult.authorizer_refresh_token;
+                                wechartAuthorizerToken.ExpiresIn = refreshResult.expires_in;
+                                wechartAuthorizerToken.ModifyOt = DateTime.Now;
+                            }
+                            await componentAccessBLL.SaveSysWechartAuthorizerToken(wechartAuthorizerToken);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            wechartAuthorizerToken.AuthorizerAccessToken = refreshResult.authorizer_access_token;
-                            wechartAuthorizerToken.AuthorizerRefreshToken = refreshResult.authorizer_refresh_token;
-                            wechartAuthorizerToken.ExpiresIn = refreshResult.expires_in;
-                            wechartAuthorizerToken.ModifyOt = DateTime.Now;
+                            LOG.Log.Error($"[authorizerTokenRefreshedFunc]componentAppId:{componentAppId},auhtorizerId:{auhtorizerId}", ex, this.GetType());
                         }
-                        await componentAccessBLL.SaveSysWechartAuthorizerToken(wechartAuthorizerToken);
                     }, "【小禾帮培训管理系统】开放平台");
             });
         }

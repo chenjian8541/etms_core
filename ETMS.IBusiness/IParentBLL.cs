@@ -18,7 +18,7 @@ namespace ETMS.IBusiness
 
         ResponseBase ParentRefreshToken(ParentRefreshTokenRequest request);
 
-        ResponseBase ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request);
+        Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request);
 
         Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request);
 

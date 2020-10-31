@@ -2,6 +2,8 @@
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.ExternalService.Contract;
 using Newtonsoft.Json;
+using Senparc.Weixin.MP.AdvancedAPIs;
+using Senparc.Weixin.MP.AdvancedAPIs.TemplateMessage;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,13 +24,15 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var dataKeys = new Dictionary<string, TemplateKey>();
-                    dataKeys.Add("first", new TemplateKey() { value = $"{student.StudentName}同学，您明天有课程，请提前做好上课准备" });
-                    dataKeys.Add("keyword1", new TemplateKey() { value = student.CourseName });
-                    dataKeys.Add("keyword2", new TemplateKey() { value = request.ClassTimeDesc });
-                    dataKeys.Add("keyword3", new TemplateKey() { value = request.ClassRoom });
-                    dataKeys.Add("remark", new TemplateKey() { value = request.Remark });
-                    TemplateNotice.Send(student.OpendId, request.TemplateId, request.Topcolor, dataKeys, request.AccessToken, request.Url);
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"{student.StudentName}同学，您明天有课程，请提前做好上课准备"),
+                        keyword1 = new TemplateDataItem(student.CourseName),
+                        keyword2 = new TemplateDataItem(request.ClassTimeDesc),
+                        keyword3 = new TemplateDataItem(request.ClassRoom),
+                        remark = new TemplateDataItem(request.Remark)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
                 }
                 catch (Exception ex)
                 {
@@ -47,13 +51,15 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var dataKeys = new Dictionary<string, TemplateKey>();
-                    dataKeys.Add("first", new TemplateKey() { value = $"{student.StudentName}同学，您在今天{request.StartTimeDesc}有课程即将上课，可别迟到哦" });
-                    dataKeys.Add("keyword1", new TemplateKey() { value = student.CourseName });
-                    dataKeys.Add("keyword2", new TemplateKey() { value = request.ClassTimeDesc });
-                    dataKeys.Add("keyword3", new TemplateKey() { value = request.ClassRoom });
-                    dataKeys.Add("remark", new TemplateKey() { value = request.Remark });
-                    TemplateNotice.Send(student.OpendId, request.TemplateId, request.Topcolor, dataKeys, request.AccessToken, request.Url);
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"{student.StudentName}同学，您在今天{request.StartTimeDesc}有课程即将上课，可别迟到哦"),
+                        keyword1 = new TemplateDataItem(student.CourseName),
+                        keyword2 = new TemplateDataItem(request.ClassTimeDesc),
+                        keyword3 = new TemplateDataItem(request.ClassRoom),
+                        remark = new TemplateDataItem(request.Remark)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
                 }
                 catch (Exception ex)
                 {
@@ -72,26 +78,33 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var dataKeys = new Dictionary<string, TemplateKey>();
-                    dataKeys.Add("first", new TemplateKey() { value = $"{student.Name}同学，您的课程{student.CourseName}已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}，请确认" });
-                    dataKeys.Add("keyword1", new TemplateKey() { value = student.Name });
-                    dataKeys.Add("keyword2", new TemplateKey() { value = request.ClassName });
-                    dataKeys.Add("keyword3", new TemplateKey() { value = request.ClassTimeDesc });
+                    var keyword4Desc = string.Empty;
+                    var keyword4Color = string.Empty;
                     switch (student.StudentCheckStatus)
                     {
                         case EmClassStudentCheckStatus.BeLate:
-                            dataKeys.Add("keyword4", new TemplateKey() { value = student.StudentCheckStatusDesc, color = "#E6A23C" });
+                            keyword4Desc = student.StudentCheckStatusDesc;
+                            keyword4Color = "#E6A23C";
                             break;
                         case EmClassStudentCheckStatus.NotArrived:
-                            dataKeys.Add("keyword4", new TemplateKey() { value = student.StudentCheckStatusDesc, color = "#F56C6C" });
+                            keyword4Desc = student.StudentCheckStatusDesc;
+                            keyword4Color = "#F56C6C";
                             break;
                         default:
-                            dataKeys.Add("keyword4", new TemplateKey() { value = student.StudentCheckStatusDesc });
+                            keyword4Desc = student.StudentCheckStatusDesc;
                             break;
                     }
-                    dataKeys.Add("keyword5", new TemplateKey() { value = request.TeacherDesc });
-                    dataKeys.Add("remark", new TemplateKey() { value = request.Remark });
-                    var result = TemplateNotice.Send(student.OpendId, request.TemplateId, request.Topcolor, dataKeys, request.AccessToken, student.LinkUrl);
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"{student.Name}同学，您的课程{student.CourseName}已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}，请确认"),
+                        keyword1 = new TemplateDataItem(student.Name),
+                        keyword2 = new TemplateDataItem(request.ClassName),
+                        keyword3 = new TemplateDataItem(request.ClassTimeDesc),
+                        keyword4 = new TemplateDataItem(keyword4Desc, keyword4Color),
+                        keyword5 = new TemplateDataItem(request.TeacherDesc),
+                        remark = new TemplateDataItem(request.Remark),
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.LinkUrl, data);
                 }
                 catch (Exception ex)
                 {
@@ -110,22 +123,28 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var dataKeys = new Dictionary<string, TemplateKey>();
-                    dataKeys.Add("first", new TemplateKey() { value = $"{student.Name}同学，您好！您收到一条请假审核提醒" });
-                    dataKeys.Add("keyword1", new TemplateKey() { value = student.Name });
-                    dataKeys.Add("keyword2", new TemplateKey() { value = request.StartTimeDesc });
-                    dataKeys.Add("keyword3", new TemplateKey() { value = request.EndTimeDesc });
+                    var keyword4Desc = string.Empty;
+                    var keyword4Color = string.Empty;
                     if (student.HandleStatus == EmStudentLeaveApplyHandleStatus.NotPass)
                     {
-                        dataKeys.Add("keyword4", new TemplateKey() { value = student.HandleStatusDesc, color = "#E6A23C" });
+                        keyword4Desc = student.HandleStatusDesc;
+                        keyword4Color = "#E6A23C";
                     }
                     else
                     {
-                        dataKeys.Add("keyword4", new TemplateKey() { value = student.HandleStatusDesc });
+                        keyword4Desc = student.HandleStatusDesc;
                     }
-                    dataKeys.Add("keyword5", new TemplateKey() { value = student.HandleUser });
-                    dataKeys.Add("remark", new TemplateKey() { value = request.Remark });
-                    var result = TemplateNotice.Send(student.OpendId, request.TemplateId, request.Topcolor, dataKeys, request.AccessToken, request.Url);
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"{student.Name}同学，您好！您收到一条请假审核提醒"),
+                        keyword1 = new TemplateDataItem(student.Name),
+                        keyword2 = new TemplateDataItem(request.StartTimeDesc),
+                        keyword3 = new TemplateDataItem(request.EndTimeDesc),
+                        keyword4 = new TemplateDataItem(keyword4Desc, keyword4Color),
+                        keyword5 = new TemplateDataItem(student.HandleUser),
+                        remark = new TemplateDataItem(request.Remark)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
                 }
                 catch (Exception ex)
                 {
@@ -144,13 +163,15 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var dataKeys = new Dictionary<string, TemplateKey>();
-                    dataKeys.Add("first", new TemplateKey() { value = $"{student.Name}同学，您有新的订单已完成，共消费{request.AptSumDesc}元，已支付{request.PaySumDesc}元，请确认" });
-                    dataKeys.Add("keyword1", new TemplateKey() { value = request.OrderNo });
-                    dataKeys.Add("keyword2", new TemplateKey() { value = request.BuyDesc });
-                    dataKeys.Add("keyword3", new TemplateKey() { value = request.TimeDedc });
-                    dataKeys.Add("remark", new TemplateKey() { value = request.Remark });
-                    var result = TemplateNotice.Send(student.OpendId, request.TemplateId, request.Topcolor, dataKeys, request.AccessToken, request.Url);
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"{student.Name}同学，您有新的订单已完成，共消费{request.AptSumDesc}元，已支付{request.PaySumDesc}元，请确认"),
+                        keyword1 = request.OrderNo,
+                        keyword2 = request.BuyDesc,
+                        keyword3 = request.TimeDedc,
+                        remark = request.Remark
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
                 }
                 catch (Exception ex)
                 {

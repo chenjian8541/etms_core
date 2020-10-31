@@ -561,5 +561,28 @@
         }
       }
     ]
+  },
+  {
+    "Id": 68,
+    "Path": "/increment",
+    "Name": "increment",
+    "Type": 0,
+    "Meta": {
+      "Title": "增值服务",
+      "Icon": "increment"
+    },
+    "Children": [
+      {
+        "Id": 69,
+        "Path": "WxMgr",
+        "Name": "WxMgr",
+        "Type": 1,
+        "Component": "@/views/increment/WxMgr",
+        "Meta": {
+          "Title": "微信助手",
+          "Icon": "item"
+        }
+      }
+    ]
   }
 ]

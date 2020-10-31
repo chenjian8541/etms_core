@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
     <ProjectReference Include="..\ETMS.Event.DataContract\ETMS.Event.DataContract.csproj" />
+    <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
   </ItemGroup>
 
 </Project>

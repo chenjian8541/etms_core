@@ -8,6 +8,8 @@ namespace ETMS.IBusiness.Wechart
 {
     public interface IComponentAccessBLL
     {
+        Task<SysTenantWechartAuth> GetTenantWechartAuthSelf(int tenantId);
+
         Task<SysTenantWechartAuth> GetTenantWechartAuth(int tenantId);
 
         Task<bool> SaveSysTenantWechartAuth(SysTenantWechartAuth entity);

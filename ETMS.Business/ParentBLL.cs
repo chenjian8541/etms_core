@@ -21,6 +21,9 @@ using ETMS.LOG;
 using WxApi.ReceiveEntity;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
+using ETMS.IBusiness.Wechart;
+using Senparc.Weixin.Open.OAuthAPIs;
+using Senparc.Weixin.Open.Containers;
 
 namespace ETMS.Business
 {
@@ -44,9 +47,11 @@ namespace ETMS.Business
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly IComponentAccessBLL _componentAccessBLL;
+
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
-            IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL)
+            IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -57,6 +62,7 @@ namespace ETMS.Business
             this._studentWechatDAL = studentWechatDAL;
             this._sysStudentWechartDAL = sysStudentWechartDAL;
             this._studentDAL = studentDAL;
+            this._componentAccessBLL = componentAccessBLL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -187,10 +193,18 @@ namespace ETMS.Business
             });
         }
 
-        public ResponseBase ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
+        public async Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
         {
-            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            var url = OAuth.GetAuthUrl(wxConfig.Appid, request.SourceUrl, "1", AuthType.snsapi_userinfo);
+            var tenantId = ParentLib.GetTenantDecrypt(request.TenantNo);
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[ParentGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, request.SourceUrl, tenantId.ToString(),
+                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
             Log.Info($"[家长端获取授权地址]{url}", this.GetType());
             return ResponseBase.Success(url);
         }
@@ -199,7 +213,17 @@ namespace ETMS.Business
         {
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             Log.Info($"家长端通过code登录请求:{request.Code}", this.GetType());
-            var authToken = OAuth.GetAuthToken(wxConfig.Appid, wxConfig.Secret, request.Code);
+            var tenantId = ParentLib.GetTenantDecrypt(request.TenantNo);
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[ParentGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+            var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
+            var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, request.Code);
+
             var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(authToken.openid);
             if (sysStudentWechartLog == null || sysStudentWechartLog.TenantId == 0)
             {
@@ -231,10 +255,10 @@ namespace ETMS.Business
             }
         }
 
-        private async Task<ResponseBase> ResetSysStudentWechart(OAuthToken authToken)
+        private async Task<ResponseBase> ResetSysStudentWechart(OAuthAccessTokenResult authToken)
         {
             await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid);
-            var userInfo = OAuth.GetUserInfo(authToken.access_token, authToken.openid);
+            var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
             var sysStudentWechart = new SysStudentWechart()
             {
                 Headimgurl = userInfo.headimgurl,

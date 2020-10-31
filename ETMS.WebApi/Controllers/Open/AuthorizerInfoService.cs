@@ -34,7 +34,7 @@ namespace ETMS.WebApi.Controllers.Open
             }
             code = string.Join(",", codeList.ToArray());
             value = string.Join(",", valueList.ToArray());
-            var oldTenantWechartAuth = await componentAccessBLL.GetTenantWechartAuth(tenantId);
+            var oldTenantWechartAuth = await componentAccessBLL.GetTenantWechartAuthSelf(tenantId);
             if (oldTenantWechartAuth == null)
             {
                 oldTenantWechartAuth = new SysTenantWechartAuth();

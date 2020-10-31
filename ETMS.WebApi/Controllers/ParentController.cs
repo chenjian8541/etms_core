@@ -91,11 +91,11 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public ResponseBase ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
+        public async Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
         {
             try
             {
-                return _parentBLL.ParentGetAuthorizeUrl(request);
+                return await _parentBLL.ParentGetAuthorizeUrl(request);
             }
             catch (Exception ex)
             {

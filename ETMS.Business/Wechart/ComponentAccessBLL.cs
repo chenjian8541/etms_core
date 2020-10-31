@@ -30,6 +30,11 @@ namespace ETMS.Business.Wechart
             this._sysWechartVerifyTicketDAL = sysWechartVerifyTicketDAL;
         }
 
+        public async Task<SysTenantWechartAuth> GetTenantWechartAuthSelf(int tenantId)
+        {
+            return await _sysTenantWechartAuthDAL.GetSysTenantWechartAuth(tenantId);
+        }
+
         public async Task<SysTenantWechartAuth> GetTenantWechartAuth(int tenantId)
         {
             var myWechartAuth = await _sysTenantWechartAuthDAL.GetSysTenantWechartAuth(tenantId);
