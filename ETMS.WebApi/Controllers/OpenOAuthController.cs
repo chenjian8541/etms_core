@@ -71,7 +71,7 @@ namespace ETMS.WebApi.Controllers
                 var authorizerInfoResult = AuthorizerContainer.GetAuthorizerInfoResult(componentAppId, queryAuthResult.authorization_info.authorizer_appid, true);
                 if (authorizerInfoResult != null && authorizerInfoResult.authorizer_info.MiniProgramInfo == null)
                 {
-                    await AuthorizerInfoService.AddAuthorizerInfo(appSettings, queryAuthResult.authorization_info, authorizerInfoResult.authorizer_info, request.TenantId, _componentAccessBLL);
+                    return await AuthorizerInfoService.AddAuthorizerInfo(appSettings, queryAuthResult.authorization_info, authorizerInfoResult.authorizer_info, request.TenantId, _componentAccessBLL);
                 }
                 return ResponseBase.Success();
             }
