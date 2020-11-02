@@ -52,8 +52,8 @@ namespace ETMS.WebApi.Controllers.Open
             oldTenantWechartAuth.NickName = authorizerinfo.nick_name;
             oldTenantWechartAuth.UserName = authorizerinfo.user_name;
             oldTenantWechartAuth.QrcodeUrl = authorizerinfo.qrcode_url;
-            oldTenantWechartAuth.ServiceTypeInfo = authorizerinfo.service_type_info.id.ToString();
-            oldTenantWechartAuth.VerifyTypeInfo = authorizerinfo.verify_type_info.id.ToString();
+            oldTenantWechartAuth.ServiceTypeInfo = Convert.ToInt32(authorizerinfo.service_type_info.id).ToString();
+            oldTenantWechartAuth.VerifyTypeInfo = Convert.ToInt32(authorizerinfo.verify_type_info.id).ToString();
             oldTenantWechartAuth.AuthorizerAppid = authorizationinfo.authorizer_appid;
             oldTenantWechartAuth.PermissionsKey = code;
             oldTenantWechartAuth.PermissionsValue = value;

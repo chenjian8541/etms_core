@@ -1,5 +1,7 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Config;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Data.SqlClient;
@@ -29,9 +31,30 @@ namespace Etms.Tools.Test
             //    var isPhone = IsMobilePhone(s);
             //    Console.WriteLine(isPhone);
             //}
-            var strEncrypt = "81041";
-            strEncrypt = strEncrypt.Substring(4);
-            Console.WriteLine(strEncrypt);
+            var entity = new SysTenantWechartAuth()
+            {
+                Id = 0,
+                AuthorizerAppid = "wxdb620f6794fdcf83",
+                AuthorizeState = EmSysTenantWechartAuthAuthorizeState.Authorized,
+                NickName = "小禾帮",
+                HeadImg = "http://wx.qlogo.cn/mmopen/BggnTAMTGIxa5EQnRkIlvr51AcIGICQ1gic5znVonymACBt7DU4WQnxTuxmpmeQLIF8hPYTKUlvF4qmsNbW12NRH9EKmUMbqB/0",
+                ServiceTypeInfo = EmWechartAuthServiceTypeInfo.ServiceType2,
+                VerifyTypeInfo = EmWechartAuthVerifyTypeInfo.VerifyType0,
+                UserName = "gh_52de00cc566d",
+                PrincipalName = string.Empty,
+                Alias = string.Empty,
+                BusinessInfo = string.Empty,
+                QrcodeUrl = "http://mmbiz.qpic.cn/mmbiz_jpg/iahOPb43Solz0fKUrvDNXEzucK0vkBtJbhJaiaCvbPL1wO4g7ibFkO6r6XiafkrUicK8FEvSuK5J3sqib1U8GtbFUg5w/0",
+                PermissionsKey = "1,15,4,7,2,11,6,8,13,9,10,24,54",
+                PermissionsValue = "消息管理权限,自定义菜单权限,网页服务权限,群发与通知权限,用户管理权限,素材管理权限,微信多客服权限,微信卡券权限,微信门店权限,微信扫一扫权限,微信连WIFI权限,开放平台帐号管理权限,54",
+                CreateOt = DateTime.Now,
+                IsDeleted = 0,
+                ModifyOt = DateTime.Now,
+                Remark = "默认数据",
+                TenantId = 0
+            };
+            var s = Newtonsoft.Json.JsonConvert.SerializeObject(entity);
+            Console.WriteLine(s);
             Console.Read();
         }
 

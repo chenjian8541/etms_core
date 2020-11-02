@@ -36,7 +36,6 @@ namespace ETMS.WebApi.Controllers
         [AllowAnonymous]
         public ActionResult ComponentNotice([FromQuery]PostModel postModel)
         {
-            Log.Debug($"[ComponentNotice]11111", this.GetType());
             try
             {
                 Log.Debug($"[ComponentNotice]postModel:{JsonConvert.SerializeObject(postModel)}", this.GetType());

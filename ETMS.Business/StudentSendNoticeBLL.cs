@@ -61,7 +61,8 @@ namespace ETMS.Business
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
-            IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL)
+            IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
+            IComponentAccessBLL componentAccessBLL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
@@ -79,6 +80,7 @@ namespace ETMS.Business
             this._studentWechatDAL = studentWechatDAL;
             this._userDAL = userDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._componentAccessBLL = componentAccessBLL;
         }
 
         public void InitTenantId(int tenantId)
