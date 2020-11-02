@@ -18,10 +18,11 @@ namespace ETMS.WebApi.Controllers.Open
         {
             var strParms = $"tenantId:{tenantId},authorizationinfo:{JsonConvert.SerializeObject(authorizationinfo)},authorizerinfo:{JsonConvert.SerializeObject(authorizerinfo)}";
             LOG.Log.Debug($"[AddAuthorizerInfo]添加授权信息,{strParms}", typeof(AuthorizerInfoService));
-            if ((int)authorizerinfo.service_type_info.id != 2 && (int)authorizerinfo.verify_type_info.id == -1)
+            if ((int)authorizerinfo.service_type_info.id != Convert.ToInt32(EmWechartAuthServiceTypeInfo.ServiceType2)
+                || (int)authorizerinfo.verify_type_info.id == Convert.ToInt32(EmWechartAuthVerifyTypeInfo.VerifyType1Less))
             {
-                LOG.Log.Warn($"[AddAuthorizerInfo]未认证的订阅号无法授权,{strParms}", typeof(AuthorizerInfoService));
-                return ResponseBase.CommonError("未认证的订阅号无法授权");
+                LOG.Log.Warn($"[AddAuthorizerInfo]授权失败,只支持已认证的服务号授权,{strParms}", typeof(AuthorizerInfoService));
+                return ResponseBase.CommonError("授权失败,只支持已认证的服务号授权");
             }
             string code;
             string value;

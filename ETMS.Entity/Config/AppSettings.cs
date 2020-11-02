@@ -90,15 +90,16 @@ namespace ETMS.Entity.Config
 
     public class WxConfig
     {
-        public string Token { get; set; }
-
-        public string EncodingAESKey { get; set; }
-
-        public string Appid { get; set; }
-
-        public string Secret { get; set; }
-
         public TemplateNoticeConfig TemplateNoticeConfig { get; set; }
+
+        public WeChatEntranceConfig WeChatEntranceConfig { get; set; }
+    }
+
+    public class WeChatEntranceConfig
+    {
+        public string ParentLogin { get; set; }
+
+        public string TeacherLogin { get; set; }
     }
 
     public class TemplateNoticeConfig

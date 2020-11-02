@@ -46,7 +46,7 @@ namespace ETMS.DataAccess
 
         public async Task DelStudentWechat(string phone, string openId)
         {
-            await _dbWrapper.Execute($"DELETE EtStudentWechat WHERE WechatOpenid = '{openId}' OR Phone = '{phone}'");
+            await _dbWrapper.Execute($"DELETE EtStudentWechat WHERE (WechatOpenid = '{openId}' OR Phone = '{phone}') AND TenantId = {_tenantId}");
             RemoveCache(_tenantId, phone);
         }
     }

@@ -6,7 +6,13 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 {
     public class NoticeClassCheckSignRequest : NoticeRequestBase
     {
-        public NoticeClassCheckSignRequest(int tenantId) : base(tenantId)
+        public NoticeClassCheckSignRequest(NoticeRequestBase requestBase)
+            : base(requestBase.LoginTenantId,
+                  requestBase.WechartAuthorizerId,
+                  requestBase.TenantName,
+                  requestBase.TenantSmsSignature,
+                  requestBase.WechartTemplateMessageLimit,
+                  requestBase.AccessToken)
         {
         }
 

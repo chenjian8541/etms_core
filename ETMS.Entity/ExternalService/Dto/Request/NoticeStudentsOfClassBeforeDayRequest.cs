@@ -6,7 +6,13 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 {
     public class NoticeStudentsOfClassBeforeDayRequest: NoticeRequestBase
     {
-        public NoticeStudentsOfClassBeforeDayRequest(int tenantId) : base(tenantId)
+        public NoticeStudentsOfClassBeforeDayRequest(NoticeRequestBase requestBase)
+            : base(requestBase.LoginTenantId,
+                  requestBase.WechartAuthorizerId,
+                  requestBase.TenantName,
+                  requestBase.TenantSmsSignature,
+                  requestBase.WechartTemplateMessageLimit,
+                  requestBase.AccessToken)
         {
         }
 

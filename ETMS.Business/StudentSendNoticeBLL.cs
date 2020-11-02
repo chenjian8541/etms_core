@@ -15,6 +15,9 @@ using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Utility;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Config;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.IBusiness.Wechart;
+using ETMS.Business.WxCore;
 
 namespace ETMS.Business
 {
@@ -44,19 +47,21 @@ namespace ETMS.Business
 
         private readonly IWxService _wxService;
 
-        private readonly IWxAccessTokenBLL _wxAccessTokenBLL;
-
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
         private readonly IStudentWechatDAL _studentWechatDAL;
 
         private readonly IUserDAL _userDAL;
 
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly IComponentAccessBLL _componentAccessBLL;
+
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
-            IWxService wxService, IWxAccessTokenBLL wxAccessTokenBLL, IAppConfigurtaionServices appConfigurtaionServices,
-            IStudentWechatDAL studentWechatDAL, IUserDAL userDAL)
+            IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
+            IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
@@ -70,17 +75,17 @@ namespace ETMS.Business
             this._tempStudentClassNoticeDAL = tempStudentClassNoticeDAL;
             this._studentCourseDAL = studentCourseDAL;
             this._wxService = wxService;
-            this._wxAccessTokenBLL = wxAccessTokenBLL;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentWechatDAL = studentWechatDAL;
             this._userDAL = userDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
-                _tempStudentClassNoticeDAL, _studentCourseDAL, _studentWechatDAL, _userDAL);
-            this._wxAccessTokenBLL.InitTenantId(tenantId);
+                _tempStudentClassNoticeDAL, _studentCourseDAL,
+                _studentWechatDAL, _userDAL);
         }
 
         public async Task NoticeStudentsOfClassBeforeDayTenant(NoticeStudentsOfClassBeforeDayTenantEvent request)
@@ -146,7 +151,7 @@ namespace ETMS.Business
                 var allClassRoom = await _classRoomDAL.GetAllClassRoom();
                 stringClassRoom = ComBusiness.GetClassRoomDesc(allClassRoom, request.ClassTimes.ClassRoomIds);
             }
-            var smsReq = new NoticeStudentsOfClassBeforeDayRequest(request.TenantId)
+            var smsReq = new NoticeStudentsOfClassBeforeDayRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(request.ClassTimes.StartTime, request.ClassTimes.EndTime, "-"),
@@ -156,8 +161,6 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (request.IsSendWeChat)
             {
-                var tokenInfo = _wxAccessTokenBLL.GetWxGzhAccessToken();
-                smsReq.AccessToken = tokenInfo.AccessToken;
                 smsReq.TemplateId = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
                 smsReq.Remark = request.WeChatNoticeRemark;
             }
@@ -335,7 +338,8 @@ namespace ETMS.Business
                 var allClassRoom = await _classRoomDAL.GetAllClassRoom();
                 stringClassRoom = ComBusiness.GetClassRoomDesc(allClassRoom, classTimes.ClassRoomIds);
             }
-            var smsReq = new NoticeStudentsOfClassTodayRequest(request.TenantId)
+
+            var smsReq = new NoticeStudentsOfClassTodayRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-"),
@@ -345,8 +349,6 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (request.IsSendWeChat)
             {
-                var tokenInfo = _wxAccessTokenBLL.GetWxGzhAccessToken();
-                smsReq.AccessToken = tokenInfo.AccessToken;
                 smsReq.TemplateId = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
                 smsReq.Remark = request.WeChatNoticeRemark;
             }
@@ -462,7 +464,7 @@ namespace ETMS.Business
             }
 
             var tempBox = new DataTempBox<EtUser>();
-            var req = new NoticeClassCheckSignRequest(request.TenantId)
+            var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 ClassTimeDesc = $"{classRecord.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(classRecord.StartTime, classRecord.EndTime, "-")}",
                 Students = new List<NoticeClassCheckSignStudent>(),
@@ -472,8 +474,6 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
             {
-                var tokenInfo = _wxAccessTokenBLL.GetWxGzhAccessToken();
-                req.AccessToken = tokenInfo.AccessToken;
                 req.TemplateId = wxConfig.TemplateNoticeConfig.ClassCheckSign;
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
@@ -577,17 +577,13 @@ namespace ETMS.Business
                 return;
             }
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            var req = new NoticeStudentLeaveApplyRequest(request.TenantId)
-            {
-                Students = new List<NoticeStudentLeaveApplyStudent>(),
-                StartTimeDesc = $"{request.StudentLeaveApplyLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.StartTime)}",
-                EndTimeDesc = $"{request.StudentLeaveApplyLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.EndTime)}"
-            };
+            var req = new NoticeStudentLeaveApplyRequest(await GetNoticeRequestBase(request.TenantId));
+            req.Students = new List<NoticeStudentLeaveApplyStudent>();
+            req.StartTimeDesc = $"{request.StudentLeaveApplyLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.StartTime)}";
+            req.EndTimeDesc = $"{request.StudentLeaveApplyLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.EndTime)}";
             req.TimeDesc = $"{req.StartTimeDesc}~{req.EndTimeDesc}";
             if (tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat)
             {
-                var tokenInfo = _wxAccessTokenBLL.GetWxGzhAccessToken();
-                req.AccessToken = tokenInfo.AccessToken;
                 req.TemplateId = wxConfig.TemplateNoticeConfig.StudentLeaveApply;
                 req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentLeaveApplyDetailFrontUrl, request.StudentLeaveApplyLog.Id);
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
@@ -648,7 +644,7 @@ namespace ETMS.Business
             {
                 return;
             }
-            var req = new NoticeStudentContractsRequest(request.TenantId)
+            var req = new NoticeStudentContractsRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 AptSumDesc = request.Order.AptSum.ToString("F2"),
                 PaySumDesc = request.Order.PaySum.ToString("F2"),
@@ -659,8 +655,6 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (tenantConfig.StudentNoticeConfig.OrderByWeChat)
             {
-                var tokenInfo = _wxAccessTokenBLL.GetWxGzhAccessToken();
-                req.AccessToken = tokenInfo.AccessToken;
                 req.TemplateId = wxConfig.TemplateNoticeConfig.StudentContracts;
                 req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentOrderDetailFrontUrl, request.Order.Id);
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
@@ -746,6 +740,18 @@ namespace ETMS.Business
             }
             var wx = await _studentWechatDAL.GetStudentWechatByPhone(phone);
             return wx?.WechatOpenid;
+        }
+
+        private async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(tenantId);
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            var wxAccessToken = AuthorizationInfoService.GetWXAccessToken(tenantWechartAuth.AuthorizerAppid);
+            return new NoticeRequestBase(tenantId,
+                tenantWechartAuth.Id, tenant.Name,
+                tenant.SmsSignature,
+               WeChatLimit.IsSendTemplateMessage(tenantId, tenantWechartAuth.ServiceTypeInfo, tenantWechartAuth.VerifyTypeInfo),
+               wxAccessToken);
         }
     }
 }

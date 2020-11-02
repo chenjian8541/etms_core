@@ -37,6 +37,10 @@ namespace ETMS.Business.Wechart
 
         public async Task<SysTenantWechartAuth> GetTenantWechartAuth(int tenantId)
         {
+            if (tenantId == 0)
+            {
+                return await _sysAppsettingsBLL.GetWechartAuthDefault();
+            }
             var myWechartAuth = await _sysTenantWechartAuthDAL.GetSysTenantWechartAuth(tenantId);
             if (myWechartAuth == null || myWechartAuth.AuthorizeState == EmSysTenantWechartAuthAuthorizeState.Unauthorized)
             {

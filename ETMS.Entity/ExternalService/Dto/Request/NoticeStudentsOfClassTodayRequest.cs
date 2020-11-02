@@ -4,9 +4,15 @@ using System.Text;
 
 namespace ETMS.Entity.ExternalService.Dto.Request
 {
-    public class NoticeStudentsOfClassTodayRequest: NoticeRequestBase
+    public class NoticeStudentsOfClassTodayRequest : NoticeRequestBase
     {
-        public NoticeStudentsOfClassTodayRequest(int tenantId) : base(tenantId)
+        public NoticeStudentsOfClassTodayRequest(NoticeRequestBase requestBase)
+            : base(requestBase.LoginTenantId,
+                  requestBase.WechartAuthorizerId,
+                  requestBase.TenantName,
+                  requestBase.TenantSmsSignature,
+                  requestBase.WechartTemplateMessageLimit,
+                  requestBase.AccessToken)
         {
         }
 

@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Open.Request;
+using ETMS.Entity.Dto.Wx.Request;
 using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.Open;
@@ -23,10 +24,14 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IComponentAccessBLL _componentAccessBLL;
 
-        public OpenOAuthController(IAppConfigurtaionServices appConfigurtaionServices, IComponentAccessBLL componentAccessBLL)
+        private readonly IWxAccessBLL _wxAccessBLL;
+
+        public OpenOAuthController(IAppConfigurtaionServices appConfigurtaionServices, IComponentAccessBLL componentAccessBLL,
+            IWxAccessBLL wxAccessBLL)
         {
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._componentAccessBLL = componentAccessBLL;
+            this._wxAccessBLL = wxAccessBLL;
         }
 
         /// <summary>
@@ -78,6 +83,25 @@ namespace ETMS.WebApi.Controllers
             catch (Exception ex)
             {
                 Log.Error($"[OpenOAuthCallback]{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        /// <summary>
+        /// 获取机构微信公众号配置
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseBase> WxConfigBascGet(WxConfigBascGetRequest request)
+        {
+            try
+            {
+                _wxAccessBLL.InitTenantId(request.LoginTenantId);
+                return await _wxAccessBLL.WxConfigBascGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
                 return ResponseBase.UnKnownError();
             }
         }

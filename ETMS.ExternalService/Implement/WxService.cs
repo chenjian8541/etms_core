@@ -26,7 +26,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem($"{student.StudentName}同学，您明天有课程，请提前做好上课准备"),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.StudentName}同学，您明天有课程，请提前做好上课准备")),
                         keyword1 = new TemplateDataItem(student.CourseName),
                         keyword2 = new TemplateDataItem(request.ClassTimeDesc),
                         keyword3 = new TemplateDataItem(request.ClassRoom),
@@ -53,7 +53,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem($"{student.StudentName}同学，您在今天{request.StartTimeDesc}有课程即将上课，可别迟到哦"),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.StudentName}同学，您在今天{request.StartTimeDesc}有课程即将上课，可别迟到哦")),
                         keyword1 = new TemplateDataItem(student.CourseName),
                         keyword2 = new TemplateDataItem(request.ClassTimeDesc),
                         keyword3 = new TemplateDataItem(request.ClassRoom),
@@ -96,7 +96,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem($"{student.Name}同学，您的课程{student.CourseName}已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}，请确认"),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的课程{student.CourseName}已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}，请确认")),
                         keyword1 = new TemplateDataItem(student.Name),
                         keyword2 = new TemplateDataItem(request.ClassName),
                         keyword3 = new TemplateDataItem(request.ClassTimeDesc),
@@ -136,7 +136,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem($"{student.Name}同学，您好！您收到一条请假审核提醒"),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您好！您收到一条请假审核提醒")),
                         keyword1 = new TemplateDataItem(student.Name),
                         keyword2 = new TemplateDataItem(request.StartTimeDesc),
                         keyword3 = new TemplateDataItem(request.EndTimeDesc),
@@ -165,7 +165,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem($"{student.Name}同学，您有新的订单已完成，共消费{request.AptSumDesc}元，已支付{request.PaySumDesc}元，请确认"),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您有新的订单已完成，共消费{request.AptSumDesc}元，已支付{request.PaySumDesc}元，请确认")),
                         keyword1 = request.OrderNo,
                         keyword2 = request.BuyDesc,
                         keyword3 = request.TimeDedc,
@@ -177,6 +177,25 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
                 }
+            }
+        }
+
+        public string GetFirstDesc(NoticeRequestBase requestBase, string first)
+        {
+            if (requestBase.WechartAuthorizerId == 0)
+            {
+                if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
+                {
+                    return $"『 {requestBase.TenantName}』\r\n{first}";
+                }
+                else
+                {
+                    return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
+                }
+            }
+            else
+            {
+                return first;
             }
         }
     }

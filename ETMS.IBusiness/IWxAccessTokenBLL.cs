@@ -7,6 +7,6 @@ namespace ETMS.IBusiness
 {
     public interface IWxAccessTokenBLL : IBaseBLL
     {
-        GetWxGzhAccessTokenOutput GetWxGzhAccessToken();
+        //GetWxGzhAccessTokenOutput GetWxGzhAccessToken();
     }
 }

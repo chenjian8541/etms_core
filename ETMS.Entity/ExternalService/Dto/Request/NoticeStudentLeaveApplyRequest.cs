@@ -6,7 +6,13 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 {
     public class NoticeStudentLeaveApplyRequest: NoticeRequestBase
     {
-        public NoticeStudentLeaveApplyRequest(int tenantId) : base(tenantId)
+        public NoticeStudentLeaveApplyRequest(NoticeRequestBase requestBase)
+            : base(requestBase.LoginTenantId,
+                  requestBase.WechartAuthorizerId,
+                  requestBase.TenantName,
+                  requestBase.TenantSmsSignature,
+                  requestBase.WechartTemplateMessageLimit,
+                  requestBase.AccessToken)
         {
         }
 

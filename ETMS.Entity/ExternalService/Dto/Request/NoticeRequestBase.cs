@@ -7,8 +7,16 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 {
     public class NoticeRequestBase : SmsBase, IWxNotice
     {
-        public NoticeRequestBase(int tenantId) : base(tenantId)
+        public NoticeRequestBase(int tenantId,
+            int wechartAuthorizerId,
+            string tenantName, string tenantSmsSignature,
+            bool wxTemplateLimit, string accessToken) : base(tenantId)
         {
+            this.WechartAuthorizerId = wechartAuthorizerId;
+            this.TenantName = tenantName;
+            this.TenantSmsSignature = tenantSmsSignature;
+            this.WechartTemplateMessageLimit = wxTemplateLimit;
+            this.AccessToken = accessToken;
         }
 
         public string TemplateId { get; set; }
@@ -17,5 +25,13 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public string Url { get; set; }
 
         public string Remark { get; set; }
+
+        public int WechartAuthorizerId { get; set; }
+
+        public string TenantName { get; set; }
+
+        public string TenantSmsSignature { get; set; }
+
+        public bool WechartTemplateMessageLimit { get; set; }
     }
 }

@@ -13,22 +13,25 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
-            var parentTokenConfig = new ParentTokenConfig()
-            {
-                ExTimestamp = exTime,
-                Phone = "18671724053",
-                TenantId = 1
-            };
-            var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
-            Console.WriteLine(signatureInfo.Item1);
-            Console.WriteLine(signatureInfo.Item2);
-            while (true)
-            {
-                var s = Console.ReadLine();
-                var isPhone = IsMobilePhone(s);
-                Console.WriteLine(isPhone);
-            }
+            //var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
+            //var parentTokenConfig = new ParentTokenConfig()
+            //{
+            //    ExTimestamp = exTime,
+            //    Phone = "18671724053",
+            //    TenantId = 1
+            //};
+            //var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
+            //Console.WriteLine(signatureInfo.Item1);
+            //Console.WriteLine(signatureInfo.Item2);
+            //while (true)
+            //{
+            //    var s = Console.ReadLine();
+            //    var isPhone = IsMobilePhone(s);
+            //    Console.WriteLine(isPhone);
+            //}
+            var strEncrypt = "81041";
+            strEncrypt = strEncrypt.Substring(4);
+            Console.WriteLine(strEncrypt);
             Console.Read();
         }
 

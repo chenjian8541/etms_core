@@ -24,13 +24,13 @@ namespace ETMS.WebApi.Controllers
         [HttpGet]
         public string Index([FromQuery]IndexRequest request)
         {
-            LOG.Log.Info($"[验证消息的确来自微信服务器]{JsonConvert.SerializeObject(request)}", this.GetType());
-            var appSettings = this._appConfigurtaionServices.AppSettings;
-            var result = BaseServices.ValidUrl(appSettings.WxConfig.Token, request.Signature, request.Timestamp, request.Nonce, request.Echostr);
-            if (result)
-            {
-                return request.Echostr;
-            }
+            //LOG.Log.Info($"[验证消息的确来自微信服务器]{JsonConvert.SerializeObject(request)}", this.GetType());
+            //var appSettings = this._appConfigurtaionServices.AppSettings;
+            //var result = BaseServices.ValidUrl(appSettings.WxConfig.Token, request.Signature, request.Timestamp, request.Nonce, request.Echostr);
+            //if (result)
+            //{
+            //    return request.Echostr;
+            //}
             return string.Empty;
         }
     }

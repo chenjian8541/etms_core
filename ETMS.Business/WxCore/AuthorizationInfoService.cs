@@ -22,7 +22,7 @@ namespace ETMS.Business.WxCore
 
         public static AuthorizationInfo GetAuthorizerAccessToken(string authorizerId, bool getNewTicket = false)
         {
-            string componentAccessToken = null;
+            string componentAccessToken = string.Empty;
             if (getNewTicket)
             {
                 componentAccessToken = ComponentContainer.GetComponentAccessToken(ComponentAppId, null, getNewTicket);
@@ -39,9 +39,15 @@ namespace ETMS.Business.WxCore
             return authorizationInfo;
         }
 
-        public AuthorizationInfo GetAuthorizerToken(string authorizerId)
+        public static AuthorizationInfo GetAuthorizerToken(string authorizerId)
         {
             return GetAuthorizerAccessToken(authorizerId);
+        }
+
+        public static string GetWXAccessToken(string authorizerId)
+        {
+            var authorizerToken = GetAuthorizerToken(authorizerId);
+            return authorizerToken.authorizer_access_token;
         }
 
         static AuthorizationInfoService()

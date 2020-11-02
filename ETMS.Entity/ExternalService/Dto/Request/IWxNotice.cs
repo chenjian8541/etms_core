@@ -16,5 +16,13 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         string Url { get; set; }
 
         string Remark { get; set; }
+
+        bool WechartTemplateMessageLimit { get; set; }
+
+        int WechartAuthorizerId { get; set; }
+
+        string TenantName { get; set; }
+
+        string TenantSmsSignature { get; set; }
     }
 }

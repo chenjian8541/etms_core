@@ -71,13 +71,42 @@ namespace ETMS.Business
             return await _parentStudentDAL.GetParentStudents(request.LoginTenantId, request.LoginPhone);
         }
 
+        public async Task<Tuple<string, SysTenant>> GetLoginTenant(string tenantNo, string code)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(tenantNo);
+            SysTenant sysTenantInfo = null;
+            if (tenantId == 0 && string.IsNullOrEmpty(code))
+            {
+                return Tuple.Create("机构编码不能为空", sysTenantInfo);
+            }
+            if (tenantId == 0)
+            {
+                sysTenantInfo = await _sysTenantDAL.GetTenant(code);
+                if (sysTenantInfo == null)
+                {
+                    return Tuple.Create("机构不存在", sysTenantInfo);
+                }
+            }
+            else
+            {
+                sysTenantInfo = await _sysTenantDAL.GetTenant(tenantId);
+                if (sysTenantInfo == null)
+                {
+                    return Tuple.Create("机构不存在", sysTenantInfo);
+                }
+            }
+            return Tuple.Create(string.Empty, sysTenantInfo);
+        }
+
         public async Task<ResponseBase> ParentLoginSendSms(ParentLoginSendSmsRequest request)
         {
-            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.Code);
-            if (sysTenantInfo == null)
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
             {
-                return ResponseBase.CommonError("机构不存在");
+                return ResponseBase.CommonError(loginTenantResult.Item1);
             }
+            var sysTenantInfo = loginTenantResult.Item2;
+
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
                 return ResponseBase.CommonError(myMsg);
@@ -104,11 +133,13 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request)
         {
-            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.Code);
-            if (sysTenantInfo == null)
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
             {
-                return ResponseBase.CommonError("机构不存在");
+                return ResponseBase.CommonError(loginTenantResult.Item1);
             }
+            var sysTenantInfo = loginTenantResult.Item2;
+
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
                 return ResponseBase.CommonError(myMsg);
@@ -195,7 +226,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
         {
-            var tenantId = ParentLib.GetTenantDecrypt(request.TenantNo);
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)
             {
@@ -211,9 +242,8 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
         {
-            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             Log.Info($"家长端通过code登录请求:{request.Code}", this.GetType());
-            var tenantId = ParentLib.GetTenantDecrypt(request.TenantNo);
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)
             {
@@ -227,7 +257,7 @@ namespace ETMS.Business
             var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(authToken.openid);
             if (sysStudentWechartLog == null || sysStudentWechartLog.TenantId == 0)
             {
-                return await ResetSysStudentWechart(authToken);
+                return await ResetSysStudentWechart(authToken, tenantId, tenantWechartAuth.AuthorizerAppid);
             }
             var sysTenantInfo = await _sysTenantDAL.GetTenant(sysStudentWechartLog.TenantId);
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
@@ -238,7 +268,7 @@ namespace ETMS.Business
             var myStudentWechatLog = await _studentWechatDAL.GetStudentWechat(authToken.openid);
             if (myStudentWechatLog == null)
             {
-                return await ResetSysStudentWechart(authToken);
+                return await ResetSysStudentWechart(authToken, tenantId, tenantWechartAuth.AuthorizerAppid);
             }
             var result = await GetParentLoginResult(sysStudentWechartLog.TenantId, myStudentWechatLog.Phone, "");
             if (result.IsResponseSuccess())
@@ -255,7 +285,7 @@ namespace ETMS.Business
             }
         }
 
-        private async Task<ResponseBase> ResetSysStudentWechart(OAuthAccessTokenResult authToken)
+        private async Task<ResponseBase> ResetSysStudentWechart(OAuthAccessTokenResult authToken, int tenantId, string authorizerAppid)
         {
             await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid);
             var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
@@ -264,8 +294,8 @@ namespace ETMS.Business
                 Headimgurl = userInfo.headimgurl,
                 IsDeleted = EmIsDeleted.Normal,
                 Nickname = userInfo.nickname,
-                Remark = string.Empty,
-                TenantId = 0,
+                Remark = authorizerAppid,
+                TenantId = tenantId,
                 WechatOpenid = userInfo.openid,
                 WechatUnionid = userInfo.unionid
             };
