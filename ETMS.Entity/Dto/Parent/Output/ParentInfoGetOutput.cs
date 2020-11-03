@@ -20,5 +20,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 手机号码
         /// </summary>
         public string Phone { get; set; }
+
+        /// <summary>
+        /// 是否显示退出
+        /// </summary>
+        public bool IsShowLoginout { get; set; }
     }
 }

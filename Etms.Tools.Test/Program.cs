@@ -15,22 +15,55 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
-            //var parentTokenConfig = new ParentTokenConfig()
-            //{
-            //    ExTimestamp = exTime,
-            //    Phone = "18671724053",
-            //    TenantId = 1
-            //};
-            //var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
-            //Console.WriteLine(signatureInfo.Item1);
-            //Console.WriteLine(signatureInfo.Item2);
-            //while (true)
-            //{
-            //    var s = Console.ReadLine();
-            //    var isPhone = IsMobilePhone(s);
-            //    Console.WriteLine(isPhone);
-            //}
+
+            var s = GetTimeDuration(830, 1210);
+            Console.WriteLine(s);
+            Console.Read();
+        }
+
+        public static string GetTimeDuration(int startTime, int endTime)
+        {
+            var startDate = new DateTime(2020, 01, 01, startTime / 100, startTime % 100, 0);
+            var endDate = new DateTime(2020, 01, 01, endTime / 100, endTime % 100, 0);
+            var times = endDate - startDate;
+            var s = times.Hours + times.Minutes / 60.0;
+            return s.ToString("F2");
+
+            var de = endTime - startTime;
+            var hour = de / 60;
+            var minute = (de % 60) / 60.0;
+            if (minute == 0)
+            {
+                return hour.ToString();
+            }
+            else
+            {
+                return (hour + minute).ToString("F2");
+            }
+        }
+
+        public static void CreateParentToken()
+        {
+            var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
+            var parentTokenConfig = new ParentTokenConfig()
+            {
+                ExTimestamp = exTime,
+                Phone = "18671724053",
+                TenantId = 1
+            };
+            var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
+            Console.WriteLine(signatureInfo.Item1);
+            Console.WriteLine(signatureInfo.Item2);
+            while (true)
+            {
+                var s = Console.ReadLine();
+                var isPhone = IsMobilePhone(s);
+                Console.WriteLine(isPhone);
+            }
+        }
+
+        public static void CreateSysTenantWechartAuth()
+        {
             var entity = new SysTenantWechartAuth()
             {
                 Id = 0,
@@ -55,7 +88,6 @@ namespace Etms.Tools.Test
             };
             var s = Newtonsoft.Json.JsonConvert.SerializeObject(entity);
             Console.WriteLine(s);
-            Console.Read();
         }
 
         /// <summary>
@@ -78,14 +110,21 @@ namespace Etms.Tools.Test
             var password = md5($"{md5(pwd)}{key}");
         }
 
-        private static void Encrypt3DES()
+        private static void Encrypt3DESSqlConnection()
         {
             var conStr = Console.ReadLine();
             Console.WriteLine(conStr);
-            using (var con = new SqlConnection(conStr))
+            try
             {
-                con.Open();
-                Console.WriteLine("数据库打开成功");
+                using (var con = new SqlConnection(conStr))
+                {
+                    con.Open();
+                    Console.WriteLine("数据库打开成功");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
             var res = CryptogramHelper.Encrypt3DES(conStr, SystemConfig.CryptogramConfig.Key);
             Console.WriteLine(res);

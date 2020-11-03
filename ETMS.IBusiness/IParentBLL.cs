@@ -25,5 +25,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request);
 
         Task<ResponseBase> CheckParentCanLogin(ParentRequestBase request);
+
+        Task<ResponseBase> ParentLoginout(ParentLoginoutRequest request);
     }
 }

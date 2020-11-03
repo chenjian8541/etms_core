@@ -311,6 +311,7 @@ namespace ETMS.Business
         {
             _studentWechatDAL.InitTenantId(request.LoginTenantId);
             var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
+            var myTenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuthSelf(request.LoginTenantId);
             var output = new ParentInfoGetOutput();
             if (myStudentWechat != null)
             {
@@ -318,6 +319,7 @@ namespace ETMS.Business
                 output.Headimgurl = myStudentWechat.Headimgurl;
                 output.Phone = myStudentWechat.Phone;
             }
+            output.IsShowLoginout = myTenantWechartAuth == null;
             return ResponseBase.Success(output);
         }
 
@@ -327,6 +329,18 @@ namespace ETMS.Business
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
                 return ResponseBase.CommonError(myMsg);
+            }
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ParentLoginout(ParentLoginoutRequest request)
+        {
+            _studentWechatDAL.InitTenantId(request.LoginTenantId);
+            var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
+            if (myStudentWechat != null)
+            {
+                await _sysStudentWechartDAL.DelSysStudentWechart(myStudentWechat.WechatOpenid);
+                await _studentWechatDAL.DelStudentWechat(request.LoginPhone, myStudentWechat.WechatOpenid);
             }
             return ResponseBase.Success();
         }

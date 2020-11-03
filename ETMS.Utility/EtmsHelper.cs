@@ -78,17 +78,11 @@ namespace ETMS.Utility
 
         public static string GetTimeDuration(int startTime, int endTime)
         {
-            var de = endTime - startTime;
-            var hour = de / 100;
-            var minute = (de % 100) / 60.0;
-            if (minute == 0)
-            {
-                return hour.ToString();
-            }
-            else
-            {
-                return (hour + minute).ToString("F2");
-            }
+            var startDate = new DateTime(2020, 01, 01, startTime / 100, startTime % 100, 0);
+            var endDate = new DateTime(2020, 01, 01, endTime / 100, endTime % 100, 0);
+            var times = endDate - startDate;
+            var s = times.Hours + times.Minutes / 60.0;
+            return s.ToString("F2");
         }
         public static string GetMuIds(IEnumerable<long> ids)
         {
