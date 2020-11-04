@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
 using ETMS.LOG;
 using Newtonsoft.Json;
+using ETMS.IDataAccess.EtmsManage;
 
 namespace ETMS.Business
 {
@@ -59,11 +60,14 @@ namespace ETMS.Business
 
         private readonly IStudentGrowingTagDAL _studentGrowingTagDAL;
 
+        private readonly ISysTenantDAL _sysTenantDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-           IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL)
+           IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL,
+           ISysTenantDAL sysTenantDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -84,6 +88,7 @@ namespace ETMS.Business
             this._studentWechatDAL = studentWechatDAL;
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._studentGrowingTagDAL = studentGrowingTagDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -637,6 +642,14 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("成长档案不存在");
             }
+            var studentBucket = await _studentDAL.GetStudent(growthRecordDetail.StudentId);
+            if (studentBucket == null || studentBucket.StudentExtendInfos == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
+            var myTenant = await _sysTenantDAL.GetTenant(growthRecordDetail.TenantId);
+
             var p = growthRecordBucket.ActiveGrowthRecord;
             var allstudentGrowingTag = await _studentGrowingTagDAL.GetAllStudentGrowingTag();
             var myStudentGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
@@ -654,7 +667,10 @@ namespace ETMS.Business
                 GrowthRecordId = p.Id,
                 GrowthRecordDetailId = request.GrowthRecordDetailId,
                 OtDesc = p.Ot.EtmsToDateString(),
-                CommentOutputs = await GetCommentOutput(growthRecordBucket.Comments, tempBoxUser, request.IsLogin, growthRecordDetail.StudentId)
+                CommentOutputs = await GetCommentOutput(growthRecordBucket.Comments, tempBoxUser, request.IsLogin, growthRecordDetail.StudentId),
+                StudentName = student.Name,
+                StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
+                TenantName = myTenant.Name
             };
             return ResponseBase.Success(output);
         }

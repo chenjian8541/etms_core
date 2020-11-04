@@ -37,6 +37,12 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public bool IsThisYear { get; set; }
 
+        public string StudentName { get; set; }
+
+        public string StudentAvatar { get; set; }
+
+        public string TenantName { get; set; }
+
         public List<ParentCommentOutput> CommentOutputs { get; set; }
     }
 }
