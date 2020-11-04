@@ -87,5 +87,16 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtActiveGrowthRecordDetail>("EtActiveGrowthRecordDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<EtActiveGrowthRecordDetail> GetActiveGrowthRecordDetail(long growthRecordDetailId)
+        {
+            return await _dbWrapper.Find<EtActiveGrowthRecordDetail>(growthRecordDetailId);
+        }
+
+        public async Task<bool> SetActiveGrowthRecordDetailNewFavoriteStatus(long growthRecordDetailId, byte newFavoriteStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActiveGrowthRecordDetail SET FavoriteStatus = {newFavoriteStatus} WHERE id = {growthRecordDetailId}");
+            return true;
+        }
     }
 }

@@ -107,5 +107,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         public long? ReplyId { get; set; }
 
         public string ReplyRelatedManName { get; set; }
+
+        /// <summary>
+        /// 是否允许删除
+        /// </summary>
+        public bool IsCanDelete { get; set; }
     }
 }

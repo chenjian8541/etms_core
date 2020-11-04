@@ -55,11 +55,15 @@ namespace ETMS.Business
 
         private readonly IStudentWechatDAL _studentWechatDAL;
 
+        private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
+
+        private readonly IStudentGrowingTagDAL _studentGrowingTagDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-           IStudentWechatDAL studentWechatDAL)
+           IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -78,13 +82,16 @@ namespace ETMS.Business
             this._activeHomeworkDAL = activeHomeworkDAL;
             this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
             this._studentWechatDAL = studentWechatDAL;
+            this._activeGrowthRecordDAL = activeGrowthRecordDAL;
+            this._studentGrowingTagDAL = studentGrowingTagDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentLeaveApplyLogDAL, _parentStudentDAL, _studentDAL,
                 _studentOperationLogDAL, _classTimesDAL, _classRoomDAL, _userDAL, _courseDAL, _classDAL,
-                _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL, _studentWechatDAL);
+                _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL,
+                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL);
         }
 
         public async Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request)
@@ -570,6 +577,217 @@ namespace ETMS.Business
             var activeHomeworkDetail = homeworkDetailBucket.ActiveHomeworkDetail;
             await _activeHomeworkDetailDAL.DelActiveHomeworkDetailComment(request.HomeworkDetailId, request.CommentId);
             await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, "删除课后作业评论", EmStudentOperationLogType.Homework);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> GrowthRecordGetPaging(GrowthRecordGetPagingRequest request)
+        {
+            var pagingData = await _activeGrowthRecordDAL.GetDetailPaging(request);
+            var output = new List<GrowthRecordGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                var allstudentGrowingTag = await _studentGrowingTagDAL.GetAllStudentGrowingTag();
+                var thisYear = DateTime.Now.Year;
+                foreach (var p in pagingData.Item1)
+                {
+                    var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (student == null)
+                    {
+                        continue;
+                    }
+                    var myGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
+                    output.Add(new GrowthRecordGetPagingOutput()
+                    {
+                        Day = p.Ot.Day,
+                        Month = p.Ot.Month,
+                        IsThisYear = p.Ot.Year == thisYear,
+                        FavoriteStatus = p.FavoriteStatus,
+                        GrowingTag = p.GrowingTag,
+                        GrowingTagDesc = myGrowingTag?.Name,
+                        GrowthContent = p.GrowthContent,
+                        GrowthMediasUrl = GetMediasUrl(p.GrowthMedias),
+                        GrowthRecordDetailId = p.Id,
+                        GrowthRecordId = p.GrowthRecordId,
+                        OtDesc = p.Ot.EtmsToDateString(),
+                        StudentId = p.StudentId,
+                        StudentName = student.Name,
+                        TenantId = p.TenantId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<GrowthRecordGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> GrowthRecordFavoriteGetPaging(GrowthRecordGetPagingRequest request)
+        {
+            request.IsOnlyGetFavorite = true;
+            return await GrowthRecordGetPaging(request);
+        }
+
+        public async Task<ResponseBase> GrowthRecordDetailGet(GrowthRecordDetailGetRequest request)
+        {
+            var growthRecordDetail = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetail(request.GrowthRecordDetailId);
+            if (growthRecordDetail == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            var growthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(growthRecordDetail.GrowthRecordId);
+            if (growthRecordBucket == null || growthRecordBucket.ActiveGrowthRecord == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            var p = growthRecordBucket.ActiveGrowthRecord;
+            var allstudentGrowingTag = await _studentGrowingTagDAL.GetAllStudentGrowingTag();
+            var myStudentGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var output = new GrowthRecordDetailGetOutput()
+            {
+                TenantId = p.TenantId,
+                Day = p.Ot.Day,
+                Month = p.Ot.Month,
+                IsThisYear = p.Ot.Year == DateTime.Now.Year,
+                GrowingTag = p.GrowingTag,
+                GrowingTagDesc = myStudentGrowingTag?.Name,
+                GrowthContent = p.GrowthContent,
+                GrowthMediasUrl = GetMediasUrl(p.GrowthMedias),
+                GrowthRecordId = p.Id,
+                GrowthRecordDetailId = request.GrowthRecordDetailId,
+                OtDesc = p.Ot.EtmsToDateString(),
+                CommentOutputs = await GetCommentOutput(growthRecordBucket.Comments, tempBoxUser, request.IsLogin, growthRecordDetail.StudentId)
+            };
+            return ResponseBase.Success(output);
+        }
+
+        private async Task<List<ParentCommentOutput>> GetCommentOutput(List<EtActiveGrowthRecordDetailComment> activeHomeworkDetailComments,
+            DataTempBox<EtUser> tempBoxUser, bool isLogin, long myStudentId)
+        {
+            var commentOutputs = new List<ParentCommentOutput>();
+            if (activeHomeworkDetailComments != null || activeHomeworkDetailComments.Count > 0)
+            {
+                var first = activeHomeworkDetailComments.Where(j => j.ReplyId == null).OrderBy(j => j.Ot);
+                foreach (var myFirstComment in first)
+                {
+                    var firstrelatedManName = string.Empty;
+                    var firstrelatedManAvatar = string.Empty;
+                    var isCanDelete = false;
+                    if (myFirstComment.SourceType == EmActiveCommentSourceType.User)
+                    {
+                        var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, myFirstComment.SourceId);
+                        if (myRelatedUser != null)
+                        {
+                            firstrelatedManName = ComBusiness2.GetParentTeacherName(myRelatedUser);
+                            firstrelatedManAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myRelatedUser.Avatar);
+                        }
+                    }
+                    else
+                    {
+                        firstrelatedManName = myFirstComment.Nickname;
+                        firstrelatedManAvatar = myFirstComment.Headimgurl;
+                        if (isLogin && myFirstComment.SourceId == myStudentId)
+                        {
+                            isCanDelete = true;
+                        }
+                    }
+                    commentOutputs.Add(new ParentCommentOutput()
+                    {
+                        CommentContent = myFirstComment.CommentContent,
+                        CommentId = myFirstComment.Id,
+                        Ot = myFirstComment.Ot.EtmsToMinuteString(),
+                        ReplyId = myFirstComment.ReplyId,
+                        SourceType = myFirstComment.SourceType,
+                        RelatedManAvatar = firstrelatedManAvatar,
+                        RelatedManName = firstrelatedManName,
+                        OtDesc = EtmsHelper.GetOtFriendlyDesc(myFirstComment.Ot),
+                        IsCanDelete = isCanDelete
+                    });
+                    var second = activeHomeworkDetailComments.Where(p => p.ReplyId == myFirstComment.Id).OrderBy(j => j.Ot);
+                    foreach (var mySecondComment in second)
+                    {
+                        var secondfirstrelatedManName = string.Empty;
+                        var secondfirstrelatedManAvatar = string.Empty;
+                        var secondIsCanDelete = false;
+                        if (mySecondComment.SourceType == EmActiveCommentSourceType.User)
+                        {
+                            var myRelatedUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, mySecondComment.SourceId);
+                            if (myRelatedUser != null)
+                            {
+                                secondfirstrelatedManName = ComBusiness2.GetParentTeacherName(myRelatedUser);
+                                secondfirstrelatedManAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myRelatedUser.Avatar);
+                            }
+                        }
+                        else
+                        {
+                            secondfirstrelatedManName = mySecondComment.Nickname;
+                            secondfirstrelatedManAvatar = mySecondComment.Headimgurl;
+                            if (isLogin && myFirstComment.SourceId == myStudentId)
+                            {
+                                secondIsCanDelete = true;
+                            }
+                        }
+                        commentOutputs.Add(new ParentCommentOutput()
+                        {
+                            CommentContent = mySecondComment.CommentContent,
+                            CommentId = mySecondComment.Id,
+                            Ot = mySecondComment.Ot.EtmsToMinuteString(),
+                            OtDesc = EtmsHelper.GetOtFriendlyDesc(mySecondComment.Ot),
+                            RelatedManAvatar = secondfirstrelatedManAvatar,
+                            RelatedManName = secondfirstrelatedManName,
+                            ReplyId = mySecondComment.ReplyId,
+                            SourceType = mySecondComment.SourceType,
+                            ReplyRelatedManName = firstrelatedManName,
+                            IsCanDelete = secondIsCanDelete
+                        });
+                    }
+                }
+            }
+            return commentOutputs;
+        }
+
+        public async Task<ResponseBase> GrowthRecordChangeFavorite(GrowthRecordChangeFavoriteRequest request)
+        {
+            await _activeGrowthRecordDAL.SetActiveGrowthRecordDetailNewFavoriteStatus(request.GrowthRecordDetailId, request.NewFavoriteStatus);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> GrowthRecordAddComment(GrowthRecordAddCommentRequest request)
+        {
+            var growthRecordDetail = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetail(request.GrowthRecordDetailId);
+            if (growthRecordDetail == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
+            var comment = new EtActiveGrowthRecordDetailComment()
+            {
+                CommentContent = request.CommentContent,
+                Headimgurl = myStudentWechat?.Headimgurl,
+                Nickname = myStudentWechat?.Nickname,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = DateTime.Now,
+                ReplyId = null,
+                SourceType = EmActiveCommentSourceType.Student,
+                TenantId = request.LoginTenantId,
+                GrowthRecordDetailId = growthRecordDetail.Id,
+                GrowthRecordId = growthRecordDetail.GrowthRecordId,
+                SourceId = growthRecordDetail.StudentId
+            };
+            await _activeGrowthRecordDAL.AddActiveGrowthRecordDetailComment(comment);
+
+            await _studentOperationLogDAL.AddStudentLog(growthRecordDetail.StudentId, request.LoginTenantId, $"评论成长档案：{growthRecordDetail.GrowthContent}", EmStudentOperationLogType.GrowthRecord);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> GrowthRecordDelComment(GrowthRecordDelCommentRequest request)
+        {
+            var growthRecordDetail = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetail(request.GrowthRecordDetailId);
+            if (growthRecordDetail == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            await _activeGrowthRecordDAL.DelActiveGrowthRecordDetailComment(growthRecordDetail.GrowthRecordId, request.CommentId);
+
+            await _studentOperationLogDAL.AddStudentLog(growthRecordDetail.StudentId, request.LoginTenantId, "删除成长档案评论", EmStudentOperationLogType.GrowthRecord);
             return ResponseBase.Success();
         }
     }

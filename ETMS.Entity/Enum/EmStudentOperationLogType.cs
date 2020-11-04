@@ -20,6 +20,9 @@ namespace ETMS.Entity.Enum
         StudentLeaveApply = 4,
 
         [Description("课后作业")]
-        Homework = 5
+        Homework = 5,
+
+        [Description("成长档案")]
+        GrowthRecord = 6
     }
 }

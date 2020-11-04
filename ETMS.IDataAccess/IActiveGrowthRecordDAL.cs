@@ -25,5 +25,9 @@ namespace ETMS.IDataAccess
         bool AddActiveGrowthRecordDetail(List<EtActiveGrowthRecordDetail> entitys);
 
         Task<Tuple<IEnumerable<EtActiveGrowthRecordDetail>, int>> GetDetailPaging(IPagingRequest request);
+
+        Task<EtActiveGrowthRecordDetail> GetActiveGrowthRecordDetail(long growthRecordDetailId);
+
+        Task<bool> SetActiveGrowthRecordDetailNewFavoriteStatus(long growthRecordDetailId, byte newFavoriteStatus);
     }
 }

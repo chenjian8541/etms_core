@@ -36,5 +36,17 @@ namespace ETMS.IBusiness
         Task<ResponseBase> HomeworkAddComment(HomeworkAddCommentRequest request);
 
         Task<ResponseBase> HomeworkDelComment(HomeworkDelCommentRequest request);
+
+        Task<ResponseBase> GrowthRecordGetPaging(GrowthRecordGetPagingRequest request);
+
+        Task<ResponseBase> GrowthRecordFavoriteGetPaging(GrowthRecordGetPagingRequest request);
+
+        Task<ResponseBase> GrowthRecordDetailGet(GrowthRecordDetailGetRequest request);
+
+        Task<ResponseBase> GrowthRecordChangeFavorite(GrowthRecordChangeFavoriteRequest request);
+
+        Task<ResponseBase> GrowthRecordAddComment(GrowthRecordAddCommentRequest request);
+
+        Task<ResponseBase> GrowthRecordDelComment(GrowthRecordDelCommentRequest request);
     }
 }

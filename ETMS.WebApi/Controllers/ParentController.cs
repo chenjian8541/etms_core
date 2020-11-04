@@ -579,5 +579,90 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> GrowthRecordGetPaging(GrowthRecordGetPagingRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.GrowthRecordGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GrowthRecordFavoriteGetPaging(GrowthRecordGetPagingRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.GrowthRecordFavoriteGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<ResponseBase> GrowthRecordDetailGet(GrowthRecordDetailGetRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.TenantId);
+                return await _parentDataBLL.GrowthRecordDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GrowthRecordChangeFavorite(GrowthRecordChangeFavoriteRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.GrowthRecordChangeFavorite(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GrowthRecordAddComment(GrowthRecordAddCommentRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.GrowthRecordAddComment(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GrowthRecordDelComment(GrowthRecordDelCommentRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.GrowthRecordDelComment(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

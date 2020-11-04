@@ -16,8 +16,8 @@ namespace Etms.Tools.Test
         static void Main(string[] args)
         {
 
-            var s = GetTimeDuration(830, 1210);
-            Console.WriteLine(s);
+            CreateParentToken();
+            Console.WriteLine();
             Console.Read();
         }
 
@@ -48,7 +48,7 @@ namespace Etms.Tools.Test
             var parentTokenConfig = new ParentTokenConfig()
             {
                 ExTimestamp = exTime,
-                Phone = "18671724053",
+                Phone = "13410271814",
                 TenantId = 1
             };
             var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
