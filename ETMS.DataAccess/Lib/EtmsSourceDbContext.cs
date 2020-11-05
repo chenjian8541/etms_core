@@ -104,5 +104,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtActiveGrowthRecord> EtActiveGrowthRecords { get; set; }
         public DbSet<EtActiveGrowthRecordDetail> EtActiveGrowthRecordDetails { get; set; }
         public DbSet<EtActiveGrowthRecordDetailComment> EtActiveGrowthRecordDetailComments { get; set; }
+        public DbSet<EtActiveWxMessage> EtActiveWxMessages { get; set; }
+        public DbSet<EtActiveWxMessageDetail> EtActiveWxMessageDetails { get; set; }
     }
 }
