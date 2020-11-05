@@ -59,9 +59,9 @@ namespace ETMS.WebApi.Controllers
         /// </summary>
         /// <param name="postModel"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("{appId}")]
         [AllowAnonymous]
-        public async Task<ActionResult> ComponentCallback([FromQuery]Senparc.Weixin.MP.Entities.Request.PostModel postModel)
+        public async Task<ActionResult> ComponentCallback([FromQuery]Senparc.Weixin.MP.Entities.Request.PostModel postModel, string appId)
         {
             try
             {
