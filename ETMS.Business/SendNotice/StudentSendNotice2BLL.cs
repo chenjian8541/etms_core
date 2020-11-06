@@ -37,9 +37,14 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
+
+        private readonly IClassDAL _classDAL;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
-            IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL)
+            IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
+            IClassDAL classDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -48,11 +53,14 @@ namespace ETMS.Business.SendNotice
             this._tenantConfigDAL = tenantConfigDAL;
             this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
             this._studentDAL = studentDAL;
+            this._activeGrowthRecordDAL = activeGrowthRecordDAL;
+            this._classDAL = classDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL, _studentDAL);
+            this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
+                _studentDAL, _activeGrowthRecordDAL, _classDAL);
         }
 
         public async Task NoticeStudentsOfHomeworkAddConsumeEvent(NoticeStudentsOfHomeworkAddEvent request)
@@ -189,6 +197,97 @@ namespace ETMS.Business.SendNotice
             }
 
             _wxService.HomeworkComment(req);
+        }
+
+        public async Task NoticeStudentsOfGrowthRecordConsumeEvent(NoticeStudentsOfGrowthRecordEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentGrowUpRecordWeChat)
+            {
+                return;
+            }
+
+            var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.GrowthRecordId);
+            if (activeGrowthRecordBucket == null || activeGrowthRecordBucket.ActiveGrowthRecord == null)
+            {
+                Log.Error($"[NoticeStudentsOfGrowthRecordConsumeEvent]成长档案不存在:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var activeGrowthRecord = activeGrowthRecordBucket.ActiveGrowthRecord;
+            if (activeGrowthRecord.SendType == EmActiveGrowthRecordSendType.No)
+            {
+                return;
+            }
+
+            var className = string.Empty;
+            if (activeGrowthRecord.Type == EmActiveGrowthRecordType.Class)
+            {
+                var strClass = activeGrowthRecord.RelatedIds.Trim(',').Split(',');
+                if (!string.IsNullOrEmpty(strClass[0]))
+                {
+                    var myClass = await _classDAL.GetClassBucket(strClass[0].ToLong());
+                    className = myClass?.EtClass.Name;
+                }
+            }
+
+            var growthRecordDetails = await _activeGrowthRecordDAL.GetGrowthRecordDetailView(request.GrowthRecordId);
+            if (!growthRecordDetails.Any())
+            {
+                return;
+            }
+
+            var req = new GrowthRecordAddRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Students = new List<GrowthRecordAddStudent>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateId = wxConfig.TemplateNoticeConfig.GrowthRecordAdd;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            foreach (var myGrowthRecordDetail in growthRecordDetails)
+            {
+                var studentBucket = await _studentDAL.GetStudent(myGrowthRecordDetail.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfGrowthRecordConsumeEvent]未找到学员信息,StudentId:{myGrowthRecordDetail.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentGrowthRecordDetailUrl, myGrowthRecordDetail.Id, request.TenantId);
+                req.Students.Add(new GrowthRecordAddStudent()
+                {
+                    ClassName = className,
+                    Name = student.Name,
+                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Url = url
+                });
+
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new GrowthRecordAddStudent()
+                    {
+                        ClassName = className,
+                        Name = student.Name,
+                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Url = url
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.GrowthRecordAdd(req);
+            }
         }
     }
 }

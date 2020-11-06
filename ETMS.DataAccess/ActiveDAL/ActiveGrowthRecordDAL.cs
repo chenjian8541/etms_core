@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -97,6 +98,12 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE EtActiveGrowthRecordDetail SET FavoriteStatus = {newFavoriteStatus} WHERE id = {growthRecordDetailId}");
             return true;
+        }
+
+        public async Task<IEnumerable<GrowthRecordDetailView>> GetGrowthRecordDetailView(long growthRecordId)
+        {
+            var sql = $"SELECT Id,StudentId FROM EtActiveGrowthRecordDetail WHERE TenantId = {_tenantId} AND GrowthRecordId = {growthRecordId} AND IsDeleted = {EmIsDeleted.Normal} ";
+            return await _dbWrapper.ExecuteObject<GrowthRecordDetailView>(sql);
         }
     }
 }

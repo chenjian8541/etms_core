@@ -271,6 +271,11 @@ namespace ETMS.Business
             if (activeGrowthRecordDetails.Count > 0)
             {
                 _activeGrowthRecordDAL.AddActiveGrowthRecordDetail(activeGrowthRecordDetails);
+
+                _eventPublisher.Publish(new NoticeStudentsOfGrowthRecordEvent(request.TenantId)
+                {
+                    GrowthRecordId = request.GrowthRecordId
+                });
             }
         }
 
