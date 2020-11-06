@@ -21,5 +21,9 @@ namespace ETMS.IDataAccess
         UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId);
 
         void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime);
+
+        WxMessageLimitBucket GetWxMessageLimitBucket(int tenantId, DateTime time);
+
+        void SetWxMessageLimitBucket(int tenantId, DateTime time, int totalCount);
     }
 }

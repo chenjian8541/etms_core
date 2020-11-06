@@ -40,5 +40,10 @@ namespace ETMS.Entity.CacheBucket
         /// 用户登录信息
         /// </summary>
         public const int UserLoginOnlineDay = 60;
+
+        /// <summary>
+        /// 2天的数据
+        /// </summary>
+        public const int TempTwoDays = 2;
     }
 }

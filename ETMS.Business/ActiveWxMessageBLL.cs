@@ -32,8 +32,11 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
         public ActiveWxMessageBLL(IActiveWxMessageDAL activeWxMessageDAL, IEventPublisher eventPublisher,
-            IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IStudentDAL studentDAL, IClassDAL classDAL)
+            IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IStudentDAL studentDAL, IClassDAL classDAL,
+            ITempDataCacheDAL tempDataCacheDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._eventPublisher = eventPublisher;
@@ -41,6 +44,7 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._studentDAL = studentDAL;
             this._classDAL = classDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -51,6 +55,11 @@ namespace ETMS.Business
         public async Task<ResponseBase> ActiveWxMessageAdd(ActiveWxMessageAddRequest request)
         {
             var now = DateTime.Now;
+            var limitBucket = _tempDataCacheDAL.GetWxMessageLimitBucket(request.LoginTenantId, now);
+            if (limitBucket != null && limitBucket.TotalCount >= 5)
+            {
+                return ResponseBase.CommonError("每天最多发送5次微信通知");
+            }
             var entity = new EtActiveWxMessage()
             {
                 ConfirmCount = 0,
@@ -72,6 +81,9 @@ namespace ETMS.Business
                 WxMessageAddId = entity.Id,
                 CreateTime = now
             });
+
+            var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
+            _tempDataCacheDAL.SetWxMessageLimitBucket(request.LoginTenantId, now, totalCount++);
 
             await _userOperationLogDAL.AddUserLog(request, $"发送微信通知:{request.Title}", EmUserOperationType.WxMessage, now);
             return ResponseBase.Success();

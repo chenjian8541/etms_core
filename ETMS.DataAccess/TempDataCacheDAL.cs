@@ -59,5 +59,20 @@ namespace ETMS.DataAccess
             var key = bucket.GetKeyFormat(tenantId, userId);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
+
+        public WxMessageLimitBucket GetWxMessageLimitBucket(int tenantId, DateTime time)
+        {
+            return _cacheProvider.Get<WxMessageLimitBucket>(0, new WxMessageLimitBucket().GetKeyFormat(tenantId, time));
+        }
+
+        public void SetWxMessageLimitBucket(int tenantId, DateTime time, int totalCount)
+        {
+            var bucket = new WxMessageLimitBucket()
+            {
+                TotalCount = totalCount
+            };
+            var key = bucket.GetKeyFormat(tenantId, time);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
     }
 }

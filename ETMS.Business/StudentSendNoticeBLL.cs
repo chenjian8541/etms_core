@@ -800,6 +800,21 @@ namespace ETMS.Business
                     OpendId = await GetStudentOpenId(true, student.Phone),
                     Url = url
                 });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new WxMessageStudent()
+                    {
+                        Name = student.Name,
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        Url = url
+                    });
+                }
+            }
+            if (req.Students.Count > 0)
+            {
+                _wxService.WxMessage(req);
             }
         }
     }
