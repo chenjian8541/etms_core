@@ -157,7 +157,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new NoticeStudentsOfWxMessageEvent(wxMessage.TenantId)
             {
                 WxMessageAddId = wxMessage.Id,
-                StudentIds = studentIds
+                StudentIds = studentIds,
+                Ot = wxMessage.Ot
             });
         }
 
@@ -218,7 +219,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new NoticeStudentsOfWxMessageEvent(wxMessage.TenantId)
             {
                 WxMessageAddId = wxMessage.Id,
-                StudentIds = studentIds
+                StudentIds = studentIds,
+                Ot = wxMessage.Ot
             });
         }
 
@@ -266,7 +268,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new NoticeStudentsOfWxMessageEvent(wxMessage.TenantId)
             {
                 WxMessageAddId = wxMessage.Id,
-                StudentIds = studentIds
+                StudentIds = studentIds,
+                Ot = wxMessage.Ot
             });
         }
 

@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,5 +31,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtActiveWxMessageDetail>, int>> GetDetailPaging(IPagingRequest request);
 
         Task<bool> SyncWxMessageDetail(long wxMessageId, string title, byte IsNeedConfirm);
+
+        Task<IEnumerable<WxMessageDetailIdView>> GetWxMessageDetailIdView(long wxMessageId, List<long> studentIds);
     }
 }

@@ -57,12 +57,14 @@ namespace ETMS.Business
 
         private readonly IComponentAccessBLL _componentAccessBLL;
 
+        private readonly IActiveWxMessageDAL _activeWxMessageDAL;
+
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
-            IComponentAccessBLL componentAccessBLL)
+            IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
@@ -81,13 +83,14 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._componentAccessBLL = componentAccessBLL;
+            this._activeWxMessageDAL = activeWxMessageDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
-                _studentWechatDAL, _userDAL);
+                _studentWechatDAL, _userDAL, _activeWxMessageDAL);
         }
 
         public async Task NoticeStudentsOfClassBeforeDayTenant(NoticeStudentsOfClassBeforeDayTenantEvent request)
@@ -757,8 +760,47 @@ namespace ETMS.Business
         }
 
         public async Task NoticeStudentsOfWxMessageConsumerEvent(NoticeStudentsOfWxMessageEvent request)
-        { 
-        
+        {
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxMessageDetailIdViews = await _activeWxMessageDAL.GetWxMessageDetailIdView(request.WxMessageAddId, request.StudentIds);
+            var req = new WxMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                OtDesc = request.Ot.EtmsToMinuteString(),
+                Students = new List<WxMessageStudent>()
+            };
+            req.TemplateId = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+            foreach (var p in request.StudentIds)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfWxMessageConsumerEvent]未找到学员信息,studentId:{p}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                var myWxMessageDetailIdViews = wxMessageDetailIdViews.FirstOrDefault(j => j.StudentId == p);
+                if (myWxMessageDetailIdViews == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfWxMessageConsumerEvent]未找到对应的通知记录,studentId:{p}", this.GetType());
+                    continue;
+                }
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentWxMessageDetailUrl, myWxMessageDetailIdViews.Id);
+                req.Students.Add(new WxMessageStudent()
+                {
+                    Name = student.Name,
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    Url = url
+                });
+            }
         }
     }
 }

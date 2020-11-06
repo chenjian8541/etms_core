@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -101,6 +102,20 @@ namespace ETMS.DataAccess
         {
             await this._dbWrapper.Execute($"UPDATE EtActiveWxMessageDetail SET Title = '{title}',IsNeedConfirm = {IsNeedConfirm} WHERE WxMessageId = {wxMessageId} AND TenantId = {_tenantId} ");
             return true;
+        }
+
+        public async Task<IEnumerable<WxMessageDetailIdView>> GetWxMessageDetailIdView(long wxMessageId, List<long> studentIds)
+        {
+            var sql = string.Empty;
+            if (studentIds.Count > 1)
+            {
+                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND StudentId IN ({string.Join(',', studentIds)}) ";
+            }
+            else
+            {
+                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND StudentId = {studentIds[0]} ";
+            }
+            return await this._dbWrapper.ExecuteObject<WxMessageDetailIdView>(sql);
         }
     }
 }

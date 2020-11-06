@@ -12,5 +12,7 @@ namespace ETMS.Event.DataContract
         public List<long> StudentIds { get; set; }
 
         public long WxMessageAddId { get; set; }
+
+        public DateTime Ot { get; set; }
     }
 }
