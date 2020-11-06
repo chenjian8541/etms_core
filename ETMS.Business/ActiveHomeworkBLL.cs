@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -35,9 +37,11 @@ namespace ETMS.Business
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public ActiveHomeworkBLL(IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
             IUserDAL userDAL, IClassDAL classDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
-            IUserOperationLogDAL userOperationLogDAL, IStudentDAL studentDAL)
+            IUserOperationLogDAL userOperationLogDAL, IStudentDAL studentDAL, IEventPublisher eventPublisher)
         {
             this._activeHomeworkDAL = activeHomeworkDAL;
             this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
@@ -47,6 +51,7 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._userOperationLogDAL = userOperationLogDAL;
             this._studentDAL = studentDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -113,6 +118,7 @@ namespace ETMS.Business
                 workMedias = string.Join('|', request.WorkMediasKeys);
             }
             var details = new List<EtActiveHomeworkDetail>();
+            var homeworkIds = new List<long>();
             foreach (var p in request.ClassInfos)
             {
                 var entity = new EtActiveHomework()
@@ -133,6 +139,8 @@ namespace ETMS.Business
                     WorkMedias = workMedias
                 };
                 await _activeHomeworkDAL.AddActiveHomework(entity);
+
+                homeworkIds.Add(entity.Id);
                 foreach (var studentId in p.StudentIds)
                 {
                     details.Add(new EtActiveHomeworkDetail()
@@ -158,6 +166,15 @@ namespace ETMS.Business
                 }
             }
             _activeHomeworkDetailDAL.AddActiveHomeworkDetail(details);
+
+            foreach (var id in homeworkIds)
+            {
+                _eventPublisher.Publish(new NoticeStudentsOfHomeworkAddEvent(request.LoginTenantId)
+                {
+                    HomeworkId = id
+                });
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"布置单次作业：{request.Title}", EmUserOperationType.ActiveHomeworkMgr, now);
             return ResponseBase.Success();
         }
@@ -341,6 +358,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("作业不存在");
             }
+            var now = DateTime.Now;
             var comment = new EtActiveHomeworkDetailComment()
             {
                 CommentContent = request.CommentContent,
@@ -349,14 +367,23 @@ namespace ETMS.Business
                 HomeworkDetailId = request.HomeworkDetailId,
                 HomeworkId = request.HomeworkId,
                 IsDeleted = EmIsDeleted.Normal,
-                Ot = DateTime.Now,
+                Ot = now,
                 ReplyId = request.ReplyId,
                 SourceId = request.LoginUserId,
                 SourceType = EmActiveCommentSourceType.User,
                 TenantId = request.LoginTenantId
             };
             await _activeHomeworkDetailDAL.AddActiveHomeworkDetailComment(comment);
-            await _userOperationLogDAL.AddUserLog(request, $"添加作业评语：作业:{p.Title}，评语:{request.CommentContent}", EmUserOperationType.ActiveHomeworkMgr);
+
+            _eventPublisher.Publish(new NoticeStudentsOfHomeworkAddCommentEvent(request.LoginTenantId)
+            {
+                HomeworkDetailId = request.HomeworkDetailId,
+                AddUserId = request.LoginUserId,
+                MyOt = now
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"添加作业评语：作业:{p.Title}，评语:{request.CommentContent}",
+                EmUserOperationType.ActiveHomeworkMgr, now);
             return ResponseBase.Success();
         }
 

@@ -21,7 +21,7 @@ using ETMS.Business.WxCore;
 
 namespace ETMS.Business
 {
-    public class StudentSendNoticeBLL : IStudentSendNoticeBLL
+    public class StudentSendNoticeBLL : SendNoticeBase, IStudentSendNoticeBLL
     {
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
@@ -49,13 +49,7 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
-        private readonly IStudentWechatDAL _studentWechatDAL;
-
         private readonly IUserDAL _userDAL;
-
-        private readonly ISysTenantDAL _sysTenantDAL;
-
-        private readonly IComponentAccessBLL _componentAccessBLL;
 
         private readonly IActiveWxMessageDAL _activeWxMessageDAL;
 
@@ -65,6 +59,7 @@ namespace ETMS.Business
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
             IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL)
+            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
@@ -79,10 +74,7 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._wxService = wxService;
             this._appConfigurtaionServices = appConfigurtaionServices;
-            this._studentWechatDAL = studentWechatDAL;
             this._userDAL = userDAL;
-            this._sysTenantDAL = sysTenantDAL;
-            this._componentAccessBLL = componentAccessBLL;
             this._activeWxMessageDAL = activeWxMessageDAL;
         }
 
@@ -735,28 +727,6 @@ namespace ETMS.Business
                     _wxService.NoticeStudentContracts(req);
                 }
             }
-        }
-
-        private async Task<string> GetStudentOpenId(bool isSendWeChat, string phone)
-        {
-            if (!isSendWeChat)
-            {
-                return string.Empty;
-            }
-            var wx = await _studentWechatDAL.GetStudentWechatByPhone(phone);
-            return wx?.WechatOpenid;
-        }
-
-        private async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId)
-        {
-            var tenant = await _sysTenantDAL.GetTenant(tenantId);
-            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
-            var wxAccessToken = AuthorizationInfoService.GetWXAccessToken(tenantWechartAuth.AuthorizerAppid);
-            return new NoticeRequestBase(tenantId,
-                tenantWechartAuth.Id, tenant.Name,
-                tenant.SmsSignature,
-               WeChatLimit.IsSendTemplateMessage(tenantId, tenantWechartAuth.ServiceTypeInfo, tenantWechartAuth.VerifyTypeInfo),
-               wxAccessToken);
         }
 
         public async Task NoticeStudentsOfWxMessageConsumerEvent(NoticeStudentsOfWxMessageEvent request)

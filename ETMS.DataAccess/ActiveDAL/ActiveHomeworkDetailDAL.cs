@@ -58,6 +58,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.HomeworkId == homeworkId && p.AnswerStatus == answerStatus);
         }
 
+        public async Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId)
+        {
+            return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.HomeworkId == homeworkId);
+        }
+
         public async Task<Tuple<IEnumerable<EtActiveHomeworkDetail>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtActiveHomeworkDetail>("EtActiveHomeworkDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());

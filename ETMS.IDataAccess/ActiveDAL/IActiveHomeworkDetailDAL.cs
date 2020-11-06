@@ -18,6 +18,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, byte answerStatus);
 
+        Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId);
+
         Task<Tuple<IEnumerable<EtActiveHomeworkDetail>, int>> GetPaging(IPagingRequest request);
 
         Task<bool> AddActiveHomeworkDetailComment(EtActiveHomeworkDetailComment detailComment);

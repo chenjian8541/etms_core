@@ -146,7 +146,7 @@ namespace ETMS.Entity.Config
         public bool StudentHomeworkWeChat { get; set; } = true;
 
         /// <summary>
-        /// 课后作业(微信)
+        /// 课后作业点评(微信)
         /// </summary>
         public bool StudentHomeworkCommentWeChat { get; set; } = true;
 
