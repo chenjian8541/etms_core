@@ -1,7 +1,9 @@
 ﻿using ETMS.Entity.Enum;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.ExternalService.Contract;
+using ETMS.IDataAccess;
 using Newtonsoft.Json;
+using Senparc.Weixin.Exceptions;
 using Senparc.Weixin.MP.AdvancedAPIs;
 using Senparc.Weixin.MP.AdvancedAPIs.TemplateMessage;
 using System;
@@ -15,6 +17,48 @@ namespace ETMS.ExternalService.Implement
     public class WxService : IWxService
     {
         public const string DefaultColor = "";
+
+        public const string LinkColor = "#1890ff";
+
+        public const string NotFollowErrorCode = "43004";
+
+        public const string NotFollowErrorMsg = "require subscribe";
+
+        private readonly IStudentWechatDAL _studentWechatDAL;
+
+        public WxService(IStudentWechatDAL studentWechatDAL)
+        {
+            this._studentWechatDAL = studentWechatDAL;
+        }
+
+        private string GetFirstDesc(NoticeRequestBase requestBase, string first)
+        {
+            if (requestBase.WechartAuthorizerId == 0)
+            {
+                if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
+                {
+                    return $"『 {requestBase.TenantName}』\r\n{first}";
+                }
+                else
+                {
+                    return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
+                }
+            }
+            else
+            {
+                return first;
+            }
+        }
+
+        private void ProcessEequireSubscribe(int loginTenantId, long studentId, string phone, string opendId, string errorMsg)
+        {
+            if (errorMsg.IndexOf(NotFollowErrorCode) != -1 && errorMsg.IndexOf(NotFollowErrorMsg) != -1)
+            {
+                _studentWechatDAL.InitTenantId(loginTenantId);
+                _studentWechatDAL.DelOpendId(phone, opendId).Wait();
+                LOG.Log.Info($"[WxService]移除已取消关注的学员公众号信息,loginTenantId:{loginTenantId},studentId:{studentId},phone:{phone},opendId:{opendId}", this.GetType());
+            }
+        }
 
         public void NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request)
         {
@@ -35,6 +79,11 @@ namespace ETMS.ExternalService.Implement
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };
                     TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentsOfClassBeforeDay]发送上课通知出错2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -62,6 +111,11 @@ namespace ETMS.ExternalService.Implement
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };
                     TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentsOfClassToday]发送上课通知出错2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -108,6 +162,11 @@ namespace ETMS.ExternalService.Implement
                     };
                     TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.LinkUrl, data);
                 }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentsOfClassBeforeDay]签到确认提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
                 catch (Exception ex)
                 {
                     LOG.Log.Error($"[NoticeStudentsOfClassBeforeDay]签到确认提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
@@ -138,7 +197,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您好！您收到一条请假审核提醒")),
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您收到一条请假审核提醒")),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(request.StartTimeDesc, DefaultColor),
                         keyword3 = new TemplateDataItem(request.EndTimeDesc, DefaultColor),
@@ -147,6 +206,11 @@ namespace ETMS.ExternalService.Implement
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };
                     TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -175,6 +239,11 @@ namespace ETMS.ExternalService.Implement
                     };
                     TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
                 }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
                 catch (Exception ex)
                 {
                     LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
@@ -182,22 +251,171 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
-        public string GetFirstDesc(NoticeRequestBase requestBase, string first)
+        public void HomeworkAdd(HomeworkAddRequest request)
         {
-            if (requestBase.WechartAuthorizerId == 0)
+            foreach (var student in request.Students)
             {
-                if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
+                try
                 {
-                    return $"『 {requestBase.TenantName}』\r\n{first}";
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您有新的作业待完成。")),
+                        keyword1 = new TemplateDataItem(request.ExDateDesc, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.HomeworkTitle, DefaultColor),
+                        keyword3 = new TemplateDataItem("点击查看详情", LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
                 }
-                else
+                catch (ErrorJsonResultException exJsonResultException)
                 {
-                    return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
+                    LOG.Log.Error($"[HomeworkAdd]作业布置通知2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[HomeworkAdd]作业布置通知:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
                 }
             }
-            else
+        }
+
+        public void HomeworkExpireRemind(HomeworkExpireRemindRequest request)
+        {
+            foreach (var student in request.Students)
             {
-                return first;
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您有作业还未提交，请及时完成。")),
+                        keyword1 = new TemplateDataItem(student.ClassName, DefaultColor),
+                        keyword2 = new TemplateDataItem(student.HomeworkTitle, DefaultColor),
+                        keyword3 = new TemplateDataItem("点击查看详情", LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[HomeworkExpireRemind]作业截止时间提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[HomeworkExpireRemind]作业截止时间提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
+
+        public void HomeworkComment(HomeworkCommentRequest request)
+        {
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，{request.UserName}老师点评了您的作业，点击查看详情")),
+                        keyword1 = new TemplateDataItem(request.HomeworkTitle, LinkColor),
+                        keyword2 = new TemplateDataItem(request.OtDesc, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[HomeworkComment]作业点评2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[HomeworkComment]作业点评2:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
+
+        public void GrowthRecordAdd(GrowthRecordAddRequest request)
+        {
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, "您收到一份学员成长档案，点击查看详情")),
+                        keyword1 = new TemplateDataItem(student.ClassName, DefaultColor),
+                        keyword2 = new TemplateDataItem(student.Name, LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[GrowthRecordAdd]档案新增提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[GrowthRecordAdd]档案新增提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
+
+        public void WxMessage(WxMessageRequest request)
+        {
+
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var tenantNameDesc = string.Empty;
+                    if (string.IsNullOrEmpty(request.TenantSmsSignature))
+                    {
+                        tenantNameDesc = request.TenantName;
+                    }
+                    else
+                    {
+                        tenantNameDesc = request.TenantSmsSignature;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem($"您收到一份来自[{tenantNameDesc}]的通知，赶紧点击看一看吧！"),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.OtDesc, DefaultColor),
+                        keyword3 = new TemplateDataItem("点击查看详情", LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[WxMessage]微信通知2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[WxMessage]微信通知:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
             }
         }
     }

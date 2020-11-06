@@ -23,5 +23,7 @@ namespace ETMS.IBusiness
         Task NoticeStudentLeaveApply(NoticeStudentLeaveApplyEvent request);
 
         Task NoticeStudentContracts(NoticeStudentContractsEvent request);
+
+        Task NoticeStudentsOfWxMessageConsumerEvent(NoticeStudentsOfWxMessageEvent request);
     }
 }

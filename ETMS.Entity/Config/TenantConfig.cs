@@ -131,24 +131,25 @@ namespace ETMS.Entity.Config
         public bool OrderBySms { get; set; } = false;
 
         /// <summary>
-        /// 老师点评提醒(短信)
-        /// </summary>
-        public bool TeacherClassEvaluateSms { get; set; } = false;
-
-        /// <summary>
         /// 老师点评提醒(微信)
         /// </summary>
         public bool TeacherClassEvaluateWeChat { get; set; } = true;
 
         /// <summary>
-        /// 成长档案(短信)
-        /// </summary>
-        public bool StudentGrowUpRecordSms { get; set; } = false;
-
-        /// <summary>
         /// 成长档案(微信)
         /// </summary>
         public bool StudentGrowUpRecordWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 课后作业(微信)
+        /// </summary>
+        public bool StudentHomeworkWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 课后作业(微信)
+        /// </summary>
+        public bool StudentHomeworkCommentWeChat { get; set; } = true;
+
 
         /// <summary>
         /// 是否提前一天提醒（学员上课提醒）

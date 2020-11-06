@@ -18,10 +18,13 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IActiveGrowthRecordBLL _activeGrowthRecordBLL;
 
-        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL)
+        private readonly IActiveWxMessageBLL _activeWxMessageBLL;
+
+        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL, IActiveWxMessageBLL activeWxMessageBLL)
         {
             this._activeHomeworkBLL = activeHomeworkBLL;
             this._activeGrowthRecordBLL = activeGrowthRecordBLL;
+            this._activeWxMessageBLL = activeWxMessageBLL;
         }
 
         public async Task<ResponseBase> ActiveHomeworkGetPaging(ActiveHomeworkGetPagingRequest request)
@@ -240,6 +243,76 @@ namespace ETMS.WebApi.Controllers
             {
                 _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
                 return await _activeGrowthRecordBLL.ActiveGrowthCommentDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageAdd(ActiveWxMessageAddRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageEdit(ActiveWxMessageEditRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageDel(ActiveWxMessageDelRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageGet(ActiveWxMessageGetRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageGetPaging(ActiveWxMessageGetPagingRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageGetPaging(request);
             }
             catch (Exception ex)
             {

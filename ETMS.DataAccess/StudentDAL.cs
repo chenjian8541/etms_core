@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Common;
+using ETMS.Entity.Dto.Student.Output;
+using ETMS.Entity.Temp;
 
 namespace ETMS.DataAccess
 {
@@ -187,6 +189,11 @@ namespace ETMS.DataAccess
             {
                 await base.UpdateCache(_tenantId, studentId);
             }
+        }
+
+        public async Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<GetAllStudentPagingOutput>("EtStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
     }
 }

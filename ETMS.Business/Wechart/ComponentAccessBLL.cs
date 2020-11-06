@@ -44,7 +44,7 @@ namespace ETMS.Business.Wechart
             var myWechartAuth = await _sysTenantWechartAuthDAL.GetSysTenantWechartAuth(tenantId);
             if (myWechartAuth == null || myWechartAuth.AuthorizeState == EmSysTenantWechartAuthAuthorizeState.Unauthorized)
             {
-                LOG.Log.Warn($"[GetTenantWechartAuth]机构${tenantId}未获取到可用的授权信息，将使用默认授权", this.GetType());
+                LOG.Log.Warn($"[GetTenantWechartAuth]机构{tenantId}未获取到可用的授权信息，将使用默认授权", this.GetType());
                 return await _sysAppsettingsBLL.GetWechartAuthDefault();
             }
             return myWechartAuth;

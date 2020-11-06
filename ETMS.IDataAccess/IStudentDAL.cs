@@ -1,6 +1,8 @@
 ﻿using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Student.Output;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,8 +42,10 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditStudentLearningManager(List<long> studentIds, long newLearningManager);
 
-        Task<bool> EditStudentType(long studentId, byte newStudentType, DateTime? endClassOt );
+        Task<bool> EditStudentType(long studentId, byte newStudentType, DateTime? endClassOt);
 
         Task UpdateStudentIsBindingWechat(List<long> studentIds);
+
+        Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request);
     }
 }

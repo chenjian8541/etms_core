@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace ETMS.IDataAccess
 {
-    public interface IActiveWxMessageDAL
+    public interface IActiveWxMessageDAL:IBaseDAL
     {
         Task<bool> AddActiveWxMessage(EtActiveWxMessage entity);
+
+        Task<bool> AddActiveWxMessageCount(long id, int addCount);
 
         Task<EtActiveWxMessage> GetActiveWxMessage(long id);
 
@@ -26,5 +28,7 @@ namespace ETMS.IDataAccess
         Task<EtActiveWxMessageDetail> GetActiveWxMessageDetail(long id);
 
         Task<Tuple<IEnumerable<EtActiveWxMessageDetail>, int>> GetDetailPaging(IPagingRequest request);
+
+        Task<bool> SyncWxMessageDetail(long wxMessageId, string title, byte IsNeedConfirm);
     }
 }

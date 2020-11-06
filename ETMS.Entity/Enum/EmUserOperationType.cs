@@ -131,6 +131,9 @@ namespace ETMS.Entity.Enum
         ActiveHomeworkMgr = 70,
 
         [Description("成长档案")]
-        ActiveGrowthRecord = 71
+        ActiveGrowthRecord = 71,
+
+        [Description("微信通知")]
+        WxMessage = 72
     }
 }

@@ -755,5 +755,10 @@ namespace ETMS.Business
                WeChatLimit.IsSendTemplateMessage(tenantId, tenantWechartAuth.ServiceTypeInfo, tenantWechartAuth.VerifyTypeInfo),
                wxAccessToken);
         }
+
+        public async Task NoticeStudentsOfWxMessageConsumerEvent(NoticeStudentsOfWxMessageEvent request)
+        { 
+        
+        }
     }
 }

@@ -15,5 +15,7 @@ namespace ETMS.IDataAccess
         Task AddStudentWechat(EtStudentWechat entity);
 
         Task DelStudentWechat(string phone,string openId);
+
+        Task DelOpendId(string phone, string openId);
     }
 }

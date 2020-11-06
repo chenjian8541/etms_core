@@ -21,7 +21,12 @@ namespace ETMS.WebApi.Extensions
         {
             var tokenValue = @this.HttpContext.User?.Claims?.FirstOrDefault(p => p.Type.Equals(SystemConfig.AuthenticationConfig.ClaimType))?.Value;
             var userInfo = tokenValue.Split(',');
-            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong(), userInfo[2].ToString());
+            var loginTimestamp = "0";
+            if (userInfo.Length > 2)
+            {
+                loginTimestamp = userInfo[2].ToString();
+            }
+            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong(), loginTimestamp);
         }
 
         /// <summary>

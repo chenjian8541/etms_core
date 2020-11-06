@@ -82,12 +82,12 @@ namespace ETMS.Business
             config.StudentNoticeConfig.ClassCheckSignSms = request.ClassCheckSignSms;
             config.StudentNoticeConfig.OrderByWeChat = request.OrderByWeChat;
             config.StudentNoticeConfig.OrderBySms = request.OrderBySms;
-            config.StudentNoticeConfig.TeacherClassEvaluateSms = request.TeacherClassEvaluateSms;
             config.StudentNoticeConfig.TeacherClassEvaluateWeChat = request.TeacherClassEvaluateWeChat;
-            config.StudentNoticeConfig.StudentGrowUpRecordSms = request.StudentGrowUpRecordSms;
             config.StudentNoticeConfig.StudentGrowUpRecordWeChat = request.StudentGrowUpRecordWeChat;
             config.StudentNoticeConfig.StudentAskForLeaveCheckSms = request.StudentAskForLeaveCheckSms;
             config.StudentNoticeConfig.StudentAskForLeaveCheckWeChat = request.StudentAskForLeaveCheckWeChat;
+            config.StudentNoticeConfig.StudentHomeworkWeChat = request.StudentHomeworkWeChat;
+            config.StudentNoticeConfig.StudentHomeworkCommentWeChat = request.StudentHomeworkCommentWeChat;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

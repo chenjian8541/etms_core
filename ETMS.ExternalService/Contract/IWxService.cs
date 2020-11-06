@@ -17,5 +17,15 @@ namespace ETMS.ExternalService.Contract
         void NoticeStudentLeaveApply(NoticeStudentLeaveApplyRequest request);
 
         void NoticeStudentContracts(NoticeStudentContractsRequest request);
+
+        void HomeworkAdd(HomeworkAddRequest request);
+
+        void HomeworkExpireRemind(HomeworkExpireRemindRequest request);
+
+        void HomeworkComment(HomeworkCommentRequest request);
+
+        void GrowthRecordAdd(GrowthRecordAddRequest request);
+
+        void WxMessage(WxMessageRequest request);
     }
 }

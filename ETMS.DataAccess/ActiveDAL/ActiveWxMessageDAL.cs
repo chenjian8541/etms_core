@@ -40,6 +40,13 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> AddActiveWxMessageCount(long id, int addCount)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtActiveWxMessage SET TotalCount = TotalCount + {addCount} WHERE id = {id} ");
+            await UpdateCache(_tenantId, id);
+            return true;
+        }
+
         public async Task<EtActiveWxMessage> GetActiveWxMessage(long id)
         {
             var bucket = await GetCache(_tenantId, id);
@@ -88,6 +95,12 @@ namespace ETMS.DataAccess
         public async Task<Tuple<IEnumerable<EtActiveWxMessageDetail>, int>> GetDetailPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtActiveWxMessageDetail>("EtActiveWxMessageDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<bool> SyncWxMessageDetail(long wxMessageId, string title, byte IsNeedConfirm)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtActiveWxMessageDetail SET Title = '{title}',IsNeedConfirm = {IsNeedConfirm} WHERE WxMessageId = {wxMessageId} AND TenantId = {_tenantId} ");
+            return true;
         }
     }
 }

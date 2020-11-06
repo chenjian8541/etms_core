@@ -38,24 +38,24 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public bool OrderBySms { get; set; }
 
         /// <summary>
-        /// 老师点评提醒(短信)
-        /// </summary>
-        public bool TeacherClassEvaluateSms { get; set; }
-
-        /// <summary>
         /// 老师点评提醒(微信)
         /// </summary>
         public bool TeacherClassEvaluateWeChat { get; set; }
 
         /// <summary>
-        /// 成长档案(短信)
-        /// </summary>
-        public bool StudentGrowUpRecordSms { get; set; }
-
-        /// <summary>
         /// 成长档案(微信)
         /// </summary>
         public bool StudentGrowUpRecordWeChat { get; set; }
+
+        /// <summary>
+        /// 课后作业(微信)
+        /// </summary>
+        public bool StudentHomeworkWeChat { get; set; }
+
+        /// <summary>
+        /// 课后作业点评提醒(微信)
+        /// </summary>
+        public bool StudentHomeworkCommentWeChat { get; set; }
 
         /// <summary>
         /// 学员请假审核结果通知(短信)

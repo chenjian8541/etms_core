@@ -112,11 +112,27 @@ namespace ETMS.Entity.Config
 
         public string ClassCheckSign { get; set; }
 
+        public string HomeworkAdd { get; set; }
+
+        public string HomeworkExpireRemind { get; set; }
+
+        public string HomeworkComment { get; set; }
+
+        public string GrowthRecordAdd { get; set; }
+
+        public string WxMessage { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }
 
         public string StudentOrderDetailFrontUrl { get; set; }
+
+        public string StudentHomeworkDetailUrl { get; set; }
+
+        public string StudentGrowthRecordDetailUrl { get; set; }
+
+        public string StudentWxMessageDetailUrl { get; set; }
     }
 
     public class ServerConfig
