@@ -46,6 +46,11 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public byte SendType { get; set; }
 
         /// <summary>
+        /// 成长档案内容
+        /// </summary>
+        public string GrowthContent { get; set; }
+
+        /// <summary>
         /// 创建日期
         /// </summary>
         public DateTime Ot { get; set; }

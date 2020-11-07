@@ -101,6 +101,7 @@ namespace ETMS.Business
                     RelatedDesc = await ComBusiness.GetClassNames(tempBoxClass, _classDAL, p.RelatedIds),
                     SendType = p.SendType,
                     Type = p.Type,
+                    GrowthContent = p.GrowthContent,
                     TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type)
                 });
             }
@@ -130,6 +131,7 @@ namespace ETMS.Business
                     RelatedDesc = await ComBusiness.GetStudentNames(tempBoxStudent, _studentDAL, p.RelatedIds),
                     SendType = p.SendType,
                     Type = p.Type,
+                    GrowthContent = p.GrowthContent,
                     TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type)
                 });
             }

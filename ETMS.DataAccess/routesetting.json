@@ -307,6 +307,17 @@
           "Title": "作业详情",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 70,
+        "Path": "growthRecord",
+        "Name": "growthRecord",
+        "Type": 1,
+        "Component": "@/views/Interaction/growthRecord",
+        "Meta": {
+          "Title": "成长档案",
+          "Icon": "item"
+        }
       }
     ]
   },
