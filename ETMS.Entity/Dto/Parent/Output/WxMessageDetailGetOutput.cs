@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using ETMS.Entity.Enum;
 
-namespace ETMS.Entity.Database.Source
+namespace ETMS.Entity.Dto.Parent.Output
 {
-    [Table("EtActiveWxMessageDetail")]
-    public class EtActiveWxMessageDetail : Entity<long>
+    public class WxMessageDetailGetOutput
     {
-        /// <summary>
-        /// 创建人
-        /// </summary>
-        public long CreateUserId { get; set; }
+        public long WxMessageDetailId { get; set; }
 
         /// <summary>
         /// 主表ID
@@ -23,6 +18,11 @@ namespace ETMS.Entity.Database.Source
         /// 学员
         /// </summary>
         public long StudentId { get; set; }
+
+        /// <summary>
+        /// 学员名称
+        /// </summary>
+        public string StudentName { get; set; }
 
         /// <summary>
         /// 标题
@@ -45,13 +45,13 @@ namespace ETMS.Entity.Database.Source
         public byte IsConfirm { get; set; }
 
         /// <summary>
-        /// 确认时间
-        /// </summary>
-        public DateTime? ConfirmOt { get; set; }
-
-        /// <summary>
         /// 发送时间
         /// </summary>
         public DateTime Ot { get; set; }
+
+        /// <summary>
+        /// 内容
+        /// </summary>
+        public string MessageContent { get; set; }
     }
 }

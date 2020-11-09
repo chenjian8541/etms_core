@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using ETMS.Entity.Enum;
 
-namespace ETMS.Entity.Database.Source
+namespace ETMS.Entity.Dto.Parent.Output
 {
-    [Table("EtActiveWxMessageDetail")]
-    public class EtActiveWxMessageDetail : Entity<long>
+    public class WxMessageDetailPagingOutput
     {
         /// <summary>
-        /// 创建人
+        /// 微信消息详情ID
         /// </summary>
-        public long CreateUserId { get; set; }
+        public long WxMessageDetailId { get; set; }
 
         /// <summary>
         /// 主表ID
@@ -45,13 +42,8 @@ namespace ETMS.Entity.Database.Source
         public byte IsConfirm { get; set; }
 
         /// <summary>
-        /// 确认时间
-        /// </summary>
-        public DateTime? ConfirmOt { get; set; }
-
-        /// <summary>
         /// 发送时间
         /// </summary>
-        public DateTime Ot { get; set; }
+        public string OtDesc { get; set; }
     }
 }

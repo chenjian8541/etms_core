@@ -31,8 +31,10 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IParentData2BLL _parentData2BLL;
 
+        private readonly IParentData3BLL _parentData3BLL;
+
         public ParentController(IParentBLL parentBLL, IGiftBLL giftBLL, ICouponsBLL couponsBLL, IStudentBLL studentBLL,
-            IParentDataBLL parentDataBLL, IParentData2BLL parentData2BLL)
+            IParentDataBLL parentDataBLL, IParentData2BLL parentData2BLL, IParentData3BLL parentData3BLL)
         {
             this._parentBLL = parentBLL;
             this._giftBLL = giftBLL;
@@ -40,6 +42,7 @@ namespace ETMS.WebApi.Controllers
             this._studentBLL = studentBLL;
             this._parentDataBLL = parentDataBLL;
             this._parentData2BLL = parentData2BLL;
+            this._parentData3BLL = parentData3BLL;
         }
 
         [AllowAnonymous]
@@ -657,6 +660,76 @@ namespace ETMS.WebApi.Controllers
             {
                 _parentDataBLL.InitTenantId(request.LoginTenantId);
                 return await _parentDataBLL.GrowthRecordDelComment(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.WxMessageDetailPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMessageDetailGet(WxMessageDetailGetRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.WxMessageDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMessageDetailSetRead(WxMessageDetailSetReadRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.WxMessageDetailSetRead(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMessageDetailSetConfirm(WxMessageDetailSetConfirmRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.WxMessageDetailSetConfirm(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMessageGetUnreadCount(WxMessageGetUnreadCountRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.WxMessageGetUnreadCount(request);
             }
             catch (Exception ex)
             {
