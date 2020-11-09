@@ -30,7 +30,7 @@ namespace ETMS.DataAccess
             await this._dbWrapper.Execute($"DELETE EtStudentSmsLog WHERE Ot <= '{DateTime.Now.AddYears(-1).EtmsToDateString()}'");
         }
 
-        public async Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetOrderPaging(IPagingRequest request)
+        public async Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStudentSmsLog>("EtStudentSmsLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

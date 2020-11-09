@@ -18,7 +18,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
         /// <summary>
         /// 内容
         /// </summary>
-        public string MsgContent { get; set; }
+        public string MessageContent { get; set; }
 
         /// <summary>
         /// 是否需要家长确认  <see cref="EmBool"/>
@@ -35,7 +35,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请输入标题";
             }
-            if (string.IsNullOrEmpty(MsgContent))
+            if (string.IsNullOrEmpty(MessageContent))
             {
                 return "请输入内容";
             }

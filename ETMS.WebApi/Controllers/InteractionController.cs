@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Interaction.Request;
+using ETMS.Entity.Dto.Marketing.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
@@ -20,11 +21,15 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IActiveWxMessageBLL _activeWxMessageBLL;
 
-        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL, IActiveWxMessageBLL activeWxMessageBLL)
+        private readonly ISmsLogBLL _smsLogBLL;
+
+        public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL, IActiveWxMessageBLL activeWxMessageBLL,
+            ISmsLogBLL smsLogBLL)
         {
             this._activeHomeworkBLL = activeHomeworkBLL;
             this._activeGrowthRecordBLL = activeGrowthRecordBLL;
             this._activeWxMessageBLL = activeWxMessageBLL;
+            this._smsLogBLL = smsLogBLL;
         }
 
         public async Task<ResponseBase> ActiveHomeworkGetPaging(ActiveHomeworkGetPagingRequest request)
@@ -313,6 +318,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
                 return await _activeWxMessageBLL.ActiveWxMessageGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentSmsLogGetPaging(StudentSmsLogGetPagingRequest request)
+        {
+            try
+            {
+                _smsLogBLL.InitTenantId(request.LoginTenantId);
+                return await _smsLogBLL.StudentSmsLogGetPaging(request);
             }
             catch (Exception ex)
             {

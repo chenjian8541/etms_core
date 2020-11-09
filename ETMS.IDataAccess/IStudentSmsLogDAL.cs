@@ -11,6 +11,6 @@ namespace ETMS.IDataAccess
     {
         Task AddStudentSmsLog(List<EtStudentSmsLog> logs);
 
-        Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetOrderPaging(IPagingRequest request);
+        Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetPaging(IPagingRequest request);
     }
 }

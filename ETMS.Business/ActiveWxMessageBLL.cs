@@ -293,7 +293,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("微信通知不存在");
             }
             wxMessage.Title = request.Title;
-            wxMessage.MessageContent = request.MsgContent;
+            wxMessage.MessageContent = request.MessageContent;
             wxMessage.IsNeedConfirm = request.IsNeedConfirm;
             await _activeWxMessageDAL.EditActiveWxMessage(wxMessage);
             await _activeWxMessageDAL.SyncWxMessageDetail(request.CId, request.Title, request.IsNeedConfirm);

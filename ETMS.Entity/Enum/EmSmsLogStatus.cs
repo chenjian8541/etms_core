@@ -15,5 +15,14 @@ namespace ETMS.Entity.Enum
         /// 已完成
         /// </summary>
         public const byte Finish = 1;
+
+        public static string GetSmsLogStatusDesc(byte t)
+        {
+            if (t == IsSending)
+            {
+                return "发送中";
+            }
+            return "已完成";
+        }
     }
 }
