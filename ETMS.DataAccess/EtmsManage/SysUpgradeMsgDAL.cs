@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.DataAccess.EtmsManage
 {
@@ -22,7 +23,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         protected override async Task<SysUpgradeMsgBucket> GetDb(params object[] keys)
         {
-            var lastDb = await this.ExecuteObject<SysUpgradeMsg>("select top 1 * from SysUpgradeMsg order by id desc");
+            var lastDb = await this.ExecuteObject<SysUpgradeMsg>($"select top 1 * from SysUpgradeMsg where Status = {EmSysUpgradeMsgStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} order by id desc");
             if (lastDb == null || !lastDb.Any())
             {
                 return null;
@@ -40,9 +41,28 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity)
         {
-            await this.Execute("DELETE SysUpgradeMsgRead ");
+            await this.Execute($"UPDATE [SysUpgradeMsg] SET [Status] = {EmSysUpgradeMsgStatus.Invalid} ;DELETE SysUpgradeMsgRead ;");
             await this.Insert(entity);
             await UpdateCache();
+            return true;
+        }
+
+        public async Task<bool> DelSysUpgradeMsg(int id)
+        {
+            var dbLog = await this.Find<SysUpgradeMsg>(p => p.Id == id);
+            if (dbLog == null)
+            {
+                return false;
+            }
+            if (dbLog.Status == EmSysUpgradeMsgStatus.Normal)
+            {
+                await this.Execute($"DELETE [SysUpgradeMsg] WHERE id = {id} ; UPDATE [SysUpgradeMsg] SET [Status] = {EmSysUpgradeMsgStatus.Invalid} ;DELETE SysUpgradeMsgRead ;");
+                RemoveCache();
+            }
+            else
+            {
+                await this.Execute($"DELETE [SysUpgradeMsg] WHERE id = {id} ;");
+            }
             return true;
         }
 

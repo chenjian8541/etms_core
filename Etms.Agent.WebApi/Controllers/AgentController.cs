@@ -551,6 +551,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> SysUpgradeMsgDel(SysUpgradeMsgDelRequest request)
+        {
+            try
+            {
+                return await _sysUpgradeMsgBLL.SysUpgradeMsgDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysUpgradeMsgPaging(SysUpgradeMsgPagingRequest request)
         {
             try

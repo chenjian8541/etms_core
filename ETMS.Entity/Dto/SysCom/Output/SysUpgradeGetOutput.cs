@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
+namespace ETMS.Entity.Dto.SysCom.Output
 {
-    public class SysUpgradeMsgPagingOutput
+    public class SysUpgradeGetOutput
     {
-        public int CId { get; set; }
-        public int AgentId { get; set; }
+        public bool IsHaveUpgrade { get; set; }
+
+        public UpgradeInfo UpgradeInfo { get; set; }
+    }
+
+    public class UpgradeInfo
+    {
+
+        public int UpgradeId { get; set; }
 
         public string VersionNo { get; set; }
 
@@ -18,9 +25,5 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public DateTime EndTime { get; set; }
 
         public string UpContent { get; set; }
-
-        public byte Status { get; set; }
-
-        public string StatusDesc { get; set; }
     }
 }

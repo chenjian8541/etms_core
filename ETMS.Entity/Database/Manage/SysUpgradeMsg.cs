@@ -20,5 +20,10 @@ namespace ETMS.Entity.Database.Manage
         public DateTime EndTime { get; set; }
 
         public string UpContent { get; set; }
+
+        /// <summary>
+        /// 状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysUpgradeMsgStatus"/>
+        /// </ummary>
+        public byte Status { get; set; }
     }
 }

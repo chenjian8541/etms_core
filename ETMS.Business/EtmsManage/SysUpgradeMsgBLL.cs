@@ -38,7 +38,8 @@ namespace ETMS.Business.EtmsManage
                 StartTime = startTime,
                 Title = request.Title,
                 UpContent = request.UpContent,
-                VersionNo = request.VersionNo
+                VersionNo = request.VersionNo,
+                Status = EmSysUpgradeMsgStatus.Normal
             };
             await _sysUpgradeMsgDAL.AddSysUpgradeMsg(entity);
 
@@ -47,7 +48,24 @@ namespace ETMS.Business.EtmsManage
                 AgentId = request.LoginAgentId,
                 IpAddress = string.Empty,
                 IsDeleted = EmIsDeleted.Normal,
-                OpContent = "",
+                OpContent = $"添加升级公告：版本号:{request.VersionNo},标题:{request.Title}",
+                Ot = DateTime.Now,
+                Remark = string.Empty,
+                Type = EmSysAgentOpLogType.VersionUpgrade
+            });
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> SysUpgradeMsgDel(SysUpgradeMsgDelRequest request)
+        {
+            await _sysUpgradeMsgDAL.DelSysUpgradeMsg(request.CId);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
+            {
+                AgentId = request.LoginAgentId,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = "删除升级公告",
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.VersionUpgrade
@@ -68,7 +86,10 @@ namespace ETMS.Business.EtmsManage
                     StartTime = p.StartTime,
                     Title = p.Title,
                     UpContent = p.UpContent,
-                    VersionNo = p.VersionNo
+                    VersionNo = p.VersionNo,
+                    Status = p.Status,
+                    StatusDesc = EmSysUpgradeMsgStatus.GetSysUpgradeMsgStatusDesc(p.Status),
+                    CId = p.Id
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SysUpgradeMsgPagingOutput>(pagingData.Item2, output));

@@ -11,6 +11,8 @@ namespace ETMS.IBusiness.EtmsManage
     {
         Task<ResponseBase> SysUpgradeMsgAdd(SysUpgradeMsgAddRequest request);
 
-        Task<ResponseBase> SysUpgradeMsgPaging(SysUpgradeMsgPagingRequest request);
+        Task<ResponseBase> SysUpgradeMsgDel(SysUpgradeMsgDelRequest request);
+
+      Task<ResponseBase> SysUpgradeMsgPaging(SysUpgradeMsgPagingRequest request);
     }
 }

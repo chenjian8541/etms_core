@@ -13,6 +13,8 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity);
 
+        Task<bool> DelSysUpgradeMsg(int id);
+
         Task<SysUpgradeMsg> GetLastSysUpgradeMsg();
 
         Task<bool> SetRead(int upgradeMsgId, int tenantId, long userId);
