@@ -14,6 +14,7 @@ using Senparc.NeuChar.Entities;
 using System.Threading.Tasks;
 using Senparc.NeuChar.Entities.Request;
 using Senparc.NeuChar.Helpers;
+using ETMS.LOG;
 
 namespace ETMS.WebApi.Controllers.Open
 {
@@ -61,8 +62,9 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override IResponseMessageBase OnTextRequest(RequestMessageText requestMessage)
         {
-            var defaultResponseMessage = base.CreateResponseMessage<ResponseMessageText>();
-            return defaultResponseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "祝您学习进步，生活愉快≧◠◡◠≦";
+            return responseText;
         }
 
         /// <summary>
@@ -72,16 +74,17 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnLocationRequestAsync(RequestMessageLocation requestMessage)
         {
-            var defaultResponseMessage = base.CreateResponseMessage<ResponseMessageText>();
-            return defaultResponseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "愿您以梦为马,不负韶华";
+            return responseText;
         }
 
 
         public override async Task<IResponseMessageBase> OnShortVideoRequestAsync(RequestMessageShortVideo requestMessage)
         {
-            var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = string.Empty;
-            return responseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "愿您以梦为马,不负韶华";
+            return responseText;
         }
 
         /// <summary>
@@ -100,14 +103,14 @@ namespace ETMS.WebApi.Controllers.Open
                     Title = "您刚才发送了图片信息",
                     Description = "您发送的图片将会显示在边上",
                     PicUrl = requestMessage.PicUrl,
-                    Url = "https://sdk.weixin.senparc.com"
+                    Url = ""
                 });
                 responseMessage.Articles.Add(new Article()
                 {
                     Title = "第二条",
                     Description = "第二条带连接的内容",
                     PicUrl = requestMessage.PicUrl,
-                    Url = "https://sdk.weixin.senparc.com"
+                    Url = ""
                 });
 
                 return responseMessage;
@@ -127,23 +130,16 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnLinkRequestAsync(RequestMessageLink requestMessage)
         {
-            var responseMessage = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseMessage.Content = string.Format(@"您发送了一条连接信息：
-Title：{0}
-Description:{1}
-Url:{2}", requestMessage.Title, requestMessage.Description, requestMessage.Url);
-            return responseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "愿您以梦为马,不负韶华";
+            return responseText;
         }
 
         public override async Task<IResponseMessageBase> OnFileRequestAsync(RequestMessageFile requestMessage)
         {
-            var responseMessage = requestMessage.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = string.Format(@"您发送了一个文件：
-文件名：{0}
-说明:{1}
-大小：{2}
-MD5:{3}", requestMessage.Title, requestMessage.Description, requestMessage.FileTotalLen, requestMessage.FileMd5);
-            return responseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "愿您以梦为马,不负韶华";
+            return responseText;
         }
 
         /// <summary>
@@ -153,9 +149,9 @@ MD5:{3}", requestMessage.Title, requestMessage.Description, requestMessage.FileT
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnEventRequestAsync(IRequestMessageEventBase requestMessage)
         {
-            var eventResponseMessage = await base.OnEventRequestAsync(requestMessage);//对于Event下属分类的重写方法，见：CustomerMessageHandler_Events.cs
-                                                                                      //TODO: 对Event信息进行统一操作
-            return eventResponseMessage;
+            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
+            responseText.Content = "愿您以梦为马,不负韶华";
+            return responseText;
         }
 
 
@@ -168,7 +164,7 @@ MD5:{3}", requestMessage.Title, requestMessage.Description, requestMessage.FileT
             * return responseMessage;
             */
             var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "";// "这条消息来自DefaultResponseMessage。";
+            responseMessage.Content = "愿您以梦为马,不负韶华";// "这条消息来自DefaultResponseMessage。";
             return responseMessage;
         }
 
@@ -179,11 +175,10 @@ MD5:{3}", requestMessage.Title, requestMessage.Description, requestMessage.FileT
              * 原始XML可以通过requestMessage.RequestDocument（或this.RequestDocument）获取到。
              * 如果不重写此方法，遇到未知的请求类型将会抛出异常（v14.8.3 之前的版本就是这么做的）
              */
-            var msgType = Senparc.NeuChar.Helpers.MsgTypeHelper.GetRequestMsgTypeString(requestMessage.RequestDocument);
             var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "";// "未知消息类型：" + msgType;
+            responseMessage.Content = "愿您以梦为马,不负韶华";
 
-            Senparc.Weixin.WeixinTrace.SendCustomLog("未知请求消息类型", requestMessage.RequestDocument.ToString());//记录到日志中
+            Log.Error("[OnUnknownTypeRequestAsync]微信消息：未知请求消息类型", this.GetType());
 
             return responseMessage;
         }
