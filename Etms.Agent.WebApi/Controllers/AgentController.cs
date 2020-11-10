@@ -21,10 +21,13 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly ISysTenantBLL _sysTenantBLL;
 
-        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL)
+        private readonly ISysUpgradeMsgBLL _sysUpgradeMsgBLL;
+
+        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL, ISysUpgradeMsgBLL sysUpgradeMsgBLL)
         {
             this._agentBLL = agentBLL;
             this._sysTenantBLL = sysTenantBLL;
+            this._sysUpgradeMsgBLL = sysUpgradeMsgBLL;
         }
 
         [AllowAnonymous]
@@ -527,6 +530,32 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysTenantBLL.TenantChangeEtms(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysUpgradeMsgAdd(SysUpgradeMsgAddRequest request)
+        {
+            try
+            {
+                return await _sysUpgradeMsgBLL.SysUpgradeMsgAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysUpgradeMsgPaging(SysUpgradeMsgPagingRequest request)
+        {
+            try
+            {
+                return await _sysUpgradeMsgBLL.SysUpgradeMsgPaging(request);
             }
             catch (Exception ex)
             {

@@ -77,8 +77,20 @@
     "ChildrenPage": [
       {
         "Id": 9,
-        "Name": "版本设置",
+        "Name": "主系统管理",
         "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 14,
+            "Name": "版本设置",
+            "Type": 0
+          },
+          {
+            "Id": 15,
+            "Name": "系统升级",
+            "Type": 0
+          }
+        ],
         "ChildrenAction": [
           {
             "ActionId": 6,

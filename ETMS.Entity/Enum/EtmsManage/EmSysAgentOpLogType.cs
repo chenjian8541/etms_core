@@ -22,6 +22,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("机构管理")]
         public const int TenantMange = 5;
 
+        [Description("系统升级管理")]
+        public const int VersionUpgrade = 6;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -36,6 +39,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "角色管理";
                 case TenantMange:
                     return "机构管理";
+                case VersionUpgrade:
+                    return "系统升级管理";
             }
             return string.Empty;
         }

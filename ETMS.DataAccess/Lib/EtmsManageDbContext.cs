@@ -36,5 +36,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysWechartVerifyTicket> SysWechartVerifyTickets { get; set; }
         public DbSet<SysWechartAuthorizerToken> SysWechartAuthorizerTokens { get; set; }
         public DbSet<SysAppsettings> SysAppsettingss { get; set; }
+        public DbSet<SysUpgradeMsg> SysUpgradeMsgs { get; set; }
+        public DbSet<SysUpgradeMsgRead> SysUpgradeMsgReads { get; set; }
     }
 }

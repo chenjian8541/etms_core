@@ -95,7 +95,7 @@
         "Type": 1,
         "Component": "@/views/sysMgr/versionMgr",
         "Meta": {
-          "Title": "版本设置",
+          "Title": "主系统管理",
           "Icon": "item"
         }
       },
