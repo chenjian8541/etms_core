@@ -94,6 +94,11 @@ namespace ETMS.Entity.Database.Source
         public int NeedAttendNumber { get; set; }
 
         /// <summary>
+        /// 评价学员数量
+        /// </summary>
+        public int EvaluateStudentCount { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmClassRecordStatus"/>
         /// </summary>
         public byte Status { get; set; }

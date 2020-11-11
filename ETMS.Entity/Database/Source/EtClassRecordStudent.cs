@@ -124,14 +124,24 @@ namespace ETMS.Entity.Database.Source
         public long CheckUserId { get; set; }
 
         /// <summary>
-        /// 评价了多少位老师
+        /// （评价老师）点评了多少位老师
         /// </summary>
         public int EvaluateTeacherNum { get; set; }
 
         /// <summary>
-        /// 是否点评(老师点评)
+        /// （评价老师）是否点评了老师
         /// </summary>
         public bool IsBeEvaluate { get; set; }
+
+        /// <summary>
+        /// （评价学员）老师评价此学员的数量
+        /// </summary>
+        public int EvaluateCount { get; set; }
+
+        /// <summary>
+        /// （评价学员）学员读取老师评价的数量
+        /// </summary>
+        public int EvaluateReadCount { get; set; }
 
         /// <summary>
         /// 是否奖励积分

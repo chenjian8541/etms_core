@@ -299,7 +299,7 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "homeworkDetail",
+        "Path": "homeworkDetail/:id",
         "Name": "homeworkDetail",
         "Type": 1,
         "Component": "@/components/Homework/HomeworkDetail",
@@ -316,6 +316,41 @@
         "Component": "@/views/Interaction/growthRecord",
         "Meta": {
           "Title": "成长档案",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 73,
+        "Path": "notice",
+        "Name": "notice",
+        "Type": 1,
+        "Component": "@/views/Interaction/notice",
+        "Meta": {
+          "Title": "通知管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "editnotice/:id",
+        "Name": "editnotice",
+        "Type": 1,
+        "Component": "@/components/notice/wxnotice/addnotice",
+        "Meta": {
+          "Title": "编辑通知",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "addnotice",
+        "Name": "addnotice",
+        "Type": 1,
+        "Component": "@/components/notice/wxnotice/addnotice",
+        "Meta": {
+          "Title": "发通知",
           "Icon": "item"
         }
       }
