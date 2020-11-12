@@ -83,7 +83,7 @@ namespace ETMS.Business
             });
 
             var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
-            _tempDataCacheDAL.SetWxMessageLimitBucket(request.LoginTenantId, now, totalCount++);
+            _tempDataCacheDAL.SetWxMessageLimitBucket(request.LoginTenantId, now, ++totalCount);
 
             await _userOperationLogDAL.AddUserLog(request, $"发送微信通知:{request.Title}", EmUserOperationType.WxMessage, now);
             return ResponseBase.Success();

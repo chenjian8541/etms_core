@@ -27,7 +27,7 @@ namespace ETMS.Business
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentSmsLogDAL);
+            this.InitDataAccess(tenantId, _studentSmsLogDAL, _studentDAL);
         }
 
         public async Task<ResponseBase> StudentSmsLogGetPaging(StudentSmsLogGetPagingRequest request)
