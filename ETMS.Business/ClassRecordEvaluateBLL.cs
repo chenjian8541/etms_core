@@ -211,6 +211,8 @@ namespace ETMS.Business
                 TenantId = classRecord.TenantId,
                 Week = classRecord.Week
             });
+
+            await _userOperationLogDAL.AddUserLog(request, $"点评学员:{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();
         }
 
@@ -241,7 +243,7 @@ namespace ETMS.Business
                     TeachersDesc = teachersDesc,
                     EvaluateContent = evaluateStudent.EvaluateContent,
                     EvaluateOt = evaluateStudent.Ot,
-                    EvaluateStudentId = evaluateStudent.StudentId,
+                    EvaluateStudentRecordId = evaluateStudent.Id,
                     EvaluateUserName = evaluateUserName,
                     IsRead = evaluateStudent.IsRead,
                     StudentName = student.Name,
@@ -249,6 +251,40 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentEvaluateLogGetPaging(StudentEvaluateLogGetPagingRequest request)
+        {
+            var pagingData = await _classRecordEvaluateDAL.GetEvaluateTeacherPaging(request);
+            var output = new List<StudentEvaluateLogGetPagingOutput>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempStudent = new DataTempBox<EtStudent>();
+            foreach (var evaluateTeacher in pagingData.Item1)
+            {
+                var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, evaluateTeacher.ClassId);
+                var className = etClass.Name;
+                var teacherName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, evaluateTeacher.TeacherId);
+                var student = await ComBusiness.GetStudent(tempStudent, _studentDAL, evaluateTeacher.StudentId);
+                if (student == null)
+                {
+                    continue;
+                }
+                output.Add(new StudentEvaluateLogGetPagingOutput()
+                {
+                    ClassName = className,
+                    ClassOtDesc = evaluateTeacher.ClassOt.EtmsToDateString(),
+                    ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(evaluateTeacher.StartTime)}~{EtmsHelper.GetTimeDesc(evaluateTeacher.EndTime)}",
+                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(evaluateTeacher.Week)}",
+                    StudentName = student.Name,
+                    StudentPhone = student.Phone,
+                    EvaluateTeacherRecordId = evaluateTeacher.Id,
+                    Ot = evaluateTeacher.Ot,
+                    StarValue = evaluateTeacher.StarValue,
+                    TeacherName = teacherName
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentEvaluateLogGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

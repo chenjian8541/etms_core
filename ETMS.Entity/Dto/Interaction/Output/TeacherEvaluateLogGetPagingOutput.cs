@@ -6,7 +6,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
 {
     public class TeacherEvaluateLogGetPagingOutput
     {
-        public long EvaluateStudentId { get; set; }
+        public long EvaluateStudentRecordId { get; set; }
 
         /// <summary>
         /// 评价时间

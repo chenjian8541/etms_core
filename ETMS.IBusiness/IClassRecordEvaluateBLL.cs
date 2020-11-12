@@ -20,5 +20,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TeacherClassRecordEvaluateSubmit(TeacherClassRecordEvaluateSubmitRequest request);
 
         Task<ResponseBase> TeacherEvaluateLogGetPaging(TeacherEvaluateLogGetPagingRequest request);
+
+        Task<ResponseBase> StudentEvaluateLogGetPaging(StudentEvaluateLogGetPagingRequest request);
     }
 }

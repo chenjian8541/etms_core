@@ -134,6 +134,9 @@ namespace ETMS.Entity.Enum
         ActiveGrowthRecord = 71,
 
         [Description("微信通知")]
-        WxMessage = 72
+        WxMessage = 72,
+
+        [Description("课后点评")]
+        ClassEvaluate = 73
     }
 }

@@ -23,13 +23,16 @@ namespace ETMS.WebApi.Controllers
 
         private readonly ISmsLogBLL _smsLogBLL;
 
+        private readonly IClassRecordEvaluateBLL _classRecordEvaluateBLL;
+
         public InteractionController(IActiveHomeworkBLL activeHomeworkBLL, IActiveGrowthRecordBLL activeGrowthRecordBLL, IActiveWxMessageBLL activeWxMessageBLL,
-            ISmsLogBLL smsLogBLL)
+            ISmsLogBLL smsLogBLL, IClassRecordEvaluateBLL classRecordEvaluateBLL)
         {
             this._activeHomeworkBLL = activeHomeworkBLL;
             this._activeGrowthRecordBLL = activeGrowthRecordBLL;
             this._activeWxMessageBLL = activeWxMessageBLL;
             this._smsLogBLL = smsLogBLL;
+            this._classRecordEvaluateBLL = classRecordEvaluateBLL;
         }
 
         public async Task<ResponseBase> ActiveHomeworkGetPaging(ActiveHomeworkGetPagingRequest request)
@@ -332,6 +335,104 @@ namespace ETMS.WebApi.Controllers
             {
                 _smsLogBLL.InitTenantId(request.LoginTenantId);
                 return await _smsLogBLL.StudentSmsLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateGetPaging(TeacherClassRecordEvaluateGetPagingRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherClassRecordEvaluateGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateGetDetail(TeacherClassRecordEvaluateGetDetailRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherClassRecordEvaluateGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateStudent(TeacherClassRecordEvaluateStudentRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherClassRecordEvaluateStudent(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateStudentDetail(TeacherClassRecordEvaluateStudentDetailRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherClassRecordEvaluateStudentDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateSubmit(TeacherClassRecordEvaluateSubmitRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherClassRecordEvaluateSubmit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherEvaluateLogGetPaging(TeacherEvaluateLogGetPagingRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.TeacherEvaluateLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentEvaluateLogGetPaging(StudentEvaluateLogGetPagingRequest request)
+        {
+            try
+            {
+                _classRecordEvaluateBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordEvaluateBLL.StudentEvaluateLogGetPaging(request);
             }
             catch (Exception ex)
             {
