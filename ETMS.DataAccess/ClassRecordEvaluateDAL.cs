@@ -16,6 +16,18 @@ namespace ETMS.DataAccess
         {
         }
 
+        public async Task<bool> AddClassRecordEvaluateStudent(EtClassRecordEvaluateStudent entity)
+        {
+            await this._dbWrapper.Insert(entity);
+            return true;
+        }
+
+        public async Task<bool> AddClassRecordEvaluateTeacher(EtClassRecordEvaluateTeacher entity)
+        {
+            await this._dbWrapper.Insert(entity);
+            return true;
+        }
+
         public async Task<List<EtClassRecordEvaluateStudent>> GetClassRecordEvaluateStudent(long classRecordId, long studentId)
         {
             return await _dbWrapper.FindList<EtClassRecordEvaluateStudent>(p => p.ClassRecordId == classRecordId && p.StudentId == studentId && p.IsDeleted == EmIsDeleted.Normal);

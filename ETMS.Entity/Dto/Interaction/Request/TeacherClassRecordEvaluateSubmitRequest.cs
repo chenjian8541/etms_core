@@ -19,6 +19,10 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请求数据不合法";
             }
+            if (string.IsNullOrEmpty(EvaluateContent))
+            {
+                return "请输入点评内容";
+            }
             return string.Empty;
         }
     }

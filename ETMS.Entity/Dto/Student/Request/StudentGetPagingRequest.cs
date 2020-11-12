@@ -9,6 +9,12 @@ namespace ETMS.Entity.Dto.Student.Request
 {
     public class StudentGetPagingRequest : RequestPagingBase, IDataLimit
     {
+        /// <summary>
+        /// 场景
+        /// 0：要限制数据  1：不限制
+        /// </summary>
+        public int SceneType { get; set; }
+
         public string StudentKey { get; set; }
 
         public byte? TrackStatus { get; set; }
@@ -229,7 +235,7 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 condition.Append($" AND EndClassOt < '{EndClassOtEnd.Value.EtmsToString()}'");
             }
-            if (IsDataLimit)
+            if (IsDataLimit && SceneType == 0)
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

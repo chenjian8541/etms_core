@@ -9,6 +9,10 @@ namespace ETMS.IDataAccess
 {
     public interface IClassRecordEvaluateDAL : IBaseDAL
     {
+        Task<bool> AddClassRecordEvaluateStudent(EtClassRecordEvaluateStudent entity);
+
+        Task<bool> AddClassRecordEvaluateTeacher(EtClassRecordEvaluateTeacher entity);
+
         Task<List<EtClassRecordEvaluateStudent>> GetClassRecordEvaluateStudent(long classRecordId, long studentId);
 
         Task<Tuple<IEnumerable<EtClassRecordEvaluateStudent>, int>> GetEvaluateStudentPaging(RequestPagingBase request);

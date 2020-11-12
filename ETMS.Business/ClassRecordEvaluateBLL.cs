@@ -36,9 +36,11 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
         public ClassRecordEvaluateBLL(IClassRecordDAL classRecordDAL, IStudentDAL studentDAL, IUserDAL userDAL, IClassDAL classDAL,
             IClassRecordEvaluateDAL classRecordEvaluateDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserOperationLogDAL userOperationLogDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentDAL = studentDAL;
@@ -49,12 +51,13 @@ namespace ETMS.Business
             this._classRoomDAL = classRoomDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._userOperationLogDAL = userOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _studentDAL, _userDAL, _classDAL, _classRecordEvaluateDAL,
-                _courseDAL, _classRoomDAL);
+                _courseDAL, _classRoomDAL, _userOperationLogDAL);
         }
 
         public async Task<ResponseBase> TeacherClassRecordEvaluateGetPaging(TeacherClassRecordEvaluateGetPagingRequest request)
@@ -177,7 +180,22 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
-        public async Task<ResponseBase> TeacherClassRecordEvaluateSubmit(TeacherClassRecordEvaluateSubmitRequest request) { return ResponseBase.Success(); }
+        public async Task<ResponseBase> TeacherClassRecordEvaluateSubmit(TeacherClassRecordEvaluateSubmitRequest request)
+        {
+            var classRecord = await _classRecordDAL.GetClassRecord(request.ClassRecordId);
+            if (classRecord == null)
+            {
+                return ResponseBase.CommonError("点名记录不存在");
+            }
+            var now = DateTime.Now;
+            var classRecordEvaluateStudent = new EtClassRecordEvaluateStudent() { 
+             ClassRecordId = classRecord.Id,
+              CheckUserId = classRecord.CheckUserId,
+               IsDeleted = classRecord.IsDeleted,
+                IsRead = false
+            };
+            return ResponseBase.Success();
+        }
 
         public async Task<ResponseBase> TeacherEvaluateLogGetPaging(TeacherEvaluateLogGetPagingRequest request) { return ResponseBase.Success(); }
     }
