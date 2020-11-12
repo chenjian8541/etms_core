@@ -56,9 +56,9 @@ namespace ETMS.Business
             var pagingData = await _classRecordDAL.GetPaging(request);
             var output = new List<ClassRecordGetPagingOutput>();
             var allClassRoom = await _classRoomDAL.GetAllClassRoom();
-
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
             foreach (var classRecord in pagingData.Item1)
             {
                 var classRoomIdsDesc = string.Empty;
@@ -66,10 +66,10 @@ namespace ETMS.Business
                 var courseStyleColor = string.Empty;
                 var className = string.Empty;
                 var teachersDesc = string.Empty;
-                var etClass = await _classDAL.GetClassBucket(classRecord.ClassId);
+                var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
                 var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
                 classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds);
-                className = etClass.EtClass.Name;
+                className = etClass.Name;
                 courseListDesc = courseInfo.Item1;
                 courseStyleColor = courseInfo.Item2;
                 teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);

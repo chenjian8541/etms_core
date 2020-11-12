@@ -66,15 +66,16 @@ namespace ETMS.Business
             var output = new List<TeacherClassRecordEvaluateGetPagingOutput>();
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
             foreach (var classRecord in pagingData.Item1)
             {
                 var courseListDesc = string.Empty;
                 var courseStyleColor = string.Empty;
                 var className = string.Empty;
                 var teachersDesc = string.Empty;
-                var etClass = await _classDAL.GetClassBucket(classRecord.ClassId);
+                var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
                 var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
-                className = etClass.EtClass.Name;
+                className = etClass.Name;
                 courseListDesc = courseInfo.Item1;
                 courseStyleColor = courseInfo.Item2;
                 teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);
@@ -188,15 +189,66 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("点名记录不存在");
             }
             var now = DateTime.Now;
-            var classRecordEvaluateStudent = new EtClassRecordEvaluateStudent() { 
-             ClassRecordId = classRecord.Id,
-              CheckUserId = classRecord.CheckUserId,
-               IsDeleted = classRecord.IsDeleted,
-                IsRead = false
-            };
+            await _classRecordEvaluateDAL.AddClassRecordEvaluateStudent(new EtClassRecordEvaluateStudent()
+            {
+                ClassRecordId = classRecord.Id,
+                CheckUserId = classRecord.CheckUserId,
+                IsDeleted = classRecord.IsDeleted,
+                IsRead = false,
+                EvaluateContent = request.EvaluateContent,
+                Ot = now,
+                CheckOt = classRecord.CheckOt,
+                ClassId = classRecord.ClassId,
+                ClassOt = classRecord.ClassOt,
+                EndTime = classRecord.EndTime,
+                EvaluateImg = string.Empty,
+                StartTime = classRecord.StartTime,
+                Status = classRecord.Status,
+                StudentId = request.StudentId,
+                StudentType = EmClassStudentType.ClassStudent,
+                TeacherId = request.LoginUserId,
+                Teachers = classRecord.Teachers,
+                TenantId = classRecord.TenantId,
+                Week = classRecord.Week
+            });
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> TeacherEvaluateLogGetPaging(TeacherEvaluateLogGetPagingRequest request) { return ResponseBase.Success(); }
+        public async Task<ResponseBase> TeacherEvaluateLogGetPaging(TeacherEvaluateLogGetPagingRequest request)
+        {
+            var pagingData = await _classRecordEvaluateDAL.GetEvaluateStudentPaging(request);
+            var output = new List<TeacherEvaluateLogGetPagingOutput>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempStudent = new DataTempBox<EtStudent>();
+            foreach (var evaluateStudent in pagingData.Item1)
+            {
+                var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, evaluateStudent.ClassId);
+                var className = etClass.Name;
+                var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, evaluateStudent.Teachers);
+                var evaluateUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, evaluateStudent.TeacherId);
+                var student = await ComBusiness.GetStudent(tempStudent, _studentDAL, evaluateStudent.StudentId);
+                if (student == null)
+                {
+                    continue;
+                }
+                output.Add(new TeacherEvaluateLogGetPagingOutput()
+                {
+                    ClassName = className,
+                    ClassOtDesc = evaluateStudent.ClassOt.EtmsToDateString(),
+                    ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(evaluateStudent.StartTime)}~{EtmsHelper.GetTimeDesc(evaluateStudent.EndTime)}",
+                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(evaluateStudent.Week)}",
+                    TeachersDesc = teachersDesc,
+                    EvaluateContent = evaluateStudent.EvaluateContent,
+                    EvaluateOt = evaluateStudent.Ot,
+                    EvaluateStudentId = evaluateStudent.StudentId,
+                    EvaluateUserName = evaluateUserName,
+                    IsRead = evaluateStudent.IsRead,
+                    StudentName = student.Name,
+                    StudentPhone = student.Phone
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateLogGetPagingOutput>(pagingData.Item2, output));
+        }
     }
 }
