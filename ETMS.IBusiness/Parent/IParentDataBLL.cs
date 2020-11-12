@@ -13,7 +13,9 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentListGet(StudentListGetRequest request);
 
-        Task<ResponseBase> StudentLeaveApplyDetailGet(StudentLeaveApplyDetailGetRequest request);
+        Task<ResponseBase> StudentListDetailGet(StudentListDetailGetRequest request);
+
+       Task<ResponseBase> StudentLeaveApplyDetailGet(StudentLeaveApplyDetailGetRequest request);
 
         Task<ResponseBase> StudentLeaveApplyRevoke(StudentLeaveApplyRevokeRequest request);
 

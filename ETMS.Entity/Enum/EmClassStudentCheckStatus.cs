@@ -44,5 +44,14 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static bool CheckIsCanEvaluate(byte status)
+        {
+            if (status == Arrived || status == BeLate)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

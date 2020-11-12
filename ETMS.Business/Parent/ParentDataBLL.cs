@@ -62,12 +62,14 @@ namespace ETMS.Business
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
+        private readonly IStudentRelationshipDAL _studentRelationshipDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
            IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL,
-           ISysTenantDAL sysTenantDAL)
+           ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -89,6 +91,7 @@ namespace ETMS.Business
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._studentGrowingTagDAL = studentGrowingTagDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._studentRelationshipDAL = studentRelationshipDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -96,7 +99,7 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _studentLeaveApplyLogDAL, _parentStudentDAL, _studentDAL,
                 _studentOperationLogDAL, _classTimesDAL, _classRoomDAL, _userDAL, _courseDAL, _classDAL,
                 _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL,
-                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL);
+                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL, _studentRelationshipDAL);
         }
 
         public async Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request)
@@ -135,6 +138,46 @@ namespace ETMS.Business
                     Gender = p.Gender,
                     AvatarKey = p.Avatar,
                     AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p.Avatar),
+                });
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentListDetailGet(StudentListDetailGetRequest request)
+        {
+            var myStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, request.LoginPhone);
+            var output = new List<StudentListDetailGetOutput>();
+            var studentRelationship = await _studentRelationshipDAL.GetAllStudentRelationship();
+            foreach (var p in myStudents)
+            {
+                var student = (await _studentDAL.GetStudent(p.Id)).Student;
+                var learningManager = string.Empty;
+                if (student.LearningManager != null)
+                {
+                    var user = await _userDAL.GetUser(student.LearningManager.Value);
+                    if (user != null)
+                    {
+                        learningManager = ComBusiness2.GetParentTeacherName(user);
+                    }
+                }
+                output.Add(new StudentListDetailGetOutput()
+                {
+                    Id = student.Id,
+                    AvatarKey = student.Avatar,
+                    AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
+                    HomeAddress = student.HomeAddress,
+                    Name = student.Name,
+                    Phone = student.Phone,
+                    PhoneBak = student.PhoneBak,
+                    SchoolName = student.SchoolName,
+                    Points = student.Points,
+                    PhoneRelationship = student.PhoneRelationship,
+                    PhoneBakRelationship = student.PhoneBakRelationship,
+                    BirthdayDesc = student.Birthday.EtmsToDateString(),
+                    Age = student.Age,
+                    PhoneBakRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneBakRelationship, "备用号码"),
+                    PhoneRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneRelationship, "手机号码"),
+                    LearningManager = learningManager
                 });
             }
             return ResponseBase.Success(output);

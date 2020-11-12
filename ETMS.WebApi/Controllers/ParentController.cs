@@ -161,6 +161,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentListDetailGet(StudentListDetailGetRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.StudentListDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [HttpPost]
         public async Task<ResponseBase> ParentCouponsReceive(ParentCouponsReceiveRequest request)
         {

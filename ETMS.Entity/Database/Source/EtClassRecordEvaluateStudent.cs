@@ -32,6 +32,11 @@ namespace ETMS.Entity.Database.Source
         public byte StudentType { get; set; }
 
         /// <summary>
+        /// 上课老师
+        /// </summary>
+        public string Teachers { get; set; }
+
+        /// <summary>
         /// 老师ID
         /// </summary>
         public long TeacherId { get; set; }
