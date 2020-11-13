@@ -13,7 +13,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddClassRecordEvaluateTeacher(EtClassRecordEvaluateTeacher entity);
 
-        Task<List<EtClassRecordEvaluateStudent>> GetClassRecordEvaluateStudent(long classRecordId, long studentId);
+        Task<List<EtClassRecordEvaluateStudent>> GetClassRecordEvaluateStudent(long classRecordStudentId);
 
         Task<Tuple<IEnumerable<EtClassRecordEvaluateStudent>, int>> GetEvaluateStudentPaging(RequestPagingBase request);
 

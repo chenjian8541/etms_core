@@ -22,6 +22,11 @@ namespace ETMS.Entity.Database.Source
         public long ClassRecordId { get; set; }
 
         /// <summary>
+        /// 点名记录学员ID
+        /// </summary>
+        public long ClassRecordStudentId { get; set; }
+
+        /// <summary>
         /// 学员ID
         /// </summary>
         public long StudentId { get; set; }

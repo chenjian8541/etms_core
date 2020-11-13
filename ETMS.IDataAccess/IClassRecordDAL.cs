@@ -38,10 +38,14 @@ namespace ETMS.IDataAccess
 
         Task<EtClassRecordStudent> GetEtClassRecordStudentById(long id);
 
+        Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent);
+
         Task<Tuple<IEnumerable<ClassRecordPointsApplyLogView>, int>> GetClassRecordPointsApplyLog(RequestPagingBase request);
 
         Task<List<EtClassRecordPointsApplyLog>> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId);
 
         Task<bool> SetClassRecordRevoke(long classRecordId);
+
+        Task<bool> ClassRecordAddEvaluateStudentCount(long classRecordId, int addCount);
     }
 }

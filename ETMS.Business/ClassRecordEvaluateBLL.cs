@@ -160,7 +160,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> TeacherClassRecordEvaluateStudentDetail(TeacherClassRecordEvaluateStudentDetailRequest request)
         {
 
-            var log = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.ClassRecordId, request.StudentId);
+            var log = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.ClassRecordStudentId);
             var output = new List<TeacherClassRecordEvaluateStudentDetailOutput>();
             if (log.Count > 0)
             {
@@ -183,34 +183,42 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TeacherClassRecordEvaluateSubmit(TeacherClassRecordEvaluateSubmitRequest request)
         {
-            var classRecord = await _classRecordDAL.GetClassRecord(request.ClassRecordId);
-            if (classRecord == null)
+            var classRecordStudentLog = await _classRecordDAL.GetEtClassRecordStudentById(request.ClassRecordStudentId);
+            if (classRecordStudentLog == null)
             {
                 return ResponseBase.CommonError("点名记录不存在");
             }
             var now = DateTime.Now;
             await _classRecordEvaluateDAL.AddClassRecordEvaluateStudent(new EtClassRecordEvaluateStudent()
             {
-                ClassRecordId = classRecord.Id,
-                CheckUserId = classRecord.CheckUserId,
-                IsDeleted = classRecord.IsDeleted,
+                ClassRecordId = classRecordStudentLog.Id,
+                CheckUserId = classRecordStudentLog.CheckUserId,
+                IsDeleted = classRecordStudentLog.IsDeleted,
                 IsRead = false,
                 EvaluateContent = request.EvaluateContent,
                 Ot = now,
-                CheckOt = classRecord.CheckOt,
-                ClassId = classRecord.ClassId,
-                ClassOt = classRecord.ClassOt,
-                EndTime = classRecord.EndTime,
+                CheckOt = classRecordStudentLog.CheckOt,
+                ClassId = classRecordStudentLog.ClassId,
+                ClassOt = classRecordStudentLog.ClassOt,
+                EndTime = classRecordStudentLog.EndTime,
                 EvaluateImg = string.Empty,
-                StartTime = classRecord.StartTime,
-                Status = classRecord.Status,
-                StudentId = request.StudentId,
+                StartTime = classRecordStudentLog.StartTime,
+                Status = classRecordStudentLog.Status,
+                StudentId = classRecordStudentLog.StudentId,
                 StudentType = EmClassStudentType.ClassStudent,
                 TeacherId = request.LoginUserId,
-                Teachers = classRecord.Teachers,
-                TenantId = classRecord.TenantId,
-                Week = classRecord.Week
+                Teachers = classRecordStudentLog.Teachers,
+                TenantId = classRecordStudentLog.TenantId,
+                Week = classRecordStudentLog.Week,
+                ClassRecordStudentId = request.ClassRecordStudentId
             });
+
+            if (classRecordStudentLog.EvaluateCount == 0) //之前未评价过
+            {
+                await _classRecordDAL.ClassRecordAddEvaluateStudentCount(classRecordStudentLog.ClassRecordId, 1);
+            }
+            classRecordStudentLog.EvaluateCount += 1;
+            await _classRecordDAL.EditClassRecordStudent(classRecordStudentLog);
 
             await _userOperationLogDAL.AddUserLog(request, $"点评学员:{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();

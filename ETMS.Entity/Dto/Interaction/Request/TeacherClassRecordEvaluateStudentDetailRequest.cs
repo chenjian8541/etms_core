@@ -7,13 +7,11 @@ namespace ETMS.Entity.Dto.Interaction.Request
 {
     public class TeacherClassRecordEvaluateStudentDetailRequest : RequestBase
     {
-        public long ClassRecordId { get; set; }
-
-        public long StudentId { get; set; }
+        public long ClassRecordStudentId { get; set; }
 
         public override string Validate()
         {
-            if (ClassRecordId <= 0 || StudentId <= 0)
+            if (ClassRecordStudentId <= 0)
             {
                 return "请求数据不合法";
             }

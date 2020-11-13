@@ -93,6 +93,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtClassRecordStudent>(id);
         }
 
+        public async Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent)
+        {
+            await _dbWrapper.Update(etClassRecordStudent);
+            return true;
+        }
+
         public async Task<Tuple<IEnumerable<ClassRecordPointsApplyLogView>, int>> GetClassRecordPointsApplyLog(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<ClassRecordPointsApplyLogView>("ClassRecordPointsApplyLogView", "*", request.PageSize, request.PageCurrent, "[HandleStatus] ASC,Id DESC", request.ToString());
@@ -113,6 +119,12 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtClassRecordPointsApplyLog SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
             sql.Append($"UPDATE EtClassRecordAbsenceLog SET [Status] = {EmClassRecordStatus.Revoked} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId};");
             await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
+        public async Task<bool> ClassRecordAddEvaluateStudentCount(long classRecordId, int addCount)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtClassRecord SET EvaluateStudentCount = EvaluateStudentCount + {addCount} WHERE id = {classRecordId} ");
             return true;
         }
     }
