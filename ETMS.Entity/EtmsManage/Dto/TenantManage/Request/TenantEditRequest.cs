@@ -37,6 +37,12 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public string SmsSignature { get; set; }
 
+
+        /// <summary>
+        /// 购买状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantBuyStatus"/>
+        /// </summary>
+        public byte BuyStatus { get; set; }
+
         public override string Validate()
         {
             if (Id <= 0)

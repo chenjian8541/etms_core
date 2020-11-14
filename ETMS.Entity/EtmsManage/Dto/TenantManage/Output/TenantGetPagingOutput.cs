@@ -51,6 +51,13 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         /// </summary>
         public byte Status { get; set; }
 
+        /// <summary>
+        /// 购买状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantBuyStatus"/>
+        /// </summary>
+        public byte BuyStatus { get; set; }
+
+        public string BuyStatusDesc { get; set; }
+
         public string StatusDesc { get; set; }
 
         public string AgentName { get; set; }

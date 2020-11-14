@@ -37,6 +37,11 @@ namespace ETMS.Entity.Database.Manage
         public byte Status { get; set; }
 
         /// <summary>
+        /// 购买状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantBuyStatus"/>
+        /// </summary>
+        public byte BuyStatus { get; set; }
+
+        /// <summary>
         /// 机构名称
         /// </summary>
         public string Name { get; set; }

@@ -73,6 +73,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
         /// </summary>
         public byte? Status { get; set; }
 
+        public byte? BuyStatus { get; set; }
+
         public int? VersionId { get; set; }
 
         /// <summary>
@@ -141,6 +143,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (!string.IsNullOrEmpty(Remark))
             {
                 condition.Append($" AND Remark LIKE '%{Remark}%'");
+            }
+            if (BuyStatus != null)
+            {
+                condition.Append($" AND BuyStatus = {BuyStatus.Value}");
             }
             return condition.ToString();
         }

@@ -81,7 +81,9 @@ namespace ETMS.Business.EtmsManage
                     VersionDesc = version?.Name,
                     Address = p.Address,
                     IdCard = p.IdCard,
-                    LinkMan = p.LinkMan
+                    LinkMan = p.LinkMan,
+                    BuyStatus = p.BuyStatus,
+                    BuyStatusDesc = EmSysTenantBuyStatus.GetSysTenantBuyStatusDesc(p.BuyStatus)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -101,7 +103,7 @@ namespace ETMS.Business.EtmsManage
                 return ResponseBase.CommonError("代理商短信剩余条数不足");
             }
             var buyEtmsVersion = myAgentAccount.FirstOrDefault(p => p.VersionId == request.VersionId);
-            if (buyEtmsVersion == null || buyEtmsVersion.EtmsCount < request.EtmsCount)
+            if (buyEtmsVersion == null || (request.EtmsCount > 0 && buyEtmsVersion.EtmsCount < request.EtmsCount))
             {
                 return ResponseBase.CommonError("代理商剩余授权点数不足");
             }
@@ -122,18 +124,22 @@ namespace ETMS.Business.EtmsManage
                     Sum = request.Sum
                 });
             }
-            await _sysAgentDAL.EtmsAccountDeduction(request.LoginAgentId, request.VersionId, request.EtmsCount);
-            await _sysAgentLogDAL.AddSysAgentEtmsAccountLog(new SysAgentEtmsAccountLog()
+
+            if (request.EtmsCount > 0)
             {
-                VersionId = request.VersionId,
-                AgentId = request.LoginAgentId,
-                ChangeCount = request.EtmsCount,
-                ChangeType = EmSysAgentEtmsAccountLogChangeType.Deduction,
-                IsDeleted = EmIsDeleted.Normal,
-                Ot = now,
-                Sum = request.Sum,
-                Remark = remark
-            });
+                await _sysAgentDAL.EtmsAccountDeduction(request.LoginAgentId, request.VersionId, request.EtmsCount);
+                await _sysAgentLogDAL.AddSysAgentEtmsAccountLog(new SysAgentEtmsAccountLog()
+                {
+                    VersionId = request.VersionId,
+                    AgentId = request.LoginAgentId,
+                    ChangeCount = request.EtmsCount,
+                    ChangeType = EmSysAgentEtmsAccountLogChangeType.Deduction,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = now,
+                    Sum = request.Sum,
+                    Remark = remark
+                });
+            }
 
             //初始化账户
             var allDb = await _sysConnectionStringDAL.GetSysConnectionString();
@@ -143,11 +149,22 @@ namespace ETMS.Business.EtmsManage
                 var myRandom = new Random().Next(1000, 10000);
                 indexDb = myRandom % allDb.Count;
             }
+            DateTime exDate;
+            if (request.EtmsCount > 0)
+            {
+                exDate = now.AddYears(request.EtmsCount).Date;
+            }
+            else
+            {
+                //15天试用
+                exDate = now.AddDays(15);
+            }
+            var buyStatus = request.EtmsCount > 0 ? EmSysTenantBuyStatus.Official : EmSysTenantBuyStatus.Test;
             var tenantId = await _sysTenantDAL.AddTenant(new SysTenant
             {
                 AgentId = request.LoginAgentId,
                 ConnectionId = allDb[indexDb].Id,
-                ExDate = now.AddYears(request.EtmsCount).Date,
+                ExDate = exDate,
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Ot = now,
@@ -160,7 +177,8 @@ namespace ETMS.Business.EtmsManage
                 LinkMan = request.LinkMan,
                 IdCard = request.IdCard,
                 Address = request.Address,
-                SmsSignature = request.SmsSignature
+                SmsSignature = request.SmsSignature,
+                BuyStatus = buyStatus
             });
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);
@@ -180,18 +198,21 @@ namespace ETMS.Business.EtmsManage
                     TenantId = tenantId
                 });
             }
-            await _sysTenantLogDAL.AddSysTenantEtmsAccountLog(new SysTenantEtmsAccountLog()
+            if (request.EtmsCount > 0)
             {
-                TenantId = tenantId,
-                Sum = request.Sum,
-                Remark = remark,
-                AgentId = request.LoginAgentId,
-                ChangeCount = request.EtmsCount,
-                ChangeType = EmTenantEtmsAccountLogChangeType.Add,
-                IsDeleted = EmIsDeleted.Normal,
-                Ot = now,
-                VersionId = request.VersionId
-            });
+                await _sysTenantLogDAL.AddSysTenantEtmsAccountLog(new SysTenantEtmsAccountLog()
+                {
+                    TenantId = tenantId,
+                    Sum = request.Sum,
+                    Remark = remark,
+                    AgentId = request.LoginAgentId,
+                    ChangeCount = request.EtmsCount,
+                    ChangeType = EmTenantEtmsAccountLogChangeType.Add,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = now,
+                    VersionId = request.VersionId
+                });
+            }
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
 
@@ -218,7 +239,8 @@ namespace ETMS.Business.EtmsManage
                 Status = EmSysTenantStatus.GetSysTenantStatus(tenant.Status, tenant.ExDate),
                 TenantCode = tenant.TenantCode,
                 VersionName = version?.Name,
-                SmsSignature = tenant.SmsSignature
+                SmsSignature = tenant.SmsSignature,
+                BuyStatus = tenant.BuyStatus
             };
             return ResponseBase.Success(output);
         }
@@ -234,6 +256,7 @@ namespace ETMS.Business.EtmsManage
             tenant.IdCard = request.IdCard;
             tenant.Address = request.Address;
             tenant.SmsSignature = request.SmsSignature;
+            tenant.BuyStatus = request.BuyStatus;
             await _sysTenantDAL.EditTenant(tenant);
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"编辑机构:名称:{request.Name};机构编码:{tenant.TenantCode};手机号码:{request.Phone}", EmSysAgentOpLogType.TenantMange);
@@ -446,6 +469,7 @@ namespace ETMS.Business.EtmsManage
 
             //增加机构授权点数
             tenant.ExDate = tenant.ExDate.AddYears(request.AddChangeCount);
+            tenant.BuyStatus = EmSysTenantBuyStatus.Official;
             await _sysTenantDAL.EditTenant(tenant);
             await _sysTenantLogDAL.AddSysTenantEtmsAccountLog(new SysTenantEtmsAccountLog()
             {

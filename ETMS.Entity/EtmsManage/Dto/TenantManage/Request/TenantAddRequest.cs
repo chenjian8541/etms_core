@@ -70,7 +70,7 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             {
                 return "联系人不能为空";
             }
-            if (VersionId <= 0 || EtmsCount <= 0)
+            if (VersionId <= 0)
             {
                 return "请填写完整购买的系统版本信息";
             }

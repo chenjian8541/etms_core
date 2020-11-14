@@ -59,6 +59,11 @@ namespace ETMS.Entity.EtmsManage.View
         /// </summary>
         public byte Status { get; set; }
 
+        /// <summary>
+        /// 购买状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantBuyStatus"/>
+        /// </summary>
+        public byte BuyStatus { get; set; }
+
         public string AgentName { get; set; }
 
         public string AgentPhone { get; set; }
