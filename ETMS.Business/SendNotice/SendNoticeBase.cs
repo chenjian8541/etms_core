@@ -44,7 +44,7 @@ namespace ETMS.Business
                 tenantWechartAuth.Id, tenant.Name,
                 tenant.SmsSignature,
                WeChatLimit.IsSendTemplateMessage(tenantId, tenantWechartAuth.ServiceTypeInfo, tenantWechartAuth.VerifyTypeInfo),
-               wxAccessToken);
+               wxAccessToken, tenantWechartAuth.AuthorizerAppid);
         }
     }
 }

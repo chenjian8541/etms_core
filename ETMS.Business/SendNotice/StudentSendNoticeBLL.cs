@@ -158,7 +158,7 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (request.IsSendWeChat)
             {
-                smsReq.TemplateId = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
+                smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
                 smsReq.Remark = request.WeChatNoticeRemark;
             }
             if (classTimesStudents != null && classTimesStudents.Any())
@@ -346,7 +346,7 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (request.IsSendWeChat)
             {
-                smsReq.TemplateId = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
+                smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
                 smsReq.Remark = request.WeChatNoticeRemark;
             }
             if (classTimesStudents != null && classTimesStudents.Any())
@@ -471,7 +471,7 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
             {
-                req.TemplateId = wxConfig.TemplateNoticeConfig.ClassCheckSign;
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.ClassCheckSign;
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
             var tempBoxCourse = new DataTempBox<EtCourse>();
@@ -581,7 +581,7 @@ namespace ETMS.Business
             req.TimeDesc = $"{req.StartTimeDesc}~{req.EndTimeDesc}";
             if (tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat)
             {
-                req.TemplateId = wxConfig.TemplateNoticeConfig.StudentLeaveApply;
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentLeaveApply;
                 req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentLeaveApplyDetailFrontUrl, request.StudentLeaveApplyLog.Id);
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
@@ -652,7 +652,7 @@ namespace ETMS.Business
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             if (tenantConfig.StudentNoticeConfig.OrderByWeChat)
             {
-                req.TemplateId = wxConfig.TemplateNoticeConfig.StudentContracts;
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentContracts;
                 req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentOrderDetailFrontUrl, request.Order.Id);
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
@@ -739,7 +739,7 @@ namespace ETMS.Business
                 OtDesc = request.Ot.EtmsToMinuteString(),
                 Students = new List<WxMessageStudent>()
             };
-            req.TemplateId = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             foreach (var p in request.StudentIds)

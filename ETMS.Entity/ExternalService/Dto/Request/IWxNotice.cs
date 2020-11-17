@@ -7,7 +7,7 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 {
    public  interface IWxNotice
     {
-         string TemplateId { get; set; }
+         string TemplateIdShort { get; set; }
 
          string Topcolor { get; set; }
 
@@ -20,6 +20,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         bool WechartTemplateMessageLimit { get; set; }
 
         int WechartAuthorizerId { get; set; }
+
+        string AuthorizerAppid { get; set; }
 
         string TenantName { get; set; }
 

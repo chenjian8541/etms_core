@@ -12,14 +12,16 @@ namespace ETMS.Entity.ExternalService.Dto.Request
                   requestBase.TenantName,
                   requestBase.TenantSmsSignature,
                   requestBase.WechartTemplateMessageLimit,
-                  requestBase.AccessToken)
+                  requestBase.AccessToken,
+                  requestBase.AuthorizerAppid)
         {
         }
 
         public List<GrowthRecordAddStudent> Students { get; set; }
     }
 
-    public class GrowthRecordAddStudent {
+    public class GrowthRecordAddStudent
+    {
 
         public string ClassName { get; set; }
 

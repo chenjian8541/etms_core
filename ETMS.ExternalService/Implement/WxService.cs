@@ -2,7 +2,9 @@
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.ExternalService.Contract;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.EtmsManage;
 using Newtonsoft.Json;
+using Senparc.Weixin;
 using Senparc.Weixin.Exceptions;
 using Senparc.Weixin.MP.AdvancedAPIs;
 using Senparc.Weixin.MP.AdvancedAPIs.TemplateMessage;
@@ -26,9 +28,12 @@ namespace ETMS.ExternalService.Implement
 
         private readonly IStudentWechatDAL _studentWechatDAL;
 
-        public WxService(IStudentWechatDAL studentWechatDAL)
+        private readonly ISysWechartAuthTemplateMsgDAL _sysWechartAuthTemplateMsgDAL;
+
+        public WxService(IStudentWechatDAL studentWechatDAL, ISysWechartAuthTemplateMsgDAL sysWechartAuthTemplateMsgDAL)
         {
             this._studentWechatDAL = studentWechatDAL;
+            this._sysWechartAuthTemplateMsgDAL = sysWechartAuthTemplateMsgDAL;
         }
 
         private string GetFirstDesc(NoticeRequestBase requestBase, string first)
@@ -50,6 +55,32 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
+        private string ResetTemplateId(NoticeRequestBase requestBase)
+        {
+            LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：requestBase:{JsonConvert.SerializeObject(requestBase)}", this.GetType());
+            var result = TemplateApi.Addtemplate(requestBase.AccessToken, requestBase.TemplateIdShort);
+            LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：result:{JsonConvert.SerializeObject(result)}", this.GetType());
+            if (result.errcode == ReturnCode.请求成功)
+            {
+                _sysWechartAuthTemplateMsgDAL.SaveSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort, result.template_id).Wait();
+                return result.template_id;
+            }
+            else
+            {
+                throw new Exception($"[ResetTemplateId]添加模板消息ID失败：requestBase:{JsonConvert.SerializeObject(requestBase)}");
+            }
+        }
+
+        private string GetTemplateId(NoticeRequestBase requestBase)
+        {
+            var myWechartAuthTemplateMsg = _sysWechartAuthTemplateMsgDAL.GetSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort).Result;
+            if (myWechartAuthTemplateMsg == null)
+            {
+                return ResetTemplateId(requestBase);
+            }
+            return myWechartAuthTemplateMsg.TemplateId;
+        }
+
         private void ProcessEequireSubscribe(int loginTenantId, long studentId, string phone, string opendId, string errorMsg)
         {
             if (errorMsg.IndexOf(NotFollowErrorCode) != -1 && errorMsg.IndexOf(NotFollowErrorMsg) != -1)
@@ -60,8 +91,17 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
+        private void ProcessInvalidTemplateId(NoticeRequestBase requestBase, string errorMsg)
+        {
+            if (errorMsg.IndexOf("invalid template_id") != -1 && errorMsg.IndexOf("40037") != -1)
+            {
+                requestBase.TemplateId = ResetTemplateId(requestBase);
+            }
+        }
+
         public void NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -84,6 +124,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentsOfClassBeforeDay]发送上课通知出错2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -94,6 +135,7 @@ namespace ETMS.ExternalService.Implement
 
         public void NoticeStudentsOfClassToday(NoticeStudentsOfClassTodayRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -116,6 +158,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentsOfClassToday]发送上课通知出错2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -126,6 +169,7 @@ namespace ETMS.ExternalService.Implement
 
         public void NoticeClassCheckSign(NoticeClassCheckSignRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -166,6 +210,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentsOfClassBeforeDay]签到确认提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -176,6 +221,7 @@ namespace ETMS.ExternalService.Implement
 
         public void NoticeStudentLeaveApply(NoticeStudentLeaveApplyRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -211,6 +257,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -221,6 +268,7 @@ namespace ETMS.ExternalService.Implement
 
         public void NoticeStudentContracts(NoticeStudentContractsRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -243,6 +291,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[NoticeStudentLeaveApply]请假审核提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -253,6 +302,7 @@ namespace ETMS.ExternalService.Implement
 
         public void HomeworkAdd(HomeworkAddRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -275,6 +325,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[HomeworkAdd]作业布置通知2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -285,6 +336,7 @@ namespace ETMS.ExternalService.Implement
 
         public void HomeworkExpireRemind(HomeworkExpireRemindRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -307,6 +359,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[HomeworkExpireRemind]作业截止时间提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -317,6 +370,7 @@ namespace ETMS.ExternalService.Implement
 
         public void HomeworkComment(HomeworkCommentRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -338,6 +392,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[HomeworkComment]作业点评2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -348,6 +403,7 @@ namespace ETMS.ExternalService.Implement
 
         public void GrowthRecordAdd(GrowthRecordAddRequest request)
         {
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -369,6 +425,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[GrowthRecordAdd]档案新增提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {
@@ -379,7 +436,7 @@ namespace ETMS.ExternalService.Implement
 
         public void WxMessage(WxMessageRequest request)
         {
-
+            request.TemplateId = GetTemplateId(request);
             foreach (var student in request.Students)
             {
                 try
@@ -411,6 +468,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     LOG.Log.Error($"[WxMessage]微信通知2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
                     ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
                 }
                 catch (Exception ex)
                 {

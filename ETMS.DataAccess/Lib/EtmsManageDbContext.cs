@@ -38,5 +38,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysAppsettings> SysAppsettingss { get; set; }
         public DbSet<SysUpgradeMsg> SysUpgradeMsgs { get; set; }
         public DbSet<SysUpgradeMsgRead> SysUpgradeMsgReads { get; set; }
+        public DbSet<SysWechartAuthTemplateMsg> SysWechartAuthTemplateMsgs { get; set; }
     }
 }

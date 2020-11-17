@@ -12,7 +12,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
                   requestBase.TenantName,
                   requestBase.TenantSmsSignature,
                   requestBase.WechartTemplateMessageLimit,
-                  requestBase.AccessToken)
+                  requestBase.AccessToken,
+                  requestBase.AuthorizerAppid)
         {
         }
 

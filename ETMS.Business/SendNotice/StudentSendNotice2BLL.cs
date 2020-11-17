@@ -88,7 +88,7 @@ namespace ETMS.Business.SendNotice
             };
 
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            req.TemplateId = wxConfig.TemplateNoticeConfig.HomeworkAdd;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.HomeworkAdd;
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
@@ -170,7 +170,7 @@ namespace ETMS.Business.SendNotice
                 Students = new List<HomeworkCommentStudent>()
             };
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            req.TemplateId = wxConfig.TemplateNoticeConfig.HomeworkComment;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.HomeworkComment;
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
@@ -241,7 +241,7 @@ namespace ETMS.Business.SendNotice
                 Students = new List<GrowthRecordAddStudent>()
             };
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            req.TemplateId = wxConfig.TemplateNoticeConfig.GrowthRecordAdd;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.GrowthRecordAdd;
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
