@@ -46,10 +46,5 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 是否点评(老师点评)
         /// </summary>
         public bool IsBeEvaluate { get; set; }
-
-        /// <summary>
-        /// 是否允许点评
-        /// </summary>
-        public bool IsCanEvaluate { get; set; }
     }
 }

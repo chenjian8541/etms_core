@@ -122,7 +122,8 @@ namespace ETMS.Business
                     Id = p.Id,
                     WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
                     StudentName = student.Name,
-                    CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId)
+                    CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetParentOutput>(pagingData.Item2, output));
@@ -165,7 +166,8 @@ namespace ETMS.Business
                     Week = p.Week,
                     ClassRoomIdsDesc = classRoomIdsDesc,
                     StudentName = student.Name,
-                    WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}"
+                    WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                 },
                 EvaluateStudentInfos = new List<ClassRecordEvaluateStudentInfo>()
             };
@@ -524,6 +526,10 @@ namespace ETMS.Business
             var tempBoxStudent = new DataTempBox<EtStudent>();
             foreach (var p in pagingData.Item1)
             {
+                if (!EmClassStudentCheckStatus.CheckIsCanEvaluate(p.StudentCheckStatus))
+                {
+                    continue;
+                }
                 var etClass = await _classDAL.GetClassBucket(p.ClassId);
                 var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
                 var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
@@ -541,8 +547,7 @@ namespace ETMS.Business
                     TeachersDesc = teachersDesc,
                     Week = p.Week,
                     WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
-                    StudentName = student.Name,
-                    IsCanEvaluate = EmClassStudentCheckStatus.CheckIsCanEvaluate(p.StudentCheckStatus)
+                    StudentName = student.Name
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<EvaluateTeacherGetOutput>(pagingData.Item2, output));

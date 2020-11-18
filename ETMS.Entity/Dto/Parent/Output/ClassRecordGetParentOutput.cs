@@ -65,5 +65,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public bool IsBeEvaluate { get; set; }
 
         public string CourseDesc { get; set; }
+
+        public string DeClassTimesDesc { get; set; }
     }
 }

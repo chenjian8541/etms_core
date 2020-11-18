@@ -183,7 +183,7 @@ namespace ETMS.Business
                     StudentPhone = student.Student.Phone,
                     StudentType = p.StudentType,
                     StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(p.StudentType),
-                    DeClassTimesDesc = GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                     Status = p.Status,
                     StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(p.Status),
                 });
@@ -237,7 +237,7 @@ namespace ETMS.Business
                     StudentCheckStatus = p.StudentCheckStatus,
                     StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
                     HandleUserName = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
-                    DeClassTimesDesc = GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                     WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}",
                 });
             }
@@ -348,35 +348,10 @@ namespace ETMS.Business
                     Teachers = p.Teachers,
                     TeachersDesc = teachersDesc,
                     Week = p.Week,
-                    DeClassTimesDesc = GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentClassRecordGetPagingOutput>(pagingData.Item2, output));
-        }
-
-        private string GetDeClassTimesDesc(byte deType, int deClassTimes, int exceedClassTimes)
-        {
-            if (deType == EmDeClassTimesType.NotDe)
-            {
-                if (exceedClassTimes > 0)
-                {
-                    return $"记录超上{exceedClassTimes}课时";
-                }
-                else
-                {
-                    return "未扣";
-                }
-            }
-            if (deType == EmDeClassTimesType.Day)
-            {
-                return "按天自动消耗";
-            }
-            var desc = new StringBuilder($"{deClassTimes}课时");
-            if (exceedClassTimes > 0)
-            {
-                desc.Append($" (记录超上{exceedClassTimes}课时)");
-            }
-            return desc.ToString();
         }
 
         public async Task<ResponseBase> ClassRecordPointsApplyLogPaging(ClassRecordPointsApplyLogPagingRequest request)

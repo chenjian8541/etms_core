@@ -7,6 +7,7 @@ using ETMS.IDataAccess;
 using System.Threading.Tasks;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Business.Common
 {
@@ -76,6 +77,31 @@ namespace ETMS.Business.Common
                 return false;
             }
             return true;
+        }
+
+        internal static string GetDeClassTimesDesc(byte deType, int deClassTimes, int exceedClassTimes)
+        {
+            if (deType == EmDeClassTimesType.NotDe)
+            {
+                if (exceedClassTimes > 0)
+                {
+                    return $"记录超上{exceedClassTimes}课时";
+                }
+                else
+                {
+                    return "未扣";
+                }
+            }
+            if (deType == EmDeClassTimesType.Day)
+            {
+                return "按天自动消耗";
+            }
+            var desc = new StringBuilder($"{deClassTimes}课时");
+            if (exceedClassTimes > 0)
+            {
+                desc.Append($" (记录超上{exceedClassTimes}课时)");
+            }
+            return desc.ToString();
         }
     }
 }

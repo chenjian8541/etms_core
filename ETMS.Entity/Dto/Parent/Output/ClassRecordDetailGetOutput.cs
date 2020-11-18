@@ -87,6 +87,8 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 奖励积分
         /// </summary>
         public int RewardPoints { get; set; }
+
+        public string DeClassTimesDesc { get; set; }
     }
 
     public class ClassRecordEvaluateStudentInfo {
