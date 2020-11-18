@@ -4,14 +4,10 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Parent.Output
 {
-    public class ClassRecordDetailGetOutput
+    public class EvaluateTeacherGetDetailOutput
     {
-        public ClassRecordBascInfo ClassRecordBascInfo { get; set; }
+        public long Id { get; set; }
 
-        public List<ClassRecordEvaluateStudentInfo> EvaluateStudentInfos { get; set; }
-    }
-
-    public class ClassRecordBascInfo {
         /// <summary>
         /// 班级ID
         /// </summary>
@@ -29,21 +25,9 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string TeachersDesc { get; set; }
 
         /// <summary>
-        /// 老师个数
-        /// </summary>
-        public int TeacherNum { get; set; }
-
-        /// <summary>
         /// 教室
         /// </summary>
         public string ClassRoomIdsDesc { get; set; }
-
-        /// <summary>
-        /// 类型  <see cref="ETMS.Entity.Enum.EmClassStudentType"/>
-        /// </summary>
-        public byte StudentType { get; set; }
-
-        public string StudentTypeDesc { get; set; }
 
         /// <summary>
         /// 到课状态  <see cref="ETMS.Entity.Enum.EmClassStudentCheckStatus"/>
@@ -53,13 +37,6 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string StudentCheckStatusDesc { get; set; }
 
         public string ClassOtDesc { get; set; }
-
-        /// <summary>
-        /// 课程ID
-        /// </summary>
-        public long CourseId { get; set; }
-
-        public string CourseDesc { get; set; }
 
         /// <summary>
         /// 周
@@ -87,20 +64,38 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 奖励积分
         /// </summary>
         public int RewardPoints { get; set; }
+
+        /// <summary>
+        /// 评价信息
+        /// </summary>
+        public List<EvaluateTeacherGetDetailTeacherOutput> EvaluateTeachers { get; set; }
     }
 
-    public class ClassRecordEvaluateStudentInfo {
-
-        public long EvaluateStudentId { get; set; }
-
+    public class EvaluateTeacherGetDetailTeacherOutput
+    {
+        /// <summary>
+        /// 老师ID
+        /// </summary>
         public long TeacherId { get; set; }
 
+        /// <summary>
+        /// 老师名称
+        /// </summary>
         public string TeacherName { get; set; }
 
-        public string TeacherAvatar { get; set; }
+        /// <summary>
+        /// 是否点评
+        /// </summary>
+        public bool IsBeEvaluate { get; set; }
 
-        public string EvaluateOtDesc { get; set; }
+        /// <summary>
+        /// 星级
+        /// </summary>
+        public int StarValue { get; set; }
 
+        /// <summary>
+        /// 点评内容
+        /// </summary>
         public string EvaluateContent { get; set; }
     }
 }

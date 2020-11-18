@@ -53,11 +53,15 @@ namespace ETMS.Business
 
         private readonly IClassRoomDAL _classRoomDAL;
 
+        private readonly IClassRecordEvaluateDAL _classRecordEvaluateDAL;
+
+        private readonly IStudentOperationLogDAL _studentOperationLogDAL;
+
         public ParentData2BLL(IClassRecordDAL classRecordDAL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IStudentCourseDAL studentCourseDAL, ICourseDAL courseDAL, IParentStudentDAL parentStudentDAL, IOrderDAL orderDAL,
             ICouponsDAL couponsDAL, ICostDAL costDAL, IGoodsDAL goodsDAL, IIncomeLogDAL incomeLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentRelationshipDAL studentRelationshipDAL,
-            IClassRoomDAL classRoomDAL)
+            IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL, IStudentOperationLogDAL studentOperationLogDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classDAL = classDAL;
@@ -76,13 +80,15 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentRelationshipDAL = studentRelationshipDAL;
             this._classRoomDAL = classRoomDAL;
+            this._classRecordEvaluateDAL = classRecordEvaluateDAL;
+            this._studentOperationLogDAL = studentOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _classDAL, _userDAL, _studentDAL, _studentCourseDAL,
                 _courseDAL, _parentStudentDAL, _orderDAL, _couponsDAL, _costDAL, _goodsDAL, _incomeLogDAL, _studentPointsLogDAL,
-                _studentRelationshipDAL, _classRoomDAL);
+                _studentRelationshipDAL, _classRoomDAL, _classRecordEvaluateDAL, _studentOperationLogDAL);
         }
 
         public async Task<ResponseBase> ClassRecordGet(ClassRecordGetRequest request)
@@ -160,8 +166,30 @@ namespace ETMS.Business
                     ClassRoomIdsDesc = classRoomIdsDesc,
                     StudentName = student.Name,
                     WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}"
-                }
+                },
+                EvaluateStudentInfos = new List<ClassRecordEvaluateStudentInfo>()
             };
+            var classRecordEvaluateStudents = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.Id);
+            if (classRecordEvaluateStudents.Count > 0)
+            {
+                foreach (var classRecordEvaluateStudent in classRecordEvaluateStudents)
+                {
+                    var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, classRecordEvaluateStudent.TeacherId);
+                    if (teacher == null)
+                    {
+                        continue;
+                    }
+                    output.EvaluateStudentInfos.Add(new ClassRecordEvaluateStudentInfo()
+                    {
+                        EvaluateContent = classRecordEvaluateStudent.EvaluateContent,
+                        EvaluateStudentId = classRecordEvaluateStudent.Id,
+                        EvaluateOtDesc = EtmsHelper.GetOtFriendlyDesc(classRecordEvaluateStudent.Ot),
+                        TeacherId = classRecordEvaluateStudent.TeacherId,
+                        TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
+                        TeacherName = ComBusiness2.GetParentTeacherName(teacher)
+                    });
+                }
+            }
             return ResponseBase.Success(output);
         }
 
@@ -486,6 +514,138 @@ namespace ETMS.Business
                 LearningManager = learningManager
             };
             return ResponseBase.Success(studentGetOutput);
+        }
+
+        public async Task<ResponseBase> EvaluateTeacherGet(EvaluateTeacherGetRequest request)
+        {
+            var pagingData = await _classRecordDAL.GetClassRecordStudentPaging(request);
+            var output = new List<EvaluateTeacherGetOutput>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            foreach (var p in pagingData.Item1)
+            {
+                var etClass = await _classDAL.GetClassBucket(p.ClassId);
+                var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
+                var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                output.Add(new EvaluateTeacherGetOutput()
+                {
+                    Id = p.Id,
+                    ClassName = etClass.EtClass.Name,
+                    ClassOtDesc = p.ClassOt.EtmsToDateString(),
+                    StartTime = EtmsHelper.GetTimeDesc(p.StartTime),
+                    EndTime = EtmsHelper.GetTimeDesc(p.EndTime),
+                    IsBeEvaluate = p.IsBeEvaluate,
+                    StudentCheckStatus = p.StudentCheckStatus,
+                    StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
+                    StudentId = p.StudentId,
+                    TeachersDesc = teachersDesc,
+                    Week = p.Week,
+                    WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
+                    StudentName = student.Name,
+                    IsCanEvaluate = EmClassStudentCheckStatus.CheckIsCanEvaluate(p.StudentCheckStatus)
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<EvaluateTeacherGetOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> EvaluateTeacherGetDetail(EvaluateTeacherGetDetailRequest request)
+        {
+            var p = await _classRecordDAL.GetEtClassRecordStudentById(request.Id);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var etClass = await _classDAL.GetClassBucket(p.ClassId);
+            var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
+            var classRoomIdsDesc = string.Empty;
+            if (!string.IsNullOrEmpty(p.ClassRoomIds))
+            {
+                var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, p.ClassRoomIds);
+            }
+            var student = (await _studentDAL.GetStudent(p.StudentId)).Student;
+            var output = new EvaluateTeacherGetDetailOutput()
+            {
+                ClassContent = p.ClassContent,
+                ClassId = p.ClassId,
+                ClassName = etClass.EtClass.Name,
+                ClassOtDesc = p.ClassOt.EtmsToDateString(),
+                EndTime = EtmsHelper.GetTimeDesc(p.EndTime),
+                RewardPoints = p.RewardPoints,
+                StartTime = EtmsHelper.GetTimeDesc(p.StartTime),
+                StudentCheckStatus = p.StudentCheckStatus,
+                StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
+                StudentId = p.StudentId,
+                TeachersDesc = teachersDesc,
+                Week = p.Week,
+                ClassRoomIdsDesc = classRoomIdsDesc,
+                StudentName = student.Name,
+                WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
+                Id = request.Id,
+                EvaluateTeachers = new List<EvaluateTeacherGetDetailTeacherOutput>()
+            };
+            var classRecordEvaluateTeachers = await _classRecordEvaluateDAL.GetClassRecordEvaluateTeacher(request.Id);
+            var teacherIds = p.Teachers.Split(',');
+            foreach (var teacherId in teacherIds)
+            {
+                if (string.IsNullOrEmpty(teacherId))
+                {
+                    continue;
+                }
+                var myTeacherId = teacherId.ToLong();
+                var myTeacherName = await ComBusiness.GetParentTeacher(tempBoxUser, _userDAL, myTeacherId);
+                if (string.IsNullOrEmpty(myTeacherName))
+                {
+                    continue;
+                }
+                var myTeacherEvaluate = classRecordEvaluateTeachers.FirstOrDefault(j => j.TeacherId == myTeacherId);
+                var myTeacherEvaluateOutput = new EvaluateTeacherGetDetailTeacherOutput()
+                {
+                    TeacherId = myTeacherId,
+                    TeacherName = myTeacherName,
+                    StarValue = 0,
+                    IsBeEvaluate = false,
+                    EvaluateContent = string.Empty
+                };
+                if (myTeacherEvaluate != null)
+                {
+                    myTeacherEvaluateOutput.IsBeEvaluate = true;
+                    myTeacherEvaluateOutput.EvaluateContent = myTeacherEvaluate.EvaluateContent;
+                    myTeacherEvaluateOutput.StarValue = myTeacherEvaluate.StarValue;
+                }
+                output.EvaluateTeachers.Add(myTeacherEvaluateOutput);
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> EvaluateTeacherSubmit(EvaluateTeacherSubmitRequest request)
+        {
+            var classRecordStudent = await _classRecordDAL.GetEtClassRecordStudentById(request.Id);
+            var now = DateTime.Now;
+            await _classRecordEvaluateDAL.AddClassRecordEvaluateTeacher(new EtClassRecordEvaluateTeacher()
+            {
+                StarValue = request.StarValue,
+                EvaluateContent = request.EvaluateContent,
+                CheckOt = classRecordStudent.CheckOt,
+                CheckUserId = classRecordStudent.CheckUserId,
+                ClassId = classRecordStudent.ClassId,
+                ClassOt = classRecordStudent.ClassOt,
+                ClassRecordId = classRecordStudent.ClassRecordId,
+                ClassRecordStudentId = classRecordStudent.Id,
+                EndTime = classRecordStudent.EndTime,
+                IsDeleted = classRecordStudent.IsDeleted,
+                Ot = now,
+                StartTime = classRecordStudent.StartTime,
+                Status = classRecordStudent.Status,
+                StudentId = classRecordStudent.StudentId,
+                StudentType = classRecordStudent.StudentType,
+                TeacherId = request.TeacherId,
+                TenantId = classRecordStudent.TenantId,
+                Week = classRecordStudent.Week
+            });
+            classRecordStudent.IsBeEvaluate = true;
+            classRecordStudent.EvaluateTeacherNum += 1;
+            await _classRecordDAL.EditClassRecordStudent(classRecordStudent);
+
+            await _studentOperationLogDAL.AddStudentLog(classRecordStudent.StudentId, classRecordStudent.TenantId, $"评价老师:{request.EvaluateContent}", EmStudentOperationLogType.EvaluateTeacher);
+            return ResponseBase.Success();
         }
     }
 }

@@ -499,6 +499,48 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> EvaluateTeacherGet(EvaluateTeacherGetRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.EvaluateTeacherGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> EvaluateTeacherGetDetail(EvaluateTeacherGetDetailRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.EvaluateTeacherGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> EvaluateTeacherSubmit(EvaluateTeacherSubmitRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.EvaluateTeacherSubmit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> HomeworkUnansweredGetPaging(HomeworkUnansweredGetPagingRequest request)
         {
             try

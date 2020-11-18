@@ -28,6 +28,11 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<List<EtClassRecordEvaluateTeacher>> GetClassRecordEvaluateTeacher(long classRecordStudentId)
+        {
+            return await this._dbWrapper.FindList<EtClassRecordEvaluateTeacher>(p => p.TenantId == _tenantId && p.ClassRecordStudentId == classRecordStudentId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
         public async Task<List<EtClassRecordEvaluateStudent>> GetClassRecordEvaluateStudent(long classRecordStudentId)
         {
             return await _dbWrapper.FindList<EtClassRecordEvaluateStudent>(p => p.TenantId == _tenantId && p.ClassRecordStudentId == classRecordStudentId && p.IsDeleted == EmIsDeleted.Normal);

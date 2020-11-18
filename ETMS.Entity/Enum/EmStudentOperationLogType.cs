@@ -23,6 +23,9 @@ namespace ETMS.Entity.Enum
         Homework = 5,
 
         [Description("成长档案")]
-        GrowthRecord = 6
+        GrowthRecord = 6,
+
+        [Description("评价老师")]
+        EvaluateTeacher = 7
     }
 }
