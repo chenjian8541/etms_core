@@ -46,5 +46,9 @@ namespace ETMS.Entity.Dto.Student.Output
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }
+
+        public long Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

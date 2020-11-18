@@ -2,6 +2,7 @@
 using ETMS.Entity.Config;
 using ETMS.Entity.Enum;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Request
@@ -38,6 +39,16 @@ namespace ETMS.Entity.Dto.Student.Request
         public int LimitDay { get; set; }
 
         /// <summary>
+        /// 选择的课程
+        /// </summary>
+        public List<long> MyCourseIds { get; set; }
+
+        /// <summary>
+        /// 学员类型   <see cref="ETMS.Entity.Enum.EmStudentType"/>
+        /// </summary>
+        public byte? StudentType { get; set; }
+
+        /// <summary>
         /// 获取SQL语句
         /// </summary>
         /// <returns></returns>
@@ -63,6 +74,21 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsQueryShort != null && IsQueryShort.Value)
             {
                 condition.Append($" AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {LimitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={LimitDay}))");
+            }
+            if (MyCourseIds != null && MyCourseIds.Count > 0)
+            {
+                if (MyCourseIds.Count == 1)
+                {
+                    condition.Append($" AND CourseId = {MyCourseIds[0]}");
+                }
+                else
+                {
+                    condition.Append($" AND CourseId IN ({string.Join(',', MyCourseIds)})");
+                }
+            }
+            if (StudentType != null)
+            {
+                condition.Append($" AND StudentType = {StudentType.Value}");
             }
             return condition.ToString();
         }
