@@ -16,6 +16,8 @@ namespace ETMS.ICache
 
         bool Remove(int tenantId, string key);
 
+        bool Remove(int tenantId, string[] keys);
+
         bool LockTake(int tenantId, string key, string value, TimeSpan timeSpan);
 
         bool LockRelease(int tenantId, string key);

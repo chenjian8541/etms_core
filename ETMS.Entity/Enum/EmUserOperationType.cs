@@ -137,6 +137,9 @@ namespace ETMS.Entity.Enum
         WxMessage = 72,
 
         [Description("课后点评")]
-        ClassEvaluate = 73
+        ClassEvaluate = 73,
+
+        [Description("清理数据")]
+        ClearData = 74
     }
 }

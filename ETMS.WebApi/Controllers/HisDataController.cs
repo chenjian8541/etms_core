@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.HisData.Request;
 using ETMS.IBusiness;
+using ETMS.IBusiness.SysOp;
 using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,9 +32,11 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IStatisticsTenantBLL _statisticsTenantBLL;
 
+        private readonly ISysDataClearBLL _sysDataClearBLL;
+
         public HisDataController(IOrderBLL orderBLL, IIncomeLogBLL incomeLogBLL, IStatisticsStudentBLL statisticsStudentBLL, IStatisticsSalesBLL statisticsSalesBLL,
             IStatisticsFinanceBLL statisticsFinanceBLL, IStatisticsClassBLL statisticsClassBLL, IStatisticsSalesCourseBLL statisticsSalesCourseBLL,
-            IStatisticsTenantBLL statisticsTenantBLL)
+            IStatisticsTenantBLL statisticsTenantBLL, ISysDataClearBLL sysDataClearBLL)
         {
             this._orderBLL = orderBLL;
             this._incomeLogBLL = incomeLogBLL;
@@ -43,6 +46,7 @@ namespace ETMS.WebApi.Controllers
             this._statisticsClassBLL = statisticsClassBLL;
             this._statisticsSalesCourseBLL = statisticsSalesCourseBLL;
             this._statisticsTenantBLL = statisticsTenantBLL;
+            this._sysDataClearBLL = sysDataClearBLL;
         }
 
         public async Task<ResponseBase> OrderGetPaging(OrderGetPagingRequest request)
@@ -471,6 +475,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _statisticsTenantBLL.InitTenantId(request.LoginTenantId);
                 return await _statisticsTenantBLL.TenantToDoThingGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClearData(ClearDataRequest request)
+        {
+            try
+            {
+                _sysDataClearBLL.InitTenantId(request.LoginTenantId);
+                return await _sysDataClearBLL.ClearData(request);
             }
             catch (Exception ex)
             {

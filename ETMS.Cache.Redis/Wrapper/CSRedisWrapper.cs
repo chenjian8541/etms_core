@@ -41,6 +41,11 @@ namespace ETMS.Cache.Redis.Wrapper
             return _cSRedisClients[tenantId % _dbCount].Del(key) > 0;
         }
 
+        internal static bool Remove(int tenantId, string[] keys)
+        {
+            return _cSRedisClients[tenantId % _dbCount].Del(keys) > 0;
+        }
+
         internal static bool LockTake(int tenantId, string Key, string value, TimeSpan timeSpan)
         {
             var clent = _cSRedisClients[tenantId % _dbCount];

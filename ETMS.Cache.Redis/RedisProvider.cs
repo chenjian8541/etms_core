@@ -40,6 +40,11 @@ namespace ETMS.Cache.Redis
             return CSRedisWrapper.Remove(tenantId, key);
         }
 
+        public bool Remove(int tenantId, string[] keys)
+        {
+            return CSRedisWrapper.Remove(tenantId, keys);
+        }
+
         public bool LockTake(int tenantId, string Key, string value, TimeSpan expiry)
         {
             return CSRedisWrapper.LockTake(tenantId, Key, value, expiry);
