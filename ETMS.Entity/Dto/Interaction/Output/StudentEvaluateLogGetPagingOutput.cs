@@ -26,5 +26,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
 
 
         public int StarValue { get; set; }
+
+        public string EvaluateContent { get; set; }
     }
 }

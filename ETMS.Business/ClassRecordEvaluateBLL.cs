@@ -289,7 +289,8 @@ namespace ETMS.Business
                     EvaluateTeacherRecordId = evaluateTeacher.Id,
                     Ot = evaluateTeacher.Ot,
                     StarValue = evaluateTeacher.StarValue,
-                    TeacherName = teacherName
+                    TeacherName = teacherName,
+                    EvaluateContent = evaluateTeacher.EvaluateContent
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentEvaluateLogGetPagingOutput>(pagingData.Item2, output));
