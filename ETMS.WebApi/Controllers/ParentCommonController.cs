@@ -6,6 +6,7 @@ using ETMS.Entity.Dto.Student.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.Common;
+using ETMS.WebApi.Extensions;
 using ETMS.WebApi.FilterAttribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadImgAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                    _httpContextAccessor.HttpContext.Request.GetParentLoginInfo().TenantId);
             }
             catch (Exception ex)
             {
@@ -64,7 +66,7 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadFileBase64Action();
-                return action.ProcessAction(_httpContextAccessor, _appConfigurtaionServices.AppSettings, request);
+                return action.ProcessAction(request);
             }
             catch (Exception ex)
             {
@@ -85,7 +87,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadVideoAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                    _httpContextAccessor.HttpContext.Request.GetParentLoginInfo().TenantId);
             }
             catch (Exception ex)
             {
@@ -106,7 +109,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadAudioAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                    _httpContextAccessor.HttpContext.Request.GetParentLoginInfo().TenantId);
             }
             catch (Exception ex)
             {

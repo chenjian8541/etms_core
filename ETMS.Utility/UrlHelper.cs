@@ -13,6 +13,10 @@ namespace ETMS.Utility
             {
                 return string.Empty;
             }
+            if (AliyunOssUtil.IsOssKey(urlKey))
+            {
+                return AliyunOssUtil.GetAccessUrlHttps(urlKey);
+            }
             var host = httpContextAccessor.HttpContext.Request.Host.Host;
             var port = httpContextAccessor.HttpContext.Request.Host.Port;
             var scheme = httpContextAccessor.HttpContext.Request.Scheme;

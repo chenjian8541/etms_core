@@ -63,6 +63,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ManageAgent", "ManageAgent"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Etms.Agent.WebApi", "Etms.Agent.WebApi\Etms.Agent.WebApi.csproj", "{D91586A1-BC6F-4290-A682-44C2F4AB19EA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aliyun-oss-sdk-dotnetcore", "ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj", "{9BF0FD9A-34EB-45BC-A79B-868374F6FA99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -165,6 +167,10 @@ Global
 		{D91586A1-BC6F-4290-A682-44C2F4AB19EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D91586A1-BC6F-4290-A682-44C2F4AB19EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D91586A1-BC6F-4290-A682-44C2F4AB19EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BF0FD9A-34EB-45BC-A79B-868374F6FA99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF0FD9A-34EB-45BC-A79B-868374F6FA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF0FD9A-34EB-45BC-A79B-868374F6FA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF0FD9A-34EB-45BC-A79B-868374F6FA99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +188,7 @@ Global
 		{CCFA9C71-3AA6-4595-8471-4862FB013503} = {7C4F1BAB-6438-45DB-B0C1-C36DFF3CDCD0}
 		{35B70563-7FCE-4D88-BF6A-C12FFC6DD58D} = {9E2E975C-B883-4407-A544-CB639D535903}
 		{D91586A1-BC6F-4290-A682-44C2F4AB19EA} = {BC74D8EC-8920-40AE-B366-1B828125A7F7}
+		{9BF0FD9A-34EB-45BC-A79B-868374F6FA99} = {9E2E975C-B883-4407-A544-CB639D535903}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {063C1971-F3D6-4A78-9886-EB9BC6D96CAC}

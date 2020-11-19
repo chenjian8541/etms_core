@@ -74,7 +74,9 @@ namespace ETMS.WebApi
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            InitRabbitMq(builder);
+            var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            InitRabbitMq(builder, appSettings.RabbitMqConfig);
+            InitAliyunOssConfig(appSettings.AliyunOssConfig);
         }
 
         private void RegisterGlobalFilters(FilterCollection filters)
@@ -90,12 +92,18 @@ namespace ETMS.WebApi
             services.AddSingleton<IHttpClient, StandardHttpClient>();
         }
 
-        private void InitRabbitMq(ContainerBuilder container)
+        private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
         {
-            var config = Configuration.GetSection("AppSettings").Get<AppSettings>().RabbitMqConfig;
             var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
             var publisher = new EventPublisher(busControl);
             container.RegisterInstance(publisher).As<IEventPublisher>();
+        }
+
+        private void InitAliyunOssConfig(AliyunOssConfig config)
+        {
+            AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
+                config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
+                config.OssAccessUrlHttps, config.RootFolder);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

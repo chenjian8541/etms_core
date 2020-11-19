@@ -13,7 +13,7 @@ namespace ETMS.WebApi.Controllers.Common
 {
     public class UploadVideoAction
     {
-        public async Task<ResponseBase> ProcessAction(IFormCollection collection, IHttpContextAccessor _httpContextAccessor, AppSettings appSettings)
+        public async Task<ResponseBase> ProcessAction(IFormCollection collection, AppSettings appSettings, int tenantId)
         {
             var response = ResponseBase.UnKnownError();
             if (collection.Files.Count == 0)
@@ -30,21 +30,15 @@ namespace ETMS.WebApi.Controllers.Common
             {
                 return response.GetResponseError("文件大小被限制");
             }
-            var newFileName = $"{System.Guid.NewGuid().ToString().Replace("-", "")}{fileExtension}";
-            var imgFolderPreInfo = FileHelper.PreProcessFolder(appSettings.StaticFilesConfig.ServerPath, "video");
-            var filePath = Path.Combine(imgFolderPreInfo.Item1, newFileName);
-            var urlKey = $"{imgFolderPreInfo.Item2}{newFileName}";
+            var baseKey = $"{DateTime.Now.ToString("yyyyMMdd")}/{AliyunOssUtil.GetOneNewFileName()}{fileExtension}";
             using (var content = file.OpenReadStream())
             {
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var ossKey = AliyunOssUtil.PutObject(tenantId, baseKey, AliyunOssFileTypeEnum.Video, content);
+                return ResponseBase.Success(new UploadFileOutput()
                 {
-                    await content.CopyToAsync(stream);
-                    return ResponseBase.Success(new UploadFileOutput()
-                    {
-                        Key = urlKey,
-                        Url = UrlHelper.GetUrl(_httpContextAccessor, appSettings.StaticFilesConfig.VirtualPath, urlKey)
-                    });
-                }
+                    Key = ossKey,
+                    Url = AliyunOssUtil.GetAccessUrlHttps(ossKey)
+                });
             }
         }
     }

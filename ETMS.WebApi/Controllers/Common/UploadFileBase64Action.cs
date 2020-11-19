@@ -15,7 +15,7 @@ namespace ETMS.WebApi.Controllers.Common
 {
     public class UploadFileBase64Action
     {
-        public ResponseBase ProcessAction(IHttpContextAccessor _httpContextAccessor, AppSettings appSettings, UploadFileBase64Request request)
+        public ResponseBase ProcessAction(UploadFileBase64Request request)
         {
             var fileExtension = string.Empty;
             var folderTag = string.Empty;
@@ -23,32 +23,26 @@ namespace ETMS.WebApi.Controllers.Common
             {
                 case UploadFileType.Video:
                     fileExtension = ".mp4";
-                    folderTag = "video";
+                    folderTag = AliyunOssFileTypeEnum.Video;
                     break;
                 case UploadFileType.Audio:
                     fileExtension = ".mp3";
-                    folderTag = "audio";
+                    folderTag = AliyunOssFileTypeEnum.Audio;
                     break;
                 default:
                     fileExtension = ".png";
-                    folderTag = "img";
+                    folderTag = AliyunOssFileTypeEnum.Image;
                     break;
             }
-            var newFileName = $"{System.Guid.NewGuid().ToString().Replace("-", "")}{fileExtension}";
-            var imgFolderPreInfo = FileHelper.PreProcessFolder(appSettings.StaticFilesConfig.ServerPath, folderTag);
-            var filePath = Path.Combine(imgFolderPreInfo.Item1, newFileName);
-            var urlKey = $"{imgFolderPreInfo.Item2}{newFileName}";
             var strBase64 = request.FileData.Substring(request.FileData.IndexOf(",") + 1);
             var imgByte = Convert.FromBase64String(strBase64);
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var baseKey = $"{DateTime.Now.ToString("yyyyMMdd")}/{AliyunOssUtil.GetOneNewFileName()}{fileExtension}";
+            var ossKey = AliyunOssUtil.PutObject(request.LoginTenantId, baseKey, folderTag, imgByte, imgByte.Length);
+            return ResponseBase.Success(new UploadFileOutput()
             {
-                stream.Write(imgByte, 0, imgByte.Length);
-                return ResponseBase.Success(new UploadFileOutput()
-                {
-                    Key = urlKey,
-                    Url = UrlHelper.GetUrl(_httpContextAccessor, appSettings.StaticFilesConfig.VirtualPath, urlKey)
-                });
-            }
+                Key = ossKey,
+                Url = AliyunOssUtil.GetAccessUrlHttps(ossKey)
+            });
         }
     }
 }

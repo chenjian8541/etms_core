@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj" />
   </ItemGroup>
 
 </Project>

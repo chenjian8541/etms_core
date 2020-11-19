@@ -43,6 +43,25 @@ namespace ETMS.Entity.Config
         public UserConfig UserConfig { get; set; }
 
         public SenparcConfig SenparcConfig { get; set; }
+
+        public AliyunOssConfig AliyunOssConfig { get; set; }
+    }
+
+    public class AliyunOssConfig
+    {
+        public string BucketName { get; set; }
+
+        public string AccessKeyId { get; set; }
+
+        public string AccessKeySecret { get; set; }
+
+        public string Endpoint { get; set; }
+
+        public string OssAccessUrlHttp { get; set; }
+
+        public string OssAccessUrlHttps { get; set; }
+
+        public string RootFolder { get; set; }
     }
 
     public class SenparcConfig

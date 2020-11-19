@@ -7,6 +7,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Common.Request;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.Common;
+using ETMS.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadImgAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                    _httpContextAccessor.HttpContext.Request.GetTokenInfo().Item1);
             }
             catch (Exception ex)
             {
@@ -59,7 +61,7 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadImg2Action();
-                return action.ProcessAction(_httpContextAccessor, _appConfigurtaionServices.AppSettings, request);
+                return action.ProcessAction(request);
             }
             catch (Exception ex)
             {
@@ -79,7 +81,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadVideoAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                     _httpContextAccessor.HttpContext.Request.GetTokenInfo().Item1);
             }
             catch (Exception ex)
             {
@@ -99,7 +102,8 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 var action = new UploadAudioAction();
-                return await action.ProcessAction(collection, _httpContextAccessor, _appConfigurtaionServices.AppSettings);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings,
+                     _httpContextAccessor.HttpContext.Request.GetTokenInfo().Item1);
             }
             catch (Exception ex)
             {
