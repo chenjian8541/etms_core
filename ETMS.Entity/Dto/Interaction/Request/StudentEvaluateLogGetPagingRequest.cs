@@ -82,7 +82,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             }
             if (TeacherId != null)
             {
-                return $" AND TeacherId = {TeacherId}";
+                condition.Append($" AND TeacherId = {TeacherId.Value}");
             }
             if (StartOt != null)
             {

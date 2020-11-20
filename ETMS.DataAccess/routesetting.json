@@ -274,6 +274,29 @@
     },
     "Children": [
       {
+        "Id": 76,
+        "Path": "classEvaluate",
+        "Name": "classEvaluate",
+        "Type": 1,
+        "Component": "@/views/Interaction/classEvaluate",
+        "Meta": {
+          "Title": "课后点评",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "evaluateLog",
+        "Name": "evaluateLog",
+        "Type": 1,
+        "Component": "@/components/Comments/commentsRecord",
+        "Meta": {
+          "Title": "点评记录",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 67,
         "Path": "homework",
         "Name": "homework",

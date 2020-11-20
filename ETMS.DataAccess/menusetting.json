@@ -57,6 +57,11 @@
             "Type": 1
           },
           {
+            "ActionId": 44,
+            "Name": "导出学员信息",
+            "Type": 1
+          },
+          {
             "ActionId": 5,
             "Name": "分配跟进人",
             "Type": 1
@@ -204,6 +209,11 @@
           {
             "ActionId": 43,
             "Name": "导入学员课程",
+            "Type": 1
+          },
+          {
+            "ActionId": 45,
+            "Name": "导出学员课程",
             "Type": 1
           }
         ]
@@ -384,6 +394,23 @@
     "Name": "家校互动",
     "Type": 0,
     "ChildrenPage": [
+      {
+        "Id": 76,
+        "Name": "课后点评",
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 77,
+            "Name": "评价学员",
+            "Type": 0
+          },
+          {
+            "Id": 78,
+            "Name": "评价老师",
+            "Type": 0
+          }
+        ]
+      },
       {
         "Id": 67,
         "Name": "课后作业",
