@@ -9,6 +9,11 @@ namespace ETMS.Entity.Dto.Student.Request
     public class StudentCourseOwnerGetPagingRequest : RequestPagingBase
     {
         /// <summary>
+        /// 学员信息
+        /// </summary>
+        public string StudentKey { get; set; }
+
+        /// <summary>
         /// 选择的课程
         /// </summary>
         public List<long> MyCourseIds { get; set; }
@@ -20,6 +25,10 @@ namespace ETMS.Entity.Dto.Student.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
+            if (!string.IsNullOrEmpty(StudentKey))
+            {
+                condition.Append($" AND (StudentName LIKE '{StudentKey}%' OR StudentPhone LIKE '{StudentKey}%')");
+            }
             if (MyCourseIds != null && MyCourseIds.Count > 0)
             {
                 if (MyCourseIds.Count == 1)
