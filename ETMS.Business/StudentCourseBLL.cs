@@ -1,5 +1,6 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Student.Output;
@@ -11,6 +12,7 @@ using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,10 +43,14 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public StudentCourseBLL(ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IStudentDAL studentDAL,
             IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher, IClassRecordDAL classRecordDAL,
             IStudentCourseStopLogDAL studentCourseStopLogDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            ITenantConfigDAL tenantConfigDAL)
+            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -56,6 +62,8 @@ namespace ETMS.Business
             this._studentCourseStopLogDAL = studentCourseStopLogDAL;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -97,6 +105,31 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseGetPagingOutput>(pagingData.Item2, studentCourses));
+        }
+
+        public async Task<ResponseBase> StudentCourseOwnerGetPaging(StudentCourseOwnerGetPagingRequest request)
+        {
+            var pagingData = await _studentCourseDAL.GetStudentCoursePaging(request);
+            var output = new List<StudentCourseOwnerGetPagingOutput>();
+            var studentIds = new List<long>();
+            foreach (var p in pagingData.Item1)
+            {
+                if (studentIds.Exists(j => j == p.StudentId))
+                {
+                    continue;
+                }
+                studentIds.Add(p.StudentId);
+                output.Add(new StudentCourseOwnerGetPagingOutput()
+                {
+                    CId = p.StudentId,
+                    Name = p.StudentName,
+                    Phone = p.StudentPhone,
+                    Value = p.StudentId,
+                    Label = p.StudentName,
+                    AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p.Avatar)
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseOwnerGetPagingOutput>(pagingData.Item2, output));
         }
 
         public async Task<ResponseBase> StudentCourseDetailGet(StudentCourseDetailGetRequest request)

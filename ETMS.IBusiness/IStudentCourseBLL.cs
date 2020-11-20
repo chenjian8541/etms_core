@@ -11,6 +11,8 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> StudentCourseGetPaging(StudentCourseGetPagingRequest request);
 
+        Task<ResponseBase> StudentCourseOwnerGetPaging(StudentCourseOwnerGetPagingRequest request);
+
         Task<ResponseBase> StudentCourseDetailGet(StudentCourseDetailGetRequest request);
 
         Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request);

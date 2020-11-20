@@ -109,5 +109,7 @@ namespace ETMS.Entity.View
         /// 学员类型   <see cref="ETMS.Entity.Enum.EmStudentType"/>
         /// </summary>
         public byte StudentType { get; set; }
+
+        public string Avatar { get; set; }
     }
 }
