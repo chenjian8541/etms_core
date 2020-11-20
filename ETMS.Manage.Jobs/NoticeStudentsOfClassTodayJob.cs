@@ -26,7 +26,7 @@ namespace ETMS.Manage.Jobs
             var now = DateTime.Now;
             var classOt = now.Date;
             var nowTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 1);
-            var tenantList = await _sysTenantDAL.GetTenants();
+            var tenantList = await _sysTenantDAL.GetTenantsNormal();
             foreach (var tenant in tenantList)
             {
                 _eventPublisher.Publish(new NoticeStudentsOfClassTodayTenantEvent(tenant.Id)

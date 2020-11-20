@@ -25,5 +25,7 @@ namespace ETMS.IDataAccess
         Task<bool> AddActiveHomeworkDetailComment(EtActiveHomeworkDetailComment detailComment);
 
         Task<bool> DelActiveHomeworkDetailComment(long detailId, long id);
+
+        Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowExDate();
     }
 }

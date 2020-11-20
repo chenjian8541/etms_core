@@ -15,6 +15,8 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task<List<SysTenant>> GetTenants();
 
+        Task<List<SysTenant>> GetTenantsNormal();
+
         Task<int> AddTenant(SysTenant sysTenant);
 
         Task<bool> EditTenant(SysTenant sysTenant);

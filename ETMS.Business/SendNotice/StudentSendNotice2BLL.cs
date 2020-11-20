@@ -359,5 +359,79 @@ namespace ETMS.Business.SendNotice
 
             _wxService.StudentEvaluate(req);
         }
+
+        public async Task NoticeStudentsOfHomeworkExDateConsumeEvent(NoticeStudentsOfHomeworkExDateEvent request)
+        {
+            var homeworkDetailTomorrowExDate = await _activeHomeworkDetailDAL.GetHomeworkDetailTomorrowExDate();
+            if (!homeworkDetailTomorrowExDate.Any())
+            {
+                Log.Info($"[NoticeStudentsOfHomeworkExDateConsumeEvent]未发现需要提醒的未交作业的学员:{request.TenantId}", this.GetType());
+            }
+            var req = new HomeworkExpireRemindRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Students = new List<HomeworkExpireRemindStudent>()
+            };
+
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.HomeworkExpireRemind;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var tempBoxClass = new DataTempBox<EtClass>();
+            foreach (var myHomeWorkDetail in homeworkDetailTomorrowExDate)
+            {
+                var studentBucket = await _studentDAL.GetStudent(myHomeWorkDetail.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfHomeworkExDateConsumeEvent]未找到学员信息,StudentId:{myHomeWorkDetail.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                if (myHomeWorkDetail.ExDate == null)
+                {
+                    continue;
+                }
+                var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, myHomeWorkDetail.ClassId);
+                var className = myClass?.Name;
+
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentHomeworkDetailUrl, myHomeWorkDetail.Id, myHomeWorkDetail.AnswerStatus);
+                var exDate = myHomeWorkDetail.ExDate.EtmsToString();
+                req.Students.Add(new HomeworkExpireRemindStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Url = url,
+                    ExDateDesc = exDate,
+                    HomeworkTitle = myHomeWorkDetail.Title,
+                    ClassName = className
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new HomeworkExpireRemindStudent()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Url = url,
+                        ExDateDesc = exDate,
+                        HomeworkTitle = myHomeWorkDetail.Title,
+                        ClassName = className
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.HomeworkExpireRemind(req);
+            }
+        }
     }
 }

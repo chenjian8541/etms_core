@@ -81,5 +81,13 @@ namespace ETMS.DataAccess
             await UpdateCache(_tenantId, detailId);
             return true;
         }
+
+        public async Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowExDate()
+        {
+            var tomorrow = DateTime.Now.AddDays(1);
+            var afterTomorrow = DateTime.Now.AddDays(2);
+            return await _dbWrapper.ExecuteObject<EtActiveHomeworkDetail>(
+                $"SELECT TOP 100 * FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered} AND ExDate < '{afterTomorrow.EtmsToDateString()}' AND ExDate >= '{tomorrow.EtmsToDateString()}'");
+        }
     }
 }

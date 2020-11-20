@@ -9,16 +9,13 @@ using System.Threading.Tasks;
 
 namespace ETMS.Manage.Jobs
 {
-    /// <summary>
-    /// 上课前一天通知
-    /// </summary>
-    public class NoticeStudentsOfClassBeforeDayJob : BaseJob
+    public class NoticeStudentsOfHomeworkExDateJob : BaseJob
     {
         private readonly ISysTenantDAL _sysTenantDAL;
 
         private readonly IEventPublisher _eventPublisher;
 
-        public NoticeStudentsOfClassBeforeDayJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+        public NoticeStudentsOfHomeworkExDateJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
@@ -26,16 +23,10 @@ namespace ETMS.Manage.Jobs
 
         public override async Task Process(JobExecutionContext context)
         {
-            var classOt = DateTime.Now.AddDays(1).Date;
-            var nowTime = Convert.ToInt32(DateTime.Now.ToString("HHmm"));
             var tenantList = await _sysTenantDAL.GetTenantsNormal();
             foreach (var tenant in tenantList)
             {
-                _eventPublisher.Publish(new NoticeStudentsOfClassBeforeDayTenantEvent(tenant.Id)
-                {
-                    ClassOt = classOt,
-                    NowTime = nowTime
-                });
+                _eventPublisher.Publish(new NoticeStudentsOfHomeworkExDateEvent(tenant.Id));
             }
         }
     }

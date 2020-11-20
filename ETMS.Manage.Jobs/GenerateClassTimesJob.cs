@@ -37,7 +37,7 @@ namespace ETMS.Manage.Jobs
 
         public override async Task Process(JobExecutionContext context)
         {
-            var tenantList = await _sysTenantDAL.GetTenants();
+            var tenantList = await _sysTenantDAL.GetTenantsNormal();
             foreach (var tenant in tenantList)
             {
                 var pageCurrent = 1;

@@ -15,6 +15,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.View;
 using ETMS.Utility;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.DataAccess.EtmsManage
 {
@@ -49,6 +50,11 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task<List<SysTenant>> GetTenants()
         {
             return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<List<SysTenant>> GetTenantsNormal()
+        {
+            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Status == EmSysTenantStatus.Normal && p.ExDate > DateTime.Now.Date);
         }
 
         public async Task<int> AddTenant(SysTenant sysTenant)

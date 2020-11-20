@@ -40,5 +40,12 @@
     "Title": "定时发送上课提醒(提前几分钟)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentsOfHomeworkExDateJob",
+    "Cron": "0 0 20 * * ?", //每天晚上8点执行
+    "Title": "提醒未交作业的学生",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
   }
 ]
