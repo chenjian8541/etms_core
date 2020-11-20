@@ -27,5 +27,7 @@ namespace ETMS.ExternalService.Contract
         void GrowthRecordAdd(GrowthRecordAddRequest request);
 
         void WxMessage(WxMessageRequest request);
+
+        void StudentEvaluate(StudentEvaluateRequest request);
     }
 }

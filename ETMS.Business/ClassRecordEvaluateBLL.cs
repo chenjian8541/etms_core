@@ -5,8 +5,10 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Interaction.Output;
 using ETMS.Entity.Dto.Interaction.Request;
 using ETMS.Entity.Enum;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -38,9 +40,12 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public ClassRecordEvaluateBLL(IClassRecordDAL classRecordDAL, IStudentDAL studentDAL, IUserDAL userDAL, IClassDAL classDAL,
             IClassRecordEvaluateDAL classRecordEvaluateDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserOperationLogDAL userOperationLogDAL)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserOperationLogDAL userOperationLogDAL,
+            IEventPublisher eventPublisher)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentDAL = studentDAL;
@@ -52,6 +57,7 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -220,6 +226,10 @@ namespace ETMS.Business
             classRecordStudentLog.EvaluateCount += 1;
             await _classRecordDAL.EditClassRecordStudent(classRecordStudentLog);
 
+            _eventPublisher.Publish(new NoticeStudentsOfStudentEvaluateEvent(request.LoginTenantId)
+            {
+                ClassRecordStudentId = request.ClassRecordStudentId
+            });
             await _userOperationLogDAL.AddUserLog(request, $"点评学员:{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();
         }

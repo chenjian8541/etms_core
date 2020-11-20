@@ -141,6 +141,8 @@ namespace ETMS.Entity.Config
 
         public string WxMessage { get; set; }
 
+        public string StudentEvaluate { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }

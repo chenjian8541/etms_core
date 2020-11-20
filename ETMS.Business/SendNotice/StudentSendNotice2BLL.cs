@@ -41,10 +41,14 @@ namespace ETMS.Business.SendNotice
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IClassRecordDAL _classRecordDAL;
+
+        private readonly ICourseDAL _courseDAL;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
-            IClassDAL classDAL)
+            IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -55,12 +59,14 @@ namespace ETMS.Business.SendNotice
             this._studentDAL = studentDAL;
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._classDAL = classDAL;
+            this._classRecordDAL = classRecordDAL;
+            this._courseDAL = courseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
-                _studentDAL, _activeGrowthRecordDAL, _classDAL);
+                _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL);
         }
 
         public async Task NoticeStudentsOfHomeworkAddConsumeEvent(NoticeStudentsOfHomeworkAddEvent request)
@@ -144,7 +150,7 @@ namespace ETMS.Business.SendNotice
             var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
             if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
             {
-                Log.Error($"[NoticeStudentsOfHomeworkAddCommentConsumeEvent]为找到作业信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                Log.Error($"[NoticeStudentsOfHomeworkAddCommentConsumeEvent]未找到作业信息:{JsonConvert.SerializeObject(request)}", this.GetType());
                 return;
             }
 
@@ -152,7 +158,7 @@ namespace ETMS.Business.SendNotice
             var studentBucket = await _studentDAL.GetStudent(homeworkDetail.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
-                Log.Error($"[NoticeStudentsOfHomeworkAddCommentConsumeEvent]为找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                Log.Error($"[NoticeStudentsOfHomeworkAddCommentConsumeEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
                 return;
             }
             var student = studentBucket.Student;
@@ -288,6 +294,70 @@ namespace ETMS.Business.SendNotice
             {
                 _wxService.GrowthRecordAdd(req);
             }
+        }
+
+        public async Task NoticeStudentsOfStudentEvaluateConsumeEvent(NoticeStudentsOfStudentEvaluateEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.TeacherClassEvaluateWeChat)
+            {
+                return;
+            }
+            var classRecordStudentLog = await _classRecordDAL.GetEtClassRecordStudentById(request.ClassRecordStudentId);
+
+            var studentBucket = await _studentDAL.GetStudent(classRecordStudentLog.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeStudentsOfStudentEvaluateConsumeEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var myCourse = await _courseDAL.GetCourse(classRecordStudentLog.CourseId);
+            var courseName = string.Empty;
+            if (myCourse != null && myCourse.Item1 != null)
+            {
+                courseName = myCourse.Item1.Name;
+            }
+            var req = new StudentEvaluateRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                TeacherName = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, classRecordStudentLog.Teachers),
+                CourseName = courseName,
+                Students = new List<StudentEvaluateItem>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentEvaluate;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var url = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, classRecordStudentLog.Id);
+            req.Students.Add(new StudentEvaluateItem()
+            {
+                Name = student.Name,
+                OpendId = await GetStudentOpenId(true, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id,
+                Url = url
+            });
+
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new StudentEvaluateItem()
+                {
+                    Name = student.Name,
+                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id,
+                    Url = url
+                });
+            }
+
+            _wxService.StudentEvaluate(req);
         }
     }
 }
