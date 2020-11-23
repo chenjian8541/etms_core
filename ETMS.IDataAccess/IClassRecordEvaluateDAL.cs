@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtClassRecordEvaluateStudent>, int>> GetEvaluateStudentPaging(RequestPagingBase request);
 
         Task<Tuple<IEnumerable<EtClassRecordEvaluateTeacher>, int>> GetEvaluateTeacherPaging(RequestPagingBase request);
+
+        Task<bool> ClassRecordEvaluateStudentSetRead(long classRecordStudentId, int readCount);
     }
 }

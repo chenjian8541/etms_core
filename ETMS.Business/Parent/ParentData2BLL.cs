@@ -124,6 +124,7 @@ namespace ETMS.Business
                     StudentName = student.Name,
                     CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
+                    IsTeacherEvaluate = p.IsTeacherEvaluate
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetParentOutput>(pagingData.Item2, output));
@@ -174,6 +175,7 @@ namespace ETMS.Business
             var classRecordEvaluateStudents = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.Id);
             if (classRecordEvaluateStudents.Count > 0)
             {
+                var isNeedUpdateEvaluateIsRead = false;
                 foreach (var classRecordEvaluateStudent in classRecordEvaluateStudents)
                 {
                     var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, classRecordEvaluateStudent.TeacherId);
@@ -190,6 +192,14 @@ namespace ETMS.Business
                         TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
                         TeacherName = ComBusiness2.GetParentTeacherName(teacher)
                     });
+                    if (!classRecordEvaluateStudent.IsRead)
+                    {
+                        isNeedUpdateEvaluateIsRead = true;
+                    }
+                }
+                if (isNeedUpdateEvaluateIsRead)
+                {
+                    await _classRecordEvaluateDAL.ClassRecordEvaluateStudentSetRead(request.Id, classRecordEvaluateStudents.Count);
                 }
             }
             return ResponseBase.Success(output);

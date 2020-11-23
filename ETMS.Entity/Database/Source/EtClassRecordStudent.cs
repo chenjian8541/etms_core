@@ -144,6 +144,11 @@ namespace ETMS.Entity.Database.Source
         public int EvaluateReadCount { get; set; }
 
         /// <summary>
+        /// 是否被老师点评过 
+        /// </summary>
+        public byte IsTeacherEvaluate { get; set; }
+
+        /// <summary>
         /// 是否奖励积分
         /// </summary>
         public bool IsRewardPoints { get; set; }

@@ -67,5 +67,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string CourseDesc { get; set; }
 
         public string DeClassTimesDesc { get; set; }
+
+        /// <summary>
+        /// 是否被老师点评
+        /// </summary>
+        public byte IsTeacherEvaluate { get; set; }
     }
 }

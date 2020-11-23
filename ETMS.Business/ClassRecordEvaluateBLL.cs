@@ -224,6 +224,7 @@ namespace ETMS.Business
                 await _classRecordDAL.ClassRecordAddEvaluateStudentCount(classRecordStudentLog.ClassRecordId, 1);
             }
             classRecordStudentLog.EvaluateCount += 1;
+            classRecordStudentLog.IsTeacherEvaluate = EmBool.True;
             await _classRecordDAL.EditClassRecordStudent(classRecordStudentLog);
 
             _eventPublisher.Publish(new NoticeStudentsOfStudentEvaluateEvent(request.LoginTenantId)
