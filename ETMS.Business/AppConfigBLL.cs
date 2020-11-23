@@ -68,6 +68,7 @@ namespace ETMS.Business
             config.ClassCheckSignConfig.MustBuyCourse = request.MustBuyCourse;
             config.ClassCheckSignConfig.MustEnoughSurplusClassTimes = request.MustEnoughSurplusClassTimes;
             config.ClassCheckSignConfig.TryCalssNoticeTrackUser = request.TryCalssNoticeTrackUser;
+            config.ClassCheckSignConfig.IsCanDeDecimal = request.IsCanDeDecimal;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "点名设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

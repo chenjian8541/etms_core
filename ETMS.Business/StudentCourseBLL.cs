@@ -164,7 +164,7 @@ namespace ETMS.Business
                         myStudentCourseDetail.RestoreTimeDesc = theCourse.RestoreTime.EtmsToDateString();
                         if (theCourse.DeType == EmDeClassTimesType.ClassTimes)
                         {
-                            myStudentCourseDetail.ExceedTotalClassTimes = theCourse.ExceedTotalClassTimes;
+                            myStudentCourseDetail.ExceedTotalClassTimes = theCourse.ExceedTotalClassTimes.EtmsToString();
                             myStudentCourseDetail.DeTypeClassTimes = new DeTypeClassTimes()
                             {
                                 SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(theCourse.SurplusQuantity, theCourse.SurplusSmallQuantity, theCourse.DeType)
@@ -455,7 +455,7 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, int deClassTimes, int deClassTimesSmall, byte sourceType, DateTime ot)
+        private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, decimal deClassTimes, decimal deClassTimesSmall, byte sourceType, DateTime ot)
         {
             await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
             {
@@ -509,8 +509,8 @@ namespace ETMS.Business
                 {
                     CId = p.Id,
                     CourseId = p.CourseId,
-                    DeClassTimes = p.DeClassTimes,
-                    DeClassTimesSmall = p.DeClassTimesSmall,
+                    DeClassTimes = p.DeClassTimes.EtmsToString(),
+                    DeClassTimesSmall = p.DeClassTimesSmall.EtmsToString(),
                     DeType = p.DeType,
                     DeTypeDesc = EmDeClassTimesType.GetDeClassTimesTypeDesc(p.DeType),
                     Ot = p.Ot,
@@ -526,7 +526,7 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseConsumeLogGetPagingOutput>(pagingData.Item2, output));
         }
 
-        private string GetDeClassTimesDesc(int sourceType, byte deType, int deClassTimes, int deClassTimesSmall)
+        private string GetDeClassTimesDesc(int sourceType, byte deType, decimal deClassTimes, decimal deClassTimesSmall)
         {
             var tag = EmStudentCourseConsumeSourceType.GetStudentCourseConsumeSourceTypeTag(sourceType);
             if (deClassTimes == 0 && deClassTimesSmall == 0)
@@ -539,16 +539,16 @@ namespace ETMS.Business
                 {
                     return string.Empty;
                 }
-                return $"{tag}{deClassTimes}课时";
+                return $"{tag}{deClassTimes.EtmsToString()}课时";
             }
             var strDesc = new StringBuilder();
             if (deClassTimes != 0)
             {
-                strDesc.Append($"{deClassTimes}月");
+                strDesc.Append($"{deClassTimes.EtmsToString()}月");
             }
             if (deClassTimesSmall != 0)
             {
-                strDesc.Append($"{deClassTimesSmall}天");
+                strDesc.Append($"{deClassTimesSmall.EtmsToString()}天");
             }
             return $"{tag}{strDesc}";
         }

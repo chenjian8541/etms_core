@@ -18,7 +18,7 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string RestoreTimeDesc { get; set; }
 
-        public int ExceedTotalClassTimes { get; set; }
+        public string ExceedTotalClassTimes { get; set; }
 
         public DeTypeClassTimes DeTypeClassTimes { get; set; }
 

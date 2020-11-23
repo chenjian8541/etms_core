@@ -49,8 +49,8 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 扣的课时
         /// </summary>
-        public int DeClassTimes { get; set; }
+        public decimal DeClassTimes { get; set; }
 
-        public int DeClassTimesSmall { get; set; }
+        public decimal DeClassTimesSmall { get; set; }
     }
 }

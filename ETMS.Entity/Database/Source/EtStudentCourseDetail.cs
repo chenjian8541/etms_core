@@ -74,7 +74,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 消耗数量
         /// </summary>
-        public int UseQuantity { get; set; }
+        public decimal UseQuantity { get; set; }
 
         /// <summary>
         /// 消耗单位  <see cref="ETMS.Entity.Enum.EmCourseUnit"/>
@@ -84,12 +84,12 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 剩余数量（课时/月）
         /// </summary>
-        public int SurplusQuantity { get; set; }
+        public decimal SurplusQuantity { get; set; }
 
         /// <summary>
         /// 剩余数量(天)
         /// </summary>
-        public int SurplusSmallQuantity { get; set; }
+        public decimal SurplusSmallQuantity { get; set; }
 
         /// <summary>
         /// 起始时间

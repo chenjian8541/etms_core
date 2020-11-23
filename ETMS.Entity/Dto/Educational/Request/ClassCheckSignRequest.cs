@@ -144,7 +144,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// <summary>
         /// 扣课时
         /// </summary>
-        public int DeClassTimes { get; set; }
+        public decimal DeClassTimes { get; set; }
 
         /// <summary>
         /// 试听记录
@@ -175,9 +175,9 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请选择消耗课程";
             }
-            if (DeClassTimes <= 0)
+            if (DeClassTimes < 0)
             {
-                return "扣减的课时必须大于0";
+                return "扣减的课时不能小于0";
             }
             if (RewardPoints < 0)
             {

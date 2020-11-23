@@ -218,5 +218,10 @@ namespace ETMS.Entity.Config
         /// 学员试听结果 通知跟进人
         /// </summary>
         public bool TryCalssNoticeTrackUser { get; set; } = true;
+
+        /// <summary>
+        /// 点名时扣减课时是否允许输入小数
+        /// </summary>
+        public bool IsCanDeDecimal { get; set; } = false;
     }
 }

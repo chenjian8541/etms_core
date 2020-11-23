@@ -36,5 +36,7 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员试听结束是否通知跟进人
         /// </summary>
         public bool TryCalssNoticeTrackUser { get; set; }
+
+        public bool IsCanDeDecimal { get; set; }
     }
 }

@@ -37,11 +37,11 @@ namespace ETMS.IDataAccess
         /// <returns></returns>
         Task<bool> SaveNotbuyStudentExceedClassTimes(EtStudentCourse course);
 
-        Task<bool> DeExceedTotalClassTimes(long studentId, long courseId, int deExceedTotalClassTimes);
+        Task<bool> DeExceedTotalClassTimes(long studentId, long courseId, decimal deExceedTotalClassTimes);
 
-        Task<bool> DeClassTimesOfStudentCourseDetail(long studentCourseDetailId, int deClassTimes);
+        Task<bool> DeClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal deClassTimes);
 
-        Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, int addClassTimes);
+        Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal addClassTimes);
 
         Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime);
 

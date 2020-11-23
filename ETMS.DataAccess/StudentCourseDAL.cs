@@ -129,7 +129,7 @@ namespace ETMS.DataAccess
         /// <param name="courseId"></param>
         /// <param name="deExceedTotalClassTimes"></param>
         /// <returns></returns>
-        public async Task<bool> DeExceedTotalClassTimes(long studentId, long courseId, int deExceedTotalClassTimes)
+        public async Task<bool> DeExceedTotalClassTimes(long studentId, long courseId, decimal deExceedTotalClassTimes)
         {
             var historyLog = await _dbWrapper.Find<EtStudentCourse>(
                 p => p.DeType == EmDeClassTimesType.ClassTimes
@@ -157,7 +157,7 @@ namespace ETMS.DataAccess
         /// <param name="studentCourseDetailId"></param>
         /// <param name="deClassTimes"></param>
         /// <returns></returns>
-        public async Task<bool> DeClassTimesOfStudentCourseDetail(long studentCourseDetailId, int deClassTimes)
+        public async Task<bool> DeClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal deClassTimes)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtStudentCourseDetail SET SurplusQuantity = SurplusQuantity - {deClassTimes},UseQuantity = UseQuantity + {deClassTimes} WHERE id = {studentCourseDetailId} ");
             return count > 0;
@@ -169,7 +169,7 @@ namespace ETMS.DataAccess
         /// <param name="studentCourseDetailId"></param>
         /// <param name="addClassTimes"></param>
         /// <returns></returns>
-        public async Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, int addClassTimes)
+        public async Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal addClassTimes)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtStudentCourseDetail SET SurplusQuantity = SurplusQuantity + {addClassTimes},UseQuantity = UseQuantity - {addClassTimes} WHERE id = {studentCourseDetailId} ");
             return count > 0;

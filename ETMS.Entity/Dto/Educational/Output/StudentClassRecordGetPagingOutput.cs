@@ -105,7 +105,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// <summary>
         /// 扣的课时
         /// </summary>
-        public int DeClassTimes { get; set; }
+        public string DeClassTimes { get; set; }
 
         public string DeClassTimesDesc { get; set; }
 
@@ -117,7 +117,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// <summary>
         /// 超上课时
         /// </summary>
-        public int ExceedClassTimes { get; set; }
+        public string ExceedClassTimes { get; set; }
 
         /// <summary>
         /// 点名时间

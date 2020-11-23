@@ -413,7 +413,7 @@ namespace ETMS.Business
             });
         }
 
-        private EtStudentCourse GetExceedClassTimes(EtClassRecordStudent classRecordStudent, int addExceedTotalClassTimes)
+        private EtStudentCourse GetExceedClassTimes(EtClassRecordStudent classRecordStudent, decimal addExceedTotalClassTimes)
         {
             return new EtStudentCourse()
             {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Enum;
+using ETMS.Utility;
 
 namespace ETMS.Business.Common
 {
@@ -79,13 +80,13 @@ namespace ETMS.Business.Common
             return true;
         }
 
-        internal static string GetDeClassTimesDesc(byte deType, int deClassTimes, int exceedClassTimes)
+        internal static string GetDeClassTimesDesc(byte deType, decimal deClassTimes, decimal exceedClassTimes)
         {
             if (deType == EmDeClassTimesType.NotDe)
             {
                 if (exceedClassTimes > 0)
                 {
-                    return $"记录超上{exceedClassTimes}课时";
+                    return $"记录超上{exceedClassTimes.EtmsToString()}课时";
                 }
                 else
                 {
@@ -96,10 +97,10 @@ namespace ETMS.Business.Common
             {
                 return "按天自动消耗";
             }
-            var desc = new StringBuilder($"{deClassTimes}课时");
+            var desc = new StringBuilder($"{deClassTimes.EtmsToString()}课时");
             if (exceedClassTimes > 0)
             {
-                desc.Append($" (记录超上{exceedClassTimes}课时)");
+                desc.Append($" (记录超上{exceedClassTimes.EtmsToString()}课时)");
             }
             return desc.ToString();
         }

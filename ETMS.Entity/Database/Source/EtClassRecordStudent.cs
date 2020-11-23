@@ -96,7 +96,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 扣的课时
         /// </summary>
-        public int DeClassTimes { get; set; }
+        public decimal DeClassTimes { get; set; }
 
         /// <summary>
         /// 从哪个学员课程详情扣的
@@ -111,7 +111,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 超上课时
         /// </summary>
-        public int ExceedClassTimes { get; set; }
+        public decimal ExceedClassTimes { get; set; }
 
         /// <summary>
         /// 点名时间

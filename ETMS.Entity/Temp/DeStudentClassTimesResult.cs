@@ -20,7 +20,7 @@ namespace ETMS.Entity.Temp
         /// <summary>
         /// 超上课时
         /// </summary>
-        public int ExceedClassTimes { get; set; }
+        public decimal ExceedClassTimes { get; set; }
 
         public string OrderNo { get; set; }
 
@@ -28,7 +28,7 @@ namespace ETMS.Entity.Temp
 
         public long? DeStudentCourseDetailId { get; set; }
 
-        public int DeClassTimes { get; set; }
+        public decimal DeClassTimes { get; set; }
 
         public static DeStudentClassTimesResult GetNotDeEntity()
         {

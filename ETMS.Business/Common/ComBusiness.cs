@@ -87,17 +87,17 @@ namespace ETMS.Business.Common
                 var dayStudentCourse = studentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
                 if (timesStudentCourse != null)
                 {
-                    courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity}课时 ");
+                    courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity.EtmsToString()}课时 ");
                 }
                 if (dayStudentCourse != null)
                 {
                     if (dayStudentCourse.SurplusQuantity > 0)
                     {
-                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusQuantity}个月 ");
+                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusQuantity.EtmsToString()}个月 ");
                     }
                     if (dayStudentCourse.SurplusSmallQuantity > 0)
                     {
-                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusSmallQuantity}天");
+                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusSmallQuantity.EtmsToString()}天");
                     }
                 }
             }
@@ -472,7 +472,7 @@ namespace ETMS.Business.Common
             return c?.Name;
         }
 
-        internal static string GetSurplusQuantityDesc(int surplusQuantity, int surplusSmallQuantity, byte deType)
+        internal static string GetSurplusQuantityDesc(decimal surplusQuantity, decimal surplusSmallQuantity, byte deType)
         {
             if (surplusQuantity == 0 && surplusSmallQuantity == 0)
             {
@@ -480,23 +480,23 @@ namespace ETMS.Business.Common
             }
             if (deType == EmDeClassTimesType.ClassTimes)
             {
-                return $"{surplusQuantity}课时";
+                return $"{surplusQuantity.EtmsToString()}课时";
             }
             var strDesc = new StringBuilder();
             if (surplusQuantity > 0)
             {
-                strDesc.Append($"{surplusQuantity}个月");
+                strDesc.Append($"{surplusQuantity.EtmsToString()}个月");
             }
             if (surplusSmallQuantity > 0)
             {
-                strDesc.Append($"{surplusSmallQuantity}天");
+                strDesc.Append($"{surplusSmallQuantity.EtmsToString()}天");
             }
             return strDesc.ToString();
         }
 
-        internal static Tuple<int, int> GetDeClassTimes(int beforeSurplusQuantity, int beforeSurplusSmallQuantity,
-            int afterSurplusQuantity,
-            int afterSurplusSmallQuantity)
+        internal static Tuple<decimal, decimal> GetDeClassTimes(decimal beforeSurplusQuantity, decimal beforeSurplusSmallQuantity,
+            decimal afterSurplusQuantity,
+            decimal afterSurplusSmallQuantity)
         {
             var deClassTimes = afterSurplusQuantity - beforeSurplusQuantity;
             var deClassTimesSmall = afterSurplusSmallQuantity - beforeSurplusSmallQuantity;
@@ -520,13 +520,13 @@ namespace ETMS.Business.Common
             return $"{detail.StartTime.EtmsToDateString()} 到 {detail.EndTime.EtmsToDateString()}";
         }
 
-        internal static string GetUseQuantityDesc(int useQuantity, byte useUnit)
+        internal static string GetUseQuantityDesc(decimal useQuantity, byte useUnit)
         {
             if (useQuantity == 0)
             {
                 return string.Empty;
             }
-            return useUnit == EmCourseUnit.ClassTimes ? $"{useQuantity}课时" : $"{useQuantity}天";
+            return useUnit == EmCourseUnit.ClassTimes ? $"{useQuantity.EtmsToString()}课时" : $"{useQuantity.EtmsToString()}天";
         }
 
         internal static string GetGiveQuantityDesc(int giveQuantity, int giveSmallQuantity, byte deType)
