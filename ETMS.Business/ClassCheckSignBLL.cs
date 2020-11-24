@@ -447,6 +447,10 @@ namespace ETMS.Business
             {
                 return DeStudentClassTimesResult.GetNotDeEntity();
             }
+            if (classRecordStudent.DeClassTimes == 0)
+            {
+                return DeStudentClassTimesResult.GetNotDeEntity();
+            }
             var classDate = classRecordStudent.ClassOt.Date;
             var myCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(classRecordStudent.StudentId, classRecordStudent.CourseId);
             if (myCourseDetail == null || !myCourseDetail.Any())
