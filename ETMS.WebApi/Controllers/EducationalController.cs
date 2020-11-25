@@ -588,12 +588,12 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> ClassRecordOperationLogGet(ClassRecordOperationLogGetRequest request)
+        public async Task<ResponseBase> ClassRecordOperationLogGetPaging(ClassRecordOperationLogGetPagingRequest request)
         {
             try
             {
                 _classRecordBLL.InitTenantId(request.LoginTenantId);
-                return await _classRecordBLL.ClassRecordOperationLogGet(request);
+                return await _classRecordBLL.ClassRecordOperationLogGetPaging(request);
             }
             catch (Exception ex)
             {

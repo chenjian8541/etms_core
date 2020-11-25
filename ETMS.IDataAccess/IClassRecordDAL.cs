@@ -52,6 +52,6 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddClassRecordOperationLog(EtClassRecordOperationLog log);
 
-        Task<List<EtClassRecordOperationLog>> GetClassRecordOperationLog(long classRecordId);
+        Task<Tuple<IEnumerable<EtClassRecordOperationLog>, int>> GetClassRecordOperationLogPaging(RequestPagingBase request);
     }
 }

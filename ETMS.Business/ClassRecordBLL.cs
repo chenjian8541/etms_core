@@ -204,31 +204,28 @@ namespace ETMS.Business
             return ResponseBase.Success(outPut);
         }
 
-        public async Task<ResponseBase> ClassRecordOperationLogGet(ClassRecordOperationLogGetRequest request)
+        public async Task<ResponseBase> ClassRecordOperationLogGetPaging(ClassRecordOperationLogGetPagingRequest request)
         {
-            var data = await _classRecordDAL.GetClassRecordOperationLog(request.ClassRecordId);
+            var pagingData = await _classRecordDAL.GetClassRecordOperationLogPaging(request);
             var output = new List<ClassRecordOperationLogGetOutput>();
-            if (data.Count > 0)
+            var tempBoxUser = new DataTempBox<EtUser>();
+            foreach (var p in pagingData.Item1)
             {
-                var tempBoxUser = new DataTempBox<EtUser>();
-                foreach (var p in data)
+                var userName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId);
+                output.Add(new ClassRecordOperationLogGetOutput()
                 {
-                    var userName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId);
-                    output.Add(new ClassRecordOperationLogGetOutput()
-                    {
-                        CId = p.Id,
-                        ClassRecordId = p.ClassRecordId,
-                        UserId = p.UserId,
-                        OpContent = p.OpContent,
-                        OpType = p.OpType,
-                        OpTypeDesc = EmClassRecordOperationType.GetClassRecordOperationTypeDesc(p.OpType),
-                        Ot = p.Ot,
-                        Remark = p.Remark,
-                        UserName = userName
-                    });
-                }
+                    CId = p.Id,
+                    ClassRecordId = p.ClassRecordId,
+                    UserId = p.UserId,
+                    OpContent = p.OpContent,
+                    OpType = p.OpType,
+                    OpTypeDesc = EmClassRecordOperationType.GetClassRecordOperationTypeDesc(p.OpType),
+                    Ot = p.Ot,
+                    Remark = p.Remark,
+                    UserName = userName
+                });
             }
-            return ResponseBase.Success(output);
+            return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordOperationLogGetOutput>(pagingData.Item2, output));
         }
 
         public async Task<ResponseBase> ClassRecordAbsenceLogPaging(ClassRecordAbsenceLogPagingRequest request)

@@ -17,7 +17,7 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassRecordStudentGet(ClassRecordStudentGetRequest request);
 
-        Task<ResponseBase> ClassRecordOperationLogGet(ClassRecordOperationLogGetRequest request);
+        Task<ResponseBase> ClassRecordOperationLogGetPaging(ClassRecordOperationLogGetPagingRequest request);
 
         Task<ResponseBase> ClassRecordAbsenceLogPaging(ClassRecordAbsenceLogPagingRequest request);
 

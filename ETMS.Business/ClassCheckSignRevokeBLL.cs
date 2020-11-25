@@ -73,7 +73,8 @@ namespace ETMS.Business
             await _classRecordDAL.SetClassRecordRevoke(request.CId);
             _eventPublisher.Publish(new ClassCheckSignRevokeEvent(request.LoginTenantId)
             {
-                ClassRecordId = classRecord.Id
+                ClassRecordId = classRecord.Id,
+                UserId = request.LoginUserId
             });
             return ResponseBase.Success();
         }

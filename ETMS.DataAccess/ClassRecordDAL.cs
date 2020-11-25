@@ -140,9 +140,9 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<List<EtClassRecordOperationLog>> GetClassRecordOperationLog(long classRecordId)
+        public async Task<Tuple<IEnumerable<EtClassRecordOperationLog>, int>> GetClassRecordOperationLogPaging(RequestPagingBase request)
         {
-            return await _dbWrapper.FindList<EtClassRecordOperationLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.IsDeleted == EmIsDeleted.Normal);
+            return await _dbWrapper.ExecutePage<EtClassRecordOperationLog>("EtClassRecordOperationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
     }
 }
