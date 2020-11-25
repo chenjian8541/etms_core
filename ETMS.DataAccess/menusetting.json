@@ -384,6 +384,11 @@
             "ActionId": 38,
             "Name": "撤销点名记录",
             "Type": 1
+          },
+          {
+            "ActionId": 46,
+            "Name": "修改上课记录",
+            "Type": 1
           }
         ]
       }
@@ -543,6 +548,11 @@
           {
             "ActionId": 27,
             "Name": "新增收支",
+            "Type": 1
+          },
+          {
+            "ActionId": 47,
+            "Name": "撤销收支",
             "Type": 1
           }
         ]

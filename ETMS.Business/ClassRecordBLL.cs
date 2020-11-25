@@ -177,12 +177,13 @@ namespace ETMS.Business
             foreach (var p in classRecordStudents)
             {
                 var student = await _studentDAL.GetStudent(p.StudentId);
+                var deClassTimes = p.DeClassTimes.EtmsToString();
                 outPut.Add(new ClassRecordStudentGetOutput()
                 {
                     CId = p.Id,
                     CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
                     CourseId = p.CourseId,
-                    DeClassTimes = p.DeClassTimes.EtmsToString(),
+                    DeClassTimes = deClassTimes,
                     DeSum = p.DeSum,
                     DeType = p.DeType,
                     DeTypeDesc = EmDeClassTimesType.GetDeClassTimesTypeDesc(p.DeType),
@@ -199,6 +200,10 @@ namespace ETMS.Business
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                     Status = p.Status,
                     StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(p.Status),
+                    ChangeRowState = 0,
+                    NewDeClassTimes = deClassTimes,
+                    NewRemark = p.Remark,
+                    NewStudentCheckStatus = p.StudentCheckStatus
                 });
             }
             return ResponseBase.Success(outPut);
@@ -469,6 +474,7 @@ namespace ETMS.Business
 
             var oldDeSum = p.DeSum;
             var oldCheckStatus = p.StudentCheckStatus;
+            var oldRemark = p.Remark;
             var now = DateTime.Now;
             var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
             if (p.DeType == EmDeClassTimesType.ClassTimes && p.DeClassTimes > 0)
@@ -576,7 +582,7 @@ namespace ETMS.Business
                 Status = p.Status,
                 TenantId = p.TenantId,
                 UserId = request.LoginUserId,
-                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息,到课状态从:{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)},扣减课时从:{oldDeSum.EtmsToString()}改成:{p.DeClassTimes.EtmsToString()}]"
+                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeSum.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
             });
 
             //发通知

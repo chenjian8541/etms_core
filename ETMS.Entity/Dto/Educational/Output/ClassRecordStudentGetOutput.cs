@@ -72,5 +72,16 @@ namespace ETMS.Entity.Dto.Educational.Output
         public byte Status { get; set; }
 
         public string StatusDesc { get; set; }
+
+        public int ChangeRowState { get; set; }
+
+        public int NewStudentCheckStatus { get; set; }
+
+        public string NewRemark { get; set; }
+
+        /// <summary>
+        /// 扣的课时
+        /// </summary>
+        public string NewDeClassTimes { get; set; }
     }
 }
