@@ -93,6 +93,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtClassRecordStudent>(id);
         }
 
+        public async Task<bool> EditClassRecord(EtClassRecord classRecord)
+        {
+            await _dbWrapper.Update(classRecord);
+            return true;
+        }
+
         public async Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent)
         {
             await _dbWrapper.Update(etClassRecordStudent);
@@ -126,6 +132,17 @@ namespace ETMS.DataAccess
         {
             await this._dbWrapper.Execute($"UPDATE EtClassRecord SET EvaluateStudentCount = EvaluateStudentCount + {addCount} WHERE id = {classRecordId} ");
             return true;
+        }
+
+        public async Task<bool> AddClassRecordOperationLog(EtClassRecordOperationLog log)
+        {
+            await _dbWrapper.Insert(log);
+            return true;
+        }
+
+        public async Task<List<EtClassRecordOperationLog>> GetClassRecordOperationLog(long classRecordId)
+        {
+            return await _dbWrapper.FindList<EtClassRecordOperationLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.IsDeleted == EmIsDeleted.Normal);
         }
     }
 }

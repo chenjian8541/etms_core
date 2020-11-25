@@ -161,6 +161,20 @@ namespace ETMS.Business
                 await _userDAL.DeTeacherMonthClassTimes(teacherId, classRecord.ClassOt, classRecord.ClassTimes, 1);
             }
 
+            await _classRecordDAL.AddClassRecordOperationLog(new EtClassRecordOperationLog()
+            {
+                ClassId = classRecord.ClassId,
+                ClassRecordId = classRecord.Id,
+                IsDeleted = classRecord.IsDeleted,
+                OpContent = "撤销点名记录",
+                OpType = EmClassRecordOperationType.UndoClassRecord,
+                Ot = now,
+                Remark = string.Empty,
+                Status = classRecord.Status,
+                TenantId = classRecord.TenantId,
+                UserId = request.UserId
+            });
+
             //统计信息
             _eventPublisher.Publish(new StatisticsClassRevokeEvent(request.TenantId)
             {

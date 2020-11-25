@@ -4,9 +4,12 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Enum;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,8 +35,15 @@ namespace ETMS.Business
 
         private readonly IStudentPointsLogDAL _studentPointsLogDAL;
 
+        private readonly IStudentCourseDAL _studentCourseDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
         public ClassRecordBLL(IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IClassDAL classDAL,
-            IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentPointsLogDAL studentPointsLogDAL)
+            IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
+            IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classRoomDAL = classRoomDAL;
@@ -43,12 +53,15 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
+            this._studentCourseDAL = studentCourseDAL;
+            this._eventPublisher = eventPublisher;
+            this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, this._classRoomDAL, this._courseDAL, _studentDAL, _classDAL, _userDAL, _userOperationLogDAL,
-                _studentPointsLogDAL);
+                _studentPointsLogDAL, _studentCourseDAL, _studentCourseConsumeLogDAL);
         }
 
         public async Task<ResponseBase> ClassRecordGetPaging(ClassRecordGetPagingRequest request)
@@ -189,6 +202,33 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(outPut);
+        }
+
+        public async Task<ResponseBase> ClassRecordOperationLogGet(ClassRecordOperationLogGetRequest request)
+        {
+            var data = await _classRecordDAL.GetClassRecordOperationLog(request.ClassRecordId);
+            var output = new List<ClassRecordOperationLogGetOutput>();
+            if (data.Count > 0)
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                foreach (var p in data)
+                {
+                    var userName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId);
+                    output.Add(new ClassRecordOperationLogGetOutput()
+                    {
+                        CId = p.Id,
+                        ClassRecordId = p.ClassRecordId,
+                        UserId = p.UserId,
+                        OpContent = p.OpContent,
+                        OpType = p.OpType,
+                        OpTypeDesc = EmClassRecordOperationType.GetClassRecordOperationTypeDesc(p.OpType),
+                        Ot = p.Ot,
+                        Remark = p.Remark,
+                        UserName = userName
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ClassRecordAbsenceLogPaging(ClassRecordAbsenceLogPagingRequest request)
@@ -411,6 +451,146 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordPointsApplyLogPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ClassRecordStudentChange(ClassRecordStudentChangeRequest request)
+        {
+            var p = await _classRecordDAL.GetEtClassRecordStudentById(request.ClassRecordStudentId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("不存在此点名记录");
+            }
+            if (p.Status == EmClassRecordStatus.Revoked)
+            {
+                return ResponseBase.CommonError("点名记录已撤销，无法修改");
+            }
+            var studentBuck = await _studentDAL.GetStudent(p.StudentId);
+            if (studentBuck == null || studentBuck.Student == null)
+            {
+                return ResponseBase.CommonError("学员信息不存在");
+            }
+
+            var oldDeSum = p.DeSum;
+            var oldCheckStatus = p.StudentCheckStatus;
+            var now = DateTime.Now;
+            var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
+            if (p.DeType == EmDeClassTimesType.ClassTimes && p.DeClassTimes > 0)
+            {
+                if (p.DeStudentCourseDetailId == null)
+                {
+                    LOG.Log.Error($"[ClassRecordStudentChange]扣减的课时未记录具体的扣减订单:{JsonConvert.SerializeObject(request)}", this.GetType());
+                }
+                else
+                {
+                    //原路返还所扣除的课时
+                    await _studentCourseDAL.AddClassTimesOfStudentCourseDetail(p.DeStudentCourseDetailId.Value, p.DeClassTimes);
+
+                    //课消记录
+                    studentCourseConsumeLogs.Add(new EtStudentCourseConsumeLog()
+                    {
+                        IsDeleted = EmIsDeleted.Normal,
+                        DeClassTimes = p.DeClassTimes,
+                        DeClassTimesSmall = 0,
+                        CourseId = p.CourseId,
+                        DeType = EmDeClassTimesType.ClassTimes,
+                        OrderId = 0,
+                        OrderNo = string.Empty,
+                        Ot = now,
+                        SourceType = EmStudentCourseConsumeSourceType.ModifyStudentClassRecordAdd,
+                        StudentId = p.StudentId,
+                        TenantId = p.TenantId
+                    });
+                }
+            }
+            if (p.ExceedClassTimes > 0)
+            {
+                await _studentCourseDAL.DeExceedTotalClassTimes(p.StudentId, p.CourseId, p.ExceedClassTimes);
+            }
+
+            p.DeClassTimes = request.NewDeClassTimes;
+            p.StudentCheckStatus = request.NewStudentCheckStatus;
+            p.ExceedClassTimes = 0;
+            p.Remark = request.NewRemark;
+            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, p);
+            _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(p.TenantId)
+            {
+                StudentId = p.StudentId,
+                CourseId = p.CourseId
+            });
+
+            p.DeSum = deStudentClassTimesResult.DeSum;
+            p.DeType = deStudentClassTimesResult.DeType;
+            p.ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes;
+            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.ClassTimes)
+            {
+                p.DeClassTimes = 0;
+            }
+            else
+            {
+                p.DeClassTimes = deStudentClassTimesResult.DeClassTimes;
+            }
+            p.DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId;
+            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+            {
+                studentCourseConsumeLogs.Add(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = p.CourseId,
+                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                    DeType = deStudentClassTimesResult.DeType,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = deStudentClassTimesResult.OrderId,
+                    OrderNo = deStudentClassTimesResult.OrderNo,
+                    Ot = p.CheckOt,
+                    SourceType = EmStudentCourseConsumeSourceType.ModifyStudentClassRecordDe,
+                    StudentId = p.StudentId,
+                    TenantId = p.TenantId,
+                    DeClassTimesSmall = 0
+                });
+            }
+            await _classRecordDAL.EditClassRecordStudent(p);
+
+            var addAttendNumber = 0;
+            if (EmClassStudentCheckStatus.CheckIsAttend(oldCheckStatus))
+            {
+                addAttendNumber -= 1;
+            }
+            if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+            {
+                addAttendNumber += 1;
+            }
+            var classRecord = await _classRecordDAL.GetClassRecord(p.ClassRecordId);
+            classRecord.DeSum = classRecord.DeSum - oldDeSum + p.DeSum;
+            classRecord.AttendNumber += addAttendNumber;
+            await _classRecordDAL.EditClassRecord(classRecord);
+
+            if (studentCourseConsumeLogs.Count > 0)
+            {
+                _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogs); //课消记录
+            }
+
+            await _classRecordDAL.AddClassRecordOperationLog(new EtClassRecordOperationLog()
+            {
+                ClassId = p.ClassId,
+                ClassRecordId = p.ClassRecordId,
+                IsDeleted = EmIsDeleted.Normal,
+                OpType = EmClassRecordOperationType.ModifyStudentClassRecord,
+                Ot = now,
+                Remark = string.Empty,
+                Status = p.Status,
+                TenantId = p.TenantId,
+                UserId = request.LoginUserId,
+                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息,到课状态从:{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)},扣减课时从:{oldDeSum.EtmsToString()}改成:{p.DeClassTimes.EtmsToString()}]"
+            });
+
+            //发通知
+            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            {
+                CourseId = p.CourseId,
+                StudentId = p.StudentId
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"修改点名记录", EmUserOperationType.ClassRecordManage, now);
+            return ResponseBase.Success();
         }
     }
 }

@@ -143,6 +143,8 @@ namespace ETMS.Entity.Config
 
         public string StudentEvaluate { get; set; }
 
+        public string StudentCourseSurplus { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }
@@ -154,6 +156,8 @@ namespace ETMS.Entity.Config
         public string StudentGrowthRecordDetailUrl { get; set; }
 
         public string StudentWxMessageDetailUrl { get; set; }
+
+        public string StudentCourseUrl { get; set; }
     }
 
     public class ServerConfig

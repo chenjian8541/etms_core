@@ -53,5 +53,14 @@ namespace ETMS.Entity.Enum
             }
             return false;
         }
+
+        public static bool CheckIsAttend(byte status)
+        {
+            if (status == Arrived || status == BeLate)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

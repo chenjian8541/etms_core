@@ -588,6 +588,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassRecordOperationLogGet(ClassRecordOperationLogGetRequest request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordOperationLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassRecordAbsenceLogPaging(ClassRecordAbsenceLogPagingRequest request)
         {
             try
@@ -650,6 +664,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _classRecordBLL.InitTenantId(request.LoginTenantId);
                 return await _classRecordBLL.ClassRecordPointsApplyLogPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassRecordStudentChange(ClassRecordStudentChangeRequest request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordStudentChange(request);
             }
             catch (Exception ex)
             {

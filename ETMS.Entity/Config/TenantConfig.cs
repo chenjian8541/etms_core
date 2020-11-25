@@ -150,6 +150,10 @@ namespace ETMS.Entity.Config
         /// </summary>
         public bool StudentHomeworkCommentWeChat { get; set; } = true;
 
+        /// <summary>
+        /// 修改点名记录提醒(微信)
+        /// </summary>
+        public bool ClassRecordStudentChangeWeChat { get; set; } = true;
 
         /// <summary>
         /// 是否提前一天提醒（学员上课提醒）

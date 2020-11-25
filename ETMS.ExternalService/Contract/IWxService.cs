@@ -29,5 +29,7 @@ namespace ETMS.ExternalService.Contract
         void WxMessage(WxMessageRequest request);
 
         void StudentEvaluate(StudentEvaluateRequest request);
+
+        void StudentCourseSurplus(StudentCourseSurplusRequest request);
     }
 }

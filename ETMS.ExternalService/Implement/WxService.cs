@@ -510,5 +510,39 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void StudentCourseSurplus(StudentCourseSurplusRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的课程{student.CourseName}剩余{student.SurplusQuantityDesc}，点击查看详情")),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(student.Phone, DefaultColor),
+                        keyword3 = new TemplateDataItem(student.SurplusQuantityDesc, LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[StudentCourseSurplus]剩余课程2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[StudentCourseSurplus]剩余课程:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

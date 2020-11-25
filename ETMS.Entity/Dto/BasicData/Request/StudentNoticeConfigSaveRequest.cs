@@ -66,5 +66,7 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员请假审核结果通知(微信)
         /// </summary>
         public bool StudentAskForLeaveCheckWeChat { get; set; } = true;
+
+        public bool ClassRecordStudentChangeWeChat { get; set; }
     }
 }

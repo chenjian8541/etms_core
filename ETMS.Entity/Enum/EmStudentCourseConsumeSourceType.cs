@@ -20,11 +20,6 @@ namespace ETMS.Entity.Enum
         public const byte AutoConsumeDay = 1;
 
         /// <summary>
-        /// 修改上课记录
-        /// </summary>
-        public const byte ModifyStudentClassRecord = 2;
-
-        /// <summary>
         /// 结课
         /// </summary>
         public const byte StopStudentCourse = 3;
@@ -49,6 +44,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte CorrectStudentCourse = 7;
 
+        /// <summary>
+        /// 修改点名记录
+        /// </summary>
+        public const byte ModifyStudentClassRecordAdd = 8;
+
+        /// <summary>
+        /// 修改点名记录
+        /// </summary>
+        public const byte ModifyStudentClassRecordDe = 9;
+
         public static string GetStudentCourseConsumeSourceType(int b)
         {
             switch (b)
@@ -57,8 +62,10 @@ namespace ETMS.Entity.Enum
                     return "点名";
                 case AutoConsumeDay:
                     return "按天自动消耗";
-                case ModifyStudentClassRecord:
-                    return "修改上课记录";
+                case ModifyStudentClassRecordAdd:
+                    return "修改点名记录";
+                case ModifyStudentClassRecordDe:
+                    return "修改点名记录";
                 case StopStudentCourse:
                     return "结课";
                 case MakeUpExceedClassTimes:
@@ -79,13 +86,14 @@ namespace ETMS.Entity.Enum
             {
                 case ClassCheckSign:
                 case AutoConsumeDay:
-                case ModifyStudentClassRecord:
+                case ModifyStudentClassRecordDe:
                 case StopStudentCourse:
                 case MakeUpExceedClassTimes:
                 case SetExpirationDate:
                 case CorrectStudentCourse:
                     return "消耗";
                 case UndoStudentClassRecord:
+                case ModifyStudentClassRecordAdd:
                     return "返还";
             }
             return string.Empty;

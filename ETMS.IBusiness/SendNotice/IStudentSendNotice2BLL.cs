@@ -17,5 +17,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeStudentsOfStudentEvaluateConsumeEvent(NoticeStudentsOfStudentEvaluateEvent request);
 
         Task NoticeStudentsOfHomeworkExDateConsumeEvent(NoticeStudentsOfHomeworkExDateEvent request);
+
+        Task NoticeStudentCourseSurplusConsumerEvent(NoticeStudentCourseSurplusEvent request);
     }
 }
