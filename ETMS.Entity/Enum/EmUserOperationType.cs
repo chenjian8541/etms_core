@@ -140,6 +140,9 @@ namespace ETMS.Entity.Enum
         ClassEvaluate = 73,
 
         [Description("清理数据")]
-        ClearData = 74
+        ClearData = 74,
+
+        [Description("作废收支")]
+        IncomeLogRevoke = 75
     }
 }

@@ -16,5 +16,9 @@ namespace ETMS.IDataAccess
         Task<List<EtIncomeLog>> GetIncomeLogByOrderId(long orderId);
 
         Task<Tuple<IEnumerable<EtIncomeLog>, int>> GetIncomeLogPaging(RequestPagingBase request);
+
+        Task<EtIncomeLog> GetIncomeLog(long id);
+
+        Task<bool> EditIncomeLog(EtIncomeLog log);
     }
 }

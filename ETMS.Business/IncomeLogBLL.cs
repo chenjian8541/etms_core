@@ -70,7 +70,8 @@ namespace ETMS.Business
                     TypeDesc = EmIncomeLogType.GetIncomeLogType(p.Type),
                     UserId = p.UserId,
                     UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
-                    StatusDesc = EmIncomeLogStatus.GetIncomeLogStatusDesc(p.Status)
+                    StatusDesc = EmIncomeLogStatus.GetIncomeLogStatusDesc(p.Status),
+                    IsCanRevoke = EmIncomeLogProjectType.IsCanRevoke(p.ProjectType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<IncomeLogGetPagingOutput>(pagingData.Item2, output));
@@ -104,6 +105,31 @@ namespace ETMS.Business
                 StatisticsDate = log.Ot
             });
             await _userOperationLogDAL.AddUserLog(request, $"新增{EmIncomeLogType.GetIncomeLogType(request.Type)},金额:{request.Sum},账户:{request.AccountNo},经办日期:{request.Ot.EtmsToDateString()},备注:{request.Remark}", EmUserOperationType.IncomeLogAdd, now);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> IncomeLogRevoke(IncomeLogRevokeRequest request)
+        {
+            var log = await _incomeLogDAL.GetIncomeLog(request.CId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("收支记录不存在");
+            }
+            if (log.Status == EmIncomeLogStatus.Repeal)
+            {
+                return ResponseBase.CommonError("此记录已作废");
+            }
+            var now = DateTime.Now;
+            log.Status = EmIncomeLogStatus.Repeal;
+            log.RepealOt = now;
+            log.RepealUserId = request.LoginUserId;
+            await _incomeLogDAL.EditIncomeLog(log);
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+            {
+                StatisticsDate = log.Ot
+            });
+            await _userOperationLogDAL.AddUserLog(request, $"作废收支记录", EmUserOperationType.IncomeLogRevoke, now);
+
             return ResponseBase.Success();
         }
     }

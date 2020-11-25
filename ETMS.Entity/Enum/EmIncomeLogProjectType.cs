@@ -49,5 +49,10 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static bool IsCanRevoke(long type)
+        {
+            return type > 0;
+        }
     }
 }

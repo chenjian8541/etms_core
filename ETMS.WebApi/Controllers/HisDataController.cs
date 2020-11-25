@@ -189,6 +189,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> IncomeLogRevoke(IncomeLogRevokeRequest request)
+        {
+            try
+            {
+                _incomeLogBLL.InitTenantId(request.LoginTenantId);
+                return await _incomeLogBLL.IncomeLogRevoke(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> GetStatisticsStudentCount(GetStatisticsStudentCountRequest request)
         {
             try

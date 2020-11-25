@@ -34,5 +34,16 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtIncomeLog>("EtIncomeLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<EtIncomeLog> GetIncomeLog(long id)
+        {
+            return await _dbWrapper.Find<EtIncomeLog>(id);
+        }
+
+        public async Task<bool> EditIncomeLog(EtIncomeLog log)
+        {
+            await _dbWrapper.Update(log);
+            return true;
+        }
     }
 }
