@@ -21,6 +21,10 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public string Phone { get; set; }
 
+        public string TouristName { get; set; }
+
+        public string TouristRemark { get; set; }
+
         public long? CourseId { get; set; }
 
         public string CourseDesc { get; set; }

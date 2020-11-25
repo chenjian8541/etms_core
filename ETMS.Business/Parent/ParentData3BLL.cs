@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Enum;
@@ -20,16 +21,24 @@ namespace ETMS.Business
 
         private readonly IActiveWxMessageParentReadDAL _activeWxMessageParentReadDAL;
 
-        public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL)
+        private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
+
+        private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
+
+        public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
+            IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
             this._activeWxMessageParentReadDAL = activeWxMessageParentReadDAL;
+            this._activeGrowthRecordDAL = activeGrowthRecordDAL;
+            this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL);
+            this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
+                _tryCalssApplyLogDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -144,6 +153,37 @@ namespace ETMS.Business
         public async Task<ResponseBase> WxMessageGetUnreadCount(WxMessageGetUnreadCountRequest request)
         {
             return ResponseBase.Success(await _activeWxMessageParentReadDAL.GetParentUnreadCount(request.LoginPhone, request.ParentStudentIds));
+        }
+
+        public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)
+        {
+            var log = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetail(request.GrowthRecordDetailId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            await _tryCalssApplyLogDAL.AddTryCalssApplyLog(new EtTryCalssApplyLog()
+            {
+                ApplyOt = DateTime.Now,
+                ClassOt = null,
+                ClassTime = string.Empty,
+                CourseDesc = string.Empty,
+                CourseId = null,
+                HandleOt = null,
+                HandleRemark = string.Empty,
+                HandleStatus = EmTryCalssApplyHandleStatus.Unreviewed,
+                HandleUser = null,
+                IsDeleted = EmIsDeleted.Normal,
+                Phone = request.Phone,
+                RecommandStudentId = log.StudentId,
+                SourceType = EmTryCalssSourceType.WeChat,
+                StudentId = null,
+                TenantId = request.TenantId,
+                TouristName = request.Name,
+                TouristRemark = request.Remark
+            });
+
+            return ResponseBase.Success();
         }
     }
 }

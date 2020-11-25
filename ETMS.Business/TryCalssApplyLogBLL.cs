@@ -52,6 +52,7 @@ namespace ETMS.Business
             {
                 var studentName = string.Empty;
                 var phone = string.Empty;
+
                 if (p.StudentId != null)
                 {
                     var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId.Value);
@@ -64,11 +65,12 @@ namespace ETMS.Business
                 else
                 {
                     phone = p.Phone;
+                    studentName = p.TouristName;
                 }
                 var recommandStudentDesc = string.Empty;
                 if (p.RecommandStudentId != null)
                 {
-                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId.Value);
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RecommandStudentId.Value);
                     if (myStudent != null)
                     {
                         recommandStudentDesc = $"学员:{myStudent.Name},{myStudent.Phone}";
@@ -90,7 +92,8 @@ namespace ETMS.Business
                     Phone = phone,
                     StudentName = studentName,
                     RecommandStudentDesc = recommandStudentDesc,
-                    CId = p.Id
+                    CId = p.Id,
+                    TouristRemark = p.TouristRemark
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TryCalssApplyLogPagingOutput>(pagingData.Item2, output));

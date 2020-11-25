@@ -13,6 +13,8 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// </summary>
         public string StudentName { get; set; }
 
+        public string TouristRemark { get; set; }
+
         public string Phone { get; set; }
 
         public string CourseDesc { get; set; }

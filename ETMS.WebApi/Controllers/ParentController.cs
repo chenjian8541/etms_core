@@ -793,5 +793,20 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        [AllowAnonymous]
+        public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.TenantId);
+                return await _parentData3BLL.TryCalssApply(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
