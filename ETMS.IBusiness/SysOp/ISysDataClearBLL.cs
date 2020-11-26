@@ -9,6 +9,8 @@ namespace ETMS.IBusiness.SysOp
 {
     public interface ISysDataClearBLL : IBaseBLL
     {
+        Task<ResponseBase> ClearDataSendSms(ClearDataSendSmsRequest request);
+
         Task<ResponseBase> ClearData(ClearDataRequest request);
     }
 }

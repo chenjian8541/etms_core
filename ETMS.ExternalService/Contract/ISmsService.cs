@@ -13,6 +13,8 @@ namespace ETMS.ExternalService.Contract
 
         Task<SmsOutput> ParentLogin(SmsParentLoginRequest request);
 
+        Task<SmsOutput> ClearData(SmsClearDataRequest request);
+
         Task<SmsOutput> NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request);
 
         Task<SmsOutput> NoticeStudentsOfClassToday(NoticeStudentsOfClassTodayRequest request);

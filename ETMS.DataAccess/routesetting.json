@@ -628,6 +628,17 @@
           "Title": "操作日志",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 79,
+        "Path": "dataMgr",
+        "Name": "dataMgr",
+        "Type": 1,
+        "Component": "@/views/tenantMgr/dataMgr",
+        "Meta": {
+          "Title": "数据管理",
+          "Icon": "item"
+        }
       }
     ]
   },

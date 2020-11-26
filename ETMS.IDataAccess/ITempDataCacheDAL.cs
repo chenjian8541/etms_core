@@ -25,5 +25,9 @@ namespace ETMS.IDataAccess
         WxMessageLimitBucket GetWxMessageLimitBucket(int tenantId, DateTime time);
 
         void SetWxMessageLimitBucket(int tenantId, DateTime time, int totalCount);
+
+        ClearDataBucket GetClearDataBucket(int tenantId, DateTime time);
+
+        void SetClearDataBucket(int tenantId, DateTime time, int totalCount);
     }
 }

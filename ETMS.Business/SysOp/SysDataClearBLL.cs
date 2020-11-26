@@ -1,8 +1,12 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.HisData.Request;
+using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.ExternalService.Contract;
 using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.SysOp;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,10 +20,23 @@ namespace ETMS.Business.SysOp
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
+        private readonly ISysDataClearSmsCodeDAL _sysDataClearSmsCodeDAL;
+
+        private readonly ISmsService _smsService;
+
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL,
+            ISysDataClearSmsCodeDAL sysDataClearSmsCodeDAL, ISmsService smsService, ISysTenantDAL sysTenantDAL)
         {
             this._sysDataClearDAL = sysDataClearDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
+            this._sysDataClearSmsCodeDAL = sysDataClearSmsCodeDAL;
+            this._smsService = smsService;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -27,8 +44,44 @@ namespace ETMS.Business.SysOp
             this.InitDataAccess(tenantId, _sysDataClearDAL, _userOperationLogDAL);
         }
 
+        public async Task<ResponseBase> ClearDataSendSms(ClearDataSendSmsRequest request)
+        {
+            var now = DateTime.Now;
+            var limitBucket = _tempDataCacheDAL.GetClearDataBucket(request.LoginTenantId, now);
+            if (limitBucket != null && limitBucket.TotalCount >= 3)
+            {
+                return ResponseBase.CommonError("已超过本月可执行的次数");
+            }
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.ClearData(new SmsClearDataRequest(request.LoginTenantId)
+            {
+                Phone = sysTenantInfo.Phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+            }
+            _sysDataClearSmsCodeDAL.AddSysDataClearSmsCode(request.LoginTenantId, smsCode);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ClearData(ClearDataRequest request)
         {
+            var now = DateTime.Now;
+            var limitBucket = _tempDataCacheDAL.GetClearDataBucket(request.LoginTenantId, now);
+            if (limitBucket != null && limitBucket.TotalCount >= 3)
+            {
+                return ResponseBase.CommonError("已超过本月可执行的次数");
+            }
+
+            var clearSms = _sysDataClearSmsCodeDAL.GetSysDataClearSmsCode(request.LoginTenantId);
+            if (clearSms == null || clearSms.ExpireAtTime < DateTime.Now || clearSms.SmsCode != request.SmsCode)
+            {
+                return ResponseBase.CommonError("验证码错误");
+            }
+
             if (request.IsClearCourse)
             {
                 await this.ClearCourse();
@@ -149,6 +202,9 @@ namespace ETMS.Business.SysOp
             {
                 await this.ClearClassRecordEvaluate();
             }
+
+            var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
+            _tempDataCacheDAL.SetClearDataBucket(request.LoginTenantId, now, ++totalCount);
 
             await _userOperationLogDAL.AddUserLog(request, "清理数据", Entity.Enum.EmUserOperationType.ClearData);
             return ResponseBase.Success();

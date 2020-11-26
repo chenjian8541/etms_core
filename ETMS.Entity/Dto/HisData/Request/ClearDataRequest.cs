@@ -7,6 +7,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 {
     public class ClearDataRequest : RequestBase
     {
+        public string SmsCode { get; set; }
+
         #region 基础信息
 
         /// <summary>

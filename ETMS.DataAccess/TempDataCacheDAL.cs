@@ -74,5 +74,20 @@ namespace ETMS.DataAccess
             var key = bucket.GetKeyFormat(tenantId, time);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
+
+        public ClearDataBucket GetClearDataBucket(int tenantId, DateTime time)
+        {
+            return _cacheProvider.Get<ClearDataBucket>(0, new ClearDataBucket().GetKeyFormat(tenantId, time));
+        }
+
+        public void SetClearDataBucket(int tenantId, DateTime time, int totalCount)
+        {
+            var bucket = new ClearDataBucket()
+            {
+                TotalCount = totalCount
+            };
+            var key = bucket.GetKeyFormat(tenantId, time);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
     }
 }

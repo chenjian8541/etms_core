@@ -33,6 +33,8 @@ namespace ETMS.Entity.Config
 
         public static ClssTimesConfig ClssTimesConfig;
 
+        public static SysSafetyConfig SysSafetyConfig;
+
         /// <summary>
         /// 静态构造函数
         /// 初始化内部静态成员
@@ -45,6 +47,7 @@ namespace ETMS.Entity.Config
             UserSafetyConfig = new UserSafetyConfig();
             ParentAccessConfig = new ParentAccessConfig();
             ClssTimesConfig = new ClssTimesConfig();
+            SysSafetyConfig = new SysSafetyConfig();
         }
     }
 
@@ -169,5 +172,13 @@ namespace ETMS.Entity.Config
         /// 创建班级排课规则时预生成的课次数量
         /// </summary>
         public int PreGenerateClassTimesCount = 100;
+    }
+
+    public class SysSafetyConfig
+    {
+        /// <summary>
+        /// 登陆验证码失效时长(单位分钟)
+        /// </summary>
+        public int SysDataClearSmsCodeTimeOut = 10;
     }
 }

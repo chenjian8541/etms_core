@@ -45,5 +45,10 @@ namespace ETMS.Entity.CacheBucket
         /// 2天的数据
         /// </summary>
         public const int TempTwoDays = 2;
+
+        /// <summary>
+        /// 清除数据
+        /// </summary>
+        public const int ClearDataSaveDays = 60;
     }
 }

@@ -129,6 +129,16 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
+        public async Task<SmsOutput> ClearData(SmsClearDataRequest request)
+        {
+            return await UserLogin(new SmsUserLoginRequest(request.LoginTenantId)
+            {
+                LoginTenantId = request.LoginTenantId,
+                Phone = request.Phone,
+                ValidCode = request.ValidCode
+            });
+        }
+
         public async Task<SmsOutput> NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request)
         {
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);

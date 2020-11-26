@@ -497,6 +497,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClearDataSendSms(ClearDataSendSmsRequest request)
+        {
+            try
+            {
+                _sysDataClearBLL.InitTenantId(request.LoginTenantId);
+                return await _sysDataClearBLL.ClearDataSendSms(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClearData(ClearDataRequest request)
         {
             try
