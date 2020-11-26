@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Database.Source;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -37,9 +39,13 @@ namespace ETMS.Business
 
         private readonly ITryCalssLogDAL _tryCalssLogDAL;
 
+        private readonly IClassRecordDAL _classRecordDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
         public ClassTimesBLL(IClassDAL classDAL, IClassRoomDAL classRoomDAL, IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
             IUserDAL userDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentTrackLogDAL studentTrackLogDAL,
-            ITryCalssLogDAL tryCalssLogDAL)
+            ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher)
         {
             this._classDAL = classDAL;
             this._classRoomDAL = classRoomDAL;
@@ -51,12 +57,14 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._studentTrackLogDAL = studentTrackLogDAL;
             this._tryCalssLogDAL = tryCalssLogDAL;
+            this._classRecordDAL = classRecordDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _classRoomDAL, _studentCourseDAL, _classTimesDAL, _userDAL, _courseDAL, _studentDAL,
-                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL);
+                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL);
         }
 
         public async Task<ResponseBase> ClassTimesGetView(ClassTimesGetViewRequest request)
@@ -475,6 +483,104 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> ClassTimesAddMakeupStudent(ClassTimesAddMakeupStudentRequest request)
+        {
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            if (classTimes.Status == EmClassTimesStatus.BeRollcall)
+            {
+                return ResponseBase.CommonError("已点名无法添加学员");
+            }
+            var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (etClass == null || etClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("课次所在班级不存在");
+            }
+            var classRecordAbsenceLog = await _classRecordDAL.GetClassRecordAbsenceLog(request.ClassRecordAbsenceLogId);
+            if (classRecordAbsenceLog == null)
+            {
+                return ResponseBase.CommonError("缺勤记录不存在");
+            }
+            var studentId = classRecordAbsenceLog.StudentId;
+            var courseId = classRecordAbsenceLog.CourseId;
+
+            var courseIds = classTimes.CourseList.Split(',');
+            if (courseIds.FirstOrDefault(p => p == courseId.ToString()) == null)
+            {
+                return ResponseBase.CommonError("此课次不包含需要补的课程");
+            }
+
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            {
+                return ResponseBase.CommonError($"学员已在此课次中");
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            {
+                return ResponseBase.CommonError($"学员已在此课次中");
+            }
+
+            var myCourse = await _courseDAL.GetCourse(courseId);
+            var trylogContent = $"[插班补课] 已预约课程:{myCourse.Item1.Name},所在班级:{etClass.EtClass.Name},上课时间:{classTimes.ClassOt.EtmsToDateString()} { EtmsHelper.GetTimeDesc(classTimes.StartTime) }~{ EtmsHelper.GetTimeDesc(classTimes.EndTime) } 周{ EtmsHelper.GetWeekDesc(classTimes.Week) }";
+            var trackLog = new EtStudentTrackLog()
+            {
+                ContentType = EmStudentTrackContentType.AddMakeup,
+                IsDeleted = EmIsDeleted.Normal,
+                NextTrackTime = classTimes.ClassOt,
+                TrackTime = DateTime.Now,
+                RelatedInfo = null,
+                StudentId = studentId,
+                TenantId = request.LoginTenantId,
+                TrackUserId = request.LoginUserId,
+                TrackContent = trylogContent
+            };
+            await _studentTrackLogDAL.AddStudentTrackLog(trackLog);
+
+            var classTimesStudent = new EtClassTimesStudent()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                ClassId = classTimes.ClassId,
+                ClassOt = classTimes.ClassOt,
+                ClassTimesId = classTimes.Id,
+                CourseId = courseId,
+                Remark = string.Empty,
+                RuleId = classTimes.RuleId,
+                Status = classTimes.Status,
+                StudentId = studentId,
+                StudentTryCalssLogId = request.ClassRecordAbsenceLogId,
+                StudentType = EmClassStudentType.MakeUpStudent,
+                TenantId = classTimes.TenantId
+            };
+            await _classTimesDAL.AddClassTimesStudent(classTimesStudent);
+            if (string.IsNullOrEmpty(classTimes.StudentIdsTemp))
+            {
+                classTimes.StudentIdsTemp = $",{studentId},";
+            }
+            else
+            {
+                classTimes.StudentIdsTemp = $"{classTimes.StudentIdsTemp}{studentId},";
+            }
+            await _classTimesDAL.EditClassTimes(classTimes);
+
+            classRecordAbsenceLog.HandleStatus = EmClassRecordAbsenceHandleStatus.MakeupClassTimes;
+            classRecordAbsenceLog.HandleContent = trylogContent;
+            classRecordAbsenceLog.HandleOt = DateTime.Now;
+            classRecordAbsenceLog.HandleUser = request.LoginUserId;
+            await _classRecordDAL.UpdateClassRecordAbsenceLog(classRecordAbsenceLog);
+
+            _eventPublisher.Publish(new NoticeStudentsOfMakeupEvent(request.LoginTenantId)
+            {
+                StudentId = studentId,
+                CourseId = courseId,
+                ClassTimesId = classTimes.Id
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加插班补课学员", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ClassTimesAddTryStudentOneToOne(ClassTimesAddTryStudentOneToOneRequest request)
         {
             var student = await _studentDAL.GetStudent(request.StudentId);
@@ -618,6 +724,10 @@ namespace ETMS.Business
             {
                 return await ClassTimesDelTryStudent(request, etClass.EtClass, classTimes, classTimesStudent);
             }
+            if (classTimesStudent.StudentType == EmClassStudentType.MakeUpStudent)
+            {
+                return await ClassTimesDelMakeUpStudent(request, etClass.EtClass, classTimes, classTimesStudent);
+            }
             return ResponseBase.CommonError("无法移除此学员");
         }
         private async Task<ResponseBase> ClassTimesDelTempStudent(ClassTimesDelTempOrTryStudentRequest request, EtClass etClass, EtClassTimes etClassTimes)
@@ -635,7 +745,7 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> ClassTimesDelTryStudent(ClassTimesDelTempOrTryStudentRequest request,
+        private async Task<ResponseBase> ClassTimesDelTryStudent(ClassTimesDelTempOrTryStudentRequest request,
             EtClass etClass, EtClassTimes etClassTimes, EtClassTimesStudent etClassTimesStudent)
         {
             var myCourse = await _courseDAL.GetCourse(etClassTimesStudent.CourseId);
@@ -675,6 +785,54 @@ namespace ETMS.Business
                 await _tryCalssLogDAL.UpdateStatus(etClassTimesStudent.StudentTryCalssLogId.Value, EmTryCalssLogStatus.IsCancel);
             }
             await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.Name},课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除试听学员:{request.StudentName}", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
+        private async Task<ResponseBase> ClassTimesDelMakeUpStudent(ClassTimesDelTempOrTryStudentRequest request,
+            EtClass etClass, EtClassTimes etClassTimes, EtClassTimesStudent etClassTimesStudent)
+        {
+            var myCourse = await _courseDAL.GetCourse(etClassTimesStudent.CourseId);
+            await _classTimesDAL.DelClassTimesStudent(request.ClassTimesStudentId);
+            var classTimesStudents = await _classTimesDAL.GetClassTimesStudent(request.ClassTimesId);
+            var studentIdsTemps = string.Empty;
+            if (classTimesStudents != null && classTimesStudents.Any())
+            {
+                studentIdsTemps = EtmsHelper.GetMuIds(classTimesStudents.Select(p => p.StudentId));
+            }
+            if (etClass.DataType == EmClassDataType.Temp && string.IsNullOrEmpty(studentIdsTemps))
+            {
+                //试听课程，如果没有学员了，则删除数据
+                await _classDAL.DelClass(etClassTimes.ClassId);
+                await _classTimesDAL.DelClassTimes(etClassTimes.Id);
+            }
+            else
+            {
+                etClassTimes.StudentIdsTemp = studentIdsTemps;
+                await _classTimesDAL.EditClassTimes(etClassTimes);
+            }
+            var trackLog = new EtStudentTrackLog()
+            {
+                ContentType = EmStudentTrackContentType.CancelMakeup,
+                IsDeleted = EmIsDeleted.Normal,
+                NextTrackTime = null,
+                TrackTime = DateTime.Now,
+                RelatedInfo = null,
+                StudentId = etClassTimesStudent.StudentId,
+                TenantId = request.LoginTenantId,
+                TrackUserId = request.LoginUserId,
+                TrackContent = $"[取消插班补课] 课程:{myCourse.Item1.Name},所在班级:{etClass.Name}"
+            };
+            await _studentTrackLogDAL.AddStudentTrackLog(trackLog);
+            if (etClassTimesStudent.StudentTryCalssLogId != null)
+            {
+                var classRecordAbsenceLog = await _classRecordDAL.GetClassRecordAbsenceLog(etClassTimesStudent.StudentTryCalssLogId.Value);
+                if (classRecordAbsenceLog != null)
+                {
+                    classRecordAbsenceLog.HandleStatus = EmClassRecordAbsenceHandleStatus.Unprocessed;
+                    await _classRecordDAL.UpdateClassRecordAbsenceLog(classRecordAbsenceLog);
+                }
+            }
+            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.Name},课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除补课学员:{request.StudentName}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 

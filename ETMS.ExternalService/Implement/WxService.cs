@@ -544,5 +544,39 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void StudentMakeup(StudentMakeupRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的课程{request.CourseName}已重新排课，请提前做好上课准备")),
+                        keyword1 = new TemplateDataItem(request.ClassOt, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.ClassTime, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.TeacherDesc, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[StudentMakeup]插班补课2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[StudentMakeup]插班补课:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

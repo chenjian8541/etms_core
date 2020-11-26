@@ -145,6 +145,8 @@ namespace ETMS.Entity.Config
 
         public string StudentCourseSurplus { get; set; }
 
+        public string StudentMakeup { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }

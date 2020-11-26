@@ -27,6 +27,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassTimesAddTryStudent(ClassTimesAddTryStudentRequest request);
 
+        Task<ResponseBase> ClassTimesAddMakeupStudent(ClassTimesAddMakeupStudentRequest request);
+
         Task<ResponseBase> ClassTimesAddTryStudentOneToOne(ClassTimesAddTryStudentOneToOneRequest request);
 
         Task<ResponseBase> ClassTimesDelTempOrTryStudent(ClassTimesDelTempOrTryStudentRequest request);
@@ -44,5 +46,6 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesGetOfWeekTimeTeacher(ClassTimesGetOfWeekTimeTeacherRequest request);
 
         Task<ResponseBase> ClassTimesGetOfWeekTimeRoom(ClassTimesGetOfWeekTimeRoomRequest request);
+
     }
 }

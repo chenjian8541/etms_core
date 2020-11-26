@@ -31,5 +31,8 @@ namespace ETMS.ExternalService.Contract
         void StudentEvaluate(StudentEvaluateRequest request);
 
         void StudentCourseSurplus(StudentCourseSurplusRequest request);
+
+        void StudentMakeup(StudentMakeupRequest request);
+
     }
 }

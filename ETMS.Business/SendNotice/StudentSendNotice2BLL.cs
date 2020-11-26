@@ -47,10 +47,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentCourseDAL _studentCourseDAL;
 
+        private readonly IClassTimesDAL _classTimesDAL;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
-            IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL)
+            IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
+            IClassTimesDAL classTimesDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -64,12 +67,13 @@ namespace ETMS.Business.SendNotice
             this._classRecordDAL = classRecordDAL;
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
+            this._classTimesDAL = classTimesDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
-                _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL);
+                _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL);
         }
 
         public async Task NoticeStudentsOfHomeworkAddConsumeEvent(NoticeStudentsOfHomeworkAddEvent request)
@@ -509,6 +513,77 @@ namespace ETMS.Business.SendNotice
             if (req.Students.Count > 0)
             {
                 _wxService.StudentCourseSurplus(req);
+            }
+        }
+
+        public async Task NoticeStudentsOfMakeupConsumerEvent(NoticeStudentsOfMakeupEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StartClassWeChat)
+            {
+                return;
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeStudentsOfMakeupConsumerEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            var myCourse = await _courseDAL.GetCourse(request.CourseId);
+            if (myCourse == null || myCourse.Item1 == null)
+            {
+                Log.Error($"[NoticeStudentsOfMakeupConsumerEvent]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                Log.Error($"[NoticeStudentsOfMakeupConsumerEvent]未找到课次信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var req = new StudentMakeupRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Students = new List<StudentMakeupItem>(),
+                CourseName = myCourse.Item1.Name,
+                ClassOt = classTimes.ClassOt.EtmsToDateString(),
+                ClassTime = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                TeacherDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, classTimes.Teachers)
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentMakeup;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            req.Students.Add(new StudentMakeupItem()
+            {
+                Name = student.Name,
+                OpendId = await GetStudentOpenId(true, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id
+            });
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new StudentMakeupItem()
+                {
+                    Name = student.Name,
+                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.StudentMakeup(req);
             }
         }
     }

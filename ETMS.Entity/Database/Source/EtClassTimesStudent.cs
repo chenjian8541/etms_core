@@ -39,6 +39,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 试听记录
         /// 试听学员对应的试听记录
+        /// 补课学员对应的补课记录
         /// </summary>
         public long? StudentTryCalssLogId { get; set; }
 

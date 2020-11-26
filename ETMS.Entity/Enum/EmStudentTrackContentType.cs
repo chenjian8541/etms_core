@@ -34,6 +34,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int CancelApplyTryClass = 4;
 
+        /// <summary>
+        /// 插板补课
+        /// </summary>
+        public const int AddMakeup = 5;
+
+        /// <summary>
+        /// 取消插班补课
+        /// </summary>
+        public const int CancelMakeup = 6;
+
         public static string GetContentTypeDesc(byte type)
         {
             switch (type)
@@ -46,6 +56,10 @@ namespace ETMS.Entity.Enum
                     return "已体验(试听)";
                 case EmStudentTrackContentType.CancelApplyTryClass:
                     return "取消试听";
+                case EmStudentTrackContentType.AddMakeup:
+                    return "插班补课";
+                case EmStudentTrackContentType.CancelMakeup:
+                    return "取消插班补课";
                 default:
                     return "已失效(试听)";
             }
