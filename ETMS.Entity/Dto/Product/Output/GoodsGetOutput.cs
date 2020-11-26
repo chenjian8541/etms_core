@@ -24,6 +24,11 @@ namespace ETMS.Entity.Dto.Product.Output
         public string LimitQuantity { get; set; }
 
         /// <summary>
+        /// 库存数量
+        /// </summary>
+        public int InventoryQuantity { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

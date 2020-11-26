@@ -42,9 +42,10 @@ namespace ETMS.Business
             {
                 limitQuantity = request.LimitQuantity.ToInt();
             }
-            await _goodsDAL.AddGoods(new EtGoods()
+            var myInventoryQuantity = string.IsNullOrEmpty(request.InventoryQuantity) ? 0 : request.InventoryQuantity.ToInt();
+            var entity = new EtGoods()
             {
-                InventoryQuantity = 0,
+                InventoryQuantity = myInventoryQuantity,
                 IsDeleted = EmIsDeleted.Normal,
                 LimitQuantity = limitQuantity,
                 Name = request.Name,
@@ -54,8 +55,25 @@ namespace ETMS.Business
                 SaleQuantity = 0,
                 Status = request.Status,
                 TenantId = request.LoginTenantId,
-                UserId = request.LoginUserId
-            });
+                UserId = request.LoginUserId,
+            };
+            await _goodsDAL.AddGoods(entity);
+            if (myInventoryQuantity > 0)
+            {
+                await _goodsDAL.AddGoodsInventoryLog(new EtGoodsInventoryLog()
+                {
+                    ChangeQuantity = myInventoryQuantity,
+                    GoodsId = entity.Id,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = DateTime.Now,
+                    Prince = 0,
+                    TotalMoney = 0,
+                    Remark = "添加物品-初始化库存",
+                    TenantId = request.LoginTenantId,
+                    UserId = request.LoginUserId,
+                    Type = EmGoodsInventoryType.AddGoodsInInventory
+                });
+            }
             await _userOperationLogDAL.AddUserLog(request, $"添加物品:{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
@@ -76,12 +94,44 @@ namespace ETMS.Business
             {
                 limitQuantity = request.LimitQuantity.ToInt();
             }
+            var oldInventoryQuantity = goods.InventoryQuantity;
+            var myInventoryQuantity = string.IsNullOrEmpty(request.InventoryQuantity) ? 0 : request.InventoryQuantity.ToInt();
+
             goods.Name = request.Name;
             goods.Price = request.Price;
             goods.Remark = request.Remark;
             goods.LimitQuantity = limitQuantity;
             goods.Status = request.Status;
+            goods.InventoryQuantity = myInventoryQuantity;
             await _goodsDAL.EditGoods(goods);
+
+            if (myInventoryQuantity != oldInventoryQuantity)
+            {
+                var dffQuantity = myInventoryQuantity - oldInventoryQuantity;
+                var inventoryLog = new EtGoodsInventoryLog()
+                {
+                    GoodsId = goods.Id,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = DateTime.Now,
+                    Prince = 0,
+                    TotalMoney = 0,
+                    Remark = "编辑物品-修改库存",
+                    TenantId = request.LoginTenantId,
+                    UserId = request.LoginUserId
+                };
+                if (dffQuantity > 0)
+                {
+                    inventoryLog.Type = EmGoodsInventoryType.EditGoodsInInventoryAdd;
+                    inventoryLog.ChangeQuantity = dffQuantity;
+                }
+                else
+                {
+                    inventoryLog.Type = EmGoodsInventoryType.EditGoodsInInventoryDe;
+                    inventoryLog.ChangeQuantity = -dffQuantity;
+                }
+                await _goodsDAL.AddGoodsInventoryLog(inventoryLog);
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑物品:{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
@@ -100,7 +150,8 @@ namespace ETMS.Business
                 Name = goods.Name,
                 Price = goods.Price,
                 Remark = goods.Remark,
-                Status = goods.Status
+                Status = goods.Status,
+                InventoryQuantity = goods.InventoryQuantity
             });
         }
 
@@ -180,7 +231,7 @@ namespace ETMS.Business
             var pagingData = await _goodsDAL.GetGoodsInventoryLogPaging(request);
             return ResponseBase.Success(new ResponsePagingDataBase<GoodsInventoryLogGetPagingOutput>(pagingData.Item2, pagingData.Item1.Select(p => new GoodsInventoryLogGetPagingOutput()
             {
-                ChangeQuantity = p.ChangeQuantity,
+                ChangeQuantity = EmGoodsInventoryType.GetGoodsInventoryChangeQuantity(p.Type, p.ChangeQuantity),
                 GoodsName = p.GoodsName,
                 OtDesc = p.Ot.EtmsToDateString(),
                 Prince = p.Prince,

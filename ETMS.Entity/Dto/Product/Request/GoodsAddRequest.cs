@@ -15,6 +15,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public string LimitQuantity { get; set; }
 
+        public string InventoryQuantity { get; set; }
+
         public byte Status { get; set; }
 
         public override string Validate()
