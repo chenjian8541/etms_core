@@ -41,6 +41,7 @@ namespace ETMS.WebApi.FilterAttribute
                     request.LoginTenantId = userInfo.Item1;
                     request.LoginUserId = userInfo.Item2;
                     request.LoginTimestamp = userInfo.Item3;
+                    request.IpAddress = userInfo.Item4;
                     var userLoginBLL = CustomServiceLocator.GetInstance<IUserLoginBLL>();
                     var checkUserResult = userLoginBLL.CheckUserCanLogin(request).Result;
                     if (!checkUserResult.IsResponseSuccess())

@@ -17,7 +17,7 @@ namespace ETMS.WebApi.Extensions
         /// </summary>
         /// <param name="this"></param>
         /// <returns></returns>
-        public static Tuple<int, long, string> GetTokenInfo(this HttpRequest @this)
+        public static Tuple<int, long, string, string> GetTokenInfo(this HttpRequest @this)
         {
             var tokenValue = @this.HttpContext.User?.Claims?.FirstOrDefault(p => p.Type.Equals(SystemConfig.AuthenticationConfig.ClaimType))?.Value;
             var userInfo = tokenValue.Split(',');
@@ -26,7 +26,7 @@ namespace ETMS.WebApi.Extensions
             {
                 loginTimestamp = userInfo[2].ToString();
             }
-            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong(), loginTimestamp);
+            return Tuple.Create(userInfo[0].ToInt(), userInfo[1].ToLong(), loginTimestamp, @this.HttpContext.Connection.RemoteIpAddress.ToString());
         }
 
         /// <summary>
