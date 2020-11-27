@@ -48,6 +48,8 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public string ClassTimeDesc { get; set; }
 
+        public long CourseId { get; set; }
+
         /// <summary>
         /// 消耗的课程ID
         /// </summary>

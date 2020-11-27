@@ -389,6 +389,16 @@
             "ActionId": 46,
             "Name": "修改上课记录",
             "Type": 1
+          },
+          {
+            "ActionId": 48,
+            "Name": "插班补课",
+            "Type": 1
+          },
+          {
+            "ActionId": 49,
+            "Name": "标记补课",
+            "Type": 1
           }
         ]
       }

@@ -262,6 +262,7 @@ namespace ETMS.Business
                     StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(p.Status),
                     CheckUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.CheckUserId),
                     CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
+                    CourseId = p.CourseId,
                     DeClassTimes = p.DeClassTimes.EtmsToString(),
                     DeType = p.DeType,
                     DeTypeDesc = EmDeClassTimesType.GetDeClassTimesTypeDesc(p.DeType),

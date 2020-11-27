@@ -406,6 +406,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassTimesAddMakeupStudent(ClassTimesAddMakeupStudentRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.ClassTimesAddMakeupStudent(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassTimesAddTryStudentOneToOne(ClassTimesAddTryStudentOneToOneRequest request)
         {
             try
