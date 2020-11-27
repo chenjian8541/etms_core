@@ -306,6 +306,11 @@ namespace ETMS.Entity.Config
         public string ServerConStrFormat { get; set; }
 
         /// <summary>
+        /// redis
+        /// </summary>
+        public string ServerConStrDefault { get; set; }
+
+        /// <summary>
         /// 可使用的数据库数量(如果此值位5，则表示0~4db)
         /// </summary>
         public int DbCount { get; set; }

@@ -27,6 +27,8 @@ using ETMS.IBusiness.Wechart;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using Senparc.Weixin.RegisterServices;
+using AspNetCoreRateLimit;
+using ETMS.WebApi.Core;
 
 namespace ETMS.WebApi
 {
@@ -50,7 +52,10 @@ namespace ETMS.WebApi
             services.AddResponseCompression();
             services.AddResponseCaching();
             services.AddJwtAuthentication();
-            services.AddRedis(appSettingsSection.Get<AppSettings>().RedisConfig);
+            services.AddMemoryCache();
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            services.AddRedis(appSettings.RedisConfig);
+            InitRateLimit(services, appSettings.RedisConfig);
             services.AddMvc(op =>
             {
                 RegisterGlobalFilters(op.Filters);
@@ -90,6 +95,19 @@ namespace ETMS.WebApi
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IHttpClient, StandardHttpClient>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        }
+
+        private void InitRateLimit(IServiceCollection services, RedisConfig redisConfig)
+        {
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = redisConfig.ServerConStrDefault;
+                options.InstanceName = "ETMSRatelimit";
+            });
+            services.AddSingleton<IIpPolicyStore, DistributedCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore, DistributedCacheRateLimitCounterStore>();
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
@@ -116,6 +134,7 @@ namespace ETMS.WebApi
             app.UseSession();
             app.UseResponseCompression();
             app.UseResponseCaching();
+            app.UseMiddleware<EtmsIpRateLimitMiddleware>();
             app.UseCors(PolicyName);
 
             app.UseRouting();

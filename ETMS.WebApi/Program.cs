@@ -20,6 +20,7 @@ namespace ETMS.WebApi
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("hosting.json")
+                .AddJsonFile("rateLimitConfig.json", optional: true, reloadOnChange: true)
                 .Build();
             CreateHostBuilder(args, config).Build().Run();
         }
