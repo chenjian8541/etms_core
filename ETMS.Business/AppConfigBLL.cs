@@ -90,6 +90,8 @@ namespace ETMS.Business
             config.StudentNoticeConfig.StudentHomeworkWeChat = request.StudentHomeworkWeChat;
             config.StudentNoticeConfig.StudentHomeworkCommentWeChat = request.StudentHomeworkCommentWeChat;
             config.StudentNoticeConfig.ClassRecordStudentChangeWeChat = request.ClassRecordStudentChangeWeChat;
+            config.StudentNoticeConfig.StudentCourseNotEnoughWeChat = request.StudentCourseNotEnoughWeChat;
+            config.StudentNoticeConfig.StudentCourseNotEnoughSms = request.StudentCourseNotEnoughSms;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
@@ -198,6 +200,13 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-
+        public async Task<ResponseBase> StudentCourseNotEnoughCountSave(StudentCourseNotEnoughCountSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentNoticeConfig.StudentCourseNotEnoughCount = request.StudentCourseNotEnoughCount;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
     }
 }

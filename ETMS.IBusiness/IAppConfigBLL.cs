@@ -28,5 +28,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentBannerGet(ParentBannerGetRequest request);
 
         Task<ResponseBase> ParentBannerSave(ParentBannerSaveRequest request);
+
+        Task<ResponseBase> StudentCourseNotEnoughCountSave(StudentCourseNotEnoughCountSaveRequest request);
     }
 }

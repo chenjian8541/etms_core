@@ -186,6 +186,21 @@ namespace ETMS.Entity.Config
         public bool StudentAskForLeaveCheckWeChat { get; set; } = true;
 
         /// <summary>
+        /// 学员课时不足提醒（微信）
+        /// </summary>
+        public bool StudentCourseNotEnoughWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 学员课时不足提醒（短信）
+        /// </summary>
+        public bool StudentCourseNotEnoughSms { get; set; }
+
+        /// <summary>
+        /// 学员课时不足提醒提醒次数
+        /// </summary>
+        public int StudentCourseNotEnoughCount { get; set; } = 1;
+
+        /// <summary>
         /// 微信推送后缀
         /// </summary>
         public string WeChatNoticeRemark { get; set; }

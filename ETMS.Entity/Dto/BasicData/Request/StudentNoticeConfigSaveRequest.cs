@@ -68,5 +68,15 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public bool StudentAskForLeaveCheckWeChat { get; set; } = true;
 
         public bool ClassRecordStudentChangeWeChat { get; set; }
+
+        /// <summary>
+        /// 学员课时不足提醒（微信）
+        /// </summary>
+        public bool StudentCourseNotEnoughWeChat { get; set; }
+
+        /// <summary>
+        /// 学员课时不足提醒（短信）
+        /// </summary>
+        public bool StudentCourseNotEnoughSms { get; set; }
     }
 }
