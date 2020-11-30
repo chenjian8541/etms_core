@@ -6,7 +6,7 @@
     "ClientIdHeader": "X-ClientId",
     "HttpStatusCode": 200,
     "QuotaExceededResponse": {
-      "Content": "{{\"code\":10002,\"message\":\"访问过于频繁，请稍后重试\",\"resultData\":null}}",
+      "Content": "{{\"code\":10002,\"message\":\"访问过于频繁，请稍后再试\",\"resultData\":null}}",
       "ContentType": "application/json",
       "StatusCode": 200
     },
@@ -17,12 +17,12 @@
       {
         "Endpoint": "*",
         "Period": "1s",
-        "Limit": 2
+        "Limit": 5
       },
       {
         "Endpoint": "*",
         "Period": "1m",
-        "Limit": 50
+        "Limit": 60
       }
     ]
   }

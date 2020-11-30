@@ -136,15 +136,15 @@ namespace ETMS.Utility
 
         private void SetAuthorizationHeader(HttpRequestMessage requestMessage)
         {
-            if (_httpContextAccessor.HttpContext == null)
-            {
-                return;
-            }
-            var authorizationHeader = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-            if (!string.IsNullOrEmpty(authorizationHeader))
-            {
-                requestMessage.Headers.Add("Authorization", new List<string>() { authorizationHeader });
-            }
+            //if (_httpContextAccessor.HttpContext == null)
+            //{
+            //    return;
+            //}
+            //var authorizationHeader = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            //if (!string.IsNullOrEmpty(authorizationHeader))
+            //{
+            //    requestMessage.Headers.Add("Authorization", new List<string>() { authorizationHeader });
+            //}
         }
 
         /// <summary>
