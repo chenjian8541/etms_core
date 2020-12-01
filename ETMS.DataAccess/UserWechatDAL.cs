@@ -36,7 +36,7 @@ namespace ETMS.DataAccess
 
         public async Task<EtUserWechat> GetUserWechat(long userId)
         {
-            var bucket = await GetDb(_tenantId, userId);
+            var bucket = await GetCache(_tenantId, userId);
             return bucket?.UserWechat;
         }
 

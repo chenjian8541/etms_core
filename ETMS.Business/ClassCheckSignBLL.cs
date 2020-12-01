@@ -192,7 +192,8 @@ namespace ETMS.Business
             {
                 ClassRecord = classRecord,
                 ClassRecordStudents = classRecordStudents,
-                ClassName = etClassBucket.EtClass.Name
+                ClassName = etClassBucket.EtClass.Name,
+                UserId = request.LoginUserId
             });
             return ResponseBase.Success();
         }
