@@ -53,6 +53,7 @@ namespace ETMS.Business
                 PrintConfig = config.PrintConfig,
                 StudentCourseRenewalConfig = config.StudentCourseRenewalConfig,
                 StudentNoticeConfig = config.StudentNoticeConfig,
+                UserNoticeConfig = config.UserNoticeConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
@@ -104,6 +105,34 @@ namespace ETMS.Business
             config.StudentNoticeConfig.StartClassDayBeforeTimeValue = request.StartClassDayBeforeTimeValue;
             config.StudentNoticeConfig.StartClassBeforeMinuteIsOpen = request.StartClassBeforeMinuteIsOpen;
             config.StudentNoticeConfig.StartClassBeforeMinuteValue = request.StartClassBeforeMinuteValue;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> UserNoticeConfigSave(UserNoticeConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.UserNoticeConfig.StartClassWeChat = request.StartClassWeChat;
+            config.UserNoticeConfig.StartClassSms = request.StartClassSms;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> UserStartClassNoticeSave(UserStartClassNoticeSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.UserNoticeConfig.StartClassBeforeMinuteValue = request.StartClassBeforeMinuteValue;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> UserWeChatNoticeRemarkSave(UserWeChatNoticeRemarkSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.UserNoticeConfig.WeChatNoticeRemark = request.WeChatNoticeRemark;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

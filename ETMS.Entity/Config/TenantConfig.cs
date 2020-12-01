@@ -16,6 +16,7 @@ namespace ETMS.Entity.Config
             StudentCourseRenewalConfig = new StudentCourseRenewalConfig();
             PrintConfig = new PrintConfig();
             ParentSetConfig = new ParentSetConfig();
+            UserNoticeConfig = new UserNoticeConfig();
         }
 
         /// <summary>
@@ -24,9 +25,14 @@ namespace ETMS.Entity.Config
         public ClassCheckSignConfig ClassCheckSignConfig { get; set; }
 
         /// <summary>
-        /// 通知设置
+        /// 学员通知设置
         /// </summary>
         public StudentNoticeConfig StudentNoticeConfig { get; set; }
+
+        /// <summary>
+        /// 用户通知
+        /// </summary>
+        public UserNoticeConfig UserNoticeConfig { get; set; }
 
         /// <summary>
         /// 续费预警设置
@@ -42,6 +48,20 @@ namespace ETMS.Entity.Config
         /// 家长端设置
         /// </summary>
         public ParentSetConfig ParentSetConfig { get; set; }
+    }
+
+    public class UserNoticeConfig
+    {
+        public bool StartClassWeChat { get; set; }
+
+        public bool StartClassSms { get; set; }
+
+        public int StartClassBeforeMinuteValue { get; set; } = 30;
+
+        /// <summary>
+        /// 微信推送后缀
+        /// </summary>
+        public string WeChatNoticeRemark { get; set; }
     }
 
     public class ParentSetConfig

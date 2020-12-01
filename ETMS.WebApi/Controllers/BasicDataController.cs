@@ -701,6 +701,48 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserNoticeConfigSave(UserNoticeConfigSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.UserNoticeConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserStartClassNoticeSave(UserStartClassNoticeSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.UserStartClassNoticeSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserWeChatNoticeRemarkSave(UserWeChatNoticeRemarkSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.UserWeChatNoticeRemarkSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> WeChatNoticeRemarkSave(WeChatNoticeRemarkSaveRequest request)
         {
             try

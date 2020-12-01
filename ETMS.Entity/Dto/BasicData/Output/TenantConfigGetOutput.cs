@@ -18,6 +18,11 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public StudentNoticeConfig StudentNoticeConfig { get; set; }
 
         /// <summary>
+        /// 用户通知
+        /// </summary>
+        public UserNoticeConfig UserNoticeConfig { get; set; }
+
+        /// <summary>
         /// 续费预警设置
         /// </summary>
         public StudentCourseRenewalConfig StudentCourseRenewalConfig { get; set; }

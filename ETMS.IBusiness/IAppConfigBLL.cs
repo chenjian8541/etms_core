@@ -17,6 +17,12 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StartClassNoticeSave(StartClassNoticeSaveRequest request);
 
+        Task<ResponseBase> UserNoticeConfigSave(UserNoticeConfigSaveRequest request);
+
+        Task<ResponseBase> UserStartClassNoticeSave(UserStartClassNoticeSaveRequest request);
+
+        Task<ResponseBase> UserWeChatNoticeRemarkSave(UserWeChatNoticeRemarkSaveRequest request);
+
         Task<ResponseBase> WeChatNoticeRemarkSave(WeChatNoticeRemarkSaveRequest request);
 
         Task<ResponseBase> StudentCourseRenewalConfigSave(StudentCourseRenewalConfigSaveRequest request);
