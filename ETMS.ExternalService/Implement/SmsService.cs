@@ -495,5 +495,73 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public async Task<SmsOutput> NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[NoticeStudentCourseNotEnough]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
+                foreach (var student in request.Students)
+                {
+                    var sendSmsRequest = new SendSmsRequest()
+                    {
+                        mobile = student.Phone,
+                        password = tKeyAndPwd.Item2,
+                        tKey = tKeyAndPwd.Item1,
+                        time = string.Empty,
+                        username = _smsConfig.ZhuTong.UserName
+                    };
+                    var content = string.Format(_smsConfig.ZhuTong.StudentCourseNotEnough.Com, student.StudentName, request.CourseName, request.NotEnoughDesc);
+                    content = $"{smsSignature}{content}";
+                    sendSmsRequest.content = content;
+                    var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
+                    if (!SendSmsRes.IsSuccess(res))
+                    {
+                        Log.Info($"[NoticeStudentCourseNotEnough]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.StudentCourseNotEnough
+                        });
+                    }
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[NoticeStudentCourseNotEnough]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { SmsLogs = smsLog });
+                }
+            }
+        }
     }
 }

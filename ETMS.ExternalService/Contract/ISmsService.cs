@@ -24,5 +24,7 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> NoticeStudentLeaveApply(NoticeStudentLeaveApplyRequest request);
 
         Task<SmsOutput> NoticeStudentContracts(NoticeStudentContractsRequest request);
+
+        Task<SmsOutput> NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
     }
 }

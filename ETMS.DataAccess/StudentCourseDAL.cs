@@ -244,5 +244,31 @@ namespace ETMS.DataAccess
             var sql = $"UPDATE EtStudentCourseDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND OrderId = {orderId} ";
             await _dbWrapper.Execute(sql);
         }
+
+        public async Task<IEnumerable<StudentCourseNotEnoughNeedRemind>> GetStudentCourseNotEnoughNeedRemind(int studentCourseNotEnoughCount, int limitClassTimes, int limitDay)
+        {
+            return await _dbWrapper.ExecuteObject<StudentCourseNotEnoughNeedRemind>(
+                $"SELECT TOP 200 StudentId,CourseId  from StudentCourseView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND NotEnoughRemindCount < {studentCourseNotEnoughCount} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {limitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={limitDay})) GROUP BY StudentId,CourseId");
+        }
+
+        public async Task UpdateStudentCourseNotEnoughRemindInfo(long studentId, long courseId)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtStudentCourse SET NotEnoughRemindCount = NotEnoughRemindCount + 1,NotEnoughRemindLastTime = '{DateTime.Now.EtmsToString()}' WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId}");
+            await UpdateCache(_tenantId, studentId);
+        }
+
+        public async Task ResetStudentCourseNotEnoughRemindInfo(long studentId, List<long> courseIds)
+        {
+            var sql = string.Empty;
+            if (courseIds.Count == 1)
+            {
+                sql = $"UPDATE EtStudentCourse SET NotEnoughRemindCount = 0 WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseIds[0]} ";
+            }
+            else
+            {
+                sql = $"UPDATE EtStudentCourse SET NotEnoughRemindCount = 0 WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId IN ({string.Join(',', courseIds)})";
+            }
+            await _dbWrapper.Execute(sql);
+        }
     }
 }

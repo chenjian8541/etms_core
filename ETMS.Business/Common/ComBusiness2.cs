@@ -104,5 +104,34 @@ namespace ETMS.Business.Common
             }
             return desc.ToString();
         }
+
+        internal static bool CheckStudentCourseNeedRemind(List<EtStudentCourse> myStudentCourses, int studentCourseNotEnoughCount, int limitClassTimes, int limitDay)
+        {
+            if (myStudentCourses == null || myStudentCourses.Count == 0)
+            {
+                return false;
+            }
+            var notEnoughRemindCount = myStudentCourses[0].NotEnoughRemindCount;
+            if (notEnoughRemindCount >= studentCourseNotEnoughCount)
+            {
+                return false;
+            }
+            var lastRemindTime = myStudentCourses.FirstOrDefault(p => p.NotEnoughRemindLastTime != null);
+            if (lastRemindTime != null && lastRemindTime.NotEnoughRemindLastTime.Value >= DateTime.Now.Date)
+            {
+                return false;
+            }
+            var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            if (deClassTimes != null && deClassTimes.SurplusQuantity <= limitClassTimes)
+            {
+                return true;
+            }
+            var courseDay = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
+            if (courseDay != null && courseDay.SurplusQuantity == 0 && courseDay.SurplusSmallQuantity <= limitDay)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -49,11 +49,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly IClassTimesDAL _classTimesDAL;
 
+        private readonly ISmsService _smsService;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
             IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
-            IClassTimesDAL classTimesDAL)
+            IClassTimesDAL classTimesDAL, ISmsService smsService)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -68,6 +70,7 @@ namespace ETMS.Business.SendNotice
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
             this._classTimesDAL = classTimesDAL;
+            this._smsService = smsService;
         }
 
         public void InitTenantId(int tenantId)
@@ -585,6 +588,96 @@ namespace ETMS.Business.SendNotice
             {
                 _wxService.StudentMakeup(req);
             }
+        }
+
+        public async Task NoticeStudentCourseNotEnoughConsumerEvent(NoticeStudentCourseNotEnoughEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
+                && !tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
+            {
+                return;
+            }
+
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            var myCourse = await _courseDAL.GetCourse(request.CourseId);
+            if (myCourse == null || myCourse.Item1 == null)
+            {
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var myStudentCourses = await _studentCourseDAL.GetStudentCourse(request.StudentId, request.CourseId);
+            if (!ComBusiness2.CheckStudentCourseNeedRemind(myStudentCourses, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
+                tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay))
+            {
+                return;
+            }
+
+            var notEnoughDesc = string.Empty;
+            var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            if (deClassTimes != null && deClassTimes.SurplusQuantity <= tenantConfig.StudentCourseRenewalConfig.LimitClassTimes)
+            {
+                notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitClassTimes}课时";
+            }
+            else
+            {
+                notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitDay}天";
+            }
+
+            var req = new NoticeStudentCourseNotEnoughRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat))
+            {
+                CourseName = myCourse.Item1.Name,
+                NotEnoughDesc = notEnoughDesc,
+                Students = new List<NoticeStudentCourseNotEnoughStudent>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnough;
+            req.Url = wxConfig.TemplateNoticeConfig.StudentCourseUrl;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
+            {
+                StudentName = student.Name,
+                OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id
+            });
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
+                {
+                    StudentName = student.Name,
+                    OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat)
+                {
+                    _wxService.NoticeStudentCourseNotEnough(req);
+                }
+                if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
+                {
+                    await _smsService.NoticeStudentCourseNotEnough(req);
+                }
+            }
+
+            await _studentCourseDAL.UpdateStudentCourseNotEnoughRemindInfo(request.StudentId, request.CourseId);
         }
     }
 }

@@ -545,15 +545,19 @@ namespace ETMS.Business
             }
 
             //学员课程信息
-            foreach (var studentCourse in request.StudentCourseDetails)
+            if (request.StudentCourseDetails != null && request.StudentCourseDetails.Count > 0)
             {
-                studentCourse.OrderId = orderId;
+                foreach (var studentCourse in request.StudentCourseDetails)
+                {
+                    studentCourse.OrderId = orderId;
+                }
+                _studentCourseDAL.AddStudentCourseDetail(request.StudentCourseDetails);
+                _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.TenantId)
+                {
+                    StudentId = request.Order.StudentId
+                });
+                await _studentCourseDAL.ResetStudentCourseNotEnoughRemindInfo(request.Order.StudentId, request.StudentCourseDetails.Select(p => p.CourseId).ToList());
             }
-            _studentCourseDAL.AddStudentCourseDetail(request.StudentCourseDetails);
-            _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.TenantId)
-            {
-                StudentId = request.Order.StudentId
-            });
 
             //一对一课程
             if (request.OneToOneClassList != null && request.OneToOneClassList.Any())

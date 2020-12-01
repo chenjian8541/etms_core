@@ -31,6 +31,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int NoticeStudentContracts = 4;
 
+        /// <summary>
+        /// 课时不足续费提醒
+        /// </summary>
+        public const int StudentCourseNotEnough = 5;
+
         public static string GetStudentSmsLogTypeDesc(int t)
         {
             switch (t)
@@ -45,6 +50,8 @@ namespace ETMS.Entity.Enum
                     return "请假审核通知";
                 case NoticeStudentContracts:
                     return "订单购买通知";
+                case StudentCourseNotEnough:
+                    return "课时不足续费提醒";
             }
             return string.Empty;
         }

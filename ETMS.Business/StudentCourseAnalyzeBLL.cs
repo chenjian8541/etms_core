@@ -9,6 +9,8 @@ using System.Linq;
 using ETMS.Entity.Enum;
 using ETMS.IEventProvider;
 using ETMS.Entity.Database.Source;
+using ETMS.Utility;
+using ETMS.Business.Common;
 
 namespace ETMS.Business
 {
@@ -18,15 +20,18 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
-        public StudentCourseAnalyzeBLL(IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher)
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
+        public StudentCourseAnalyzeBLL(IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL)
         {
             this._studentCourseDAL = studentCourseDAL;
             this._eventPublisher = eventPublisher;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentCourseDAL);
+            this.InitDataAccess(tenantId, _studentCourseDAL, _tenantConfigDAL);
         }
 
         public async Task CourseAnalyze(StudentCourseAnalyzeEvent request)
@@ -237,6 +242,52 @@ namespace ETMS.Business
                 isDelOldStudentCourse = true;
             }
             await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse);
+
+            var now = DateTime.Now;
+            if (EtmsHelper.CheckIsDaytime(now))
+            {
+                //课程不足提醒
+                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
+                    || tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
+                {
+                    if (ComBusiness2.CheckStudentCourseNeedRemind(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
+                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay))
+                    {
+                        _eventPublisher.Publish(new NoticeStudentCourseNotEnoughEvent(request.TenantId)
+                        {
+                            StudentId = request.StudentId,
+                            CourseId = request.CourseId
+                        });
+                    }
+                }
+            }
+        }
+
+        public async Task TenantStudentCourseNotEnoughConsumerEvent(TenantStudentCourseNotEnoughEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
+                && !tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
+            {
+                return;
+            }
+
+            var myNeedRemindStudent = await _studentCourseDAL.GetStudentCourseNotEnoughNeedRemind(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
+                tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
+            if (!myNeedRemindStudent.Any())
+            {
+                LOG.Log.Info($"[TenantStudentCourseNotEnoughConsumerEvent]学员课时不足续费提醒，未查询到需要提醒的数据,tenantId:{request.TenantId}", this.GetType());
+                return;
+            }
+            foreach (var p in myNeedRemindStudent)
+            {
+                _eventPublisher.Publish(new NoticeStudentCourseNotEnoughEvent(request.TenantId)
+                {
+                    StudentId = p.StudentId,
+                    CourseId = p.CourseId
+                });
+            }
         }
     }
 }

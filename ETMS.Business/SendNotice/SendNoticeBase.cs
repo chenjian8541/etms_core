@@ -35,9 +35,13 @@ namespace ETMS.Business
             return wx?.WechatOpenid;
         }
 
-        protected async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId)
+        protected async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId, bool isWxNotice = true)
         {
             var tenant = await _sysTenantDAL.GetTenant(tenantId);
+            if (!isWxNotice)
+            {
+                return new NoticeRequestBase(tenantId, 0, tenant.Name, tenant.SmsSignature, true, string.Empty, string.Empty);
+            }
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             var wxAccessToken = AuthorizationInfoService.GetWXAccessToken(tenantWechartAuth.AuthorizerAppid);
             return new NoticeRequestBase(tenantId,

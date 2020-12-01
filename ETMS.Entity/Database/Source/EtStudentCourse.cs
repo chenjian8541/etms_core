@@ -90,5 +90,15 @@ namespace ETMS.Entity.Database.Source
         /// 超上课时
         /// </summary>
         public decimal ExceedTotalClassTimes { get; set; }
+
+        /// <summary>
+        /// 学员课时不足续费提醒（次数）
+        /// </summary>
+        public int NotEnoughRemindCount { get; set; }
+
+        /// <summary>
+        /// 学员课时不足续费提醒（最后提醒时间）
+        /// </summary>
+        public DateTime? NotEnoughRemindLastTime { get; set; }
     }
 }

@@ -11,5 +11,7 @@ namespace ETMS.IBusiness
         Task CourseAnalyze(StudentCourseAnalyzeEvent request);
 
         Task CourseDetailAnalyze(StudentCourseDetailAnalyzeEvent request);
+
+        Task TenantStudentCourseNotEnoughConsumerEvent(TenantStudentCourseNotEnoughEvent request);
     }
 }

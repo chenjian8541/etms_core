@@ -58,5 +58,11 @@ namespace ETMS.IDataAccess
         Task StudentMarkGraduation(long studentId);
 
         Task DelStudentCourseDetailByOrderId(long orderId);
+
+        Task<IEnumerable<StudentCourseNotEnoughNeedRemind>> GetStudentCourseNotEnoughNeedRemind(int studentCourseNotEnoughCount, int limitClassTimes, int limitDay);
+
+        Task UpdateStudentCourseNotEnoughRemindInfo(long studentId, long courseId);
+
+        Task ResetStudentCourseNotEnoughRemindInfo(long studentId, List<long> courseIds);
     }
 }

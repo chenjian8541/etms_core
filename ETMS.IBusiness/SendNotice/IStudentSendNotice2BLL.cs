@@ -21,5 +21,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeStudentCourseSurplusConsumerEvent(NoticeStudentCourseSurplusEvent request);
 
         Task NoticeStudentsOfMakeupConsumerEvent(NoticeStudentsOfMakeupEvent request);
+
+        Task NoticeStudentCourseNotEnoughConsumerEvent(NoticeStudentCourseNotEnoughEvent request);
     }
 }

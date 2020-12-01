@@ -578,5 +578,38 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.StudentName}同学，您的课程{request.CourseName}剩余不足{request.NotEnoughDesc}，为了不影响您正常上课，请及时续费！")),
+                        keyword1 = new TemplateDataItem(student.StudentName, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.CourseName, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeStudentCourseNotEnough]课时不足续费提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[NoticeStudentCourseNotEnough]课时不足续费提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

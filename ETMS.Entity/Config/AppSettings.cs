@@ -147,6 +147,8 @@ namespace ETMS.Entity.Config
 
         public string StudentMakeup { get; set; }
 
+        public string StudentCourseNotEnough { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }
@@ -238,6 +240,13 @@ namespace ETMS.Entity.Config
         public StudentLeaveApply StudentLeaveApply { get; set; }
 
         public StudentContracts StudentContracts { get; set; }
+
+        public StudentCourseNotEnough StudentCourseNotEnough { get; set; }
+    }
+
+    public class StudentCourseNotEnough
+    {
+        public string Com { get; set; }
     }
 
     public class StudentContracts

@@ -148,7 +148,7 @@ namespace ETMS.Business
                 var allClassRoom = await _classRoomDAL.GetAllClassRoom();
                 stringClassRoom = ComBusiness.GetClassRoomDesc(allClassRoom, request.ClassTimes.ClassRoomIds);
             }
-            var smsReq = new NoticeStudentsOfClassBeforeDayRequest(await GetNoticeRequestBase(request.TenantId))
+            var smsReq = new NoticeStudentsOfClassBeforeDayRequest(await GetNoticeRequestBase(request.TenantId, request.IsSendWeChat))
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(request.ClassTimes.StartTime, request.ClassTimes.EndTime, "-"),
@@ -336,7 +336,7 @@ namespace ETMS.Business
                 stringClassRoom = ComBusiness.GetClassRoomDesc(allClassRoom, classTimes.ClassRoomIds);
             }
 
-            var smsReq = new NoticeStudentsOfClassTodayRequest(await GetNoticeRequestBase(request.TenantId))
+            var smsReq = new NoticeStudentsOfClassTodayRequest(await GetNoticeRequestBase(request.TenantId, request.IsSendWeChat))
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-"),
@@ -461,7 +461,7 @@ namespace ETMS.Business
             }
 
             var tempBox = new DataTempBox<EtUser>();
-            var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId))
+            var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
             {
                 ClassTimeDesc = $"{classRecord.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(classRecord.StartTime, classRecord.EndTime, "-")}",
                 Students = new List<NoticeClassCheckSignStudent>(),
@@ -574,7 +574,7 @@ namespace ETMS.Business
                 return;
             }
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            var req = new NoticeStudentLeaveApplyRequest(await GetNoticeRequestBase(request.TenantId));
+            var req = new NoticeStudentLeaveApplyRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat));
             req.Students = new List<NoticeStudentLeaveApplyStudent>();
             req.StartTimeDesc = $"{request.StudentLeaveApplyLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.StartTime)}";
             req.EndTimeDesc = $"{request.StudentLeaveApplyLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.StudentLeaveApplyLog.EndTime)}";
@@ -641,7 +641,7 @@ namespace ETMS.Business
             {
                 return;
             }
-            var req = new NoticeStudentContractsRequest(await GetNoticeRequestBase(request.TenantId))
+            var req = new NoticeStudentContractsRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.OrderByWeChat))
             {
                 AptSumDesc = request.Order.AptSum.ToString("F2"),
                 PaySumDesc = request.Order.PaySum.ToString("F2"),
