@@ -9,6 +9,8 @@ namespace ETMS.IBusiness
 {
     public interface IUserLoginBLL
     {
+        Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request);
+
         Task<ResponseBase> UserLogin(UserLoginRequest request);
 
         Task<ResponseBase> UserLoginSendSms(UserLoginSendSmsRequest request);

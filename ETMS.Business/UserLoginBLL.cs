@@ -21,6 +21,10 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.IBusiness.Wechart;
+using ETMS.LOG;
+using Senparc.Weixin.Open.OAuthAPIs;
+using Senparc.Weixin.Open.Containers;
 
 namespace ETMS.Business
 {
@@ -46,10 +50,15 @@ namespace ETMS.Business
 
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
+        private readonly IComponentAccessBLL _componentAccessBLL;
+
+        private readonly IUserWechatDAL _userWechatDAL;
+
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
-            IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL)
+            IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL, IComponentAccessBLL componentAccessBLL,
+            IUserWechatDAL userWechatDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._etUserDAL = etUserDAL;
@@ -61,6 +70,24 @@ namespace ETMS.Business
             this._roleDAL = roleDAL;
             this._appAuthorityDAL = appAuthorityDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
+            this._componentAccessBLL = componentAccessBLL;
+            this._userWechatDAL = userWechatDAL;
+        }
+
+        public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[UserGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, request.SourceUrl, tenantId.ToString(),
+                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
+            Log.Info($"[老师端获取授权地址]{url}", this.GetType());
+            return ResponseBase.Success(url);
         }
 
         /// <summary>
@@ -226,6 +253,10 @@ namespace ETMS.Business
             if (res.IsResponseSuccess())
             {
                 var result = (UserLoginOutput)res.resultData;
+                if (!string.IsNullOrEmpty(request.WechatCode))
+                {
+                    await SaveUserWechat(request.Phone, result.UId, result.TId, request.WechatCode);
+                }
                 return ResponseBase.Success(new UserLoginBySmsH5Output()
                 {
                     ExpiresTime = result.ExpiresTime,
@@ -233,6 +264,40 @@ namespace ETMS.Business
                 });
             }
             return res;
+        }
+
+        private async Task SaveUserWechat(string phone, long userId, int tenantId, string wechatCode)
+        {
+            try
+            {
+                var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+                if (tenantWechartAuth == null)
+                {
+                    Log.Error($"[SaveUserWechat]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                    return;
+                }
+                var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+                var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
+                var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, wechatCode);
+                var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
+                _userWechatDAL.InitTenantId(tenantId);
+                await _userWechatDAL.SaveUserWechat(new EtUserWechat()
+                {
+                    Headimgurl = userInfo.headimgurl,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Nickname = userInfo.nickname,
+                    Phone = phone,
+                    Remark = DateTime.Now.EtmsToString(),
+                    TenantId = tenantId,
+                    UserId = userId,
+                    WechatOpenid = userInfo.openid,
+                    WechatUnionid = userInfo.unionid
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[SaveUserWechat]保存用户微信信息错误,tenantId:{tenantId},phone:{phone},userId:{userId},wechatCode:{wechatCode}", ex, this.GetType());
+            }
         }
 
         private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress, string code, string phone)
@@ -260,7 +325,9 @@ namespace ETMS.Business
             {
                 Token = token,
                 ExpiresTime = exTime,
-                Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu)
+                Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu),
+                UId = userInfo.Id,
+                TId = userInfo.TenantId
             };
         }
 

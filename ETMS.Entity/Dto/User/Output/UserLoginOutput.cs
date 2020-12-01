@@ -15,5 +15,9 @@ namespace ETMS.Entity.Dto.User.Output
         public DateTime ExpiresTime { get; set; }
 
         public PermissionOutput Permission { get; set; }
+
+        public long UId { get; set; }
+
+        public int TId { get; set; }
     }
 }

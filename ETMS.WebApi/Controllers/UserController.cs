@@ -27,6 +27,20 @@ namespace ETMS.WebApi.Controllers
             this._userBLL = userBLL;
         }
 
+        [AllowAnonymous]
+        public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserGetAuthorizeUrl(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 登录
         /// </summary>
