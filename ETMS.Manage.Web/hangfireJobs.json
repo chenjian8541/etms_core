@@ -47,5 +47,12 @@
     "Title": "提醒未交作业的学生",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentsOfCourseNotEnoughJob",
+    "Cron": "0 0 10 * * ?", //每天上午十点执行
+    "Title": "学员课时不足续费提醒",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
   }
 ]
