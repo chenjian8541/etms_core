@@ -46,6 +46,8 @@ namespace ETMS.IDataAccess
 
         Task UpdateStudentIsBindingWechat(List<long> studentIds);
 
+        Task UpdateStudentIsNotBindingWechat(List<long> studentIds);
+
         Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request);
     }
 }

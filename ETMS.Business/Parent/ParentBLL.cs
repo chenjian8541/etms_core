@@ -341,6 +341,7 @@ namespace ETMS.Business
             {
                 await _sysStudentWechartDAL.DelSysStudentWechart(myStudentWechat.WechatOpenid);
                 await _studentWechatDAL.DelStudentWechat(request.LoginPhone, myStudentWechat.WechatOpenid);
+                await _studentDAL.UpdateStudentIsNotBindingWechat(request.ParentStudentIds);
             }
             return ResponseBase.Success();
         }

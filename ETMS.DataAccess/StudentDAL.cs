@@ -191,6 +191,24 @@ namespace ETMS.DataAccess
             }
         }
 
+        public async Task UpdateStudentIsNotBindingWechat(List<long> studentIds)
+        {
+            var sql = string.Empty;
+            if (studentIds.Count == 1)
+            {
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.No} WHERE Id = {studentIds[0]}";
+            }
+            else
+            {
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.No} WHERE Id IN ({string.Join(',', studentIds)})";
+            }
+            await _dbWrapper.Execute(sql);
+            foreach (var studentId in studentIds)
+            {
+                await base.UpdateCache(_tenantId, studentId);
+            }
+        }
+
         public async Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<GetAllStudentPagingOutput>("EtStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
