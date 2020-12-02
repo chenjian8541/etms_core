@@ -154,7 +154,8 @@ namespace ETMS.Business
                 Remark = string.Empty,
                 TenantId = order.TenantId,
                 Type = (int)EmUserOperationType.OrderMgr,
-                UserId = order.UserId
+                UserId = order.UserId,
+                ClientType = request.LoginClientType
             });
 
             //统计信息

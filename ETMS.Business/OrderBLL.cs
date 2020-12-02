@@ -529,7 +529,8 @@ namespace ETMS.Business
             {
                 OrderId = request.OrderId,
                 UserId = request.LoginUserId,
-                Remark = request.Remark
+                Remark = request.Remark,
+                LoginClientType = request.LoginClientType
             });
             return ResponseBase.Success();
         }

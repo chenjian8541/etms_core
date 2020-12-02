@@ -249,7 +249,8 @@ namespace ETMS.Business
                 IncomeLogs = incomeLogs,
                 CreateTime = now,
                 OneToOneClassList = oneToOneClassLst,
-                CouponsStudentGetIds = request.CouponsStudentGetIds
+                CouponsStudentGetIds = request.CouponsStudentGetIds,
+                LoginClientType = request.LoginClientType
             };
             //异步执行
             //_eventPublisher.Publish(studentEnrolmentEvent);
@@ -648,7 +649,8 @@ namespace ETMS.Business
                 TenantId = request.TenantId,
                 UserId = request.UserId,
                 Type = (int)EmUserOperationType.StudentEnrolment,
-                OpContent = opContent.ToString()
+                OpContent = opContent.ToString(),
+                ClientType = request.LoginClientType
             });
             return orderId;
         }

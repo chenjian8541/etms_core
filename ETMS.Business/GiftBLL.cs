@@ -317,7 +317,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new GiftExchangeEvent(request.LoginTenantId)
             {
                 giftExchangeLog = giftExchangeLog,
-                GiftExchangeLogDetails = logDetails
+                GiftExchangeLogDetails = logDetails,
+                LoginClientType = request.LoginClientType
             });
             return ResponseBase.Success();
         }
@@ -357,7 +358,8 @@ namespace ETMS.Business
                     Remark = giftExchange.giftExchangeLog.Remark,
                     TenantId = giftExchange.giftExchangeLog.TenantId,
                     Type = (int)EmUserOperationType.GiftExchange,
-                    UserId = giftExchange.giftExchangeLog.UserId.Value
+                    UserId = giftExchange.giftExchangeLog.UserId.Value,
+                    ClientType = giftExchange.LoginClientType
                 });
             }
         }

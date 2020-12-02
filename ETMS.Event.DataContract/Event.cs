@@ -52,5 +52,10 @@ namespace ETMS.Event.DataContract
         /// 发送事件的服务器名
         /// </summary>
         public string FromApplicationMachine { get; set; }
+
+        /// <summary>
+        /// 客户端类型  <see cref="ETMS.Entity.Enum.EmUserOperationLogClientType"/>
+        /// </summary>
+        public int LoginClientType { get; set; }
     }
 }

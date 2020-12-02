@@ -26,6 +26,11 @@ namespace ETMS.Entity.Common
         public string LoginTimestamp { get; set; }
 
         /// <summary>
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int LoginClientType { get; set; }
+
+        /// <summary>
         /// IP地址
         /// </summary>
         public string IpAddress { get; set; }

@@ -132,7 +132,7 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(msg);
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone);
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, EmUserOperationLogClientType.PC);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -237,7 +237,7 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(msg);
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone);
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -248,7 +248,8 @@ namespace ETMS.Business
                 Code = request.Code,
                 IpAddress = request.IpAddress,
                 Phone = request.Phone,
-                SmsCode = request.SmsCode
+                SmsCode = request.SmsCode,
+                ClientType = EmUserOperationLogClientType.WeChat
             });
             if (res.IsResponseSuccess())
             {
@@ -300,7 +301,8 @@ namespace ETMS.Business
             }
         }
 
-        private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress, string code, string phone)
+        private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress,
+            string code, string phone, int clientType)
         {
             var time = DateTime.Now;
             var nowTimestamp = time.EtmsGetTimestamp().ToString();
@@ -315,7 +317,8 @@ namespace ETMS.Business
                 TenantId = userInfo.TenantId,
                 UserId = userInfo.Id,
                 OpContent = $"用户:{userInfo.Name},手机号:{userInfo.Phone}在{time.EtmsToString()}登录",
-                Type = (int)EmUserOperationType.Login
+                Type = (int)EmUserOperationType.Login,
+                ClientType = clientType
             });
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);

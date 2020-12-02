@@ -27,6 +27,11 @@ namespace ETMS.Entity.Database.Source
         public string IpAddress { get; set; }
 
         /// <summary>
+        /// 客户端类型 <see cref="Enum.EmUserOperationLogClientType"/>
+        /// </summary>
+        public int ClientType { get; set; }
+
+        /// <summary>
         /// 操作内容
         /// </summary>
         public string OpContent { get; set; }

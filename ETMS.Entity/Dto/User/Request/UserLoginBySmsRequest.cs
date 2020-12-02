@@ -15,6 +15,8 @@ namespace ETMS.Entity.Dto.User.Request
 
         public string IpAddress { get; set; }
 
+        public int ClientType { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Code))

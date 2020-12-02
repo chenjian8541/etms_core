@@ -30,7 +30,8 @@ namespace ETMS.DataAccess
                 Ot = time ?? DateTime.Now,
                 TenantId = request.LoginTenantId,
                 UserId = request.LoginUserId,
-                Type = (int)type
+                Type = (int)type,
+                ClientType = request.LoginClientType
             });
         }
 

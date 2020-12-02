@@ -9,6 +9,7 @@ using ETMS.IBusiness;
 using System;
 using ETMS.Utility;
 using Newtonsoft.Json;
+using ETMS.Business.Common;
 
 namespace ETMS.WebApi.FilterAttribute
 {
@@ -42,6 +43,7 @@ namespace ETMS.WebApi.FilterAttribute
                     request.LoginUserId = userInfo.Item2;
                     request.LoginTimestamp = userInfo.Item3;
                     request.IpAddress = userInfo.Item4;
+                    request.LoginClientType = RequestLib.GetUserClientType(context.HttpContext.Request);
                     var userLoginBLL = CustomServiceLocator.GetInstance<IUserLoginBLL>();
                     var checkUserResult = userLoginBLL.CheckUserCanLogin(request).Result;
                     if (!checkUserResult.IsResponseSuccess())

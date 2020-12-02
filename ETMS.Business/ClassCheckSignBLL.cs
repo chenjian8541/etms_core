@@ -193,7 +193,8 @@ namespace ETMS.Business
                 ClassRecord = classRecord,
                 ClassRecordStudents = classRecordStudents,
                 ClassName = etClassBucket.EtClass.Name,
-                UserId = request.LoginUserId
+                UserId = request.LoginUserId,
+                LoginClientType = request.LoginClientType
             });
             return ResponseBase.Success();
         }
@@ -411,7 +412,8 @@ namespace ETMS.Business
                 Remark = string.Empty,
                 TenantId = request.TenantId,
                 UserId = request.UserId,
-                Type = (int)EmUserOperationType.ClassCheckSign
+                Type = (int)EmUserOperationType.ClassCheckSign,
+                ClientType = request.LoginClientType
             });
         }
 
