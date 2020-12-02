@@ -56,6 +56,8 @@ namespace ETMS.Entity.Config
 
         public bool StartClassSms { get; set; }
 
+        public bool StudentHomeworkSubmitWeChat { get; set; } = true;
+
         public int StartClassBeforeMinuteValue { get; set; } = 30;
 
         /// <summary>

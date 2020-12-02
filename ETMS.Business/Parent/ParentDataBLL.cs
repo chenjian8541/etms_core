@@ -17,6 +17,8 @@ using ETMS.Entity.Config;
 using ETMS.LOG;
 using Newtonsoft.Json;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -64,12 +66,14 @@ namespace ETMS.Business
 
         private readonly IStudentRelationshipDAL _studentRelationshipDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
            IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL,
-           ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL)
+           ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL, IEventPublisher eventPublisher)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -92,6 +96,7 @@ namespace ETMS.Business
             this._studentGrowingTagDAL = studentGrowingTagDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._studentRelationshipDAL = studentRelationshipDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -582,6 +587,10 @@ namespace ETMS.Business
             activeHomework.FinishCount += 1;
             await _activeHomeworkDAL.EditActiveHomework(activeHomework);
 
+            _eventPublisher.Publish(new NoticeTeacherOfHomeworkFinishEvent(activeHomeworkDetail.TenantId)
+            {
+                HomeworkDetailId = activeHomeworkDetail.Id
+            });
             await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, $"提交课后作业：{activeHomeworkDetail.Title}", EmStudentOperationLogType.Homework);
             return ResponseBase.Success();
         }

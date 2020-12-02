@@ -10,5 +10,7 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public bool StartClassWeChat { get; set; }
 
         public bool StartClassSms { get; set; }
+
+        public bool StudentHomeworkSubmitWeChat { get; set; }
     }
 }

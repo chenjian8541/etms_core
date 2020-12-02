@@ -12,6 +12,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.LOG;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,10 +45,15 @@ namespace ETMS.Business.SendNotice
 
         private readonly IWxService _wxService;
 
+        private readonly IActiveHomeworkDetailDAL _activeHomeworkDetailDAL;
+
+        private readonly IStudentDAL _studentDAL;
+
         public UserSendNoticeBLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IJobAnalyzeDAL jobAnalyzeDAL, ITempUserClassNoticeDAL tempUserClassNoticeDAL, IClassRoomDAL classRoomDAL,
             IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            IUserDAL userDAL, ISmsService smsService, IWxService wxService)
+            IUserDAL userDAL, ISmsService smsService, IWxService wxService, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
+            IStudentDAL studentDAL)
             : base(userWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._eventPublisher = eventPublisher;
@@ -61,12 +67,14 @@ namespace ETMS.Business.SendNotice
             this._userDAL = userDAL;
             this._smsService = smsService;
             this._wxService = wxService;
+            this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
+            this._studentDAL = studentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _tenantConfigDAL, _courseDAL, _classDAL, _jobAnalyzeDAL, _tempUserClassNoticeDAL, _classRoomDAL,
-                _userWechatDAL, _userDAL);
+                _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL);
         }
 
         public async Task NoticeUserOfClassTodayGenerateConsumerEvent(NoticeUserOfClassTodayGenerateEvent request)
@@ -194,6 +202,71 @@ namespace ETMS.Business.SendNotice
                 {
                     _wxService.NoticeUserOfClassToday(smsReq);
                 }
+            }
+        }
+
+        public async Task NoticeTeacherOfHomeworkFinishConsumerEvent(NoticeTeacherOfHomeworkFinishEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.UserNoticeConfig.StudentHomeworkSubmitWeChat)
+            {
+                return;
+            }
+            var homeworkDetail = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetail == null || homeworkDetail.ActiveHomeworkDetail == null)
+            {
+                LOG.Log.Error($"[NoticeTeacherOfHomeworkFinishConsumerEvent]作业不存在,{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var activeHomeworkDetail = homeworkDetail.ActiveHomeworkDetail;
+            var studentBucket = await _studentDAL.GetStudent(activeHomeworkDetail.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                LOG.Log.Error($"[NoticeTeacherOfHomeworkFinishConsumerEvent]学员不存在,{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var homeworkClass = await _classDAL.GetClassBucket(activeHomeworkDetail.ClassId);
+            var getUserIds = activeHomeworkDetail.CreateUserId.ToString();
+            if (homeworkClass != null && homeworkClass.EtClass != null)
+            {
+                getUserIds = $"{getUserIds},{homeworkClass.EtClass.Teachers}";
+            }
+            var smsReq = new NoticeTeacherOfHomeworkFinishRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                StudentName = studentBucket.Student.Name,
+                HomeworkTitle = activeHomeworkDetail.Title,
+                FinishTime = activeHomeworkDetail.AnswerOt.EtmsToMinuteString(),
+                Users = new List<NoticeTeacherOfHomeworkFinishItem>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeUserOfHomeworkFinish;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            var users = getUserIds.Split(',').Distinct();
+            foreach (var p in users)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+                var userId = p.ToLong();
+                var user = await _userDAL.GetUser(userId);
+                if (user == null)
+                {
+                    continue;
+                }
+                smsReq.Users.Add(new NoticeTeacherOfHomeworkFinishItem()
+                {
+                    Phone = user.Phone,
+                    UserId = userId,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, userId)
+                });
+            }
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeTeacherOfHomeworkFinish(smsReq);
             }
         }
     }

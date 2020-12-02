@@ -151,6 +151,8 @@ namespace ETMS.Entity.Config
 
         public string NoticeUserOfClass { get; set; }
 
+        public string NoticeUserOfHomeworkFinish { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }

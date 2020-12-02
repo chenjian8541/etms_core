@@ -659,5 +659,39 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeTeacherOfHomeworkFinish(NoticeTeacherOfHomeworkFinishRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var user in request.Users)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(user.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{user.UserName}老师，您的学生作业提交成功，请及时批阅")),
+                        keyword1 = new TemplateDataItem(request.StudentName, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.HomeworkTitle, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.FinishTime, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, user.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Error($"[NoticeTeacherOfHomeworkFinish]学员提交作业提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessUserEequireSubscribe(request.LoginTenantId, user.UserId, user.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[NoticeTeacherOfHomeworkFinish]学员提交作业提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

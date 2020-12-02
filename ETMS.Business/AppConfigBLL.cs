@@ -115,6 +115,7 @@ namespace ETMS.Business
             var config = await _tenantConfigDAL.GetTenantConfig();
             config.UserNoticeConfig.StartClassWeChat = request.StartClassWeChat;
             config.UserNoticeConfig.StartClassSms = request.StartClassSms;
+            config.UserNoticeConfig.StudentHomeworkSubmitWeChat = request.StudentHomeworkSubmitWeChat;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
