@@ -201,6 +201,10 @@ namespace ETMS.Business.Common
             var readRowIndex = validDataRowIndex;
             while (readRowIndex <= workSheet.LastRowNum)
             {
+                if (strError.Length > 200)
+                {
+                    break;
+                }
                 var myRow = workSheet.GetRow(readRowIndex);
                 if (myRow == null)
                 {
@@ -777,6 +781,10 @@ namespace ETMS.Business.Common
             var now = DateTime.Now;
             while (readRowIndex <= workSheet.LastRowNum)
             {
+                if (strError.Length > 200)
+                {
+                    break;
+                }
                 var myRow = workSheet.GetRow(readRowIndex);
                 if (myRow == null)
                 {
