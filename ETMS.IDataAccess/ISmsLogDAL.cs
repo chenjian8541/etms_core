@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace ETMS.IDataAccess
 {
-    public interface IStudentSmsLogDAL : IBaseDAL
+    public interface ISmsLogDAL : IBaseDAL
     {
         Task AddStudentSmsLog(List<EtStudentSmsLog> logs);
 
-        Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetPaging(IPagingRequest request);
+        Task<Tuple<IEnumerable<EtStudentSmsLog>, int>> GetStudentSmsLogPaging(IPagingRequest request);
+
+        Task AddUserSmsLog(List<EtUserSmsLog> logs);
+
     }
 }

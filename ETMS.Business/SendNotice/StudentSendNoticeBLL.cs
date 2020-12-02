@@ -21,7 +21,7 @@ using ETMS.Business.WxCore;
 
 namespace ETMS.Business
 {
-    public class StudentSendNoticeBLL : SendNoticeBase, IStudentSendNoticeBLL
+    public class StudentSendNoticeBLL : SendStudentNoticeBase, IStudentSendNoticeBLL
     {
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
@@ -182,7 +182,7 @@ namespace ETMS.Business
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
-                        OpendId = await GetStudentOpenId(request.IsSendWeChat, student.Phone)
+                        OpendId = await GetOpenId(request.IsSendWeChat, student.Phone)
                     });
                     if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                     {
@@ -192,7 +192,7 @@ namespace ETMS.Business
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
-                            OpendId = await GetStudentOpenId(request.IsSendWeChat, student.PhoneBak)
+                            OpendId = await GetOpenId(request.IsSendWeChat, student.PhoneBak)
                         });
                     }
                 }
@@ -218,7 +218,7 @@ namespace ETMS.Business
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
-                        OpendId = await GetStudentOpenId(request.IsSendWeChat, student.Phone)
+                        OpendId = await GetOpenId(request.IsSendWeChat, student.Phone)
                     });
                     if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                     {
@@ -228,7 +228,7 @@ namespace ETMS.Business
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
-                            OpendId = await GetStudentOpenId(request.IsSendWeChat, student.PhoneBak)
+                            OpendId = await GetOpenId(request.IsSendWeChat, student.PhoneBak)
                         });
                     }
                 }
@@ -370,7 +370,7 @@ namespace ETMS.Business
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
-                        OpendId = await GetStudentOpenId(request.IsSendWeChat, student.Phone)
+                        OpendId = await GetOpenId(request.IsSendWeChat, student.Phone)
                     });
                     if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                     {
@@ -380,7 +380,7 @@ namespace ETMS.Business
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
-                            OpendId = await GetStudentOpenId(request.IsSendWeChat, student.PhoneBak)
+                            OpendId = await GetOpenId(request.IsSendWeChat, student.PhoneBak)
                         });
                     }
                 }
@@ -406,7 +406,7 @@ namespace ETMS.Business
                         CourseName = courseName,
                         Phone = student.Phone,
                         StudentName = student.Name,
-                        OpendId = await GetStudentOpenId(request.IsSendWeChat, student.Phone)
+                        OpendId = await GetOpenId(request.IsSendWeChat, student.Phone)
                     });
                     if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                     {
@@ -416,7 +416,7 @@ namespace ETMS.Business
                             CourseName = courseName,
                             Phone = student.PhoneBak,
                             StudentName = student.Name,
-                            OpendId = await GetStudentOpenId(request.IsSendWeChat, student.PhoneBak)
+                            OpendId = await GetOpenId(request.IsSendWeChat, student.PhoneBak)
                         });
                     }
                 }
@@ -522,7 +522,7 @@ namespace ETMS.Business
                     StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
                     StudentCheckStatus = p.StudentCheckStatus,
                     SurplusClassTimesDesc = surplusClassTimesDesc,
-                    OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
                     LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id)
                 });
                 if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
@@ -537,7 +537,7 @@ namespace ETMS.Business
                         StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
                         StudentCheckStatus = p.StudentCheckStatus,
                         SurplusClassTimesDesc = surplusClassTimesDesc,
-                        OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
+                        OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
                         LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id)
                     });
                 }
@@ -595,7 +595,7 @@ namespace ETMS.Business
                 Phone = student.Phone,
                 HandleStatus = request.StudentLeaveApplyLog.HandleStatus,
                 HandleUser = handleUser,
-                OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat, student.Phone)
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat, student.Phone)
             });
             if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
             {
@@ -607,7 +607,7 @@ namespace ETMS.Business
                     Phone = student.PhoneBak,
                     HandleStatus = request.StudentLeaveApplyLog.HandleStatus,
                     HandleUser = handleUser,
-                    OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat, student.PhoneBak)
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat, student.PhoneBak)
                 });
             }
             if (req.Students.Count > 0)
@@ -704,7 +704,7 @@ namespace ETMS.Business
                 StudentId = student.Id,
                 Name = student.Name,
                 Phone = student.Phone,
-                OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.Phone)
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.Phone)
             });
             if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
             {
@@ -713,7 +713,7 @@ namespace ETMS.Business
                     StudentId = student.Id,
                     Name = student.Name,
                     Phone = student.PhoneBak,
-                    OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.PhoneBak)
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.OrderByWeChat, student.PhoneBak)
                 });
             }
             if (req.Students.Count > 0)
@@ -767,7 +767,7 @@ namespace ETMS.Business
                     Name = student.Name,
                     Phone = student.Phone,
                     StudentId = student.Id,
-                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    OpendId = await GetOpenId(true, student.Phone),
                     Url = url
                 });
                 if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
@@ -777,7 +777,7 @@ namespace ETMS.Business
                         Name = student.Name,
                         Phone = student.PhoneBak,
                         StudentId = student.Id,
-                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        OpendId = await GetOpenId(true, student.PhoneBak),
                         Url = url
                     });
                 }

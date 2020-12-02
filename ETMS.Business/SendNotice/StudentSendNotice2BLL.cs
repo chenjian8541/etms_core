@@ -23,7 +23,7 @@ using Newtonsoft.Json;
 
 namespace ETMS.Business.SendNotice
 {
-    public class StudentSendNotice2BLL : SendNoticeBase, IStudentSendNotice2BLL
+    public class StudentSendNotice2BLL : SendStudentNoticeBase, IStudentSendNotice2BLL
     {
         private readonly IWxService _wxService;
 
@@ -125,7 +125,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new HomeworkAddStudent()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    OpendId = await GetOpenId(true, student.Phone),
                     Phone = student.Phone,
                     StudentId = student.Id,
                     Url = url
@@ -135,7 +135,7 @@ namespace ETMS.Business.SendNotice
                     req.Students.Add(new HomeworkAddStudent()
                     {
                         Name = student.Name,
-                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        OpendId = await GetOpenId(true, student.PhoneBak),
                         Phone = student.PhoneBak,
                         StudentId = student.Id,
                         Url = url
@@ -194,7 +194,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new HomeworkCommentStudent()
             {
                 Name = student.Name,
-                OpendId = await GetStudentOpenId(true, student.Phone),
+                OpendId = await GetOpenId(true, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id,
                 Url = url
@@ -205,7 +205,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new HomeworkCommentStudent()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    OpendId = await GetOpenId(true, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id,
                     Url = url
@@ -280,7 +280,7 @@ namespace ETMS.Business.SendNotice
                 {
                     ClassName = className,
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    OpendId = await GetOpenId(true, student.Phone),
                     Phone = student.Phone,
                     StudentId = student.Id,
                     Url = url
@@ -292,7 +292,7 @@ namespace ETMS.Business.SendNotice
                     {
                         ClassName = className,
                         Name = student.Name,
-                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        OpendId = await GetOpenId(true, student.PhoneBak),
                         Phone = student.PhoneBak,
                         StudentId = student.Id,
                         Url = url
@@ -349,7 +349,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new StudentEvaluateItem()
             {
                 Name = student.Name,
-                OpendId = await GetStudentOpenId(true, student.Phone),
+                OpendId = await GetOpenId(true, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id,
                 Url = url
@@ -360,7 +360,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new StudentEvaluateItem()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    OpendId = await GetOpenId(true, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id,
                     Url = url
@@ -414,7 +414,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new HomeworkExpireRemindStudent()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.Phone),
+                    OpendId = await GetOpenId(true, student.Phone),
                     Phone = student.Phone,
                     StudentId = student.Id,
                     Url = url,
@@ -427,7 +427,7 @@ namespace ETMS.Business.SendNotice
                     req.Students.Add(new HomeworkExpireRemindStudent()
                     {
                         Name = student.Name,
-                        OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                        OpendId = await GetOpenId(true, student.PhoneBak),
                         Phone = student.PhoneBak,
                         StudentId = student.Id,
                         Url = url,
@@ -492,7 +492,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new StudentCourseSurplusItem()
             {
                 Name = student.Name,
-                OpendId = await GetStudentOpenId(true, student.Phone),
+                OpendId = await GetOpenId(true, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id,
                 Url = url,
@@ -504,7 +504,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new StudentCourseSurplusItem()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    OpendId = await GetOpenId(true, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id,
                     Url = url,
@@ -569,7 +569,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new StudentMakeupItem()
             {
                 Name = student.Name,
-                OpendId = await GetStudentOpenId(true, student.Phone),
+                OpendId = await GetOpenId(true, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id
             });
@@ -578,7 +578,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new StudentMakeupItem()
                 {
                     Name = student.Name,
-                    OpendId = await GetStudentOpenId(true, student.PhoneBak),
+                    OpendId = await GetOpenId(true, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id
                 });
@@ -650,7 +650,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
             {
                 StudentName = student.Name,
-                OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.Phone),
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id
             });
@@ -659,7 +659,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
                 {
                     StudentName = student.Name,
-                    OpendId = await GetStudentOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.PhoneBak),
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id
                 });

@@ -6,10 +6,10 @@ using System.Text;
 namespace ETMS.Entity.Database.Source
 {
     /// <summary>
-    /// 学员上课通知
+    /// 老师通知
     /// </summary>
-    [Table("EtTempStudentClassNotice")]
-    public class EtTempStudentClassNotice: Entity<long>
+    [Table("EtTempUserClassNotice")]
+    public class EtTempUserClassNotice : Entity<long>
     {
         public long ClassTimesId { get; set; }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Enum
 {
-    public struct EmTempStudentClassNoticeStatus
+    public struct EmTempClassNoticeStatus
     {
         /// <summary>
         /// 正常

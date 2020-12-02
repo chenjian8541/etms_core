@@ -60,5 +60,17 @@ namespace ETMS.DataAccess
             await UpdateCache(_tenantId, userWechat.UserId);
             return true;
         }
+
+        /// <summary>
+        /// 删除匹配openid的信息
+        /// </summary>
+        /// <param name="phone"></param>
+        /// <param name="openId"></param>
+        /// <returns></returns>
+        public async Task DelOpendId(long userId, string openId)
+        {
+            await _dbWrapper.Execute($"DELETE EtUserWechat WHERE WechatOpenid = '{openId}'  AND TenantId = {_tenantId}");
+            await UpdateCache(_tenantId, userId);
+        }
     }
 }

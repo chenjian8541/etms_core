@@ -15,11 +15,11 @@ namespace ETMS.Business
 {
     public class SmsLogBLL : ISmsLogBLL
     {
-        private readonly IStudentSmsLogDAL _studentSmsLogDAL;
+        private readonly ISmsLogDAL _studentSmsLogDAL;
 
         private readonly IStudentDAL _studentDAL;
 
-        public SmsLogBLL(IStudentSmsLogDAL studentSmsLogDAL, IStudentDAL studentDAL)
+        public SmsLogBLL(ISmsLogDAL studentSmsLogDAL, IStudentDAL studentDAL)
         {
             this._studentSmsLogDAL = studentSmsLogDAL;
             this._studentDAL = studentDAL;
@@ -32,7 +32,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentSmsLogGetPaging(StudentSmsLogGetPagingRequest request)
         {
-            var pagingData = await _studentSmsLogDAL.GetPaging(request);
+            var pagingData = await _studentSmsLogDAL.GetStudentSmsLogPaging(request);
             var output = new List<StudentSmsLogGetPagingOutput>();
             var tempBoxStudent = new DataTempBox<EtStudent>();
             foreach (var p in pagingData.Item1)

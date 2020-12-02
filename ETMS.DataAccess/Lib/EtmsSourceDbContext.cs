@@ -107,5 +107,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtActiveWxMessage> EtActiveWxMessages { get; set; }
         public DbSet<EtActiveWxMessageDetail> EtActiveWxMessageDetails { get; set; }
         public DbSet<EtUserWechat> EtUserWechats { get; set; }
+        public DbSet<EtTempUserClassNotice> EtTempUserClassNotices { get; set; }
+        public DbSet<EtUserSmsLog> EtUserSmsLogs { get; set; }
     }
 }

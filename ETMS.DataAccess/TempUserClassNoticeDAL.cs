@@ -12,46 +12,46 @@ using System.Threading.Tasks;
 
 namespace ETMS.DataAccess
 {
-    public class TempStudentClassNoticeDAL : DataAccessBase<TempStudentClassNoticeBucket>, ITempStudentClassNoticeDAL
+    public class TempUserClassNoticeDAL : DataAccessBase<TempUserClassNoticeBucket>, ITempUserClassNoticeDAL
     {
-        public TempStudentClassNoticeDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public TempUserClassNoticeDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 
-        protected override async Task<TempStudentClassNoticeBucket> GetDb(params object[] keys)
+        protected override async Task<TempUserClassNoticeBucket> GetDb(params object[] keys)
         {
             var ot = Convert.ToDateTime(keys[1]);
-            var data = await _dbWrapper.FindList<EtTempStudentClassNotice>(p => p.TenantId == _tenantId && p.Ot == ot && p.IsDeleted == EmIsDeleted.Normal
+            var data = await _dbWrapper.FindList<EtTempUserClassNotice>(p => p.TenantId == _tenantId && p.Ot == ot && p.IsDeleted == EmIsDeleted.Normal
             && p.Status == EmTempClassNoticeStatus.Normal);
-            return new TempStudentClassNoticeBucket()
+            return new TempUserClassNoticeBucket()
             {
-                TempStudentClassNotices = data
+                TempUserClassNotices = data
             };
         }
 
-        public async Task<List<EtTempStudentClassNotice>> GetTempStudentClassNotice(DateTime classOt)
+        public async Task<List<EtTempUserClassNotice>> GetTempUserClassNotice(DateTime classOt)
         {
             var bucket = await GetCache(_tenantId, classOt);
-            return bucket?.TempStudentClassNotices;
+            return bucket?.TempUserClassNotices;
         }
 
-        public async Task GenerateTempStudentClassNotice(DateTime classOt)
+        public async Task GenerateTempUserClassNotice(DateTime classOt)
         {
             var hisOt = classOt.AddDays(-5); //删除5天前的数据
             var delSql = new StringBuilder();
-            delSql.Append($"DELETE EtTempStudentClassNotice WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ;");
-            delSql.Append($"DELETE EtTempStudentClassNotice WHERE TenantId = {_tenantId} AND Ot = '{classOt.EtmsToDateString()}' ;");
+            delSql.Append($"DELETE EtTempUserClassNotice WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ;");
+            delSql.Append($"DELETE EtTempUserClassNotice WHERE TenantId = {_tenantId} AND Ot = '{classOt.EtmsToDateString()}' ;");
             await _dbWrapper.Execute(delSql.ToString());
             var classTimes = await _dbWrapper.FindList<EtClassTimes>(p => p.TenantId == _tenantId && p.ClassOt == classOt && p.Status == EmClassTimesStatus.UnRollcall
             && p.IsDeleted == EmIsDeleted.Normal);
             if (classTimes.Count > 0)
             {
-                var insertData = new List<EtTempStudentClassNotice>();
+                var insertData = new List<EtTempUserClassNotice>();
                 foreach (var p in classTimes)
                 {
                     var hour = p.StartTime / 100;
                     var minute = p.StartTime % 100;
-                    insertData.Add(new EtTempStudentClassNotice()
+                    insertData.Add(new EtTempUserClassNotice()
                     {
                         ClassTimesId = p.Id,
                         EndTime = p.EndTime,
@@ -73,11 +73,11 @@ namespace ETMS.DataAccess
             string sql;
             if (ids.Count == 1)
             {
-                sql = $"UPDATE EtTempStudentClassNotice SET [Status] = {EmTempClassNoticeStatus.Processed} WHERE TenantId = {_tenantId} AND Id = {ids[0]} ";
+                sql = $"UPDATE EtTempUserClassNotice SET [Status] = {EmTempClassNoticeStatus.Processed} WHERE TenantId = {_tenantId} AND Id = {ids[0]} ";
             }
             else
             {
-                sql = $"UPDATE EtTempStudentClassNotice SET [Status] = {EmTempClassNoticeStatus.Processed} WHERE TenantId = {_tenantId} AND Id IN ({string.Join(',', ids)}) ";
+                sql = $"UPDATE EtTempUserClassNotice SET [Status] = {EmTempClassNoticeStatus.Processed} WHERE TenantId = {_tenantId} AND Id IN ({string.Join(',', ids)}) ";
             }
             await _dbWrapper.Execute(sql);
             await UpdateCache(_tenantId, classOt);

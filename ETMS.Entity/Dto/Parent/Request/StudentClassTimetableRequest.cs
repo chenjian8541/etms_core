@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -65,9 +66,9 @@ namespace ETMS.Entity.Dto.Parent.Request
             }
             if (ParentStudentIds.Count == 1)
             {
-                return $"(StudentIdsTemp LIKE '%,{ParentStudentIds[0]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[0]},%')";
+                return $"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (StudentIdsTemp LIKE '%,{ParentStudentIds[0]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[0]},%')";
             }
-            var studentLimit = new StringBuilder("(");
+            var studentLimit = new StringBuilder($"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (");
             for (var i = 0; i < ParentStudentIds.Count; i++)
             {
                 if (i == ParentStudentIds.Count - 1)

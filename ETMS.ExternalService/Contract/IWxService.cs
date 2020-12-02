@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Entity.ExternalService.Dto.Request.User;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -35,5 +36,7 @@ namespace ETMS.ExternalService.Contract
         void StudentMakeup(StudentMakeupRequest request);
 
         void NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
+
+        void NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request);
     }
 }

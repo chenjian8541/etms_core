@@ -10,6 +10,8 @@ namespace ETMS.Event.DataContract
         public TenantSmsDeductionEvent(int tenantId) : base(tenantId)
         { }
 
-        public List<EtStudentSmsLog> SmsLogs { get; set; }
+        public List<EtStudentSmsLog> StudentSmsLogs { get; set; }
+
+        public List<EtUserSmsLog> UserSmsLogs { get; set; }
     }
 }

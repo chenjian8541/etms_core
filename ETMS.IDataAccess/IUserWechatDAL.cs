@@ -11,5 +11,7 @@ namespace ETMS.IDataAccess
         Task<EtUserWechat> GetUserWechat(long userId);
 
         Task<bool> SaveUserWechat(EtUserWechat userWechat);
+
+        Task DelOpendId(long userId, string openId);
     }
 }

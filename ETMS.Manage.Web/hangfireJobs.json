@@ -54,5 +54,19 @@
     "Title": "学员课时不足续费提醒",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeUserOfClassTodayGenerateJob",
+    "Cron": "0 0 21 * * ?", //每天晚上9点执行
+    "Title": "定时发送上课提醒(当天)(生成提醒信息)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeUserOfClassTodayJob",
+    "Cron": "0 */5 * * * ?", //每隔5分种执行
+    "Title": "定时发送上课提醒(提前几分钟)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
   }
 ]

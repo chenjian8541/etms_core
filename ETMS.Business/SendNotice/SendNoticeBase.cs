@@ -8,31 +8,18 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Business
+namespace ETMS.Business.SendNotice
 {
     public abstract class SendNoticeBase
     {
-        protected readonly IStudentWechatDAL _studentWechatDAL;
-
         protected readonly IComponentAccessBLL _componentAccessBLL;
 
-        private readonly ISysTenantDAL _sysTenantDAL;
+        protected readonly ISysTenantDAL _sysTenantDAL;
 
-        public SendNoticeBase(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL)
+        public SendNoticeBase(IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL)
         {
-            this._studentWechatDAL = studentWechatDAL;
             this._componentAccessBLL = componentAccessBLL;
             this._sysTenantDAL = sysTenantDAL;
-        }
-
-        protected async Task<string> GetStudentOpenId(bool isSendWeChat, string phone)
-        {
-            if (!isSendWeChat)
-            {
-                return string.Empty;
-            }
-            var wx = await _studentWechatDAL.GetStudentWechatByPhone(phone);
-            return wx?.WechatOpenid;
         }
 
         protected async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId, bool isWxNotice = true)

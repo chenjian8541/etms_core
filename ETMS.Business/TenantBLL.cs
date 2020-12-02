@@ -16,17 +16,17 @@ namespace ETMS.Business
     {
         private readonly ISysTenantDAL _sysTenantDAL;
 
-        private readonly IStudentSmsLogDAL _studentSmsLogDAL;
+        private readonly ISmsLogDAL _smsLogDAL;
 
-        public TenantBLL(ISysTenantDAL sysTenantDAL, IStudentSmsLogDAL studentSmsLogDAL)
+        public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
-            this._studentSmsLogDAL = studentSmsLogDAL;
+            this._smsLogDAL = studentSmsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentSmsLogDAL);
+            this.InitDataAccess(tenantId, _smsLogDAL);
         }
 
         public async Task<ResponseBase> TenantGet(TenantGetRequest request)
@@ -37,9 +37,18 @@ namespace ETMS.Business
 
         public async Task TenantSmsDeductionEventConsume(TenantSmsDeductionEvent request)
         {
-            var totalDeCount = request.SmsLogs.Sum(p => p.DeCount);
+            var totalDeCount = 0;
+            if (request.StudentSmsLogs != null && request.StudentSmsLogs.Count > 0)
+            {
+                totalDeCount += request.StudentSmsLogs.Sum(p => p.DeCount);
+                await _smsLogDAL.AddStudentSmsLog(request.StudentSmsLogs);
+            }
+            if (request.UserSmsLogs != null && request.UserSmsLogs.Count > 0)
+            {
+                totalDeCount += request.UserSmsLogs.Sum(p => p.DeCount);
+                await _smsLogDAL.AddUserSmsLog(request.UserSmsLogs);
+            }
             await _sysTenantDAL.TenantSmsDeduction(request.TenantId, totalDeCount);
-            await _studentSmsLogDAL.AddStudentSmsLog(request.SmsLogs);
         }
     }
 }

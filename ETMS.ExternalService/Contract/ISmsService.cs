@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.ExternalService.Dto.Output;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Entity.ExternalService.Dto.Request.User;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,5 +27,7 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> NoticeStudentContracts(NoticeStudentContractsRequest request);
 
         Task<SmsOutput> NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
+
+        Task<SmsOutput> NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request);
     }
 }
