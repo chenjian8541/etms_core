@@ -33,11 +33,15 @@ namespace ETMS.ExternalService.Implement
 
         private readonly ISysWechartAuthTemplateMsgDAL _sysWechartAuthTemplateMsgDAL;
 
-        public WxService(IStudentWechatDAL studentWechatDAL, ISysWechartAuthTemplateMsgDAL sysWechartAuthTemplateMsgDAL, IUserWechatDAL userWechatDAL)
+        private readonly IStudentDAL _studentDAL;
+
+        public WxService(IStudentWechatDAL studentWechatDAL, ISysWechartAuthTemplateMsgDAL sysWechartAuthTemplateMsgDAL,
+            IUserWechatDAL userWechatDAL, IStudentDAL studentDAL)
         {
             this._studentWechatDAL = studentWechatDAL;
             this._sysWechartAuthTemplateMsgDAL = sysWechartAuthTemplateMsgDAL;
             this._userWechatDAL = userWechatDAL;
+            this._studentDAL = studentDAL;
         }
 
         private string GetFirstDesc(NoticeRequestBase requestBase, string first)
@@ -91,6 +95,8 @@ namespace ETMS.ExternalService.Implement
             {
                 _studentWechatDAL.InitTenantId(loginTenantId);
                 _studentWechatDAL.DelOpendId(phone, opendId).Wait();
+                _studentDAL.InitTenantId(loginTenantId);
+                _studentDAL.UpdateStudentIsNotBindingWechat(new List<long>() { studentId });
                 LOG.Log.Info($"[ProcessStudentEequireSubscribe]移除已取消关注的学员公众号信息,loginTenantId:{loginTenantId},studentId:{studentId},phone:{phone},opendId:{opendId}", this.GetType());
             }
         }
