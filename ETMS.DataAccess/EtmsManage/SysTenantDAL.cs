@@ -75,7 +75,8 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<bool> DelTenant(SysTenant sysTenant)
         {
-            sysTenant.IsDeleted = EmIsDeleted.Normal;
+            sysTenant.SmsCount = 0;
+            sysTenant.IsDeleted = EmIsDeleted.Deleted;
             await this.Update(sysTenant);
             RemoveCache(sysTenant.Id);
             return true;

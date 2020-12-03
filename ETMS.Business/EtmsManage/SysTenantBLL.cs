@@ -158,7 +158,7 @@ namespace ETMS.Business.EtmsManage
             else
             {
                 //15天试用
-                exDate = now.AddDays(15);
+                exDate = now.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
             }
             var buyStatus = request.EtmsCount > 0 ? EmSysTenantBuyStatus.Official : EmSysTenantBuyStatus.Test;
             var tenantId = await _sysTenantDAL.AddTenant(new SysTenant
@@ -279,11 +279,29 @@ namespace ETMS.Business.EtmsManage
         public async Task<ResponseBase> TenantDel(TenantDelRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
-            if (tenant.ExDate >= DateTime.Now.Date)
+            var exDate = tenant.ExDate.AddDays(-SystemConfig.TenantDefaultConfig.TenantTestDay); //允许删除15天以内的机构
+            if (exDate >= DateTime.Now.Date)
             {
-                return ResponseBase.CommonError("机构在有效期范围内，无法删除");
+                return ResponseBase.CommonError($"只允许删除有效期在{SystemConfig.TenantDefaultConfig.TenantTestDay}天内的机构");
             }
-            await _sysAgentDAL.DelAgent(request.Id);
+            var oldSmsCount = tenant.SmsCount;
+            await _sysTenantDAL.DelTenant(tenant);
+
+            if (oldSmsCount > 0) //短信数量返还给代理商
+            {
+                await _sysAgentDAL.SmsCountAdd(tenant.AgentId, oldSmsCount);
+                await _sysAgentLogDAL.AddSysAgentSmsLog(new SysAgentSmsLog()
+                {
+                    AgentId = tenant.AgentId,
+                    ChangeCount = oldSmsCount,
+                    ChangeType = EmSysAgentSmsLogChangeType.Add,
+                    Ot = DateTime.Now,
+                    Sum = 0,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还短信数量"
+                });
+            }
+
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"删除机构:名称:{tenant.Name};机构编码:{tenant.TenantCode};手机号码:{tenant.Phone}", EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
