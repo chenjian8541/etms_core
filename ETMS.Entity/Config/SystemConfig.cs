@@ -35,6 +35,8 @@ namespace ETMS.Entity.Config
 
         public static SysSafetyConfig SysSafetyConfig;
 
+        public static TenantDefaultConfig TenantDefaultConfig;
+
         /// <summary>
         /// 静态构造函数
         /// 初始化内部静态成员
@@ -48,7 +50,16 @@ namespace ETMS.Entity.Config
             ParentAccessConfig = new ParentAccessConfig();
             ClssTimesConfig = new ClssTimesConfig();
             SysSafetyConfig = new SysSafetyConfig();
+            TenantDefaultConfig = new TenantDefaultConfig();
         }
+    }
+
+    public class TenantDefaultConfig
+    {
+        /// <summary>
+        /// 默认限制机构用户数量100个
+        /// </summary>
+        public int MaxUserCountDefault = 100;
     }
 
     /// <summary>

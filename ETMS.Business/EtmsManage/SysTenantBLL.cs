@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
@@ -178,7 +179,8 @@ namespace ETMS.Business.EtmsManage
                 IdCard = request.IdCard,
                 Address = request.Address,
                 SmsSignature = request.SmsSignature,
-                BuyStatus = buyStatus
+                BuyStatus = buyStatus,
+                MaxUserCount = SystemConfig.TenantDefaultConfig.MaxUserCountDefault
             });
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);

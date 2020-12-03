@@ -394,6 +394,17 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("手机号码已存在");
             }
+
+            var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (tenant.MaxUserCount > 0)
+            {
+                var userCount = await _etUserDAL.GetUserCount();
+                if (userCount >= tenant.MaxUserCount)
+                {
+                    return ResponseBase.CommonError($"员工数量已达到最多{tenant.MaxUserCount}个的限制");
+                }
+            }
+
             var user = new EtUser()
             {
                 Address = request.Address,

@@ -32,6 +32,12 @@ namespace ETMS.Entity.Database.Manage
         public int SmsCount { get; set; }
 
         /// <summary>
+        /// 限制用户数
+        /// (0:不限制)
+        /// </summary>
+        public int MaxUserCount { get; set; }
+
+        /// <summary>
         /// 状态 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantStatus"/>
         /// </summary>
         public byte Status { get; set; }

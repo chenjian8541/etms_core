@@ -141,5 +141,15 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<TeacherClassTimesView>("TeacherClassTimesView", "*", request.PageSize, request.PageCurrent, "FirstTime DESC", request.ToString());
         }
+
+        public async Task<int> GetUserCount()
+        {
+            var obj = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
+            if (obj == null)
+            {
+                return 0;
+            }
+            return obj.ToInt();
+        }
     }
 }

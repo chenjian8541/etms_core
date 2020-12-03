@@ -37,5 +37,7 @@ namespace ETMS.IDataAccess
         Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, int deClassTimes, int deClassCount);
 
         Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request);
+
+        Task<int> GetUserCount();
     }
 }
