@@ -109,5 +109,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtUserWechat> EtUserWechats { get; set; }
         public DbSet<EtTempUserClassNotice> EtTempUserClassNotices { get; set; }
         public DbSet<EtUserSmsLog> EtUserSmsLogs { get; set; }
+        public DbSet<EtUserNotice> EtUserNotices { get; set; }
     }
 }
