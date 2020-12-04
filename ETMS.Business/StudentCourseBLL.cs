@@ -414,7 +414,7 @@ namespace ETMS.Business
                 var beforSurplusQuantity = studentCourseDetail.SurplusQuantity;
                 studentCourseDetail.StartTime = null;
                 studentCourseDetail.EndTime = request.EndTime;
-                studentCourseDetail.SurplusQuantity = Convert.ToInt32(request.NewSurplusQuantity);
+                studentCourseDetail.SurplusQuantity = Convert.ToDecimal(request.NewSurplusQuantity);
 
                 await AddStudentCourseConsumeLog(studentCourseDetail, beforSurplusQuantity - studentCourseDetail.SurplusQuantity,
                     0, EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now);
