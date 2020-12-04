@@ -1,5 +1,6 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.View;
 using ETMS.IDataAccess.EtmsManage;
@@ -30,6 +31,12 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task<Tuple<IEnumerable<SysTenantSmsLogVew>, int>> GetTenantSmsLogPaging(AgentPagingBase request)
         {
             return await this.ExecutePage<SysTenantSmsLogVew>("SysTenantSmsLogVew", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLog(int tenantId, int agentId, int versionId)
+        {
+            return await this.FindList<SysTenantEtmsAccountLog>(p => p.TenantId == tenantId && p.AgentId == agentId
+            && p.VersionId == versionId && p.IsDeleted == EmIsDeleted.Normal);
         }
     }
 }

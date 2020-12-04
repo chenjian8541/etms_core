@@ -279,11 +279,20 @@ namespace ETMS.Business.EtmsManage
         public async Task<ResponseBase> TenantDel(TenantDelRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
-            var exDate = tenant.ExDate.AddDays(-SystemConfig.TenantDefaultConfig.TenantTestDay); //允许删除15天以内的机构
-            if (exDate >= DateTime.Now.Date)
+            var exDate = tenant.ExDate.AddDays(-SystemConfig.TenantDefaultConfig.TenantTestDay); //允许删除15天以内过期的机构
+
+            var isNewTenant = false;
+            var addDateLimit = tenant.Ot.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
+            if (addDateLimit.Date >= DateTime.Now.Date)
             {
-                return ResponseBase.CommonError($"只允许删除有效期在{SystemConfig.TenantDefaultConfig.TenantTestDay}天内的机构");
+                isNewTenant = true;
             }
+            if (exDate >= DateTime.Now.Date && !isNewTenant)
+            {
+                return ResponseBase.CommonError($"只允许删除有效期或者添加日期在{SystemConfig.TenantDefaultConfig.TenantTestDay}天内的机构");
+            }
+
+
             var oldSmsCount = tenant.SmsCount;
             await _sysTenantDAL.DelTenant(tenant);
 
@@ -300,6 +309,31 @@ namespace ETMS.Business.EtmsManage
                     IsDeleted = EmIsDeleted.Normal,
                     Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还短信数量"
                 });
+            }
+            if (isNewTenant) //如果为近期添加的机构，则将授权点数返还给代理商
+            {
+                var etmslog = await _sysTenantLogDAL.GetTenantEtmsAccountLog(tenant.Id, tenant.AgentId, tenant.VersionId);
+                if (etmslog.Count > 0)
+                {
+                    var tempAddCount = etmslog.Where(p => p.ChangeType == EmTenantEtmsAccountLogChangeType.Add).Sum(p => p.ChangeCount);
+                    var tempDeductionCount = etmslog.Where(p => p.ChangeType == EmTenantEtmsAccountLogChangeType.Deduction).Sum(p => p.ChangeCount);
+                    var surplusCount = tempAddCount - tempDeductionCount;
+                    if (surplusCount > 0)
+                    {
+                        await _sysAgentDAL.EtmsAccountAdd(tenant.AgentId, tenant.VersionId, surplusCount);
+                        await _sysAgentLogDAL.AddSysAgentEtmsAccountLog(new SysAgentEtmsAccountLog()
+                        {
+                            ChangeCount = surplusCount,
+                            AgentId = tenant.AgentId,
+                            ChangeType = EmSysAgentEtmsAccountLogChangeType.Add,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = DateTime.Now,
+                            Sum = 0,
+                            VersionId = tenant.VersionId,
+                            Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还授权点数"
+                        });
+                    }
+                }
             }
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
