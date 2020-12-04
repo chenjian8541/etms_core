@@ -30,7 +30,7 @@ namespace ETMS.Entity.Dto.External.Request
 
         public int GiveQuantity { get; set; }
 
-        public int SurplusQuantity { get; set; }
+        public decimal SurplusQuantity { get; set; }
 
         public DateTime? EndTime { get; set; }
 

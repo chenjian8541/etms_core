@@ -368,8 +368,8 @@ namespace ETMS.Business.Common
             cellHead5.CellStyle = styleHead;
             cellHead5.SetCellValue(headTitleDesc[5]);
             var regions5 = new CellRangeAddressList(1, 65535, 5, 5);
-            var dataValidate5 = dvHelper.CreateValidation(dvHelper.CreateNumericConstraint(ValidationType.INTEGER, OperatorType.BETWEEN, "1", "1000000"), regions5);
-            dataValidate5.CreateErrorBox("错误", "剩余课时数量必须为整数");
+            var dataValidate5 = dvHelper.CreateValidation(dvHelper.CreateNumericConstraint(ValidationType.DECIMAL, OperatorType.BETWEEN, "1", "1000000"), regions5);
+            dataValidate5.CreateErrorBox("错误", "剩余课时数量必须为数值类型");
             sheet1.AddValidationData(dataValidate5);
 
 
@@ -536,13 +536,13 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (int.TryParse(surplusQuantity, out var mytempsurplusQuantity))
+                    if (decimal.TryParse(surplusQuantity, out var mytempsurplusQuantity))
                     {
                         myStudentCourseItem.SurplusQuantity = mytempsurplusQuantity;
                     }
                     else
                     {
-                        strError.Append($"第{readRowIndex + 1}行剩余课时数量必须为整数</br>");
+                        strError.Append($"第{readRowIndex + 1}行剩余课时数量必须为数值类型</br>");
                     }
                 }
 
