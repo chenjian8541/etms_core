@@ -121,6 +121,10 @@ namespace ETMS.Business.Common
             {
                 return false;
             }
+            if (!myStudentCourses.Where(p => p.Status != EmStudentCourseStatus.EndOfClass).Any())
+            {
+                return false;
+            }
             var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
             if (deClassTimes != null && deClassTimes.SurplusQuantity <= limitClassTimes)
             {
