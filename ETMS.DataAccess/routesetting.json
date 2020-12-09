@@ -310,7 +310,7 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "homeworkAdd",
+        "Path": "homeworkAdd/:cid?",
         "Name": "homeworkAdd",
         "Type": 1,
         "Component": "@/components/Homework/AddHomeWork",
