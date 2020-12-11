@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.IBusiness.SysOp;
 
 namespace ETMS.Business
 {
@@ -28,14 +29,17 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
+
         public AppConfigBLL(ITenantConfigDAL tenantConfigDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL, IHttpContextAccessor httpContextAccessor,
-            IAppConfigurtaionServices appConfigurtaionServices)
+            IAppConfigurtaionServices appConfigurtaionServices, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
         }
 
         public void InitTenantId(int tenantId)
@@ -54,9 +58,19 @@ namespace ETMS.Business
                 StudentCourseRenewalConfig = config.StudentCourseRenewalConfig,
                 StudentNoticeConfig = config.StudentNoticeConfig,
                 UserNoticeConfig = config.UserNoticeConfig,
+                TenantInfoConfig = config.TenantInfoConfig,
+                TeacherSetConfig = config.TeacherSetConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
+            if (!string.IsNullOrEmpty(config.ParentSetConfig.LoginImage))
+            {
+                output.OtherOutput.ParentLoginImageUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, config.ParentSetConfig.LoginImage);
+            }
+            if (!string.IsNullOrEmpty(config.TeacherSetConfig.LoginImage))
+            {
+                output.OtherOutput.TeacherLoginImageUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, config.TeacherSetConfig.LoginImage);
+            }
             return ResponseBase.Success(output);
         }
 
@@ -227,6 +241,27 @@ namespace ETMS.Business
             config.ParentSetConfig.ParentBanners = banners;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "家长端设置-首页banner图设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantShowSave(TenantShowSaveRequest request)
+        {
+            var chekSmsResult = _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeCheck(request.LoginTenantId, request.SmsCode);
+            if (!chekSmsResult.IsResponseSuccess())
+            {
+                return chekSmsResult;
+            }
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.ParentSetConfig.LoginImage = request.ParentLoginImage;
+            config.ParentSetConfig.Title = request.ParentTitle;
+            config.TeacherSetConfig.LoginImage = request.TeacherLoginImage;
+            config.TeacherSetConfig.Title = request.TeacherTitle;
+            config.TenantInfoConfig.Address = request.TenantAddress;
+            config.TenantInfoConfig.Describe = request.TenantDescribe;
+            config.TenantInfoConfig.LinkName = request.TenantLinkName;
+            config.TenantInfoConfig.LinkPhone = request.TenantLinkPhone;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "机构展示设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
 

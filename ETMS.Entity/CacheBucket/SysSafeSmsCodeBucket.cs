@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ETMS.Entity.CacheBucket
 {
-    public class SysDataClearSmsCodeBucket : ICacheDataContract
+    public class SysSafeSmsCodeBucket : ICacheDataContract
     {
         public string SmsCode { get; set; }
 
@@ -15,7 +15,7 @@ namespace ETMS.Entity.CacheBucket
 
         public string GetKeyFormat(params object[] parms)
         {
-            return $"SysDataClearSmsCodeBucket_{parms[0]}";
+            return $"SysSafeSmsCodeBucket_{parms[0]}";
         }
     }
 }

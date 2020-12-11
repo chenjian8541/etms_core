@@ -193,8 +193,8 @@ namespace ETMS.Entity.Config
     public class SysSafetyConfig
     {
         /// <summary>
-        /// 登陆验证码失效时长(单位分钟)
+        /// 安全验证短信过期时间(单位分钟)
         /// </summary>
-        public int SysDataClearSmsCodeTimeOut = 10;
+        public int SysSafeSmsCodeTimeOut = 10;
     }
 }

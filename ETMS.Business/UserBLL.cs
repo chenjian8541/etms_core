@@ -529,7 +529,8 @@ namespace ETMS.Business
                 Remark = p.Remark,
                 UserName = p.UserName,
                 UserPhone = p.UserPhone,
-                TypeDesc = EnumDataLib.GetUserOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label
+                TypeDesc = EnumDataLib.GetUserOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label,
+                ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType)
             })));
         }
 

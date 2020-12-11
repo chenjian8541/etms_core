@@ -619,6 +619,17 @@
         }
       },
       {
+        "Id": 81,
+        "Path": "tenantSet",
+        "Name": "tenantSet",
+        "Type": 1,
+        "Component": "@/views/tenantMgr/tenantShowSet",
+        "Meta": {
+          "Title": "机构展示",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 60,
         "Path": "logMgr",
         "Name": "logMgr",

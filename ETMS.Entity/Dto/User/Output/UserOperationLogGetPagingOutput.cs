@@ -34,5 +34,7 @@ namespace ETMS.Entity.Dto.User.Output
         public string UserName { get; set; }
 
         public string UserPhone { get; set; }
+
+        public string ClientTypeDesc { get; set; }
     }
 }

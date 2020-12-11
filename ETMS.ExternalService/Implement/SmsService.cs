@@ -130,7 +130,7 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
-        public async Task<SmsOutput> ClearData(SmsClearDataRequest request)
+        public async Task<SmsOutput> SysSafe(SmsSysSafeRequest request)
         {
             return await UserLogin(new SmsUserLoginRequest(request.LoginTenantId)
             {

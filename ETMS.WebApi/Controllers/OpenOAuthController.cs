@@ -2,6 +2,7 @@
 using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Open.Request;
 using ETMS.Entity.Dto.Wx.Request;
+using ETMS.IBusiness.SysOp;
 using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
 using ETMS.WebApi.Controllers.Open;
@@ -26,12 +27,15 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IWxAccessBLL _wxAccessBLL;
 
+        private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
+
         public OpenOAuthController(IAppConfigurtaionServices appConfigurtaionServices, IComponentAccessBLL componentAccessBLL,
-            IWxAccessBLL wxAccessBLL)
+            IWxAccessBLL wxAccessBLL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
         {
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._componentAccessBLL = componentAccessBLL;
             this._wxAccessBLL = wxAccessBLL;
+            this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
         }
 
         /// <summary>
@@ -43,6 +47,11 @@ namespace ETMS.WebApi.Controllers
         {
             try
             {
+                var chekSmsResult = _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeCheck(request.LoginTenantId, request.SmsCode);
+                if (!chekSmsResult.IsResponseSuccess())
+                {
+                    return chekSmsResult;
+                }
                 var appSettings = this._appConfigurtaionServices.AppSettings;
                 var preAuthCode = ComponentContainer.TryGetPreAuthCode(appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid,
                     appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentSecret, true);

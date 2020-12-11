@@ -22,21 +22,18 @@ namespace ETMS.Business.SysOp
 
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
-        private readonly ISysDataClearSmsCodeDAL _sysDataClearSmsCodeDAL;
-
-        private readonly ISmsService _smsService;
-
         private readonly ISysTenantDAL _sysTenantDAL;
 
-        public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL,
-            ISysDataClearSmsCodeDAL sysDataClearSmsCodeDAL, ISmsService smsService, ISysTenantDAL sysTenantDAL)
+        private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
+
+        public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL
+            , ISysTenantDAL sysTenantDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
         {
             this._sysDataClearDAL = sysDataClearDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
-            this._sysDataClearSmsCodeDAL = sysDataClearSmsCodeDAL;
-            this._smsService = smsService;
             this._sysTenantDAL = sysTenantDAL;
+            this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
         }
 
         public void InitTenantId(int tenantId)
@@ -53,18 +50,7 @@ namespace ETMS.Business.SysOp
                 return ResponseBase.CommonError("已超过本月可执行的次数");
             }
             var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
-            var smsCode = RandomHelper.GetSmsCode();
-            var sendSmsRes = await _smsService.ClearData(new SmsClearDataRequest(request.LoginTenantId)
-            {
-                Phone = sysTenantInfo.Phone,
-                ValidCode = smsCode
-            });
-            if (!sendSmsRes.IsSuccess)
-            {
-                return ResponseBase.CommonError("发送短信失败,请稍后再试");
-            }
-            _sysDataClearSmsCodeDAL.AddSysDataClearSmsCode(request.LoginTenantId, smsCode);
-            return ResponseBase.Success();
+            return await _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeSend(request.LoginTenantId, sysTenantInfo.Phone);
         }
 
         public async Task<ResponseBase> ClearData(ClearDataRequest request)
@@ -76,10 +62,10 @@ namespace ETMS.Business.SysOp
                 return ResponseBase.CommonError("已超过本月可执行的次数");
             }
 
-            var clearSms = _sysDataClearSmsCodeDAL.GetSysDataClearSmsCode(request.LoginTenantId);
-            if (clearSms == null || clearSms.ExpireAtTime < DateTime.Now || clearSms.SmsCode != request.SmsCode)
+            var chekSmsResult = _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeCheck(request.LoginTenantId, request.SmsCode);
+            if (!chekSmsResult.IsResponseSuccess())
             {
-                return ResponseBase.CommonError("验证码错误");
+                return chekSmsResult;
             }
 
             if (request.IsClearCourse)

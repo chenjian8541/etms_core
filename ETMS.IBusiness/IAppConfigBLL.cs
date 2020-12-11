@@ -35,6 +35,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ParentBannerSave(ParentBannerSaveRequest request);
 
+        Task<ResponseBase> TenantShowSave(TenantShowSaveRequest request);
+
         Task<ResponseBase> StudentCourseNotEnoughCountSave(StudentCourseNotEnoughCountSaveRequest request);
     }
 }

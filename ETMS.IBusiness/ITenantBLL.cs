@@ -13,5 +13,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantGet(TenantGetRequest request);
 
         Task TenantSmsDeductionEventConsume(TenantSmsDeductionEvent request);
+
+        Task<ResponseBase> SysSafeSmsSend(SysSafeSmsSendRequest request);
     }
 }

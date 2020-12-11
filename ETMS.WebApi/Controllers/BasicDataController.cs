@@ -883,6 +883,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantShowSave(TenantShowSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.TenantShowSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TenantGet(TenantGetRequest request)
         {
             try
@@ -903,6 +917,20 @@ namespace ETMS.WebApi.Controllers
             {
                 this._appConfigBLL.InitTenantId(request.LoginTenantId);
                 return await _appConfigBLL.StudentCourseNotEnoughCountSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysSafeSmsSend(SysSafeSmsSendRequest request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return await _tenantBLL.SysSafeSmsSend(request);
             }
             catch (Exception ex)
             {

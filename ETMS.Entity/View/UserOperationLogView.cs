@@ -39,5 +39,10 @@ namespace ETMS.Entity.View
         public string UserName { get; set; }
 
         public string UserPhone { get; set; }
+
+        /// <summary>
+        /// 客户端类型 <see cref="Enum.EmUserOperationLogClientType"/>
+        /// </summary>
+        public int ClientType { get; set; }
     }
 }

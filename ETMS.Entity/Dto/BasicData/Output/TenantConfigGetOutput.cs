@@ -38,6 +38,16 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public ParentSetConfig ParentSetConfig { get; set; }
 
         public OtherOutput OtherOutput { get; set; }
+
+        /// <summary>
+        /// 老师端设置
+        /// </summary>
+        public TeacherSetConfig TeacherSetConfig { get; set; }
+
+        /// <summary>
+        /// 机构详情
+        /// </summary>
+        public TenantInfoConfig TenantInfoConfig { get; set; }
     }
 
     /// <summary>
@@ -49,5 +59,9 @@ namespace ETMS.Entity.Dto.BasicData.Output
         /// 提前一天提醒,默认晚上7点(学员上课提醒)
         /// </summary>
         public string StartClassDayBeforeTimeValueDesc { get; set; }
+
+        public string ParentLoginImageUrl { get; set; }
+
+        public string TeacherLoginImageUrl { get; set; }
     }
 }

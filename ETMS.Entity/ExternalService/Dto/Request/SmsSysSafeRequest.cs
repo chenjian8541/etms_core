@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ETMS.Entity.ExternalService.Dto.Request
 {
-    public class SmsClearDataRequest : SmsBase
+    public class SmsSysSafeRequest : SmsBase
     {
-        public SmsClearDataRequest(int tenantId) : base(tenantId)
+        public SmsSysSafeRequest(int tenantId) : base(tenantId)
         { }
 
         public string Phone { get; set; }

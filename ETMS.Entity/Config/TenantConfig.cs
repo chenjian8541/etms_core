@@ -17,6 +17,8 @@ namespace ETMS.Entity.Config
             PrintConfig = new PrintConfig();
             ParentSetConfig = new ParentSetConfig();
             UserNoticeConfig = new UserNoticeConfig();
+            TeacherSetConfig = new TeacherSetConfig();
+            TenantInfoConfig = new TenantInfoConfig();
         }
 
         /// <summary>
@@ -48,6 +50,16 @@ namespace ETMS.Entity.Config
         /// 家长端设置
         /// </summary>
         public ParentSetConfig ParentSetConfig { get; set; }
+
+        /// <summary>
+        /// 老师端设置
+        /// </summary>
+        public TeacherSetConfig TeacherSetConfig { get; set; }
+
+        /// <summary>
+        /// 机构详情
+        /// </summary>
+        public TenantInfoConfig TenantInfoConfig { get; set; }
     }
 
     public class UserNoticeConfig
@@ -66,6 +78,36 @@ namespace ETMS.Entity.Config
         public string WeChatNoticeRemark { get; set; }
     }
 
+    public class TenantInfoConfig
+    {
+        /// <summary>
+        /// 机构简介
+        /// </summary>
+        public string Describe { get; set; }
+
+        /// <summary>
+        /// 联系人
+        /// </summary>
+        public string LinkName { get; set; }
+
+        /// <summary>
+        /// 联系号码
+        /// </summary>
+        public string LinkPhone { get; set; }
+
+        /// <summary>
+        /// 联系地址
+        /// </summary>
+        public string Address { get; set; }
+    }
+
+    public class TeacherSetConfig
+    {
+        public string Title { get; set; }
+
+        public string LoginImage { get; set; }
+    }
+
     public class ParentSetConfig
     {
         public ParentSetConfig()
@@ -74,6 +116,10 @@ namespace ETMS.Entity.Config
         }
 
         public List<ParentBanner> ParentBanners { get; set; }
+
+        public string Title { get; set; }
+
+        public string LoginImage { get; set; }
     }
 
     public class ParentBanner

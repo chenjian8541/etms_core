@@ -15,5 +15,14 @@ namespace ETMS.Entity.Enum
         /// 微信
         /// </summary>
         public const int WeChat = 1;
+
+        public static string GetClientTypeDesc(int type)
+        {
+            if (type == PC)
+            {
+                return "PC端";
+            }
+            return "微信公众号";
+        }
     }
 }

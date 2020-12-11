@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.IBusiness.SysOp;
 
 namespace ETMS.Business
 {
@@ -18,10 +19,13 @@ namespace ETMS.Business
 
         private readonly ISmsLogDAL _smsLogDAL;
 
-        public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL)
+        private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
+
+        public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsLogDAL = studentSmsLogDAL;
+            this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
         }
 
         public void InitTenantId(int tenantId)
@@ -49,6 +53,12 @@ namespace ETMS.Business
                 await _smsLogDAL.AddUserSmsLog(request.UserSmsLogs);
             }
             await _sysTenantDAL.TenantSmsDeduction(request.TenantId, totalDeCount);
+        }
+
+        public async Task<ResponseBase> SysSafeSmsSend(SysSafeSmsSendRequest request)
+        {
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            return await _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeSend(request.LoginTenantId, sysTenantInfo.Phone);
         }
     }
 }
