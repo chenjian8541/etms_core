@@ -74,14 +74,14 @@ namespace ETMS.WebApi.FilterAttribute
                     var checkParentCanLoginResult = parentBLL.CheckParentCanLogin(request).Result;
                     if (!checkParentCanLoginResult.IsResponseSuccess())
                     {
-                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
                         context.Result = new JsonResult(checkParentCanLoginResult);
                         return;
                     }
                     var myStudents = parentBLL.GetMyStudent(request).Result;
                     if (myStudents == null || !myStudents.Any())
                     {
-                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
                         context.Result = new JsonResult(ResponseBase.CommonError("您未绑定学员"));
                         return;
                     }
