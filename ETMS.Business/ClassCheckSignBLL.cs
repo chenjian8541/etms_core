@@ -49,10 +49,13 @@ namespace ETMS.Business
         private readonly IUserDAL _userDAL;
 
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
+        private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
+
         public ClassCheckSignBLL(IClassDAL classDAL, IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL,
             IStudentTrackLogDAL studentTrackLogDAL, INoticeBLL noticeBLL, IStudentPointsLogDAL studentPointsLog, IUserDAL userDAL, IUserOperationLogDAL userOperationLogDAL,
-            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
         {
             this._classDAL = classDAL;
             this._classTimesDAL = classTimesDAL;
@@ -68,11 +71,13 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._noticeBLL.InitDataAccess(tenantId);
+            this._studentCourseAnalyzeBLL.InitDataAccess(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _classRecordDAL, _studentDAL, _tryCalssLogDAL, _studentTrackLogDAL,
                 _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL);
         }
@@ -362,7 +367,13 @@ namespace ETMS.Business
                 }
 
                 //学员课程详情
-                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(student.TenantId)
+                //_eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(student.TenantId)
+                //{
+                //    StudentId = student.StudentId,
+                //    CourseId = student.CourseId
+                //});
+                //解决bug#6587 微信通知的课时不及时
+                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(student.TenantId)
                 {
                     StudentId = student.StudentId,
                     CourseId = student.CourseId
