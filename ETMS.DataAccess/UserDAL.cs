@@ -151,5 +151,13 @@ namespace ETMS.DataAccess
             }
             return obj.ToInt();
         }
+
+        public async Task<bool> UserEditWx(long userId, string wechatOpenid, string wechatUnionid)
+        {
+            var sql = $"update EtUser set WechatOpenid = '{wechatOpenid}',WechatUnionid = '{wechatUnionid}' where TenantId = {_tenantId} and Id = {userId}";
+            await _dbWrapper.Execute(sql);
+            await UpdateCache(_tenantId, userId);
+            return true;
+        }
     }
 }

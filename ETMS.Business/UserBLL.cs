@@ -487,7 +487,8 @@ namespace ETMS.Business
                 IsTeacherDesc = p.IsTeacher ? "是" : "否",
                 JobType = p.JobType,
                 Value = p.Id,
-                Label = p.Name
+                Label = p.Name,
+                IsBindingWechat = string.IsNullOrEmpty(p.WechatOpenid) ? EmIsBindingWechat.No : EmIsBindingWechat.Yes
             })));
         }
 
@@ -514,7 +515,8 @@ namespace ETMS.Business
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p.Avatar),
                 JobType = p.JobType,
                 Label = p.Name,
-                Value = p.Id
+                Value = p.Id,
+                IsBindingWechat = string.IsNullOrEmpty(p.WechatOpenid) ? EmIsBindingWechat.No : EmIsBindingWechat.Yes
             }))); ;
         }
 

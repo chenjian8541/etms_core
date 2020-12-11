@@ -150,7 +150,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public string StudentTypeDesc { get; set; }
 
         /// <summary> 
-        /// 是否绑定微信  <see cref="ETMS.Entity.Enum.EmStudentIsBindingWechat"/>
+        /// 是否绑定微信  <see cref="ETMS.Entity.Enum.EmIsBindingWechat"/>
         /// </summary>
         public byte IsBindingWechat { get; set; }
 

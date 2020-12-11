@@ -114,7 +114,7 @@ namespace ETMS.Business
                 GradeId = request.GradeId,
                 HomeAddress = request.HomeAddress,
                 IntentionLevel = request.IntentionLevel,
-                IsBindingWechat = EmStudentIsBindingWechat.No,
+                IsBindingWechat = EmIsBindingWechat.No,
                 IsDeleted = EmIsDeleted.Normal,
                 LastJobProcessTime = now,
                 LastTrackTime = null,

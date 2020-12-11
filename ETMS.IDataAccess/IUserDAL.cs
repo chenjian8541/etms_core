@@ -39,5 +39,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request);
 
         Task<int> GetUserCount();
+
+        Task<bool> UserEditWx(long userId, string wechatOpenid, string wechatUnionid);
     }
 }

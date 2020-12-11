@@ -178,11 +178,11 @@ namespace ETMS.DataAccess
             var sql = string.Empty;
             if (studentIds.Count == 1)
             {
-                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.Yes} WHERE Id = {studentIds[0]}";
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmIsBindingWechat.Yes} WHERE Id = {studentIds[0]}";
             }
             else
             {
-                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.Yes} WHERE Id IN ({string.Join(',', studentIds)})";
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmIsBindingWechat.Yes} WHERE Id IN ({string.Join(',', studentIds)})";
             }
             await _dbWrapper.Execute(sql);
             foreach (var studentId in studentIds)
@@ -196,11 +196,11 @@ namespace ETMS.DataAccess
             var sql = string.Empty;
             if (studentIds.Count == 1)
             {
-                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.No} WHERE Id = {studentIds[0]}";
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmIsBindingWechat.No} WHERE Id = {studentIds[0]}";
             }
             else
             {
-                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmStudentIsBindingWechat.No} WHERE Id IN ({string.Join(',', studentIds)})";
+                sql = $"UPDATE EtStudent SET IsBindingWechat = {EmIsBindingWechat.No} WHERE Id IN ({string.Join(',', studentIds)})";
             }
             await _dbWrapper.Execute(sql);
             foreach (var studentId in studentIds)

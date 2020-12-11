@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Enum
 {
-    public struct EmStudentIsBindingWechat
+    public struct EmIsBindingWechat
     {
         public const byte No = 0;
 

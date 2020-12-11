@@ -294,6 +294,8 @@ namespace ETMS.Business
                     WechatOpenid = userInfo.openid,
                     WechatUnionid = userInfo.unionid
                 });
+                _etUserDAL.InitTenantId(tenantId);
+                await _etUserDAL.UserEditWx(userId, userInfo.openid, userInfo.unionid);
             }
             catch (Exception ex)
             {
