@@ -76,8 +76,8 @@ namespace ETMS.Business
 
         public void InitTenantId(int tenantId)
         {
-            this._noticeBLL.InitDataAccess(tenantId);
-            this._studentCourseAnalyzeBLL.InitDataAccess(tenantId);
+            this._noticeBLL.InitTenantId(tenantId);
+            this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _classRecordDAL, _studentDAL, _tryCalssLogDAL, _studentTrackLogDAL,
                 _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL);
         }
