@@ -147,6 +147,33 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public async Task<ResponseBase> GetTenantInfoByNo(GetTenantInfoByNoRequest request)
+        {
+            try
+            {
+                return await _parentBLL.GetTenantInfoByNo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetTenantInfo(GetTenantInfoRequest request)
+        {
+            try
+            {
+                return await _parentBLL.GetTenantInfo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentListGet(StudentListGetRequest request)
         {
             try

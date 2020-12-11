@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IBusiness.SysOp;
+using ETMS.Business.Common;
 
 namespace ETMS.Business
 {
@@ -272,6 +273,44 @@ namespace ETMS.Business
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
+        }
+
+        private async Task<ResponseBase> GetTenantInfoH5(int tenantId)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
+            _tenantConfigDAL.InitTenantId(tenantId);
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var teacherLoginImage = string.Empty;
+            if (!string.IsNullOrEmpty(tenantConfig.TeacherSetConfig.LoginImage))
+            {
+                teacherLoginImage = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, tenantConfig.TeacherSetConfig.LoginImage);
+            }
+            return ResponseBase.Success(new GetTenantInfoH5Output()
+            {
+                TenantAddress = tenantConfig.TenantInfoConfig.Address,
+                TenantDescribe = tenantConfig.TenantInfoConfig.Describe,
+                TenantLinkName = tenantConfig.TenantInfoConfig.LinkName,
+                TenantLinkPhone = tenantConfig.TenantInfoConfig.LinkPhone,
+                TenantName = myTenant.Name,
+                TenantNickName = myTenant.SmsSignature,
+                TeacherHtmlTitle = tenantConfig.TeacherSetConfig.Title,
+                TeacherLoginImage = teacherLoginImage
+            });
+        }
+
+        public async Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            if (tenantId == 0)
+            {
+                return ResponseBase.Success(new GetTenantInfoH5Output());
+            }
+            return await GetTenantInfoH5(tenantId);
+        }
+
+        public async Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request)
+        {
+            return await GetTenantInfoH5(request.LoginTenantId);
         }
     }
 }

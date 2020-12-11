@@ -938,5 +938,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        [AllowAnonymous]
+        public async Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request)
+        {
+            try
+            {
+                return await _appConfigBLL.GetTenantInfoH5ByNo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.GetTenantInfoH5(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

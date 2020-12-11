@@ -48,7 +48,7 @@ namespace Etms.Tools.Test
             var parentTokenConfig = new ParentTokenConfig()
             {
                 ExTimestamp = exTime,
-                Phone = "15015953818",
+                Phone = "13410271814",
                 TenantId = 1
             };
             var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);

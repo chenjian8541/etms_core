@@ -24,6 +24,7 @@ using ETMS.Entity.Enum;
 using ETMS.IBusiness.Wechart;
 using Senparc.Weixin.Open.OAuthAPIs;
 using Senparc.Weixin.Open.Containers;
+using Microsoft.AspNetCore.Http;
 
 namespace ETMS.Business
 {
@@ -49,9 +50,14 @@ namespace ETMS.Business
 
         private readonly IComponentAccessBLL _componentAccessBLL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
-            IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL)
+            IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
+            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -63,6 +69,8 @@ namespace ETMS.Business
             this._sysStudentWechartDAL = sysStudentWechartDAL;
             this._studentDAL = studentDAL;
             this._componentAccessBLL = componentAccessBLL;
+            this._tenantConfigDAL = tenantConfigDAL;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -345,6 +353,44 @@ namespace ETMS.Business
                 await _studentDAL.UpdateStudentIsNotBindingWechat(request.ParentStudentIds);
             }
             return ResponseBase.Success();
+        }
+
+        private async Task<ResponseBase> GetTenantInfo(int tenantId)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
+            _tenantConfigDAL.InitTenantId(tenantId);
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var parentLoginImage = string.Empty;
+            if (!string.IsNullOrEmpty(tenantConfig.ParentSetConfig.LoginImage))
+            {
+                parentLoginImage = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, tenantConfig.ParentSetConfig.LoginImage);
+            }
+            return ResponseBase.Success(new GetTenantInfoOutput()
+            {
+                ParentHtmlTitle = tenantConfig.ParentSetConfig.Title,
+                ParentLoginImage = parentLoginImage,
+                TenantAddress = tenantConfig.TenantInfoConfig.Address,
+                TenantDescribe = tenantConfig.TenantInfoConfig.Describe,
+                TenantLinkName = tenantConfig.TenantInfoConfig.LinkName,
+                TenantLinkPhone = tenantConfig.TenantInfoConfig.LinkPhone,
+                TenantName = myTenant.Name,
+                TenantNickName = myTenant.SmsSignature
+            });
+        }
+
+        public async Task<ResponseBase> GetTenantInfoByNo(GetTenantInfoByNoRequest request)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            if (tenantId == 0)
+            {
+                return ResponseBase.Success(new GetTenantInfoOutput());
+            }
+            return await GetTenantInfo(tenantId);
+        }
+
+        public async Task<ResponseBase> GetTenantInfo(GetTenantInfoRequest request)
+        {
+            return await GetTenantInfo(request.LoginTenantId);
         }
     }
 }

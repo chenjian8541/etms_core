@@ -38,5 +38,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantShowSave(TenantShowSaveRequest request);
 
         Task<ResponseBase> StudentCourseNotEnoughCountSave(StudentCourseNotEnoughCountSaveRequest request);
+
+        Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request);
+
+        Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request);
     }
 }
