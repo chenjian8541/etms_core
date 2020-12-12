@@ -98,6 +98,42 @@ namespace ETMS.LOG
         }
 
         /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="type"></param>
+        public static void Fatal(string message, Type type)
+        {
+            var log = LogManager.GetLogger(repository.Name, type);
+            log.Fatal(message);
+        }
+
+        /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="exception"></param>
+        /// <param name="type"></param>
+        public static void Fatal(string message, Exception exception, Type type)
+        {
+            var log = LogManager.GetLogger(repository.Name, type);
+            log.Fatal(message, exception);
+        }
+
+        /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="exception"></param>
+        /// <param name="type"></param>
+        public static void Fatal<T>(T request, Exception exception, Type type) where T : class
+        {
+            var message = string.Format("请求参数:{0}", JsonConvert.SerializeObject(request));
+            Fatal(message, exception, type);
+        }
+
+        /// <summary>
         /// 静态构造函数
         /// 初始化log4net
         /// </summary>
