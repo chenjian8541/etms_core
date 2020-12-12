@@ -88,8 +88,11 @@ namespace ETMS.Business.Common
             cellHead2.SetCellValue(headTitleDesc[2]);
 
             var regions2 = new CellRangeAddressList(1, 65535, 2, 2);
-            var dataValidate2 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentRelationshipAll.Select(p => p.Name).ToArray()), regions2);
-            sheet1.AddValidationData(dataValidate2);
+            if (request.StudentRelationshipAll.Count > 0)
+            {
+                var dataValidate2 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentRelationshipAll.Select(p => p.Name).ToArray()), regions2);
+                sheet1.AddValidationData(dataValidate2);
+            }
 
             var cellHead3 = rowHead.CreateCell(3);
             cellHead3.CellStyle = styleHead;
@@ -117,16 +120,22 @@ namespace ETMS.Business.Common
             cellHead6.SetCellValue(headTitleDesc[6]);
 
             var regions6 = new CellRangeAddressList(1, 65535, 6, 6);
-            var dataValidate6 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.GradeAll.Select(p => p.Name).ToArray()), regions6);
-            sheet1.AddValidationData(dataValidate6);
+            if (request.GradeAll.Count > 0)
+            {
+                var dataValidate6 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.GradeAll.Select(p => p.Name).ToArray()), regions6);
+                sheet1.AddValidationData(dataValidate6);
+            }
 
             var cellHead7 = rowHead.CreateCell(7);
             cellHead7.CellStyle = styleHead;
             cellHead7.SetCellValue(headTitleDesc[7]);
 
             var regions7 = new CellRangeAddressList(1, 65535, 7, 7);
-            var dataValidate7 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentSourceAll.Select(p => p.Name).ToArray()), regions7);
-            sheet1.AddValidationData(dataValidate7);
+            if (request.StudentSourceAll.Count > 0)
+            {
+                var dataValidate7 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentSourceAll.Select(p => p.Name).ToArray()), regions7);
+                sheet1.AddValidationData(dataValidate7);
+            }
 
             var cellHead8 = rowHead.CreateCell(8);
             cellHead8.CellStyle = styleHead;
