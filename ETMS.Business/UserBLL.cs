@@ -76,7 +76,7 @@ namespace ETMS.Business
                 AvatarKey = userInfo.Avatar,
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
-                RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu),
+                RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu, userInfo.IsAdmin),
                 OrgName = tenant.Name
             });
         }
@@ -100,7 +100,7 @@ namespace ETMS.Business
             var user = await _etUserDAL.GetUser(request.LoginUserId);
             var role = await _roleDAL.GetRole(user.RoleId);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
-            return ResponseBase.Success(ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu));
+            return ResponseBase.Success(ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu, user.IsAdmin));
         }
 
         public async Task<ResponseBase> UpdateUserInfo(UpdateUserInfoRequest request)

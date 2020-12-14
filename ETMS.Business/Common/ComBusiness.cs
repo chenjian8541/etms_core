@@ -596,30 +596,33 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
-        internal static List<RouteConfig> GetRouteConfigs(List<RouteConfig> pageRoute, string roleAuthorityValueMenu)
+        internal static List<RouteConfig> GetRouteConfigs(List<RouteConfig> pageRoute, string roleAuthorityValueMenu, bool isAdmin)
         {
             var pageWeight = roleAuthorityValueMenu.Split('|')[2].ToBigInteger();
             var authorityCorePage = new AuthorityCore(pageWeight);
-            PageRouteHandle(pageRoute, authorityCorePage);
+            PageRouteHandle(pageRoute, authorityCorePage, isAdmin);
             return pageRoute;
         }
 
-        private static void PageRouteHandle(List<RouteConfig> pageRoute, AuthorityCore authorityCorePage)
+        private static void PageRouteHandle(List<RouteConfig> pageRoute, AuthorityCore authorityCorePage, bool isAdmin)
         {
             foreach (var p in pageRoute)
             {
                 if (p.Id == 0 || !authorityCorePage.Validation(p.Id))
                 {
-                    p.Hidden = true;
+                    if (!isAdmin)
+                    {
+                        p.Hidden = true;
+                    }
                 }
                 if (p.Children != null && p.Children.Any())
                 {
-                    PageRouteHandle(p.Children, authorityCorePage);
+                    PageRouteHandle(p.Children, authorityCorePage, isAdmin);
                 }
             }
         }
 
-        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, string roleAuthorityValueMenu)
+        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, string roleAuthorityValueMenu, bool isAdmin)
         {
             var strMenuCategory = roleAuthorityValueMenu.Split('|');
             var pageWeight = strMenuCategory[2].ToBigInteger();
@@ -633,46 +636,46 @@ namespace ETMS.Business.Common
             };
             foreach (var p in menus)
             {
-                if (authorityCoreLeafPage.Validation(p.Id))
+                if (authorityCoreLeafPage.Validation(p.Id) || isAdmin)
                 {
                     output.Page.Add(p.Id);
                 }
                 if (p.ChildrenAction != null && p.ChildrenAction.Any())
                 {
-                    GetPermissionActionHandle(p.ChildrenAction, authorityCoreActionPage, output);
+                    GetPermissionActionHandle(p.ChildrenAction, authorityCoreActionPage, output, isAdmin);
                 }
                 if (p.ChildrenPage != null && p.ChildrenPage.Any())
                 {
-                    GetPermissionPageHandle(p.ChildrenPage, authorityCoreLeafPage, authorityCoreActionPage, output);
+                    GetPermissionPageHandle(p.ChildrenPage, authorityCoreLeafPage, authorityCoreActionPage, output, isAdmin);
                 }
             }
             return output;
         }
 
-        internal static void GetPermissionPageHandle(List<MenuConfig> menuConfigs, AuthorityCore authorityCoreLeafPage, AuthorityCore authorityCoreActionPage, PermissionOutput output)
+        internal static void GetPermissionPageHandle(List<MenuConfig> menuConfigs, AuthorityCore authorityCoreLeafPage, AuthorityCore authorityCoreActionPage, PermissionOutput output, bool isAdmin)
         {
             foreach (var p in menuConfigs)
             {
-                if (authorityCoreLeafPage.Validation(p.Id))
+                if (authorityCoreLeafPage.Validation(p.Id) || isAdmin)
                 {
                     output.Page.Add(p.Id);
                 }
                 if (p.ChildrenAction != null && p.ChildrenAction.Any())
                 {
-                    GetPermissionActionHandle(p.ChildrenAction, authorityCoreActionPage, output);
+                    GetPermissionActionHandle(p.ChildrenAction, authorityCoreActionPage, output, isAdmin);
                 }
                 if (p.ChildrenPage != null && p.ChildrenPage.Any())
                 {
-                    GetPermissionPageHandle(p.ChildrenPage, authorityCoreLeafPage, authorityCoreActionPage, output);
+                    GetPermissionPageHandle(p.ChildrenPage, authorityCoreLeafPage, authorityCoreActionPage, output, isAdmin);
                 }
             }
         }
 
-        internal static void GetPermissionActionHandle(List<MenuConfig> menuConfigs, AuthorityCore authorityCoreActionPage, PermissionOutput output)
+        internal static void GetPermissionActionHandle(List<MenuConfig> menuConfigs, AuthorityCore authorityCoreActionPage, PermissionOutput output, bool isAdmin)
         {
             foreach (var p in menuConfigs)
             {
-                if (authorityCoreActionPage.Validation(p.ActionId))
+                if (authorityCoreActionPage.Validation(p.ActionId) || isAdmin)
                 {
                     output.Action.Add(p.ActionId);
                 }

@@ -330,7 +330,7 @@ namespace ETMS.Business
             {
                 Token = token,
                 ExpiresTime = exTime,
-                Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu),
+                Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu, userInfo.IsAdmin),
                 UId = userInfo.Id,
                 TId = userInfo.TenantId
             };
