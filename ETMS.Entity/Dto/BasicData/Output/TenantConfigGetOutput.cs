@@ -48,6 +48,11 @@ namespace ETMS.Entity.Dto.BasicData.Output
         /// 机构详情
         /// </summary>
         public TenantInfoConfig TenantInfoConfig { get; set; }
+
+        /// <summary>
+        /// 学员考勤
+        /// </summary>
+        public StudentCheckInConfig StudentCheckInConfig { get; set; }
     }
 
     /// <summary>

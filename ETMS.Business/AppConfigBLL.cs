@@ -61,6 +61,7 @@ namespace ETMS.Business
                 UserNoticeConfig = config.UserNoticeConfig,
                 TenantInfoConfig = config.TenantInfoConfig,
                 TeacherSetConfig = config.TeacherSetConfig,
+                StudentCheckInConfig = config.StudentCheckInConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
@@ -311,6 +312,24 @@ namespace ETMS.Business
         public async Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request)
         {
             return await GetTenantInfoH5(request.LoginTenantId);
+        }
+
+        public async Task<ResponseBase> StudentCheckInConfigSave(StudentCheckInConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentCheckInConfig.StudentUseCardCheckIn.IntervalTimeCard = request.IntervalTimeCard;
+            config.StudentCheckInConfig.StudentUseCardCheckIn.IsMustCheckOutCard = request.IsMustCheckOutCard;
+            config.StudentCheckInConfig.StudentUseCardCheckIn.IsRelationClassTimesCard = request.IsRelationClassTimesCard;
+            config.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesLimitMinuteCard = request.RelationClassTimesLimitMinuteCard;
+
+            config.StudentCheckInConfig.StudentUseFaceCheckIn.IntervalTimeFace = request.IntervalTimeFace;
+            config.StudentCheckInConfig.StudentUseFaceCheckIn.IsMustCheckOutFace = request.IsMustCheckOutFace;
+            config.StudentCheckInConfig.StudentUseFaceCheckIn.IsRelationClassTimesFace = request.IsRelationClassTimesFace;
+            config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesLimitMinuteFace = request.RelationClassTimesLimitMinuteFace;
+
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "考勤设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
         }
     }
 }

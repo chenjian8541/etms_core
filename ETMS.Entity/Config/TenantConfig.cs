@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Entity.Config
 {
@@ -19,6 +20,7 @@ namespace ETMS.Entity.Config
             UserNoticeConfig = new UserNoticeConfig();
             TeacherSetConfig = new TeacherSetConfig();
             TenantInfoConfig = new TenantInfoConfig();
+            StudentCheckInConfig = new StudentCheckInConfig();
         }
 
         /// <summary>
@@ -60,6 +62,71 @@ namespace ETMS.Entity.Config
         /// 机构详情
         /// </summary>
         public TenantInfoConfig TenantInfoConfig { get; set; }
+
+        /// <summary>
+        /// 学员考勤
+        /// </summary>
+        public StudentCheckInConfig StudentCheckInConfig { get; set; }
+    }
+
+    public class StudentCheckInConfig
+    {
+        public StudentCheckInConfig()
+        {
+            StudentUseCardCheckIn = new StudentUseCardCheckIn();
+            StudentUseFaceCheckIn = new StudentUseFaceCheckIn();
+        }
+
+        public StudentUseCardCheckIn StudentUseCardCheckIn { get; set; }
+
+        public StudentUseFaceCheckIn StudentUseFaceCheckIn { get; set; }
+
+    }
+
+    public class StudentUseCardCheckIn
+    {
+        /// <summary>
+        /// 学员刷卡间隔时间(单位秒)
+        /// </summary>
+        public int IntervalTimeCard { get; set; } = 10;
+
+        /// <summary>
+        /// 学员是否需要刷卡签退  <see cref="EmBool"/>
+        /// </summary>
+        public byte IsMustCheckOutCard { get; set; }
+
+        /// <summary>
+        /// 刷卡记上课
+        /// </summary>
+        public byte IsRelationClassTimesCard { get; set; }
+
+        /// <summary>
+        /// 关联的上课课次时间不超过的分钟数
+        /// </summary>
+        public int RelationClassTimesLimitMinuteCard { get; set; }
+    }
+
+    public class StudentUseFaceCheckIn
+    {
+        /// <summary>
+        /// 学员刷脸间隔时间(单位秒)
+        /// </summary>
+        public int IntervalTimeFace { get; set; } = 10;
+
+        /// <summary>
+        /// 学员是否需要刷卡签退  <see cref="EmBool"/>
+        /// </summary>
+        public byte IsMustCheckOutFace { get; set; }
+
+        /// <summary>
+        /// 刷脸记上课
+        /// </summary>
+        public byte IsRelationClassTimesFace { get; set; }
+
+        /// <summary>
+        /// 关联的上课课次时间不超过的分钟数
+        /// </summary>
+        public int RelationClassTimesLimitMinuteFace { get; set; }
     }
 
     public class UserNoticeConfig

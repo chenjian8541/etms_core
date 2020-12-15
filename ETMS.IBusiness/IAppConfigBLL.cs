@@ -42,5 +42,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request);
 
         Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request);
+
+        Task<ResponseBase> StudentCheckInConfigSave(StudentCheckInConfigSaveRequest request);
     }
 }
