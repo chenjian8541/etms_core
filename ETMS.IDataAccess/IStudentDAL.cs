@@ -3,6 +3,7 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -49,5 +50,19 @@ namespace ETMS.IDataAccess
         Task UpdateStudentIsNotBindingWechat(List<long> studentIds);
 
         Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request);
+
+        Task<EtStudent> GetStudent(string cardNo);
+
+        Task<bool> StudentRelieveCardNo(long id, string cardNo);
+
+        Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo);
+
+        Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey);
+
+        Task<bool> StudentRelieveFaceKey(long id);
+
+        Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime);
+
+        Task<IEnumerable<StudentFaceView>> GetStudentFace();
     }
 }

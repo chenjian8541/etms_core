@@ -16,6 +16,7 @@ using ETMS.Entity.Config;
 using ETMS.Business.Common;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
+using ETMS.IBusiness.IncrementLib;
 
 namespace ETMS.Business
 {
@@ -55,12 +56,14 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IAiface _aiface;
+
         public StudentBLL(IStudentDAL studentDAL, IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentTagDAL studentTagDAL, IStudentRelationshipDAL studentRelationshipDAL, IStudentSourceDAL studentSourceDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, IGradeDAL gradeDAL,
             IStudentTrackLogDAL studentTrackLogDAL, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, INoticeBLL noticeBLL, IEventPublisher eventPublisher,
-            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL)
+            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface)
         {
             this._studentDAL = studentDAL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
@@ -79,11 +82,13 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._studentCourseDAL = studentCourseDAL;
             this._classDAL = classDAL;
+            this._aiface = aiface;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this._noticeBLL.InitDataAccess(tenantId);
+            this._noticeBLL.InitTenantId(tenantId);
+            this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentExtendFieldDAL, _studentTagDAL,
                 _userOperationLogDAL, _studentRelationshipDAL, _studentSourceDAL, _userDAL, _gradeDAL, _studentTrackLogDAL, _studentOperationLogDAL,
                 _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL);
@@ -192,6 +197,7 @@ namespace ETMS.Business
                 tags = $",{string.Join(',', request.Tags)},";
             }
             var etStudent = studentBucket.Student;
+            var oldAvatar = etStudent.Avatar;
             var isChangeStudentSource = request.SourceId != etStudent.SourceId;
 
             etStudent.Name = request.Name;
@@ -230,6 +236,11 @@ namespace ETMS.Business
             }
             await _studentDAL.EditStudent(etStudent, studentExtendInfos);
             SyncStatisticsStudentInfo(null, request, etStudent.Ot, isChangeStudentSource);
+            if (oldAvatar != request.AvatarKey)
+            {
+                AliyunOssUtil.DeleteObject(oldAvatar);
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑学员：姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
@@ -253,6 +264,9 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Deduction,
                 ChangeCount = 1
             }, request, etStudent.Ot, true);
+            AliyunOssUtil.DeleteObject(etStudent.Avatar, etStudent.FaceGreyKey, etStudent.FaceKey);
+            await _aiface.StudentDelete(etStudent.Id);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除学员：姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
@@ -309,7 +323,10 @@ namespace ETMS.Business
                 SourceIdDesc = await GetSourceDesc(student.SourceId),
                 TagsDesc = await GetStudentTagsDesc(student.Tags),
                 StudentExtendItems = new List<StudentExtendItemOutput>(),
-                OtDesc = student.Ot.EtmsToDateString()
+                OtDesc = student.Ot.EtmsToDateString(),
+                IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var file in studentExtendFileds)
@@ -425,7 +442,10 @@ namespace ETMS.Business
                 TagsDesc = GetStudentTagsDesc(studentTags, student.Tags),
                 OtDesc = student.Ot.EtmsToDateString(),
                 Label = student.Name,
-                Value = student.Id
+                Value = student.Id,
+                IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
             })));
         }
 
@@ -823,6 +843,106 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request)
+        {
+            var student = await _studentDAL.GetStudent(request.CardNo);
+            if (student == null)
+            {
+                return ResponseBase.CommonError("未找到此卡号对应的学员信息");
+            }
+            var studentRelationship = await _studentRelationshipDAL.GetAllStudentRelationship();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var output = new StudentGetByCardNoOutput()
+            {
+                CId = student.Id,
+                AvatarKey = student.Avatar,
+                AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
+                CardNo = student.CardNo,
+                Gender = student.Gender,
+                TrackUser = student.TrackUser,
+                GradeId = student.GradeId,
+                IntentionLevel = student.IntentionLevel,
+                IsBindingWechat = student.IsBindingWechat,
+                Tags = student.Tags,
+                StudentType = student.StudentType,
+                HomeAddress = student.HomeAddress,
+                LearningManager = student.LearningManager,
+                TrackStatus = student.TrackStatus,
+                Name = student.Name,
+                Phone = student.Phone,
+                PhoneBak = student.PhoneBak,
+                SourceId = student.SourceId,
+                SchoolName = student.SchoolName,
+                Points = student.Points,
+                Remark = student.Remark,
+                PhoneRelationship = student.PhoneRelationship,
+                PhoneBakRelationship = student.PhoneBakRelationship,
+                BirthdayDesc = student.Birthday.EtmsToDateString(),
+                Age = student.Age,
+                EndClassOtDesc = student.EndClassOt == null ? string.Empty : student.EndClassOt.EtmsToDateString(),
+                GenderDesc = EmGender.GetGenderDesc(student.Gender),
+                IntentionLevelDesc = EmStudentIntentionLevel.GetIntentionLevelDesc(student.IntentionLevel),
+                LastTrackTimeDesc = student.LastTrackTime.EtmsToDateString(),
+                NextTrackTimeDesc = student.NextTrackTime.EtmsToDateString(),
+                StudentTypeDesc = EmStudentType.GetStudentTypeDesc(student.StudentType),
+                TrackStatusDesc = EmStudentTrackStatus.GetTrackStatusDesc(student.TrackStatus),
+                TrackUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser),
+                LearningManagerDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.LearningManager),
+                GradeIdDesc = await GetGradeDesc(student.GradeId),
+                PhoneBakRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneBakRelationship, "备用号码"),
+                PhoneRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneRelationship, "手机号码"),
+                SourceIdDesc = await GetSourceDesc(student.SourceId),
+                TagsDesc = await GetStudentTagsDesc(student.Tags),
+                OtDesc = student.Ot.EtmsToDateString(),
+                IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentRelieveCardNo(StudentRelieveCardNoRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.CId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.CardNo))
+            {
+                return ResponseBase.CommonError("此学员未绑定卡片");
+            }
+            await _studentDAL.StudentRelieveCardNo(request.CId, student.CardNo);
+
+            await _userOperationLogDAL.AddUserLog(request, $"解绑卡片：姓名:{student.Name},手机号码:{student.Phone},卡号:{student.CardNo}", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentBindingCardNo(StudentBindingCardNoRequest request)
+        {
+            var newCardNo = request.NewCardNo.Trim();
+            var bindingCardNoStudent = await _studentDAL.GetStudent(newCardNo);
+            if (bindingCardNoStudent != null)
+            {
+                return ResponseBase.CommonError($"此卡已被学员[{bindingCardNoStudent.Name}]绑定，请先解绑卡片");
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.CId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
+            if (newCardNo == student.CardNo)
+            {
+                return ResponseBase.CommonError("学员已绑定此卡片");
+            }
+            await _studentDAL.StudentBindingCardNo(request.CId, newCardNo, student.CardNo);
+
+            await _userOperationLogDAL.AddUserLog(request, $"绑定卡片：姓名:{student.Name},手机号码:{student.Phone},卡号:{newCardNo}", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
         }
     }
 }

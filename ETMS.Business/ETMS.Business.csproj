@@ -10,10 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ETMS.AiFace\ETMS.AiFace.csproj" />
     <ProjectReference Include="..\ETMS.Authority\ETMS.Authority.csproj" />
     <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
     <ProjectReference Include="..\ETMS.ExternalService\ETMS.ExternalService.csproj" />
+    <ProjectReference Include="..\ETMS.IAiFace\ETMS.IAiFace.csproj" />
     <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
     <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
     <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />

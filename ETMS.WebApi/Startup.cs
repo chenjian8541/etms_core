@@ -122,6 +122,8 @@ namespace ETMS.WebApi
             AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
                 config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
                 config.OssAccessUrlHttps, config.RootFolder);
+            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceBlacklist, 2);
+            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceStudentCheckOn, 7);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

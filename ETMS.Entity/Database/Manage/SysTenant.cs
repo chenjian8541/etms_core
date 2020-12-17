@@ -73,6 +73,11 @@ namespace ETMS.Entity.Database.Manage
         public int ConnectionId { get; set; }
 
         /// <summary>
+        /// 腾讯云账号ID （用于人脸识别）
+        /// </summary>
+        public int TencentCloudId { get; set; }
+
+        /// <summary>
         /// 联系人名称
         /// </summary>
         public string LinkMan { get; set; }

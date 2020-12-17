@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Output
 {
-    public class StudentGetPagingOutput
+    public class StudentGetByCardNoOutput
     {
         public long CId { get; set; }
 
@@ -161,10 +161,6 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string OtDesc { get; set; }
 
-        public long Value { get; set; }
-
-        public string Label { get; set; }
-
         /// <summary>
         /// 是否绑定磁卡
         /// </summary>
@@ -179,6 +175,5 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 人脸图片
         /// </summary>
         public string FaceKeyUrl { get; set; }
-
     }
 }

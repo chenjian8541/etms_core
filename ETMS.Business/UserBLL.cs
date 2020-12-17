@@ -106,9 +106,16 @@ namespace ETMS.Business
         public async Task<ResponseBase> UpdateUserInfo(UpdateUserInfoRequest request)
         {
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
+            var oldAvatar = userInfo.Avatar;
+
             userInfo.Avatar = request.AvatarKey;
             userInfo.NickName = request.NickName;
             await _etUserDAL.EditUser(userInfo);
+            if (oldAvatar != request.AvatarKey)
+            {
+                AliyunOssUtil.DeleteObject(oldAvatar);
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"用户:{userInfo.Name},手机号:{userInfo.Phone}修改基本信息", EmUserOperationType.UserUpdateInfo);
             return ResponseBase.Success();
         }
@@ -464,6 +471,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此用户存在上课信息，不允许删除");
             }
             await _etUserDAL.DelUser(request.CId);
+            AliyunOssUtil.DeleteObject(user.Avatar);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除员工：名称:{user.Name},昵称:{user.NickName},手机号码{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }

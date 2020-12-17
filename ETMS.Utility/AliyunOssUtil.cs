@@ -45,6 +45,11 @@ namespace ETMS.Utility
         private static string RootFolder { get; set; }
 
         /// <summary>
+        /// 临时文件
+        /// </summary>
+        private const string TempFolder = "temporary";
+
+        /// <summary>
         /// 上传文件
         /// </summary>
         /// <param name="tenantId"></param>
@@ -54,6 +59,22 @@ namespace ETMS.Utility
         public static string PutObject(int tenantId, string key, string fileType, Stream content)
         {
             key = $"{RootFolder}/{tenantId}/{fileType}/{key}";
+            var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+            client.PutObject(BucketName, key, content);
+            return key;
+        }
+
+        /// <summary>
+        /// 上传临时文件
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="key"></param>
+        /// <param name="fileType"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static string PutObjectTemp(int tenantId, string key, string fileType, Stream content)
+        {
+            key = $"{RootFolder}/{TempFolder}/{fileType}/{tenantId}/{key}";
             var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
             client.PutObject(BucketName, key, content);
             return key;
@@ -77,23 +98,47 @@ namespace ETMS.Utility
         }
 
         /// <summary>
+        /// 上传临时文件
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="key"></param>
+        /// <param name="fileType"></param>
+        /// <param name="bytes"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static string PutObjectTemp(int tenantId, string key, string fileType, byte[] bytes, int count)
+        {
+            using (var cutContent = new MemoryStream(bytes, 0, count))
+            {
+                return PutObjectTemp(tenantId, key, fileType, cutContent);
+            }
+        }
+
+        /// <summary>
         /// 删除文件
         /// </summary>
         /// <param name="key"></param>
-        public static void DeleteObject(string key)
+        public static void DeleteObject(params string[] keys)
         {
-            try
+            if (keys == null || keys.Length == 0)
             {
-                if (string.IsNullOrEmpty(key))
-                {
-                    return;
-                }
-                var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
-                client.DeleteObject(BucketName, key);
+                return;
             }
-            catch (Exception ex)
+            foreach (var key in keys)
             {
-                Log.Error($"【删除OSS文件出错】==> 参数：key：{key}", ex, typeof(AliyunOssUtil));
+                try
+                {
+                    if (string.IsNullOrEmpty(key))
+                    {
+                        continue;
+                    }
+                    var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+                    client.DeleteObject(BucketName, key);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"【删除OSS文件出错】==> 参数：key：{key}", ex, typeof(AliyunOssUtil));
+                }
             }
         }
 
@@ -106,6 +151,25 @@ namespace ETMS.Utility
         {
             var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
             return client.GetObject(BucketName, key).Content;
+        }
+
+        /// <summary>
+        /// 设置OSS生命周期
+        /// </summary>
+        /// <param name="fileType"></param>
+        /// <param name="expriationDays"></param>
+        public static void SetBucketLifecycle(string fileType, int expriationDays)
+        {
+            var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
+            setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
+            {
+                ID = $"{TempFolder}_{fileType}",
+                Prefix = $"{RootFolder}/{TempFolder}/{fileType}/",
+                Status = RuleStatus.Enabled,
+                ExpriationDays = expriationDays
+            });
+            var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+            client.SetBucketLifecycle(setBucketLifecycleRequest);
         }
 
         /// <summary>
@@ -221,5 +285,28 @@ namespace ETMS.Utility
         /// Video
         /// </summary>
         public const string Video = "video";
+
+        /// <summary>
+        /// 学生人脸
+        /// </summary>
+        public const string ImageStudentFace = "image_s_face";
+    }
+
+    /// <summary>
+    /// 临时图片文件夹
+    /// </summary>
+    public struct AliyunOssTempFileTypeEnum
+    {
+        /// <summary>
+        /// 学员人脸考勤黑名单 
+        /// 保留2天
+        /// </summary>
+        public const string FaceBlacklist = "face_b_lst";
+
+        /// <summary>
+        /// 学员考勤照片
+        /// 保留7天
+        /// </summary>
+        public const string FaceStudentCheckOn = "fase_check";
     }
 }

@@ -37,6 +37,21 @@ namespace ETMS.Entity.Database.Source
         public string Avatar { get; set; }
 
         /// <summary>
+        /// 人脸地址
+        /// </summary>
+        public string FaceKey { get; set; }
+
+        /// <summary>
+        /// 人脸图片 灰色
+        /// </summary>
+        public string FaceGreyKey { get; set; }
+
+        /// <summary>
+        /// 人脸使用最后一次时间
+        /// </summary>
+        public DateTime FaceUseLastTime { get; set; }
+
+        /// <summary>
         /// 年龄
         /// </summary>
         public int? Age { get; set; }

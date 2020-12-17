@@ -25,13 +25,16 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IStudentPointBLL _studentPointBLL;
 
+        private readonly IStudent2BLL _student2BLL;
+
         public StudentController(IStudentBLL studentBLL, IStudentContractsBLL studentContractsBLL, IStudentCourseBLL studentCourseBLL,
-            IStudentPointBLL studentPointBLL)
+            IStudentPointBLL studentPointBLL, IStudent2BLL student2BLL)
         {
             this._studentBLL = studentBLL;
             this._studentContractsBLL = studentContractsBLL;
             this._studentCourseBLL = studentCourseBLL;
             this._studentPointBLL = studentPointBLL;
+            this._student2BLL = student2BLL;
         }
 
         [ActionName("studentAdd")]
@@ -544,6 +547,76 @@ namespace ETMS.WebApi.Controllers
             {
                 _studentBLL.InitTenantId(request.LoginTenantId);
                 return await _studentBLL.StudentLeaveApplyPassGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentGetByCardNo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentRelieveCardNo(StudentRelieveCardNoRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentRelieveCardNo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentBindingCardNo(StudentBindingCardNoRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentBindingCardNo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentRelieveFace(StudentRelieveFaceKeyRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentRelieveFace(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentBindingFace(StudentBindingFaceKeyRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentBindingFace(request);
             }
             catch (Exception ex)
             {

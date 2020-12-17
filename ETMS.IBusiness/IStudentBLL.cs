@@ -54,5 +54,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentMarkHidden(StudentMarkHiddenRequest request);
 
         Task<ResponseBase> StudentLeaveApplyPassGet(StudentLeaveApplyPassGetRequest request);
+
+        Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request);
+
+        Task<ResponseBase> StudentRelieveCardNo(StudentRelieveCardNoRequest request);
+
+        Task<ResponseBase> StudentBindingCardNo(StudentBindingCardNoRequest request);
     }
 }

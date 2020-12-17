@@ -1,11 +1,13 @@
 ﻿using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.IDataAccess.EtmsManage;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.Business.EtmsManage
 {
@@ -27,6 +29,24 @@ namespace ETMS.Business.EtmsManage
                 return null;
             }
             return Newtonsoft.Json.JsonConvert.DeserializeObject<SysTenantWechartAuth>(log.Data);
+        }
+
+        public async Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId)
+        {
+            var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.TencentCloudAccount);
+            if (log == null || string.IsNullOrEmpty(log.Data))
+            {
+                LOG.Log.Error($"[GetTencentCloudAccount]获取腾讯云账户信息错误,tencentCloudId:{tencentCloudId}", this.GetType());
+                throw new Exception("获取腾讯云账户信息错误");
+            }
+            var listData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TencentCloudAccountView>>(log.Data);
+            var mydata = listData.FirstOrDefault(p => p.TencentCloudId == tencentCloudId);
+            if (mydata == null)
+            {
+                LOG.Log.Error($"[GetTencentCloudAccount]获取腾讯云账户信息错误2,tencentCloudId:{tencentCloudId}", this.GetType());
+                throw new Exception("获取腾讯云账户信息错误");
+            }
+            return mydata;
         }
     }
 }

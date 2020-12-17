@@ -18,13 +18,13 @@ namespace ETMS.DataAccess.Core
             this._dbWrapper = dbWrapper;
         }
 
-        public void InitTenantId(int tenantId)
+        public virtual void InitTenantId(int tenantId)
         {
             base._tenantId = tenantId;
             this._dbWrapper.InitTenant(tenantId);
         }
 
-        public void ResetTenantId(int tenantId)
+        public virtual void ResetTenantId(int tenantId)
         {
             base._tenantId = tenantId;
             this._dbWrapper.ResetTenant(tenantId);

@@ -2,8 +2,10 @@
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.Utility;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,9 +18,25 @@ namespace Etms.Tools.Test
         static void Main(string[] args)
         {
 
-            CreateParentToken();
+            //CreateParentToken();
+            CreateTencentCloudAccount();
             Console.WriteLine();
             Console.Read();
+        }
+
+        public static void CreateTencentCloudAccount()
+        {
+            var data = new List<TencentCloudAccountView>() {
+              new TencentCloudAccountView(){
+                   TencentCloudId= 0,
+                   SecretId = "AKIDuVreBCHGSQ9eT8ucplStNdkurcGToXEk",
+                   SecretKey = "Xw4ze3H9zax3GDuPedMmytECvc3E9jiM",
+                   Endpoint = "iai.tencentcloudapi.com",
+                   Region = "ap-beijing"
+              }
+            };
+            var s = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+            Console.WriteLine(s);
         }
 
         public static string GetTimeDuration(int startTime, int endTime)

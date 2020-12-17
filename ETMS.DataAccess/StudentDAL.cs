@@ -13,13 +13,29 @@ using System.Linq;
 using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 
 namespace ETMS.DataAccess
 {
     public class StudentDAL : DataAccessBase<StudentBucket>, IStudentDAL
     {
-        public StudentDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        private readonly IStudent2DAL _student2DAL;
+
+        public StudentDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider, IStudent2DAL student2DAL) : base(dbWrapper, cacheProvider)
         {
+            this._student2DAL = student2DAL;
+        }
+
+        public override void InitTenantId(int tenantId)
+        {
+            base.InitTenantId(tenantId);
+            _student2DAL.InitTenantId(tenantId);
+        }
+
+        public override void ResetTenantId(int tenantId)
+        {
+            base.ResetTenantId(tenantId);
+            _student2DAL.ResetTenantId(tenantId);
         }
 
         protected override async Task<StudentBucket> GetDb(params object[] keys)
@@ -212,6 +228,58 @@ namespace ETMS.DataAccess
         public async Task<Tuple<IEnumerable<GetAllStudentPagingOutput>, int>> GetAllStudentPaging(GetAllStudentPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<GetAllStudentPagingOutput>("EtStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<EtStudent> GetStudent(string cardNo)
+        {
+            return await _student2DAL.GetStudent(cardNo);
+        }
+
+        public async Task<bool> StudentRelieveCardNo(long id, string cardNo)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await base.UpdateCache(_tenantId, id);
+            _student2DAL.RemoveCache(cardNo);
+            return true;
+        }
+
+        public async Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '{cardNo}' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await base.UpdateCache(_tenantId, id);
+            await _student2DAL.UpdateCache(cardNo);
+            if (!string.IsNullOrEmpty(oldCardNo))
+            {
+                _student2DAL.RemoveCache(oldCardNo);
+            }
+            return true;
+        }
+
+        public async Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '{faceKey}' ,FaceGreyKey = '{faceGreyKey}' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await base.UpdateCache(_tenantId, id);
+            return true;
+        }
+
+        public async Task<bool> StudentRelieveFaceKey(long id)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await base.UpdateCache(_tenantId, id);
+            return true;
+        }
+
+        public async Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceUseLastTime = '{faceUseLastTime.EtmsToString()}' WHERE TenantId = {_tenantId} AND Id = {id} ");
+            await base.UpdateCache(_tenantId, id);
+            return true;
+        }
+
+        public async Task<IEnumerable<StudentFaceView>> GetStudentFace()
+        {
+            return await _dbWrapper.ExecuteObject<StudentFaceView>(
+                $"SELECT TOP 1000 Id,FaceGreyKey FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND FaceGreyKey <> '' ORDER BY FaceUseLastTime DESC");
         }
     }
 }

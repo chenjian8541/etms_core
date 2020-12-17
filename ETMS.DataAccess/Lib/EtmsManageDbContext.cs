@@ -39,5 +39,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysUpgradeMsg> SysUpgradeMsgs { get; set; }
         public DbSet<SysUpgradeMsgRead> SysUpgradeMsgReads { get; set; }
         public DbSet<SysWechartAuthTemplateMsg> SysWechartAuthTemplateMsgs { get; set; }
+        public DbSet<SysTenantTxCloudUCount> SysTenantTxCloudUCounts { get; set; }
     }
 }

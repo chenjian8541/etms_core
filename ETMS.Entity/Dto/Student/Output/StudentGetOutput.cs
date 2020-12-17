@@ -161,6 +161,21 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string OtDesc { get; set; }
 
+        /// <summary>
+        /// 是否绑定磁卡
+        /// </summary>
+        public bool IsBindingCard { get; set; }
+
+        /// <summary>
+        /// 是否采集了人脸
+        /// </summary>
+        public bool IsBindingFaceKey { get; set; }
+
+        /// <summary>
+        /// 人脸图片
+        /// </summary>
+        public string FaceKeyUrl { get; set; }
+
         public List<StudentExtendItemOutput> StudentExtendItems { get; set; }
     }
 }

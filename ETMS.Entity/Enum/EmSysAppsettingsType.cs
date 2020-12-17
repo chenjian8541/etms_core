@@ -13,5 +13,10 @@ namespace ETMS.Entity.Enum
         /// 机构默认授权信息(绑定的小禾帮微信公众号)
         /// </summary>
         public const byte TenantDefaultWechartAuth = 0;
+
+        /// <summary>
+        /// 腾讯云账户信息
+        /// </summary>
+        public const byte TencentCloudAccount = 1;
     }
 }
