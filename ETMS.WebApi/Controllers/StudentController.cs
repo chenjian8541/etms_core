@@ -624,5 +624,89 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckOnLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCheckByCard(StudentCheckByCardRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckByCard(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCheckByTeacher(StudentCheckByTeacherRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckByTeacher(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCheckByFace(StudentCheckByFaceRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckByFace(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCheckByFace2(StudentCheckByFace2Request request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckByFace2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCheckOnLogRevoke(StudentCheckOnLogRevokeRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentCheckOnLogRevoke(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

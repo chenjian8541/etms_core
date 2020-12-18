@@ -699,5 +699,78 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeStudentCheckIn(NoticeStudentCheckInRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var deClassTimeDesc = string.Empty;
+                    if (!string.IsNullOrEmpty(request.DeClassTimesDesc))
+                    {
+                        deClassTimeDesc = $"，{request.DeClassTimesDesc}";
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"签到成功{deClassTimeDesc}")),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.TenantName, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.CheckOtDesc, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentCheckIn]考勤签到2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentCheckIn]考勤签到:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
+
+        public void NoticeStudentCheckOut(NoticeStudentCheckOutRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"签退成功")),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.TenantName, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.CheckOtDesc, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentCheckOut]考勤签退2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentCheckOut]考勤签退:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

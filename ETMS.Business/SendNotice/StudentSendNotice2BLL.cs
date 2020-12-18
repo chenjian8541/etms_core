@@ -51,11 +51,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly ISmsService _smsService;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
             IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
-            IClassTimesDAL classTimesDAL, ISmsService smsService)
+            IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -71,12 +73,14 @@ namespace ETMS.Business.SendNotice
             this._studentCourseDAL = studentCourseDAL;
             this._classTimesDAL = classTimesDAL;
             this._smsService = smsService;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
-                _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL);
+                _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL,
+                _studentCheckOnLogDAL);
         }
 
         public async Task NoticeStudentsOfHomeworkAddConsumeEvent(NoticeStudentsOfHomeworkAddEvent request)
@@ -678,6 +682,159 @@ namespace ETMS.Business.SendNotice
             }
 
             await _studentCourseDAL.UpdateStudentCourseNotEnoughRemindInfo(request.StudentId, request.CourseId);
+        }
+
+        public async Task NoticeStudentsCheckOnConsumerEvent(NoticeStudentsCheckOnEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat
+                && !tenantConfig.StudentNoticeConfig.StudentCheckOnSms)
+            {
+                return;
+            }
+
+            var log = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (log == null)
+            {
+                Log.Error($"[NoticeStudentsCheckOnConsumerEvent]未找到考勤记录:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var studentBucket = await _studentDAL.GetStudent(log.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeStudentsCheckOnConsumerEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            if (log.CheckType == EmStudentCheckOnLogCheckType.CheckIn)
+            {
+                await NoticeStudentsCheckIn(request.TenantId, tenantConfig, log, student);
+            }
+            else
+            {
+                await NoticeStudentsCheckOut(request.TenantId, tenantConfig, log, student);
+            }
+        }
+
+        private async Task NoticeStudentsCheckIn(int tenantId, TenantConfig tenantConfig, EtStudentCheckOnLog log, EtStudent student)
+        {
+            var req = new NoticeStudentCheckInRequest(await GetNoticeRequestBase(tenantId, tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat))
+            {
+                Students = new List<NoticeStudentCheckInStudent>(),
+                CheckOtDesc = log.CheckOt.EtmsToMinuteString(),
+                DeClassTimesDesc = string.Empty
+            };
+            if (log.Status == EmStudentCheckOnLogStatus.NormalAttendClass)
+            {
+                var myCourse = await _courseDAL.GetCourse(log.CourseId.Value);
+                if (myCourse != null && myCourse.Item1 != null)
+                {
+                    var myStudentCourse = await _studentCourseDAL.GetStudentCourse(log.StudentId, log.CourseId.Value);
+                    if (myStudentCourse != null && myStudentCourse.Count > 0)
+                    {
+                        var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
+                        req.DeClassTimesDesc = $"课程({myCourse.Item1.Name})，消耗{log.DeClassTimes.EtmsToString()}课时，剩余{mySurplusQuantityDesc}";
+                    }
+                }
+            }
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCheckIn;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var url = string.Empty;
+            if (log.CheckForm == EmStudentCheckOnLogCheckForm.Face)
+            {
+                url = string.Format(wxConfig.TemplateNoticeConfig.StudentCheckLogUrl, log.Id);
+            }
+
+            req.Students.Add(new NoticeStudentCheckInStudent()
+            {
+                Name = student.Name,
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id,
+                Url = url
+            });
+
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new NoticeStudentCheckInStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id,
+                    Url = url
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat)
+                {
+                    _wxService.NoticeStudentCheckIn(req);
+                }
+                if (tenantConfig.StudentNoticeConfig.StudentCheckOnSms)
+                {
+                    await _smsService.NoticeStudentCheckIn(req);
+                }
+            }
+        }
+
+        private async Task NoticeStudentsCheckOut(int tenantId, TenantConfig tenantConfig, EtStudentCheckOnLog log, EtStudent student)
+        {
+            var req = new NoticeStudentCheckOutRequest(await GetNoticeRequestBase(tenantId, tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat))
+            {
+                Students = new List<NoticeStudentCheckOutStudent>(),
+                CheckOtDesc = log.CheckOt.EtmsToMinuteString()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCheckOut;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var url = string.Empty;
+            if (log.CheckForm == EmStudentCheckOnLogCheckForm.Face)
+            {
+                url = string.Format(wxConfig.TemplateNoticeConfig.StudentCheckLogUrl, log.Id);
+            }
+
+            req.Students.Add(new NoticeStudentCheckOutStudent()
+            {
+                Name = student.Name,
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id,
+                Url = url
+            });
+
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new NoticeStudentCheckOutStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id,
+                    Url = url
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat)
+                {
+                    _wxService.NoticeStudentCheckOut(req);
+                }
+                if (tenantConfig.StudentNoticeConfig.StudentCheckOnSms)
+                {
+                    await _smsService.NoticeStudentCheckOut(req);
+                }
+            }
         }
     }
 }

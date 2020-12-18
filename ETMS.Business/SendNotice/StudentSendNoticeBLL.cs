@@ -489,29 +489,31 @@ namespace ETMS.Business
                 }
                 var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                 var mySurplusClassTimes = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
-                var surplusClassTimesDesc = "0课时";
-                if (mySurplusClassTimes != null && mySurplusClassTimes.Any())
-                {
-                    var temp = new StringBuilder();
-                    var deClassTimes = mySurplusClassTimes.FirstOrDefault(j => j.DeType == EmDeClassTimesType.ClassTimes);
-                    if (deClassTimes != null && deClassTimes.BuyQuantity > 0)
-                    {
-                        temp.Append(ComBusiness.GetSurplusQuantityDesc(deClassTimes.SurplusQuantity, deClassTimes.SurplusSmallQuantity, deClassTimes.DeType));
-                    }
-                    var deDay = mySurplusClassTimes.FirstOrDefault(j => j.DeType == EmDeClassTimesType.Day);
-                    if (deDay != null && deDay.BuyQuantity > 0)
-                    {
-                        temp.Append(ComBusiness.GetSurplusQuantityDesc(deDay.SurplusQuantity, deDay.SurplusSmallQuantity, deDay.DeType));
-                    }
-                    if (temp.Length == 0)
-                    {
-                        surplusClassTimesDesc = "0课时";
-                    }
-                    else
-                    {
-                        surplusClassTimesDesc = temp.ToString();
-                    }
-                }
+                var surplusClassTimesDesc = ComBusiness.GetStudentCourseDesc(mySurplusClassTimes);
+
+                //if (mySurplusClassTimes != null && mySurplusClassTimes.Any())
+                //{
+                //    var temp = new StringBuilder();
+                //    var deClassTimes = mySurplusClassTimes.FirstOrDefault(j => j.DeType == EmDeClassTimesType.ClassTimes);
+                //    if (deClassTimes != null && deClassTimes.BuyQuantity > 0)
+                //    {
+                //        temp.Append(ComBusiness.GetSurplusQuantityDesc(deClassTimes.SurplusQuantity, deClassTimes.SurplusSmallQuantity, deClassTimes.DeType));
+                //    }
+                //    var deDay = mySurplusClassTimes.FirstOrDefault(j => j.DeType == EmDeClassTimesType.Day);
+                //    if (deDay != null && deDay.BuyQuantity > 0)
+                //    {
+                //        temp.Append(ComBusiness.GetSurplusQuantityDesc(deDay.SurplusQuantity, deDay.SurplusSmallQuantity, deDay.DeType));
+                //    }
+                //    if (temp.Length == 0)
+                //    {
+                //        surplusClassTimesDesc = "0课时";
+                //    }
+                //    else
+                //    {
+                //        surplusClassTimesDesc = temp.ToString();
+                //    }
+                //}
+
                 req.Students.Add(new NoticeClassCheckSignStudent()
                 {
                     StudentId = student.Id,

@@ -101,6 +101,10 @@ namespace ETMS.Business.Common
                     }
                 }
             }
+            if (courseSurplusDesc.Length == 0)
+            {
+                return "0课时";
+            }
             return courseSurplusDesc.ToString().TrimEnd();
         }
 

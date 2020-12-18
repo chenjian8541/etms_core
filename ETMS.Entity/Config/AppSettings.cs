@@ -153,6 +153,10 @@ namespace ETMS.Entity.Config
 
         public string NoticeUserOfHomeworkFinish { get; set; }
 
+        public string StudentCheckIn { get; set; }
+
+        public string StudentCheckOut { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }
@@ -166,6 +170,8 @@ namespace ETMS.Entity.Config
         public string StudentWxMessageDetailUrl { get; set; }
 
         public string StudentCourseUrl { get; set; }
+
+        public string StudentCheckLogUrl { get; set; }
     }
 
     public class ServerConfig
@@ -248,6 +254,15 @@ namespace ETMS.Entity.Config
         public StudentCourseNotEnough StudentCourseNotEnough { get; set; }
 
         public NoticeUserOfClassToday NoticeUserOfClassToday { get; set; }
+
+        public StudentCheckOnLog StudentCheckOnLog { get; set; }
+    }
+
+    public class StudentCheckOnLog
+    {
+        public string CheckIn { get; set; }
+
+        public string CheckOut { get; set; }
     }
 
     public class NoticeUserOfClassToday

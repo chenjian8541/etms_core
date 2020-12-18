@@ -66,7 +66,7 @@ namespace ETMS.Entity.Common
         {
             var response = new ResponseBase();
             response.code = StatusCode.CommonError;
-            response.message = "未知错误";
+            response.message = "系统开小差请稍后再试";
             return response;
         }
 

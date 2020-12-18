@@ -40,5 +40,9 @@ namespace ETMS.ExternalService.Contract
         void NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request);
 
         void NoticeTeacherOfHomeworkFinish(NoticeTeacherOfHomeworkFinishRequest request);
+
+        void NoticeStudentCheckIn(NoticeStudentCheckInRequest request);
+
+        void NoticeStudentCheckOut(NoticeStudentCheckOutRequest request);
     }
 }

@@ -109,6 +109,8 @@ namespace ETMS.Business
             config.StudentNoticeConfig.ClassRecordStudentChangeWeChat = request.ClassRecordStudentChangeWeChat;
             config.StudentNoticeConfig.StudentCourseNotEnoughWeChat = request.StudentCourseNotEnoughWeChat;
             config.StudentNoticeConfig.StudentCourseNotEnoughSms = request.StudentCourseNotEnoughSms;
+            config.StudentNoticeConfig.StudentCheckOnWeChat = request.StudentCheckOnWeChat;
+            config.StudentNoticeConfig.StudentCheckOnSms = request.StudentCheckOnSms;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "通知设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

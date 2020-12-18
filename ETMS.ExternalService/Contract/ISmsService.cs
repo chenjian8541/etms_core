@@ -29,5 +29,9 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
 
         Task<SmsOutput> NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request);
+
+        Task<SmsOutput> NoticeStudentCheckIn(NoticeStudentCheckInRequest request);
+
+        Task<SmsOutput> NoticeStudentCheckOut(NoticeStudentCheckOutRequest request);
     }
 }

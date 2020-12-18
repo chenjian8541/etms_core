@@ -78,5 +78,15 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员课时不足提醒（短信）
         /// </summary>
         public bool StudentCourseNotEnoughSms { get; set; }
+
+        /// <summary>
+        /// 学员考勤通知（微信）
+        /// </summary>
+        public bool StudentCheckOnWeChat { get; set; }
+
+        /// <summary>
+        /// 学员考勤通知（短信）
+        /// </summary>
+        public bool StudentCheckOnSms { get; set; }
     }
 }
