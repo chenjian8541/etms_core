@@ -207,9 +207,9 @@ namespace ETMS.Business
             }
             switch (checkForm)
             {
-                case EmStudentCheckOnLogCheckForm.Card:
-                    return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
                 case EmStudentCheckOnLogCheckForm.Face:
+                    return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
+                case EmStudentCheckOnLogCheckForm.Card:
                     return checkMedium;
                 case EmStudentCheckOnLogCheckForm.TeacherManual:
                     return checkMedium;
@@ -461,7 +461,7 @@ namespace ETMS.Business
                 studentCheckOnLog.CourseId = deCourseId;
                 studentCheckOnLog.ClassOtDesc = $"{myClassTimes.ClassOt.EtmsToDateString()}（{EtmsHelper.GetTimeDesc(myClassTimes.StartTime)}~{EtmsHelper.GetTimeDesc(myClassTimes.EndTime)}）";
                 studentCheckOnLog.DeType = deStudentClassTimesResult.DeType;
-                studentCheckOnLog.DeClassTimes = deStudentClassTimesResult.DeSum;
+                studentCheckOnLog.DeClassTimes = deStudentClassTimesResult.DeClassTimes;
                 studentCheckOnLog.DeSum = deStudentClassTimesResult.DeSum;
                 studentCheckOnLog.ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes;
                 studentCheckOnLog.DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId;

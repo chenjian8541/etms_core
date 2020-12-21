@@ -49,7 +49,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 人脸使用最后一次时间
         /// </summary>
-        public DateTime FaceUseLastTime { get; set; }
+        public DateTime? FaceUseLastTime { get; set; }
 
         /// <summary>
         /// 年龄

@@ -85,7 +85,7 @@ namespace ETMS.Business.Common
                 CheckOt = _request.CheckOt,
                 CheckType = checkType,
                 IsDeleted = EmIsDeleted.Normal,
-                Remark = string.Empty,
+                Remark = remark,
                 Status = EmStudentCheckOnLogStatus.NormalAttendClass,
                 TenantId = _request.Student.TenantId,
                 CheckMedium = _request.CheckMedium,

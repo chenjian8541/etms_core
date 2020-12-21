@@ -1,6 +1,7 @@
 ﻿using ETMS.IAiFace;
 using ETMS.LOG;
 using System;
+using System.Collections.Generic;
 using TencentCloud.Common;
 using TencentCloud.Common.Profile;
 using TencentCloud.Iai.V20200303;
@@ -56,6 +57,7 @@ namespace ETMS.AiFace
             httpProfile.Endpoint = _endpoint;
             clientProfile.HttpProfile = httpProfile;
             this._client = new IaiClient(cred, _region, clientProfile);
+            this.InitTenantGroup();
         }
 
         private string GetPersonId(long studentId)
@@ -111,11 +113,6 @@ namespace ETMS.AiFace
         {
             try
             {
-                var isJustInitGroup = InitTenantGroup();
-                if (isJustInitGroup)
-                {
-                    return;
-                }
                 var req = new DeletePersonRequest();
                 req.PersonId = GetPersonId(studentId);
                 _client.DeletePersonSync(req);
@@ -161,7 +158,8 @@ namespace ETMS.AiFace
             var req = new CreateFaceRequest();
             req.Urls = new string[] { faceGreyKeyUrl };
             req.PersonId = GetPersonId(studentId);
-            _client.CreateFaceSync(req);
+            var result = _client.CreateFaceSync(req);
+            var i = 1;
         }
 
         private void StudentCreate(long studentId, string faceGreyKeyUrl)
@@ -180,19 +178,22 @@ namespace ETMS.AiFace
             try
             {
                 var personBaseInfo = StudentGetPersonInfo(studentId);
-                if (personBaseInfo != null)//删除旧的人脸  增加新的人脸
+                if (personBaseInfo != null)//删除旧的人员  增加新的人脸
                 {
-                    if (personBaseInfo.FaceIds != null && personBaseInfo.FaceIds.Length > 0)
-                    {
-                        StudentDelFaceIds(studentId, personBaseInfo.FaceIds);
-                    }
-                    StudentAddFace(studentId, faceGreyKeyUrl);
+                    //if (personBaseInfo.FaceIds != null && personBaseInfo.FaceIds.Length > 1)
+                    //{
+                    //    var dyFace = new List<string>();
+                    //    for (var i = 1; i < personBaseInfo.FaceIds.Length; i++)
+                    //    {
+                    //        dyFace.Add(personBaseInfo.FaceIds[i]);
+                    //    }
+                    //    StudentDelFaceIds(studentId, dyFace.ToArray());
+                    //}
+                    //StudentAddFace(studentId, faceGreyKeyUrl);
+                    StudentDel(studentId);
                 }
-                else
-                {
-                    //创建人员 并设置人脸
-                    StudentCreate(studentId, faceGreyKeyUrl);
-                }
+                //创建人员 并设置人脸
+                StudentCreate(studentId, faceGreyKeyUrl);
                 return true;
             }
             catch (Exception ex)
@@ -207,9 +208,9 @@ namespace ETMS.AiFace
             try
             {
                 var personBaseInfo = StudentGetPersonInfo(studentId);
-                if (personBaseInfo != null && personBaseInfo.FaceIds != null && personBaseInfo.FaceIds.Length > 0)
+                if (personBaseInfo != null)
                 {
-                    StudentDelFaceIds(studentId, personBaseInfo.FaceIds);
+                    StudentDel(studentId);
                 }
                 return true;
             }
@@ -234,7 +235,11 @@ namespace ETMS.AiFace
                 {
                     return GetStudentId(myCandidates.PersonId);
                 }
-                return 0;
+                else
+                {
+                    Log.Fatal($"[腾讯云人脸识别]人脸搜索结果,分数太低:{Newtonsoft.Json.JsonConvert.SerializeObject(myCandidates)}", this.GetType());
+                    return 0;
+                }
             }
             catch (Exception ex)
             {
