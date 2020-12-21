@@ -597,6 +597,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentFaceListGet(StudentFaceListGetRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentFaceListGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentRelieveFace(StudentRelieveFaceKeyRequest request)
         {
             try
