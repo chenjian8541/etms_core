@@ -22,7 +22,7 @@ namespace ETMS.Entity.Enum
         public const byte BeRollcall = 2;
 
         /// <summary>
-        /// 撤销点名
+        /// 撤销记上课
         /// </summary>
         public const byte Revoke = 3;
     }

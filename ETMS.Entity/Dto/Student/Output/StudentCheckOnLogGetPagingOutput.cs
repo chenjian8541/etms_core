@@ -32,12 +32,6 @@ namespace ETMS.Entity.Dto.Student.Output
         public string CheckTypeDesc { get; set; }
 
         /// <summary>
-        /// 考勤介质
-        /// 磁卡卡号/人脸图片key
-        /// </summary>
-        public string CheckMedium { get; set; }
-
-        /// <summary>
         /// 考勤时间
         /// </summary>
         public DateTime CheckOt { get; set; }
@@ -52,5 +46,6 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public byte Status { get; set; }
 
+        public string CheckMedium { get; set; }
     }
 }

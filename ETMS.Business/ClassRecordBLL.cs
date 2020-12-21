@@ -4,6 +4,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
@@ -515,7 +516,14 @@ namespace ETMS.Business
             p.StudentCheckStatus = request.NewStudentCheckStatus;
             p.ExceedClassTimes = 0;
             p.Remark = request.NewRemark;
-            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, p);
+            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+            {
+                ClassOt = p.ClassOt,
+                TenantId = p.TenantId,
+                StudentId = p.StudentId,
+                DeClassTimes = p.DeClassTimes,
+                CourseId = p.CourseId
+            });
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(p.TenantId)
             {
                 StudentId = p.StudentId,

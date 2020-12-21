@@ -12,7 +12,7 @@ namespace ETMS.Business.Common
 {
     public static class CoreBusiness
     {
-        private static EtStudentCourse GetExceedClassTimes(EtClassRecordStudent classRecordStudent, decimal addExceedTotalClassTimes)
+        private static EtStudentCourse GetExceedClassTimes(DeStudentClassTimesTempRequest classRecordStudent, decimal addExceedTotalClassTimes)
         {
             return new EtStudentCourse()
             {
@@ -43,7 +43,7 @@ namespace ETMS.Business.Common
         /// <param name="studentCourseDAL"></param>
         /// <param name="classRecordStudent"></param>
         /// <returns></returns>
-        public static async Task<DeStudentClassTimesResult> DeStudentClassTimes(IStudentCourseDAL studentCourseDAL, EtClassRecordStudent classRecordStudent)
+        public static async Task<DeStudentClassTimesResult> DeStudentClassTimes(IStudentCourseDAL studentCourseDAL, DeStudentClassTimesTempRequest classRecordStudent)
         {
             if (classRecordStudent.DeClassTimes == 0)
             {

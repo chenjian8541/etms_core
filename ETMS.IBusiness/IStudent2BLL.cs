@@ -25,6 +25,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCheckByFace2(StudentCheckByFace2Request request);
 
+        Task<ResponseBase> StudentCheckChoiceClass(StudentCheckChoiceClassRequest request);
+
         Task<ResponseBase> StudentCheckOnLogRevoke(StudentCheckOnLogRevokeRequest request);
     }
 }

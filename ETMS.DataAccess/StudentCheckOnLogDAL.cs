@@ -41,16 +41,17 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtStudentCheckOnLog>(p => p.Id == id);
         }
 
-        public async Task<bool> AddStudentCheckOnLog(EtStudentCheckOnLog entity)
+        public async Task<long> AddStudentCheckOnLog(EtStudentCheckOnLog entity)
         {
             await _dbWrapper.Insert(entity);
             await UpdateCache(_tenantId, entity.StudentId);
-            return true;
+            return entity.Id;
         }
 
         public async Task<bool> EditStudentCheckOnLog(EtStudentCheckOnLog entity)
         {
             await _dbWrapper.Update(entity);
+            await UpdateCache(_tenantId, entity.StudentId);
             return true;
         }
 
@@ -68,6 +69,12 @@ namespace ETMS.DataAccess
         public async Task<List<EtStudentCheckOnLog>> GetStudentCheckOnLogByClassTimesId(long classTimesId)
         {
             return await this._dbWrapper.FindList<EtStudentCheckOnLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.ClassTimesId == classTimesId);
+        }
+
+        public async Task<EtStudentCheckOnLog> GetStudentDeLog(long classTimesId, long studentId)
+        {
+            return await this._dbWrapper.Find<EtStudentCheckOnLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.ClassTimesId == classTimesId && p.StudentId == studentId && p.Status != EmStudentCheckOnLogStatus.Revoke);
         }
     }
 }

@@ -35,6 +35,11 @@ namespace ETMS.Utility
             return @this.ToString("yyyy-MM-dd HH:mm");
         }
 
+        public static string EtmsToOnlyMinuteString(this DateTime @this)
+        {
+            return @this.ToString("HH:mm");
+        }
+
         public static string EtmsToMinuteString(this DateTime? @this)
         {
             if (@this == null)

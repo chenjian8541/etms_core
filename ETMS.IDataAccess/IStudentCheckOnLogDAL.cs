@@ -11,7 +11,7 @@ namespace ETMS.IDataAccess
     {
         Task<EtStudentCheckOnLog> GetStudentCheckOnLog(long id);
 
-        Task<bool> AddStudentCheckOnLog(EtStudentCheckOnLog entity);
+        Task<long> AddStudentCheckOnLog(EtStudentCheckOnLog entity);
 
         Task<bool> EditStudentCheckOnLog(EtStudentCheckOnLog entity);
 
@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess
         Task<EtStudentCheckOnLog> GetStudentCheckOnLastTime(long studentId);
 
         Task<List<EtStudentCheckOnLog>> GetStudentCheckOnLogByClassTimesId(long classTimesId);
+
+        Task<EtStudentCheckOnLog> GetStudentDeLog(long classTimesId, long studentId);
     }
 }

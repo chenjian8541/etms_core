@@ -438,7 +438,14 @@ namespace ETMS.Business
             {
                 return DeStudentClassTimesResult.GetNotDeEntity();
             }
-            return await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, classRecordStudent);
+            return await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+            {
+                ClassOt = classRecordStudent.ClassOt,
+                CourseId = classRecordStudent.CourseId,
+                DeClassTimes = classRecordStudent.DeClassTimes,
+                StudentId = classRecordStudent.StudentId,
+                TenantId = classRecordStudent.TenantId
+            });
         }
 
         private void ClassRecordAbsenceProcess(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs, EtClassRecordStudent student, long recordId)

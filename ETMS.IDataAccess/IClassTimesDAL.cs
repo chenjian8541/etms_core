@@ -51,5 +51,7 @@ namespace ETMS.IDataAccess
         Task<EtClassTimesStudent> GetClassTimesStudent(long classTimesId,long studentTryCalssLogId);
 
         Task<EtClassTimesStudent> GetClassTimesTryStudent(long studentId, long courseId, DateTime classOt);
+
+        Task<IEnumerable<EtClassTimes>> GetStudentCheckOnAttendClass(DateTime checkOt, long studentId, int relationClassTimesLimitMinuteCard);
     }
 }

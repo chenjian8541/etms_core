@@ -129,5 +129,13 @@ namespace ETMS.DataAccess
             && p.IsDeleted == EmIsDeleted.Normal && p.StudentType == EmClassStudentType.TryCalssStudent);
             return log;
         }
+
+        public async Task<IEnumerable<EtClassTimes>> GetStudentCheckOnAttendClass(DateTime checkOt, long studentId, int relationClassTimesLimitMinuteCard)
+        {
+            var minMime = checkOt.AddMinutes(-relationClassTimesLimitMinuteCard).ToString("HHmm").ToInt();
+            var maxMime = checkOt.AddMinutes(relationClassTimesLimitMinuteCard).ToString("HHmm").ToInt();
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{checkOt.EtmsToDateString()}' AND StartTime >= {minMime} AND StartTime <= {maxMime} AND StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%' ");
+        }
     }
 }
