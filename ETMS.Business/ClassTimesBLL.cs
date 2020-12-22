@@ -43,9 +43,12 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public ClassTimesBLL(IClassDAL classDAL, IClassRoomDAL classRoomDAL, IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
             IUserDAL userDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentTrackLogDAL studentTrackLogDAL,
-            ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher)
+            ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher,
+            IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._classDAL = classDAL;
             this._classRoomDAL = classRoomDAL;
@@ -59,12 +62,13 @@ namespace ETMS.Business
             this._tryCalssLogDAL = tryCalssLogDAL;
             this._classRecordDAL = classRecordDAL;
             this._eventPublisher = eventPublisher;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _classRoomDAL, _studentCourseDAL, _classTimesDAL, _userDAL, _courseDAL, _studentDAL,
-                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL);
+                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL, _studentCheckOnLogDAL);
         }
 
         public async Task<ResponseBase> ClassTimesGetView(ClassTimesGetViewRequest request)
@@ -149,6 +153,7 @@ namespace ETMS.Business
             }
             var classStudent = etClass.EtClassStudents;
             var tempStudent = await _classTimesDAL.GetClassTimesStudent(request.CId);
+            var checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(classTimes.Id);
             var output = new List<ClassTimesStudentGetOutput>();
             if (classStudent != null && classStudent.Any())
             {
@@ -158,6 +163,11 @@ namespace ETMS.Business
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null, etClass.EtClass.DefaultClassTimes);
                     if (classTimesStudent != null)
                     {
+                        var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
+                        if (myCheck != null)
+                        {
+                            classTimesStudent.IsCheckAttendance = true;
+                        }
                         output.Add(classTimesStudent);
                     }
                 }
@@ -170,11 +180,16 @@ namespace ETMS.Business
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId, etClass.EtClass.DefaultClassTimes);
                     if (tempTimesStudent != null)
                     {
+                        var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
+                        if (myCheck != null)
+                        {
+                            tempTimesStudent.IsCheckAttendance = true;
+                        }
                         output.Add(tempTimesStudent);
                     }
                 }
             }
-            return ResponseBase.Success(output);
+            return ResponseBase.Success(output.OrderBy(p => p.IsCheckAttendance));
         }
 
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,

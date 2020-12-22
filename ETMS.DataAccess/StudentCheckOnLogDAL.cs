@@ -76,5 +76,11 @@ namespace ETMS.DataAccess
             return await this._dbWrapper.Find<EtStudentCheckOnLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
             && p.ClassTimesId == classTimesId && p.StudentId == studentId && p.Status != EmStudentCheckOnLogStatus.Revoke);
         }
+
+        public async Task<bool> UpdateStudentCheckOnIsBeRollcall(long classTimesId)
+        {
+            await _dbWrapper.Execute($"update [EtStudentCheckOnLog] set [Status] = {EmStudentCheckOnLogStatus.BeRollcall} where TenantId = {_tenantId} and ClassTimesId = {classTimesId} ");
+            return true;
+        }
     }
 }

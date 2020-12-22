@@ -52,10 +52,12 @@ namespace ETMS.Business
 
         private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public ClassCheckSignBLL(IClassDAL classDAL, IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL,
             IStudentTrackLogDAL studentTrackLogDAL, INoticeBLL noticeBLL, IStudentPointsLogDAL studentPointsLog, IUserDAL userDAL, IUserOperationLogDAL userOperationLogDAL,
-            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._classDAL = classDAL;
             this._classTimesDAL = classTimesDAL;
@@ -72,6 +74,7 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -79,7 +82,7 @@ namespace ETMS.Business
             this._noticeBLL.InitTenantId(tenantId);
             this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _classRecordDAL, _studentDAL, _tryCalssLogDAL, _studentTrackLogDAL,
-                _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL);
+                _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL, _studentCheckOnLogDAL);
         }
 
         public async Task<ResponseBase> ClassCheckSign(ClassCheckSignRequest request)
@@ -283,26 +286,53 @@ namespace ETMS.Business
             var isNotComeCharge = etClassBucket.EtClass.IsNotComeCharge;
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             decimal totalDeSum = 0;
+            List<EtStudentCheckOnLog> checkInLog = null;
+            if (request.ClassRecord.ClassTimesId != null)
+            {
+                checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(request.ClassRecord.ClassTimesId.Value);
+            }
             var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
+            var isProcess = false;
             foreach (var student in request.ClassRecordStudents)
             {
+                isProcess = false;
                 var deStudentClassTimesResult = DeStudentClassTimesResult.GetNotDeEntity();
-                switch (student.StudentType)
+                if (checkInLog != null && checkInLog.Count > 0)
                 {
-                    case EmClassStudentType.ClassStudent:
-                        deStudentClassTimesResult = await DeStudentClassTimes(student, isLeaveCharge, isNotComeCharge);
-                        break;
-                    case EmClassStudentType.TempStudent:
-                        deStudentClassTimesResult = await DeStudentClassTimes(student, isLeaveCharge, isNotComeCharge);
-                        break;
-                    case EmClassStudentType.MakeUpStudent:
-                        if (tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes)
+                    //考勤记上课
+                    var myCheckLog = checkInLog.FirstOrDefault(p => p.StudentId == student.StudentId);
+                    if (myCheckLog != null)
+                    {
+                        deStudentClassTimesResult = new DeStudentClassTimesResult()
                         {
+                            DeClassTimes = myCheckLog.DeClassTimes,
+                            DeStudentCourseDetailId = myCheckLog.DeStudentCourseDetailId,
+                            DeSum = myCheckLog.DeSum,
+                            DeType = myCheckLog.DeType,
+                            ExceedClassTimes = myCheckLog.ExceedClassTimes
+                        };
+                        isProcess = true;
+                    }
+                }
+                if (!isProcess)
+                {
+                    switch (student.StudentType)
+                    {
+                        case EmClassStudentType.ClassStudent:
                             deStudentClassTimesResult = await DeStudentClassTimes(student, isLeaveCharge, isNotComeCharge);
-                        }
-                        break;
-                    case EmClassStudentType.TryCalssStudent:
-                        break;
+                            break;
+                        case EmClassStudentType.TempStudent:
+                            deStudentClassTimesResult = await DeStudentClassTimes(student, isLeaveCharge, isNotComeCharge);
+                            break;
+                        case EmClassStudentType.MakeUpStudent:
+                            if (tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes)
+                            {
+                                deStudentClassTimesResult = await DeStudentClassTimes(student, isLeaveCharge, isNotComeCharge);
+                            }
+                            break;
+                        case EmClassStudentType.TryCalssStudent:
+                            break;
+                    }
                 }
                 student.DeSum = deStudentClassTimesResult.DeSum;
                 student.DeType = deStudentClassTimesResult.DeType;
@@ -317,7 +347,7 @@ namespace ETMS.Business
                     student.DeClassTimes = deStudentClassTimesResult.DeClassTimes;
                 }
                 student.DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId;
-                if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+                if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe && !isProcess)
                 {
                     studentCourseConsumeLogs.Add(new EtStudentCourseConsumeLog()
                     {
@@ -344,6 +374,10 @@ namespace ETMS.Business
             if (request.ClassRecord.ClassTimesId != null)
             {
                 await _classTimesDAL.UpdateClassTimesIsClassCheckSign(request.ClassRecord.ClassTimesId.Value, recordId, EmClassTimesStatus.BeRollcall, request.ClassRecord);
+                if (checkInLog != null && checkInLog.Count > 0)
+                {
+                    await _studentCheckOnLogDAL.UpdateStudentCheckOnIsBeRollcall(request.ClassRecord.ClassTimesId.Value);
+                }
             }
             var classRecordAbsenceLogs = new List<EtClassRecordAbsenceLog>();
             var classRecordPointsApplyLog = new List<EtClassRecordPointsApplyLog>();

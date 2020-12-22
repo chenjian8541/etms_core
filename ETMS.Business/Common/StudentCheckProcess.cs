@@ -107,7 +107,7 @@ namespace ETMS.Business.Common
             var studentCheckOnLogId = 0L;
             var deClassTimesDesc = string.Empty;
             var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, _request.Student.Id);
-            if (myStudentDeLog != null) //已存在扣课时记录,繁殖重复扣
+            if (myStudentDeLog != null) //已存在扣课时记录,防止重复扣
             {
                 studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "已存在扣课次记录");
             }

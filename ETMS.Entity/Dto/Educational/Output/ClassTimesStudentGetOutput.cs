@@ -57,5 +57,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public string StudentTypeDesc { get; set; }
 
         public int DefaultClassTimes { get; set; }
+
+        public bool IsCheckAttendance { get; set; }
     }
 }

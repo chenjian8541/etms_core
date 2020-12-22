@@ -468,6 +468,12 @@ namespace ETMS.Business
                 studentCheckOnLog.Remark = remrak;
                 studentCheckOnLog.Status = EmStudentCheckOnLogStatus.NormalAttendClass;
                 await _studentCheckOnLogDAL.EditStudentCheckOnLog(studentCheckOnLog);
+                //发通知
+                _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+                {
+                    CourseId = deCourseId,
+                    StudentId = studentCheckOnLog.StudentId
+                });
                 return ResponseBase.Success();
             }
         }
@@ -538,6 +544,13 @@ namespace ETMS.Business
             p.Remark = "撤销考勤记上课";
             p.Status = EmStudentCheckOnLogStatus.Revoke;
             await _studentCheckOnLogDAL.EditStudentCheckOnLog(p);
+
+            //发通知
+            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            {
+                CourseId = p.CourseId.Value,
+                StudentId = p.StudentId
+            });
 
             await _userOperationLogDAL.AddUserLog(request, "撤销考勤记上课", EmUserOperationType.StudentCheckOn);
             return ResponseBase.Success();
