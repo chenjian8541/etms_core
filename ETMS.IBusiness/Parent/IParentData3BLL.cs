@@ -20,5 +20,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> WxMessageGetUnreadCount(WxMessageGetUnreadCountRequest request);
 
         Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request);
+
+        Task<ResponseBase> CheckOnLogGet(CheckOnLogGetRequest request);
     }
 }

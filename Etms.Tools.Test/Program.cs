@@ -18,7 +18,7 @@ namespace Etms.Tools.Test
         static void Main(string[] args)
         {
 
-            //CreateParentToken();
+            CreateParentToken();
             CreateTencentCloudAccount();
             Console.WriteLine();
             Console.Read();

@@ -25,20 +25,23 @@ namespace ETMS.Business
 
         private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
-            IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL)
+            IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
             this._activeWxMessageParentReadDAL = activeWxMessageParentReadDAL;
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
-                _tryCalssApplyLogDAL);
+                _tryCalssApplyLogDAL, _studentCheckOnLogDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -184,6 +187,22 @@ namespace ETMS.Business
             });
 
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> CheckOnLogGet(CheckOnLogGetRequest request)
+        {
+            var log = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("考勤记录不存在");
+            }
+            return ResponseBase.Success(new CheckOnLogGetOutput()
+            {
+                CheckOt = log.CheckOt,
+                CheckMediumUrl = AliyunOssUtil.GetAccessUrlHttps(log.CheckMedium),
+                CheckType = log.CheckType,
+                CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(log.CheckType)
+            });
         }
     }
 }

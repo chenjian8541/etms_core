@@ -835,5 +835,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> CheckOnLogGet(CheckOnLogGetRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.CheckOnLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
