@@ -293,6 +293,7 @@ namespace ETMS.Business
                     FaceUrl = AliyunOssUtil.GetAccessUrlHttps(checkMedium),
                     StudentId = request.StudentId
                 };
+                LOG.Log.Fatal($"[人脸考勤]前端未识别出的人脸:{FaceWhite.FaceUrl}", this.GetType());
             }
             var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest()
             {
@@ -321,13 +322,15 @@ namespace ETMS.Business
             {
                 //未识别
                 var unCheckMedium = ImageLib.SaveStudentSearchFace(request.LoginTenantId, request.FaceImageBase64, AliyunOssTempFileTypeEnum.FaceBlacklist);
+                var faceBlackUrl = AliyunOssUtil.GetAccessUrlHttps(unCheckMedium);
+                LOG.Log.Fatal($"[人脸考勤]后端未识别出的人脸:{faceBlackUrl}", this.GetType());
                 return ResponseBase.Success(new StudentCheckOutput()
                 {
                     CheckState = StudentCheckOutputCheckState.Fail,
                     FaceBlack = new FaceInfo()
                     {
                         StudentId = 0,
-                        FaceUrl = AliyunOssUtil.GetAccessUrlHttps(unCheckMedium)
+                        FaceUrl = faceBlackUrl
                     }
                 });
             }
