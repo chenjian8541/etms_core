@@ -54,10 +54,13 @@ namespace ETMS.Business
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly ITempStudentNeedCheckDAL _tempStudentNeedCheckDAL;
+
         public ClassCheckSignBLL(IClassDAL classDAL, IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL,
             IStudentTrackLogDAL studentTrackLogDAL, INoticeBLL noticeBLL, IStudentPointsLogDAL studentPointsLog, IUserDAL userDAL, IUserOperationLogDAL userOperationLogDAL,
-            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
+            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL)
         {
             this._classDAL = classDAL;
             this._classTimesDAL = classTimesDAL;
@@ -75,6 +78,7 @@ namespace ETMS.Business
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -82,7 +86,8 @@ namespace ETMS.Business
             this._noticeBLL.InitTenantId(tenantId);
             this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _classRecordDAL, _studentDAL, _tryCalssLogDAL, _studentTrackLogDAL,
-                _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL, _studentCheckOnLogDAL);
+                _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL,
+                _studentCheckOnLogDAL, _tempStudentNeedCheckDAL);
         }
 
         public async Task<ResponseBase> ClassCheckSign(ClassCheckSignRequest request)
@@ -374,6 +379,7 @@ namespace ETMS.Business
             if (request.ClassRecord.ClassTimesId != null)
             {
                 await _classTimesDAL.UpdateClassTimesIsClassCheckSign(request.ClassRecord.ClassTimesId.Value, recordId, EmClassTimesStatus.BeRollcall, request.ClassRecord);
+                await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClass(request.ClassRecord.ClassTimesId.Value);
                 if (checkInLog != null && checkInLog.Count > 0)
                 {
                     await _studentCheckOnLogDAL.UpdateStudentCheckOnIsBeRollcall(request.ClassRecord.ClassTimesId.Value);

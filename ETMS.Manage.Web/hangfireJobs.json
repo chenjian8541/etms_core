@@ -68,5 +68,12 @@
     "Title": "定时发送上课提醒(提前几分钟)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "TenantClassTimesTodayJob",
+    "Cron": "0 0 3 * * ?", //每天凌晨3点执行
+    "Title": "定时分析当天课次信息",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

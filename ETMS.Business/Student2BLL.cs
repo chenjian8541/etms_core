@@ -52,10 +52,12 @@ namespace ETMS.Business
 
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
 
+        private readonly ITempStudentNeedCheckDAL _tempStudentNeedCheckDAL;
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
+            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -71,13 +73,14 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _studentCheckOnLogDAL, _classDAL,
-                _courseDAL, _tenantConfigDAL, _classTimesDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL);
+                _courseDAL, _tenantConfigDAL, _classTimesDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL);
         }
 
         public async Task<ResponseBase> StudentFaceListGet(StudentFaceListGetRequest request)
@@ -242,7 +245,7 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar)
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -271,7 +274,7 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -311,7 +314,7 @@ namespace ETMS.Business
                 RequestBase = request,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -471,6 +474,7 @@ namespace ETMS.Business
                 studentCheckOnLog.Remark = remrak;
                 studentCheckOnLog.Status = EmStudentCheckOnLogStatus.NormalAttendClass;
                 await _studentCheckOnLogDAL.EditStudentCheckOnLog(studentCheckOnLog);
+                await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClass(myClassTimes.Id, studentCheckOnLog.StudentId);
                 //发通知
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
                 {

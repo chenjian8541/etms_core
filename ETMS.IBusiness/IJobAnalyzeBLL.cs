@@ -20,5 +20,7 @@ namespace ETMS.IBusiness
         Task ConsumeStudentCourseProcessEvent(ConsumeStudentCourseEvent request);
 
         Task<Tuple<IEnumerable<HasCourseStudent>, int>> GetHasCourseStudent(int pageSize, int pageCurrent);
+
+        Task TenantClassTimesTodayConsumerEvent(TenantClassTimesTodayEvent request);
     }
 }

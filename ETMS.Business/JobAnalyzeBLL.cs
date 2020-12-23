@@ -29,8 +29,10 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IJobAnalyzeDAL _jobAnalyzeDAL;
+
         public JobAnalyzeBLL(IJobAnalyzeDAL analyzeClassTimesDAL, IClassDAL classDAL, IHolidaySettingDAL holidaySettingDAL, IClassRecordDAL classRecordDAL,
-            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher)
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL)
         {
             this._analyzeClassTimesDAL = analyzeClassTimesDAL;
             this._classDAL = classDAL;
@@ -38,16 +40,17 @@ namespace ETMS.Business
             this._classRecordDAL = classRecordDAL;
             this._eventPublisher = eventPublisher;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._jobAnalyzeDAL = jobAnalyzeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL, _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL);
+            this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL, _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL);
         }
 
         public void ResetTenantId(int tenantId)
         {
-            this.ResetDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL, _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL);
+            this.ResetDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL, _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL);
         }
 
         public async Task UpdateClassTimesRuleLoopStatus()
@@ -240,6 +243,22 @@ namespace ETMS.Business
         public async Task<Tuple<IEnumerable<HasCourseStudent>, int>> GetHasCourseStudent(int pageSize, int pageCurrent)
         {
             return await _analyzeClassTimesDAL.GetHasCourseStudent(pageSize, pageCurrent);
+        }
+
+        public async Task TenantClassTimesTodayConsumerEvent(TenantClassTimesTodayEvent request)
+        {
+            var classTimes = await _jobAnalyzeDAL.GetClassTimesUnRollcall(request.ClassOt);
+            if (classTimes.Count > 0)
+            {
+                foreach (var p in classTimes)
+                {
+                    _eventPublisher.Publish(new TempStudentNeedCheckGenerateEvent(request.TenantId) //待考勤数据
+                    {
+                        ClassTimesId = p.Id,
+                        ClassOt = request.ClassOt
+                    });
+                }
+            }
         }
     }
 }
