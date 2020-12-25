@@ -89,5 +89,20 @@ namespace ETMS.DataAccess
             var key = bucket.GetKeyFormat(tenantId, time);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
+
+        public StudentCheckLastTimeBucket GetStudentCheckLastTimeBucket(int tenantId, long studentId)
+        {
+            return _cacheProvider.Get<StudentCheckLastTimeBucket>(0, new StudentCheckLastTimeBucket().GetKeyFormat(tenantId, studentId));
+        }
+
+        public void SetStudentCheckLastTimeBucket(int tenantId, long studentId, DateTime lastCheckTime)
+        {
+            var bucket = new StudentCheckLastTimeBucket()
+            {
+                StudentCheckLastTime = lastCheckTime
+            };
+            var key = bucket.GetKeyFormat(tenantId, studentId);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
     }
 }

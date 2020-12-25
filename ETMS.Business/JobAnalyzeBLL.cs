@@ -247,17 +247,14 @@ namespace ETMS.Business
 
         public async Task TenantClassTimesTodayConsumerEvent(TenantClassTimesTodayEvent request)
         {
-            var classTimes = await _jobAnalyzeDAL.GetClassTimesUnRollcall(request.ClassOt);
+            var classTimes = await _jobAnalyzeDAL.GetClassTimesUnRollcall(request.ClassOt.Date);
             if (classTimes.Count > 0)
             {
-                foreach (var p in classTimes)
+                _eventPublisher.Publish(new TempStudentNeedCheckGenerateEvent(request.TenantId) //待考勤数据
                 {
-                    _eventPublisher.Publish(new TempStudentNeedCheckGenerateEvent(request.TenantId) //待考勤数据
-                    {
-                        ClassTimesId = p.Id,
-                        ClassOt = request.ClassOt
-                    });
-                }
+                    ClassTimesIds = classTimes.Select(p => p.Id).ToList(),
+                    ClassOt = request.ClassOt
+                });
             }
         }
     }

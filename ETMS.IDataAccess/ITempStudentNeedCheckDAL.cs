@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
@@ -9,15 +10,19 @@ namespace ETMS.IDataAccess
 {
     public interface ITempStudentNeedCheckDAL : IBaseDAL
     {
+        Task<TempStudentNeedCheckCountBucket> GetTempStudentNeedCheckCount(DateTime ot);
+
+        Task<EtTempStudentNeedCheck> TempStudentNeedCheckGet(long id);
+
         Task<bool> TempStudentNeedCheckAdd(List<EtTempStudentNeedCheck> entitys);
 
         Task<bool> TempStudentNeedCheckSetIsCheckIn(long studentId, DateTime ot);
 
         Task<bool> TempStudentNeedCheckSetIsCheckOut(long studentId, DateTime ot);
 
-        Task<bool> TempStudentNeedCheckSetIsCheckIn(long id);
+        Task<bool> TempStudentNeedCheckSetIsCheckInById(long id, DateTime ot);
 
-        Task<bool> TempStudentNeedCheckSetIsCheckOut(long id);
+        Task<bool> TempStudentNeedCheckSetIsCheckOutById(long id, DateTime ot);
 
         Task<Tuple<IEnumerable<EtTempStudentNeedCheck>, int>> TempStudentNeedCheckGetPaging(IPagingRequest request);
 
@@ -30,5 +35,7 @@ namespace ETMS.IDataAccess
         Task<bool> TempStudentNeedCheckClassSetIsAttendClassById(long id);
 
         Task<Tuple<IEnumerable<EtTempStudentNeedCheckClass>, int>> TempStudentNeedCheckClassGetPaging(IPagingRequest request);
+
+        Task<EtTempStudentNeedCheckClass> TempStudentNeedCheckClassGet(long id);
     }
 }

@@ -103,7 +103,7 @@ namespace ETMS.Entity.Config
         /// <summary>
         /// 关联的上课课次时间不超过的分钟数
         /// </summary>
-        public int RelationClassTimesLimitMinuteCard { get; set; }
+        public int RelationClassTimesLimitMinuteCard { get; set; } = 10;
     }
 
     public class StudentUseFaceCheckIn
@@ -126,7 +126,7 @@ namespace ETMS.Entity.Config
         /// <summary>
         /// 关联的上课课次时间不超过的分钟数
         /// </summary>
-        public int RelationClassTimesLimitMinuteFace { get; set; }
+        public int RelationClassTimesLimitMinuteFace { get; set; } = 10;
     }
 
     public class UserNoticeConfig

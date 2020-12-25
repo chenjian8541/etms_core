@@ -17,9 +17,14 @@ namespace ETMS.Entity.Enum
         public const byte Face = 1;
 
         /// <summary>
-        /// 老师补签
+        /// 手动考勤
         /// </summary>
-        public const byte TeacherManual = 2;
+        public const byte ManualCheck = 2;
+
+        /// <summary>
+        /// 考勤补签
+        /// </summary>
+        public const byte TeacherManual = 3;
 
         public static string GetStudentCheckOnLogCheckFormDesc(byte b)
         {
@@ -29,8 +34,10 @@ namespace ETMS.Entity.Enum
                     return "磁卡考勤";
                 case Face:
                     return "人脸考勤";
+                case ManualCheck:
+                    return "手动考勤";
                 case TeacherManual:
-                    return "老师补签";
+                    return "考勤补签";
             }
             return string.Empty;
         }

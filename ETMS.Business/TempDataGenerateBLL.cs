@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -33,85 +34,104 @@ namespace ETMS.Business
 
         public async Task TempStudentNeedCheckGenerateConsumerEvent(TempStudentNeedCheckGenerateEvent request)
         {
-            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
-            if (classTimes == null)
-            {
-                LOG.Log.Fatal($"[定时生成待考勤学员信息]课次不存在:{request.TenantId}", this.GetType());
-                return;
-            }
-            var myClassBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
-            if (myClassBucket == null || myClassBucket.EtClass == null)
-            {
-                LOG.Log.Fatal($"[定时生成待考勤学员信息]班级不存在:{request.TenantId}", this.GetType());
-                return;
-            }
-            var classDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)} {myClassBucket.EtClass.Name}";
             var tempStudentNeedCheckList = new List<EtTempStudentNeedCheck>();
             var tempTempStudentNeedCheckClassList = new List<EtTempStudentNeedCheckClass>();
-            var myClassTimesStudent = await _classTimesDAL.GetClassTimesStudent(request.ClassTimesId);
             var classOt = request.ClassOt.Date;
-            if (myClassTimesStudent != null && myClassTimesStudent.Count > 0)
+            foreach (var classTimesId in request.ClassTimesIds)
             {
-                foreach (var p in myClassTimesStudent)
+                var classTimes = await _classTimesDAL.GetClassTimes(classTimesId);
+                if (classTimes == null)
                 {
-                    tempStudentNeedCheckList.Add(new EtTempStudentNeedCheck()
-                    {
-                        IsCheckIn = EmBool.False,
-                        IsCheckOut = EmBool.False,
-                        Ot = classOt,
-                        IsDeleted = EmIsDeleted.Normal,
-                        StartTime = classTimes.StartTime,
-                        StudentId = p.StudentId,
-                        TenantId = p.TenantId,
-                        ClassDesc = classDesc
-                    });
-                    tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
-                    {
-                        TenantId = p.TenantId,
-                        StudentId = p.StudentId,
-                        StartTime = classTimes.StartTime,
-                        IsDeleted = EmIsDeleted.Normal,
-                        ClassId = classTimes.ClassId,
-                        ClassOt = classTimes.ClassOt,
-                        Ot = classOt,
-                        ClassTimesId = classTimes.Id,
-                        CourseId = p.CourseId,
-                        EndTime = classTimes.EndTime,
-                        Week = classTimes.Week,
-                        Status = EmTempStudentNeedCheckClassStatus.NotAttendClass
-                    });
+                    LOG.Log.Fatal($"[定时生成待考勤学员信息]课次不存在:TenantId:{request.TenantId},classTimesId:{classTimesId}", this.GetType());
+                    continue;
                 }
-            }
-            if (myClassBucket.EtClassStudents != null && myClassBucket.EtClassStudents.Count > 0)
-            {
-                foreach (var p in myClassBucket.EtClassStudents)
+                var myClassBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+                if (myClassBucket == null || myClassBucket.EtClass == null)
                 {
-                    tempStudentNeedCheckList.Add(new EtTempStudentNeedCheck()
+                    LOG.Log.Fatal($"[定时生成待考勤学员信息]班级不存在:TenantId:{request.TenantId},classTimesId:{classTimesId}", this.GetType());
+                    continue;
+                }
+                var classDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)} {myClassBucket.EtClass.Name}";
+                var myClassTimesStudent = await _classTimesDAL.GetClassTimesStudent(classTimesId);
+                if (myClassTimesStudent != null && myClassTimesStudent.Count > 0)
+                {
+                    foreach (var p in myClassTimesStudent)
                     {
-                        IsCheckIn = EmBool.False,
-                        IsCheckOut = EmBool.False,
-                        Ot = classOt,
-                        IsDeleted = EmIsDeleted.Normal,
-                        StartTime = classTimes.StartTime,
-                        StudentId = p.StudentId,
-                        TenantId = p.TenantId,
-                        ClassDesc = classDesc
-                    });
-                    tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
+                        var log = tempStudentNeedCheckList.FirstOrDefault(j => j.StudentId == p.StudentId);
+                        if (log == null)
+                        {
+                            tempStudentNeedCheckList.Add(new EtTempStudentNeedCheck()
+                            {
+                                IsCheckIn = EmBool.False,
+                                IsCheckOut = EmBool.False,
+                                Ot = classOt,
+                                IsDeleted = EmIsDeleted.Normal,
+                                StartTime = classTimes.StartTime,
+                                StudentId = p.StudentId,
+                                TenantId = p.TenantId,
+                                ClassDesc = classDesc
+                            });
+                        }
+                        else
+                        {
+                            log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                        }
+                        tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
+                        {
+                            TenantId = p.TenantId,
+                            StudentId = p.StudentId,
+                            StartTime = classTimes.StartTime,
+                            IsDeleted = EmIsDeleted.Normal,
+                            ClassId = classTimes.ClassId,
+                            ClassOt = classTimes.ClassOt,
+                            Ot = classOt,
+                            ClassTimesId = classTimes.Id,
+                            CourseId = p.CourseId,
+                            EndTime = classTimes.EndTime,
+                            Week = classTimes.Week,
+                            Status = EmTempStudentNeedCheckClassStatus.NotAttendClass
+                        });
+                    }
+                }
+                if (myClassBucket.EtClassStudents != null && myClassBucket.EtClassStudents.Count > 0)
+                {
+                    foreach (var p in myClassBucket.EtClassStudents)
                     {
-                        TenantId = p.TenantId,
-                        StudentId = p.StudentId,
-                        StartTime = classTimes.StartTime,
-                        IsDeleted = EmIsDeleted.Normal,
-                        ClassId = classTimes.ClassId,
-                        ClassOt = classTimes.ClassOt,
-                        Ot = classOt,
-                        ClassTimesId = classTimes.Id,
-                        CourseId = p.CourseId,
-                        EndTime = classTimes.EndTime,
-                        Week = classTimes.Week,
-                        Status = EmTempStudentNeedCheckClassStatus.NotAttendClass
-                    });
+                        var log = tempStudentNeedCheckList.FirstOrDefault(j => j.StudentId == p.StudentId);
+                        if (log == null)
+                        {
+                            tempStudentNeedCheckList.Add(new EtTempStudentNeedCheck()
+                            {
+                                IsCheckIn = EmBool.False,
+                                IsCheckOut = EmBool.False,
+                                Ot = classOt,
+                                IsDeleted = EmIsDeleted.Normal,
+                                StartTime = classTimes.StartTime,
+                                StudentId = p.StudentId,
+                                TenantId = p.TenantId,
+                                ClassDesc = classDesc
+                            });
+                        }
+                        else
+                        {
+                            log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                        }
+                        tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
+                        {
+                            TenantId = p.TenantId,
+                            StudentId = p.StudentId,
+                            StartTime = classTimes.StartTime,
+                            IsDeleted = EmIsDeleted.Normal,
+                            ClassId = classTimes.ClassId,
+                            ClassOt = classTimes.ClassOt,
+                            Ot = classOt,
+                            ClassTimesId = classTimes.Id,
+                            CourseId = p.CourseId,
+                            EndTime = classTimes.EndTime,
+                            Week = classTimes.Week,
+                            Status = EmTempStudentNeedCheckClassStatus.NotAttendClass
+                        });
+                    }
                 }
             }
             if (tempStudentNeedCheckList.Count > 0)

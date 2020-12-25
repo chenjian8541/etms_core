@@ -42,7 +42,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> SaveUserWechat(EtUserWechat userWechat)
         {
-            var old = await GetUserWechat(userWechat.UserId);
+            var old = await _dbWrapper.Find<EtUserWechat>(p => p.TenantId == _tenantId && p.UserId == userWechat.UserId && p.IsDeleted == EmIsDeleted.Normal);
             if (old == null)
             {
                 await _dbWrapper.Insert(userWechat);

@@ -53,11 +53,14 @@ namespace ETMS.Business
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
 
         private readonly ITempStudentNeedCheckDAL _tempStudentNeedCheckDAL;
+
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL)
+            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -74,6 +77,7 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -204,20 +208,11 @@ namespace ETMS.Business
 
         private string GetCheckMedium(byte checkForm, string checkMedium)
         {
-            if (string.IsNullOrEmpty(checkMedium))
+            if (checkForm == EmStudentCheckOnLogCheckForm.Face)
             {
-                return string.Empty;
+                return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
             }
-            switch (checkForm)
-            {
-                case EmStudentCheckOnLogCheckForm.Face:
-                    return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
-                case EmStudentCheckOnLogCheckForm.Card:
-                    return checkMedium;
-                case EmStudentCheckOnLogCheckForm.TeacherManual:
-                    return checkMedium;
-            }
-            return string.Empty;
+            return checkMedium;
         }
 
         public async Task<ResponseBase> StudentCheckByCard(StudentCheckByCardRequest request)
@@ -243,9 +238,9 @@ namespace ETMS.Business
                 RequestBase = request,
                 FaceWhite = null,
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
-                StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar)
+                FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(student.Avatar, student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -260,7 +255,7 @@ namespace ETMS.Business
             var studentUseCardCheckInConfig = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn;
             var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest()
             {
-                CheckForm = EmStudentCheckOnLogCheckForm.TeacherManual,
+                CheckForm = EmStudentCheckOnLogCheckForm.ManualCheck,
                 CheckMedium = string.Empty,
                 CheckOt = DateTime.Now,
                 IntervalTime = studentUseCardCheckInConfig.IntervalTimeCard,
@@ -272,9 +267,9 @@ namespace ETMS.Business
                 FaceWhite = null,
                 RequestBase = request,
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
-                StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
+                FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -312,9 +307,9 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 FaceWhite = FaceWhite,
                 RequestBase = request,
-                StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
+                FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -374,7 +369,6 @@ namespace ETMS.Business
             //扣减课时
             //直接扣课时
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            var deClassTimesDesc = string.Empty;
             var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, studentCheckOnLog.StudentId);
             if (myStudentDeLog != null) //已存在扣课时记录,繁殖重复扣
             {
@@ -382,103 +376,53 @@ namespace ETMS.Business
             }
             else
             {
-                var classStudent = await _classTimesDAL.GetClassTimesStudent(myClassTimes.Id);
-                var myClassStudent = classStudent.FirstOrDefault(p => p.StudentId == studentCheckOnLog.StudentId);
-                var isProcess = false;
-                var deCourseId = 0L;
-                var deStudentClassTimesResult = DeStudentClassTimesResult.GetNotDeEntity();
-                var remrak = string.Empty;
-                if (myClassStudent != null)
+                var deStudentClassTimesResultTuple = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, _classTimesDAL, _classDAL,
+                     tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes, myClassTimes, studentCheckOnLog.StudentId, studentCheckOnLog.CheckOt);
+                if (!string.IsNullOrEmpty(deStudentClassTimesResultTuple.Item1))
                 {
-                    deCourseId = myClassStudent.CourseId;
-                    if (myClassStudent.StudentType == EmClassStudentType.TryCalssStudent)
-                    {
-                        isProcess = true;
-                        remrak = "试听学员不扣课时";
-                        LOG.Log.Info($"[StudentCheckProcess]试听学员不扣课时,LoginTenantId:{studentCheckOnLog.TenantId},Student:{studentCheckOnLog.StudentId}", this.GetType());
-                    }
-                    if (!tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes && myClassStudent.StudentType == EmClassStudentType.MakeUpStudent)
-                    {
-                        isProcess = true;
-                        remrak = "补课学员不扣课时";
-                        LOG.Log.Info($"[StudentCheckProcess]补课学员不扣课时,LoginTenantId:{studentCheckOnLog.TenantId},Student:{studentCheckOnLog.StudentId}", this.GetType());
-                    }
+                    return ResponseBase.CommonError(deStudentClassTimesResultTuple.Item1);
                 }
-                if (!isProcess)
+                var deStudentClassTimesResult = deStudentClassTimesResultTuple.Item2;
+                if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
                 {
-                    //扣减课时
-                    var myClass = await _classDAL.GetClassBucket(myClassTimes.ClassId);
-                    if (myClass == null || myClass.EtClass == null)
+                    await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
                     {
-                        return ResponseBase.CommonError("班级不存在");
-                    }
-                    else
+                        CourseId = deStudentClassTimesResult.DeCourseId,
+                        DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                        DeType = deStudentClassTimesResult.DeType,
+                        IsDeleted = EmIsDeleted.Normal,
+                        OrderId = deStudentClassTimesResult.OrderId,
+                        OrderNo = deStudentClassTimesResult.OrderNo,
+                        Ot = studentCheckOnLog.CheckOt,
+                        SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
+                        StudentId = studentCheckOnLog.StudentId,
+                        TenantId = studentCheckOnLog.TenantId,
+                        DeClassTimesSmall = 0
+                    });
+                    _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(studentCheckOnLog.TenantId)
                     {
-                        if (deCourseId == 0 && myClass.EtClassStudents != null && myClass.EtClassStudents.Count > 0)
-                        {
-                            var thisStudent = myClass.EtClassStudents.FirstOrDefault(p => p.StudentId == studentCheckOnLog.StudentId);
-                            if (thisStudent != null)
-                            {
-                                deCourseId = thisStudent.CourseId;
-                            }
-                        }
-                        if (deCourseId == 0)
-                        {
-                            return ResponseBase.CommonError("未查询到消耗课程信息");
-                        }
-                        else
-                        {
-                            deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
-                            {
-                                ClassOt = studentCheckOnLog.CheckOt,
-                                TenantId = studentCheckOnLog.TenantId,
-                                StudentId = studentCheckOnLog.StudentId,
-                                DeClassTimes = myClass.EtClass.DefaultClassTimes,
-                                CourseId = deCourseId
-                            });
-                            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
-                            {
-                                await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
-                                {
-                                    CourseId = deCourseId,
-                                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
-                                    DeType = deStudentClassTimesResult.DeType,
-                                    IsDeleted = EmIsDeleted.Normal,
-                                    OrderId = deStudentClassTimesResult.OrderId,
-                                    OrderNo = deStudentClassTimesResult.OrderNo,
-                                    Ot = studentCheckOnLog.CheckOt,
-                                    SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
-                                    StudentId = studentCheckOnLog.StudentId,
-                                    TenantId = studentCheckOnLog.TenantId,
-                                    DeClassTimesSmall = 0
-                                });
-                            }
-                            _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(studentCheckOnLog.TenantId)
-                            {
-                                StudentId = studentCheckOnLog.StudentId,
-                                CourseId = deCourseId
-                            });
-                        }
-                    }
+                        StudentId = studentCheckOnLog.StudentId,
+                        CourseId = deStudentClassTimesResult.DeCourseId
+                    });
                 }
 
                 studentCheckOnLog.ClassTimesId = myClassTimes.Id;
                 studentCheckOnLog.ClassId = myClassTimes.ClassId;
-                studentCheckOnLog.CourseId = deCourseId;
+                studentCheckOnLog.CourseId = deStudentClassTimesResult.DeCourseId;
                 studentCheckOnLog.ClassOtDesc = $"{myClassTimes.ClassOt.EtmsToDateString()}（{EtmsHelper.GetTimeDesc(myClassTimes.StartTime)}~{EtmsHelper.GetTimeDesc(myClassTimes.EndTime)}）";
                 studentCheckOnLog.DeType = deStudentClassTimesResult.DeType;
                 studentCheckOnLog.DeClassTimes = deStudentClassTimesResult.DeClassTimes;
                 studentCheckOnLog.DeSum = deStudentClassTimesResult.DeSum;
                 studentCheckOnLog.ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes;
                 studentCheckOnLog.DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId;
-                studentCheckOnLog.Remark = remrak;
+                studentCheckOnLog.Remark = deStudentClassTimesResult.Remrak;
                 studentCheckOnLog.Status = EmStudentCheckOnLogStatus.NormalAttendClass;
                 await _studentCheckOnLogDAL.EditStudentCheckOnLog(studentCheckOnLog);
                 await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClass(myClassTimes.Id, studentCheckOnLog.StudentId);
                 //发通知
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
                 {
-                    CourseId = deCourseId,
+                    CourseId = deStudentClassTimesResult.DeCourseId,
                     StudentId = studentCheckOnLog.StudentId
                 });
                 return ResponseBase.Success();
@@ -538,6 +482,7 @@ namespace ETMS.Business
                     CourseId = p.CourseId.Value
                 });
             }
+            var oldCourseId = p.CourseId.Value;
 
             p.ClassTimesId = null;
             p.ClassId = null;
@@ -555,12 +500,295 @@ namespace ETMS.Business
             //发通知
             _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
             {
-                CourseId = p.CourseId.Value,
+                CourseId = oldCourseId,
                 StudentId = p.StudentId
             });
 
             await _userOperationLogDAL.AddUserLog(request, "撤销考勤记上课", EmUserOperationType.StudentCheckOn);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentNeedCheckStatistics(StudentNeedCheckStatisticsRequest request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var isShowCheckOut = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn.IsMustCheckOutCard == EmBool.True
+                || tenantConfig.StudentCheckInConfig.StudentUseFaceCheckIn.IsMustCheckOutFace == EmBool.True;
+            var isShowAttendClass = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn.IsRelationClassTimesCard == EmBool.True
+                || tenantConfig.StudentCheckInConfig.StudentUseFaceCheckIn.IsRelationClassTimesFace == EmBool.True;
+
+            var output = new StudentNeedCheckStatisticsOutput() { IsShowCheckOut = isShowCheckOut, IsShowAttendClass = isShowAttendClass };
+            var tempStudentNeedCheckCountBucket = await _tempStudentNeedCheckDAL.GetTempStudentNeedCheckCount(DateTime.Now);
+            if (tempStudentNeedCheckCountBucket == null)
+            {
+                return ResponseBase.Success(output);
+            }
+            output.NeedAttendClassCount = tempStudentNeedCheckCountBucket.NeedAttendClassCount;
+            output.NeedCheckInCount = tempStudentNeedCheckCountBucket.NeedCheckInCount;
+            output.NeedCheckOutCount = tempStudentNeedCheckCountBucket.NeedCheckOutCount;
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentNeedCheckInGetPaging(StudentNeedCheckInGetPagingRequest request)
+        {
+            var pagingData = await _tempStudentNeedCheckDAL.TempStudentNeedCheckGetPaging(request);
+            var output = new List<StudentNeedCheckInGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    LOG.Log.Error($"[StudentNeedCheckInGetPaging]学员不存在:{p.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                output.Add(new StudentNeedCheckInGetPagingOutput()
+                {
+                    StudentId = p.StudentId,
+                    IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                    IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                    FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
+                    CardNo = student.CardNo,
+                    NeedCheckLogId = p.Id,
+                    StartTimeDesc = EtmsHelper.GetTimeDesc(p.StartTime),
+                    StudentName = student.Name,
+                    StudentPhone = student.Phone,
+                    ClassDesc = p.ClassDesc
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentNeedCheckInGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentNeedCheckOutGetPaging(StudentNeedCheckOutGetPagingRequest request)
+        {
+            var pagingData = await _tempStudentNeedCheckDAL.TempStudentNeedCheckGetPaging(request);
+            var output = new List<StudentNeedCheckOutGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    LOG.Log.Error($"[StudentNeedCheckOutGetPaging]学员不存在:{p.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                output.Add(new StudentNeedCheckOutGetPagingOutput()
+                {
+                    StudentId = p.StudentId,
+                    IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                    IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                    FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
+                    CardNo = student.CardNo,
+                    NeedCheckLogId = p.Id,
+                    StudentName = student.Name,
+                    StudentPhone = student.Phone,
+                    ClassDesc = p.ClassDesc,
+                    CheckInTimeDesc = p.CheckInOt.EtmsToOnlyMinuteString()
+                }); ;
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentNeedCheckOutGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentNeedAttendClassGetPaging(StudentNeedAttendClassGetPagingRequest request)
+        {
+            var pagingData = await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassGetPaging(request);
+            var output = new List<StudentNeedAttendClassGetPagingOutput>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            foreach (var p in pagingData.Item1)
+            {
+                var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                if (myClass == null)
+                {
+                    LOG.Log.Error($"[StudentNeedAttendClassGetPaging]班级不存在:{p.ClassId}", this.GetType());
+                    continue;
+                }
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    LOG.Log.Error($"[StudentNeedAttendClassGetPaging]学员不存在:{p.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                output.Add(new StudentNeedAttendClassGetPagingOutput()
+                {
+                    StudentId = p.StudentId,
+                    IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
+                    IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                    FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
+                    CardNo = student.CardNo,
+                    StudentName = student.Name,
+                    StudentPhone = student.Phone,
+                    ClassName = myClass.Name,
+                    ClassOt = p.ClassOt.EtmsToDateString(),
+                    TimeDesc = $"{EtmsHelper.GetTimeDesc(p.StartTime)}~{EtmsHelper.GetTimeDesc(p.EndTime)}",
+                    Week = p.Week,
+                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}",
+                    NeedCheckClassLogId = p.Id
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentNeedAttendClassGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentNeedLogCheckIn(StudentNeedLogCheckInRequest request)
+        {
+            var log = await _tempStudentNeedCheckDAL.TempStudentNeedCheckGet(request.NeedCheckLogId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("待考勤记录不存在");
+            }
+            if (log.IsCheckIn == EmBool.True)
+            {
+                return ResponseBase.CommonError("已签到");
+            }
+            var checkTimeDesc = request.CheckTime.Split(':');
+            var now = DateTime.Now;
+            var checkTime = new DateTime(now.Year, now.Month, now.Day, checkTimeDesc[0].ToInt(), checkTimeDesc[1].ToInt(), 0);
+            await _tempStudentNeedCheckDAL.TempStudentNeedCheckSetIsCheckInById(request.NeedCheckLogId, checkTime);
+            await _studentCheckOnLogDAL.AddStudentCheckOnLog(new EtStudentCheckOnLog()
+            {
+                StudentId = log.StudentId,
+                CheckForm = EmStudentCheckOnLogCheckForm.TeacherManual,
+                CheckOt = checkTime,
+                CheckType = EmStudentCheckOnLogCheckType.CheckIn,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                Status = EmStudentCheckOnLogStatus.NormalNotClass,
+                TenantId = request.LoginTenantId,
+                CheckMedium = string.Empty,
+                DeType = EmDeClassTimesType.NotDe
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, "签到补卡", EmUserOperationType.StudentCheckOn);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentNeedLogCheckOut(StudentNeedLogCheckOutRequest request)
+        {
+            var log = await _tempStudentNeedCheckDAL.TempStudentNeedCheckGet(request.NeedCheckLogId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("待考勤记录不存在");
+            }
+            if (log.IsCheckOut == EmBool.True)
+            {
+                return ResponseBase.CommonError("已签退");
+            }
+            var checkTimeDesc = request.CheckTime.Split(':');
+            var now = DateTime.Now;
+            var checkTime = new DateTime(now.Year, now.Month, now.Day, checkTimeDesc[0].ToInt(), checkTimeDesc[1].ToInt(), 0);
+            await _tempStudentNeedCheckDAL.TempStudentNeedCheckSetIsCheckOutById(request.NeedCheckLogId, checkTime);
+            await _studentCheckOnLogDAL.AddStudentCheckOnLog(new EtStudentCheckOnLog()
+            {
+                StudentId = log.StudentId,
+                CheckForm = EmStudentCheckOnLogCheckForm.TeacherManual,
+                CheckOt = checkTime,
+                CheckType = EmStudentCheckOnLogCheckType.CheckOut,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                Status = EmStudentCheckOnLogStatus.NormalNotClass,
+                TenantId = request.LoginTenantId,
+                CheckMedium = string.Empty,
+                DeType = EmDeClassTimesType.NotDe
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, "签退补卡", EmUserOperationType.StudentCheckOn);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentNeedLogAttendClass(StudentNeedLogAttendClassRequest request)
+        {
+            var log = await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassGet(request.NeedCheckClassLogId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("待记上课记录不存在");
+            }
+            if (log.Status == EmTempStudentNeedCheckClassStatus.IsAttendClass)
+            {
+                return ResponseBase.CommonError("已记上课");
+            }
+            var myClassTimes = await _classTimesDAL.GetClassTimes(log.ClassTimesId);
+            if (myClassTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            if (myClassTimes.Status == EmClassTimesStatus.BeRollcall)
+            {
+                return ResponseBase.CommonError("课次已点名");
+            }
+            //扣减课时
+            //直接扣课时
+            var checkTimeDesc = request.CheckTime.Split(':');
+            var now = DateTime.Now;
+            var checkOt = new DateTime(now.Year, now.Month, now.Day, checkTimeDesc[0].ToInt(), checkTimeDesc[1].ToInt(), 0);
+
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, log.StudentId);
+            if (myStudentDeLog != null) //已存在扣课时记录,防止重复扣
+            {
+                return ResponseBase.CommonError("已存在扣课次记录");
+            }
+            else
+            {
+                var deStudentClassTimesResultTuple = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, _classTimesDAL, _classDAL,
+                    tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes, myClassTimes, log.StudentId, checkOt);
+                if (!string.IsNullOrEmpty(deStudentClassTimesResultTuple.Item1))
+                {
+                    return ResponseBase.CommonError(deStudentClassTimesResultTuple.Item1);
+                }
+                var deStudentClassTimesResult = deStudentClassTimesResultTuple.Item2;
+                if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+                {
+                    await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                    {
+                        CourseId = deStudentClassTimesResult.DeCourseId,
+                        DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                        DeType = deStudentClassTimesResult.DeType,
+                        IsDeleted = EmIsDeleted.Normal,
+                        OrderId = deStudentClassTimesResult.OrderId,
+                        OrderNo = deStudentClassTimesResult.OrderNo,
+                        Ot = checkOt,
+                        SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
+                        StudentId = log.StudentId,
+                        TenantId = log.TenantId,
+                        DeClassTimesSmall = 0
+                    });
+                    _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(log.TenantId)
+                    {
+                        StudentId = log.StudentId,
+                        CourseId = deStudentClassTimesResult.DeCourseId
+                    });
+                }
+
+                await _studentCheckOnLogDAL.AddStudentCheckOnLog(new EtStudentCheckOnLog()
+                {
+                    StudentId = log.StudentId,
+                    CheckForm = EmStudentCheckOnLogCheckForm.TeacherManual,
+                    CheckOt = checkOt,
+                    CheckType = EmStudentCheckOnLogCheckType.CheckIn,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Remark = string.Empty,
+                    Status = EmStudentCheckOnLogStatus.NormalAttendClass,
+                    TenantId = log.TenantId,
+                    CheckMedium = string.Empty,
+                    DeType = deStudentClassTimesResult.DeType,
+                    ClassOtDesc = $"{myClassTimes.ClassOt.EtmsToDateString()}（{EtmsHelper.GetTimeDesc(myClassTimes.StartTime)}~{EtmsHelper.GetTimeDesc(myClassTimes.EndTime)}）",
+                    ClassId = myClassTimes.ClassId,
+                    ClassTimesId = myClassTimes.Id,
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                    DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId,
+                    ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes,
+                    DeSum = deStudentClassTimesResult.DeSum
+                });
+
+                await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassById(request.NeedCheckClassLogId);
+                //发通知
+                _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+                {
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    StudentId = log.StudentId
+                });
+                return ResponseBase.Success();
+            }
         }
     }
 }

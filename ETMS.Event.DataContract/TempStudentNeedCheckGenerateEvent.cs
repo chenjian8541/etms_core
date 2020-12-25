@@ -9,7 +9,7 @@ namespace ETMS.Event.DataContract
         public TempStudentNeedCheckGenerateEvent(int tenantId) : base(tenantId)
         { }
 
-        public long ClassTimesId { get; set; }
+        public List<long> ClassTimesIds { get; set; }
 
         public DateTime ClassOt { get; set; }
     }

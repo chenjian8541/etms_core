@@ -736,5 +736,103 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentNeedCheckStatistics(StudentNeedCheckStatisticsRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedCheckStatistics(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedCheckInGetPaging(StudentNeedCheckInGetPagingRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedCheckInGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedCheckOutGetPaging(StudentNeedCheckOutGetPagingRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedCheckOutGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedAttendClassGetPaging(StudentNeedAttendClassGetPagingRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedAttendClassGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedLogCheckIn(StudentNeedLogCheckInRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedLogCheckIn(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedLogCheckOut(StudentNeedLogCheckOutRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedLogCheckOut(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentNeedLogAttendClass(StudentNeedLogAttendClassRequest request)
+        {
+            try
+            {
+                _student2BLL.InitTenantId(request.LoginTenantId);
+                return await _student2BLL.StudentNeedLogAttendClass(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

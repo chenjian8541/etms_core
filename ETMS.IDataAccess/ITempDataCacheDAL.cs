@@ -29,5 +29,9 @@ namespace ETMS.IDataAccess
         ClearDataBucket GetClearDataBucket(int tenantId, DateTime time);
 
         void SetClearDataBucket(int tenantId, DateTime time, int totalCount);
+
+        StudentCheckLastTimeBucket GetStudentCheckLastTimeBucket(int tenantId, long studentId);
+
+        void SetStudentCheckLastTimeBucket(int tenantId, long studentId, DateTime lastCheckTime);
     }
 }

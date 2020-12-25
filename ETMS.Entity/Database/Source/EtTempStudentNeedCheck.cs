@@ -21,9 +21,13 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public byte IsCheckIn { get; set; }
 
+        public DateTime? CheckInOt { get; set; }
+
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte IsCheckOut { get; set; }
+
+        public DateTime? CheckOutOt { get; set; }
     }
 }

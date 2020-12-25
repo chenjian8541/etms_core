@@ -30,6 +30,10 @@ namespace ETMS.Entity.Temp
 
         public decimal DeClassTimes { get; set; }
 
+        public string Remrak { get; set; }
+
+        public long DeCourseId { get; set; }
+
         public static DeStudentClassTimesResult GetNotDeEntity()
         {
             return new DeStudentClassTimesResult()

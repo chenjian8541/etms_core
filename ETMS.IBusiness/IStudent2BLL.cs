@@ -28,5 +28,19 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentCheckChoiceClass(StudentCheckChoiceClassRequest request);
 
         Task<ResponseBase> StudentCheckOnLogRevoke(StudentCheckOnLogRevokeRequest request);
+
+        Task<ResponseBase> StudentNeedCheckStatistics(StudentNeedCheckStatisticsRequest request);
+
+        Task<ResponseBase> StudentNeedCheckInGetPaging(StudentNeedCheckInGetPagingRequest request);
+
+        Task<ResponseBase> StudentNeedCheckOutGetPaging(StudentNeedCheckOutGetPagingRequest request);
+
+        Task<ResponseBase> StudentNeedAttendClassGetPaging(StudentNeedAttendClassGetPagingRequest request);
+
+        Task<ResponseBase> StudentNeedLogCheckIn(StudentNeedLogCheckInRequest request);
+
+        Task<ResponseBase> StudentNeedLogCheckOut(StudentNeedLogCheckOutRequest request);
+
+        Task<ResponseBase> StudentNeedLogAttendClass(StudentNeedLogAttendClassRequest request);
     }
 }

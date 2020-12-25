@@ -137,5 +137,14 @@ namespace ETMS.Business.Common
             }
             return false;
         }
+
+        internal static string GetStudentImage(string avatar, string faceKey)
+        {
+            if (string.IsNullOrEmpty(faceKey))
+            {
+                return avatar;
+            }
+            return faceKey;
+        }
     }
 }
