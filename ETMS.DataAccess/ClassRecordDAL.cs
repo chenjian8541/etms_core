@@ -144,5 +144,10 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtClassRecordOperationLog>("EtClassRecordOperationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId, long studentId)
+        {
+            return await _dbWrapper.Find<EtClassRecordPointsApplyLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.StudentId == studentId && p.IsDeleted == EmIsDeleted.Normal);
+        }
     }
 }

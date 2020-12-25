@@ -53,5 +53,7 @@ namespace ETMS.IDataAccess
         Task<bool> AddClassRecordOperationLog(EtClassRecordOperationLog log);
 
         Task<Tuple<IEnumerable<EtClassRecordOperationLog>, int>> GetClassRecordOperationLogPaging(RequestPagingBase request);
+
+        Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId, long studentId);
     }
 }

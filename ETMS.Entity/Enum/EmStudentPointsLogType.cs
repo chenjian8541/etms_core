@@ -34,6 +34,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int OrderStudentEnrolmentRepeal = 4;
 
+        /// <summary>
+        /// 修改点名记录 返还积分
+        /// </summary>
+        public const int ModifyStudentClassRecordDe = 5;
+
+        /// <summary>
+        /// 修改点名记录 增加积分
+        /// </summary>
+        public const int ModifyStudentClassRecordAdd = 6;
+
         public static string GetStudentPointsLogType(int type)
         {
             switch (type)
@@ -48,6 +58,10 @@ namespace ETMS.Entity.Enum
                     return "撤销点名记录";
                 case OrderStudentEnrolmentRepeal:
                     return "订单作废";
+                case ModifyStudentClassRecordDe:
+                    return "修改点名记录";
+                case ModifyStudentClassRecordAdd:
+                    return "修改点名记录";
             }
             return string.Empty;
         }
@@ -66,6 +80,10 @@ namespace ETMS.Entity.Enum
                     return $"-{point}";
                 case OrderStudentEnrolmentRepeal:
                     return $"-{point}";
+                case ModifyStudentClassRecordDe:
+                    return $"-{point}";
+                case ModifyStudentClassRecordAdd:
+                    return $"+{point}";
             }
             return string.Empty;
         }

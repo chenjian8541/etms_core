@@ -477,7 +477,66 @@ namespace ETMS.Business
             var oldDeSum = p.DeSum;
             var oldCheckStatus = p.StudentCheckStatus;
             var oldRemark = p.Remark;
+            var oldPoints = p.RewardPoints;
             var now = DateTime.Now;
+            p = await ClassRecordStudentResetDeClassTimes(p, request, now);
+            await _classRecordDAL.EditClassRecordStudent(p);
+
+            if (oldPoints != request.NewPoints)
+            {
+                await ClassRecordStudentResetRewardPoints(p, oldPoints, request.NewPoints, now);
+            }
+
+            var addAttendNumber = 0;
+            if (EmClassStudentCheckStatus.CheckIsAttend(oldCheckStatus))
+            {
+                addAttendNumber -= 1;
+            }
+            if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+            {
+                addAttendNumber += 1;
+            }
+            var classRecord = await _classRecordDAL.GetClassRecord(p.ClassRecordId);
+            classRecord.DeSum = classRecord.DeSum - oldDeSum + p.DeSum;
+            classRecord.AttendNumber += addAttendNumber;
+            await _classRecordDAL.EditClassRecord(classRecord);
+
+            await _classRecordDAL.AddClassRecordOperationLog(new EtClassRecordOperationLog()
+            {
+                ClassId = p.ClassId,
+                ClassRecordId = p.ClassRecordId,
+                IsDeleted = EmIsDeleted.Normal,
+                OpType = EmClassRecordOperationType.ModifyStudentClassRecord,
+                Ot = now,
+                Remark = string.Empty,
+                Status = p.Status,
+                TenantId = p.TenantId,
+                UserId = request.LoginUserId,
+                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeSum.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
+            });
+
+            //发通知
+            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            {
+                CourseId = p.CourseId,
+                StudentId = p.StudentId
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"修改点名记录", EmUserOperationType.ClassRecordManage, now);
+            return ResponseBase.Success();
+        }
+
+        private async Task<EtClassRecordStudent> ClassRecordStudentResetDeClassTimes(EtClassRecordStudent p,
+            ClassRecordStudentChangeRequest request, DateTime now)
+        {
+            p.StudentCheckStatus = request.NewStudentCheckStatus;
+            p.Remark = request.NewRemark;
+            p.RewardPoints = request.NewPoints;
+            p.IsRewardPoints = request.NewPoints > 0;
+            if (p.DeClassTimes == request.NewDeClassTimes)
+            {
+                return p;
+            }
             var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
             if (p.DeType == EmDeClassTimesType.ClassTimes && p.DeClassTimes > 0)
             {
@@ -559,50 +618,65 @@ namespace ETMS.Business
                     DeClassTimesSmall = 0
                 });
             }
-            await _classRecordDAL.EditClassRecordStudent(p);
-
-            var addAttendNumber = 0;
-            if (EmClassStudentCheckStatus.CheckIsAttend(oldCheckStatus))
-            {
-                addAttendNumber -= 1;
-            }
-            if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
-            {
-                addAttendNumber += 1;
-            }
-            var classRecord = await _classRecordDAL.GetClassRecord(p.ClassRecordId);
-            classRecord.DeSum = classRecord.DeSum - oldDeSum + p.DeSum;
-            classRecord.AttendNumber += addAttendNumber;
-            await _classRecordDAL.EditClassRecord(classRecord);
-
             if (studentCourseConsumeLogs.Count > 0)
             {
                 _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogs); //课消记录
             }
+            return p;
+        }
 
-            await _classRecordDAL.AddClassRecordOperationLog(new EtClassRecordOperationLog()
+        private async Task ClassRecordStudentResetRewardPoints(EtClassRecordStudent p, int oldPoints, int newPoint, DateTime now)
+        {
+            var pointsLogs = new List<EtStudentPointsLog>();
+            if (oldPoints > 0) //返还之前的积分
             {
-                ClassId = p.ClassId,
-                ClassRecordId = p.ClassRecordId,
-                IsDeleted = EmIsDeleted.Normal,
-                OpType = EmClassRecordOperationType.ModifyStudentClassRecord,
-                Ot = now,
-                Remark = string.Empty,
-                Status = p.Status,
-                TenantId = p.TenantId,
-                UserId = request.LoginUserId,
-                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeSum.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
-            });
-
-            //发通知
-            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+                var isProcessOldPoints = false;
+                var checkLog = await _classRecordDAL.GetClassRecordPointsApplyLogByClassRecordId(p.ClassRecordId, p.StudentId);
+                if (checkLog != null && checkLog.Status == EmClassRecordStatus.Normal)
+                {
+                    if (checkLog.HandleStatus != EmClassRecordPointsApplyHandleStatus.CheckPass)
+                    {
+                        isProcessOldPoints = true;
+                    }
+                    checkLog.Status = EmClassRecordStatus.Revoked;
+                    checkLog.Remark = $"{checkLog.Remark} 修改点名记录-撤销原记录赠送的积分";
+                    await _classRecordDAL.EditClassRecordPointsApplyLog(checkLog);
+                }
+                if (!isProcessOldPoints)
+                {
+                    await _studentDAL.DeductionPoint(p.StudentId, oldPoints);
+                    pointsLogs.Add(new EtStudentPointsLog()
+                    {
+                        StudentId = p.StudentId,
+                        IsDeleted = EmIsDeleted.Normal,
+                        No = string.Empty,
+                        Ot = now,
+                        Points = oldPoints,
+                        Remark = "修改点名记录-撤销原记录赠送的积分",
+                        TenantId = p.TenantId,
+                        Type = EmStudentPointsLogType.ModifyStudentClassRecordDe
+                    });
+                }
+            }
+            if (newPoint > 0)
             {
-                CourseId = p.CourseId,
-                StudentId = p.StudentId
-            });
-
-            await _userOperationLogDAL.AddUserLog(request, $"修改点名记录", EmUserOperationType.ClassRecordManage, now);
-            return ResponseBase.Success();
+                await _studentDAL.AddPoint(p.StudentId, newPoint);
+                pointsLogs.Add(new EtStudentPointsLog()
+                {
+                    StudentId = p.StudentId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = string.Empty,
+                    Ot = now,
+                    Points = newPoint,
+                    Remark = "修改点名记录-赠送学员积分",
+                    TenantId = p.TenantId,
+                    Type = EmStudentPointsLogType.ModifyStudentClassRecordAdd
+                });
+            }
+            if (pointsLogs.Count > 0)
+            {
+                _studentPointsLogDAL.AddStudentPointsLog(pointsLogs);
+            }
         }
     }
 }

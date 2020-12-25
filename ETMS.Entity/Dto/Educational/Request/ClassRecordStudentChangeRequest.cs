@@ -24,6 +24,11 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// </summary>
         public string NewRemark { get; set; }
 
+        /// <summary>
+        /// 积分
+        /// </summary>
+        public int NewPoints { get; set; } 
+
         public override string Validate()
         {
             if (ClassRecordStudentId <= 0)
