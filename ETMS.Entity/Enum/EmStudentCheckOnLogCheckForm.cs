@@ -7,7 +7,7 @@ namespace ETMS.Entity.Enum
     public struct EmStudentCheckOnLogCheckForm
     {
         /// <summary>
-        /// 磁卡考勤
+        /// 刷卡考勤
         /// </summary>
         public const byte Card = 0;
 
@@ -31,7 +31,7 @@ namespace ETMS.Entity.Enum
             switch (b)
             {
                 case Card:
-                    return "磁卡考勤";
+                    return "刷卡考勤";
                 case Face:
                     return "人脸考勤";
                 case ManualCheck:

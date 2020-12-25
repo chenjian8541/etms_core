@@ -47,6 +47,10 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public int RelationClassTimesLimitMinuteFace { get; set; }
 
+        /// <summary>
+        /// 是否展示快捷刷卡
+        /// </summary>
+        public byte IsShowQuickCardCheck { get; set; }
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)

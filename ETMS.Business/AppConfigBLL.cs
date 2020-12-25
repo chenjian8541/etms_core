@@ -323,6 +323,7 @@ namespace ETMS.Business
             config.StudentCheckInConfig.StudentUseCardCheckIn.IsMustCheckOutCard = request.IsMustCheckOutCard;
             config.StudentCheckInConfig.StudentUseCardCheckIn.IsRelationClassTimesCard = request.IsRelationClassTimesCard;
             config.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesLimitMinuteCard = request.RelationClassTimesLimitMinuteCard;
+            config.StudentCheckInConfig.StudentUseCardCheckIn.IsShowQuickCardCheck = request.IsShowQuickCardCheck;
 
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IntervalTimeFace = request.IntervalTimeFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsMustCheckOutFace = request.IsMustCheckOutFace;

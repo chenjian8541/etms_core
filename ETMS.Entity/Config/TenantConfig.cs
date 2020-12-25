@@ -104,6 +104,11 @@ namespace ETMS.Entity.Config
         /// 关联的上课课次时间不超过的分钟数
         /// </summary>
         public int RelationClassTimesLimitMinuteCard { get; set; } = 10;
+
+        /// <summary>
+        /// 是否展示快捷刷卡
+        /// </summary>
+        public byte IsShowQuickCardCheck { get; set; }
     }
 
     public class StudentUseFaceCheckIn
