@@ -86,7 +86,7 @@ namespace ETMS.Business.SendNotice
         public async Task NoticeTeacherOfClassTodayTenantConsumerEvent(NoticeTeacherOfClassTodayTenantEvent request)
         {
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            if (!tenantConfig.UserNoticeConfig.StartClassSms || !tenantConfig.UserNoticeConfig.StartClassWeChat) //是否开启当天提醒
+            if (!tenantConfig.UserNoticeConfig.StartClassSms && !tenantConfig.UserNoticeConfig.StartClassWeChat) //是否开启当天提醒
             {
                 return;
             }
