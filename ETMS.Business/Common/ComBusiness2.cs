@@ -125,13 +125,21 @@ namespace ETMS.Business.Common
             {
                 return false;
             }
+            var isHasEnoughDeClassTimes = false;
+            var isHasEnoughCourseDay = false;
             var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
-            if (deClassTimes != null && deClassTimes.SurplusQuantity <= limitClassTimes)
+            if (deClassTimes != null && deClassTimes.SurplusQuantity > limitClassTimes && deClassTimes.Status != EmStudentCourseStatus.EndOfClass)
             {
-                return true;
+                isHasEnoughDeClassTimes = true;
             }
+
             var courseDay = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
-            if (courseDay != null && courseDay.SurplusQuantity == 0 && courseDay.SurplusSmallQuantity <= limitDay)
+            if (courseDay != null && (courseDay.SurplusQuantity > 0 || courseDay.SurplusSmallQuantity > limitDay)
+                && courseDay.Status != EmStudentCourseStatus.EndOfClass)
+            {
+                isHasEnoughCourseDay = true;
+            }
+            if (!isHasEnoughDeClassTimes && !isHasEnoughCourseDay)
             {
                 return true;
             }
