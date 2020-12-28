@@ -204,7 +204,8 @@ namespace ETMS.Business
                     ChangeRowState = 0,
                     NewDeClassTimes = deClassTimes,
                     NewRemark = p.Remark,
-                    NewStudentCheckStatus = p.StudentCheckStatus
+                    NewStudentCheckStatus = p.StudentCheckStatus,
+                    NewRewardPoints = p.RewardPoints
                 });
             }
             return ResponseBase.Success(outPut);
@@ -482,9 +483,9 @@ namespace ETMS.Business
             p = await ClassRecordStudentResetDeClassTimes(p, request, now);
             await _classRecordDAL.EditClassRecordStudent(p);
 
-            if (oldPoints != request.NewPoints)
+            if (oldPoints != request.NewRewardPoints)
             {
-                await ClassRecordStudentResetRewardPoints(p, oldPoints, request.NewPoints, now);
+                await ClassRecordStudentResetRewardPoints(p, oldPoints, request.NewRewardPoints, now);
             }
 
             var addAttendNumber = 0;
@@ -531,8 +532,8 @@ namespace ETMS.Business
         {
             p.StudentCheckStatus = request.NewStudentCheckStatus;
             p.Remark = request.NewRemark;
-            p.RewardPoints = request.NewPoints;
-            p.IsRewardPoints = request.NewPoints > 0;
+            p.RewardPoints = request.NewRewardPoints;
+            p.IsRewardPoints = request.NewRewardPoints > 0;
             if (p.DeClassTimes == request.NewDeClassTimes)
             {
                 return p;

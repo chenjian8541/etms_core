@@ -27,7 +27,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// <summary>
         /// 积分
         /// </summary>
-        public int NewPoints { get; set; } 
+        public int NewRewardPoints { get; set; } 
 
         public override string Validate()
         {

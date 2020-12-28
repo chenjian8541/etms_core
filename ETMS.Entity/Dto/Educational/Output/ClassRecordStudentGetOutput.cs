@@ -83,5 +83,10 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 扣的课时
         /// </summary>
         public string NewDeClassTimes { get; set; }
+
+        /// <summary>
+        /// 积分
+        /// </summary>
+        public int NewRewardPoints { get; set; }
     }
 }
