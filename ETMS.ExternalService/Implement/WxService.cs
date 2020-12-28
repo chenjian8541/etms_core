@@ -214,9 +214,15 @@ namespace ETMS.ExternalService.Implement
                             keyword4Desc = student.StudentCheckStatusDesc;
                             break;
                     }
+                    var desc = new StringBuilder($"{student.Name}同学，您的课程已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}");
+                    if (student.RewardPoints > 0)
+                    {
+                        desc.Append($"，奖励{student.RewardPoints}积分，剩余{student.Points}积分");
+                    }
+                    desc.Append("，请确认");
                     var data = new
                     {
-                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的课程{student.CourseName}已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}，请确认")),
+                        first = new TemplateDataItem(GetFirstDesc(request, desc.ToString())),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(request.ClassName, DefaultColor),
                         keyword3 = new TemplateDataItem(request.ClassTimeDesc, DefaultColor),

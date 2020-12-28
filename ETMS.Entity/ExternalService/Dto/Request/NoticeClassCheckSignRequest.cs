@@ -47,5 +47,9 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public string SurplusClassTimesDesc { get; set; }
 
         public string LinkUrl { get; set; }
+
+        public int RewardPoints { get; set; }
+
+        public int Points { get; set; }
     }
 }

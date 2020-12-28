@@ -525,7 +525,9 @@ namespace ETMS.Business
                     StudentCheckStatus = p.StudentCheckStatus,
                     SurplusClassTimesDesc = surplusClassTimesDesc,
                     OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
-                    LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id)
+                    LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
+                    RewardPoints = p.RewardPoints,
+                    Points = student.Points
                 });
                 if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                 {
@@ -540,7 +542,9 @@ namespace ETMS.Business
                         StudentCheckStatus = p.StudentCheckStatus,
                         SurplusClassTimesDesc = surplusClassTimesDesc,
                         OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
-                        LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id)
+                        LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
+                        RewardPoints = p.RewardPoints,
+                        Points = student.Points
                     });
                 }
             }
