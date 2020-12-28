@@ -167,6 +167,7 @@ namespace ETMS.Business
                         if (myCheck != null)
                         {
                             classTimesStudent.IsCheckAttendance = true;
+                            classTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
                         }
                         output.Add(classTimesStudent);
                     }
@@ -184,6 +185,7 @@ namespace ETMS.Business
                         if (myCheck != null)
                         {
                             tempTimesStudent.IsCheckAttendance = true;
+                            tempTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
                         }
                         output.Add(tempTimesStudent);
                     }
@@ -206,6 +208,10 @@ namespace ETMS.Business
                 return null;
             }
             var studentCourse = await _studentCourseDAL.GetStudentCourse(studentId, courseId);
+            if (studentType == EmClassStudentType.TryCalssStudent)
+            {
+                defaultClassTimes = 0;
+            }
             return new ClassTimesStudentGetOutput()
             {
                 CourseId = courseId,
@@ -222,7 +228,7 @@ namespace ETMS.Business
                 ClassTimesStudentId = classTimesStudentId,
                 StudentTryCalssLogId = studentTryCalssLogId,
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
-                DefaultClassTimes = defaultClassTimes
+                DefaultClassTimes = defaultClassTimes.ToString()
             };
         }
 
