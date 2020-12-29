@@ -39,6 +39,16 @@ namespace ETMS.Entity.Database.Source
         public DateTime GetTime { get; set; }
 
         /// <summary>
+        /// 生成的批次单号
+        /// </summary>
+        public string GenerateNo { get; set; }
+
+        /// <summary>
+        /// 是否已发送提醒 <see cref=" ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsRemindExpired { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmCouponsStudentStatus"/>
         /// </summary>
         public byte Status { get; set; }

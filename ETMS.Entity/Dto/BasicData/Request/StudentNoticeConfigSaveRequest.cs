@@ -88,5 +88,10 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员考勤通知（短信）
         /// </summary>
         public bool StudentCheckOnSms { get; set; }
+
+        /// <summary>
+        /// 优惠券提醒(微信)
+        /// </summary>
+        public bool StudentCouponsWeChat { get; set; }
     }
 }

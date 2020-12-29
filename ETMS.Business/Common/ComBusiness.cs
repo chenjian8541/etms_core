@@ -329,6 +329,15 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
+        internal static async Task<EtCoupons> GetCoupons(DataTempBox<EtCoupons> tempBox, ICouponsDAL couponsDAL, long couponsId)
+        {
+            var myChoupons = await tempBox.GetData(couponsId, async () =>
+            {
+                return await couponsDAL.GetCoupons(couponsId);
+            });
+            return myChoupons;
+        }
+
         internal static async Task<EtStudent> GetStudent(DataTempBox<EtStudent> tempBox, IStudentDAL studentDAL, long studentId)
         {
             var student = await tempBox.GetData(studentId, async () =>

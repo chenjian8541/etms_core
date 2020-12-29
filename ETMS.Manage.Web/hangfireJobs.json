@@ -75,5 +75,12 @@
     "Title": "定时分析当天课次信息",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "NoticeStudentCouponsExplainJob",
+    "Cron": "0 0 10 * * ?", //每天凌晨10点执行
+    "Title": "定时分析将过期的优惠券",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

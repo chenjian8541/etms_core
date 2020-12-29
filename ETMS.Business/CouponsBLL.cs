@@ -419,6 +419,7 @@ namespace ETMS.Business
             }
             var couponsStudentGets = new List<EtCouponsStudentGet>();
             var now = DateTime.Now;
+            var generateNo = OrderNumberLib.CouponsGenerateNo();
             foreach (var studentId in request.StudentIds)
             {
                 couponsStudentGets.Add(new EtCouponsStudentGet()
@@ -433,11 +434,18 @@ namespace ETMS.Business
                     StudentId = studentId,
                     TenantId = request.LoginTenantId,
                     ExpiredTime = expiredTime,
-                    LimitUseTime = limitUseTime
+                    LimitUseTime = limitUseTime,
+                    GenerateNo = generateNo,
+                    IsRemindExpired = EmBool.False
                 });
                 await _noticeBLL.SendCoupons();
             }
             _couponsDAL.AddCouponsStudentGet(couponsStudentGets);
+            _eventPublisher.Publish(new NoticeStudentCouponsGetEvent(request.LoginTenantId)
+            {
+                GenerateNo = generateNo
+            });
+
             await _userOperationLogDAL.AddUserLog(request, $"发放优惠券，优惠券:{coupons.Title},学员数量：{request.StudentIds.Count}", EmUserOperationType.CouponsStudentSend);
             return ResponseBase.Success();
         }

@@ -133,5 +133,15 @@ namespace ETMS.DataAccess
             var sql = $"select top 50 * from CouponsStudentGetView where TenantId = {_tenantId} AND [Status] = {EmCouponsStudentStatus.Unused} AND studentId = {studentId} and (LimitUseTime <= '{now}' or LimitUseTime is null) and (ExpiredTime > '{now}' or ExpiredTime is null) and IsDeleted = {EmIsDeleted.Normal}";
             return await _dbWrapper.ExecuteObject<CouponsStudentGetView>(sql);
         }
-    }
+
+        public async Task<List<EtCouponsStudentGet>> GetCouponsStudentGet(string generateNo)
+        {
+            return await _dbWrapper.FindList<EtCouponsStudentGet>(p => p.TenantId == _tenantId && p.GenerateNo == generateNo && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<IEnumerable<EtCouponsStudentGet>> GetCouponsStudentGetToExpire(DateTime minTime, DateTime maxTime)
+        {
+            return await _dbWrapper.ExecuteObject<EtCouponsStudentGet>($"select top 1000 * from EtCouponsStudentGet where TenantId = {_tenantId} and IsDeleted = {EmIsDeleted.Normal} and [Status] = {EmCouponsStudentStatus.Unused} and IsRemindExpired = {EmBool.False} and ExpiredTime >= '{minTime.EtmsToDateString()}' and ExpiredTime <= '{maxTime.EtmsToDateString()}'");
+        }
+    } 
 }

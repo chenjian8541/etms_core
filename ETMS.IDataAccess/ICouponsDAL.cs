@@ -43,5 +43,9 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<CouponsStudentUseView>, int>> CouponsStudentUsePaging(RequestPagingBase request);
 
         Task<IEnumerable<CouponsStudentGetView>> GetCouponsCanUse(long studentId);
+
+        Task<List<EtCouponsStudentGet>> GetCouponsStudentGet(string generateNo);
+
+        Task<IEnumerable<EtCouponsStudentGet>> GetCouponsStudentGetToExpire(DateTime minTime, DateTime maxTime);
     }
 }

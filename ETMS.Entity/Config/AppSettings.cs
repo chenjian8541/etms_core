@@ -172,6 +172,8 @@ namespace ETMS.Entity.Config
         public string StudentCourseUrl { get; set; }
 
         public string StudentCheckLogUrl { get; set; }
+
+        public string CouponsUrl { get; set; }
     }
 
     public class ServerConfig
