@@ -260,6 +260,40 @@
           "Title": "点名详情",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 82,
+        "Path": "faceCheckMgr",
+        "Name": "faceCheckMgr",
+        "Type": 1,
+        "Component": "@/views/educational/checkWork/faceSwiping",
+        "Meta": {
+          "Title": "人脸考勤",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 83,
+        "Path": "cardCheckMgr",
+        "Name": "cardCheckMgr",
+        "Type": 1,
+        "Component": "@/views/educational/checkWork/magneticCard",
+        "Meta": {
+          "Title": "刷卡考勤",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "FaceRecognition/:type",
+        "Name": "FaceRecognition",
+        "Type": 1,
+        "Component": "@/components/faceCheck/FaceRecognition",
+        "Meta": {
+          "Title": "人脸考勤",
+          "Icon": "item"
+        }
       }
     ]
   },

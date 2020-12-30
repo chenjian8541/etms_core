@@ -24,7 +24,7 @@ namespace ETMS.DataAccess
             var ot = Convert.ToDateTime(keys[1]);
             var otDesc = ot.EtmsToDateString();
             var needCheckInCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsCheckIn = {EmBool.False} AND IsDeleted = {EmIsDeleted.Normal}");
-            var needCheckOutCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsCheckOut = {EmBool.False} AND IsDeleted = {EmIsDeleted.Normal}");
+            var needCheckOutCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsCheckIn = {EmBool.True} AND IsCheckOut = {EmBool.False} AND IsDeleted = {EmIsDeleted.Normal}");
             var needAttendClassCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheckClass WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND [Status] = {EmTempStudentNeedCheckClassStatus.NotAttendClass} AND IsDeleted = {EmIsDeleted.Normal}");
             return new TempStudentNeedCheckCountBucket()
             {

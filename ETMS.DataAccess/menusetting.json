@@ -401,6 +401,64 @@
             "Type": 1
           }
         ]
+      },
+      {
+        "Id": 82,
+        "Name": "人脸考勤",
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 84,
+            "Name": "人脸考勤",
+            "Type": 0
+          },
+          {
+            "Id": 85,
+            "Name": "考勤记录",
+            "Type": 0
+          }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 51,
+            "Name": "人脸采集",
+            "Type": 1
+          },
+          {
+            "ActionId": 52,
+            "Name": "人脸考勤",
+            "Type": 1
+          }
+        ]
+      },
+      {
+        "Id": 83,
+        "Name": "刷卡考勤",
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 86,
+            "Name": "刷卡考勤",
+            "Type": 0
+          },
+          {
+            "Id": 87,
+            "Name": "考勤记录",
+            "Type": 0
+          }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 50,
+            "Name": "撤销记上课",
+            "Type": 1
+          },
+          {
+            "ActionId": 53,
+            "Name": "快捷刷卡考勤",
+            "Type": 1
+          }
+        ]
       }
     ]
   },
