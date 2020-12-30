@@ -454,6 +454,11 @@
             "Type": 1
           },
           {
+            "ActionId": 54,
+            "Name": "删除考勤记录",
+            "Type": 1
+          },
+          {
             "ActionId": 53,
             "Name": "快捷刷卡考勤",
             "Type": 1

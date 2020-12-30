@@ -787,8 +787,29 @@ namespace ETMS.Business
                     CourseId = deStudentClassTimesResult.DeCourseId,
                     StudentId = log.StudentId
                 });
+
+                await _userOperationLogDAL.AddUserLog(request, "签到补卡记上课", EmUserOperationType.StudentCheckOn);
                 return ResponseBase.Success();
             }
+        }
+
+        public async Task<ResponseBase> StudentCheckOnLogDel(StudentCheckOnLogDelRequest request)
+        {
+            var p = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("考勤记录不存在");
+            }
+            if (p.Status == EmStudentCheckOnLogStatus.NormalAttendClass || p.Status == EmStudentCheckOnLogStatus.BeRollcall)
+            {
+                return ResponseBase.CommonError("已记上课，无法删除");
+            }
+
+            p.IsDeleted = EmIsDeleted.Deleted;
+            await _studentCheckOnLogDAL.EditStudentCheckOnLog(p);
+
+            await _userOperationLogDAL.AddUserLog(request, "删除考勤记录", EmUserOperationType.StudentCheckOn);
+            return ResponseBase.Success();
         }
     }
 }

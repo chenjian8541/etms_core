@@ -145,7 +145,7 @@ namespace ETMS.DataAccess
 
         public async Task<Tuple<IEnumerable<EtTempStudentNeedCheckClass>, int>> TempStudentNeedCheckClassGetPaging(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<EtTempStudentNeedCheckClass>("EtTempStudentNeedCheckClass", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<EtTempStudentNeedCheckClass>("EtTempStudentNeedCheckClass", "*", request.PageSize, request.PageCurrent, "StartTime ASC", request.ToString());
         }
 
         public async Task<EtTempStudentNeedCheckClass> TempStudentNeedCheckClassGet(long id)

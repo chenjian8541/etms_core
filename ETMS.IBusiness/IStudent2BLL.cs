@@ -42,5 +42,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentNeedLogCheckOut(StudentNeedLogCheckOutRequest request);
 
         Task<ResponseBase> StudentNeedLogAttendClass(StudentNeedLogAttendClassRequest request);
+
+        Task<ResponseBase> StudentCheckOnLogDel(StudentCheckOnLogDelRequest request);
     }
 }
