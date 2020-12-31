@@ -47,7 +47,7 @@ namespace ETMS.Business.SendNotice
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _tenantConfigDAL, _studentDAL, _couponsDAL);
+            this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL);
         }
 
         public async Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request)
