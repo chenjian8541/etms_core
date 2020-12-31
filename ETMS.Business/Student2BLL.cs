@@ -142,7 +142,7 @@ namespace ETMS.Business
             var initFaceResult = await _aiface.StudentInitFace(request.CId, AliyunOssUtil.GetAccessUrlHttps(imgOssKey));
             if (!initFaceResult)
             {
-                return ResponseBase.CommonError("保存人脸信息失败");
+                return ResponseBase.CommonError("人脸图片质量不符合要求，请重新采集");
             }
             await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey);
 

@@ -160,7 +160,7 @@ namespace ETMS.Entity.Dto.Student.Request
             }
             if (!string.IsNullOrEmpty(StudentKey))
             {
-                condition.Append($" AND (Name LIKE '%{StudentKey}%' OR Phone LIKE '%{StudentKey}%' OR PhoneBak LIKE '%{StudentKey}%')");
+                condition.Append($" AND (Name LIKE '%{StudentKey}%' OR Phone LIKE '%{StudentKey}%' OR PhoneBak LIKE '%{StudentKey}%' OR CardNo = '{StudentKey}')");
             }
             if (TrackStatus != null)
             {

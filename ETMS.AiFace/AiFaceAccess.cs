@@ -153,15 +153,6 @@ namespace ETMS.AiFace
             }
         }
 
-        private void StudentAddFace(long studentId, string faceGreyKeyUrl)
-        {
-            var req = new CreateFaceRequest();
-            req.Urls = new string[] { faceGreyKeyUrl };
-            req.PersonId = GetPersonId(studentId);
-            var result = _client.CreateFaceSync(req);
-            var i = 1;
-        }
-
         private void StudentCreate(long studentId, string faceGreyKeyUrl)
         {
             var req = new CreatePersonRequest();
@@ -170,6 +161,7 @@ namespace ETMS.AiFace
             req.PersonName = personId;
             req.PersonId = personId;
             req.Url = faceGreyKeyUrl;
+            req.QualityControl = 4;
             _client.CreatePersonSync(req);
         }
 
