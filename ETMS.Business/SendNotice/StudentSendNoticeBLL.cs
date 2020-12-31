@@ -53,12 +53,14 @@ namespace ETMS.Business
 
         private readonly IActiveWxMessageDAL _activeWxMessageDAL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
-            IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL)
+            IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
@@ -76,13 +78,14 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._userDAL = userDAL;
             this._activeWxMessageDAL = activeWxMessageDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
-                _studentWechatDAL, _userDAL, _activeWxMessageDAL);
+                _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL);
         }
 
         public async Task NoticeStudentsOfClassBeforeDayTenant(NoticeStudentsOfClassBeforeDayTenantEvent request)
@@ -460,6 +463,12 @@ namespace ETMS.Business
                 return;
             }
 
+            List<EtStudentCheckOnLog> checkInLog = null;
+            if (classRecord.ClassTimesId != null)
+            {
+                checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(classRecord.ClassTimesId.Value);
+            }
+
             var tempBox = new DataTempBox<EtUser>();
             var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
             {
@@ -477,6 +486,14 @@ namespace ETMS.Business
             var tempBoxCourse = new DataTempBox<EtCourse>();
             foreach (var p in classRecordStudent)
             {
+                if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
+                {
+                    var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
+                    if (myCheckLog != null)
+                    {
+                        continue;
+                    }
+                }
                 var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {

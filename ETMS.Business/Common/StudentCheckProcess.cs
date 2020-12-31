@@ -4,6 +4,7 @@ using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
@@ -41,10 +42,11 @@ namespace ETMS.Business.Common
 
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
+        private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
         public StudentCheckProcess(StudentCheckProcessRequest request, IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL,
             IEventPublisher eventPublisher, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IUserOperationLogDAL userOperationLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
-            ITempDataCacheDAL tempDataCacheDAL)
+            ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
         {
             this._request = request;
             this._eventPublisher = eventPublisher;
@@ -58,6 +60,7 @@ namespace ETMS.Business.Common
             this._userOperationLogDAL = userOperationLogDAL;
             this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
+            this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
         }
 
         private async Task<long> AddNotDeStudentCheckOnLog(byte checkType, string remark = "")
@@ -148,7 +151,12 @@ namespace ETMS.Business.Common
                             TenantId = _request.LoginTenantId,
                             DeClassTimesSmall = 0
                         });
-                        _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                        //_eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                        //{
+                        //    StudentId = _request.Student.Id,
+                        //    CourseId = deStudentClassTimesResult.DeCourseId
+                        //});
+                        await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
                         {
                             StudentId = _request.Student.Id,
                             CourseId = deStudentClassTimesResult.DeCourseId
