@@ -279,7 +279,7 @@ namespace ETMS.DataAccess
         public async Task<IEnumerable<StudentFaceView>> GetStudentFace()
         {
             return await _dbWrapper.ExecuteObject<StudentFaceView>(
-                $"SELECT TOP 1000 Id,FaceGreyKey FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND FaceGreyKey <> '' ORDER BY FaceUseLastTime DESC");
+                $"SELECT TOP 100 Id,FaceGreyKey FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND FaceGreyKey <> '' ORDER BY FaceUseLastTime DESC");
         }
     }
 }
