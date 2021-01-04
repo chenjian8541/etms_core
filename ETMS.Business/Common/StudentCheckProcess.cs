@@ -177,7 +177,15 @@ namespace ETMS.Business.Common
                     var diffSecond = (_request.CheckOt - studentCheckLastTime.StudentCheckLastTime).TotalSeconds;
                     if (diffSecond <= _request.IntervalTime)
                     {
-                        return ResponseBase.CommonError($"{_request.IntervalTime}s内无法重复考勤");
+                        var msg = $"同一学员{_request.IntervalTime}s内无法重复考勤";
+                        if (_request.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                        {
+                            return ResponseBase.CommonError(msg);
+                        }
+                        else
+                        {
+                            return ResponseBase.Success(StudentCheckOutput.CheckFail(msg, _request.FaceWhite));
+                        }
                     }
                 }
             }
@@ -192,7 +200,15 @@ namespace ETMS.Business.Common
                     var diffSecond = (_request.CheckOt - lastChekLog.CheckOt).TotalSeconds;
                     if (diffSecond <= _request.IntervalTime)
                     {
-                        return ResponseBase.CommonError($"{_request.IntervalTime}s内无法重复考勤");
+                        var msg = $"同一学员{_request.IntervalTime}s内无法重复考勤";
+                        if (_request.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                        {
+                            return ResponseBase.CommonError(msg);
+                        }
+                        else
+                        {
+                            return ResponseBase.Success(StudentCheckOutput.CheckFail(msg, _request.FaceWhite));
+                        }
                     }
                     if (lastChekLog.CheckType == EmStudentCheckOnLogCheckType.CheckIn && _request.IsMustCheckOut == EmBool.True) //判断是否为签退
                     {

@@ -88,7 +88,7 @@ namespace ETMS.Entity.Config
         /// <summary>
         /// 学员刷卡间隔时间(单位秒)
         /// </summary>
-        public int IntervalTimeCard { get; set; } = 10;
+        public int IntervalTimeCard { get; set; } = 30;
 
         /// <summary>
         /// 学员是否需要刷卡签退  <see cref="EmBool"/>
@@ -116,7 +116,7 @@ namespace ETMS.Entity.Config
         /// <summary>
         /// 学员刷脸间隔时间(单位秒)
         /// </summary>
-        public int IntervalTimeFace { get; set; } = 10;
+        public int IntervalTimeFace { get; set; } = 30;
 
         /// <summary>
         /// 学员是否需要刷卡签退  <see cref="EmBool"/>

@@ -6,10 +6,25 @@ namespace ETMS.Entity.Dto.Student.Output
 {
     public class StudentCheckOutput
     {
+        public static StudentCheckOutput CheckFail(string errMsg, FaceInfo faceWhite)
+        {
+            return new StudentCheckOutput()
+            {
+                CheckResult = null,
+                CheckState = StudentCheckOutputCheckState.Fail,
+                ErrMsg = errMsg,
+                FaceBlack = null,
+                FaceWhite = faceWhite,
+                NeedDeClassTimes = null
+            };
+        }
+
         /// <summary>
         /// 考勤状态  <see cref="StudentCheckOutputCheckState"/>
         /// </summary>
         public byte CheckState { get; set; }
+
+        public string ErrMsg { get; set; }
 
         /// <summary>
         /// 考勤结果
