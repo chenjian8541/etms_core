@@ -352,10 +352,19 @@ namespace ETMS.Business
                 smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeStudentsOfClass;
                 smsReq.Remark = request.WeChatNoticeRemark;
             }
+            var checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(request.ClassTimesId);
             if (classTimesStudents != null && classTimesStudents.Any())
             {
                 foreach (var p in classTimesStudents)
                 {
+                    if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
+                    {
+                        var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
+                        if (myCheckLog != null)
+                        {
+                            continue;
+                        }
+                    }
                     var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                     if (studentBucket == null || studentBucket.Student == null)
                     {
@@ -392,6 +401,14 @@ namespace ETMS.Business
             {
                 foreach (var p in classStudent)
                 {
+                    if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
+                    {
+                        var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
+                        if (myCheckLog != null)
+                        {
+                            continue;
+                        }
+                    }
                     var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                     if (studentBucket == null || studentBucket.Student == null)
                     {

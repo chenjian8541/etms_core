@@ -105,10 +105,24 @@ namespace ETMS.Business
                     return ResponseBase.CommonError("此课次已点名");
                 }
             }
+            List<EtStudentCheckOnLog> checkInLog = null;
+            if (request.ClassTimesId != null)
+            {
+                checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(request.ClassTimesId.Value);
+            }
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var classOt = request.ClassOt.Date;
             foreach (var student in request.Students)
             {
+                if (checkInLog != null && checkInLog.Count > 0)
+                {
+                    //考勤记上课
+                    var myCheckLog = checkInLog.FirstOrDefault(p => p.StudentId == student.StudentId);
+                    if (myCheckLog != null)
+                    {
+                        continue;
+                    }
+                }
                 var errMsg = string.Empty;
                 switch (student.StudentType)
                 {
