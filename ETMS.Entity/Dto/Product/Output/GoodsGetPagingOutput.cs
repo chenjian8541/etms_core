@@ -36,5 +36,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public string StatusDesc { get; set; }
 
         public string LimitQuantityDesc { get; set; }
+
+        public int Points { get; set; }
     }
 }

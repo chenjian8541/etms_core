@@ -24,5 +24,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public decimal TotalPrice { get; set; }
 
         public decimal Price { get; set; }
+
+        public int Points { get; set; }
     }
 }

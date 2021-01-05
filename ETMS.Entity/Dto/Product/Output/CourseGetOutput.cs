@@ -22,6 +22,8 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public byte Status { get; set; }
 
+        public int CheckPoints { get; set; }
+
         public CoursePriceRuleOutput CoursePriceRules { get; set; }
     }
 }

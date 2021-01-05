@@ -15,6 +15,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public decimal Price { get; set; }
 
+        public string Points { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Name))

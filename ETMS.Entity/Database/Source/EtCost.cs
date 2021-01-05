@@ -32,6 +32,11 @@ namespace ETMS.Entity.Database.Source
         public byte Status { get; set; }
 
         /// <summary>
+        /// 赠送积分
+        /// </summary>
+        public int Points { get; set; }
+
+        /// <summary>
         /// 创建人
         /// </summary>
         public long UserId { get; set; }

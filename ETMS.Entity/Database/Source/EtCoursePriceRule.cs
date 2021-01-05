@@ -45,5 +45,10 @@ namespace ETMS.Entity.Database.Source
         /// 单价单位  <see cref="ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
         public byte PriceUnit { get; set; }
+
+        /// <summary>
+        /// 赠送积分
+        /// </summary>
+        public int Points { get; set; }
     }
 }

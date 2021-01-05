@@ -17,6 +17,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public byte Status { get; set; }
 
+        public string Points { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

@@ -82,5 +82,19 @@ namespace ETMS.Utility
         {
             return decimal.Round(@this, 2);
         }
+
+        public static int EtmsToPoints(this string @this)
+        {
+            if (string.IsNullOrEmpty(@this))
+            {
+                return 0;
+            }
+            var temp = @this.ToInt();
+            if (temp < 0)
+            {
+                return 0;
+            }
+            return temp;
+        }
     }
 }

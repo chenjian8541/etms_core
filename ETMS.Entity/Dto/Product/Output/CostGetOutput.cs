@@ -24,5 +24,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public string Remark { get; set; }
 
         public byte Status { get; set; }
+
+        public int Points { get; set; }
     }
 }

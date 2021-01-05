@@ -8,6 +8,7 @@ using ETMS.IDataAccess;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Utility;
 
 namespace ETMS.Business
 {
@@ -45,7 +46,8 @@ namespace ETMS.Business
                 SaleQuantity = 0,
                 Status = request.Status,
                 TenantId = request.LoginTenantId,
-                UserId = request.LoginUserId
+                UserId = request.LoginUserId,
+                Points = request.Points.EtmsToPoints()
             });
             await _userOperationLogDAL.AddUserLog(request, $"添加费用:{request.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
@@ -66,6 +68,7 @@ namespace ETMS.Business
             cost.Price = request.Price;
             cost.Remark = request.Remark;
             cost.Status = request.Status;
+            cost.Points = request.Points.EtmsToPoints();
             await _costDAL.EditCost(cost);
             await _userOperationLogDAL.AddUserLog(request, $"编辑费用:{request.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
@@ -84,7 +87,8 @@ namespace ETMS.Business
                 Name = cost.Name,
                 Price = cost.Price,
                 Remark = cost.Remark,
-                Status = cost.Status
+                Status = cost.Status,
+                Points = cost.Points
             });
         }
 
@@ -129,7 +133,8 @@ namespace ETMS.Business
                 SaleQuantity = p.SaleQuantity,
                 Status = p.Status,
                 Remark = p.Remark,
-                StatusDesc = EmCostStatus.GetCostStatusDesc(p.Status)
+                StatusDesc = EmCostStatus.GetCostStatusDesc(p.Status),
+                Points = p.Points
             })));
         }
     }

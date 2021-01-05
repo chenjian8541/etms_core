@@ -38,5 +38,6 @@ namespace ETMS.Entity.Dto.Product.Output
         /// </summary>
         public string Remark { get; set; }
 
+        public int Points { get; set; }
     }
 }

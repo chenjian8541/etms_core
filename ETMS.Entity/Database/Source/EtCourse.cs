@@ -32,6 +32,11 @@ namespace ETMS.Entity.Database.Source
         public byte Status { get; set; }
 
         /// <summary>
+        /// 点名或者考勤时默认赠送的积分
+        /// </summary>
+        public int CheckPoints { get; set; }
+
+        /// <summary>
         /// 收费类型   <see cref="ETMS.Entity.Enum.EmCoursePriceType"/>
         /// </summary>
         public byte PriceType { get; set; }

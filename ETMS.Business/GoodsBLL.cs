@@ -56,6 +56,7 @@ namespace ETMS.Business
                 Status = request.Status,
                 TenantId = request.LoginTenantId,
                 UserId = request.LoginUserId,
+                Points = request.Points.EtmsToPoints()
             };
             await _goodsDAL.AddGoods(entity);
             if (myInventoryQuantity > 0)
@@ -102,6 +103,7 @@ namespace ETMS.Business
             goods.Remark = request.Remark;
             goods.LimitQuantity = limitQuantity;
             goods.Status = request.Status;
+            goods.Points = request.Points.EtmsToPoints();
             goods.InventoryQuantity = myInventoryQuantity;
             await _goodsDAL.EditGoods(goods);
 
@@ -151,7 +153,8 @@ namespace ETMS.Business
                 Price = goods.Price,
                 Remark = goods.Remark,
                 Status = goods.Status,
-                InventoryQuantity = goods.InventoryQuantity
+                InventoryQuantity = goods.InventoryQuantity,
+                Points = goods.Points
             });
         }
 
@@ -197,7 +200,8 @@ namespace ETMS.Business
                 SaleQuantity = p.SaleQuantity,
                 Status = p.Status,
                 StatusDesc = EmGoodsStatus.GetGoodsStatusDesc(p.Status),
-                LimitQuantityDesc = p.LimitQuantity == null ? "未设置" : p.LimitQuantity.ToString()
+                LimitQuantityDesc = p.LimitQuantity == null ? "未设置" : p.LimitQuantity.ToString(),
+                Points = p.Points
             })));
         }
 

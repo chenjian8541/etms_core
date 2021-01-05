@@ -19,6 +19,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public string Remark { get; set; }
 
+        public string CheckPoints { get; set; }
+
         public CoursePriceRule CoursePriceRules { get; set; }
 
         public override string Validate()

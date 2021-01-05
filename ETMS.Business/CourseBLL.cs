@@ -53,7 +53,8 @@ namespace ETMS.Business
                 Type = request.Type,
                 UserId = request.LoginUserId,
                 PriceType = coursePriceRuleInfo.Item2,
-                Status = EmCourseStatus.Enabled
+                Status = EmCourseStatus.Enabled,
+                CheckPoints = request.CheckPoints.EtmsToPoints()
             };
             await _courseDAL.AddCourse(course, coursePriceRuleInfo.Item1);
             await _userOperationLogDAL.AddUserLog(request, $"添加课程:{request.Name}", EmUserOperationType.CourseManage);
@@ -78,7 +79,8 @@ namespace ETMS.Business
                         PriceUnit = EmCourseUnit.ClassTimes,
                         Quantity = p.Quantity,
                         TotalPrice = p.TotalPrice,
-                        TenantId = tenantId
+                        TenantId = tenantId,
+                        Points = p.Points.EtmsToPoints()
                     });
                     priceTypes.Add(EmCoursePriceType.ClassTimes);
                 }
@@ -97,7 +99,8 @@ namespace ETMS.Business
                         PriceUnit = EmCourseUnit.Month,
                         Quantity = p.Quantity,
                         TotalPrice = p.TotalPrice,
-                        TenantId = tenantId
+                        TenantId = tenantId,
+                        Points = p.Points.EtmsToPoints()
                     });
                     priceTypes.Add(EmCoursePriceType.Month);
                 }
@@ -125,6 +128,7 @@ namespace ETMS.Business
             course.Name = request.Name;
             course.Remark = request.Remark;
             course.StyleColor = request.StyleColor;
+            course.CheckPoints = request.CheckPoints.EtmsToPoints();
             //course.Type = request.Type;
             var coursePriceRuleInfo = GetCoursePriceRule(request.CoursePriceRules, course.Id, course.TenantId);
             course.PriceType = coursePriceRuleInfo.Item2;
@@ -150,6 +154,7 @@ namespace ETMS.Business
                 StyleColor = course.StyleColor,
                 Type = course.Type,
                 Status = course.Status,
+                CheckPoints = course.CheckPoints,
                 CoursePriceRules = new CoursePriceRuleOutput()
                 {
                     ByClassTimes = new List<CoursePriceRuleOutputItem>(),
@@ -169,7 +174,8 @@ namespace ETMS.Business
                             Name = p.Name,
                             Price = p.Price,
                             Quantity = p.Quantity,
-                            TotalPrice = p.TotalPrice
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points
                         });
                     }
                 }
@@ -184,7 +190,8 @@ namespace ETMS.Business
                             Name = p.Name,
                             Price = p.Price,
                             Quantity = p.Quantity,
-                            TotalPrice = p.TotalPrice
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points
                         });
                     }
                 }
@@ -248,7 +255,8 @@ namespace ETMS.Business
                     TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),
                     PriceRuleDescs = GetPriceRuleDescs(priceRules),
                     Label = p.Name,
-                    Value = p.Id
+                    Value = p.Id,
+                    CheckPoints = p.CheckPoints
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CourseGetPagingOutput>(pagingData.Item2, courseGetPagingOutput));

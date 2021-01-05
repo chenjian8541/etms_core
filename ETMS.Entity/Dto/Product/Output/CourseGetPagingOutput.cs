@@ -33,6 +33,7 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public string Label { get; set; }
 
+        public int CheckPoints { get; set; }
     }
 
     public class PriceRuleDesc
