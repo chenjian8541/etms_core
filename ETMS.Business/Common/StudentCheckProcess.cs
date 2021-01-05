@@ -229,6 +229,17 @@ namespace ETMS.Business.Common
             {
                 var myClassTimesList = await _classTimesDAL.GetStudentCheckOnAttendClass(_request.CheckOt, _request.Student.Id, _request.RelationClassTimesLimitMinute);
                 var myClassTimesCount = myClassTimesList.Count();
+                if (myClassTimesCount > 0)
+                {
+                    //排除已记上课的课次
+                    var myDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimesList.Select(p => p.Id).ToList(), _request.Student.Id);
+                    if (myDeLog.Any())
+                    {
+                        var myDeLogIds = myDeLog.Select(j => j.ClassTimesId).ToList();
+                        myClassTimesList = myClassTimesList.Where(p => !myDeLogIds.Exists(j => j == p.Id)).ToList();
+                        myClassTimesCount = myClassTimesList.Count();
+                    }
+                }
                 if (myClassTimesCount == 0)
                 {
                     studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到匹配的课次");

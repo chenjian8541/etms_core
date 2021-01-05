@@ -77,6 +77,20 @@ namespace ETMS.DataAccess
             && p.ClassTimesId == classTimesId && p.StudentId == studentId && p.Status != EmStudentCheckOnLogStatus.Revoke);
         }
 
+        public async Task<IEnumerable<EtStudentCheckOnLog>> GetStudentDeLog(List<long> classTimesIds, long studentId)
+        {
+            var sql = string.Empty;
+            if (classTimesIds.Count == 1)
+            {
+                sql = $"SELECT * FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassTimesId = {classTimesIds[0]} AND StudentId = {studentId} AND [Status] != {EmStudentCheckOnLogStatus.Revoke} ";
+            }
+            else
+            {
+                sql = $"SELECT * FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassTimesId IN ({string.Join(',', classTimesIds)}) AND StudentId = {studentId} AND [Status] != {EmStudentCheckOnLogStatus.Revoke} ";
+            }
+            return await this._dbWrapper.ExecuteObject<EtStudentCheckOnLog>(sql);
+        }
+
         public async Task<bool> UpdateStudentCheckOnIsBeRollcall(long classTimesId)
         {
             await _dbWrapper.Execute($"update [EtStudentCheckOnLog] set [Status] = {EmStudentCheckOnLogStatus.BeRollcall} where TenantId = {_tenantId} and ClassTimesId = {classTimesId} ");
