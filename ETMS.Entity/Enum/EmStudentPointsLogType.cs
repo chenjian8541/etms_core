@@ -44,6 +44,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int ModifyStudentClassRecordAdd = 6;
 
+        /// <summary>
+        /// 考勤记上课
+        /// </summary>
+        public const int StudentCheckOn = 7;
+
+        /// <summary>
+        /// 撤销考勤记上课
+        /// </summary>
+        public const int StudentCheckOnRevoke = 8;
+
         public static string GetStudentPointsLogType(int type)
         {
             switch (type)
@@ -62,6 +72,10 @@ namespace ETMS.Entity.Enum
                     return "修改点名记录";
                 case ModifyStudentClassRecordAdd:
                     return "修改点名记录";
+                case StudentCheckOn:
+                    return "考勤记上课";
+                case StudentCheckOnRevoke:
+                    return "撤销考勤记上课";
             }
             return string.Empty;
         }
@@ -84,6 +98,10 @@ namespace ETMS.Entity.Enum
                     return $"-{point}";
                 case ModifyStudentClassRecordAdd:
                     return $"+{point}";
+                case StudentCheckOn:
+                    return $"+{point}";
+                case StudentCheckOnRevoke:
+                    return $"-{point}";
             }
             return string.Empty;
         }

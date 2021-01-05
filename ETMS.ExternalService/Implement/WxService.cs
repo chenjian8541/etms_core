@@ -722,6 +722,10 @@ namespace ETMS.ExternalService.Implement
                     {
                         deClassTimeDesc = $"，{request.DeClassTimesDesc}";
                     }
+                    if (student.Points > 0)
+                    {
+                        deClassTimeDesc = $"{deClassTimeDesc}，赠送{student.Points}积分";
+                    }
                     var data = new
                     {
                         first = new TemplateDataItem(GetFirstDesc(request, $"签到成功{deClassTimeDesc}")),

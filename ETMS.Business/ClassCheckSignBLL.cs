@@ -405,6 +405,15 @@ namespace ETMS.Business
             var studentTrackLogs = new List<EtStudentTrackLog>();
             foreach (var student in request.ClassRecordStudents)
             {
+                if (checkInLog != null && checkInLog.Count > 0)
+                {
+                    //考勤记上课
+                    var myCheckLog = checkInLog.FirstOrDefault(p => p.StudentId == student.StudentId);
+                    if (myCheckLog != null)
+                    {
+                        continue;
+                    }
+                }
                 //缺勤记录
                 ClassRecordAbsenceProcess(classRecordAbsenceLogs, student, recordId);
 

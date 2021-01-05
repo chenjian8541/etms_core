@@ -58,11 +58,14 @@ namespace ETMS.Business
 
         private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
 
+        private readonly IStudentPointsLogDAL _studentPointsLogDAL;
+
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
+            ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL,
+            IStudentPointsLogDAL studentPointsLogDAL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -81,6 +84,7 @@ namespace ETMS.Business
             this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
+            this._studentPointsLogDAL = studentPointsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -89,7 +93,7 @@ namespace ETMS.Business
             this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _studentCheckOnLogDAL, _classDAL,
                 _courseDAL, _tenantConfigDAL, _classTimesDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-                _tempStudentNeedCheckDAL);
+                _tempStudentNeedCheckDAL, _studentPointsLogDAL);
         }
 
         public async Task<ResponseBase> StudentFaceListGet(StudentFaceListGetRequest request)
@@ -245,7 +249,7 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(student.Avatar, student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -274,7 +278,7 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -314,7 +318,7 @@ namespace ETMS.Business
                 RequestBase = request,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -388,6 +392,22 @@ namespace ETMS.Business
                     return ResponseBase.CommonError(deStudentClassTimesResultTuple.Item1);
                 }
                 var deStudentClassTimesResult = deStudentClassTimesResultTuple.Item2;
+                var myCourse = await _courseDAL.GetCourse(deStudentClassTimesResult.DeCourseId);
+                if (myCourse.Item1.CheckPoints > 0)
+                {
+                    await _studentDAL.AddPoint(studentCheckOnLog.StudentId, myCourse.Item1.CheckPoints);
+                    await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                    {
+                        IsDeleted = EmIsDeleted.Normal,
+                        No = string.Empty,
+                        Ot = studentCheckOnLog.CheckOt,
+                        Points = myCourse.Item1.CheckPoints,
+                        Remark = string.Empty,
+                        StudentId = studentCheckOnLog.StudentId,
+                        TenantId = studentCheckOnLog.TenantId,
+                        Type = EmStudentPointsLogType.StudentCheckOn
+                    });
+                }
                 if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
                 {
                     await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
@@ -411,6 +431,7 @@ namespace ETMS.Business
                     });
                 }
 
+                studentCheckOnLog.Points = myCourse.Item1.CheckPoints;
                 studentCheckOnLog.ClassTimesId = myClassTimes.Id;
                 studentCheckOnLog.ClassId = myClassTimes.ClassId;
                 studentCheckOnLog.CourseId = deStudentClassTimesResult.DeCourseId;
@@ -488,6 +509,23 @@ namespace ETMS.Business
                 });
             }
             var oldCourseId = p.CourseId.Value;
+
+            if (p.Points > 0)
+            {
+                await _studentDAL.DeductionPoint(p.StudentId, p.Points);
+                await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                {
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = DateTime.Now,
+                    Points = p.Points,
+                    No = string.Empty,
+                    Remark = string.Empty,
+                    StudentId = p.StudentId,
+                    TenantId = p.TenantId,
+                    Type = EmStudentPointsLogType.StudentCheckOnRevoke
+                });
+                p.Points = 0;
+            }
 
             p.ClassTimesId = null;
             p.ClassId = null;

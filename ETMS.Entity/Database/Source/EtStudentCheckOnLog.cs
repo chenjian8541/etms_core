@@ -91,5 +91,10 @@ namespace ETMS.Entity.Database.Source
         /// 状态  <see cref="ETMS.Entity.Enum.EmStudentCheckOnLogStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        /// <summary>
+        /// 赠送积分
+        /// </summary>
+        public int Points { get; set; }
     }
 }

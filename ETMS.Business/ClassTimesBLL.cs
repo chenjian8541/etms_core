@@ -168,6 +168,7 @@ namespace ETMS.Business
                         {
                             classTimesStudent.IsCheckAttendance = true;
                             classTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
+                            classTimesStudent.Points = myCheck.Points;
                         }
                         output.Add(classTimesStudent);
                     }
@@ -186,6 +187,7 @@ namespace ETMS.Business
                         {
                             tempTimesStudent.IsCheckAttendance = true;
                             tempTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
+                            tempTimesStudent.Points = myCheck.Points;
                         }
                         output.Add(tempTimesStudent);
                     }

@@ -43,10 +43,16 @@ namespace ETMS.Business.Common
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
         private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
+
+        private readonly IStudentDAL _studentDAL;
+
+        private readonly IStudentPointsLogDAL _studentPointsLogDAL;
+
         public StudentCheckProcess(StudentCheckProcessRequest request, IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL,
             IEventPublisher eventPublisher, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IUserOperationLogDAL userOperationLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
-            ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
+            ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentDAL studentDAL,
+            IStudentPointsLogDAL studentPointsLogDAL)
         {
             this._request = request;
             this._eventPublisher = eventPublisher;
@@ -61,6 +67,8 @@ namespace ETMS.Business.Common
             this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
+            this._studentDAL = studentDAL;
+            this._studentPointsLogDAL = studentPointsLogDAL;
         }
 
         private async Task<long> AddNotDeStudentCheckOnLog(byte checkType, string remark = "")
@@ -81,7 +89,7 @@ namespace ETMS.Business.Common
         }
 
         private async Task<long> AddDeStudentCheckOnLog(byte checkType, DeStudentClassTimesResult deStudentClassTimesResult,
-            EtClassTimes p, long deCourseId, string remark = "")
+            EtClassTimes p, long deCourseId, int points, string remark = "")
         {
             var deClassTimes = 0M;
             if (deStudentClassTimesResult.DeType == EmDeClassTimesType.ClassTimes)
@@ -107,7 +115,8 @@ namespace ETMS.Business.Common
                 DeClassTimes = deClassTimes,
                 DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId,
                 ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes,
-                DeSum = deStudentClassTimesResult.DeSum
+                DeSum = deStudentClassTimesResult.DeSum,
+                Points = points
             });
         }
 
@@ -132,7 +141,24 @@ namespace ETMS.Business.Common
                 else
                 {
                     var deStudentClassTimesResult = deStudentClassTimesResultTuple.Item2;
-                    studentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult, myClassTimes, deStudentClassTimesResult.DeCourseId);
+                    var myCourse = await _courseDAL.GetCourse(deStudentClassTimesResult.DeCourseId);
+                    if (myCourse.Item1.CheckPoints > 0)
+                    {
+                        await _studentDAL.AddPoint(_request.Student.Id, myCourse.Item1.CheckPoints);
+                        await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                        {
+                            IsDeleted = EmIsDeleted.Normal,
+                            No = string.Empty,
+                            Ot = _request.CheckOt,
+                            Points = myCourse.Item1.CheckPoints,
+                            Remark = string.Empty,
+                            StudentId = _request.Student.Id,
+                            TenantId = _request.LoginTenantId,
+                            Type = EmStudentPointsLogType.StudentCheckOn
+                        });
+                    }
+                    studentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult, myClassTimes,
+                        deStudentClassTimesResult.DeCourseId, myCourse.Item1.CheckPoints);
                     await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClass(myClassTimes.Id, _request.Student.Id);
                     deClassTimesDesc = "已记上课";
                     if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)

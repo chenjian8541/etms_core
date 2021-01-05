@@ -758,7 +758,8 @@ namespace ETMS.Business.SendNotice
                 OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id,
-                Url = url
+                Url = url,
+                Points = log.Points
             });
 
             if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
@@ -769,7 +770,8 @@ namespace ETMS.Business.SendNotice
                     OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id,
-                    Url = url
+                    Url = url,
+                    Points = log.Points
                 });
             }
 
