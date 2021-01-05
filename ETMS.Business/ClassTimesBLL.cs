@@ -228,7 +228,8 @@ namespace ETMS.Business
                 ClassTimesStudentId = classTimesStudentId,
                 StudentTryCalssLogId = studentTryCalssLogId,
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
-                DefaultClassTimes = defaultClassTimes.ToString()
+                DefaultClassTimes = defaultClassTimes.ToString(),
+                Points = myCourse.Item1.CheckPoints
             };
         }
 

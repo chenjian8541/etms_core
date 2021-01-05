@@ -490,7 +490,8 @@ namespace ETMS.Business
                     StudentName = studentInfo.Student.Name,
                     StudentPhone = studentInfo.Student.Phone,
                     StudentType = request.StudentType,
-                    StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(request.StudentType)
+                    StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(request.StudentType),
+                    Points = course.Item1.CheckPoints
                 });
             }
             return ResponseBase.Success(output);

@@ -30,7 +30,8 @@ namespace ETMS.Business.Common
                 PriceType = p.PriceType,
                 PriceUnit = p.PriceUnit,
                 Quantity = p.Quantity,
-                TotalPrice = p.TotalPrice
+                TotalPrice = p.TotalPrice,
+                Points = p.Points
             };
             var givePointsDesc = string.Empty;
             if (p.Points > 0)

@@ -81,5 +81,7 @@ namespace ETMS.Entity.Dto.Product.Output
         /// 单价单位  <see cref="ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
         public byte PriceUnit { get; set; }
+
+        public int Points { get; set; }
     }
 }

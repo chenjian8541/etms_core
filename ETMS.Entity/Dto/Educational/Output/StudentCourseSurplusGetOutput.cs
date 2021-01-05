@@ -33,5 +33,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public byte StudentType { get; set; }
 
         public string StudentTypeDesc { get; set; }
+
+        public int Points { get; set; }
     }
 }
