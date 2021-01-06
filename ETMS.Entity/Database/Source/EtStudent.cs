@@ -32,6 +32,11 @@ namespace ETMS.Entity.Database.Source
         public string Name { get; set; }
 
         /// <summary>
+        /// 姓名(首字母)
+        /// </summary>
+        public string NamePinyin { get; set; }
+
+        /// <summary>
         /// 头像地址
         /// </summary>
         public string Avatar { get; set; }

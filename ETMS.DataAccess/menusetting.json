@@ -62,6 +62,11 @@
             "Type": 1
           },
           {
+            "ActionId": 55,
+            "Name": "学员积分调整",
+            "Type": 1
+          },
+          {
             "ActionId": 5,
             "Name": "分配跟进人",
             "Type": 1

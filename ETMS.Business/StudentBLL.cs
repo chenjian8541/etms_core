@@ -141,7 +141,8 @@ namespace ETMS.Business
                 Tags = tags,
                 TenantId = request.LoginTenantId,
                 TrackStatus = EmStudentTrackStatus.NotTrack,
-                TrackUser = request.TrackUser
+                TrackUser = request.TrackUser,
+                NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower()
             };
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
@@ -220,6 +221,7 @@ namespace ETMS.Business
             etStudent.SourceId = request.SourceId;
             etStudent.Tags = tags;
             etStudent.TrackUser = request.TrackUser;
+            etStudent.NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower();
             etStudent.Age = request.Birthday.EtmsGetAge();
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
