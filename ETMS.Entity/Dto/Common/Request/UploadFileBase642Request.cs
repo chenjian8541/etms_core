@@ -3,12 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ETMS.Entity.Dto.Parent.Request
+namespace ETMS.Entity.Dto.Common.Request
 {
-    public class UploadFileBase64Request : ParentRequestBase
+    public class UploadFileBase642Request : RequestBase
     {
         public string FileData { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Dto.Parent.Request.UploadFileType"/>
+        /// </summary>
         public byte FileType { get; set; }
 
         public override string Validate()
@@ -19,14 +22,5 @@ namespace ETMS.Entity.Dto.Parent.Request
             }
             return base.Validate();
         }
-    }
-
-    public struct UploadFileType
-    {
-        public const byte Image = 0;
-
-        public const byte Video = 1;
-
-        public const byte Audio = 2;
     }
 }

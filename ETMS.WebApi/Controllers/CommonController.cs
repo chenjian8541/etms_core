@@ -111,5 +111,25 @@ namespace ETMS.WebApi.Controllers
                 return new ResponseBase().GetResponseCodeError();
             }
         }
+
+        /// <summary>
+        /// 上传文件
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("upFileBase64")]
+        public ResponseBase UploadFileBase642(UploadFileBase642Request request)
+        {
+            try
+            {
+                var action = new UploadFileBase642Action();
+                return action.ProcessAction(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex, this.GetType());
+                return new ResponseBase().GetResponseCodeError();
+            }
+        }
     }
 }
