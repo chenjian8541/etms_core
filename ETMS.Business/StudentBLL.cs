@@ -58,12 +58,14 @@ namespace ETMS.Business
 
         private readonly IAiface _aiface;
 
+        private readonly IStudentPointsLogDAL _studentPointsLogDAL;
+
         public StudentBLL(IStudentDAL studentDAL, IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentTagDAL studentTagDAL, IStudentRelationshipDAL studentRelationshipDAL, IStudentSourceDAL studentSourceDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, IGradeDAL gradeDAL,
             IStudentTrackLogDAL studentTrackLogDAL, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, INoticeBLL noticeBLL, IEventPublisher eventPublisher,
-            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface)
+            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface, IStudentPointsLogDAL studentPointsLogDAL)
         {
             this._studentDAL = studentDAL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
@@ -83,6 +85,7 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._classDAL = classDAL;
             this._aiface = aiface;
+            this._studentPointsLogDAL = studentPointsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -91,7 +94,7 @@ namespace ETMS.Business
             this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentExtendFieldDAL, _studentTagDAL,
                 _userOperationLogDAL, _studentRelationshipDAL, _studentSourceDAL, _userDAL, _gradeDAL, _studentTrackLogDAL, _studentOperationLogDAL,
-                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL);
+                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL);
         }
 
         public async Task<ResponseBase> StudentAdd(StudentAddRequest request)
@@ -942,6 +945,49 @@ namespace ETMS.Business
             await _studentDAL.StudentBindingCardNo(request.CId, newCardNo, student.CardNo);
 
             await _userOperationLogDAL.AddUserLog(request, $"绑定卡片：姓名:{student.Name},手机号码:{student.Phone},卡号:{newCardNo}", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentChangePoints(StudentChangePointsRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.CId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
+            if (request.ChangeType == EmChangePointsType.Deduction && student.Points < request.ChangePoints)
+            {
+                return ResponseBase.CommonError("学员积分不足");
+            }
+            var type = 0;
+            var desc = string.Empty;
+            if (request.ChangeType == EmChangePointsType.Deduction)
+            {
+                await _studentDAL.DeductionPoint(request.CId, request.ChangePoints);
+                type = EmStudentPointsLogType.StudentPointsAdjustDeduction;
+                desc = "扣除";
+            }
+            else
+            {
+                await _studentDAL.AddPoint(request.CId, request.ChangePoints);
+                type = EmStudentPointsLogType.StudentPointsAdjustAdd;
+                desc = "增加";
+            }
+            var now = DateTime.Now;
+            await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                No = string.Empty,
+                Ot = now,
+                Points = request.ChangePoints,
+                Remark = request.Remark,
+                StudentId = request.CId,
+                TenantId = request.LoginTenantId,
+                Type = type
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"积分调整，学员:{student.Name},手机号码:{student.Phone},{desc}{request.ChangePoints}积分", EmUserOperationType.StudentManage, now);
             return ResponseBase.Success();
         }
     }
