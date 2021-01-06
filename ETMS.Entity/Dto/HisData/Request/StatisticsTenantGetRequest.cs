@@ -5,7 +5,11 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.HisData.Request
 {
-    public class StatisticsTenantGetRequest:RequestBase
+    public class StatisticsTenantGetRequest : RequestBase, IDataLimit
     {
+        public string GetDataLimitFilterWhere()
+        {
+            return "1=1";
+        }
     }
 }

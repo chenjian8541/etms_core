@@ -35,5 +35,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 今日未到人次
         /// </summary>
         public int ClassNotArrivedToday { get; set; }
+
+
+        /// <summary>
+        /// 是否启用数据限制
+        /// </summary>
+        public bool IsDataLimit { get; set; }
     }
 }

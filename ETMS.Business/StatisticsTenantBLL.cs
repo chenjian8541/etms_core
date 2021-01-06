@@ -80,7 +80,8 @@ namespace ETMS.Business
                 ClassActuallyCountToday = classActuallyCountToday,
                 ClassLeaveCountToday = classLeaveCountToday,
                 ClassNotArrivedToday = classNotArrivedToday,
-                ClassTimesThisMonth = classTimes.Sum(p => p.ClassTimes)
+                ClassTimesThisMonth = classTimes.Sum(p => p.ClassTimes),
+                IsDataLimit = request.IsDataLimit
             };
             return ResponseBase.Success(output);
         }
