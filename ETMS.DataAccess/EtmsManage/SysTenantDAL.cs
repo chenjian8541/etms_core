@@ -77,6 +77,7 @@ namespace ETMS.DataAccess.EtmsManage
         {
             sysTenant.SmsCount = 0;
             sysTenant.IsDeleted = EmIsDeleted.Deleted;
+            sysTenant.TenantCode = $"{sysTenant.TenantCode}_del";
             await this.Update(sysTenant);
             RemoveCache(sysTenant.Id);
             return true;
@@ -89,13 +90,13 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<bool> ExistPhone(string phone, int id = 0)
         {
-            var oldLog = await this.Find<SysTenant>(p => p.Phone == phone && p.Id != id);
+            var oldLog = await this.Find<SysTenant>(p => p.Phone == phone && p.IsDeleted == EmIsDeleted.Normal && p.Id != id);
             return oldLog != null;
         }
 
         public async Task<bool> ExistTenantCode(string tenantCode)
         {
-            var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode);
+            var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode && p.IsDeleted == EmIsDeleted.Normal);
             return oldLog != null;
         }
 
