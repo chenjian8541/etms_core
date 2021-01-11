@@ -378,7 +378,7 @@ namespace ETMS.Business
                 {
                     BugUnit = myItem.BugUnit,
                     BuyQuantity = myItem.BuyQuantity,
-                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit),
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
                     DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
                     ItemAptSum = myItem.ItemAptSum,

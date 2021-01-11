@@ -226,9 +226,21 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> UpdateStudentCourseDetail(List<EtStudentCourseDetail> entitys)
+        {
+            await _dbWrapper.Update(entitys);
+            await UpdateCache(_tenantId, entitys[0].StudentId);
+            return true;
+        }
+
         public async Task<EtStudentCourseDetail> GetEtStudentCourseDetail(long orderId, long courseId)
         {
             return await _dbWrapper.Find<EtStudentCourseDetail>(p => p.OrderId == orderId && p.CourseId == courseId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<List<EtStudentCourseDetail>> GetStudentCourseDetailByOrderId(long orderId)
+        {
+            return await _dbWrapper.FindList<EtStudentCourseDetail>(p => p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
         public async Task StudentMarkGraduation(long studentId)

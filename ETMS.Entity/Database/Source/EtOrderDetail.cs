@@ -27,6 +27,16 @@ namespace ETMS.Entity.Database.Source
         public string OrderNo { get; set; }
 
         /// <summary>
+        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// </summary>
+        public byte InOutType { get; set; }
+
+        /// <summary>
+        /// 退货数量/或者转课数量
+        /// </summary>
+        public decimal OutQuantity { get; set; }
+
+        /// <summary>
         /// 产品类型  <see cref=" ETMS.Entity.Enum.EmOrderProductType"/>
         /// </summary>
         public byte ProductType { get; set; }

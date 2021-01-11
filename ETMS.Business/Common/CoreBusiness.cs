@@ -81,8 +81,8 @@ namespace ETMS.Business.Common
             }
 
             var timesCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes && (p.EndTime == null || classDate <= p.EndTime)
-            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal);
-            if (!timesCourseDetail.Any())
+            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal).OrderBy(p => p.Id).ToList();
+            if (timesCourseDetail.Count == 0)
             {
                 //无剩余课时 记录超上课时
                 await studentCourseDAL.SaveNotbuyStudentExceedClassTimes(GetExceedClassTimes(classRecordStudent, classRecordStudent.DeClassTimes));
@@ -96,35 +96,73 @@ namespace ETMS.Business.Common
                 };
             }
 
-            var enoughTimesCourseDetail = timesCourseDetail.FirstOrDefault(p => p.SurplusQuantity >= classRecordStudent.DeClassTimes);
-            if (enoughTimesCourseDetail != null)   //存在课时足够扣的记录
+            //循环扣除
+            var surplusDeClassTimes = classRecordStudent.DeClassTimes;
+            EtStudentCourseDetail lastDeStudentCourseDetail = null;
+            for (var i = 0; i < timesCourseDetail.Count; i++)
             {
-                await studentCourseDAL.DeClassTimesOfStudentCourseDetail(enoughTimesCourseDetail.Id, classRecordStudent.DeClassTimes);
-                return new DeStudentClassTimesResult()
+                lastDeStudentCourseDetail = timesCourseDetail[i];
+                if (lastDeStudentCourseDetail.SurplusQuantity >= surplusDeClassTimes) //足够扣除
                 {
-                    DeSum = enoughTimesCourseDetail.Price * classRecordStudent.DeClassTimes,
-                    DeType = EmDeClassTimesType.ClassTimes,
-                    ExceedClassTimes = 0,
-                    OrderId = enoughTimesCourseDetail.OrderId,
-                    OrderNo = enoughTimesCourseDetail.OrderNo,
-                    DeStudentCourseDetailId = enoughTimesCourseDetail.Id,
-                    DeClassTimes = classRecordStudent.DeClassTimes
-                };
+                    await studentCourseDAL.DeClassTimesOfStudentCourseDetail(lastDeStudentCourseDetail.Id, surplusDeClassTimes);
+                    surplusDeClassTimes = 0;
+                    break;
+                }
+                else
+                {
+                    await studentCourseDAL.DeClassTimesOfStudentCourseDetail(lastDeStudentCourseDetail.Id, lastDeStudentCourseDetail.SurplusQuantity);
+                    surplusDeClassTimes -= lastDeStudentCourseDetail.SurplusQuantity;
+                }
+                if (surplusDeClassTimes == 0) //此代码应该无意义,为了逻辑严谨
+                {
+                    break;
+                }
             }
-            var notEnoughTimesCourseDetail = timesCourseDetail.First();
-            var exceedClassTimes = classRecordStudent.DeClassTimes - notEnoughTimesCourseDetail.SurplusQuantity;
-            await studentCourseDAL.DeClassTimesOfStudentCourseDetail(notEnoughTimesCourseDetail.Id, notEnoughTimesCourseDetail.SurplusQuantity);
-            await studentCourseDAL.SaveNotbuyStudentExceedClassTimes(GetExceedClassTimes(classRecordStudent, exceedClassTimes));
+            if (surplusDeClassTimes > 0) //超上课时
+            {
+                await studentCourseDAL.SaveNotbuyStudentExceedClassTimes(GetExceedClassTimes(classRecordStudent, surplusDeClassTimes));
+            }
+            var thisDeClassTimes = classRecordStudent.DeClassTimes - surplusDeClassTimes; //扣减的课时
             return new DeStudentClassTimesResult()
             {
-                DeSum = notEnoughTimesCourseDetail.Price * notEnoughTimesCourseDetail.SurplusQuantity,
+                DeSum = lastDeStudentCourseDetail.Price * thisDeClassTimes,
                 DeType = EmDeClassTimesType.ClassTimes,
-                ExceedClassTimes = exceedClassTimes,
-                OrderId = notEnoughTimesCourseDetail.OrderId,
-                OrderNo = notEnoughTimesCourseDetail.OrderNo,
-                DeStudentCourseDetailId = notEnoughTimesCourseDetail.Id,
-                DeClassTimes = notEnoughTimesCourseDetail.SurplusQuantity
+                ExceedClassTimes = surplusDeClassTimes,
+                OrderId = lastDeStudentCourseDetail.OrderId,
+                OrderNo = lastDeStudentCourseDetail.OrderNo,
+                DeStudentCourseDetailId = lastDeStudentCourseDetail.Id,
+                DeClassTimes = thisDeClassTimes
             };
+
+            //var enoughTimesCourseDetail = timesCourseDetail.FirstOrDefault(p => p.SurplusQuantity >= classRecordStudent.DeClassTimes);
+            //if (enoughTimesCourseDetail != null)   //存在课时足够扣的记录
+            //{
+            //    await studentCourseDAL.DeClassTimesOfStudentCourseDetail(enoughTimesCourseDetail.Id, classRecordStudent.DeClassTimes);
+            //    return new DeStudentClassTimesResult()
+            //    {
+            //        DeSum = enoughTimesCourseDetail.Price * classRecordStudent.DeClassTimes,
+            //        DeType = EmDeClassTimesType.ClassTimes,
+            //        ExceedClassTimes = 0,
+            //        OrderId = enoughTimesCourseDetail.OrderId,
+            //        OrderNo = enoughTimesCourseDetail.OrderNo,
+            //        DeStudentCourseDetailId = enoughTimesCourseDetail.Id,
+            //        DeClassTimes = classRecordStudent.DeClassTimes
+            //    };
+            //}
+            //var notEnoughTimesCourseDetail = timesCourseDetail.First();
+            //var exceedClassTimes = classRecordStudent.DeClassTimes - notEnoughTimesCourseDetail.SurplusQuantity;
+            //await studentCourseDAL.DeClassTimesOfStudentCourseDetail(notEnoughTimesCourseDetail.Id, notEnoughTimesCourseDetail.SurplusQuantity);
+            //await studentCourseDAL.SaveNotbuyStudentExceedClassTimes(GetExceedClassTimes(classRecordStudent, exceedClassTimes));
+            //return new DeStudentClassTimesResult()
+            //{
+            //    DeSum = notEnoughTimesCourseDetail.Price * notEnoughTimesCourseDetail.SurplusQuantity,
+            //    DeType = EmDeClassTimesType.ClassTimes,
+            //    ExceedClassTimes = exceedClassTimes,
+            //    OrderId = notEnoughTimesCourseDetail.OrderId,
+            //    OrderNo = notEnoughTimesCourseDetail.OrderNo,
+            //    DeStudentCourseDetailId = notEnoughTimesCourseDetail.Id,
+            //    DeClassTimes = notEnoughTimesCourseDetail.SurplusQuantity
+            //};
         }
 
 

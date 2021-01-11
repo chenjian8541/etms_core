@@ -37,6 +37,8 @@ namespace ETMS.Entity.Config
 
         public static TenantDefaultConfig TenantDefaultConfig;
 
+        public static ComConfig ComConfig;
+
         /// <summary>
         /// 静态构造函数
         /// 初始化内部静态成员
@@ -51,6 +53,7 @@ namespace ETMS.Entity.Config
             ClssTimesConfig = new ClssTimesConfig();
             SysSafetyConfig = new SysSafetyConfig();
             TenantDefaultConfig = new TenantDefaultConfig();
+            ComConfig = new ComConfig();
         }
     }
 
@@ -196,5 +199,13 @@ namespace ETMS.Entity.Config
         /// 安全验证短信过期时间(单位分钟)
         /// </summary>
         public int SysSafeSmsCodeTimeOut = 10;
+    }
+
+    public class ComConfig
+    {
+        /// <summary>
+        /// 一个月的天数
+        /// </summary>
+        public int MonthToDay = 30;
     }
 }

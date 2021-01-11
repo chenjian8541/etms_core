@@ -64,6 +64,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int StudentPointsAdjustDeduction = 10;
 
+        /// <summary>
+        /// 退销售订单
+        /// </summary>
+        public const int OrderReturn = 11;
+
         public static string GetStudentPointsLogType(int type)
         {
             switch (type)
@@ -90,6 +95,8 @@ namespace ETMS.Entity.Enum
                     return "积分调整(增加)";
                 case StudentPointsAdjustDeduction:
                     return "积分调整(扣除)";
+                case OrderReturn:
+                    return "退销售订单";
             }
             return string.Empty;
         }
@@ -119,6 +126,8 @@ namespace ETMS.Entity.Enum
                 case StudentPointsAdjustAdd:
                     return $"+{point}";
                 case StudentPointsAdjustDeduction:
+                    return $"-{point}";
+                case OrderReturn:
                     return $"-{point}";
             }
             return string.Empty;

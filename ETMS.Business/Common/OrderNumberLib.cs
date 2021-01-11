@@ -22,6 +22,20 @@ namespace ETMS.Business.Common
             return $"{strTime}{strRandom}";
         }
 
+        public static string GetReturnOrderNumber()
+        {
+            var strTime = DateTime.Now.ToString("TyyyyMMddHHmms");
+            var strRandom = new Random().Next(100, 999);
+            return $"{strTime}{strRandom}";
+        }
+
+        public static string GetTransferCoursesOrderNumber()
+        {
+            var strTime = DateTime.Now.ToString("ZyyyyMMddHHmms");
+            var strRandom = new Random().Next(100, 999);
+            return $"{strTime}{strRandom}";
+        }
+
         public static string CouponsGenerateNo()
         {
             var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");

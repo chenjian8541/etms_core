@@ -104,6 +104,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+        public async Task<ResponseBase> OrderGetBascDetail(OrderGetBascDetailRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderGetBascDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> OrderGetProductInfo(OrderGetProductInfoRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderGetProductInfo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
 
         public async Task<ResponseBase> OrderEditRemark(OrderEditRemarkRequest request)
         {
@@ -153,6 +180,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _orderBLL.InitTenantId(request.LoginTenantId);
                 return await _orderBLL.OrderRepeal(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> OrderReturnProduct(OrderReturnProductRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderReturnProduct(request);
             }
             catch (Exception ex)
             {

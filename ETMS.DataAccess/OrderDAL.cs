@@ -15,6 +15,18 @@ namespace ETMS.DataAccess
         public OrderDAL(IDbWrapper dbWrapper) : base(dbWrapper)
         { }
 
+        public async Task<long> AddOrder(EtOrder order)
+        {
+            await _dbWrapper.Insert(order);
+            return order.Id;
+        }
+
+        public bool AddOrderDetail(List<EtOrderDetail> orderDetails)
+        {
+            _dbWrapper.InsertRange(orderDetails);
+            return true;
+        }
+
         public async Task<long> AddOrder(EtOrder order, List<EtOrderDetail> orderDetails)
         {
             await _dbWrapper.Insert(order);
@@ -48,6 +60,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtOrderDetail>(p => p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
+        public async Task<bool> EditOrderDetail(List<EtOrderDetail> entitys)
+        {
+            await _dbWrapper.Update(entitys);
+            return true;
+        }
+
         public async Task<bool> UpdateOrder(EtOrder order)
         {
             return await _dbWrapper.Update(order);
@@ -77,6 +95,11 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtIncomeLog SET [Status] = {EmIncomeLogStatus.Repeal} WHERE TenantId = {_tenantId} AND OrderId = {orderId} ;");
             await _dbWrapper.Execute(sql.ToString());
             return true;
+        }
+
+        public async Task<List<EtOrder>> GetUnionOrderSource(long orderId)
+        {
+            return await this._dbWrapper.FindList<EtOrder>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UnionOrderId == orderId);
         }
     }
 }

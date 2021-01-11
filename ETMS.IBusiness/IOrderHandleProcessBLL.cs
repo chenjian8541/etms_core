@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness
 {
-    public interface IOrderRepealProcessBLL : IBaseBLL
+    public interface IOrderHandleProcessBLL : IBaseBLL
     {
         Task OrderStudentEnrolmentRepealEventProcess(OrderStudentEnrolmentRepealEvent request);
+
+        Task OrderReturnProductEventProcess(OrderReturnProductEvent request);
     }
 }

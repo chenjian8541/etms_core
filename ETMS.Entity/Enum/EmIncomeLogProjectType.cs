@@ -18,6 +18,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const long StudentEnrolmentAddPay = -2;
 
+        /// <summary>
+        /// 退销售订单
+        /// </summary>
+        public const long RetuenOrder = -3;
+
         public static string GetIncomeLogProjectType(List<EtIncomeProjectType> etIncomeProjectTypes, long type)
         {
             if (type >= 0)
@@ -34,6 +39,8 @@ namespace ETMS.Entity.Enum
                     return "报名/续费";
                 case StudentEnrolmentAddPay:
                     return "报名补缴";
+                case RetuenOrder:
+                    return "退销售订单";
             }
             return string.Empty;
         }
@@ -46,6 +53,8 @@ namespace ETMS.Entity.Enum
                     return "报名/续费";
                 case StudentEnrolmentAddPay:
                     return "报名补缴";
+                case RetuenOrder:
+                    return "退销售订单";
             }
             return string.Empty;
         }

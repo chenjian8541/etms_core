@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace ETMS.EventConsumer
 {
-    [QueueConsumerAttribution("OrderStudentEnrolmentRepealQueue")]
-    public class OrderStudentEnrolmentRepealConsumer : ConsumerBase<OrderStudentEnrolmentRepealEvent>
+    [QueueConsumerAttribution("OrderReturnProductQueue")]
+    public class OrderReturnProductConsumer : ConsumerBase<OrderReturnProductEvent>
     {
-        protected override async Task Receive(OrderStudentEnrolmentRepealEvent eEvent)
+        protected override async Task Receive(OrderReturnProductEvent eEvent)
         {
             var orderRepealProcessBLL = CustomServiceLocator.GetInstance<IOrderHandleProcessBLL>();
             orderRepealProcessBLL.InitTenantId(eEvent.TenantId);
-            await orderRepealProcessBLL.OrderStudentEnrolmentRepealEventProcess(eEvent);
+            await orderRepealProcessBLL.OrderReturnProductEventProcess(eEvent);
         }
     }
 }

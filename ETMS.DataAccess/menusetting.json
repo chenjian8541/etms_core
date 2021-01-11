@@ -607,6 +607,16 @@
             "Type": 1
           },
           {
+            "ActionId": 56,
+            "Name": "转课",
+            "Type": 1
+          },
+          {
+            "ActionId": 57,
+            "Name": "退单",
+            "Type": 1
+          },
+          {
             "ActionId": 41,
             "Name": "作废订单",
             "Type": 1
@@ -780,5 +790,5 @@
         "Type": 0
       }
     ]
-  },
+  }
 ]

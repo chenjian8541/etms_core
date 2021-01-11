@@ -98,6 +98,19 @@ namespace ETMS.LOG
         }
 
         /// <summary>
+        /// 记录警告日志
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="exception"></param>
+        /// <param name="type"></param>
+        public static void Warn<T>(string msg, T request, Type type) where T : class
+        {
+            var message = string.Format("{0}请求参数:{1}", msg, JsonConvert.SerializeObject(request));
+            Warn(message, type);
+        }
+
+        /// <summary>
         /// 记录错误日志
         /// </summary>
         /// <param name="message"></param>

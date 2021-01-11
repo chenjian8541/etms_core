@@ -29,6 +29,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte Repeal = 3;
 
+        /// <summary>
+        /// 退销售单
+        /// </summary>
+        public const byte OrderReturn = 4;
+
         public static string GetOrderOperationLogTypeDesc(int t)
         {
             switch (t)
@@ -41,6 +46,8 @@ namespace ETMS.Entity.Enum
                     return "编辑备注";
                 case Repeal:
                     return "订单作废";
+                case OrderReturn:
+                    return "退销售单";
             }
             return string.Empty;
         }

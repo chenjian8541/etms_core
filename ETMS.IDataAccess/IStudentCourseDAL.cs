@@ -53,7 +53,11 @@ namespace ETMS.IDataAccess
 
         Task<bool> UpdateStudentCourseDetail(EtStudentCourseDetail entity);
 
+        Task<bool> UpdateStudentCourseDetail(List<EtStudentCourseDetail> entitys);
+
         Task<EtStudentCourseDetail> GetEtStudentCourseDetail(long orderId, long courseId);
+
+        Task<List<EtStudentCourseDetail>> GetStudentCourseDetailByOrderId(long orderId);
 
         Task StudentMarkGraduation(long studentId);
 

@@ -9,6 +9,10 @@ namespace ETMS.IDataAccess
 {
     public interface IOrderDAL : IBaseDAL
     {
+        Task<long> AddOrder(EtOrder order);
+
+        bool AddOrderDetail(List<EtOrderDetail> orderDetails);
+
         Task<long> AddOrder(EtOrder order, List<EtOrderDetail> orderDetails);
 
         Task<bool> ExistProduct(byte productType, long productId);
@@ -19,6 +23,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtOrderDetail>> GetOrderDetail(long orderId);
 
+        Task<bool> EditOrderDetail(List<EtOrderDetail> entitys);
+
         Task<bool> UpdateOrder(EtOrder order);
 
         Task<bool> AddOrderOperationLog(EtOrderOperationLog etOrderOperationLog);
@@ -26,5 +32,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtOrderOperationLog>, int>> GetOrderOperationLogPaging(IPagingRequest request);
 
         Task<bool> OrderStudentEnrolmentRepeal(long orderId);
+
+        Task<List<EtOrder>> GetUnionOrderSource(long orderId);
     }
 }

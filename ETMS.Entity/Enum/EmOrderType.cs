@@ -15,18 +15,13 @@ namespace ETMS.Entity.Enum
         public const byte StudentEnrolment = 0;
 
         /// <summary>
-        /// 退课程
+        /// 退单
         /// </summary>
-        public const byte ReturnCourse = 1;
+        public const byte ReturnOrder = 1;
 
         /// <summary>
-        /// 退物品
+        /// 转课
         /// </summary>
-        public const byte ReturnGoods = 2;
-
-        /// <summary>
-        /// 退费用
-        /// </summary>
-        public const byte ReturnCost = 3;
+        public const byte TransferCourse = 2;
     }
 }

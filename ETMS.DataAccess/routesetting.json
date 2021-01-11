@@ -483,6 +483,30 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "transferCourses",
+        "Name": "transferCourses",
+        "Type": 1,
+        "Component": "@/components/OrderMgr/TransferCourses",
+        "Meta": {
+          "Title": "转课",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "orderReturn/:cid",
+        "Name": "orderReturn",
+        "Type": 1,
+        "Component": "@/components/OrderMgr/OrderReturn",
+        "Meta": {
+          "Title": "退单",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "receiptPrint/:cid/:type?",
         "Name": "receiptPrint",
         "Type": 1,

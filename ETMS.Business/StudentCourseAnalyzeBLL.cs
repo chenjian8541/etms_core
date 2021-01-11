@@ -232,10 +232,23 @@ namespace ETMS.Business
             {
                 newCourse.Add(courseClassTimes);
             }
+            else if (courseClassTimes.Id > 0)
+            {
+                courseClassTimes.IsDeleted = EmIsDeleted.Deleted;
+                newCourse.Add(courseClassTimes);
+            }
+
             if (courseDay.BuyQuantity > 0)
             {
                 newCourse.Add(courseDay);
             }
+            else if (courseDay.Id > 0)
+            {
+                courseDay.IsDeleted = EmIsDeleted.Deleted;
+                newCourse.Add(courseDay);
+            }
+
+
             bool isDelOldStudentCourse = false;
             if (newCourse.Count == 0 && myCourseDetail.Count == 0) //订单作废 可能造成要删除课程
             {

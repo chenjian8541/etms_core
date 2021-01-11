@@ -44,6 +44,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte EditGoodsInInventoryDe = 6;
 
+        /// <summary>
+        /// 退订单
+        /// </summary>
+        public const byte OrderReturn = 7;
+
         public static int GetGoodsInventoryChangeQuantity(int type, int quantity)
         {
             switch (type)
@@ -62,6 +67,8 @@ namespace ETMS.Entity.Enum
                     return quantity;
                 case EditGoodsInInventoryDe:
                     return -quantity;
+                case OrderReturn:
+                    return quantity;
             }
             return quantity;
         }
@@ -83,6 +90,8 @@ namespace ETMS.Entity.Enum
                 case EditGoodsInInventoryAdd:
                 case EditGoodsInInventoryDe:
                     return "编辑库存";
+                case OrderReturn:
+                    return "退销售订单";
             }
             return string.Empty;
         }

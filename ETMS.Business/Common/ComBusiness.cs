@@ -588,13 +588,64 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
-        internal static string GetBuyQuantityDesc(int buyQuantity, byte bugUnit)
+        internal static string GetBuyQuantityDesc(int buyQuantity, byte bugUnit, byte productType)
         {
             if (buyQuantity == 0)
             {
                 return string.Empty;
             }
+            if (productType == EmOrderProductType.Goods)
+            {
+                return $"{buyQuantity}件";
+            }
+            if (productType == EmOrderProductType.Cost)
+            {
+                return $"{buyQuantity}笔";
+            }
             return bugUnit == EmCourseUnit.ClassTimes ? $"{buyQuantity}课时" : $"{buyQuantity}个月";
+        }
+
+        /// <summary>
+        /// 获取产品的剩余数量描述，不包括课程
+        /// </summary>
+        /// <param name="surplusQuantity"></param>
+        /// <param name="bugUnit"></param>
+        /// <param name="productType"></param>
+        /// <returns></returns>
+        internal static string GetProductSurplusQuantityDesc(int surplusQuantity, byte bugUnit, byte productType)
+        {
+            if (surplusQuantity == 0)
+            {
+                return string.Empty;
+            }
+            if (productType == EmOrderProductType.Goods)
+            {
+                return $"{surplusQuantity}件";
+            }
+            if (productType == EmOrderProductType.Cost)
+            {
+                return $"{surplusQuantity}笔";
+            }
+            return bugUnit == EmCourseUnit.ClassTimes ? $"{surplusQuantity}课时" : $"{surplusQuantity}天";
+        }
+
+        /// <summary>
+        /// 获取单价描述，不包括课程
+        /// </summary>
+        /// <param name="price"></param>
+        /// <param name="productType"></param>
+        /// <returns></returns>
+        internal static string GetProductPriceDesc(decimal price, byte productType)
+        {
+            if (productType == EmOrderProductType.Goods)
+            {
+                return $"{price.ToString("F2")}元/件";
+            }
+            if (productType == EmOrderProductType.Cost)
+            {
+                return $"{price.ToString("F2")}元/笔";
+            }
+            return string.Empty;
         }
 
         internal static string GetDiscountDesc(decimal discountValue, byte discountType)

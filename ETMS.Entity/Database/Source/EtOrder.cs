@@ -21,6 +21,11 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public int OrderType { get; set; }
 
+        /// <summary>
+        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// </summary>
+        public byte InOutType { get; set; }
+
         public string CouponsIds { get; set; }
 
         /// <summary>

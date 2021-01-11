@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace ETMS.Business
 {
-    public class OrderRepealProcessBLL : IOrderRepealProcessBLL
+    public class OrderHandleProcessBLL : IOrderHandleProcessBLL
     {
         private readonly IOrderDAL _orderDAL;
 
@@ -32,8 +32,11 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public OrderRepealProcessBLL(IOrderDAL orderDAL, IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL,
-            IStudentPointsLogDAL studentPointsLogDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly IIncomeLogDAL _incomeLogDAL;
+
+        public OrderHandleProcessBLL(IOrderDAL orderDAL, IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL,
+            IStudentPointsLogDAL studentPointsLogDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL,
+            IIncomeLogDAL incomeLogDAL)
         {
             this._orderDAL = orderDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -44,12 +47,13 @@ namespace ETMS.Business
             this._costDAL = costDAL;
             this._classDAL = classDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._incomeLogDAL = incomeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _orderDAL, _studentCourseDAL, _studentDAL,
-                _studentPointsLogDAL, _goodsDAL, _costDAL, _classDAL, _userOperationLogDAL);
+                _studentPointsLogDAL, _goodsDAL, _costDAL, _classDAL, _userOperationLogDAL, _incomeLogDAL);
         }
 
         /// <summary>
@@ -170,6 +174,109 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.TenantId)
             {
                 StatisticsDate = order.Ot
+            });
+        }
+
+        public async Task OrderReturnProductEventProcess(OrderReturnProductEvent request)
+        {
+            var now = request.NewOrder.CreateOt;
+            if (request.returnRequest.OrderReturnOrderInfo.DePoint > 0)
+            {
+                await _studentDAL.DeductionPoint(request.NewOrder.StudentId, request.returnRequest.OrderReturnOrderInfo.DePoint);
+                await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                {
+                    StudentId = request.NewOrder.StudentId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = request.NewOrder.No,
+                    Ot = now,
+                    Points = request.returnRequest.OrderReturnOrderInfo.DePoint,
+                    Remark = request.NewOrder.Remark,
+                    TenantId = request.TenantId,
+                    Type = EmStudentPointsLogType.OrderReturn
+                });
+            }
+
+            foreach (var returnDetail in request.NewOrderDetails) //处理库存和销售数量
+            {
+                switch (returnDetail.ProductType)
+                {
+                    case EmOrderProductType.Course:
+                        break;
+                    case EmOrderProductType.Goods:
+                        var tempMyGoodsReturnQuantity = (int)returnDetail.OutQuantity;
+                        await _goodsDAL.AddInventoryAndDeductionSaleQuantity(returnDetail.ProductId, tempMyGoodsReturnQuantity);
+                        await _goodsDAL.AddGoodsInventoryLog(new EtGoodsInventoryLog()
+                        {
+                            ChangeQuantity = tempMyGoodsReturnQuantity,
+                            GoodsId = returnDetail.ProductId,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Prince = returnDetail.Price,
+                            Remark = string.Empty,
+                            TenantId = request.TenantId,
+                            TotalMoney = returnDetail.ItemAptSum,
+                            Type = EmGoodsInventoryType.OrderReturn,
+                            UserId = request.UserId
+                        });
+                        break;
+                    case EmOrderProductType.Cost:
+                        var tempMyCostReturnQuantity = (int)returnDetail.OutQuantity;
+                        await _costDAL.DeductioneSaleQuantity(returnDetail.ProductId, tempMyCostReturnQuantity);
+                        break;
+                }
+            }
+
+            if (request.returnRequest.OrderReturnOrderInfo.PaySum > 0)
+            {
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = string.Empty,
+                    CreateOt = now,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = request.NewOrder.No,
+                    OrderId = request.NewOrder.Id,
+                    Ot = request.NewOrder.Ot,
+                    PayType = request.returnRequest.OrderReturnOrderInfo.PayType,
+                    ProjectType = EmIncomeLogProjectType.RetuenOrder,
+                    Remark = request.NewOrder.Remark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = request.returnRequest.OrderReturnOrderInfo.PaySum,
+                    TenantId = request.NewOrder.TenantId,
+                    UserId = request.NewOrder.UserId,
+                    Type = EmIncomeLogType.AccountOut
+                });
+            }
+
+            var desc = $"退销售单:{request.NewOrder.BuyCourse},{request.NewOrder.BuyGoods},{request.NewOrder.BuyCost}";
+            await _orderDAL.AddOrderOperationLog(new EtOrderOperationLog()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = desc,
+                OpType = EmOrderOperationLogType.OrderReturn,
+                OrderId = request.SourceOrder.Id,
+                OrderNo = request.SourceOrder.No,
+                Ot = now,
+                Remark = string.Empty,
+                TenantId = request.SourceOrder.TenantId,
+                UserId = request.NewOrder.UserId
+            });
+
+            await _userOperationLogDAL.AddUserLog(request.returnRequest, desc, EmUserOperationType.OrderMgr, now);
+
+            //统计信息
+            _eventPublisher.Publish(new StatisticsSalesProductEvent(request.TenantId)
+            {
+                StatisticsDate = request.NewOrder.Ot
+            });
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.TenantId)
+            {
+                StatisticsDate = request.NewOrder.Ot
+            });
+            _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.TenantId)
+            {
+                StatisticsDate = request.NewOrder.Ot
             });
         }
     }

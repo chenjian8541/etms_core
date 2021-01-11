@@ -15,6 +15,7 @@ using System.Linq;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.LOG;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business
 {
@@ -40,8 +41,11 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IStudentCourseDAL _studentCourseDAL;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
-            ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
+            ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
+            IStudentCourseDAL studentCourseDAL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -53,12 +57,13 @@ namespace ETMS.Business
             this._goodsDAL = goodsDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
+            this._studentCourseDAL = studentCourseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
-                _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL);
+                _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL);
         }
 
         public async Task<ResponseBase> OrderGetPaging(OrderGetPagingRequest request)
@@ -212,7 +217,7 @@ namespace ETMS.Business
                 {
                     BugUnit = myItem.BugUnit,
                     BuyQuantity = myItem.BuyQuantity,
-                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit),
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
                     DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
                     ItemAptSum = myItem.ItemAptSum,
@@ -297,6 +302,201 @@ namespace ETMS.Business
                         Sum = p.Sum,
                         UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId)
                     });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> OrderGetBascDetail(OrderGetBascDetailRequest request)
+        {
+            var order = await _orderDAL.GetOrder(request.CId);
+            if (order == null)
+            {
+                return ResponseBase.CommonError("订单不存在");
+            }
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var output = new OrderGetDetailBascInfo()
+            {
+                ArrearsSum = order.ArrearsSum,
+                BuyCost = order.BuyCost,
+                CId = order.Id,
+                AptSum = order.AptSum,
+                BuyCourse = order.BuyCourse,
+                BuyGoods = order.BuyGoods,
+                CommissionUser = order.CommissionUser,
+                CommissionUserDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, order.CommissionUser),
+                No = order.No,
+                OrderType = order.OrderType,
+                OtDesc = order.Ot.EtmsToDateString(),
+                PaySum = order.PaySum,
+                Remark = order.Remark,
+                Status = order.Status,
+                StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
+                StudentId = order.StudentId,
+                StudentName = student.Name,
+                StudentPhone = student.Phone,
+                Sum = order.Sum,
+                TotalPoints = order.TotalPoints,
+                UserId = order.UserId,
+                UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
+                CreateOt = order.CreateOt
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> OrderGetProductInfo(OrderGetProductInfoRequest request)
+        {
+            var order = await _orderDAL.GetOrder(request.CId);
+            if (order == null)
+            {
+                return ResponseBase.CommonError("订单不存在");
+            }
+            var orderDetail = await _orderDAL.GetOrderDetail(request.CId);
+            var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetailByOrderId(request.CId);
+            var output = new OrderGetProductInfoOutput()
+            {
+                OrderCourses = new List<OrderGetProductInfoCourseItem>(),
+                OrderGoods = new List<OrderGetProductInfoGoodsItem>(),
+                OrderCosts = new List<OrderGetProductInfoCostItem>()
+            };
+            var monthToDay = SystemConfig.ComConfig.MonthToDay;
+            var now = DateTime.Now.Date;
+            foreach (var p in orderDetail)
+            {
+                switch (p.ProductType)
+                {
+                    case EmOrderProductType.Course:
+                        var tempCourse = await _courseDAL.GetCourse(p.ProductId);
+                        var tempCourseNmae = tempCourse.Item1.Name;
+                        var myStudentCourseDetail = studentCourseDetail.FirstOrDefault(j => j.CourseId == p.ProductId);
+                        if (myStudentCourseDetail == null)
+                        {
+                            Log.Error($"[OrderGetProductInfo]获取订单课程详情失败,orderId:{request.CId}", this.GetType());
+                            continue;
+                        }
+                        var tempBuySmallQuantity = 0; //按天或者课时
+                        if (p.BugUnit == EmCourseUnit.ClassTimes)
+                        {
+                            tempBuySmallQuantity = p.BuyQuantity;
+                        }
+                        else
+                        {
+                            tempBuySmallQuantity = p.BuyQuantity * monthToDay;
+                        }
+                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempBuySmallQuantity);
+
+                        var tempCourseSurplusQuantity = 0M;
+                        var tempCourseSurplusQuantityDesc = string.Empty;
+                        var tempCourseStatus = OrderGetProductInfoItemsStatus.Normal;
+                        if (myStudentCourseDetail.Status != EmStudentCourseStatus.EndOfClass &&
+                           (myStudentCourseDetail.SurplusQuantity > 0 || myStudentCourseDetail.SurplusSmallQuantity > 0))
+                        {
+                            tempCourseSurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(myStudentCourseDetail.SurplusQuantity, myStudentCourseDetail.SurplusSmallQuantity, myStudentCourseDetail.DeType);
+                            if (myStudentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
+                            {
+                                tempCourseSurplusQuantity = myStudentCourseDetail.SurplusQuantity;
+                            }
+                            else
+                            {
+                                if (myStudentCourseDetail.StartTime != null && myStudentCourseDetail.EndTime != null)
+                                {
+                                    if (myStudentCourseDetail.EndTime < now)
+                                    {
+                                        tempCourseSurplusQuantity = 0;
+                                    }
+                                    else if (myStudentCourseDetail.StartTime.Value <= now)
+                                    {
+                                        tempCourseSurplusQuantity = (decimal)(myStudentCourseDetail.EndTime.Value - now).TotalDays;
+                                    }
+                                    else
+                                    {
+                                        tempCourseSurplusQuantity = (decimal)(myStudentCourseDetail.EndTime.Value - myStudentCourseDetail.StartTime.Value).TotalDays;
+                                    }
+                                }
+                                else
+                                {
+                                    tempCourseSurplusQuantity = myStudentCourseDetail.SurplusQuantity * monthToDay + myStudentCourseDetail.SurplusSmallQuantity;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            tempCourseStatus = OrderGetProductInfoItemsStatus.Disable;
+                            if (myStudentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
+                            {
+                                tempCourseSurplusQuantityDesc = "0课时";
+                            }
+                            else
+                            {
+                                tempCourseSurplusQuantityDesc = "0天";
+                            }
+                        }
+                        output.OrderCourses.Add(new OrderGetProductInfoCourseItem()
+                        {
+                            OrderDetailId = p.Id,
+                            PriceRule = p.PriceRule,
+                            ProductName = tempCourseNmae,
+                            DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
+                            BugUnit = p.BugUnit,
+                            BuyQuantity = p.BuyQuantity,
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveUnit),
+                            ItemAptSum = p.ItemAptSum,
+                            Price = tempCoursePrice,
+                            PriceDesc = p.PriceRule,
+                            SurplusQuantity = tempCourseSurplusQuantity.EtmsToString(),
+                            SurplusQuantityDesc = tempCourseSurplusQuantityDesc,
+                            Status = tempCourseStatus,
+                            ItemSum = p.ItemSum
+                        });
+                        break;
+                    case EmOrderProductType.Goods:
+                        var tempGoods = await _goodsDAL.GetGoods(p.ProductId);
+                        var tempGoodsName = tempGoods?.Name;
+                        var tempGoodsTotalQuantity = p.BuyQuantity + p.GiveQuantity;
+                        var tempGoodsSurplusQuantity = (int)(tempGoodsTotalQuantity - p.OutQuantity);
+                        var tempGoodsPrice = Math.Round(p.ItemAptSum / p.BuyQuantity, 2);
+                        output.OrderGoods.Add(new OrderGetProductInfoGoodsItem()
+                        {
+                            BuyQuantity = p.BuyQuantity,
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
+                            OrderDetailId = p.Id,
+                            Price = tempGoodsPrice,
+                            PriceDesc = ComBusiness.GetProductPriceDesc(tempGoodsPrice, p.ProductType),
+                            ProductName = tempGoodsName,
+                            SurplusQuantity = tempGoodsSurplusQuantity,
+                            SurplusQuantityDesc = ComBusiness.GetProductSurplusQuantityDesc(tempGoodsSurplusQuantity, p.BugUnit, p.ProductType),
+                            PriceRule = p.PriceRule,
+                            Status = tempGoodsSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
+                            ItemSum = p.ItemSum,
+                            ItemAptSum = p.ItemAptSum
+                        });
+                        break;
+                    case EmOrderProductType.Cost:
+                        var tempCost = await _costDAL.GetCost(p.ProductId);
+                        var tempCostName = tempCost?.Name;
+                        var tempCostTotalQuantity = p.BuyQuantity + p.GiveQuantity;
+                        var tempCostSurplusQuantity = (int)(tempCostTotalQuantity - p.OutQuantity);
+                        var tempCostPrice = Math.Round(p.ItemAptSum / p.BuyQuantity, 2);
+                        output.OrderCosts.Add(new OrderGetProductInfoCostItem()
+                        {
+                            BuyQuantity = p.BuyQuantity,
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
+                            OrderDetailId = p.Id,
+                            PriceRule = p.PriceRule,
+                            ProductName = tempCostName,
+                            SurplusQuantity = tempCostSurplusQuantity,
+                            SurplusQuantityDesc = ComBusiness.GetProductSurplusQuantityDesc(tempCostSurplusQuantity, p.BugUnit, p.ProductType),
+                            Price = tempCostPrice,
+                            PriceDesc = ComBusiness.GetProductPriceDesc(tempCostPrice, p.ProductType),
+                            Status = tempCostSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
+                            ItemSum = p.ItemSum,
+                            ItemAptSum = p.ItemAptSum
+                        });
+                        break;
                 }
             }
             return ResponseBase.Success(output);
@@ -511,19 +711,32 @@ namespace ETMS.Business
             {
                 case EmOrderType.StudentEnrolment:
                     return await OrderStudentEnrolmentRepeal(request);
-                case EmOrderType.ReturnCourse:
-                    return await OrderReturnCourseRepeal(request, order);
-                case EmOrderType.ReturnGoods:
-                    return await OrderReturnGoodsRepeal(request, order);
-                case EmOrderType.ReturnCost:
-                    return await OrderReturnCostRepeal(request, order);
+                    //case EmOrderType.ReturnOrder:
+                    //    return await ReturnOrderRepeal(request, order);
+                    //case EmOrderType.TransferCourse:
+                    //    return await TransferCourseRepeal(request, order);
             }
-            Log.Error($"异常订单无法作废:{EtmsHelper.EtmsSerializeObject(request)}", this.GetType());
-            return ResponseBase.CommonError("异常订单，无法作废");
+            return ResponseBase.CommonError("此类型订单无法作废");
         }
 
         private async Task<ResponseBase> OrderStudentEnrolmentRepeal(OrderRepealRequest request)
         {
+            var unionOrderSource = await _orderDAL.GetUnionOrderSource(request.OrderId);
+            if (unionOrderSource != null && unionOrderSource.Count > 0)
+            {
+                return ResponseBase.CommonError("此订单已有转课/退单操作，无法作废");
+            }
+            var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetailByOrderId(request.OrderId);
+            if (studentCourseDetail.Count > 0)
+            {
+                //判断购买的课时是否已使用，扣减
+                var clasTimesHasUseLog = studentCourseDetail.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes && p.UseQuantity > 0);
+                if (clasTimesHasUseLog != null)
+                {
+                    return ResponseBase.CommonError("此订单已记上课，无法作废");
+                }
+            }
+
             await _orderDAL.OrderStudentEnrolmentRepeal(request.OrderId);
             _eventPublisher.Publish(new OrderStudentEnrolmentRepealEvent(request.LoginTenantId)
             {
@@ -535,16 +748,259 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private async Task<ResponseBase> OrderReturnCourseRepeal(OrderRepealRequest request, EtOrder order)
+        private async Task<ResponseBase> ReturnOrderRepeal(OrderRepealRequest request, EtOrder order)
         { return ResponseBase.Success(); }
 
-        private async Task<ResponseBase> OrderReturnGoodsRepeal(OrderRepealRequest request, EtOrder order)
+        private async Task<ResponseBase> TransferCourseRepeal(OrderRepealRequest request, EtOrder order)
         { return ResponseBase.Success(); }
 
-        private async Task<ResponseBase> OrderReturnCostRepeal(OrderRepealRequest request, EtOrder order)
+        private EtOrderDetail GetReturnOrderDetail(EtOrderDetail sourceOrderDetail, OrderReturnProductItem productItem,
+            string newNo, DateTime now)
         {
-            return ResponseBase.Success();
+            var buyUnit = sourceOrderDetail.BugUnit;
+            if (buyUnit == EmCourseUnit.Month)
+            {
+                buyUnit = EmCourseUnit.Day;
+            }
+            var buyQuantity = Convert.ToInt32(productItem.ReturnCount);
+            if (sourceOrderDetail.ProductType == EmOrderProductType.Course && sourceOrderDetail.BugUnit != EmCourseUnit.ClassTimes)
+            {
+                buyQuantity = buyQuantity / 30;
+            }
+            var price = Math.Round(productItem.ReturnSum / productItem.ReturnCount);
+            return new EtOrderDetail()
+            {
+                BugUnit = buyUnit,
+                BuyQuantity = -buyQuantity,
+                OutQuantity = productItem.ReturnCount,
+                DiscountType = EmOrderDiscountType.Nothing,
+                DiscountValue = 0,
+                GiveQuantity = 0,
+                GiveUnit = sourceOrderDetail.GiveUnit,
+                InOutType = EmOrderInOutType.Out,
+                IsDeleted = EmIsDeleted.Normal,
+                ItemAptSum = -productItem.ReturnSum,
+                ItemSum = -productItem.ReturnSum,
+                OrderId = 0,
+                OrderNo = newNo,
+                Ot = now,
+                Price = price,
+                PriceRule = string.Empty,
+                ProductId = sourceOrderDetail.ProductId,
+                ProductType = sourceOrderDetail.ProductType,
+                Remark = string.Empty,
+                Status = EmOrderStatus.Normal,
+                TenantId = sourceOrderDetail.TenantId,
+                UserId = sourceOrderDetail.UserId
+            };
         }
 
+        public async Task<ResponseBase> OrderReturnProduct(OrderReturnProductRequest request)
+        {
+            var sourceOrder = await _orderDAL.GetOrder(request.ReturnOrderId);
+            if (sourceOrder == null)
+            {
+                return ResponseBase.CommonError("原订单不存在");
+            }
+            if (sourceOrder.Status == EmOrderStatus.Repeal)
+            {
+                return ResponseBase.CommonError("原订单已作废，无法退单");
+            }
+            if (sourceOrder.OrderType != EmOrderType.StudentEnrolment)
+            {
+                return ResponseBase.CommonError("此类型订单无法退单");
+            }
+            if (sourceOrder.Status == EmOrderStatus.Unpaid || sourceOrder.Status == EmOrderStatus.MakeUpMoney)
+            {
+                return ResponseBase.CommonError("原订单未支付完成，无法退单");
+            }
+            if (request.OrderReturnOrderInfo.Ot.Date < sourceOrder.Ot.Date)
+            {
+                return ResponseBase.CommonError("退单经办日期不能小于原订单经办日期");
+            }
+            var sourceOrderDetail = await _orderDAL.GetOrderDetail(request.ReturnOrderId);
+            var sourceStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetailByOrderId(request.ReturnOrderId);
+            var sourceOrderDetailUpdateEntitys = new List<EtOrderDetail>();
+            var sourceStudentCourseDetailUpdateEntitys = new List<EtStudentCourseDetail>();
+            var newOrderDetailList = new List<EtOrderDetail>();
+            var newOrderNo = OrderNumberLib.GetReturnOrderNumber();
+            var now = DateTime.Now;
+            var monthToDay = SystemConfig.ComConfig.MonthToDay;
+            StringBuilder buyCourse = new StringBuilder(), buyGoods = new StringBuilder(), buyCost = new StringBuilder();
+            foreach (var changeOrderDetail in request.OrderReturnProductItems)
+            {
+                //处理原订单和学员剩余课程,创建订单详情
+                var mySourceOrderDetail = sourceOrderDetail.FirstOrDefault(p => p.Id == changeOrderDetail.OrderDetailId && p.ProductId == changeOrderDetail.ProductId);
+                if (mySourceOrderDetail == null)
+                {
+                    return ResponseBase.CommonError("请求数据错误，请重新再试");
+                }
+                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now));
+                switch (mySourceOrderDetail.ProductType)
+                {
+                    case EmOrderProductType.Course:
+                        buyCourse.Append($"{changeOrderDetail.ProductName}；");
+                        var mySourceStudentCourseDetail = sourceStudentCourseDetail.FirstOrDefault(p => p.CourseId == changeOrderDetail.ProductId);
+                        if (mySourceStudentCourseDetail == null)
+                        {
+                            LOG.Log.Warn("[OrderReturnProduct]课程数据错误", request, this.GetType());
+                            return ResponseBase.CommonError("请求数据错误，请重新再试");
+                        }
+                        if (changeOrderDetail.IsAllReturn)
+                        {
+                            mySourceStudentCourseDetail.UseQuantity += changeOrderDetail.ReturnCount;
+                            mySourceStudentCourseDetail.SurplusQuantity = 0;
+                            mySourceStudentCourseDetail.SurplusSmallQuantity = 0;
+                            mySourceStudentCourseDetail.Status = EmStudentCourseStatus.EndOfClass;
+                            mySourceStudentCourseDetail.EndCourseRemark = "退单结课";
+                            mySourceStudentCourseDetail.EndCourseTime = now;
+                            mySourceStudentCourseDetail.EndCourseUser = request.LoginUserId;
+                        }
+                        else
+                        {
+                            if (mySourceStudentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
+                            {
+                                if (mySourceStudentCourseDetail.SurplusQuantity < changeOrderDetail.ReturnCount)
+                                {
+                                    return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余课时不足");
+                                }
+                                mySourceStudentCourseDetail.UseQuantity += changeOrderDetail.ReturnCount;
+                                mySourceStudentCourseDetail.SurplusQuantity -= changeOrderDetail.ReturnCount;
+                            }
+                            else
+                            {
+                                //按天
+                                var deDay = (int)changeOrderDetail.ReturnCount;
+                                if (mySourceStudentCourseDetail.StartTime != null && mySourceStudentCourseDetail.EndTime != null)
+                                {
+                                    mySourceStudentCourseDetail.EndTime = mySourceStudentCourseDetail.EndTime.Value.AddDays(-deDay);
+                                    DateTime firstDate;
+                                    if (mySourceStudentCourseDetail.StartTime.Value <= now.Date)
+                                    {
+                                        firstDate = now.Date;
+                                    }
+                                    else
+                                    {
+                                        firstDate = mySourceStudentCourseDetail.StartTime.Value;
+                                    }
+
+                                    var dffTime = EtmsHelper.GetDffTime(firstDate, mySourceStudentCourseDetail.EndTime.Value);
+                                    mySourceStudentCourseDetail.SurplusQuantity = dffTime.Item1;
+                                    mySourceStudentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
+                                    mySourceStudentCourseDetail.UseQuantity += deDay;
+                                }
+                                else
+                                {
+                                    var tatalDay = mySourceStudentCourseDetail.SurplusQuantity * monthToDay + mySourceStudentCourseDetail.SurplusSmallQuantity; //剩余总天数
+                                    tatalDay = tatalDay - deDay;
+                                    if (tatalDay < 0)
+                                    {
+                                        mySourceStudentCourseDetail.UseQuantity += changeOrderDetail.ReturnCount;
+                                        mySourceStudentCourseDetail.SurplusQuantity = 0;
+                                        mySourceStudentCourseDetail.SurplusSmallQuantity = 0;
+                                        mySourceStudentCourseDetail.Status = EmStudentCourseStatus.EndOfClass;
+                                        mySourceStudentCourseDetail.EndCourseRemark = "退单结课";
+                                        mySourceStudentCourseDetail.EndCourseTime = now;
+                                        mySourceStudentCourseDetail.EndCourseUser = request.LoginUserId;
+                                    }
+                                    else
+                                    {
+                                        var month = tatalDay / monthToDay;
+                                        var day = tatalDay % monthToDay;
+                                        mySourceStudentCourseDetail.UseQuantity += changeOrderDetail.ReturnCount;
+                                        mySourceStudentCourseDetail.SurplusQuantity = month;
+                                        mySourceStudentCourseDetail.SurplusSmallQuantity = day;
+                                    }
+                                }
+                            }
+                        }
+                        sourceStudentCourseDetailUpdateEntitys.Add(mySourceStudentCourseDetail);
+
+                        mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
+                        sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
+                        break;
+                    case EmOrderProductType.Goods:
+                        if (changeOrderDetail.ReturnCount > (mySourceOrderDetail.BuyQuantity + mySourceOrderDetail.GiveQuantity - mySourceOrderDetail.OutQuantity))
+                        {
+                            return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");
+                        }
+                        buyGoods.Append($"{changeOrderDetail.ProductName}；");
+                        mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
+                        sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
+                        break;
+                    case EmOrderProductType.Cost:
+                        if (changeOrderDetail.ReturnCount > (mySourceOrderDetail.BuyQuantity + mySourceOrderDetail.GiveQuantity - mySourceOrderDetail.OutQuantity))
+                        {
+                            return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");
+                        }
+                        buyCost.Append($"{changeOrderDetail.ProductName}；");
+                        mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
+                        sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
+                        break;
+                }
+            }
+            if (sourceOrderDetailUpdateEntitys.Count > 0)
+            {
+                await _orderDAL.EditOrderDetail(sourceOrderDetailUpdateEntitys);
+            }
+            if (sourceStudentCourseDetailUpdateEntitys.Count > 0)
+            {
+                await _studentCourseDAL.UpdateStudentCourseDetail(sourceStudentCourseDetailUpdateEntitys);
+            }
+            _eventPublisher.Publish(new StudentCourseAnalyzeEvent(sourceOrder.TenantId)
+            {
+                StudentId = sourceOrder.StudentId
+            });
+            string strBuyCourse = string.Empty, strBuyGoods = string.Empty, strBuyCost = string.Empty;
+            if (buyCourse.Length > 0)
+            {
+                strBuyCourse = $"退课程：{buyCourse}";
+            }
+            if (buyGoods.Length > 0)
+            {
+                strBuyGoods = $"退物品：{buyGoods}";
+            }
+            if (buyCost.Length > 0)
+            {
+                strBuyGoods = $"退费用：{buyCost}";
+            }
+            var returnOrder = new EtOrder()
+            {
+                StudentId = sourceOrder.StudentId,
+                OrderType = EmOrderType.ReturnOrder,
+                AptSum = -request.OrderReturnOrderInfo.PaySum,
+                PaySum = -request.OrderReturnOrderInfo.PaySum,
+                InOutType = EmOrderInOutType.Out,
+                TenantId = sourceOrder.TenantId,
+                ArrearsSum = 0,
+                BuyCourse = strBuyCourse,
+                BuyGoods = strBuyGoods,
+                BuyCost = strBuyCost,
+                CommissionUser = string.Empty,
+                CouponsIds = string.Empty,
+                CouponsStudentGetIds = string.Empty,
+                CreateOt = now,
+                IsDeleted = EmIsDeleted.Normal,
+                No = newOrderNo,
+                Ot = request.OrderReturnOrderInfo.Ot.Date,
+                Remark = request.OrderReturnOrderInfo.Remark,
+                Status = EmOrderStatus.Normal,
+                Sum = -request.OrderReturnOrderInfo.PaySum,
+                TotalPoints = -request.OrderReturnOrderInfo.DePoint,
+                UnionOrderId = sourceOrder.Id,
+                UnionOrderNo = sourceOrder.No,
+                UserId = request.LoginUserId
+            };
+            await _orderDAL.AddOrder(returnOrder, newOrderDetailList);
+
+            _eventPublisher.Publish(new OrderReturnProductEvent(sourceOrder.TenantId)
+            {
+                NewOrder = returnOrder,
+                NewOrderDetails = newOrderDetailList,
+                returnRequest = request,
+                SourceOrder = sourceOrder
+            });
+            return ResponseBase.Success();
+        }
     }
 }
