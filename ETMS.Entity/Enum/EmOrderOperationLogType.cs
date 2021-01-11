@@ -30,7 +30,7 @@ namespace ETMS.Entity.Enum
         public const byte Repeal = 3;
 
         /// <summary>
-        /// 退销售单
+        /// 销售退单
         /// </summary>
         public const byte OrderReturn = 4;
 
@@ -47,7 +47,7 @@ namespace ETMS.Entity.Enum
                 case Repeal:
                     return "订单作废";
                 case OrderReturn:
-                    return "退销售单";
+                    return "销售退单";
             }
             return string.Empty;
         }

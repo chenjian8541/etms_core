@@ -65,7 +65,7 @@ namespace ETMS.Entity.Enum
         public const int StudentPointsAdjustDeduction = 10;
 
         /// <summary>
-        /// 退销售订单
+        /// 销售退单
         /// </summary>
         public const int OrderReturn = 11;
 
@@ -96,7 +96,7 @@ namespace ETMS.Entity.Enum
                 case StudentPointsAdjustDeduction:
                     return "积分调整(扣除)";
                 case OrderReturn:
-                    return "退销售订单";
+                    return "销售退单";
             }
             return string.Empty;
         }

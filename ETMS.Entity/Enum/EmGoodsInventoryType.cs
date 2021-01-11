@@ -91,7 +91,7 @@ namespace ETMS.Entity.Enum
                 case EditGoodsInInventoryDe:
                     return "编辑库存";
                 case OrderReturn:
-                    return "退销售订单";
+                    return "销售退单";
             }
             return string.Empty;
         }

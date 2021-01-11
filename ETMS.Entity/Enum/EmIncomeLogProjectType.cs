@@ -19,7 +19,7 @@ namespace ETMS.Entity.Enum
         public const long StudentEnrolmentAddPay = -2;
 
         /// <summary>
-        /// 退销售订单
+        /// 销售退单
         /// </summary>
         public const long RetuenOrder = -3;
 
@@ -40,7 +40,7 @@ namespace ETMS.Entity.Enum
                 case StudentEnrolmentAddPay:
                     return "报名补缴";
                 case RetuenOrder:
-                    return "退销售订单";
+                    return "销售退单";
             }
             return string.Empty;
         }
@@ -54,7 +54,7 @@ namespace ETMS.Entity.Enum
                 case StudentEnrolmentAddPay:
                     return "报名补缴";
                 case RetuenOrder:
-                    return "退销售订单";
+                    return "销售退单";
             }
             return string.Empty;
         }

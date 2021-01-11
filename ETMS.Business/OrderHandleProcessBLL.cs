@@ -249,7 +249,7 @@ namespace ETMS.Business
                 });
             }
 
-            var desc = $"退销售单:{request.NewOrder.BuyCourse},{request.NewOrder.BuyGoods},{request.NewOrder.BuyCost}";
+            var desc = $"销售退单:{request.NewOrder.BuyCourse},{request.NewOrder.BuyGoods},{request.NewOrder.BuyCost}";
             await _orderDAL.AddOrderOperationLog(new EtOrderOperationLog()
             {
                 IsDeleted = EmIsDeleted.Normal,
