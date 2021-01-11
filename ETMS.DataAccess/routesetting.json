@@ -500,7 +500,7 @@
         "Type": 1,
         "Component": "@/components/OrderMgr/OrderReturn",
         "Meta": {
-          "Title": "退单",
+          "Title": "销售退单",
           "Icon": "item"
         }
       },

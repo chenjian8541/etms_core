@@ -62,7 +62,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> EditOrderDetail(List<EtOrderDetail> entitys)
         {
-            await _dbWrapper.Update(entitys);
+            await _dbWrapper.UpdateRange(entitys);
             return true;
         }
 

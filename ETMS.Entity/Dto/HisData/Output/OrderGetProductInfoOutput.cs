@@ -17,6 +17,10 @@ namespace ETMS.Entity.Dto.HisData.Output
     {
         public long OrderDetailId { get; set; }
 
+        public long ProductId { get; set; }
+
+        public string ProductTypeDesc { get; set; }
+
         public string ProductName { get; set; }
 
         public string PriceRule { get; set; }
@@ -28,6 +32,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         public string BuyQuantityDesc { get; set; }
 
         public string GiveQuantityDesc { get; set; }
+
+        public int GiveQuantity { get; set; }
 
         public string DiscountDesc { get; set; }
 
@@ -57,6 +63,10 @@ namespace ETMS.Entity.Dto.HisData.Output
     public class OrderGetProductInfoGoodsItem
     {
         public long OrderDetailId { get; set; }
+
+        public long ProductId { get; set; }
+
+        public string ProductTypeDesc { get; set; }
 
         public string ProductName { get; set; }
 
@@ -92,6 +102,10 @@ namespace ETMS.Entity.Dto.HisData.Output
     public class OrderGetProductInfoCostItem
     {
         public long OrderDetailId { get; set; }
+
+        public long ProductId { get; set; }
+
+        public string ProductTypeDesc { get; set; }
 
         public string ProductName { get; set; }
 

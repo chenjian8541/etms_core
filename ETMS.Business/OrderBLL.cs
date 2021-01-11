@@ -442,13 +442,16 @@ namespace ETMS.Business
                             BuyQuantity = p.BuyQuantity,
                             BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
                             GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveUnit),
+                            GiveQuantity = p.GiveQuantity,
                             ItemAptSum = p.ItemAptSum,
                             Price = tempCoursePrice,
                             PriceDesc = p.PriceRule,
                             SurplusQuantity = tempCourseSurplusQuantity.EtmsToString(),
                             SurplusQuantityDesc = tempCourseSurplusQuantityDesc,
                             Status = tempCourseStatus,
-                            ItemSum = p.ItemSum
+                            ItemSum = p.ItemSum,
+                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductId = p.ProductId
                         });
                         break;
                     case EmOrderProductType.Goods:
@@ -471,7 +474,9 @@ namespace ETMS.Business
                             PriceRule = p.PriceRule,
                             Status = tempGoodsSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
-                            ItemAptSum = p.ItemAptSum
+                            ItemAptSum = p.ItemAptSum,
+                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductId = p.ProductId
                         });
                         break;
                     case EmOrderProductType.Cost:
@@ -494,7 +499,9 @@ namespace ETMS.Business
                             PriceDesc = ComBusiness.GetProductPriceDesc(tempCostPrice, p.ProductType),
                             Status = tempCostSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
-                            ItemAptSum = p.ItemAptSum
+                            ItemAptSum = p.ItemAptSum,
+                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductId = p.ProductId
                         });
                         break;
                 }
@@ -998,7 +1005,8 @@ namespace ETMS.Business
                 NewOrder = returnOrder,
                 NewOrderDetails = newOrderDetailList,
                 returnRequest = request,
-                SourceOrder = sourceOrder
+                SourceOrder = sourceOrder,
+                UserId = request.LoginUserId
             });
             return ResponseBase.Success();
         }

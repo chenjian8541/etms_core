@@ -228,7 +228,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> UpdateStudentCourseDetail(List<EtStudentCourseDetail> entitys)
         {
-            await _dbWrapper.Update(entitys);
+            await _dbWrapper.UpdateRange(entitys);
             await UpdateCache(_tenantId, entitys[0].StudentId);
             return true;
         }
