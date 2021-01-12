@@ -227,12 +227,13 @@ namespace ETMS.Business
                     BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
                     DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
-                    ItemAptSum = myItem.ItemAptSum,
-                    ItemSum = myItem.ItemSum,
+                    ItemAptSum = Math.Abs(myItem.ItemAptSum),
+                    ItemSum = Math.Abs(myItem.ItemSum),
                     PriceRule = myItem.PriceRule,
                     ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
                     ProductName = productName,
-                    CId = myItem.Id
+                    CId = myItem.Id,
+                    OutQuantity = myItem.OutQuantity
                 });
             }
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
@@ -670,8 +671,8 @@ namespace ETMS.Business
                         myOutputItem.LogDetails.Add(new OrderReturnLogDetail()
                         {
                             CId = orderDetail.Id,
-                            ItemAptSum = orderDetail.ItemAptSum,
-                            ItemSum = orderDetail.ItemSum,
+                            ItemAptSum = Math.Abs(orderDetail.ItemAptSum),
+                            ItemSum = Math.Abs(orderDetail.ItemSum),
                             OutQuantity = orderDetail.OutQuantity.EtmsToString(),
                             ProductTypeDesc = EmOrderProductType.GetOrderProductType(orderDetail.ProductType),
                             ProductName = productName

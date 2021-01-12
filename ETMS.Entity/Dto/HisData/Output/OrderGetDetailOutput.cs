@@ -170,6 +170,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal ItemAptSum { get; set; }
 
         public string DiscountDesc { get; set; }
+
+        /// <summary>
+        /// 退货数量/或者转课数量
+        /// </summary>
+        public decimal OutQuantity { get; set; }
     }
 
     public class OrderGetDetailIncomeLog
