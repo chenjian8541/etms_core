@@ -21,6 +21,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> OrderGetProductInfo(OrderGetProductInfoRequest request);
 
+        Task<ResponseBase> OrderReturnLogGet(OrderReturnLogGetRequest request);
+
         Task<ResponseBase> OrderEditRemark(OrderEditRemarkRequest request);
 
         Task<ResponseBase> OrderEditCommission(OrderEditCommissionRequest request);

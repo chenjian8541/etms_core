@@ -32,6 +32,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         public int OrderType { get; set; }
 
         /// <summary>
+        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// </summary>
+        public byte InOutType { get; set; }
+
+        /// <summary>
         /// 单号
         /// </summary>
         public string No { get; set; }
@@ -65,6 +70,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 获得积分
         /// </summary>
         public int TotalPoints { get; set; }
+
+        /// <summary>
+        /// 积分
+        /// </summary>
+        public string TotalPointsDesc { get; set; }
 
         /// <summary>
         /// 支付金额
@@ -110,6 +120,10 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        public string UnionOrderId { get; set; }
+
+        public string UnionOrderNo { get; set; }
     }
 
     public class OrderGetDetailCoupons

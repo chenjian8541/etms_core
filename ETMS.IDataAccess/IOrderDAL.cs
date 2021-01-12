@@ -34,5 +34,7 @@ namespace ETMS.IDataAccess
         Task<bool> OrderStudentEnrolmentRepeal(long orderId);
 
         Task<List<EtOrder>> GetUnionOrderSource(long orderId);
+
+        Task<List<EtOrderDetail>> GetOrderDetail(List<long> orderIds);
     }
 }

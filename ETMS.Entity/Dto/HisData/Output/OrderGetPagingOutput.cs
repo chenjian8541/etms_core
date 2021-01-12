@@ -19,6 +19,13 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public int OrderType { get; set; }
 
+        public string OrderTypeDesc { get; set; }
+
+        /// <summary>
+        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// </summary>
+        public byte InOutType { get; set; }
+
         /// <summary>
         /// 单号
         /// </summary>
@@ -53,6 +60,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 获得积分
         /// </summary>
         public int TotalPoints { get; set; }
+
+        /// <summary>
+        /// 积分
+        /// </summary>
+        public string TotalPointsDesc { get; set; }
 
         /// <summary>
         /// 支付金额

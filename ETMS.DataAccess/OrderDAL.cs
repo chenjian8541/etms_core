@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -100,6 +101,16 @@ namespace ETMS.DataAccess
         public async Task<List<EtOrder>> GetUnionOrderSource(long orderId)
         {
             return await this._dbWrapper.FindList<EtOrder>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UnionOrderId == orderId);
+        }
+
+        public async Task<List<EtOrderDetail>> GetOrderDetail(List<long> orderIds)
+        {
+            if (orderIds.Count == 1)
+            {
+                return await GetOrderDetail(orderIds[0]);
+            }
+            var temp = await _dbWrapper.ExecuteObject<EtOrderDetail>($"SELECT * FROM EtOrderDetail WHERE OrderId IN ({string.Join(',', orderIds)}) AND IsDeleted = {EmIsDeleted.Normal} ");
+            return temp.ToList();
         }
     }
 }

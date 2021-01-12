@@ -95,9 +95,12 @@ namespace ETMS.Business
                     StudentPhone = student.Student.Phone,
                     Sum = p.Sum,
                     TotalPoints = p.TotalPoints,
+                    TotalPointsDesc = EmOrderType.GetTotalPointsDesc(p.TotalPoints),
                     UserId = p.UserId,
                     UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
-                    CId = p.Id
+                    CId = p.Id,
+                    InOutType = p.InOutType,
+                    OrderTypeDesc = EmOrderType.GetOrderTypeDesc(p.OrderType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<OrderGetPagingOutput>(pagingData.Item2, orderOutput));
@@ -163,7 +166,11 @@ namespace ETMS.Business
                 UserId = order.UserId,
                 UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
                 CreateOt = order.CreateOt,
-                CommissionUserIds = commissionUsers
+                CommissionUserIds = commissionUsers,
+                InOutType = order.InOutType,
+                TotalPointsDesc = EmOrderType.GetTotalPointsDesc(order.TotalPoints),
+                UnionOrderId = order.UnionOrderId.ToString(),
+                UnionOrderNo = order.UnionOrderNo
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {
@@ -284,7 +291,11 @@ namespace ETMS.Business
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
                 UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
-                CreateOt = order.CreateOt
+                CreateOt = order.CreateOt,
+                InOutType = order.InOutType,
+                TotalPointsDesc = EmOrderType.GetTotalPointsDesc(order.TotalPoints),
+                UnionOrderId = order.UnionOrderId.ToString(),
+                UnionOrderNo = order.UnionOrderNo
             };
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
             output.OrderGetDetailIncomeLogs = new List<OrderGetDetailIncomeLog>();
@@ -340,7 +351,11 @@ namespace ETMS.Business
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
                 UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
-                CreateOt = order.CreateOt
+                CreateOt = order.CreateOt,
+                InOutType = order.InOutType,
+                TotalPointsDesc = EmOrderType.GetTotalPointsDesc(order.TotalPoints),
+                UnionOrderId = order.UnionOrderId.ToString(),
+                UnionOrderNo = order.UnionOrderNo
             };
             return ResponseBase.Success(output);
         }
@@ -601,6 +616,71 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 CreateOt = createTime
             };
+        }
+
+        public async Task<ResponseBase> OrderReturnLogGet(OrderReturnLogGetRequest request)
+        {
+            var returnOrder = await _orderDAL.GetUnionOrderSource(request.CId);
+            var output = new List<OrderReturnLogGetOutput>();
+            if (returnOrder.Count > 0)
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var returnOrderDetail = await _orderDAL.GetOrderDetail(returnOrder.Select(p => p.Id).ToList());
+                foreach (var order in returnOrder)
+                {
+                    var myOutputItem = new OrderReturnLogGetOutput()
+                    {
+                        AptSum = order.AptSum,
+                        CId = order.Id,
+                        CreateOt = order.CreateOt,
+                        InOutType = order.InOutType,
+                        No = order.No,
+                        OrderType = order.OrderType,
+                        OtDesc = order.Ot.EtmsToDateString(),
+                        Status = order.Status,
+                        StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
+                        Remark = order.Remark,
+                        StudentId = order.StudentId,
+                        Sum = order.Sum,
+                        TotalPoints = order.TotalPoints,
+                        TotalPointsDesc = EmOrderType.GetTotalPointsDesc(order.TotalPoints),
+                        UserId = order.UserId,
+                        UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
+                        LogDetails = new List<OrderReturnLogDetail>()
+                    };
+                    var myOrderDetail = returnOrderDetail.Where(p => p.OrderId == order.Id);
+                    foreach (var orderDetail in myOrderDetail)
+                    {
+                        var productName = string.Empty;
+                        switch (orderDetail.ProductType)
+                        {
+                            case EmOrderProductType.Cost:
+                                var myCost = await _costDAL.GetCost(orderDetail.ProductId);
+                                productName = myCost?.Name;
+                                break;
+                            case EmOrderProductType.Goods:
+                                var myGoods = await _goodsDAL.GetGoods(orderDetail.ProductId);
+                                productName = myGoods?.Name;
+                                break;
+                            case EmOrderProductType.Course:
+                                var myCourse = await _courseDAL.GetCourse(orderDetail.ProductId);
+                                productName = myCourse?.Item1.Name;
+                                break;
+                        }
+                        myOutputItem.LogDetails.Add(new OrderReturnLogDetail()
+                        {
+                            CId = orderDetail.Id,
+                            ItemAptSum = orderDetail.ItemAptSum,
+                            ItemSum = orderDetail.ItemSum,
+                            OutQuantity = orderDetail.OutQuantity.EtmsToString(),
+                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(orderDetail.ProductType),
+                            ProductName = productName
+                        });
+                    }
+                    output.Add(myOutputItem);
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> OrderEditRemark(OrderEditRemarkRequest request)
@@ -975,8 +1055,8 @@ namespace ETMS.Business
             {
                 StudentId = sourceOrder.StudentId,
                 OrderType = EmOrderType.ReturnOrder,
-                AptSum = -request.OrderReturnOrderInfo.PaySum,
-                PaySum = -request.OrderReturnOrderInfo.PaySum,
+                AptSum = request.OrderReturnOrderInfo.PaySum,
+                PaySum = request.OrderReturnOrderInfo.PaySum,
                 InOutType = EmOrderInOutType.Out,
                 TenantId = sourceOrder.TenantId,
                 ArrearsSum = 0,
@@ -992,8 +1072,8 @@ namespace ETMS.Business
                 Ot = request.OrderReturnOrderInfo.Ot.Date,
                 Remark = request.OrderReturnOrderInfo.Remark,
                 Status = EmOrderStatus.Normal,
-                Sum = -request.OrderReturnOrderInfo.PaySum,
-                TotalPoints = -request.OrderReturnOrderInfo.DePoint,
+                Sum = request.OrderReturnOrderInfo.PaySum,
+                TotalPoints = request.OrderReturnOrderInfo.DePoint,
                 UnionOrderId = sourceOrder.Id,
                 UnionOrderNo = sourceOrder.No,
                 UserId = request.LoginUserId

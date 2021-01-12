@@ -19,6 +19,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public byte? Status { get; set; }
 
+        public byte? OrderType { get; set; }
+
         /// <summary>
         /// 查询时间
         /// </summary>
@@ -101,6 +103,10 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (Status != null)
             {
                 condition.Append($" AND [Status] = {Status.Value}");
+            }
+            if (OrderType != null)
+            {
+                condition.Append($" AND [OrderType] = {OrderType.Value}");
             }
             if (StartOt != null)
             {

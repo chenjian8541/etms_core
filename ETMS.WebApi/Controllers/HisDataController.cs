@@ -132,6 +132,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> OrderReturnLogGet(OrderReturnLogGetRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderReturnLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> OrderEditRemark(OrderEditRemarkRequest request)
         {
             try

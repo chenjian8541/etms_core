@@ -23,5 +23,28 @@ namespace ETMS.Entity.Enum
         /// 转课
         /// </summary>
         public const byte TransferCourse = 2;
+
+        public static string GetOrderTypeDesc(int orderType)
+        {
+            switch (orderType)
+            {
+                case StudentEnrolment:
+                    return "报名/续费";
+                case ReturnOrder:
+                    return "销售退单";
+                case TransferCourse:
+                    return "转课";
+            }
+            return string.Empty;
+        }
+
+        public static string GetTotalPointsDesc(int totalPoints)
+        {
+            if (totalPoints > 0)
+            {
+                return $"+{totalPoints}";
+            }
+            return $"-{totalPoints}";
+        }
     }
 }
