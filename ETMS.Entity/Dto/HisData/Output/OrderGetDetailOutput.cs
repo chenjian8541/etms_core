@@ -175,6 +175,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 退货数量/或者转课数量
         /// </summary>
         public decimal OutQuantity { get; set; }
+
+        public string OutQuantityDesc { get; set; }
     }
 
     public class OrderGetDetailIncomeLog

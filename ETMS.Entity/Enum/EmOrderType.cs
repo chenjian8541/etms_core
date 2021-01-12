@@ -37,14 +37,5 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
-
-        public static string GetTotalPointsDesc(int totalPoints)
-        {
-            if (totalPoints > 0)
-            {
-                return $"+{totalPoints}";
-            }
-            return $"-{totalPoints}";
-        }
     }
 }

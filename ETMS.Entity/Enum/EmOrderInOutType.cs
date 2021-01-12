@@ -15,5 +15,14 @@ namespace ETMS.Entity.Enum
         /// 支出
         /// </summary>
         public const byte Out = 1;
+
+        public static string GetTotalPointsDesc(int totalPoints, byte orderInOutType)
+        {
+            if (orderInOutType == In)
+            {
+                return $"+{totalPoints}";
+            }
+            return $"-{totalPoints}";
+        }
     }
 }

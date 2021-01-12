@@ -84,6 +84,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public string OutQuantity { get; set; }
 
+        public string OutQuantityDesc { get; set; }
+
         public decimal ItemSum { get; set; }
 
         public decimal ItemAptSum { get; set; }

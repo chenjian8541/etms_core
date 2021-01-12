@@ -605,6 +605,24 @@ namespace ETMS.Business.Common
             return bugUnit == EmCourseUnit.ClassTimes ? $"{buyQuantity}课时" : $"{buyQuantity}个月";
         }
 
+        internal static string GetOutQuantityDesc(decimal outQuantity, byte bugUnit, byte productType)
+        {
+            var tempOutQuantity = outQuantity.EtmsToString();
+            if (tempOutQuantity == "0")
+            {
+                return string.Empty;
+            }
+            if (productType == EmOrderProductType.Goods)
+            {
+                return $"{tempOutQuantity}件";
+            }
+            if (productType == EmOrderProductType.Cost)
+            {
+                return $"{tempOutQuantity}笔";
+            }
+            return bugUnit == EmCourseUnit.ClassTimes ? $"{tempOutQuantity}课时" : $"{tempOutQuantity}天";
+        }
+
         /// <summary>
         /// 获取产品的剩余数量描述，不包括课程
         /// </summary>
