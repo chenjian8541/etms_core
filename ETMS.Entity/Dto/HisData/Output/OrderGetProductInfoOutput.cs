@@ -58,6 +58,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// <see cref="OrderGetProductInfoItemsStatus"/>
         /// </summary>
         public int Status { get; set; }
+
+        public int BuyValidSmallQuantity { get; set; }
     }
 
     public class OrderGetProductInfoGoodsItem
@@ -97,6 +99,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal ItemAptSum { get; set; }
 
         public decimal ItemSum { get; set; }
+
+        public int BuyValidSmallQuantity { get; set; }
     }
 
     public class OrderGetProductInfoCostItem
@@ -136,6 +140,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal ItemAptSum { get; set; }
 
         public decimal ItemSum { get; set; }
+
+        public int BuyValidSmallQuantity { get; set; }
     }
 
     public struct OrderGetProductInfoItemsStatus

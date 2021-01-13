@@ -414,7 +414,7 @@ namespace ETMS.Business
                             tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
                         }
                         //计算单价，合计金额/总的有效数量(课时/天数)
-                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempValidSmallQuantity);
+                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempValidSmallQuantity, 2);
 
                         var tempCourseSurplusQuantity = 0M;
                         var tempCourseSurplusQuantityDesc = string.Empty;
@@ -481,7 +481,8 @@ namespace ETMS.Business
                             Status = tempCourseStatus,
                             ItemSum = p.ItemSum,
                             ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
-                            ProductId = p.ProductId
+                            ProductId = p.ProductId,
+                            BuyValidSmallQuantity = tempValidSmallQuantity
                         });
                         break;
                     case EmOrderProductType.Goods:
@@ -506,7 +507,8 @@ namespace ETMS.Business
                             ItemSum = p.ItemSum,
                             ItemAptSum = p.ItemAptSum,
                             ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
-                            ProductId = p.ProductId
+                            ProductId = p.ProductId,
+                            BuyValidSmallQuantity = tempGoodsTotalQuantity
                         });
                         break;
                     case EmOrderProductType.Cost:
@@ -531,7 +533,8 @@ namespace ETMS.Business
                             ItemSum = p.ItemSum,
                             ItemAptSum = p.ItemAptSum,
                             ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
-                            ProductId = p.ProductId
+                            ProductId = p.ProductId,
+                            BuyValidSmallQuantity = tempCostTotalQuantity
                         });
                         break;
                 }
@@ -870,7 +873,7 @@ namespace ETMS.Business
             {
                 buyQuantity = buyQuantity / 30;
             }
-            var price = Math.Round(productItem.ReturnSum / productItem.ReturnCount);
+            var price = Math.Round(productItem.ReturnSum / productItem.ReturnCount, 2);
             return new EtOrderDetail()
             {
                 BugUnit = buyUnit,
