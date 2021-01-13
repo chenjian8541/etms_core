@@ -377,8 +377,6 @@ namespace ETMS.Business
                 OrderGoods = new List<OrderGetProductInfoGoodsItem>(),
                 OrderCosts = new List<OrderGetProductInfoCostItem>()
             };
-            var monthToDay = SystemConfig.ComConfig.MonthToDay;
-            var now = DateTime.Now.Date;
             foreach (var p in orderDetail)
             {
                 switch (p.ProductType)
@@ -392,76 +390,7 @@ namespace ETMS.Business
                             Log.Error($"[OrderGetProductInfo]获取订单课程详情失败,orderId:{request.CId}", this.GetType());
                             continue;
                         }
-                        var tempValidSmallQuantity = 0; //按天或者课时
-                        if (p.BugUnit == EmCourseUnit.ClassTimes)
-                        {
-                            tempValidSmallQuantity = p.BuyQuantity + p.GiveQuantity;
-                        }
-                        else
-                        {
-                            var giveDay = 0;
-                            if (p.GiveQuantity > 0)
-                            {
-                                if (p.GiveUnit == EmCourseUnit.Month)
-                                {
-                                    giveDay = p.GiveQuantity * monthToDay;
-                                }
-                                else
-                                {
-                                    giveDay = p.GiveQuantity;
-                                }
-                            }
-                            tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
-                        }
-                        //计算单价，合计金额/总的有效数量(课时/天数)
-                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempValidSmallQuantity, 2);
-
-                        var tempCourseSurplusQuantity = 0M;
-                        var tempCourseSurplusQuantityDesc = string.Empty;
-                        var tempCourseStatus = OrderGetProductInfoItemsStatus.Normal;
-                        if (myStudentCourseDetail.Status != EmStudentCourseStatus.EndOfClass &&
-                           (myStudentCourseDetail.SurplusQuantity > 0 || myStudentCourseDetail.SurplusSmallQuantity > 0))
-                        {
-                            tempCourseSurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(myStudentCourseDetail.SurplusQuantity, myStudentCourseDetail.SurplusSmallQuantity, myStudentCourseDetail.DeType);
-                            if (myStudentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
-                            {
-                                tempCourseSurplusQuantity = myStudentCourseDetail.SurplusQuantity;
-                            }
-                            else
-                            {
-                                if (myStudentCourseDetail.StartTime != null && myStudentCourseDetail.EndTime != null)
-                                {
-                                    if (myStudentCourseDetail.EndTime < now)
-                                    {
-                                        tempCourseSurplusQuantity = 0;
-                                    }
-                                    else if (myStudentCourseDetail.StartTime.Value <= now)
-                                    {
-                                        tempCourseSurplusQuantity = (decimal)(myStudentCourseDetail.EndTime.Value - now).TotalDays;
-                                    }
-                                    else
-                                    {
-                                        tempCourseSurplusQuantity = (decimal)(myStudentCourseDetail.EndTime.Value - myStudentCourseDetail.StartTime.Value).TotalDays;
-                                    }
-                                }
-                                else
-                                {
-                                    tempCourseSurplusQuantity = myStudentCourseDetail.SurplusQuantity * monthToDay + myStudentCourseDetail.SurplusSmallQuantity;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            tempCourseStatus = OrderGetProductInfoItemsStatus.Disable;
-                            if (myStudentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
-                            {
-                                tempCourseSurplusQuantityDesc = "0课时";
-                            }
-                            else
-                            {
-                                tempCourseSurplusQuantityDesc = "0天";
-                            }
-                        }
+                        var courseCanReturnInfo = ComBusiness2.GetCourseCanReturnInfo(p, myStudentCourseDetail);
                         output.OrderCourses.Add(new OrderGetProductInfoCourseItem()
                         {
                             OrderDetailId = p.Id,
@@ -474,15 +403,15 @@ namespace ETMS.Business
                             GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveUnit),
                             GiveQuantity = p.GiveQuantity,
                             ItemAptSum = p.ItemAptSum,
-                            Price = tempCoursePrice,
+                            Price = courseCanReturnInfo.Price,
                             PriceDesc = p.PriceRule,
-                            SurplusQuantity = tempCourseSurplusQuantity.EtmsToString(),
-                            SurplusQuantityDesc = tempCourseSurplusQuantityDesc,
-                            Status = tempCourseStatus,
+                            SurplusQuantity = courseCanReturnInfo.SurplusQuantity.EtmsToString(),
+                            SurplusQuantityDesc = courseCanReturnInfo.SurplusQuantityDesc,
+                            Status = courseCanReturnInfo.IsHas ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
                             ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
                             ProductId = p.ProductId,
-                            BuyValidSmallQuantity = tempValidSmallQuantity
+                            BuyValidSmallQuantity = courseCanReturnInfo.BuyValidSmallQuantity
                         });
                         break;
                     case EmOrderProductType.Goods:
@@ -709,10 +638,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("订单不存在");
             }
-            if (order.Status == EmOrderStatus.Repeal)
-            {
-                return ResponseBase.CommonError("此订单已作废，无法编辑");
-            }
+            //if (order.Status == EmOrderStatus.Repeal)
+            //{
+            //    return ResponseBase.CommonError("此订单已作废，无法编辑");
+            //}
             var now = DateTime.Now;
             order.Remark = request.NewRemark;
             await _orderDAL.UpdateOrder(order);

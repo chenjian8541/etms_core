@@ -541,6 +541,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentCourseHasGet(StudentCourseHasGetRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseHasGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCourseHasDetailGet(StudentCourseHasDetailGetRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseHasDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyPassGet(StudentLeaveApplyPassGetRequest request)
         {
             try

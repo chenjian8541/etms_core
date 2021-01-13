@@ -61,6 +61,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtOrderDetail>(p => p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
+        public async Task<EtOrderDetail> GetOrderDetail(long orderId, long productId, byte productType)
+        {
+            return await _dbWrapper.Find<EtOrderDetail>(p => p.TenantId == _tenantId && p.OrderId == orderId
+            && p.IsDeleted == EmIsDeleted.Normal && p.ProductId == productId && p.ProductType == productType);
+        }
+
         public async Task<bool> EditOrderDetail(List<EtOrderDetail> entitys)
         {
             await _dbWrapper.UpdateRange(entitys);

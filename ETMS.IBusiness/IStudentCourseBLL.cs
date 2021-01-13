@@ -31,6 +31,18 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseConsumeLogGetPaging(StudentCourseConsumeLogGetPagingRequest request);
 
-        //Task<ResponseBase> 
+        /// <summary>
+        /// 获取学员课程信息
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<ResponseBase> StudentCourseHasGet(StudentCourseHasGetRequest request);
+
+        /// <summary>
+        /// 获取学员课程详情信息（用于转课）
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<ResponseBase> StudentCourseHasDetailGet(StudentCourseHasDetailGetRequest request);
     }
 }

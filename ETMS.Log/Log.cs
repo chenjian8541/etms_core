@@ -32,6 +32,18 @@ namespace ETMS.LOG
         /// 记录错误日志
         /// </summary>
         /// <param name="message"></param>
+        /// <param name="type"></param>
+        public static void Error<T>(string msg, T request, Type type)
+        {
+            var log = LogManager.GetLogger(repository.Name, type);
+            var message = string.Format("{0}:{1}", msg, JsonConvert.SerializeObject(request));
+            log.Error(message);
+        }
+
+        /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <param name="message"></param>
         /// <param name="exception"></param>
         /// <param name="type"></param>
         public static void Error(string message, Exception exception, Type type)
@@ -50,6 +62,20 @@ namespace ETMS.LOG
         public static void Error<T>(T request, Exception exception, Type type) where T : class
         {
             var message = string.Format("请求参数:{0}", JsonConvert.SerializeObject(request));
+            Error(message, exception, type);
+        }
+
+        /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="exception"></param>
+        /// <param name="type"></param>
+        public static void Error<T>(string msg, T request, Exception exception, Type type) where T : class
+        {
+            var message = string.Format("{0}:{1}", msg, JsonConvert.SerializeObject(request));
             Error(message, exception, type);
         }
 

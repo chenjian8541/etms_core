@@ -9,6 +9,8 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Enum;
 using ETMS.Utility;
+using ETMS.Entity.Temp;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business.Common
 {
@@ -153,6 +155,105 @@ namespace ETMS.Business.Common
                 return avatar;
             }
             return faceKey;
+        }
+
+        internal static CourseCanReturnInfo GetCourseCanReturnInfo(EtOrderDetail orderDetail, EtStudentCourseDetail p)
+        {
+            if (orderDetail.Status == EmOrderStatus.Repeal)
+            {
+                return new CourseCanReturnInfo()
+                {
+                    BuyValidSmallQuantity = 0,
+                    IsHas = false,
+                    Price = 0,
+                    SurplusQuantity = 0,
+                    SurplusQuantityDesc = string.Empty
+                };
+            }
+            var now = DateTime.Now.Date;
+            var monthToDay = SystemConfig.ComConfig.MonthToDay;
+            var tempValidSmallQuantity = 0; //按天或者课时
+            if (p.BugUnit == EmCourseUnit.ClassTimes)
+            {
+                tempValidSmallQuantity = p.BuyQuantity + p.GiveQuantity;
+            }
+            else
+            {
+                var giveDay = 0;
+                if (p.GiveQuantity > 0)
+                {
+                    if (p.GiveUnit == EmCourseUnit.Month)
+                    {
+                        giveDay = p.GiveQuantity * monthToDay;
+                    }
+                    else
+                    {
+                        giveDay = p.GiveQuantity;
+                    }
+                }
+                tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
+            }
+            //计算单价，合计金额/总的有效数量(课时/天数)
+            var tempCoursePrice = Math.Round(orderDetail.ItemAptSum / tempValidSmallQuantity, 2);
+
+            var tempCourseSurplusQuantity = 0M;
+            var tempCourseSurplusQuantityDesc = string.Empty;
+            var tempIsHas = true;
+            if (p.Status != EmStudentCourseStatus.EndOfClass &&
+               (p.SurplusQuantity > 0 || p.SurplusSmallQuantity > 0))
+            {
+                tempCourseSurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType);
+                if (p.DeType == EmDeClassTimesType.ClassTimes)
+                {
+                    tempCourseSurplusQuantity = p.SurplusQuantity;
+                }
+                else
+                {
+                    if (p.StartTime != null && p.EndTime != null)
+                    {
+                        if (p.EndTime < now)
+                        {
+                            tempCourseSurplusQuantity = 0;
+                        }
+                        else if (p.StartTime.Value <= now)
+                        {
+                            tempCourseSurplusQuantity = (decimal)(p.EndTime.Value - now).TotalDays;
+                        }
+                        else
+                        {
+                            tempCourseSurplusQuantity = (decimal)(p.EndTime.Value - p.StartTime.Value).TotalDays;
+                        }
+                    }
+                    else
+                    {
+                        tempCourseSurplusQuantity = p.SurplusQuantity * monthToDay + p.SurplusSmallQuantity;
+                    }
+                }
+            }
+            else
+            {
+                tempIsHas = false;
+                if (p.DeType == EmDeClassTimesType.ClassTimes)
+                {
+                    tempCourseSurplusQuantityDesc = "0课时";
+                }
+                else
+                {
+                    tempCourseSurplusQuantityDesc = "0天";
+                }
+            }
+            if (tempCourseSurplusQuantity <= 0)
+            {
+                tempIsHas = false;
+            }
+            return new CourseCanReturnInfo()
+            {
+                BuyValidSmallQuantity = tempValidSmallQuantity,
+                IsHas = tempIsHas,
+                Price = tempCoursePrice,
+                SurplusQuantity = tempCourseSurplusQuantity,
+                SurplusQuantityDesc = tempCourseSurplusQuantityDesc
+            };
         }
     }
 }

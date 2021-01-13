@@ -23,6 +23,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtOrderDetail>> GetOrderDetail(long orderId);
 
+        Task<EtOrderDetail> GetOrderDetail(long orderId, long productId, byte productType);
+
         Task<bool> EditOrderDetail(List<EtOrderDetail> entitys);
 
         Task<bool> UpdateOrder(EtOrder order);
