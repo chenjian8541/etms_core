@@ -30,5 +30,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentCourseSurplusGet(StudentCourseSurplusGetRequest request);
 
         Task<ResponseBase> StudentCourseConsumeLogGetPaging(StudentCourseConsumeLogGetPagingRequest request);
+
+        //Task<ResponseBase> 
     }
 }

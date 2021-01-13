@@ -890,7 +890,7 @@ namespace ETMS.Business
                 OrderId = 0,
                 OrderNo = newNo,
                 Ot = now,
-                Price = price,
+                Price = -price,
                 PriceRule = string.Empty,
                 ProductId = sourceOrderDetail.ProductId,
                 ProductType = sourceOrderDetail.ProductType,
@@ -1107,7 +1107,7 @@ namespace ETMS.Business
                 SourceOrder = sourceOrder,
                 UserId = request.LoginUserId
             });
-            return ResponseBase.Success();
+            return ResponseBase.Success(returnOrder.Id);
         }
     }
 }
