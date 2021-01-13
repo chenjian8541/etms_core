@@ -37,6 +37,16 @@ namespace ETMS.Entity.Database.Source
         public decimal OutQuantity { get; set; }
 
         /// <summary>
+        /// 退 订单ID
+        /// </summary>
+        public long? OutOrderId { get; set; }
+
+        /// <summary>
+        /// 退 订单号
+        /// </summary>
+        public string OutOrderNo { get; set; }
+
+        /// <summary>
         /// 产品类型  <see cref=" ETMS.Entity.Enum.EmOrderProductType"/>
         /// </summary>
         public byte ProductType { get; set; }

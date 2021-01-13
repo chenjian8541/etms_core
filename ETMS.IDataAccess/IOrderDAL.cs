@@ -31,6 +31,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddOrderOperationLog(EtOrderOperationLog etOrderOperationLog);
 
+        bool AddOrderOperationLog(List<EtOrderOperationLog> etOrderOperationLogs);
+
         Task<Tuple<IEnumerable<EtOrderOperationLog>, int>> GetOrderOperationLogPaging(IPagingRequest request);
 
         Task<bool> OrderStudentEnrolmentRepeal(long orderId);
@@ -38,5 +40,7 @@ namespace ETMS.IDataAccess
         Task<List<EtOrder>> GetUnionOrderSource(long orderId);
 
         Task<List<EtOrderDetail>> GetOrderDetail(List<long> orderIds);
+
+        Task<EtOrderDetail> GetOrderDetailById(long orderDetailId);
     }
 }

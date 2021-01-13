@@ -34,6 +34,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte OrderReturn = 4;
 
+        /// <summary>
+        /// 转课
+        /// </summary>
+        public const byte TransferCourses = 5;
+
         public static string GetOrderOperationLogTypeDesc(int t)
         {
             switch (t)
@@ -48,6 +53,8 @@ namespace ETMS.Entity.Enum
                     return "订单作废";
                 case OrderReturn:
                     return "销售退单";
+                case TransferCourses:
+                    return "转课";
             }
             return string.Empty;
         }

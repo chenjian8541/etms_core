@@ -131,10 +131,10 @@ namespace ETMS.Business
                     }
                     if (course.Item1.Type == EmCourseType.OneToOne)
                     {
-                        oneToOneClassLst.Add(GetOneToOneClass(course.Item1, student));
+                        oneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
                     }
-                    studentCourseDetails.Add(GetStudentCourseDetail(course.Item1, priceRule, p, request, no));
-                    var orderCourseDetailResult = GetCourseOrderDetail(course.Item1, priceRule, p, request, no);
+                    studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
+                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.OtherInfo.Ot, request.LoginUserId, request.LoginTenantId);
                     orderDetails.Add(orderCourseDetailResult.Item1);
                     buyCourse.Append($"{orderCourseDetailResult.Item2}；");
                     sum += orderCourseDetailResult.Item1.ItemSum;
@@ -259,118 +259,6 @@ namespace ETMS.Business
             {
                 OrderId = orderId
             });
-        }
-
-        /// <summary>
-        /// 为学员构建一对一班级
-        /// </summary>
-        /// <param name="course"></param>
-        /// <param name="student"></param>
-        /// <returns></returns>
-        private OneToOneClass GetOneToOneClass(EtCourse course, EtStudent student)
-        {
-            return new OneToOneClass()
-            {
-                CourseId = course.Id,
-                StudentNums = 1,
-                Type = EmClassType.OneToOne,
-                Name = $"{course.Name}_{student.Name}",
-                Students = new List<OneToOneClassStudent>() {
-                  new OneToOneClassStudent(){
-                    CourseId = course.Id,
-                    StudentId = student.Id
-                  }
-                 }
-            };
-        }
-
-        private EtStudentCourseDetail GetStudentCourseDetail(EtCourse course, EtCoursePriceRule priceRule,
-            EnrolmentCourse enrolmentCourse, StudentEnrolmentRequest request, string no)
-        {
-            var buyQuantity = priceRule.Quantity > 1 ? priceRule.Quantity : enrolmentCourse.BuyQuantity;
-            var deType = priceRule.PriceUnit == EmCourseUnit.ClassTimes ? EmDeClassTimesType.ClassTimes : EmDeClassTimesType.Day;
-            var surplusQuantity = buyQuantity;
-            var surplusSmallQuantity = 0;
-            var useUnit = priceRule.PriceUnit == EmCourseUnit.ClassTimes ? EmCourseUnit.ClassTimes : EmCourseUnit.Day;
-            if (enrolmentCourse.GiveQuantity > 0)
-            {
-                if (priceRule.PriceUnit != EmCourseUnit.ClassTimes && enrolmentCourse.GiveUnit == EmCourseUnit.Day)
-                {
-                    surplusSmallQuantity = enrolmentCourse.GiveQuantity;
-                }
-                else
-                {
-                    surplusQuantity += enrolmentCourse.GiveQuantity;
-                }
-            }
-            DateTime? startTime = null;
-            DateTime? endTime = null;
-            if (priceRule.PriceUnit == EmCourseUnit.ClassTimes && !string.IsNullOrEmpty(enrolmentCourse.ExOt))
-            {
-                endTime = Convert.ToDateTime(enrolmentCourse.ExOt).Date;
-            }
-            else if (priceRule.PriceUnit != EmCourseUnit.ClassTimes && enrolmentCourse.ErangeOt != null && enrolmentCourse.ErangeOt.Count == 2)
-            {
-                startTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[0]).Date;
-                endTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[1]).Date;
-            }
-
-            return new EtStudentCourseDetail()
-            {
-                BugUnit = priceRule.PriceUnit,
-                BuyQuantity = buyQuantity,
-                CourseId = course.Id,
-                StudentId = request.StudentId,
-                TenantId = request.LoginTenantId,
-                OrderNo = no,
-                IsDeleted = EmIsDeleted.Normal,
-                DeType = deType,
-                EndCourseRemark = string.Empty,
-                EndCourseTime = null,
-                EndCourseUser = null,
-                GiveQuantity = enrolmentCourse.GiveQuantity,
-                GiveUnit = enrolmentCourse.GiveUnit,
-                Price = priceRule.Price,
-                StartTime = startTime,
-                EndTime = endTime,
-                Status = EmStudentCourseStatus.Normal,
-                SurplusQuantity = surplusQuantity,
-                SurplusSmallQuantity = surplusSmallQuantity,
-                TotalMoney = enrolmentCourse.ItemAptSum,
-                UseQuantity = 0,
-                UseUnit = useUnit
-            };
-        }
-
-        private Tuple<EtOrderDetail, string> GetCourseOrderDetail(EtCourse course, EtCoursePriceRule priceRule,
-            EnrolmentCourse enrolmentCourse, StudentEnrolmentRequest request, string no)
-        {
-            var priceRuleDesc = ComBusiness.GetPriceRuleDesc(priceRule).Desc;
-            var ruleDesc = $"{course.Name}  {priceRuleDesc}";
-            var buyQuantity = priceRule.Quantity > 1 ? priceRule.Quantity : enrolmentCourse.BuyQuantity;
-            var itemSum = priceRule.Quantity > 1 ? priceRule.TotalPrice : (buyQuantity * priceRule.Price).EtmsToRound();
-            return Tuple.Create(new EtOrderDetail()
-            {
-                BugUnit = priceRule.PriceUnit,
-                OrderNo = no,
-                Ot = request.OtherInfo.Ot,
-                Price = priceRule.Price,
-                BuyQuantity = buyQuantity,
-                DiscountType = enrolmentCourse.DiscountType,
-                DiscountValue = enrolmentCourse.DiscountValue,
-                GiveQuantity = enrolmentCourse.GiveQuantity,
-                GiveUnit = enrolmentCourse.GiveUnit,
-                IsDeleted = EmIsDeleted.Normal,
-                ItemAptSum = enrolmentCourse.ItemAptSum,
-                ItemSum = itemSum,
-                PriceRule = priceRuleDesc,
-                ProductId = course.Id,
-                ProductType = EmOrderProductType.Course,
-                Remark = string.Empty,
-                Status = EmOrderStatus.Normal,
-                TenantId = request.LoginTenantId,
-                UserId = request.LoginUserId
-            }, ruleDesc);
         }
 
         private Tuple<EtOrderDetail, string> GetGoodsOrderDetail(EtGoods goods, EnrolmentGoods enrolmentGoods, StudentEnrolmentRequest request, string no)

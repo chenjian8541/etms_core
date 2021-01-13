@@ -84,6 +84,12 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public bool AddOrderOperationLog(List<EtOrderOperationLog> etOrderOperationLogs)
+        {
+            _dbWrapper.InsertRange(etOrderOperationLogs);
+            return true;
+        }
+
         public async Task<Tuple<IEnumerable<EtOrderOperationLog>, int>> GetOrderOperationLogPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtOrderOperationLog>("EtOrderOperationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
@@ -117,6 +123,11 @@ namespace ETMS.DataAccess
             }
             var temp = await _dbWrapper.ExecuteObject<EtOrderDetail>($"SELECT * FROM EtOrderDetail WHERE OrderId IN ({string.Join(',', orderIds)}) AND IsDeleted = {EmIsDeleted.Normal} ");
             return temp.ToList();
+        }
+
+        public async Task<EtOrderDetail> GetOrderDetailById(long orderDetailId)
+        {
+            return await _dbWrapper.Find<EtOrderDetail>(p => p.TenantId == _tenantId && p.Id == orderDetailId && p.IsDeleted == EmIsDeleted.Normal);
         }
     }
 }

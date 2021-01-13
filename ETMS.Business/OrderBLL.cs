@@ -790,7 +790,7 @@ namespace ETMS.Business
         { return ResponseBase.Success(); }
 
         private EtOrderDetail GetReturnOrderDetail(EtOrderDetail sourceOrderDetail, OrderReturnProductItem productItem,
-            string newNo, DateTime now)
+            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo)
         {
             var buyUnit = sourceOrderDetail.BugUnit;
             if (buyUnit == EmCourseUnit.Month)
@@ -826,7 +826,9 @@ namespace ETMS.Business
                 Remark = string.Empty,
                 Status = EmOrderStatus.Normal,
                 TenantId = sourceOrderDetail.TenantId,
-                UserId = sourceOrderDetail.UserId
+                UserId = sourceOrderDetail.UserId,
+                OutOrderId = sourceOrderId,
+                OutOrderNo = sourceOrderNo
             };
         }
 
@@ -870,7 +872,7 @@ namespace ETMS.Business
                 {
                     return ResponseBase.CommonError("请求数据错误，请重新再试");
                 }
-                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now));
+                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now, sourceOrder.Id, sourceOrder.No));
                 switch (mySourceOrderDetail.ProductType)
                 {
                     case EmOrderProductType.Course:

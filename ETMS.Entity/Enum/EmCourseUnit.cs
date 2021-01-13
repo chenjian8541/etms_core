@@ -23,5 +23,19 @@ namespace ETMS.Entity.Enum
         /// 月
         /// </summary>
         public const byte Month = 2;
+
+        public static string GetCourseUnitDesc(byte b)
+        {
+            switch (b)
+            {
+                case ClassTimes:
+                    return "课时";
+                case Day:
+                    return "天";
+                case Month:
+                    return "月";
+            }
+            return string.Empty;
+        }
     }
 }
