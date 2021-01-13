@@ -115,7 +115,7 @@ namespace ETMS.Business
                 Name = request.Name,
                 Avatar = request.AvatarKey,
                 Birthday = request.Birthday,
-                CardNo = request.CardNo,
+                //CardNo = request.CardNo,
                 CreateBy = request.LoginUserId,
                 EndClassOt = null,
                 Gender = request.Gender,
@@ -207,7 +207,7 @@ namespace ETMS.Business
             etStudent.Name = request.Name;
             etStudent.Avatar = request.AvatarKey;
             etStudent.Birthday = request.Birthday;
-            etStudent.CardNo = request.CardNo;
+            //etStudent.CardNo = request.CardNo;
             etStudent.Gender = request.Gender;
             etStudent.GradeId = request.GradeId;
             etStudent.HomeAddress = request.HomeAddress;

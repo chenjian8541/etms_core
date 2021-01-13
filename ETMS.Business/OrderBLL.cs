@@ -392,16 +392,29 @@ namespace ETMS.Business
                             Log.Error($"[OrderGetProductInfo]获取订单课程详情失败,orderId:{request.CId}", this.GetType());
                             continue;
                         }
-                        var tempBuySmallQuantity = 0; //按天或者课时
+                        var tempValidSmallQuantity = 0; //按天或者课时
                         if (p.BugUnit == EmCourseUnit.ClassTimes)
                         {
-                            tempBuySmallQuantity = p.BuyQuantity;
+                            tempValidSmallQuantity = p.BuyQuantity + p.GiveQuantity;
                         }
                         else
                         {
-                            tempBuySmallQuantity = p.BuyQuantity * monthToDay;
+                            var giveDay = 0;
+                            if (p.GiveQuantity > 0)
+                            {
+                                if (p.GiveUnit == EmCourseUnit.Month)
+                                {
+                                    giveDay = p.GiveQuantity * monthToDay;
+                                }
+                                else
+                                {
+                                    giveDay = p.GiveQuantity;
+                                }
+                            }
+                            tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
                         }
-                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempBuySmallQuantity);
+                        //计算单价，合计金额/总的有效数量(课时/天数)
+                        var tempCoursePrice = Math.Round(p.ItemAptSum / tempValidSmallQuantity);
 
                         var tempCourseSurplusQuantity = 0M;
                         var tempCourseSurplusQuantityDesc = string.Empty;
