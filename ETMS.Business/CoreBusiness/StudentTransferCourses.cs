@@ -5,6 +5,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
@@ -41,9 +42,12 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IStudentPointsLogDAL _studentPointsLogDAL;
+
         public StudentTransferCourses(IStudentDAL studentDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
-            IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL)
+            IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
+            IStudentPointsLogDAL studentPointsLogDAL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -56,12 +60,13 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._classDAL = classDAL;
+            this._studentPointsLogDAL = studentPointsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
-                _orderDAL, _studentPointsLog, _classDAL);
+                _orderDAL, _studentPointsLog, _classDAL, _studentPointsLogDAL);
         }
 
         private EtOrderDetail GetTransferOrderDetailOut(EtOrderDetail sourceOrderDetail, TransferCoursesOut productItem,
@@ -116,17 +121,101 @@ namespace ETMS.Business
             }
             var newOrderNo = OrderNumberLib.GetTransferCoursesOrderNumber();
             var now = DateTime.Now;
-            return ResponseBase.Success();
+            var processTransferCoursesBuyResult = await ProcessTransferCoursesBuy(request, studentBucket.Student, newOrderNo);
+            if (!processTransferCoursesBuyResult.IsResponseSuccess())
+            {
+                return processTransferCoursesBuyResult;
+            }
+
+            var processTransferCoursesOutResult = await ProcessTransferCoursesOut(request, newOrderNo, now);
+            if (!processTransferCoursesOutResult.IsResponseSuccess())
+            {
+                return processTransferCoursesOutResult;
+            }
+
+            var processTransferCoursesBuyRes = (ProcessTransferCoursesBuyRes)processTransferCoursesBuyResult.resultData;
+            var processTransferCoursesOutRes = (ProcessTransferCoursesOutRes)processTransferCoursesOutResult.resultData;
+
+            var opContent = $"转出课程：{processTransferCoursesOutRes.OutCourseDesc}/r/n转入课程：{processTransferCoursesBuyRes.BuyCourse}";
+            var transferOrder = new EtOrder()
+            {
+                InOutType = request.TransferCoursesOrderInfo.InOutType,
+                AptSum = request.TransferCoursesOrderInfo.PaySum,
+                PaySum = request.TransferCoursesOrderInfo.PaySum,
+                ArrearsSum = 0,
+                BuyCost = string.Empty,
+                BuyGoods = string.Empty,
+                BuyCourse = opContent,
+                CommissionUser = EtmsHelper.GetMuIds(request.TransferCoursesOrderInfo.CommissionUser),
+                CouponsIds = string.Empty,
+                CouponsStudentGetIds = string.Empty,
+                CreateOt = now,
+                IsDeleted = EmIsDeleted.Normal,
+                No = newOrderNo,
+                OrderType = EmOrderType.TransferCourse,
+                Ot = request.TransferCoursesOrderInfo.Ot,
+                Remark = request.TransferCoursesOrderInfo.Remark,
+                Status = EmOrderStatus.Normal,
+                StudentId = request.StudentId,
+                Sum = request.TransferCoursesOrderInfo.PaySum,
+                TenantId = request.LoginTenantId,
+                TotalPoints = request.TransferCoursesOrderInfo.ChangePoint,
+                UserId = request.LoginUserId
+            };
+            var orderDetail = processTransferCoursesOutRes.NewOrderDetailList;
+            orderDetail.AddRange(processTransferCoursesBuyRes.OrderDetails);
+            var orderId = await _orderDAL.AddOrder(transferOrder, orderDetail);
+
+            if (request.TransferCoursesOrderInfo.PaySum > 0)
+            {
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = string.Empty,
+                    CreateOt = now,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = transferOrder.No,
+                    OrderId = transferOrder.Id,
+                    Ot = transferOrder.Ot,
+                    PayType = request.TransferCoursesOrderInfo.PayType,
+                    ProjectType = EmIncomeLogProjectType.TransferCourse,
+                    Remark = request.TransferCoursesOrderInfo.Remark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = request.TransferCoursesOrderInfo.PaySum,
+                    TenantId = request.LoginTenantId,
+                    UserId = request.LoginUserId,
+                    Type = request.TransferCoursesOrderInfo.InOutType == EmOrderInOutType.Out ? EmIncomeLogType.AccountOut : EmIncomeLogType.AccountIn
+                });
+            }
+
+            _eventPublisher.Publish(new StudentTransferCoursesEvent(request.LoginTenantId)
+            {
+                StudentCourseDetails = processTransferCoursesBuyRes.StudentCourseDetails,
+                OneToOneClassList = processTransferCoursesBuyRes.OneToOneClassLst,
+                TransferOrder = transferOrder,
+                Request = request,
+                UserId = request.LoginUserId
+            });
+
+            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            {
+                CourseId = request.CourseId,
+                StudentId = request.StudentId
+            });
+            return ResponseBase.Success(orderId);
         }
 
         private async Task<ResponseBase> ProcessTransferCoursesBuy(TransferCoursesRequest request,
-            EtStudent student, string no, DateTime now)
+            EtStudent student, string no)
         {
-             decimal sum = 0, aptSum = 0;
-            StringBuilder buyCourse = new StringBuilder(), buyGoods = new StringBuilder(), buyCost = new StringBuilder();
-            var orderDetails = new List<EtOrderDetail>();
-            var studentCourseDetails = new List<EtStudentCourseDetail>();
-            var oneToOneClassLst = new List<OneToOneClass>();
+            var output = new ProcessTransferCoursesBuyRes()
+            {
+                BuyCourse = new StringBuilder(),
+                OneToOneClassLst = new List<OneToOneClass>(),
+                OrderDetails = new List<EtOrderDetail>(),
+                StudentCourseDetails = new List<EtStudentCourseDetail>()
+            };
             //课程
             if (request.TransferCoursesBuy != null && request.TransferCoursesBuy.Any())
             {
@@ -144,17 +233,15 @@ namespace ETMS.Business
                     }
                     if (course.Item1.Type == EmCourseType.OneToOne)
                     {
-                        oneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
+                        output.OneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
                     }
-                    studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
+                    output.StudentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
                     var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId);
-                    orderDetails.Add(orderCourseDetailResult.Item1);
-                    buyCourse.Append($"{orderCourseDetailResult.Item2}；");
-                    sum += orderCourseDetailResult.Item1.ItemSum;
-                    aptSum += orderCourseDetailResult.Item1.ItemAptSum;
+                    output.OrderDetails.Add(orderCourseDetailResult.Item1);
+                    output.BuyCourse.Append($"{orderCourseDetailResult.Item2}；");
                 }
             }
-            return ResponseBase.Success();
+            return ResponseBase.Success(output);
         }
 
         private async Task<ResponseBase> ProcessTransferCoursesOut(TransferCoursesRequest request, string newOrderNo, DateTime now)
@@ -286,7 +373,118 @@ namespace ETMS.Business
             {
                 _orderDAL.AddOrderOperationLog(newOrderOperationLogs);
             }
-            return ResponseBase.Success(newOrderDetailList);
+            return ResponseBase.Success(new ProcessTransferCoursesOutRes()
+            {
+                NewOrderDetailList = newOrderDetailList,
+                OutCourseDesc = myOutCourse.Name
+            });
+        }
+
+        public async Task StudentTransferCoursesConsumerEvent(StudentTransferCoursesEvent request)
+        {
+            var orderId = request.TransferOrder.Id;
+            //学员课程信息
+            if (request.StudentCourseDetails != null && request.StudentCourseDetails.Count > 0)
+            {
+                foreach (var studentCourse in request.StudentCourseDetails)
+                {
+                    studentCourse.OrderId = orderId;
+                }
+                _studentCourseDAL.AddStudentCourseDetail(request.StudentCourseDetails);
+                await _studentCourseDAL.ResetStudentCourseNotEnoughRemindInfo(request.TransferOrder.StudentId, request.StudentCourseDetails.Select(p => p.CourseId).ToList());
+            }
+            _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.TenantId)
+            {
+                StudentId = request.TransferOrder.StudentId
+            });
+
+            //一对一课程
+            if (request.OneToOneClassList != null && request.OneToOneClassList.Any())
+            {
+                foreach (var myClass in request.OneToOneClassList)
+                {
+                    var classId = await _classDAL.AddClass(new EtClass()
+                    {
+                        DefaultClassTimes = 1,
+                        CourseList = $",{myClass.CourseId},",
+                        CompleteTime = null,
+                        CompleteStatus = EmClassCompleteStatus.UnComplete,
+                        ClassCategoryId = null,
+                        ClassRoomIds = null,
+                        FinishClassTimes = 0,
+                        FinishCount = 0,
+                        IsDeleted = EmIsDeleted.Normal,
+                        IsLeaveCharge = false,
+                        IsNotComeCharge = false,
+                        LastJobProcessTime = DateTime.Now,
+                        LimitStudentNums = 1,
+                        Name = myClass.Name,
+                        Ot = request.CreateTime,
+                        PlanCount = 0,
+                        Remark = string.Empty,
+                        ScheduleStatus = EmClassScheduleStatus.Unscheduled,
+                        StudentNums = myClass.StudentNums,
+                        TeacherNum = 0,
+                        Teachers = string.Empty,
+                        TenantId = request.TenantId,
+                        Type = myClass.Type,
+                        UserId = request.Request.LoginUserId,
+                        StudentIds = $",{string.Join(',', myClass.Students.Select(p => p.StudentId))},",
+                        OrderId = orderId
+                    });
+                    foreach (var student in myClass.Students)
+                    {
+                        await _classDAL.AddClassStudent(new EtClassStudent()
+                        {
+                            ClassId = classId,
+                            CourseId = student.CourseId,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Remark = string.Empty,
+                            StudentId = student.StudentId,
+                            TenantId = request.TenantId
+                        });
+                    }
+                }
+            }
+
+            if (request.TransferOrder.TotalPoints > 0)
+            {
+                if (request.TransferOrder.InOutType == EmOrderInOutType.In)
+                {
+                    await _studentDAL.AddPoint(request.TransferOrder.StudentId, request.TransferOrder.TotalPoints);
+                }
+                else
+                {
+                    await _studentDAL.DeductionPoint(request.TransferOrder.StudentId, request.TransferOrder.TotalPoints);
+                }
+                await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                {
+                    StudentId = request.TransferOrder.StudentId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = request.TransferOrder.No,
+                    Ot = request.TransferOrder.CreateOt,
+                    Points = request.TransferOrder.TotalPoints,
+                    Remark = request.TransferOrder.Remark,
+                    TenantId = request.TenantId,
+                    Type = request.TransferOrder.InOutType == EmOrderInOutType.In ? EmStudentPointsLogType.TransferCourseAdd : EmStudentPointsLogType.TransferCourseDeduction
+                });
+            }
+
+            _eventPublisher.Publish(new StatisticsSalesProductEvent(request.TenantId)
+            {
+                StatisticsDate = request.TransferOrder.Ot
+            });
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.TenantId)
+            {
+                StatisticsDate = request.TransferOrder.Ot
+            });
+            _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.TenantId)
+            {
+                StatisticsDate = request.TransferOrder.Ot
+            });
+
+
+            await _userOperationLogDAL.AddUserLog(request.Request, $"转课-{request.TransferOrder.BuyCourse}", EmUserOperationType.OrderMgr);
         }
     }
 }

@@ -39,6 +39,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtOrder>> GetUnionOrderSource(long orderId);
 
+        Task<bool> ExistOutOrder(long orderId);
+
         Task<List<EtOrderDetail>> GetOrderDetail(List<long> orderIds);
 
         Task<EtOrderDetail> GetOrderDetailById(long orderDetailId);

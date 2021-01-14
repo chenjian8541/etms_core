@@ -756,8 +756,12 @@ namespace ETMS.Business
 
         private async Task<ResponseBase> OrderStudentEnrolmentRepeal(OrderRepealRequest request)
         {
-            var unionOrderSource = await _orderDAL.GetUnionOrderSource(request.OrderId);
-            if (unionOrderSource != null && unionOrderSource.Count > 0)
+            //var unionOrderSource = await _orderDAL.GetUnionOrderSource(request.OrderId);
+            //if (unionOrderSource != null && unionOrderSource.Count > 0)
+            //{
+            //    return ResponseBase.CommonError("此订单有退单操作，无法作废");
+            //}
+            if (await _orderDAL.ExistOutOrder(request.OrderId))
             {
                 return ResponseBase.CommonError("此订单已有转课/退单操作，无法作废");
             }
@@ -1029,6 +1033,30 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrder(returnOrder, newOrderDetailList);
+
+
+            if (request.OrderReturnOrderInfo.PaySum > 0)
+            {
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = string.Empty,
+                    CreateOt = now,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = returnOrder.No,
+                    OrderId = returnOrder.Id,
+                    Ot = returnOrder.Ot,
+                    PayType = request.OrderReturnOrderInfo.PayType,
+                    ProjectType = EmIncomeLogProjectType.RetuenOrder,
+                    Remark = returnOrder.Remark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = request.OrderReturnOrderInfo.PaySum,
+                    TenantId = returnOrder.TenantId,
+                    UserId = returnOrder.UserId,
+                    Type = EmIncomeLogType.AccountOut
+                });
+            }
 
             _eventPublisher.Publish(new OrderReturnProductEvent(sourceOrder.TenantId)
             {

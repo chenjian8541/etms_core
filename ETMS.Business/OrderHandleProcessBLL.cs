@@ -153,7 +153,7 @@ namespace ETMS.Business
             {
                 IpAddress = string.Empty,
                 IsDeleted = EmIsDeleted.Normal,
-                OpContent = $"订单作废,订单号:{order.No},作废原因:{request.Remark}",
+                OpContent = $"订单作废-订单号:{order.No},作废原因:{request.Remark}",
                 Ot = now,
                 Remark = string.Empty,
                 TenantId = order.TenantId,
@@ -224,29 +224,6 @@ namespace ETMS.Business
                         await _costDAL.DeductioneSaleQuantity(returnDetail.ProductId, tempMyCostReturnQuantity);
                         break;
                 }
-            }
-
-            if (request.returnRequest.OrderReturnOrderInfo.PaySum > 0)
-            {
-                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
-                {
-                    AccountNo = string.Empty,
-                    CreateOt = now,
-                    IsDeleted = EmIsDeleted.Normal,
-                    No = request.NewOrder.No,
-                    OrderId = request.NewOrder.Id,
-                    Ot = request.NewOrder.Ot,
-                    PayType = request.returnRequest.OrderReturnOrderInfo.PayType,
-                    ProjectType = EmIncomeLogProjectType.RetuenOrder,
-                    Remark = request.NewOrder.Remark,
-                    RepealOt = null,
-                    RepealUserId = null,
-                    Status = EmIncomeLogStatus.Normal,
-                    Sum = request.returnRequest.OrderReturnOrderInfo.PaySum,
-                    TenantId = request.NewOrder.TenantId,
-                    UserId = request.NewOrder.UserId,
-                    Type = EmIncomeLogType.AccountOut
-                });
             }
 
             var desc = $"销售退单-{request.NewOrder.BuyCourse} {request.NewOrder.BuyGoods} {request.NewOrder.BuyCost}";

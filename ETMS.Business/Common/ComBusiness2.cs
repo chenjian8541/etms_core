@@ -125,7 +125,8 @@ namespace ETMS.Business.Common
                 Remark = string.Empty,
                 Status = EmOrderStatus.Normal,
                 TenantId = tenantId,
-                UserId = userId
+                UserId = userId,
+                InOutType = EmOrderInOutType.In
             }, ruleDesc);
         }
 

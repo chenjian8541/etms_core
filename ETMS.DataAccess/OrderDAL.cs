@@ -115,6 +115,13 @@ namespace ETMS.DataAccess
             return await this._dbWrapper.FindList<EtOrder>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UnionOrderId == orderId);
         }
 
+        public async Task<bool> ExistOutOrder(long orderId)
+        {
+            var sql = $"SELECT TOP 1 0 FROM EtOrderDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND OutOrderId = {orderId} and [Status] <> {EmOrderStatus.Repeal}";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj != null;
+        }
+
         public async Task<List<EtOrderDetail>> GetOrderDetail(List<long> orderIds)
         {
             if (orderIds.Count == 1)
