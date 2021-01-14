@@ -245,7 +245,7 @@ namespace ETMS.Business
                     output.Add(myStudentCourseDetail);
                 }
             }
-            return ResponseBase.Success(output);
+            return ResponseBase.Success(output.OrderBy(p => p.Status));
         }
 
         public async Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request)

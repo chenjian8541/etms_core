@@ -495,7 +495,7 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "transferCourses",
+        "Path": "transferCourses/:s/:c",
         "Name": "transferCourses",
         "Type": 1,
         "Component": "@/components/OrderMgr/TransferCourses",

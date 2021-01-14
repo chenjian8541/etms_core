@@ -112,6 +112,11 @@
             "Type": 1
           },
           {
+            "ActionId": 56,
+            "Name": "转课",
+            "Type": 1
+          },
+          {
             "ActionId": 13,
             "Name": "学员课程有效期设置",
             "Type": 1
@@ -604,11 +609,6 @@
           {
             "ActionId": 40,
             "Name": "编辑订单",
-            "Type": 1
-          },
-          {
-            "ActionId": 56,
-            "Name": "转课",
             "Type": 1
           },
           {
