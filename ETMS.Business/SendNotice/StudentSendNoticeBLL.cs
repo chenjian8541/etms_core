@@ -313,6 +313,11 @@ namespace ETMS.Business
                 return;
             }
             var classTimes = await _jobAnalyzeDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                Log.Fatal($"[NoticeStudentsOfClassTodayClassTimes]课次不存在", request, this.GetType());
+                return;
+            }
             if (classTimes.Status == EmClassTimesStatus.BeRollcall)
             {
                 Log.Warn($"[NoticeStudentsOfClassTodayClassTimes]已点名,无需发送上课通知:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimesId}", this.GetType());

@@ -46,5 +46,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public decimal ItemSum { get; set; }
 
         public int BuyValidSmallQuantity { get; set; }
+
+       public string ProductName { get; set; }
     }
 }

@@ -173,6 +173,19 @@ namespace ETMS.LOG
         }
 
         /// <summary>
+        /// 记录错误日志
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="msg"></param>
+        /// <param name="request"></param>
+        /// <param name="type"></param>
+        public static void Fatal<T>(string msg, T request, Type type) where T : class
+        {
+            var message = string.Format("{0}:{1}", msg, JsonConvert.SerializeObject(request));
+            Fatal(message, type);
+        }
+
+        /// <summary>
         /// 静态构造函数
         /// 初始化log4net
         /// </summary>

@@ -136,7 +136,7 @@ namespace ETMS.Business
             var processTransferCoursesBuyRes = (ProcessTransferCoursesBuyRes)processTransferCoursesBuyResult.resultData;
             var processTransferCoursesOutRes = (ProcessTransferCoursesOutRes)processTransferCoursesOutResult.resultData;
 
-            var opContent = $"转出课程：{processTransferCoursesOutRes.OutCourseDesc}/r/n转入课程：{processTransferCoursesBuyRes.BuyCourse}";
+            var opContent = $"转出课程：{processTransferCoursesOutRes.OutCourseDesc}<br>转入课程：{processTransferCoursesBuyRes.BuyCourse}";
             var transferOrder = new EtOrder()
             {
                 InOutType = request.TransferCoursesOrderInfo.InOutType,

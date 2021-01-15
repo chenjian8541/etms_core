@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.HisData.Request;
+using ETMS.Entity.Dto.Student.Request;
 using ETMS.IBusiness;
 using ETMS.IBusiness.SysOp;
 using ETMS.LOG;
@@ -34,9 +35,11 @@ namespace ETMS.WebApi.Controllers
 
         private readonly ISysDataClearBLL _sysDataClearBLL;
 
+        private readonly IStudentTransferCourses _studentTransferCourses;
+
         public HisDataController(IOrderBLL orderBLL, IIncomeLogBLL incomeLogBLL, IStatisticsStudentBLL statisticsStudentBLL, IStatisticsSalesBLL statisticsSalesBLL,
             IStatisticsFinanceBLL statisticsFinanceBLL, IStatisticsClassBLL statisticsClassBLL, IStatisticsSalesCourseBLL statisticsSalesCourseBLL,
-            IStatisticsTenantBLL statisticsTenantBLL, ISysDataClearBLL sysDataClearBLL)
+            IStatisticsTenantBLL statisticsTenantBLL, ISysDataClearBLL sysDataClearBLL, IStudentTransferCourses studentTransferCourses)
         {
             this._orderBLL = orderBLL;
             this._incomeLogBLL = incomeLogBLL;
@@ -47,6 +50,7 @@ namespace ETMS.WebApi.Controllers
             this._statisticsSalesCourseBLL = statisticsSalesCourseBLL;
             this._statisticsTenantBLL = statisticsTenantBLL;
             this._sysDataClearBLL = sysDataClearBLL;
+            this._studentTransferCourses = studentTransferCourses;
         }
 
         public async Task<ResponseBase> OrderGetPaging(OrderGetPagingRequest request)
@@ -572,6 +576,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _sysDataClearBLL.InitTenantId(request.LoginTenantId);
                 return await _sysDataClearBLL.ClearData(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TransferCourses(TransferCoursesRequest request)
+        {
+            try
+            {
+                _studentTransferCourses.InitTenantId(request.LoginTenantId);
+                return await _studentTransferCourses.TransferCourses(request);
             }
             catch (Exception ex)
             {

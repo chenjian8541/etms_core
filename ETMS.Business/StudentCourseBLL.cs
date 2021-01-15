@@ -586,6 +586,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCourseHasDetailGet(StudentCourseHasDetailGetRequest request)
         {
+            var myCourse = await _courseDAL.GetCourse(request.CourseId);
+            if (myCourse == null || myCourse.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
             var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var output = new List<StudentCourseHasDetailGetOutput>();
             if (myStudentCourseDetail.Count > 0)
@@ -597,6 +602,10 @@ namespace ETMS.Business
                         continue;
                     }
                     var p = await _orderDAL.GetOrderDetail(courseDetail.OrderId, courseDetail.CourseId, EmOrderProductType.Course);
+                    if (p.OutOrderId != null)
+                    {
+                        continue;
+                    }
                     if (p == null)
                     {
                         LOG.Log.Error("[StudentCourseHasDetailGet]学员课程详情未找到对应的订单详情", request, this.GetType());
@@ -626,7 +635,8 @@ namespace ETMS.Business
                         ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
                         ProductId = p.ProductId,
                         BuyValidSmallQuantity = courseCanReturnInfo.BuyValidSmallQuantity,
-                        OrderNo = p.OrderNo
+                        OrderNo = p.OrderNo,
+                        ProductName = myCourse.Item1.Name
                     });
                 }
             }
