@@ -81,6 +81,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderTransferCoursesGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> OrderPayment(OrderPaymentRequest request)
         {
             try
@@ -142,6 +156,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _orderBLL.InitTenantId(request.LoginTenantId);
                 return await _orderBLL.OrderReturnLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> OrderTransferCoursesLogGet(OrderTransferCoursesLogGetRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderTransferCoursesLogGet(request);
             }
             catch (Exception ex)
             {

@@ -63,7 +63,7 @@ namespace ETMS.WebApi.Controllers.Open
         public override IResponseMessageBase OnTextRequest(RequestMessageText requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您学习进步，生活愉快≧◠◡◠≦";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
@@ -75,7 +75,7 @@ namespace ETMS.WebApi.Controllers.Open
         public override async Task<IResponseMessageBase> OnLocationRequestAsync(RequestMessageLocation requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "愿您以梦为马,不负韶华";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
@@ -83,7 +83,7 @@ namespace ETMS.WebApi.Controllers.Open
         public override async Task<IResponseMessageBase> OnShortVideoRequestAsync(RequestMessageShortVideo requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "愿您以梦为马,不负韶华";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
@@ -131,14 +131,14 @@ namespace ETMS.WebApi.Controllers.Open
         public override async Task<IResponseMessageBase> OnLinkRequestAsync(RequestMessageLink requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "愿您以梦为马,不负韶华";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
         public override async Task<IResponseMessageBase> OnFileRequestAsync(RequestMessageFile requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "愿您以梦为马,不负韶华";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
@@ -150,7 +150,7 @@ namespace ETMS.WebApi.Controllers.Open
         public override async Task<IResponseMessageBase> OnEventRequestAsync(IRequestMessageEventBase requestMessage)
         {
             var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "愿您以梦为马,不负韶华";
+            responseText.Content = string.Empty;
             return responseText;
         }
 
@@ -164,7 +164,7 @@ namespace ETMS.WebApi.Controllers.Open
             * return responseMessage;
             */
             var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "愿您以梦为马,不负韶华";// "这条消息来自DefaultResponseMessage。";
+            responseMessage.Content = string.Empty;// "这条消息来自DefaultResponseMessage。";
             return responseMessage;
         }
 
@@ -176,7 +176,7 @@ namespace ETMS.WebApi.Controllers.Open
              * 如果不重写此方法，遇到未知的请求类型将会抛出异常（v14.8.3 之前的版本就是这么做的）
              */
             var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "愿您以梦为马,不负韶华";
+            responseMessage.Content = string.Empty;
 
             Log.Error("[OnUnknownTypeRequestAsync]微信消息：未知请求消息类型", this.GetType());
 

@@ -24,15 +24,15 @@ namespace ETMS.Business.Common
 
         public static string GetReturnOrderNumber()
         {
-            var strTime = DateTime.Now.ToString("yyyyMMddHHmms");
-            var strRandom = new Random().Next(100, 999);
+            var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var strRandom = new Random().Next(10, 99);
             return $"T{strTime}{strRandom}";
         }
 
         public static string GetTransferCoursesOrderNumber()
         {
-            var strTime = DateTime.Now.ToString("yyyyMMddHHmms");
-            var strRandom = new Random().Next(100, 999);
+            var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var strRandom = new Random().Next(10, 99);
             return $"Z{strTime}{strRandom}";
         }
 

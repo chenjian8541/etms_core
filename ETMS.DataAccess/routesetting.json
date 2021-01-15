@@ -495,6 +495,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "orderTransferDetail/:cid",
+        "Name": "orderTransferDetail",
+        "Type": 1,
+        "Component": "@/components/OrderDetail/OrderTransferDetail",
+        "Meta": {
+          "Title": "转课详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "transferCourses/:s/:c",
         "Name": "transferCourses",
         "Type": 1,
@@ -535,6 +547,18 @@
         "Name": "returnPrint",
         "Type": 1,
         "Component": "@/components/ReceiptPrint/ReturnPrint",
+        "Meta": {
+          "Title": "收据打印",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "orderTransferPrint/:cid/:type?",
+        "Name": "orderTransferPrint",
+        "Type": 1,
+        "Component": "@/components/ReceiptPrint/OrderTransferPrint",
         "Meta": {
           "Title": "收据打印",
           "Icon": "item"

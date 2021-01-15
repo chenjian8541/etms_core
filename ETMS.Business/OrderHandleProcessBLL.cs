@@ -179,6 +179,11 @@ namespace ETMS.Business
 
         public async Task OrderReturnProductEventProcess(OrderReturnProductEvent request)
         {
+            if (request.SourceOrder.IsReturn != EmBool.True)
+            {
+                await _orderDAL.SetOrderHasIsReturn(request.SourceOrder.Id);
+            }
+
             var now = request.NewOrder.CreateOt;
             if (request.returnRequest.OrderReturnOrderInfo.DePoint > 0)
             {

@@ -170,7 +170,9 @@ namespace ETMS.Business
                 InOutType = order.InOutType,
                 TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
                 UnionOrderId = order.UnionOrderId.ToString(),
-                UnionOrderNo = order.UnionOrderNo
+                UnionOrderNo = order.UnionOrderNo,
+                IsReturn = order.IsReturn,
+                IsTransferCourse = order.IsTransferCourse
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {
@@ -259,6 +261,109 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request)
+        {
+            var order = await _orderDAL.GetOrder(request.CId);
+            if (order == null)
+            {
+                return ResponseBase.CommonError("订单不存在");
+            }
+            var output = new OrderTransferCoursesGetDetailOutput();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
+            output.BascInfo = new OrderTransferCoursesGetDetailBascInfo()
+            {
+                ArrearsSum = order.ArrearsSum,
+                BuyCost = order.BuyCost,
+                CId = order.Id,
+                AptSum = order.AptSum,
+                BuyCourse = order.BuyCourse,
+                BuyGoods = order.BuyGoods,
+                CommissionUser = order.CommissionUser,
+                CommissionUserDesc = string.Join(',', commissionUsers.Select(p => p.Label)),
+                No = order.No,
+                OrderType = order.OrderType,
+                OtDesc = order.Ot.EtmsToDateString(),
+                PaySum = order.PaySum,
+                Remark = order.Remark,
+                Status = order.Status,
+                StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
+                StudentId = order.StudentId,
+                StudentName = student.Name,
+                StudentPhone = student.Phone,
+                Sum = order.Sum,
+                TotalPoints = order.TotalPoints,
+                UserId = order.UserId,
+                UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
+                CreateOt = order.CreateOt,
+                CommissionUserIds = commissionUsers,
+                InOutType = order.InOutType,
+                TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
+                UnionOrderId = order.UnionOrderId.ToString(),
+                UnionOrderNo = order.UnionOrderNo,
+                IsReturn = order.IsReturn,
+                IsTransferCourse = order.IsTransferCourse
+            };
+            var orderDetail = await _orderDAL.GetOrderDetail(request.CId);
+            var intDetail = orderDetail.Where(p => p.InOutType == EmOrderInOutType.In);
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            foreach (var myItem in intDetail)
+            {
+                output.InList.Add(new OrderTransferCoursesGetDetailIn()
+                {
+                    BugUnit = myItem.BugUnit,
+                    BuyQuantity = myItem.BuyQuantity,
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
+                    DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
+                    GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
+                    ItemAptSum = Math.Abs(myItem.ItemAptSum),
+                    ItemSum = Math.Abs(myItem.ItemSum),
+                    PriceRule = myItem.PriceRule,
+                    ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
+                    ProductName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, myItem.ProductId),
+                    CId = myItem.Id,
+                    OutQuantity = myItem.OutQuantity,
+                    OutQuantityDesc = ComBusiness.GetOutQuantityDesc(myItem.OutQuantity, myItem.BugUnit, myItem.ProductType)
+                });
+            }
+            var outDetail = orderDetail.Where(p => p.InOutType == EmOrderInOutType.Out);
+            foreach (var myItem in outDetail)
+            {
+                output.OutList.Add(new OrderTransferCoursesGetDetailOut()
+                {
+                    CId = myItem.Id,
+                    UnionOrderId = myItem.OutOrderId.Value,
+                    UnionOrderNo = myItem.OutOrderNo,
+                    ItemAptSum = Math.Abs(myItem.ItemAptSum),
+                    OutQuantity = myItem.OutQuantity.EtmsToString(),
+                    OutQuantityDesc = ComBusiness.GetOutQuantityDesc(myItem.OutQuantity, myItem.BugUnit, myItem.ProductType),
+                    ProductName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, myItem.ProductId)
+                });
+            }
+
+            var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
+            output.OrderGetDetailIncomeLogs = new List<OrderGetDetailIncomeLog>();
+            if (payLog != null && payLog.Any())
+            {
+                foreach (var p in payLog)
+                {
+                    output.OrderGetDetailIncomeLogs.Add(new OrderGetDetailIncomeLog()
+                    {
+                        PayOt = p.Ot.EtmsToDateString(),
+                        PayType = p.PayType,
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        ProjectType = p.ProjectType,
+                        ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
+                        Sum = p.Sum,
+                        UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
+                        CId = p.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> OrderGetSimpleDetail(OrderGetSimpleDetailRequest request)
         {
             var order = await _orderDAL.GetOrder(request.CId);
@@ -297,7 +402,9 @@ namespace ETMS.Business
                 InOutType = order.InOutType,
                 TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
                 UnionOrderId = order.UnionOrderId.ToString(),
-                UnionOrderNo = order.UnionOrderNo
+                UnionOrderNo = order.UnionOrderNo,
+                IsReturn = order.IsReturn,
+                IsTransferCourse = order.IsTransferCourse
             };
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
             output.OrderGetDetailIncomeLogs = new List<OrderGetDetailIncomeLog>();
@@ -357,7 +464,9 @@ namespace ETMS.Business
                 InOutType = order.InOutType,
                 TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
                 UnionOrderId = order.UnionOrderId.ToString(),
-                UnionOrderNo = order.UnionOrderNo
+                UnionOrderNo = order.UnionOrderNo,
+                IsReturn = order.IsReturn,
+                IsTransferCourse = order.IsTransferCourse
             };
             return ResponseBase.Success(output);
         }
@@ -626,6 +735,38 @@ namespace ETMS.Business
                         });
                     }
                     output.Add(myOutputItem);
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> OrderTransferCoursesLogGet(OrderTransferCoursesLogGetRequest request)
+        {
+            var unionTransferOrder = await _orderDAL.GetUnionTransferOrder(request.CId);
+            var output = new List<OrderTransferCoursesLogGetOutput>();
+            if (unionTransferOrder.Any())
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var returnOrderDetail = await _orderDAL.GetOrderDetail(unionTransferOrder.Select(p => p.Id).ToList());
+                var myTransferOrderDetail = returnOrderDetail.Where(p => p.OutOrderId == request.CId);
+                foreach (var p in myTransferOrderDetail)
+                {
+                    var myCourse = await _courseDAL.GetCourse(p.ProductId);
+                    if (myCourse == null || myCourse.Item1 == null)
+                    {
+                        LOG.Log.Error("[OrderTransferCoursesLogGet]课程不存在", request, this.GetType());
+                        continue;
+                    }
+                    output.Add(new OrderTransferCoursesLogGetOutput
+                    {
+                        ItemAptSum = Math.Abs(p.ItemAptSum),
+                        UnionOrderId = p.OrderId,
+                        UnionOrderNo = p.OrderNo,
+                        OutQuantity = p.OutQuantity.EtmsToString(),
+                        OutQuantityDesc = ComBusiness.GetOutQuantityDesc(p.OutQuantity, p.BugUnit, p.ProductType),
+                        ProductName = myCourse.Item1.Name,
+                        OtDesc = p.Ot.EtmsToDateString()
+                    });
                 }
             }
             return ResponseBase.Success(output);
@@ -1033,7 +1174,6 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrder(returnOrder, newOrderDetailList);
-
 
             if (request.OrderReturnOrderInfo.PaySum > 0)
             {

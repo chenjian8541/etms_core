@@ -115,6 +115,11 @@ namespace ETMS.DataAccess
             return await this._dbWrapper.FindList<EtOrder>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UnionOrderId == orderId);
         }
 
+        public async Task<IEnumerable<EtOrder>> GetUnionTransferOrder(long orderId)
+        {
+            return await _dbWrapper.ExecuteObject<EtOrder>($"SELECT * FROM EtOrder WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND UnionTransferOrderIds LIKE '%,{orderId},%'");
+        }
+
         public async Task<bool> ExistOutOrder(long orderId)
         {
             var sql = $"SELECT TOP 1 0 FROM EtOrderDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND OutOrderId = {orderId} and [Status] <> {EmOrderStatus.Repeal}";
@@ -135,6 +140,25 @@ namespace ETMS.DataAccess
         public async Task<EtOrderDetail> GetOrderDetailById(long orderDetailId)
         {
             return await _dbWrapper.Find<EtOrderDetail>(p => p.TenantId == _tenantId && p.Id == orderDetailId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<bool> SetOrderHasIsReturn(long orderId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtOrder SET IsReturn = {EmBool.True} WHERE Id = {orderId}");
+            return true;
+        }
+
+        public async Task<bool> SetOrderHasIsTransferCourse(List<long> orderIds)
+        {
+            if (orderIds.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtOrder SET IsTransferCourse = {EmBool.True} WHERE Id = {orderIds[0]} ");
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtOrder SET IsTransferCourse = {EmBool.True} WHERE Id IN ({string.Join(',', orderIds)}) ");
+            }
+            return true;
         }
     }
 }

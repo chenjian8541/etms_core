@@ -13,6 +13,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> OrderGetDetail(OrderGetDetailRequest request);
 
+        Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request);
+
         Task<ResponseBase> OrderPayment(OrderPaymentRequest request);
 
         Task<ResponseBase> OrderGetSimpleDetail(OrderGetSimpleDetailRequest request);
@@ -22,6 +24,8 @@ namespace ETMS.IBusiness
         Task<ResponseBase> OrderGetProductInfo(OrderGetProductInfoRequest request);
 
         Task<ResponseBase> OrderReturnLogGet(OrderReturnLogGetRequest request);
+
+        Task<ResponseBase> OrderTransferCoursesLogGet(OrderTransferCoursesLogGetRequest request);
 
         Task<ResponseBase> OrderEditRemark(OrderEditRemarkRequest request);
 

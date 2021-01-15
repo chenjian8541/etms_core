@@ -160,11 +160,14 @@ namespace ETMS.Business
                 Sum = request.TransferCoursesOrderInfo.PaySum,
                 TenantId = request.LoginTenantId,
                 TotalPoints = request.TransferCoursesOrderInfo.ChangePoint,
-                UserId = request.LoginUserId
+                UserId = request.LoginUserId,
+                UnionTransferOrderIds = EtmsHelper.GetMuIds(processTransferCoursesOutRes.SourceOrderIds)
             };
             var orderDetail = processTransferCoursesOutRes.NewOrderDetailList;
             orderDetail.AddRange(processTransferCoursesBuyRes.OrderDetails);
             var orderId = await _orderDAL.AddOrder(transferOrder, orderDetail);
+
+            await _orderDAL.SetOrderHasIsTransferCourse(processTransferCoursesOutRes.SourceOrderIds);
 
             if (request.TransferCoursesOrderInfo.PaySum > 0)
             {
@@ -257,6 +260,7 @@ namespace ETMS.Business
             var sourceStudentCourseDetailUpdateEntitys = new List<EtStudentCourseDetail>();
             var newOrderDetailList = new List<EtOrderDetail>();
             var newOrderOperationLogs = new List<EtOrderOperationLog>();
+            var sourceOrderIds = new List<long>();
             var monthToDay = SystemConfig.ComConfig.MonthToDay;
             foreach (var outOrderDetail in request.TransferCoursesOut)
             {
@@ -287,6 +291,7 @@ namespace ETMS.Business
                     TenantId = request.LoginTenantId,
                     UserId = request.LoginUserId
                 });
+                sourceOrderIds.Add(mySourceOrderDetail.OrderId);
 
                 if (outOrderDetail.IsAllReturn)
                 {
@@ -376,7 +381,8 @@ namespace ETMS.Business
             return ResponseBase.Success(new ProcessTransferCoursesOutRes()
             {
                 NewOrderDetailList = newOrderDetailList,
-                OutCourseDesc = myOutCourse.Name
+                OutCourseDesc = myOutCourse.Name,
+                SourceOrderIds = sourceOrderIds
             });
         }
 

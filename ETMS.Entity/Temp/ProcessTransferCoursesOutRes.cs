@@ -10,5 +10,7 @@ namespace ETMS.Entity.Temp
         public List<EtOrderDetail> NewOrderDetailList { get; set; }
 
         public string OutCourseDesc { get; set; }
+
+        public List<long> SourceOrderIds { get; set; }
     }
 }

@@ -5,18 +5,18 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.HisData.Output
 {
-    public class OrderGetDetailOutput
+    public class OrderTransferCoursesGetDetailOutput
     {
-        public OrderGetDetailBascInfo BascInfo { get; set; }
+        public OrderTransferCoursesGetDetailBascInfo BascInfo { get; set; }
 
-        public List<OrderGetDetailCoupons> OrderGetDetailCoupons { get; set; }
+        public List<OrderTransferCoursesGetDetailOut> OutList { get; set; }
 
-        public List<OrderGetDetailProductInfo> OrderGetDetailProducts { get; set; }
+        public List<OrderTransferCoursesGetDetailIn> InList { get; set; }
 
         public List<OrderGetDetailIncomeLog> OrderGetDetailIncomeLogs { get; set; }
     }
 
-    public class OrderGetDetailBascInfo
+    public class OrderTransferCoursesGetDetailBascInfo
     {
         public long CId { get; set; }
 
@@ -130,28 +130,24 @@ namespace ETMS.Entity.Dto.HisData.Output
         public byte IsTransferCourse { get; set; }
     }
 
-    public class OrderGetDetailCoupons
+    public class OrderTransferCoursesGetDetailOut
     {
         public long CId { get; set; }
-        public string CouponsTitle { get; set; }
 
-        /// <summary>
-        /// 类型  <see cref="ETMS.Entity.Enum.EmCouponsType"/>
-        /// </summary>
-        public byte CouponsType { get; set; }
+        public long UnionOrderId { get; set; }
 
-        public string CouponsTypeDesc { get; set; }
+        public string UnionOrderNo { get; set; }
 
-        public decimal CouponsValue { get; set; }
+        public string ProductName { get; set; }
 
-        public string CouponsValueDesc { get; set; }
+        public string OutQuantity { get; set; }
 
-        public decimal? CouponsMinLimit { get; set; }
+        public string OutQuantityDesc { get; set; }
 
-        public string MinLimitDesc { get; set; }
+        public decimal ItemAptSum { get; set; }
     }
 
-    public class OrderGetDetailProductInfo
+    public class OrderTransferCoursesGetDetailIn
     {
         public long CId { get; set; }
 
@@ -181,24 +177,5 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal OutQuantity { get; set; }
 
         public string OutQuantityDesc { get; set; }
-    }
-
-    public class OrderGetDetailIncomeLog
-    {
-        public long CId { get; set; }
-
-        public long ProjectType { get; set; }
-
-        public string ProjectTypeName { get; set; }
-
-        public string PayOt { get; set; }
-
-        public string UserName { get; set; }
-
-        public int PayType { get; set; }
-
-        public string PayTypeDesc { get; set; }
-
-        public decimal Sum { get; set; }
     }
 }

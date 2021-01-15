@@ -114,6 +114,23 @@ namespace ETMS.Entity.Database.Source
         public string UnionOrderNo { get; set; }
 
         /// <summary>
+        /// 关联订单(转课用)
+        /// </summary>
+        public string UnionTransferOrderIds { get; set; }
+
+        /// <summary>
+        /// 是否有退单记录
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsReturn { get; set; }
+
+        /// <summary>
+        /// 是否有转课记录
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsTransferCourse { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }
