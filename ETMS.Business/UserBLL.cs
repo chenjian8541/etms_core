@@ -85,13 +85,15 @@ namespace ETMS.Business
         {
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
             return ResponseBase.Success(new GetLoginInfoH5Output()
             {
                 Name = userInfo.Name,
                 NickName = userInfo.NickName,
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
-                OrgName = tenant.Name
+                OrgName = tenant.Name,
+                Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin)
             });
         }
 

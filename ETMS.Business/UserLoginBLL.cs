@@ -141,7 +141,7 @@ namespace ETMS.Business
             msg = string.Empty;
             if (user == null)
             {
-                msg = "用户存在,请重新登陆";
+                msg = "用户不存在,请重新登陆";
                 return false;
             }
             if (user.JobType == EmUserJobType.Resignation)

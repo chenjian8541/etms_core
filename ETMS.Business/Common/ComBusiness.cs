@@ -740,6 +740,35 @@ namespace ETMS.Business.Common
             return output;
         }
 
+        internal static PermissionOutput GetPermissionOutputH5(string roleAuthorityValueMenu, bool isAdmin)
+        {
+            var strMenuCategory = roleAuthorityValueMenu.Split('|');
+            var pageWeight = strMenuCategory[2].ToBigInteger();
+            var actionWeight = strMenuCategory[1].ToBigInteger();
+            var authorityCoreLeafPage = new AuthorityCore(pageWeight);
+            var authorityCoreActionPage = new AuthorityCore(actionWeight);
+            var output = new PermissionOutput()
+            {
+                Action = new List<int>(),
+                Page = new List<int>()
+            };
+            foreach (var mypage in PermissionDataH5.PageAllList)
+            {
+                if (authorityCoreLeafPage.Validation(mypage) || isAdmin)
+                {
+                    output.Page.Add(mypage);
+                }
+            }
+            foreach (var myaction in PermissionDataH5.ActionAllList)
+            {
+                if (authorityCoreActionPage.Validation(myaction) || isAdmin)
+                {
+                    output.Action.Add(myaction);
+                }
+            }
+            return output;
+        }
+
         internal static void GetPermissionPageHandle(List<MenuConfig> menuConfigs, AuthorityCore authorityCoreLeafPage, AuthorityCore authorityCoreActionPage, PermissionOutput output, bool isAdmin)
         {
             foreach (var p in menuConfigs)

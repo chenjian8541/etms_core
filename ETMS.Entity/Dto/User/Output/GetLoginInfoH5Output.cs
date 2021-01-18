@@ -30,5 +30,10 @@ namespace ETMS.Entity.Dto.User.Output
         /// 机构名称
         /// </summary>
         public string OrgName { get; set; }
+
+        /// <summary>
+        /// 权限
+        /// </summary>
+        public PermissionOutput Permission { get; set; }
     }
 }
