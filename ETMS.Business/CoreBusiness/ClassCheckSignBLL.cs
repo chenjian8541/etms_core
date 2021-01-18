@@ -252,6 +252,18 @@ namespace ETMS.Business
                     && (p.EndTime == null || classDate <= p.EndTime) && p.SurplusQuantity >= student.DeClassTimes);
                     if (!timesCourseDetail.Any())
                     {
+                        var stopTimeCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes
+                        && p.Status == EmStudentCourseStatus.StopOfClass && (p.EndTime == null || classDate <= p.EndTime) && p.SurplusQuantity >= student.DeClassTimes);
+                        if (stopTimeCourseDetail.Any())
+                        {
+                            return $"学员({student.StudentName})已停课，无法点名";
+                        }
+                        var stopDayCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.Day && (p.StartTime == null || classDate >= p.StartTime)
+                        && (p.EndTime == null || classDate <= p.EndTime) && p.Status == EmStudentCourseStatus.StopOfClass);
+                        if (stopDayCourseDetail.Any())
+                        {
+                            return $"学员({student.StudentName})已停课，无法点名";
+                        }
                         return $"学员({student.StudentName})剩余课时不足，无法点名";
                     }
                 }
