@@ -268,7 +268,11 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("订单不存在");
             }
-            var output = new OrderTransferCoursesGetDetailOutput();
+            var output = new OrderTransferCoursesGetDetailOutput()
+            {
+                InList = new List<OrderTransferCoursesGetDetailIn>(),
+                OutList = new List<OrderTransferCoursesGetDetailOut>()
+            };
             var tempBoxUser = new DataTempBox<EtUser>();
             var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
@@ -361,6 +365,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            output.InSum = output.InList.Sum(j => j.ItemAptSum);
+            output.OutSum = output.OutList.Sum(j => j.ItemAptSum);
             return ResponseBase.Success(output);
         }
 

@@ -14,6 +14,10 @@ namespace ETMS.Entity.Dto.HisData.Output
         public List<OrderTransferCoursesGetDetailIn> InList { get; set; }
 
         public List<OrderGetDetailIncomeLog> OrderGetDetailIncomeLogs { get; set; }
+
+        public decimal OutSum { get; set; }
+
+        public decimal InSum { get; set; }
     }
 
     public class OrderTransferCoursesGetDetailBascInfo
