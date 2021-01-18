@@ -606,6 +606,10 @@ namespace ETMS.Business
                     {
                         continue;
                     }
+                    if (p.InOutType == EmOrderInOutType.Out)
+                    {
+                        continue;
+                    }
                     if (p == null)
                     {
                         LOG.Log.Error("[StudentCourseHasDetailGet]学员课程详情未找到对应的订单详情", request, this.GetType());

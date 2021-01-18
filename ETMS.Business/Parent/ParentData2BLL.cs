@@ -270,7 +270,7 @@ namespace ETMS.Business
                     }
                 }
             }
-            return ResponseBase.Success(output);
+            return ResponseBase.Success(output.OrderBy(p => p.Status));
         }
 
         public async Task<ResponseBase> StudentOrderGet(StudentOrderGetRequest request)
