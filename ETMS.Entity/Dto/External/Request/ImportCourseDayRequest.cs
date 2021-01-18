@@ -38,5 +38,10 @@ namespace ETMS.Entity.Dto.External.Request
         public string PayTypeName { get; set; }
 
         public DateTime OrderOt { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCourseType"/>
+        /// </summary>
+        public byte CourseType { get; set; }
     }
 }

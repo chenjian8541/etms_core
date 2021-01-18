@@ -48,11 +48,12 @@ namespace ETMS.Business
 
         private readonly IStudentCourseDAL _studentCourseDAL;
 
+        private readonly IClassDAL _classDAL;
 
         public ImportBLL(IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentSourceDAL studentSourceDAL, IStudentRelationshipDAL studentRelationshipDAL, IGradeDAL gradeDAL, ISysTenantDAL sysTenantDAL,
             IStudentDAL studentDAL, IEventPublisher eventPublisher, IUserOperationLogDAL userOperationLogDAL, ICourseDAL courseDAL, IOrderDAL orderDAL,
-            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL)
+            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -67,12 +68,13 @@ namespace ETMS.Business
             this._orderDAL = orderDAL;
             this._incomeLogDAL = incomeLogDAL;
             this._studentCourseDAL = studentCourseDAL;
+            this._classDAL = classDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentSourceDAL, _studentRelationshipDAL,
-                _gradeDAL, _studentDAL, _userOperationLogDAL, _courseDAL, _orderDAL, _incomeLogDAL, _studentCourseDAL);
+                _gradeDAL, _studentDAL, _userOperationLogDAL, _courseDAL, _orderDAL, _incomeLogDAL, _studentCourseDAL, _classDAL);
         }
 
         public async Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request)
@@ -306,7 +308,7 @@ namespace ETMS.Business
                         Remark = "导入时自动生成的课程",
                         StyleColor = "#409EFF",
                         TenantId = request.LoginTenantId,
-                        Type = EmCourseType.OneToMany,
+                        Type = p.CourseType,
                         UserId = request.LoginUserId,
                         PriceType = EmCoursePriceType.ClassTimes,
                         Status = EmCourseStatus.Enabled
@@ -434,6 +436,11 @@ namespace ETMS.Business
                 };
 
                 _studentCourseDAL.AddStudentCourseDetail(new List<EtStudentCourseDetail>() { studentCourseDetail });
+
+                if (course.Type == EmCourseType.OneToOne)
+                {
+                    await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
+                }
 
                 _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
                 {
@@ -573,7 +580,7 @@ namespace ETMS.Business
                         Remark = "导入时自动生成的课程",
                         StyleColor = "#409EFF",
                         TenantId = request.LoginTenantId,
-                        Type = EmCourseType.OneToMany,
+                        Type = p.CourseType,
                         UserId = request.LoginUserId,
                         PriceType = EmCoursePriceType.Month,
                         Status = EmCourseStatus.Enabled
@@ -711,12 +718,17 @@ namespace ETMS.Business
                     SurplusQuantity = surplusQuantity,
                     SurplusSmallQuantity = surplusSmallQuantity,
                     TotalMoney = p.AptSum,
-                    UseQuantity = useQuantity - 1,
+                    UseQuantity = useQuantity,
                     UseUnit = EmCourseUnit.Day,
                     OrderId = orderId
                 };
 
                 _studentCourseDAL.AddStudentCourseDetail(new List<EtStudentCourseDetail>() { studentCourseDetail });
+
+                if (course.Type == EmCourseType.OneToOne)
+                {
+                    await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
+                }
 
                 _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
                 {
@@ -746,6 +758,49 @@ namespace ETMS.Business
             return ResponseBase.Success(new ImportCourseOutput()
             {
                 SuccessCount = request.ImportCourseDays.Count
+            });
+        }
+
+        private async Task AddOneToOneClass(long courseId, string courseName, string studentName,
+            DateTime ot, int tenantId, long orderId, long studentId, long userId)
+        {
+            var classId = await _classDAL.AddClass(new EtClass()
+            {
+                DefaultClassTimes = 1,
+                CourseList = $",{courseId},",
+                CompleteTime = null,
+                CompleteStatus = EmClassCompleteStatus.UnComplete,
+                ClassCategoryId = null,
+                ClassRoomIds = null,
+                FinishClassTimes = 0,
+                FinishCount = 0,
+                IsDeleted = EmIsDeleted.Normal,
+                IsLeaveCharge = false,
+                IsNotComeCharge = false,
+                LastJobProcessTime = DateTime.Now,
+                LimitStudentNums = 1,
+                Name = $"{courseName}_{studentName}",
+                Ot = ot,
+                PlanCount = 0,
+                Remark = string.Empty,
+                ScheduleStatus = EmClassScheduleStatus.Unscheduled,
+                StudentNums = 1,
+                TeacherNum = 0,
+                Teachers = string.Empty,
+                TenantId = tenantId,
+                Type = EmClassType.OneToOne,
+                UserId = userId,
+                StudentIds = $",{studentId},",
+                OrderId = orderId
+            });
+            await _classDAL.AddClassStudent(new EtClassStudent()
+            {
+                ClassId = classId,
+                CourseId = courseId,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                StudentId = studentId,
+                TenantId = tenantId
             });
         }
     }

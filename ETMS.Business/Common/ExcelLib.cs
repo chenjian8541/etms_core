@@ -11,6 +11,7 @@ using System.Text;
 using System.Linq;
 using NPOI.SS.UserModel;
 using ETMS.Entity.Dto.External.Request;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Business.Common
 {
@@ -308,6 +309,7 @@ namespace ETMS.Business.Common
             headList.Add("实收金额(*)");
             headList.Add("支付方式");
             headList.Add("经办日期");
+            headList.Add("课程类型");
             return headList;
         }
 
@@ -328,10 +330,11 @@ namespace ETMS.Business.Common
             noteString.Append("2.此表不允许做如增加列、删除列、修改表头名称等操作\n");
             noteString.Append("3.模板中标识为*号的栏目为必填项，导入时不能为空\n");
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
-            noteString.Append("5.文档中日期信息请按yyyy-MM-dd格式填写\n");
+            noteString.Append("5.课程类型默认是“一对多”，如果选择“一对一”则会自动创建该学员对应的一对一班级\n");
+            noteString.Append("6.文档中日期信息请按yyyy-MM-dd格式填写\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 2200; ;
+            rowRemind.Height = 2500; ;
             var headTitleDesc = GetImportCourseHeadDescTimes();
 
             var rowHead = sheet1.CreateRow(1);
@@ -421,6 +424,13 @@ namespace ETMS.Business.Common
             var format10 = workMbrTemplate.CreateDataFormat();
             cellStyle10.DataFormat = format10.GetFormat("yyyy-MM-dd");
             sheet1.SetDefaultColumnStyle(10, cellStyle10);
+
+            var cellHead11 = rowHead.CreateCell(11);  //课程类型
+            cellHead11.CellStyle = styleHead;
+            cellHead11.SetCellValue(headTitleDesc[11]);
+            var regions11 = new CellRangeAddressList(1, 65535, 11, 11);
+            var dataValidate11 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "一对多", "一对一" }), regions11);
+            sheet1.AddValidationData(dataValidate11);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -625,6 +635,12 @@ namespace ETMS.Business.Common
                     }
                 }
 
+                var courseType = GetCellValue(myRow.GetCell(++i));   //经办日期
+
+                if (courseType == "一对一")
+                {
+                    myStudentCourseItem.CourseType = EmCourseType.OneToOne;
+                }
 
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
@@ -658,6 +674,7 @@ namespace ETMS.Business.Common
             headList.Add("实收金额(*)");
             headList.Add("支付方式");
             headList.Add("经办日期");
+            headList.Add("课程类型");
             return headList;
         }
 
@@ -678,10 +695,11 @@ namespace ETMS.Business.Common
             noteString.Append("2.此表不允许做如增加列、删除列、修改表头名称等操作\n");
             noteString.Append("3.模板中标识为*号的栏目为必填项，导入时不能为空\n");
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
-            noteString.Append("5.文档中日期信息请按yyyy-MM-dd格式填写\n");
+            noteString.Append("5.课程类型默认是“一对多”，如果选择“一对一”则会自动创建该学员对应的一对一班级\n");
+            noteString.Append("6.文档中日期信息请按yyyy-MM-dd格式填写\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 2200; ;
+            rowRemind.Height = 2500; ;
             var headTitleDesc = GetImportCourseHeadDescDay();
 
             var rowHead = sheet1.CreateRow(1);
@@ -754,6 +772,13 @@ namespace ETMS.Business.Common
             var format8 = workMbrTemplate.CreateDataFormat();
             cellStyle8.DataFormat = format8.GetFormat("yyyy-MM-dd");
             sheet1.SetDefaultColumnStyle(8, cellStyle8);
+
+            var cellHead9 = rowHead.CreateCell(9);  //课程类型
+            cellHead9.CellStyle = styleHead;
+            cellHead9.SetCellValue(headTitleDesc[9]);
+            var regions9 = new CellRangeAddressList(1, 65535, 9, 9);
+            var dataValidate9 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "一对多", "一对一" }), regions9);
+            sheet1.AddValidationData(dataValidate9);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -925,6 +950,12 @@ namespace ETMS.Business.Common
                     }
                 }
 
+                var courseType = GetCellValue(myRow.GetCell(++i));   //经办日期
+
+                if (courseType == "一对一")
+                {
+                    myStudentCourseItem.CourseType = EmCourseType.OneToOne;
+                }
 
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
