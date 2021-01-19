@@ -17,9 +17,10 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-
-            CreateParentToken();
-            CreateTencentCloudAccount();
+            //CreateParentToken();
+            //CreateTencentCloudAccount();
+            Encrypt3DESSqlConnection();
+            //Decrypt3DESSqlConnection();
             Console.WriteLine();
             Console.Read();
         }
@@ -126,6 +127,13 @@ namespace Etms.Tools.Test
             var pwd = "YDAJGWIR";
             var key = EtmsGetTimestamp(DateTime.UtcNow);
             var password = md5($"{md5(pwd)}{key}");
+        }
+
+        private static void Decrypt3DESSqlConnection()
+        {
+            var conStr = Console.ReadLine();
+            var res = CryptogramHelper.Decrypt3DES(conStr, SystemConfig.CryptogramConfig.Key);
+            Console.WriteLine(res);
         }
 
         private static void Encrypt3DESSqlConnection()

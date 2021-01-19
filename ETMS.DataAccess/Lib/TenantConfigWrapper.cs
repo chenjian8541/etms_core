@@ -26,16 +26,21 @@ namespace ETMS.DataAccess.Lib
         {
             var tenantConfig = await DapperProvider.ExecuteObject<ViewTenantConfig>(CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsManageConnectionString,
                  $"SELECT SysTenant.Id AS Id,SysConnectionString.Value AS ConnectionString FROM SysTenant INNER JOIN SysConnectionString ON SysTenant.ConnectionId = SysConnectionString.Id WHERE SysTenant.IsDeleted = {EmIsDeleted.Normal}");
+            var myTenantConfig = tenantConfig.ToList();
+            foreach (var p in myTenantConfig)
+            {
+                p.ConnectionString = CryptogramHelper.Decrypt3DES(p.ConnectionString, SystemConfig.CryptogramConfig.Key);
+            }
             return new SysTenantConfigBucket()
             {
-                TenantConfigs = tenantConfig.ToList()
+                TenantConfigs = myTenantConfig
             };
         }
 
         public async Task<string> GetTenantConnectionString(int tenantId)
         {
             var tenantConfigBucket = await base.GetCache();
-            return CryptogramHelper.Decrypt3DES(tenantConfigBucket.TenantConfigs.First(p => p.Id == tenantId).ConnectionString, SystemConfig.CryptogramConfig.Key);
+            return tenantConfigBucket.TenantConfigs.First(p => p.Id == tenantId).ConnectionString;
         }
 
         /// <summary>

@@ -437,7 +437,7 @@ namespace ETMS.Business
 
                 _studentCourseDAL.AddStudentCourseDetail(new List<EtStudentCourseDetail>() { studentCourseDetail });
 
-                if (course.Type == EmCourseType.OneToOne)
+                if (course.Type == EmCourseType.OneToOne || p.CourseType == EmCourseType.OneToOne)
                 {
                     await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
                 }
@@ -725,7 +725,7 @@ namespace ETMS.Business
 
                 _studentCourseDAL.AddStudentCourseDetail(new List<EtStudentCourseDetail>() { studentCourseDetail });
 
-                if (course.Type == EmCourseType.OneToOne)
+                if (course.Type == EmCourseType.OneToOne || p.CourseType == EmCourseType.OneToOne)
                 {
                     await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
                 }
