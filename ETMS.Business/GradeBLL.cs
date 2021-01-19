@@ -39,7 +39,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"年级设置:{request.Name}", EmUserOperationType.GradeSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加年级-{request.Name}", EmUserOperationType.GradeSetting);
             return ResponseBase.Success();
         }
 

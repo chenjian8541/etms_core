@@ -167,7 +167,7 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, etStudent.Ot, true);
-            await _userOperationLogDAL.AddUserLog(request, $"添加学员：姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success(studentId);
         }
 
@@ -246,7 +246,7 @@ namespace ETMS.Business
                 AliyunOssUtil.DeleteObject(oldAvatar);
             }
 
-            await _userOperationLogDAL.AddUserLog(request, $"编辑学员：姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -272,7 +272,7 @@ namespace ETMS.Business
             AliyunOssUtil.DeleteObject(etStudent.Avatar, etStudent.FaceGreyKey, etStudent.FaceKey);
             await _aiface.StudentDelete(etStudent.Id);
 
-            await _userOperationLogDAL.AddUserLog(request, $"删除学员：姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -531,7 +531,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentSetLearningManager(StudentSetLearningManagerRequest request)
         {
             await _studentDAL.EditStudentLearningManager(request.StudentCIds, request.NewLearningManager);
-            await _userOperationLogDAL.AddUserLog(request, $"分配学管师", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, "分配学管师", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -573,7 +573,7 @@ namespace ETMS.Business
                 ChangeCount = 1,
                 OpType = StatisticsStudentTrackCountOpType.Add
             });
-            await _userOperationLogDAL.AddUserLog(request, $"添加跟进记录：姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},跟进内容:{request.TrackContent}",
+            await _userOperationLogDAL.AddUserLog(request, $"添加跟进记录-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},跟进内容:{request.TrackContent}",
                 EmUserOperationType.StudentTrackLog);
             return ResponseBase.Success();
         }
@@ -636,7 +636,7 @@ namespace ETMS.Business
                 ChangeCount = 1,
                 OpType = StatisticsStudentTrackCountOpType.Deduction
             });
-            await _userOperationLogDAL.AddUserLog(request, $"删除跟进记录：跟进内容:{log.TrackContent}", EmUserOperationType.StudentTrackLog);
+            await _userOperationLogDAL.AddUserLog(request, $"删除跟进记录-跟进内容:{log.TrackContent}", EmUserOperationType.StudentTrackLog);
             return ResponseBase.Success();
         }
 
@@ -731,7 +731,7 @@ namespace ETMS.Business
             {
                 StudentLeaveApplyLog = applyLog
             });
-            await _userOperationLogDAL.AddUserLog(request, $"审核请假记录", EmUserOperationType.StudentLeaveApplyManage);
+            await _userOperationLogDAL.AddUserLog(request, "审核请假记录", EmUserOperationType.StudentLeaveApplyManage);
             return ResponseBase.Success();
         }
 
@@ -802,7 +802,7 @@ namespace ETMS.Business
             await _studentCourseDAL.StudentMarkGraduation(request.CId);
             await _classDAL.RemoveStudent(request.CId);
             _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentType });
-            await _userOperationLogDAL.AddUserLog(request, $"标记毕业：姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"标记毕业-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -815,7 +815,7 @@ namespace ETMS.Business
             }
             await _studentDAL.EditStudentType(request.CId, EmStudentType.ReadingStudent, DateTime.Now);
             _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentType });
-            await _userOperationLogDAL.AddUserLog(request, $"标记在读：姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"标记在读-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -828,7 +828,7 @@ namespace ETMS.Business
             }
             await _studentDAL.EditStudentType(request.CId, EmStudentType.HiddenStudent, DateTime.Now);
             _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentType });
-            await _userOperationLogDAL.AddUserLog(request, $"转为潜在学员：姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"转为潜在学员-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -922,7 +922,7 @@ namespace ETMS.Business
             }
             await _studentDAL.StudentRelieveCardNo(request.CId, student.CardNo);
 
-            await _userOperationLogDAL.AddUserLog(request, $"解绑卡片：姓名:{student.Name},手机号码:{student.Phone},卡号:{student.CardNo}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"解绑学员卡片-姓名:{student.Name},手机号码:{student.Phone},卡号:{student.CardNo}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -946,7 +946,7 @@ namespace ETMS.Business
             }
             await _studentDAL.StudentBindingCardNo(request.CId, newCardNo, student.CardNo);
 
-            await _userOperationLogDAL.AddUserLog(request, $"绑定卡片：姓名:{student.Name},手机号码:{student.Phone},卡号:{newCardNo}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"绑定学员卡片-姓名:{student.Name},手机号码:{student.Phone},卡号:{newCardNo}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -989,7 +989,7 @@ namespace ETMS.Business
                 Type = type
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"积分调整，学员:{student.Name},手机号码:{student.Phone},{desc}{request.ChangePoints}积分", EmUserOperationType.StudentManage, now);
+            await _userOperationLogDAL.AddUserLog(request, $"积分调整-学员:{student.Name},手机号码:{student.Phone},{desc}{request.ChangePoints}积分", EmUserOperationType.StudentManage, now);
             return ResponseBase.Success();
         }
     }

@@ -231,7 +231,7 @@ namespace ETMS.Business
             {
                 ClassRecordStudentId = request.ClassRecordStudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"点评学员:{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
+            await _userOperationLogDAL.AddUserLog(request, $"点评学员-{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();
         }
 

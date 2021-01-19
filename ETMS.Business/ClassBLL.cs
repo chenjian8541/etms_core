@@ -120,7 +120,7 @@ namespace ETMS.Business
                 OrderId = null
             };
             await _classDAL.AddClass(etClass);
-            await _userOperationLogDAL.AddUserLog(request, $"添加班级:{request.Name}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加班级-{request.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -144,7 +144,7 @@ namespace ETMS.Business
             etClass.IsNotComeCharge = request.IsNotComeCharge;
             await _classDAL.EditClass(etClass);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.CId));
-            await _userOperationLogDAL.AddUserLog(request, $"编辑班级:{request.Name}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑班级-{request.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -361,7 +361,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级已存在点名记录，无法删除");
             }
             await _classDAL.DelClass(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除班级:{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除班级-{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -369,7 +369,7 @@ namespace ETMS.Business
         {
             var classIds = request.Items.Select(p => p.CId).ToList();
             await _classDAL.SetClassOverOneToMany(classIds, DateTime.Now);
-            await _userOperationLogDAL.AddUserLog(request, $"一对多班级结课:{string.Join(",", request.Items.Select(p => p.ClassName))}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"一对多班级结课-{string.Join(",", request.Items.Select(p => p.ClassName))}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -398,7 +398,7 @@ namespace ETMS.Business
                 });
             }
             await _classDAL.SetClassOverOneToOne(request.CId, DateTime.Now);
-            await _userOperationLogDAL.AddUserLog(request, $"一对一班级结课:{etCLass.Name}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"一对一班级结课-{etCLass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -501,7 +501,7 @@ namespace ETMS.Business
             }
             await _classDAL.AddClassStudent(classStudents);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})添加学员:{string.Join(',', request.StudentIds.Select(p => p.Label))}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"班级添加学员-班级[{etClassBucket.EtClass.Name}]添加学员[{string.Join(',', request.StudentIds.Select(p => p.Label))}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -514,7 +514,7 @@ namespace ETMS.Business
             }
             await _classDAL.DelClassStudent(request.ClassId, request.CId);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})移出班级学员", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"班级移出学员-班级[{etClassBucket.EtClass.Name}]移出班级学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -893,7 +893,7 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})排课", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -1083,7 +1083,7 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})排课", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -1212,7 +1212,7 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})排课", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -1224,7 +1224,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             await _classDAL.DelClassTimesRule(request.ClassId, request.RuleId);
-            await _userOperationLogDAL.AddUserLog(request, $"班级({etClassBucket.EtClass.Name})删除排课", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除排课-删除班级[{etClassBucket.EtClass.Name}]的排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 

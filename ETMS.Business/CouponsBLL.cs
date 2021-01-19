@@ -105,7 +105,7 @@ namespace ETMS.Business
                 coupons.LimitGetAll = Convert.ToInt32(request.LimitGetAll);
             }
             await _couponsDAL.AddCoupons(coupons);
-            await _userOperationLogDAL.AddUserLog(request, $"添加优惠券:{request.Title}", EmUserOperationType.CouponsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加优惠券-{request.Title}", EmUserOperationType.CouponsManage);
             return ResponseBase.Success();
         }
 
@@ -119,7 +119,7 @@ namespace ETMS.Business
             coupons.Status = request.NewStatus;
             await _couponsDAL.EditCoupons(coupons);
             var tag = request.NewStatus == EmCouponsStatus.Enabled ? "启用" : "禁用";
-            await _userOperationLogDAL.AddUserLog(request, $"{tag}优惠券:{coupons.Title}", EmUserOperationType.CouponsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"{tag}优惠券-{coupons.Title}", EmUserOperationType.CouponsManage);
             return ResponseBase.Success();
         }
 
@@ -135,7 +135,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("优惠券已使用，无法删除");
             }
             await _couponsDAL.DelCoupons(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除优惠券:{coupons.Title}", EmUserOperationType.CouponsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除优惠券-{coupons.Title}", EmUserOperationType.CouponsManage);
             return ResponseBase.Success();
         }
 

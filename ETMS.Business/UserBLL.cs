@@ -198,7 +198,7 @@ namespace ETMS.Business
                 Remark = request.Remark,
                 TenantId = request.LoginTenantId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"添加角色:{request.Name}", EmUserOperationType.RoleSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
         }
 
@@ -214,7 +214,7 @@ namespace ETMS.Business
             role.AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
             await _roleDAL.EditRole(role);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑角色:{request.Name}", EmUserOperationType.RoleSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
         }
 
@@ -393,7 +393,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此角色有对应的员工，无法删除");
             }
             await _roleDAL.DelRole(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除角色:{request.Name}", EmUserOperationType.RoleSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"删除角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
         }
 
@@ -426,7 +426,7 @@ namespace ETMS.Business
                 JobType = request.JobType
             };
             await _etUserDAL.AddUser(user);
-            await _userOperationLogDAL.AddUserLog(request, $"添加员工：名称:{user.Name},昵称:{user.NickName},手机号码{user.Phone}", EmUserOperationType.UserSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
 
@@ -449,7 +449,7 @@ namespace ETMS.Business
             user.IsTeacher = request.IsTeacher;
             user.JobType = request.JobType;
             await _etUserDAL.EditUser(user);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑员工：名称:{user.Name},昵称:{user.NickName},手机号码{user.Phone}", EmUserOperationType.UserSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
 
@@ -475,7 +475,7 @@ namespace ETMS.Business
             await _etUserDAL.DelUser(request.CId);
             AliyunOssUtil.DeleteObject(user.Avatar);
 
-            await _userOperationLogDAL.AddUserLog(request, $"删除员工：名称:{user.Name},昵称:{user.NickName},手机号码{user.Phone}", EmUserOperationType.UserSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"删除员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
 
@@ -569,7 +569,7 @@ namespace ETMS.Business
             user.SubjectsGoodAt = subjectsGoodAt;
             user.TeacherCertification = request.TeacherCertification;
             await _etUserDAL.EditUser(user);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑老师：名称:{user.Name},昵称:{request.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑老师-名称:{user.Name},昵称:{request.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
 
@@ -582,7 +582,7 @@ namespace ETMS.Business
             }
             user.IsTeacher = false;
             await _etUserDAL.EditUser(user);
-            await _userOperationLogDAL.AddUserLog(request, $"移除老师：名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"移除老师-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
 

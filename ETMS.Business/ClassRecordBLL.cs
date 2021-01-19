@@ -523,7 +523,7 @@ namespace ETMS.Business
                 StudentId = p.StudentId
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"修改点名记录", EmUserOperationType.ClassRecordManage, now);
+            await _userOperationLogDAL.AddUserLog(request, "修改点名记录", EmUserOperationType.ClassRecordManage, now);
             return ResponseBase.Success();
         }
 

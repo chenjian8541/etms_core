@@ -653,7 +653,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrderOperationLog(opLog);
-            await _userOperationLogDAL.AddUserLog(request, $"补交报名费用，订单号:{order.No},补交金额:{payTotal}", EmUserOperationType.StudentEnrolmentAddPay, now);
+            await _userOperationLogDAL.AddUserLog(request, $"补交报名费用-订单号:{order.No},补交金额:{payTotal}", EmUserOperationType.StudentEnrolmentAddPay, now);
             return ResponseBase.Success();
         }
 
@@ -805,7 +805,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrderOperationLog(opLog);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑订单备注,订单号:{order.No},新备注:{request.NewRemark}", EmUserOperationType.OrderMgr, now);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑订单备注-订单号:{order.No},新备注:{request.NewRemark}", EmUserOperationType.OrderMgr, now);
             return ResponseBase.Success();
         }
 
@@ -850,7 +850,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrderOperationLog(opLog);
-            await _userOperationLogDAL.AddUserLog(request, $"修改业绩归属人,订单号:{order.No},业绩归属人:{newNames}", EmUserOperationType.OrderMgr, now);
+            await _userOperationLogDAL.AddUserLog(request, $"修改业绩归属人-订单号:{order.No},新业绩归属人:{newNames}", EmUserOperationType.OrderMgr, now);
             return ResponseBase.Success();
         }
 

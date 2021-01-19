@@ -57,7 +57,7 @@ namespace ETMS.Business
                 CheckPoints = request.CheckPoints.EtmsToPoints()
             };
             await _courseDAL.AddCourse(course, coursePriceRuleInfo.Item1);
-            await _userOperationLogDAL.AddUserLog(request, $"添加课程:{request.Name}", EmUserOperationType.CourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
 
@@ -133,7 +133,7 @@ namespace ETMS.Business
             var coursePriceRuleInfo = GetCoursePriceRule(request.CoursePriceRules, course.Id, course.TenantId);
             course.PriceType = coursePriceRuleInfo.Item2;
             await _courseDAL.EditCourse(course, coursePriceRuleInfo.Item1);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑课程:{request.Name}", EmUserOperationType.CourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
 
@@ -215,7 +215,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此课程已使用，无法删除");
             }
             await _courseDAL.DelCourse(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除课程:{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除课程-{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
 
@@ -230,7 +230,7 @@ namespace ETMS.Business
             course.Status = request.NewStatus;
             await _courseDAL.EditCourse(course);
             var tag = request.NewStatus == EmCourseStatus.Enabled ? "启用" : "禁用";
-            await _userOperationLogDAL.AddUserLog(request, $"{tag}课程:{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"{tag}课程-{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
 

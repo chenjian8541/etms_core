@@ -82,7 +82,7 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 IsLimitNums = request.IsLimitNums
             });
-            await _userOperationLogDAL.AddUserLog(request, $"添加礼品:{request.Name}", EmUserOperationType.GiftManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加礼品-{request.Name}", EmUserOperationType.GiftManage);
             return ResponseBase.Success();
         }
 
@@ -107,7 +107,7 @@ namespace ETMS.Business
             gift.Remark = request.Remark;
             gift.IsLimitNums = request.IsLimitNums;
             await _giftDAL.EditGift(gift);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑礼品:{request.Name}", EmUserOperationType.GiftManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑礼品-{request.Name}", EmUserOperationType.GiftManage);
             return ResponseBase.Success();
         }
 
@@ -162,7 +162,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此礼品存在兑换记录，无法删除");
             }
             await _giftDAL.DelGift(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除礼品:{gift.Name}", EmUserOperationType.GiftManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除礼品-{gift.Name}", EmUserOperationType.GiftManage);
             return ResponseBase.Success();
         }
 
@@ -353,7 +353,7 @@ namespace ETMS.Business
                 {
                     IpAddress = string.Empty,
                     IsDeleted = EmIsDeleted.Normal,
-                    OpContent = $"兑换了{giftExchange.giftExchangeLog.TotalCount}件礼品",
+                    OpContent = $"礼品兑换-兑换了{giftExchange.giftExchangeLog.TotalCount}件礼品",
                     Ot = giftExchange.giftExchangeLog.Ot,
                     Remark = giftExchange.giftExchangeLog.Remark,
                     TenantId = giftExchange.giftExchangeLog.TenantId,

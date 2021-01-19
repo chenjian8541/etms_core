@@ -104,7 +104,7 @@ namespace ETMS.Business
             {
                 StatisticsDate = log.Ot
             });
-            await _userOperationLogDAL.AddUserLog(request, $"新增{EmIncomeLogType.GetIncomeLogType(request.Type)},金额:{request.Sum},账户:{request.AccountNo},经办日期:{request.Ot.EtmsToDateString()},备注:{request.Remark}", EmUserOperationType.IncomeLogAdd, now);
+            await _userOperationLogDAL.AddUserLog(request, $"新增{EmIncomeLogType.GetIncomeLogType(request.Type)}-金额:{request.Sum},账户:{request.AccountNo},经办日期:{request.Ot.EtmsToDateString()},备注:{request.Remark}", EmUserOperationType.IncomeLogAdd, now);
             return ResponseBase.Success();
         }
 
@@ -128,7 +128,7 @@ namespace ETMS.Business
             {
                 StatisticsDate = log.Ot
             });
-            await _userOperationLogDAL.AddUserLog(request, $"作废收支记录", EmUserOperationType.IncomeLogRevoke, now);
+            await _userOperationLogDAL.AddUserLog(request, "作废收支记录", EmUserOperationType.IncomeLogRevoke, now);
 
             return ResponseBase.Success();
         }

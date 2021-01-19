@@ -42,7 +42,7 @@ namespace ETMS.Business
                 Ot = DateTime.Now,
                 IsDeleted = EmIsDeleted.Normal
             });
-            await _userOperationLogDAL.AddUserLog(request, $"设置节假日:{request.Remark}", EmUserOperationType.HolidaySetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加节假日-{request.Remark}", EmUserOperationType.HolidaySetting);
             return ResponseBase.Success();
         }
 
@@ -65,7 +65,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> HolidaySettingDel(HolidaySettingDelRequest request)
         {
             await _holidaySettingDAL.DelHolidaySetting(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, "删除节假日设置", EmUserOperationType.HolidaySetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除节假日", EmUserOperationType.HolidaySetting);
             return ResponseBase.Success();
         }
     }

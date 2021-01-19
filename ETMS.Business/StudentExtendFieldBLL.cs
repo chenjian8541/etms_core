@@ -43,7 +43,7 @@ namespace ETMS.Business
                 Ot = DateTime.Now,
                 IsDeleted = EmIsDeleted.Normal
             });
-            await _userOperationLogDAL.AddUserLog(request, $"设置学员自定义属性:{request.Name}", EmUserOperationType.StudentExtendFieldSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加学员自定义属性-{request.Name}", EmUserOperationType.StudentExtendFieldSetting);
             return ResponseBase.Success();
         }
 

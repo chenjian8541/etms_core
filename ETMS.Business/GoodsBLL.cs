@@ -75,7 +75,7 @@ namespace ETMS.Business
                     Type = EmGoodsInventoryType.AddGoodsInInventory
                 });
             }
-            await _userOperationLogDAL.AddUserLog(request, $"添加物品:{request.Name}", EmUserOperationType.GoodsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加物品-{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
 
@@ -134,7 +134,7 @@ namespace ETMS.Business
                 await _goodsDAL.AddGoodsInventoryLog(inventoryLog);
             }
 
-            await _userOperationLogDAL.AddUserLog(request, $"编辑物品:{request.Name}", EmUserOperationType.GoodsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑物品-{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
 
@@ -170,7 +170,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("物品已使用，无法删除");
             }
             await _goodsDAL.DelGoods(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除物品:{goods.Name}", EmUserOperationType.GoodsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除物品-{goods.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
 
@@ -184,7 +184,7 @@ namespace ETMS.Business
             goods.Status = request.NewStatus;
             await _goodsDAL.EditGoods(goods);
             var tag = request.NewStatus == EmGoodsStatus.Enabled ? "启用" : "禁用";
-            await _userOperationLogDAL.AddUserLog(request, $"{tag}物品:{goods.Name}", EmUserOperationType.GoodsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"{tag}物品-{goods.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
 
@@ -226,7 +226,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 Type = EmGoodsInventoryType.InInventory
             });
-            await _userOperationLogDAL.AddUserLog(request, $"物品入库：{goods.Name},入库数量{request.Quantity}", EmUserOperationType.GoodsManage);
+            await _userOperationLogDAL.AddUserLog(request, $"物品采购-物品[{goods.Name}],采购数量{request.Quantity}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
 

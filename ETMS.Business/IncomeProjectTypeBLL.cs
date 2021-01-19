@@ -39,14 +39,14 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"收支项目设置:{request.Name}", EmUserOperationType.IncomeProjectTypeSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加收支项目-{request.Name}", EmUserOperationType.IncomeProjectTypeSetting);
             return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> IncomeProjectTypeDel(IncomeProjectTypeDelRequest request)
         {
             await _incomeProjectTypeDAL.DelIncomeProjectType(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除收支项目", EmUserOperationType.IncomeProjectTypeSetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除收支项目", EmUserOperationType.IncomeProjectTypeSetting);
             return ResponseBase.Success();
         }
 

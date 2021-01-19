@@ -41,7 +41,7 @@ namespace ETMS.Business
                 StartTime = request.StartTimeDesc.Replace(":", "").ToInt(),
                 EndTime = request.EndTimeDesc.Replace(":", "").ToInt()
             });
-            await _userOperationLogDAL.AddUserLog(request, $"上课时间段设置:{request.StartTimeDesc}-{request.EndTimeDesc}", EmUserOperationType.ClassSetSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加上课时间段-[{request.StartTimeDesc}-{request.EndTimeDesc}]", EmUserOperationType.ClassSetSetting);
             return ResponseBase.Success();
         }
 

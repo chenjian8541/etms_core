@@ -1,71 +1,4 @@
 GO
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 800, 900, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 900, 1000, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1000, 1100, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1100, 1200, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1300, 1400, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1400, 1500, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1500, 1600, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1600, 1700, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1700, 1800, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1800, 1900, N'', 0);
-INSERT [EtClassSet] ([TenantId],
-                     [StartTime],
-                     [EndTime],
-                     [Remark],
-                     [IsDeleted])
-VALUES ('{0}', 1900, 2000, N'', 0);
-GO
 --[EtGrade]
 INSERT [dbo].[EtGrade] ([TenantId],
                         [Name],
@@ -330,7 +263,7 @@ INSERT [EtRole] ([TenantId],
                  [AuthorityValueData],
                  [Remark],
                  [IsDeleted])
-VALUES ('{0}', N'校长', N'75557863725914323419134|17592186044414|75557863725914323419134', N'0', N'校长', 0);
+VALUES ('{0}', N'校长', N'309485009821345068724781054|288230376151711742|309485009821345068724781054', N'0', N'校长', 0);
 GO
 --[EtUser]
 INSERT [EtUser] ([TenantId],

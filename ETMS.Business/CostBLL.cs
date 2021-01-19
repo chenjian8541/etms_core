@@ -49,7 +49,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 Points = request.Points.EtmsToPoints()
             });
-            await _userOperationLogDAL.AddUserLog(request, $"添加费用:{request.Name}", EmUserOperationType.CostManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加费用-{request.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
         }
 
@@ -70,7 +70,7 @@ namespace ETMS.Business
             cost.Status = request.Status;
             cost.Points = request.Points.EtmsToPoints();
             await _costDAL.EditCost(cost);
-            await _userOperationLogDAL.AddUserLog(request, $"编辑费用:{request.Name}", EmUserOperationType.CostManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑费用-{request.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
         }
 
@@ -104,7 +104,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("费用已使用，无法删除");
             }
             await _costDAL.DelCost(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除费用:{cost.Name}", EmUserOperationType.CostManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除费用-{cost.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
         }
 
@@ -118,7 +118,7 @@ namespace ETMS.Business
             cost.Status = request.NewStatus;
             await _costDAL.EditCost(cost);
             var tag = request.NewStatus == EmGoodsStatus.Enabled ? "启用" : "禁用";
-            await _userOperationLogDAL.AddUserLog(request, $"{tag}费用:{cost.Name}", EmUserOperationType.CostManage);
+            await _userOperationLogDAL.AddUserLog(request, $"{tag}费用-{cost.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
         }
 

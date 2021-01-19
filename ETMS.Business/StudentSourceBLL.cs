@@ -39,7 +39,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"学员来源设置:{request.Name}", EmUserOperationType.StudentSourceSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加学员来源-{request.Name}", EmUserOperationType.StudentSourceSetting);
             return ResponseBase.Success();
         }
 
@@ -56,7 +56,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentSourceDel(StudentSourceDelRequest request)
         {
             await _studentSourceDAL.DelStudentSource(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除学员来源", EmUserOperationType.StudentSourceSetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除学员来源", EmUserOperationType.StudentSourceSetting);
             return ResponseBase.Success();
         }
     }

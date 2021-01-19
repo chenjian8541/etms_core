@@ -130,7 +130,7 @@ namespace ETMS.Business
             await _studentDAL.StudentRelieveFaceKey(student.Id);
             AliyunOssUtil.DeleteObject(student.FaceKey, student.FaceGreyKey);
 
-            await _userOperationLogDAL.AddUserLog(request, $"清除人脸信息：姓名:{student.Name},手机号码:{student.Phone}", Entity.Enum.EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"清除人脸信息-学员姓名:{student.Name},手机号码:{student.Phone}", Entity.Enum.EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 
@@ -155,7 +155,7 @@ namespace ETMS.Business
                 AliyunOssUtil.DeleteObject(student.FaceKey, student.FaceGreyKey);
             }
 
-            await _userOperationLogDAL.AddUserLog(request, $"采集学员人脸信息：姓名:{student.Name},手机号码:{student.Phone}", Entity.Enum.EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"学员人脸采集-姓名:{student.Name},手机号码:{student.Phone}", Entity.Enum.EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
 

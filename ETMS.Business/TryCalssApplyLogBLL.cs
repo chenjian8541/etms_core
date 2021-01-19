@@ -116,7 +116,7 @@ namespace ETMS.Business
             applyLog.HandleUser = request.LoginUserId;
             await _tryCalssApplyLogDAL.EditTryCalssApplyLog(applyLog);
             await _noticeBLL.TryCalssApplyLogHandle();
-            await _userOperationLogDAL.AddUserLog(request, $"审核试听申请记录", EmUserOperationType.TryCalssApplyLogManage);
+            await _userOperationLogDAL.AddUserLog(request, "审核试听申请记录", EmUserOperationType.TryCalssApplyLogManage);
             return ResponseBase.Success();
         }
     }

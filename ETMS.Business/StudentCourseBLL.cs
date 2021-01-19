@@ -276,7 +276,7 @@ namespace ETMS.Business
                 CourseId = request.CourseId,
                 StudentId = request.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"学员课程停课：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},停课课程:{request.CourseName},{request.Remark}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"学员课程停课-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},停课课程:{request.CourseName},{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
@@ -294,7 +294,7 @@ namespace ETMS.Business
                 CourseId = request.CourseId,
                 StudentId = request.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"学员课程复课：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},复课课程:{request.CourseName}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"学员课程复课-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},复课课程:{request.CourseName}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
@@ -311,7 +311,7 @@ namespace ETMS.Business
                 CourseId = request.CourseId,
                 StudentId = request.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"超上课时标记处理：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},超上课程:{request.CourseName}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"超上课时标记处理-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},超上课程:{request.CourseName}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
@@ -360,7 +360,7 @@ namespace ETMS.Business
                 CourseId = studentCourseDetail.CourseId,
                 StudentId = studentCourseDetail.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"设置学生课程有效期：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"设置学生课程有效期-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
@@ -397,7 +397,7 @@ namespace ETMS.Business
                 CourseId = studentCourseDetail.CourseId,
                 StudentId = studentCourseDetail.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"课程结课：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo},备注：{request.Remark}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"学员课程结课-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo},备注：{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
@@ -455,7 +455,7 @@ namespace ETMS.Business
                 CourseId = studentCourseDetail.CourseId,
                 StudentId = studentCourseDetail.StudentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"修改课时：学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"修改课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 

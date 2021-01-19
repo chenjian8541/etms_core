@@ -39,7 +39,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"教室设置:{request.Name}", EmUserOperationType.ClassRoomSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加教室-{request.Name}", EmUserOperationType.ClassRoomSetting);
             return ResponseBase.Success();
         }
 
@@ -56,7 +56,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ClassRoomDel(ClassRoomDelRequest request)
         {
             await _classRoomDAL.DelClassRoom(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, "删除教室设置", EmUserOperationType.ClassRoomSetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除教室", EmUserOperationType.ClassRoomSetting);
             return ResponseBase.Success();
         }
     }

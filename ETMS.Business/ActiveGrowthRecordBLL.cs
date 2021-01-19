@@ -166,7 +166,7 @@ namespace ETMS.Business
                 CreateTime = now
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"新增班级档案:{request.GrowthContent}", EmUserOperationType.ActiveGrowthRecord, now);
+            await _userOperationLogDAL.AddUserLog(request, $"新增班级档案-{request.GrowthContent}", EmUserOperationType.ActiveGrowthRecord, now);
             return ResponseBase.Success();
         }
 
@@ -198,7 +198,7 @@ namespace ETMS.Business
                 CreateTime = now
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"新增学员档案:{request.GrowthContent}", EmUserOperationType.ActiveGrowthRecord, now);
+            await _userOperationLogDAL.AddUserLog(request, $"新增学员档案-{request.GrowthContent}", EmUserOperationType.ActiveGrowthRecord, now);
             return ResponseBase.Success();
         }
 
@@ -405,7 +405,7 @@ namespace ETMS.Business
             }
             await _activeGrowthRecordDAL.DelActiveGrowthRecord(request.CId);
 
-            await _userOperationLogDAL.AddUserLog(request, $"删除成长档案:{activeGrowthRecordBucket.ActiveGrowthRecord.GrowthContent}", EmUserOperationType.ActiveGrowthRecord);
+            await _userOperationLogDAL.AddUserLog(request, $"删除成长档案-{activeGrowthRecordBucket.ActiveGrowthRecord.GrowthContent}", EmUserOperationType.ActiveGrowthRecord);
             return ResponseBase.Success();
         }
 
@@ -427,7 +427,7 @@ namespace ETMS.Business
             };
             await _activeGrowthRecordDAL.AddActiveGrowthRecordDetailComment(comment);
 
-            await _userOperationLogDAL.AddUserLog(request, $"添加成长档案评论:{comment.CommentContent}", EmUserOperationType.ActiveGrowthRecord);
+            await _userOperationLogDAL.AddUserLog(request, $"添加成长档案评论-{comment.CommentContent}", EmUserOperationType.ActiveGrowthRecord);
             return ResponseBase.Success();
         }
 

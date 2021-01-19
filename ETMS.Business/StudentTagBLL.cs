@@ -40,7 +40,7 @@ namespace ETMS.Business
                 Name = request.Name,
                 DisplayStyle = string.Empty
             });
-            await _userOperationLogDAL.AddUserLog(request, $"学员标签设置:{request.Name}", EmUserOperationType.StudentTagSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加学员标签-{request.Name}", EmUserOperationType.StudentTagSetting);
             return ResponseBase.Success();
         }
 
@@ -57,7 +57,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentTagDel(StudentTagDelRequest request)
         {
             await _studentTagDAL.DelStudentTag(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除学员标签", EmUserOperationType.StudentTagSetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除学员标签", EmUserOperationType.StudentTagSetting);
             return ResponseBase.Success();
         }
     }

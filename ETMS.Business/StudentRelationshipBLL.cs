@@ -39,7 +39,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"家长关系设置:{request.Name}", EmUserOperationType.StudentRelationshipSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"家长关系设置-{request.Name}", EmUserOperationType.StudentRelationshipSetting);
             return ResponseBase.Success();
         }
 
@@ -56,7 +56,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentRelationshipDel(StudentRelationshipDelRequest request)
         {
             await _studentRelationshipDAL.DelStudentRelationship(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, "删除家长关系设置", EmUserOperationType.StudentRelationshipSetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除家长关系", EmUserOperationType.StudentRelationshipSetting);
             return ResponseBase.Success();
         }
     }

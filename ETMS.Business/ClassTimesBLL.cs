@@ -296,7 +296,7 @@ namespace ETMS.Business
             classTimes.ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
             await _classTimesDAL.EditClassTimes(classTimes);
             await _classTimesDAL.UpdateClassTimesStudent(classTimes.Id, request.ClassOt);
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},编辑课次:{request.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(request.StartTime, request.EndTime)})", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑课次-班级[{etClass.EtClass.Name}],编辑课次:{request.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(request.StartTime, request.EndTime)})", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -317,7 +317,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
             await _classTimesDAL.DelClassTimes(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},删除课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除课次-班级[{etClass.EtClass.Name}],删除课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -389,7 +389,7 @@ namespace ETMS.Business
             }
             await _classTimesDAL.EditClassTimes(classTimes);
             var studenName = string.Join(',', studentNames);
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加临时学员:{studenName}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加临时学员-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加临时学员[{studenName}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -503,7 +503,7 @@ namespace ETMS.Business
                 classTimes.StudentIdsTemp = $"{classTimes.StudentIdsTemp}{request.StudentId},";
             }
             await _classTimesDAL.EditClassTimes(classTimes);
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加试听学员", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加试听学员-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加试听学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -601,7 +601,7 @@ namespace ETMS.Business
                 ClassTimesId = classTimes.Id
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加插班补课学员", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"插班补课-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加插班补课学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -719,7 +719,7 @@ namespace ETMS.Business
                 StudentType = EmClassStudentType.TryCalssStudent,
                 TenantId = classTimes.TenantId,
             });
-            await _userOperationLogDAL.AddUserLog(request, $"一对一试听,课程:{myCourse.Item1.Name} 课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加试听学员", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"添加试听学员-课程[{myCourse.Item1.Name}] 课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加试听学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -765,7 +765,7 @@ namespace ETMS.Business
             }
             etClassTimes.StudentIdsTemp = studentIdsTemps;
             await _classTimesDAL.EditClassTimes(etClassTimes);
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.Name},课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除临时学员:{request.StudentName}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"移除临时学员-班级[{etClass.Name}],课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除临时学员:{request.StudentName}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -808,7 +808,7 @@ namespace ETMS.Business
             {
                 await _tryCalssLogDAL.UpdateStatus(etClassTimesStudent.StudentTryCalssLogId.Value, EmTryCalssLogStatus.IsCancel);
             }
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.Name},课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除试听学员:{request.StudentName}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"移除试听学员-班级[{etClass.Name}],课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除试听学员:{request.StudentName}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -856,7 +856,7 @@ namespace ETMS.Business
                     await _classRecordDAL.UpdateClassRecordAbsenceLog(classRecordAbsenceLog);
                 }
             }
-            await _userOperationLogDAL.AddUserLog(request, $"班级:{etClass.Name},课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除补课学员:{request.StudentName}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"移除补课学员-班级[{etClass.Name}],课次:{etClassTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(etClassTimes.StartTime, etClassTimes.EndTime)})移除补课学员:{request.StudentName}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -945,7 +945,7 @@ namespace ETMS.Business
                 return responseResult;
             }
             await _tryCalssLogDAL.UpdateStatus(request.StudentTryCalssLogId, EmTryCalssLogStatus.IsCancel);
-            await _userOperationLogDAL.AddUserLog(request, $"取消试听,学员:{request.StudentName}", EmUserOperationType.CancelTryClassStudent);
+            await _userOperationLogDAL.AddUserLog(request, $"学员[{request.StudentName}]取消试听", EmUserOperationType.CancelTryClassStudent);
             return ResponseBase.Success();
         }
 

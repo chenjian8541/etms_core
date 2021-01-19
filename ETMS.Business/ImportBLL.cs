@@ -187,7 +187,7 @@ namespace ETMS.Business
                     OpType = StatisticsStudentOpType.Add,
                     Time = now
                 }, request, now.Date, true);
-                await _userOperationLogDAL.AddUserLog(request, $"批量导入潜在学员，成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
+                await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
             return ResponseBase.Success(new ImportStudentOutput()
             {

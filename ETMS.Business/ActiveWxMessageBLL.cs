@@ -85,7 +85,7 @@ namespace ETMS.Business
             var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
             _tempDataCacheDAL.SetWxMessageLimitBucket(request.LoginTenantId, now, ++totalCount);
 
-            await _userOperationLogDAL.AddUserLog(request, $"发送微信通知:{request.Title}", EmUserOperationType.WxMessage, now);
+            await _userOperationLogDAL.AddUserLog(request, $"发送微信通知-{request.Title}", EmUserOperationType.WxMessage, now);
             return ResponseBase.Success();
         }
 
@@ -301,7 +301,7 @@ namespace ETMS.Business
             await _activeWxMessageDAL.EditActiveWxMessage(wxMessage);
             await _activeWxMessageDAL.SyncWxMessageDetail(request.CId, request.Title, request.IsNeedConfirm);
 
-            await _userOperationLogDAL.AddUserLog(request, $"编辑微信通知:{request.Title}", EmUserOperationType.WxMessage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑微信通知-{request.Title}", EmUserOperationType.WxMessage);
             return ResponseBase.Success();
         }
 
@@ -314,7 +314,7 @@ namespace ETMS.Business
             }
             await _activeWxMessageDAL.DelActiveWxMessage(request.CId);
 
-            await _userOperationLogDAL.AddUserLog(request, $"删除微信通知:{wxMessage.Title}", EmUserOperationType.WxMessage);
+            await _userOperationLogDAL.AddUserLog(request, $"删除微信通知-{wxMessage.Title}", EmUserOperationType.WxMessage);
             return ResponseBase.Success();
         }
 

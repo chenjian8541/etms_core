@@ -175,7 +175,7 @@ namespace ETMS.Business
                 });
             }
 
-            await _userOperationLogDAL.AddUserLog(request, $"布置单次作业：{request.Title}", EmUserOperationType.ActiveHomeworkMgr, now);
+            await _userOperationLogDAL.AddUserLog(request, $"布置单次作业-{request.Title}", EmUserOperationType.ActiveHomeworkMgr, now);
             return ResponseBase.Success();
         }
 
@@ -347,7 +347,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("作业不存在");
             }
             await _activeHomeworkDAL.DelActiveHomework(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, $"删除作业：{p.Title}", EmUserOperationType.ActiveHomeworkMgr);
+            await _userOperationLogDAL.AddUserLog(request, $"删除作业-{p.Title}", EmUserOperationType.ActiveHomeworkMgr);
             return ResponseBase.Success();
         }
 
@@ -382,7 +382,7 @@ namespace ETMS.Business
                 MyOt = now
             });
 
-            await _userOperationLogDAL.AddUserLog(request, $"添加作业评语：作业:{p.Title}，评语:{request.CommentContent}",
+            await _userOperationLogDAL.AddUserLog(request, $"添加作业评语-作业[{p.Title}]，添加评语[{request.CommentContent}]",
                 EmUserOperationType.ActiveHomeworkMgr, now);
             return ResponseBase.Success();
         }

@@ -39,7 +39,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name
             });
-            await _userOperationLogDAL.AddUserLog(request, $"礼品分类设置:{request.Name}", EmUserOperationType.GiftCategorySetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加礼品分类-{request.Name}", EmUserOperationType.GiftCategorySetting);
             return ResponseBase.Success();
         }
 
@@ -59,7 +59,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> GiftCategoryDel(GiftCategoryDelRequest request)
         {
             await _giftCategoryDAL.DelGiftCategory(request.CId);
-            await _userOperationLogDAL.AddUserLog(request, "删除礼品分类设置", EmUserOperationType.GiftCategorySetting);
+            await _userOperationLogDAL.AddUserLog(request, "删除礼品分类", EmUserOperationType.GiftCategorySetting);
             return ResponseBase.Success();
         }
     }

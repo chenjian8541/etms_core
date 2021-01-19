@@ -39,7 +39,7 @@ namespace ETMS.Business
                 Name = request.Name,
                 Remark = string.Empty
             });
-            await _userOperationLogDAL.AddUserLog(request, $"成长档案类型设置:{request.Name}", EmUserOperationType.StudentGrowingTagSetting);
+            await _userOperationLogDAL.AddUserLog(request, $"添加成长档案类型-{request.Name}", EmUserOperationType.StudentGrowingTagSetting);
             return ResponseBase.Success();
         }
 
