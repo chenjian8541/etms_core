@@ -26,6 +26,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public bool IsGetOneToOneStudent { get; set; } = true;
 
+        public long? ExcludeId { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND UserId = {LoginUserId}";
@@ -70,6 +72,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (CompleteStatus != null)
             {
                 condition.Append($" AND CompleteStatus = {CompleteStatus.Value}");
+            }
+            if (ExcludeId != null && ExcludeId > 0)
+            {
+                condition.Append($" AND Id <> {ExcludeId.Value}");
             }
             if (IsDataLimit)
             {

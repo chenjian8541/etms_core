@@ -44,5 +44,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesRuleGet(ClassTimesRuleGetRequest request);
 
         Task<ResponseBase> ClassMyGet(ClassMyGetRequest request);
+
+        Task<ResponseBase> ClassStudentTransfer(ClassStudentTransferRequest request);
     }
 }

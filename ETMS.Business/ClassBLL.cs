@@ -1339,5 +1339,56 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(classViewList);
         }
+
+        public async Task<ResponseBase> ClassStudentTransfer(ClassStudentTransferRequest request)
+        {
+            var oldClass = await _classDAL.GetClassBucket(request.ClassId);
+            if (oldClass == null || oldClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+
+            var newClass = await _classDAL.GetClassBucket(request.NewClassId);
+            if (newClass == null || newClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("调至的班级不存在");
+            }
+            if (newClass.EtClassStudents != null && newClass.EtClassStudents.Count > 0)
+            {
+                var existStudent = newClass.EtClassStudents.FirstOrDefault(p => p.StudentId == request.StudentId);
+                if (existStudent != null)
+                {
+                    return ResponseBase.CommonError("该学员已在调至的班级");
+                }
+            }
+            if (newClass.EtClass.CourseList.IndexOf(request.CourseId.ToString()) == -1)
+            {
+                return ResponseBase.CommonError("调至的班级未教授此课程");
+            }
+
+            //处理原班级
+            await _classDAL.DelClassStudent(request.ClassId, request.CId);
+            _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
+
+            //新班级
+            await _classDAL.AddClassStudent(new EtClassStudent()
+            {
+                ClassId = request.NewClassId,
+                CourseId = request.CourseId,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId
+            });
+            _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.NewClassId));
+
+            await _userOperationLogDAL.AddUserLog(request, $"调至其他班-将学员[{studentBucket.Student.Name}]从班级[{oldClass.EtClass.Name}]调至[{newClass.EtClass.Name}]", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
     }
 }
