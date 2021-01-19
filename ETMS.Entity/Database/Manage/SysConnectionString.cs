@@ -30,5 +30,10 @@ namespace ETMS.Entity.Database.Manage
         /// 连接字符串
         /// </summary>
         public string Value { get; set; }
+
+        /// <summary>
+        /// 状态 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysConnectionStringStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
     }
 }

@@ -144,6 +144,7 @@ namespace ETMS.Business.EtmsManage
 
             //初始化账户
             var allDb = await _sysConnectionStringDAL.GetSysConnectionString();
+            allDb = allDb.Where(p => p.Status == EmSysConnectionStringStatus.Open).ToList();
             var indexDb = 0;
             if (allDb.Count > 0)
             {
