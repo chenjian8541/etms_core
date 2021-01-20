@@ -140,18 +140,18 @@ namespace Etms.Tools.Test
         {
             var conStr = Console.ReadLine();
             Console.WriteLine(conStr);
-            try
-            {
-                using (var con = new SqlConnection(conStr))
-                {
-                    con.Open();
-                    Console.WriteLine("数据库打开成功");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            //try
+            //{
+            //    using (var con = new SqlConnection(conStr))
+            //    {
+            //        con.Open();
+            //        Console.WriteLine("数据库打开成功");
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //}
             var res = CryptogramHelper.Encrypt3DES(conStr, SystemConfig.CryptogramConfig.Key);
             Console.WriteLine(res);
         }

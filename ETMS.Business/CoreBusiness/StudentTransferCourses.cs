@@ -201,11 +201,11 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             });
 
-            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
-            {
-                CourseId = request.CourseId,
-                StudentId = request.StudentId
-            });
+            //_eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            //{
+            //    CourseId = request.CourseId,
+            //    StudentId = request.StudentId
+            //});
             return ResponseBase.Success(orderId);
         }
 
