@@ -241,7 +241,8 @@ namespace ETMS.Business
                     output.StudentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
                     var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId);
                     output.OrderDetails.Add(orderCourseDetailResult.Item1);
-                    output.BuyCourse.Append($"{orderCourseDetailResult.Item2}；");
+                    var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
+                    output.BuyCourse.Append($"{desc}；");
                 }
             }
             return ResponseBase.Success(output);
@@ -262,6 +263,7 @@ namespace ETMS.Business
             var newOrderOperationLogs = new List<EtOrderOperationLog>();
             var sourceOrderIds = new List<long>();
             var monthToDay = SystemConfig.ComConfig.MonthToDay;
+            var desc = new StringBuilder();
             foreach (var outOrderDetail in request.TransferCoursesOut)
             {
                 //处理原订单和学员剩余课程,创建订单详情
@@ -279,11 +281,12 @@ namespace ETMS.Business
                 }
 
                 newOrderDetailList.Add(GetTransferOrderDetailOut(mySourceOrderDetail, outOrderDetail, newOrderNo, now, mySourceOrderDetail.OrderId, mySourceOrderDetail.OrderNo));
+                var returnCountDesc = outOrderDetail.ReturnCount.EtmsToString();
                 newOrderOperationLogs.Add(new EtOrderOperationLog()
                 {
                     IsDeleted = EmIsDeleted.Normal,
                     OpType = EmOrderOperationLogType.TransferCourses,
-                    OpContent = $"转出课程:{myOutCourse.Name},转出{outOrderDetail.ReturnCount}{EmCourseUnit.GetCourseUnitDesc(mySourceStudentCourseDetail.UseUnit)}",
+                    OpContent = $"转出课程:{myOutCourse.Name},转出{returnCountDesc}{EmCourseUnit.GetCourseUnitDesc(mySourceStudentCourseDetail.UseUnit)}",
                     OrderId = mySourceOrderDetail.OrderId,
                     OrderNo = mySourceOrderDetail.OrderNo,
                     Ot = now,
@@ -292,6 +295,7 @@ namespace ETMS.Business
                     UserId = request.LoginUserId
                 });
                 sourceOrderIds.Add(mySourceOrderDetail.OrderId);
+                desc.Append($"{returnCountDesc}{EmCourseUnit.GetCourseUnitDesc(mySourceStudentCourseDetail.UseUnit)}");
 
                 if (outOrderDetail.IsAllReturn)
                 {
@@ -381,7 +385,7 @@ namespace ETMS.Business
             return ResponseBase.Success(new ProcessTransferCoursesOutRes()
             {
                 NewOrderDetailList = newOrderDetailList,
-                OutCourseDesc = myOutCourse.Name,
+                OutCourseDesc = $"{myOutCourse.Name}({desc})",
                 SourceOrderIds = sourceOrderIds
             });
         }

@@ -136,7 +136,8 @@ namespace ETMS.Business
                     studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
                     var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.OtherInfo.Ot, request.LoginUserId, request.LoginTenantId);
                     orderDetails.Add(orderCourseDetailResult.Item1);
-                    buyCourse.Append($"{orderCourseDetailResult.Item2}；");
+                    var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
+                    buyCourse.Append($"{desc}；");
                     sum += orderCourseDetailResult.Item1.ItemSum;
                     aptSum += orderCourseDetailResult.Item1.ItemAptSum;
                 }
@@ -153,7 +154,8 @@ namespace ETMS.Business
                     }
                     var orderGoodsDetailResult = GetGoodsOrderDetail(goods, p, request, no);
                     orderDetails.Add(orderGoodsDetailResult.Item1);
-                    buyGoods.Append($"{orderGoodsDetailResult.Item2}；");
+                    var desc = ComBusiness2.GetBuyGoodsDesc(goods.Name, p.BuyQuantity);
+                    buyGoods.Append($"{desc}；");
                     sum += orderGoodsDetailResult.Item1.ItemSum;
                     aptSum += orderGoodsDetailResult.Item1.ItemAptSum;
                 }
@@ -170,7 +172,8 @@ namespace ETMS.Business
                     }
                     var orderCostDetailResult = GetCostOrderDetail(cost, p, request, no);
                     orderDetails.Add(orderCostDetailResult.Item1);
-                    buyCost.Append($"{orderCostDetailResult.Item2}；");
+                    var desc = ComBusiness2.GetBuyCostDesc(cost.Name, p.BuyQuantity);
+                    buyCost.Append($"{desc}；");
                     sum += orderCostDetailResult.Item1.ItemSum;
                     aptSum += orderCostDetailResult.Item1.ItemAptSum;
                 }
@@ -231,9 +234,9 @@ namespace ETMS.Business
                 OrderType = EmOrderType.StudentEnrolment,
                 AptSum = aptSum,
                 ArrearsSum = arrearsSum,
-                BuyCost = buyCost.ToString().TrimEnd('；'),
-                BuyCourse = buyCourse.ToString().TrimEnd('；'),
-                BuyGoods = buyGoods.ToString().TrimEnd('；'),
+                BuyCost = EtmsHelper.DescPrefix(buyCost.ToString().TrimEnd('；'), "费用"),
+                BuyCourse = EtmsHelper.DescPrefix(buyCourse.ToString().TrimEnd('；'), "课程"),
+                BuyGoods = EtmsHelper.DescPrefix(buyGoods.ToString().TrimEnd('；'), "物品"),
                 CommissionUser = EtmsHelper.GetMuIds(request.OtherInfo.CommissionUser),
                 PaySum = paySum,
                 Sum = sum,
@@ -518,15 +521,15 @@ namespace ETMS.Business
             var opContent = new StringBuilder();
             if (!string.IsNullOrEmpty(request.Order.BuyCourse))
             {
-                opContent.Append($"{request.Order.BuyCourse}；");
+                opContent.Append($"课程：{request.Order.BuyCourse}；");
             }
             if (!string.IsNullOrEmpty(request.Order.BuyGoods))
             {
-                opContent.Append($"{request.Order.BuyGoods}；");
+                opContent.Append($"<br>物品：{request.Order.BuyGoods}；");
             }
             if (!string.IsNullOrEmpty(request.Order.BuyCost))
             {
-                opContent.Append($"{request.Order.BuyCost}；");
+                opContent.Append($"<br>费用：{request.Order.BuyCost}；");
             }
             await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
             {

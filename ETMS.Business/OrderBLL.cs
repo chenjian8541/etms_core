@@ -1027,13 +1027,14 @@ namespace ETMS.Business
                 switch (mySourceOrderDetail.ProductType)
                 {
                     case EmOrderProductType.Course:
-                        buyCourse.Append($"{changeOrderDetail.ProductName}；");
                         var mySourceStudentCourseDetail = sourceStudentCourseDetail.FirstOrDefault(p => p.CourseId == changeOrderDetail.ProductId);
                         if (mySourceStudentCourseDetail == null)
                         {
                             LOG.Log.Warn("[OrderReturnProduct]课程数据错误", request, this.GetType());
                             return ResponseBase.CommonError("请求数据错误，请重新再试");
                         }
+                        var desc = ComBusiness2.GetReturnCourseDesc(changeOrderDetail.ProductName, mySourceStudentCourseDetail.UseUnit, changeOrderDetail.ReturnCount);
+                        buyCourse.Append($"{desc}；");
                         if (changeOrderDetail.IsAllReturn)
                         {
                             mySourceStudentCourseDetail.UseQuantity += changeOrderDetail.ReturnCount;
@@ -1112,7 +1113,7 @@ namespace ETMS.Business
                         {
                             return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");
                         }
-                        buyGoods.Append($"{changeOrderDetail.ProductName}；");
+                        buyGoods.Append($"{changeOrderDetail.ProductName}({changeOrderDetail.ReturnCount.EtmsToString()}件)；");
                         mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
                         sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
                         break;
@@ -1121,7 +1122,7 @@ namespace ETMS.Business
                         {
                             return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");
                         }
-                        buyCost.Append($"{changeOrderDetail.ProductName}；");
+                        buyGoods.Append($"{changeOrderDetail.ProductName}({changeOrderDetail.ReturnCount.EtmsToString()}笔)；");
                         mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
                         sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
                         break;
@@ -1139,19 +1140,7 @@ namespace ETMS.Business
             {
                 StudentId = sourceOrder.StudentId
             });
-            string strBuyCourse = string.Empty, strBuyGoods = string.Empty, strBuyCost = string.Empty;
-            if (buyCourse.Length > 0)
-            {
-                strBuyCourse = $"退课程：{buyCourse}";
-            }
-            if (buyGoods.Length > 0)
-            {
-                strBuyGoods = $"退物品：{buyGoods}";
-            }
-            if (buyCost.Length > 0)
-            {
-                strBuyGoods = $"退费用：{buyCost}";
-            }
+
             var returnOrder = new EtOrder()
             {
                 StudentId = sourceOrder.StudentId,
@@ -1161,9 +1150,9 @@ namespace ETMS.Business
                 InOutType = EmOrderInOutType.Out,
                 TenantId = sourceOrder.TenantId,
                 ArrearsSum = 0,
-                BuyCourse = strBuyCourse,
-                BuyGoods = strBuyGoods,
-                BuyCost = strBuyCost,
+                BuyCourse = EtmsHelper.DescPrefix(buyCourse.ToString().TrimEnd('；'), "退课程"),
+                BuyGoods = EtmsHelper.DescPrefix(buyGoods.ToString().TrimEnd('；'), "退物品"),
+                BuyCost = EtmsHelper.DescPrefix(buyCost.ToString().TrimEnd('；'), "退费用"),
                 CommissionUser = string.Empty,
                 CouponsIds = string.Empty,
                 CouponsStudentGetIds = string.Empty,

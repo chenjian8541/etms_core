@@ -369,5 +369,67 @@ namespace ETMS.Business.Common
                 SurplusQuantityDesc = tempCourseSurplusQuantityDesc
             };
         }
+
+        internal static string GetBuyCourseDesc(string courseName, byte priceUnit, int buyQuantity, int giveQuantity, byte GiveUnit)
+        {
+            var strDesc = new StringBuilder(courseName);
+            strDesc.Append("(");
+            switch (priceUnit)
+            {
+                case EmCourseUnit.ClassTimes:
+                    strDesc.Append($"{buyQuantity}课时");
+                    break;
+                case EmCourseUnit.Month:
+                    strDesc.Append($"{buyQuantity}个月");
+                    break;
+                case EmCourseUnit.Day:
+                    strDesc.Append($"{buyQuantity}天");
+                    break;
+            }
+            if (giveQuantity > 0)
+            {
+                if (priceUnit == EmCourseUnit.ClassTimes)
+                {
+                    strDesc.Append($"+{giveQuantity}课时");
+                }
+                else
+                {
+                    if (GiveUnit == EmCourseUnit.Month)
+                    {
+                        strDesc.Append($"+{giveQuantity}个月");
+                    }
+                    else
+                    {
+                        strDesc.Append($"+{giveQuantity}天");
+                    }
+                }
+            }
+            strDesc.Append(")");
+            return strDesc.ToString();
+        }
+
+        internal static string GetBuyGoodsDesc(string goodsName, int buyQuantity)
+        {
+            return $"{goodsName}({buyQuantity}件)";
+        }
+
+        internal static string GetBuyCostDesc(string costName, int buyQuantity)
+        {
+            return $"{costName}({buyQuantity}笔)";
+        }
+
+        internal static string GetReturnCourseDesc(string courseName, byte useUnit, decimal returnCount)
+        {
+            switch (useUnit)
+            {
+                case EmCourseUnit.ClassTimes:
+                    return $"{courseName}({returnCount.EtmsToString()}课时)";
+                case EmCourseUnit.Month:
+                    return $"{courseName}({returnCount.EtmsToString()}个月)";
+                case EmCourseUnit.Day:
+                    return $"{courseName}({returnCount.EtmsToString()}天)";
+            }
+            return string.Empty;
+        }
     }
 }
