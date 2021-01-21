@@ -373,5 +373,10 @@ namespace ETMS.Business
             var role = await _roleDAL.GetRole(user.RoleId);
             return EmDataLimitType.GetIsDataLimit(role.AuthorityValueData);
         }
+
+        public ResponseBase UserCheck(UserCheckRequest request)
+        {
+            return ResponseBase.Success();
+        }
     }
 }

@@ -104,6 +104,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public ResponseBase UserCheck(UserCheckRequest request)
+        {
+            try
+            {
+                return _userLoginBLL.UserCheck(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 短信登陆H5
         /// </summary>
