@@ -34,5 +34,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> EvaluateTeacherGetDetail(EvaluateTeacherGetDetailRequest request);
 
         Task<ResponseBase> EvaluateTeacherSubmit(EvaluateTeacherSubmitRequest request);
+
+        Task<ResponseBase> StudentOrderTransferCoursesGetDetail(StudentOrderTransferCoursesGetDetailRequest request);
+
+        Task<ResponseBase> StudentOrderReturnLogGet(StudentOrderReturnLogGetRequest request);
+
+        Task<ResponseBase> StudentOrderTransferCoursesLogGet(StudentOrderTransferCoursesLogGetRequest request);
     }
 }

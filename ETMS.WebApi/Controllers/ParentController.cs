@@ -849,5 +849,47 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentOrderTransferCoursesGetDetail(StudentOrderTransferCoursesGetDetailRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.StudentOrderTransferCoursesGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentOrderReturnLogGet(StudentOrderReturnLogGetRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.StudentOrderReturnLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentOrderTransferCoursesLogGet(StudentOrderTransferCoursesLogGetRequest request)
+        {
+            try
+            {
+                _parentData2BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData2BLL.StudentOrderTransferCoursesLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

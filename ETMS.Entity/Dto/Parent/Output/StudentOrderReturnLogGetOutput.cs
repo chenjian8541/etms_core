@@ -4,18 +4,21 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Parent.Output
 {
-    public class StudentOrderGetOutput
+    public class StudentOrderReturnLogGetOutput
     {
-        public long Id { get; set; }
+        public long CId { get; set; }
 
         /// <summary>
         /// 学员ID
         /// </summary>
         public long StudentId { get; set; }
 
-        public string StudentName { get; set; }
-
         public int OrderType { get; set; }
+
+        /// <summary>
+        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// </summary>
+        public byte InOutType { get; set; }
 
         /// <summary>
         /// 单号
@@ -23,19 +26,9 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string No { get; set; }
 
         /// <summary>
-        /// 购买的课程以”,”隔开
+        /// 订单总金额
         /// </summary>
-        public string BuyCourse { get; set; }
-
-        /// <summary>
-        /// 购买的商品
-        /// </summary>
-        public string BuyGoods { get; set; }
-
-        /// <summary>
-        /// 费用
-        /// </summary>
-        public string BuyCost { get; set; }
+        public decimal Sum { get; set; }
 
         /// <summary>
         /// 应收金额
@@ -48,19 +41,16 @@ namespace ETMS.Entity.Dto.Parent.Output
         public int TotalPoints { get; set; }
 
         /// <summary>
-        /// 支付金额
+        /// 积分
         /// </summary>
-        public decimal PaySum { get; set; }
-
-        /// <summary>
-        /// 欠费金额
-        /// </summary>
-        public decimal ArrearsSum { get; set; }
+        public string TotalPointsDesc { get; set; }
 
         /// <summary>
         /// 经办日期
         /// </summary>
         public string OtDesc { get; set; }
+
+        public DateTime CreateOt { get; set; }
 
         /// <summary>
         /// 状态 <see cref="ETMS.Entity.Enum.EmOrderStatus"/>
@@ -70,15 +60,28 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string StatusDesc { get; set; }
 
         /// <summary>
-        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// 备注
         /// </summary>
-        public byte InOutType { get; set; }
+        public string Remark { get; set; }
 
-        public string OrderTypeDesc { get; set; }
+        public List<StudentOrderReturnLogDetail> LogDetails { get; set; }
+    }
 
-        /// <summary>
-        /// 积分
-        /// </summary>
-        public string TotalPointsDesc { get; set; }
+    public class StudentOrderReturnLogDetail
+    {
+
+        public long CId { get; set; }
+
+        public string ProductTypeDesc { get; set; }
+
+        public string ProductName { get; set; }
+
+        public string OutQuantity { get; set; }
+
+        public string OutQuantityDesc { get; set; }
+
+        public decimal ItemSum { get; set; }
+
+        public decimal ItemAptSum { get; set; }
     }
 }
