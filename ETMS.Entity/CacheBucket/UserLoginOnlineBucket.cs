@@ -28,13 +28,18 @@ namespace ETMS.Entity.CacheBucket
         public TimeSpan TimeOut { get; set; } = TimeSpan.FromDays(BucketTimeOutConfig.UserLoginOnlineDay);
 
         /// <summary>
-        /// 机构+用户ID
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int LoginClientType { get; set; }
+
+        /// <summary>
+        /// 机构+用户ID+客户端类型
         /// </summary>
         /// <param name="parms"></param>
         /// <returns></returns>
         public string GetKeyFormat(params object[] parms)
         {
-            return $"UserLoginOnlineBucket_{parms[0]}_{parms[1]}";
+            return $"UserLoginOnlineBucket_{parms[0]}_{parms[1]}_{parms[2]}";
         }
     }
 }

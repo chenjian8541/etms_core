@@ -43,20 +43,21 @@ namespace ETMS.DataAccess
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
 
-        public UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId)
+        public UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId, int loginClientType)
         {
-            return _cacheProvider.Get<UserLoginOnlineBucket>(0, new UserLoginOnlineBucket().GetKeyFormat(tenantId, userId));
+            return _cacheProvider.Get<UserLoginOnlineBucket>(0, new UserLoginOnlineBucket().GetKeyFormat(tenantId, userId, loginClientType));
         }
 
-        public void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime)
+        public void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime, int loginClientType)
         {
             var bucket = new UserLoginOnlineBucket()
             {
                 LoginTime = loginTime,
                 TenantId = tenantId,
-                UserId = userId
+                UserId = userId,
+                LoginClientType = loginClientType
             };
-            var key = bucket.GetKeyFormat(tenantId, userId);
+            var key = bucket.GetKeyFormat(tenantId, userId, loginClientType);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
 

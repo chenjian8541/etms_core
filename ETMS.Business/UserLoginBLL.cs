@@ -325,7 +325,7 @@ namespace ETMS.Business
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(userInfo.TenantId);
-            _tempDataCacheDAL.SetUserLoginOnlineBucket(userInfo.TenantId, userInfo.Id, nowTimestamp);
+            _tempDataCacheDAL.SetUserLoginOnlineBucket(userInfo.TenantId, userInfo.Id, nowTimestamp, clientType);
             return new UserLoginOutput()
             {
                 Token = token,
@@ -350,7 +350,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError(msg);
             }
 
-            var userLoginOnlineBucket = _tempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginTenantId, request.LoginUserId);
+            var userLoginOnlineBucket = _tempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginTenantId, request.LoginUserId, request.LoginClientType);
             if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
             {
                 var strLoginTenantUser = $"{request.LoginTenantId}_{request.LoginUserId}";

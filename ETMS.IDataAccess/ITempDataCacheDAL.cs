@@ -18,9 +18,9 @@ namespace ETMS.IDataAccess
 
         void SetWxGzhAccessTokenBucket(WxGzhAccessTokenBucket bucket, string appid);
 
-        UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId);
+        UserLoginOnlineBucket GetUserLoginOnlineBucket(int tenantId, long userId, int loginClientType);
 
-        void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime);
+        void SetUserLoginOnlineBucket(int tenantId, long userId, string loginTime, int loginClientType);
 
         WxMessageLimitBucket GetWxMessageLimitBucket(int tenantId, DateTime time);
 
