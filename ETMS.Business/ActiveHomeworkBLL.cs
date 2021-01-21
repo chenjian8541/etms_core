@@ -121,6 +121,19 @@ namespace ETMS.Business
             var homeworkIds = new List<long>();
             foreach (var p in request.ClassInfos)
             {
+                if (p.StudentIds == null || p.StudentIds.Count == 0)
+                {
+                    var tempClassStudent = await _classDAL.GetClassBucket(p.ClassId);
+                    if (tempClassStudent == null || tempClassStudent.EtClass == null)
+                    {
+                        LOG.Log.Error("[ActiveHomeworkAdd]班级不存在", request, this.GetType());
+                        return ResponseBase.CommonError("班级不存在");
+                    }
+                    if (tempClassStudent.EtClassStudents != null && tempClassStudent.EtClassStudents.Count > 0)
+                    {
+                        p.StudentIds = tempClassStudent.EtClassStudents.Select(j => j.StudentId).ToList();
+                    }
+                }
                 var entity = new EtActiveHomework()
                 {
                     ClassId = p.ClassId,

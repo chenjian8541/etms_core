@@ -62,9 +62,7 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override IResponseMessageBase OnTextRequest(RequestMessageText requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = requestMessage.Content;
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
         /// <summary>
@@ -74,17 +72,13 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnLocationRequestAsync(RequestMessageLocation requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您生活愉快";
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
 
         public override async Task<IResponseMessageBase> OnShortVideoRequestAsync(RequestMessageShortVideo requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您生活愉快";
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
         /// <summary>
@@ -94,33 +88,7 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnImageRequestAsync(RequestMessageImage requestMessage)
         {
-            if (base.GlobalMessageContext.GetMessageContext(requestMessage).RequestMessages.Count() % 2 == 0)
-            {
-                var responseMessage = CreateResponseMessage<ResponseMessageNews>();
-
-                responseMessage.Articles.Add(new Article()
-                {
-                    Title = "您刚才发送了图片信息",
-                    Description = "您发送的图片将会显示在边上",
-                    PicUrl = requestMessage.PicUrl,
-                    Url = ""
-                });
-                responseMessage.Articles.Add(new Article()
-                {
-                    Title = "第二条",
-                    Description = "第二条带连接的内容",
-                    PicUrl = requestMessage.PicUrl,
-                    Url = ""
-                });
-
-                return responseMessage;
-            }
-            else
-            {
-                var responseMessage = CreateResponseMessage<ResponseMessageImage>();
-                responseMessage.Image.MediaId = requestMessage.MediaId;
-                return responseMessage;
-            }
+            return new SuccessResponseMessage();
         }
 
         /// <summary>
@@ -130,16 +98,12 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnLinkRequestAsync(RequestMessageLink requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您生活愉快";
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
         public override async Task<IResponseMessageBase> OnFileRequestAsync(RequestMessageFile requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您生活愉快";
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
         /// <summary>
@@ -149,39 +113,18 @@ namespace ETMS.WebApi.Controllers.Open
         /// <returns></returns>
         public override async Task<IResponseMessageBase> OnEventRequestAsync(IRequestMessageEventBase requestMessage)
         {
-            var responseText = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
-            responseText.Content = "祝您生活愉快";
-            return responseText;
+            return new SuccessResponseMessage();
         }
 
 
         public override IResponseMessageBase DefaultResponseMessage(IRequestMessageBase requestMessage)
         {
-            /* 所有没有被处理的消息会默认返回这里的结果，
-            * 因此，如果想把整个微信请求委托出去（例如需要使用分布式或从其他服务器获取请求），
-            * 只需要在这里统一发出委托请求，如：
-            * var responseMessage = MessageAgent.RequestResponseMessage(agentUrl, agentToken, RequestDocument.ToString());
-            * return responseMessage;
-            */
-            var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "祝您生活愉快"; // "这条消息来自DefaultResponseMessage。";
-            return responseMessage;
+            return new SuccessResponseMessage();
         }
 
         public override async Task<IResponseMessageBase> OnUnknownTypeRequestAsync(RequestMessageUnknownType requestMessage)
         {
-            /*
-             * 此方法用于应急处理SDK没有提供的消息类型，
-             * 原始XML可以通过requestMessage.RequestDocument（或this.RequestDocument）获取到。
-             * 如果不重写此方法，遇到未知的请求类型将会抛出异常（v14.8.3 之前的版本就是这么做的）
-             */
-            var responseMessage = this.CreateResponseMessage<ResponseMessageText>();
-            responseMessage.Content = "祝您生活愉快";
-
-            Log.Error("[OnUnknownTypeRequestAsync]微信消息：未知请求消息类型", this.GetType());
-
-            return responseMessage;
+            return new SuccessResponseMessage();
         }
-
     }
 }

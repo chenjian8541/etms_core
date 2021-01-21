@@ -19,7 +19,7 @@ namespace Etms.Tools.Test
         {
             //CreateParentToken();
             //CreateTencentCloudAccount();
-            Encrypt3DESSqlConnection();
+            //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
             Console.WriteLine();
             Console.Read();

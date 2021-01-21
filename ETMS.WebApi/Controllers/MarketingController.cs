@@ -313,5 +313,47 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentCouponsNormalGet(StudentCouponsNormalGet2Request request)
+        {
+            try
+            {
+                _couponsBLL.InitTenantId(request.LoginTenantId);
+                return await _couponsBLL.StudentCouponsNormalGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCouponsUsedGet(StudentCouponsUsedGet2Request request)
+        {
+            try
+            {
+                _couponsBLL.InitTenantId(request.LoginTenantId);
+                return await _couponsBLL.StudentCouponsUsedGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCouponsExpiredGet(StudentCouponsExpiredGet2Request request)
+        {
+            try
+            {
+                _couponsBLL.InitTenantId(request.LoginTenantId);
+                return await _couponsBLL.StudentCouponsExpiredGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Business\ETMS.Business.csproj" />
+    <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
   </ItemGroup>

@@ -32,5 +32,11 @@ namespace ETMS.IBusiness
          Task<ResponseBase> CouponsStudentGetCanUse(CouponsStudentGetCanUseRequest request);
 
         Task<ResponseBase> CouponsStudentSend(CouponsStudentSendRequest request);
+
+        Task<ResponseBase> StudentCouponsNormalGet2(StudentCouponsNormalGet2Request request);
+
+        Task<ResponseBase> StudentCouponsUsedGet2(StudentCouponsUsedGet2Request request);
+
+        Task<ResponseBase> StudentCouponsExpiredGet2(StudentCouponsExpiredGet2Request request);
     }
 }
