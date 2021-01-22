@@ -12,7 +12,7 @@ namespace ETMS.Business.Common
     {
         public static int GetUserClientType(HttpRequest httpRequest)
         {
-            if (!httpRequest.Headers.TryGetValue("ClientType", out var apiKeyHeaderValues))
+            if (httpRequest.Headers.TryGetValue("ClientType", out var apiKeyHeaderValues))
             {
                 var temp = apiKeyHeaderValues.FirstOrDefault();
                 if (!string.IsNullOrEmpty(temp))
