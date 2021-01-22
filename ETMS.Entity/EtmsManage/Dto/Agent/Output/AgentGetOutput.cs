@@ -23,5 +23,9 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public bool IsLock { get; set; }
 
         public string Remark { get; set; }
+
+        public string KefuQQ { get; set; }
+
+        public string KefuPhone { get; set; }
     }
 }

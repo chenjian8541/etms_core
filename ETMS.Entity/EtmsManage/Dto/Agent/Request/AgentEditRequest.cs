@@ -25,6 +25,10 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 
         public string Remark { get; set; }
 
+        public string KefuQQ { get; set; }
+
+        public string KefuPhone { get; set; }
+
         public override string Validate()
         {
             if (Id <= 0)

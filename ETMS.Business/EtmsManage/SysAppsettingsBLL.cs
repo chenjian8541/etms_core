@@ -48,5 +48,16 @@ namespace ETMS.Business.EtmsManage
             }
             return mydata;
         }
+
+        public async Task<SysCustomerServiceInfo> GetDefalutCustomerServiceInfo()
+        {
+            var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.DefaultCustomerService);
+            if (log == null || string.IsNullOrEmpty(log.Data))
+            {
+                LOG.Log.Error("[GetDefalutCustomerServiceInfo]获取默认客服信息失败", this.GetType());
+                return null;
+            }
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SysCustomerServiceInfo>(log.Data);
+        }
     }
 }

@@ -52,6 +52,16 @@ namespace ETMS.Entity.Database.Manage
         public int EtmsSmsCount { get; set; }
 
         /// <summary>
+        /// 客服QQ
+        /// </summary>
+        public string KefuQQ { get; set; }
+
+        /// <summary>
+        /// 客服phone
+        /// </summary>
+        public string KefuPhone { get; set; }
+
+        /// <summary>
         /// 创建日期
         /// </summary>
         public DateTime Ot { get; set; }

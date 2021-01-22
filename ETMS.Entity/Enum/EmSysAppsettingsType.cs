@@ -18,5 +18,10 @@ namespace ETMS.Entity.Enum
         /// 腾讯云账户信息
         /// </summary>
         public const byte TencentCloudAccount = 1;
+
+        /// <summary>
+        /// 默认客服
+        /// </summary>
+        public const byte DefaultCustomerService = 2;
     }
 }

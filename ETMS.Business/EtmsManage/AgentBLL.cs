@@ -200,7 +200,9 @@ namespace ETMS.Business.EtmsManage
                 Phone = request.Phone,
                 Remark = request.Remark,
                 RoleId = request.RoleId,
-                TagKey = string.Empty
+                TagKey = string.Empty,
+                KefuPhone = request.KefuPhone,
+                KefuQQ = request.KefuQQ
             };
             await _sysAgentDAL.AddAgent(newAgent);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"新增代理商:名称:{newAgent.Name},手机号码,{newAgent.Phone}", EmSysAgentOpLogType.AgentMange);
@@ -225,7 +227,9 @@ namespace ETMS.Business.EtmsManage
                 Phone = p.Phone,
                 Remark = p.Remark,
                 RoleId = p.RoleId,
-                TagKey = p.TagKey
+                TagKey = p.TagKey,
+                KefuPhone = p.KefuPhone,
+                KefuQQ = p.KefuQQ
             });
         }
 
@@ -249,6 +253,8 @@ namespace ETMS.Business.EtmsManage
             p.Address = request.Address;
             p.IsLock = request.IsLock ? EmSysAgentIsLock.IsLock : EmSysAgentIsLock.Normal;
             p.Remark = request.Remark;
+            p.KefuQQ = request.KefuQQ;
+            p.KefuPhone = request.KefuPhone;
             await _sysAgentDAL.EditAgent(p);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑代理商:名称:{request.Name},手机号码,{request.Phone}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();

@@ -14,6 +14,8 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Database.Source;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
+using Microsoft.AspNetCore.Http;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business
 {
@@ -45,10 +47,14 @@ namespace ETMS.Business
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public ClassTimesBLL(IClassDAL classDAL, IClassRoomDAL classRoomDAL, IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
             IUserDAL userDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentTrackLogDAL studentTrackLogDAL,
             ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher,
-            IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IStudentCheckOnLogDAL studentCheckOnLogDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._classDAL = classDAL;
             this._classRoomDAL = classRoomDAL;
@@ -63,6 +69,8 @@ namespace ETMS.Business
             this._classRecordDAL = classRecordDAL;
             this._eventPublisher = eventPublisher;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -231,7 +239,8 @@ namespace ETMS.Business
                 StudentTryCalssLogId = studentTryCalssLogId,
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
                 DefaultClassTimes = defaultClassTimes.ToString(),
-                Points = myCourse.Item1.CheckPoints
+                Points = myCourse.Item1.CheckPoints,
+                StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Student.Avatar),
             };
         }
 

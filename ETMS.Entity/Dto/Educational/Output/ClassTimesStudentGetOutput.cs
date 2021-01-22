@@ -61,5 +61,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public bool IsCheckAttendance { get; set; }
 
         public int Points { get; set; }
+
+        public string StudentAvatar { get; set; }
     }
 }

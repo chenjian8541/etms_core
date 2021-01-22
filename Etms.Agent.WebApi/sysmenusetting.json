@@ -89,6 +89,11 @@
             "Id": 15,
             "Name": "系统升级",
             "Type": 0
+          },
+          {
+            "Id": 16,
+            "Name": "内容维护",
+            "Type": 0
           }
         ],
         "ChildrenAction": [

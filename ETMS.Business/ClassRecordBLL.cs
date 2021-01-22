@@ -1,5 +1,6 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Educational.Request;
@@ -10,6 +11,7 @@ using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -42,9 +44,14 @@ namespace ETMS.Business
 
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public ClassRecordBLL(IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
-            IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
+            IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._classRecordDAL = classRecordDAL;
             this._classRoomDAL = classRoomDAL;
@@ -57,6 +64,8 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._eventPublisher = eventPublisher;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -205,7 +214,8 @@ namespace ETMS.Business
                     NewDeClassTimes = deClassTimes,
                     NewRemark = p.Remark,
                     NewStudentCheckStatus = p.StudentCheckStatus,
-                    NewRewardPoints = p.RewardPoints
+                    NewRewardPoints = p.RewardPoints,
+                    StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Student.Avatar)
                 });
             }
             return ResponseBase.Success(outPut);

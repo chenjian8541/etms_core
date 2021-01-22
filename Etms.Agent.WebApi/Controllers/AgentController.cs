@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
+using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.LOG;
@@ -23,11 +24,14 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly ISysUpgradeMsgBLL _sysUpgradeMsgBLL;
 
-        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL, ISysUpgradeMsgBLL sysUpgradeMsgBLL)
+        private readonly ISysExplainBLL _sysExplainBLL;
+
+        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL, ISysUpgradeMsgBLL sysUpgradeMsgBLL, ISysExplainBLL sysExplainBLL)
         {
             this._agentBLL = agentBLL;
             this._sysTenantBLL = sysTenantBLL;
             this._sysUpgradeMsgBLL = sysUpgradeMsgBLL;
+            this._sysExplainBLL = sysExplainBLL;
         }
 
         [AllowAnonymous]
@@ -569,6 +573,58 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysUpgradeMsgBLL.SysUpgradeMsgPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExplainAdd(SysExplainAddRequest request)
+        {
+            try
+            {
+                return await _sysExplainBLL.SysExplainAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExplainEdit(SysExplainEditRequest request)
+        {
+            try
+            {
+                return await _sysExplainBLL.SysExplainEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExplainDel(SysExplainDelRequest request)
+        {
+            try
+            {
+                return await _sysExplainBLL.SysExplainDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExplainPaging(SysExplainPagingRequest request)
+        {
+            try
+            {
+                return await _sysExplainBLL.SysExplainPaging(request);
             }
             catch (Exception ex)
             {

@@ -25,6 +25,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("系统升级管理")]
         public const int VersionUpgrade = 6;
 
+        [Description("系统公告")]
+        public const int SysExplainMgr = 7;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -41,6 +44,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "机构管理";
                 case VersionUpgrade:
                     return "系统升级管理";
+                case SysExplainMgr:
+                    return "系统公告";
             }
             return string.Empty;
         }

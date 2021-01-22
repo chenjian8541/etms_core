@@ -12,6 +12,8 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentAvatar { get; set; }
+
         /// <summary>
         /// 类型  <see cref="ETMS.Entity.Enum.EmClassStudentType"/>
         /// </summary>
