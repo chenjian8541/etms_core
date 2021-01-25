@@ -327,7 +327,9 @@ namespace ETMS.Business.EtmsManage
                         RoleId = p.RoleId,
                         RoleName = GetRoleName(allRole, p.RoleId),
                         MyAccounts = myAccounts,
-                        IsLockDesc = EmSysAgentIsLock.GetSysAgentIsLockDesc(p.IsLock)
+                        IsLockDesc = EmSysAgentIsLock.GetSysAgentIsLockDesc(p.IsLock),
+                        KefuPhone = p.KefuPhone,
+                        KefuQQ = p.KefuQQ
                     });
                 }
             }

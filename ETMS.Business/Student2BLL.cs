@@ -472,30 +472,33 @@ namespace ETMS.Business
             }
             if (p.DeClassTimes > 0 || p.ExceedClassTimes > 0)
             {
-                if (p.DeStudentCourseDetailId == null)
+                if (p.DeClassTimes > 0)
                 {
-                    LOG.Log.Error($"[StudentCheckOnLogRevoke]扣减的课时未记录具体的扣减订单:{JsonConvert.SerializeObject(request)}", this.GetType());
-                }
-                else
-                {
-                    //原路返还所扣除的课时
-                    await _studentCourseDAL.AddClassTimesOfStudentCourseDetail(p.DeStudentCourseDetailId.Value, p.DeClassTimes);
-
-                    //课消记录
-                    await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                    if (p.DeStudentCourseDetailId == null)
                     {
-                        IsDeleted = EmIsDeleted.Normal,
-                        DeClassTimes = p.DeClassTimes,
-                        DeClassTimesSmall = 0,
-                        CourseId = p.CourseId.Value,
-                        DeType = EmDeClassTimesType.ClassTimes,
-                        OrderId = 0,
-                        OrderNo = string.Empty,
-                        Ot = DateTime.Now,
-                        SourceType = EmStudentCourseConsumeSourceType.StudentCheckInRevoke,
-                        StudentId = p.StudentId,
-                        TenantId = p.TenantId
-                    });
+                        LOG.Log.Error($"[StudentCheckOnLogRevoke]扣减的课时未记录具体的扣减订单:{JsonConvert.SerializeObject(request)}", this.GetType());
+                    }
+                    else
+                    {
+                        //原路返还所扣除的课时
+                        await _studentCourseDAL.AddClassTimesOfStudentCourseDetail(p.DeStudentCourseDetailId.Value, p.DeClassTimes);
+
+                        //课消记录
+                        await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                        {
+                            IsDeleted = EmIsDeleted.Normal,
+                            DeClassTimes = p.DeClassTimes,
+                            DeClassTimesSmall = 0,
+                            CourseId = p.CourseId.Value,
+                            DeType = EmDeClassTimesType.ClassTimes,
+                            OrderId = 0,
+                            OrderNo = string.Empty,
+                            Ot = DateTime.Now,
+                            SourceType = EmStudentCourseConsumeSourceType.StudentCheckInRevoke,
+                            StudentId = p.StudentId,
+                            TenantId = p.TenantId
+                        });
+                    }
                 }
                 if (p.ExceedClassTimes > 0)
                 {
