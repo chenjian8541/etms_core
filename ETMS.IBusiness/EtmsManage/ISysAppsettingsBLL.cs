@@ -12,5 +12,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<SysTenantWechartAuth> GetWechartAuthDefault();
 
         Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId);
+
+        Task<SysCustomerServiceInfo> GetDefalutCustomerServiceInfo();
     }
 }
