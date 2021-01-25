@@ -29,7 +29,7 @@
   },
   {
     "Name": "NoticeStudentsOfClassTodayGenerateJob",
-    "Cron": "0 0 20 * * ?", //每天晚上8点执行
+    "Cron": "0 0 2 * * ?", //凌晨2点执行
     "Title": "定时发送上课提醒(当天)(生成提醒信息)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
@@ -57,7 +57,7 @@
   },
   {
     "Name": "NoticeUserOfClassTodayGenerateJob",
-    "Cron": "0 0 21 * * ?", //每天晚上9点执行
+    "Cron": "0 0 4 * * ?", //每天凌晨4点执行
     "Title": "定时发送上课提醒(当天)(生成提醒信息)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false

@@ -26,7 +26,7 @@ namespace ETMS.Manage.Jobs
 
         public override async Task Process(JobExecutionContext context)
         {
-            var classOt = DateTime.Now.AddDays(1).Date;
+            var classOt = DateTime.Now.Date;
             var tenantList = await _sysTenantDAL.GetTenantsNormal();
             foreach (var tenant in tenantList)
             {
