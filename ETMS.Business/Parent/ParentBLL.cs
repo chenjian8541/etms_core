@@ -235,17 +235,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
         {
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
-            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
-            if (tenantWechartAuth == null)
-            {
-                Log.Error($"[ParentGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
-                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
-            }
-            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, request.SourceUrl, tenantId.ToString(),
-                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
-            Log.Info($"[家长端获取授权地址]{url}", this.GetType());
-            return ResponseBase.Success(url);
+            return await GetAuthorizeUrl(tenantId, request.SourceUrl);
         }
 
         public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
@@ -313,6 +303,71 @@ namespace ETMS.Business
                 Type = ParentLoginByCodeType.Failure,
                 StudentWechartId = sysStudentWechart.Id
             });
+        }
+
+        public async Task<ResponseBase> ParentGetAuthorizeUrl2(ParentGetAuthorizeUrl2Request request)
+        {
+            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
+        }
+
+        private async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl)
+        {
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[GetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
+                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
+            Log.Info($"[家长端获取授权地址]{url}", this.GetType());
+            return ResponseBase.Success(url);
+        }
+
+        public async Task<ResponseBase> ParentBindingWeChat(ParentBindingWeChatRequest request)
+        {
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[ParentBindingWeChat]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+            var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
+            var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, request.Code);
+            var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
+            await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid);
+            var sysStudentWechart = new SysStudentWechart()
+            {
+                Headimgurl = userInfo.headimgurl,
+                IsDeleted = EmIsDeleted.Normal,
+                Nickname = userInfo.nickname,
+                Remark = tenantWechartAuth.AuthorizerAppid,
+                TenantId = request.LoginTenantId,
+                WechatOpenid = userInfo.openid,
+                WechatUnionid = userInfo.unionid
+            };
+            await _sysStudentWechartDAL.AddSysStudentWechart(sysStudentWechart);
+
+            _studentWechatDAL.InitTenantId(request.LoginTenantId);
+            _studentDAL.InitTenantId(request.LoginTenantId);
+            await _studentWechatDAL.DelStudentWechat(request.LoginPhone, userInfo.openid);
+            await _studentWechatDAL.AddStudentWechat(new Entity.Database.Source.EtStudentWechat()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                Nickname = userInfo.nickname,
+                Headimgurl = userInfo.headimgurl,
+                Phone = request.LoginPhone,
+                Remark = string.Empty,
+                StudentId = request.ParentStudentIds.First(),
+                TenantId = request.LoginTenantId,
+                WechatOpenid = userInfo.openid,
+                WechatUnionid = userInfo.unionid
+            });
+            await _studentDAL.UpdateStudentIsBindingWechat(request.ParentStudentIds);
+
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request)

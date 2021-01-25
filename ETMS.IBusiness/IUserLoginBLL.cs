@@ -11,6 +11,10 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request);
 
+        Task<ResponseBase> UserGetAuthorizeUrl2(UserGetAuthorizeUrl2Request request);
+
+        Task<ResponseBase> UserBindingWeChat(UserBindingWeChatRequest request);
+
         Task<ResponseBase> UserLogin(UserLoginRequest request);
 
         Task<ResponseBase> UserLoginSendSms(UserLoginSendSmsRequest request);

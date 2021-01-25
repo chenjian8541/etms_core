@@ -77,17 +77,35 @@ namespace ETMS.Business
         public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
         {
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            return await GetAuthorizeUrl(tenantId, request.SourceUrl);
+        }
+
+        public async Task<ResponseBase> UserGetAuthorizeUrl2(UserGetAuthorizeUrl2Request request)
+        {
+            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
+        }
+
+        private async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl)
+        {
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)
             {
-                Log.Error($"[UserGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
+                Log.Error($"[GetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
                 return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
             var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, request.SourceUrl, tenantId.ToString(),
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
                 new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
             Log.Info($"[老师端获取授权地址]{url}", this.GetType());
             return ResponseBase.Success(url);
+        }
+
+        public async Task<ResponseBase> UserBindingWeChat(UserBindingWeChatRequest request)
+        {
+            _etUserDAL.InitTenantId(request.LoginTenantId);
+            var user = await _etUserDAL.GetUser(request.LoginUserId);
+            await SaveUserWechat(user.Phone, request.LoginUserId, request.LoginTenantId, request.Code);
+            return ResponseBase.Success();
         }
 
         /// <summary>

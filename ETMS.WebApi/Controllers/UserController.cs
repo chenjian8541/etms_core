@@ -41,6 +41,32 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserGetAuthorizeUrl2(UserGetAuthorizeUrl2Request request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserGetAuthorizeUrl2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserBindingWeChat(UserBindingWeChatRequest request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserBindingWeChat(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 登录
         /// </summary>

@@ -121,6 +121,32 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ParentGetAuthorizeUrl2(ParentGetAuthorizeUrl2Request request)
+        {
+            try
+            {
+                return await _parentBLL.ParentGetAuthorizeUrl2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ParentBindingWeChat(ParentBindingWeChatRequest request)
+        {
+            try
+            {
+                return await _parentBLL.ParentBindingWeChat(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request)
         {
             try
