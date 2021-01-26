@@ -225,5 +225,14 @@ namespace ETMS.Utility
             }
             return $"{prefix}{intervalStr}{desc}";
         }
+
+        public static List<string> GetStrList(string str, char intervalStr = ',')
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return new List<string>();
+            }
+            return str.Split(intervalStr).ToList();
+        }
     }
 }

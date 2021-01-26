@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.EtmsManage.Config;
 
 namespace ETMS.Business.EtmsManage
 {
@@ -49,15 +50,15 @@ namespace ETMS.Business.EtmsManage
             return mydata;
         }
 
-        public async Task<SysCustomerServiceInfo> GetDefalutCustomerServiceInfo()
+        public async Task<EtmsGlobalConfig> GetEtmsGlobalConfig()
         {
-            var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.DefaultCustomerService);
+            var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.EtmsGlobalConfig);
             if (log == null || string.IsNullOrEmpty(log.Data))
             {
-                LOG.Log.Error("[GetDefalutCustomerServiceInfo]获取默认客服信息失败", this.GetType());
-                return null;
+                LOG.Log.Error("[GetEtmsGlobalConfig]获取默认客服信息失败", this.GetType());
+                return new EtmsGlobalConfig();
             }
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<SysCustomerServiceInfo>(log.Data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<EtmsGlobalConfig>(log.Data);
         }
     }
 }

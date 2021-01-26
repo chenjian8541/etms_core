@@ -8,6 +8,8 @@ namespace ETMS.IDataAccess.EtmsManage
 {
     public interface ISysAppsettingsDAL
     {
+        Task<bool> SaveSysAppsettings(string data, int type);
+
         Task<SysAppsettings> GetAppsettings(int type);
     }
 }

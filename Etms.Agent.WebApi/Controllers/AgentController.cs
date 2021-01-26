@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
+using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.LOG;
@@ -26,12 +27,16 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly ISysExplainBLL _sysExplainBLL;
 
-        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL, ISysUpgradeMsgBLL sysUpgradeMsgBLL, ISysExplainBLL sysExplainBLL)
+        private readonly ISysCommonBLL _sysCommonBLL;
+
+        public AgentController(IAgentBLL agentBLL, ISysTenantBLL sysTenantBLL, ISysUpgradeMsgBLL sysUpgradeMsgBLL, ISysExplainBLL sysExplainBLL,
+            ISysCommonBLL sysCommonBLL)
         {
             this._agentBLL = agentBLL;
             this._sysTenantBLL = sysTenantBLL;
             this._sysUpgradeMsgBLL = sysUpgradeMsgBLL;
             this._sysExplainBLL = sysExplainBLL;
+            this._sysCommonBLL = sysCommonBLL;
         }
 
         [AllowAnonymous]
@@ -625,6 +630,32 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysExplainBLL.SysExplainPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> EtmsGlobalConfigGet(EtmsGlobalConfigGetRequest request)
+        {
+            try
+            {
+                return await _sysCommonBLL.EtmsGlobalConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> EtmsGlobalConfigSave(EtmsGlobalConfigSaveRequest request)
+        {
+            try
+            {
+                return await _sysCommonBLL.EtmsGlobalConfigSave(request);
             }
             catch (Exception ex)
             {

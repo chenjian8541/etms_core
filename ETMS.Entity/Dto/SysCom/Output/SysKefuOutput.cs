@@ -24,9 +24,9 @@ namespace ETMS.Entity.Dto.SysCom.Output
 
     public class KefuInfo
     {
-        public string qq { get; set; }
+        public List<string> qq { get; set; }
 
-        public string Phone { get; set; }
+        public List<string> Phone { get; set; }
     }
 
     public class UpgradeIngo

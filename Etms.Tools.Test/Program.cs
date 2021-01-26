@@ -21,7 +21,6 @@ namespace Etms.Tools.Test
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
-            InitKefu();
             Console.WriteLine();
             Console.Read();
         }
@@ -39,16 +38,6 @@ namespace Etms.Tools.Test
             };
             var s = Newtonsoft.Json.JsonConvert.SerializeObject(data);
             Console.WriteLine(s);
-        }
-
-        public static void InitKefu()
-        {
-            var kefuInfo = new SysCustomerServiceInfo()
-            {
-                Phone = "13410271825",
-                QQ = "364905437"
-            };
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(kefuInfo));
         }
 
         public static string GetTimeDuration(int startTime, int endTime)

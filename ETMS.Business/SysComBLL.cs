@@ -5,6 +5,7 @@ using ETMS.Entity.Enum;
 using ETMS.IBusiness;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -77,7 +78,11 @@ namespace ETMS.Business
             var output = new SysKefuOutput()
             {
                 HelpCenterInfos = new List<KefuHelpCenter>(),
-                KefuInfo = new KefuInfo(),
+                KefuInfo = new KefuInfo()
+                {
+                    Phone = new List<string>(),
+                    qq = new List<string>()
+                },
                 UpgradeIngos = new List<UpgradeIngo>()
             };
             var helpCenterInfos = await _sysExplainDAL.GetSysExplainByType(EmSysExplainType.HelpCenter);
@@ -112,14 +117,14 @@ namespace ETMS.Business
             var agent = await _sysAgentDAL.GetAgent(myTenant.AgentId);
             if (string.IsNullOrEmpty(agent.SysAgent.KefuQQ) && string.IsNullOrEmpty(agent.SysAgent.KefuPhone))
             {
-                var kefuInfo = await _sysAppsettingsBLL.GetDefalutCustomerServiceInfo();
-                output.KefuInfo.qq = kefuInfo.QQ;
-                output.KefuInfo.Phone = kefuInfo.Phone;
+                var globalConfig = await _sysAppsettingsBLL.GetEtmsGlobalConfig();
+                output.KefuInfo.qq = EtmsHelper.GetStrList(globalConfig.KefuQQ);
+                output.KefuInfo.Phone = EtmsHelper.GetStrList(globalConfig.KefuPhone);
             }
             else
             {
-                output.KefuInfo.qq = agent.SysAgent.KefuQQ;
-                output.KefuInfo.Phone = agent.SysAgent.KefuPhone;
+                output.KefuInfo.qq = EtmsHelper.GetStrList(agent.SysAgent.KefuQQ);
+                output.KefuInfo.Phone = EtmsHelper.GetStrList(agent.SysAgent.KefuPhone);
             }
             return ResponseBase.Success(output);
         }

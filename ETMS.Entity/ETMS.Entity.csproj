@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Folder Include="Dto\Open\Output\" />
-    <Folder Include="EtmsManage\Config\" />
     <Folder Include="Web\" />
   </ItemGroup>
 

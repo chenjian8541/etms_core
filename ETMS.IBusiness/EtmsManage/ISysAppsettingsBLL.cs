@@ -1,4 +1,6 @@
-﻿using ETMS.Entity.Database.Manage;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.EtmsManage.Config;
 using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,6 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId);
 
-        Task<SysCustomerServiceInfo> GetDefalutCustomerServiceInfo();
+        Task<EtmsGlobalConfig> GetEtmsGlobalConfig();
     }
 }

@@ -35,6 +35,27 @@ namespace ETMS.DataAccess.EtmsManage
             };
         }
 
+        public async Task<bool> SaveSysAppsettings(string data, int type)
+        {
+            var log = await this.Find<SysAppsettings>(p => p.Type == type && p.IsDeleted == EmIsDeleted.Normal);
+            if (log == null)
+            {
+                await this.Insert(new SysAppsettings()
+                {
+                    Data = data,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Type = type
+                });
+            }
+            else
+            {
+                log.Data = data;
+                await this.Update(log);
+            }
+            await UpdateCache(type);
+            return true;
+        }
+
         public async Task<SysAppsettings> GetAppsettings(int type)
         {
             var bucket = await GetCache(type);

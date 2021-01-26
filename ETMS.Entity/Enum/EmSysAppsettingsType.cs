@@ -20,8 +20,8 @@ namespace ETMS.Entity.Enum
         public const byte TencentCloudAccount = 1;
 
         /// <summary>
-        /// 默认客服
+        /// 系统配置信息
         /// </summary>
-        public const byte DefaultCustomerService = 2;
+        public const byte EtmsGlobalConfig = 2;
     }
 }
