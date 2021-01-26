@@ -94,6 +94,11 @@
             "Id": 16,
             "Name": "内容维护",
             "Type": 0
+          },
+          {
+            "Id": 17,
+            "Name": "主系统配置",
+            "Type": 0
           }
         ],
         "ChildrenAction": [
