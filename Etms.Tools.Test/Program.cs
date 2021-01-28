@@ -21,6 +21,8 @@ namespace Etms.Tools.Test
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
+            Console.WriteLine(TenantLib.GetTenantEncrypt(207));
+            Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
             Console.WriteLine();
             Console.Read();
         }

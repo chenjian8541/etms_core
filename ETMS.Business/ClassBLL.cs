@@ -785,7 +785,7 @@ namespace ETMS.Business
             };
             if (weekDays.Count == 0)
             {
-                return ResponseBase.CommonError($"按此规则在预生成{SystemConfig.ClssTimesConfig.PreGenerateClassTimesCount}次课次时执行失败，请重新设置");
+                return ResponseBase.CommonError("按此规则未生成任何课次，请重新设置");
             }
             //验证是否有时间重叠
             var sameTimeRule = await _classDAL.GetClassTimesRule(request.ClassId, request.StartTime, request.EndTime, weekDays);
@@ -981,7 +981,7 @@ namespace ETMS.Business
             };
             if (weekDays.Count == 0)
             {
-                return ResponseBase.CommonError($"按此规则未生成任何课次，请重新设置");
+                return ResponseBase.CommonError("按此规则未生成任何课次，请重新设置");
             }
             var endDate = currentDate.AddDays(-1);
             //验证是否有时间重叠
@@ -1154,6 +1154,10 @@ namespace ETMS.Business
                     TeachersIsAlone = preInfo.TeachersIsAlone
                 });
             };
+            if (weekDays.Count == 0)
+            {
+                return ResponseBase.CommonError("按此规则未生成任何课次，请重新设置");
+            }
             //验证是否有时间重叠
             var sameTimeRule = await _classDAL.GetClassTimesRule(request.ClassId, request.StartTime, request.EndTime, weekDays);
             if (sameTimeRule.Any())
