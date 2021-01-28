@@ -27,6 +27,16 @@ namespace ETMS.Entity.Dto.SysCom.Output
         public List<string> qq { get; set; }
 
         public List<string> Phone { get; set; }
+
+        /// <summary>
+        /// 404电话
+        /// </summary>
+        public string Phone404 { get; set; }
+
+        /// <summary>
+        /// 53客服
+        /// </summary>
+        public string Kefu53 { get; set; }
     }
 
     public class UpgradeIngo

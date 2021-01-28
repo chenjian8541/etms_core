@@ -35,7 +35,9 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success(new EtmsGlobalConfigGetOutput()
             {
                 KefuPhone = log.KefuPhone,
-                KefuQQ = log.KefuQQ
+                KefuQQ = log.KefuQQ,
+                Kefu53 = log.Kefu53,
+                Phone404 = log.Phone404
             });
         }
 
@@ -44,6 +46,8 @@ namespace ETMS.Business.EtmsManage
             var log = await _sysAppsettingsBLL.GetEtmsGlobalConfig();
             log.KefuPhone = request.KefuPhone;
             log.KefuQQ = request.KefuQQ;
+            log.Phone404 = request.Phone404;
+            log.Kefu53 = request.Kefu53;
             var data = JsonConvert.SerializeObject(log);
             await _sysAppsettingsDAL.SaveSysAppsettings(data, EmSysAppsettingsType.EtmsGlobalConfig);
 

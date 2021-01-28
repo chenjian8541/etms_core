@@ -115,9 +115,9 @@ namespace ETMS.Business
 
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var agent = await _sysAgentDAL.GetAgent(myTenant.AgentId);
+            var globalConfig = await _sysAppsettingsBLL.GetEtmsGlobalConfig();
             if (string.IsNullOrEmpty(agent.SysAgent.KefuQQ) && string.IsNullOrEmpty(agent.SysAgent.KefuPhone))
             {
-                var globalConfig = await _sysAppsettingsBLL.GetEtmsGlobalConfig();
                 output.KefuInfo.qq = EtmsHelper.GetStrList(globalConfig.KefuQQ);
                 output.KefuInfo.Phone = EtmsHelper.GetStrList(globalConfig.KefuPhone);
             }
@@ -126,6 +126,8 @@ namespace ETMS.Business
                 output.KefuInfo.qq = EtmsHelper.GetStrList(agent.SysAgent.KefuQQ);
                 output.KefuInfo.Phone = EtmsHelper.GetStrList(agent.SysAgent.KefuPhone);
             }
+            output.KefuInfo.Phone404 = globalConfig.Phone404;
+            output.KefuInfo.Kefu53 = globalConfig.Kefu53;
             return ResponseBase.Success(output);
         }
     }
