@@ -17,7 +17,7 @@ namespace ETMS.Business.Common
                 var temp = apiKeyHeaderValues.FirstOrDefault();
                 if (!string.IsNullOrEmpty(temp))
                 {
-                    return apiKeyHeaderValues.ToInt();
+                    return temp.ToInt();
                 }
             }
             return EmUserOperationLogClientType.PC;
