@@ -317,7 +317,7 @@ namespace ETMS.Business
             }
             catch (Exception ex)
             {
-                Log.Error($"[SaveUserWechat]保存用户微信信息错误,tenantId:{tenantId},phone:{phone},userId:{userId},wechatCode:{wechatCode}", ex, this.GetType());
+                Log.Fatal($"[SaveUserWechat]保存用户微信信息错误,tenantId:{tenantId},phone:{phone},userId:{userId},wechatCode:{wechatCode}", ex, this.GetType());
             }
         }
 
