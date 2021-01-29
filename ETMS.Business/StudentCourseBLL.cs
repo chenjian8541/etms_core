@@ -495,7 +495,8 @@ namespace ETMS.Business
                     StudentPhone = studentInfo.Student.Phone,
                     StudentType = request.StudentType,
                     StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(request.StudentType),
-                    Points = course.Item1.CheckPoints
+                    Points = course.Item1.CheckPoints,
+                    StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentInfo.Student.Avatar),
                 });
             }
             return ResponseBase.Success(output);
