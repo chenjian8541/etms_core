@@ -29,6 +29,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentCardNo { get; set; }
+
         public int OrderType { get; set; }
 
         /// <summary>
@@ -65,6 +67,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 应收金额
         /// </summary>
         public decimal AptSum { get; set; }
+
+        /// <summary>
+        /// 直减/折扣
+        /// </summary>
+        public decimal GiveSum { get; set; }
 
         /// <summary>
         /// 获得积分

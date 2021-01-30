@@ -172,7 +172,9 @@ namespace ETMS.Business
                 UnionOrderId = order.UnionOrderId.ToString(),
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
-                IsTransferCourse = order.IsTransferCourse
+                IsTransferCourse = order.IsTransferCourse,
+                StudentCardNo = student.CardNo,
+                GiveSum = order.AptSum - order.Sum
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {
@@ -410,7 +412,9 @@ namespace ETMS.Business
                 UnionOrderId = order.UnionOrderId.ToString(),
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
-                IsTransferCourse = order.IsTransferCourse
+                IsTransferCourse = order.IsTransferCourse,
+                StudentCardNo = student.CardNo,
+                GiveSum = order.AptSum - order.Sum
             };
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
             output.OrderGetDetailIncomeLogs = new List<OrderGetDetailIncomeLog>();
@@ -472,7 +476,9 @@ namespace ETMS.Business
                 UnionOrderId = order.UnionOrderId.ToString(),
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
-                IsTransferCourse = order.IsTransferCourse
+                IsTransferCourse = order.IsTransferCourse,
+                StudentCardNo = student.CardNo,
+                GiveSum = order.AptSum - order.Sum
             };
             return ResponseBase.Success(output);
         }
