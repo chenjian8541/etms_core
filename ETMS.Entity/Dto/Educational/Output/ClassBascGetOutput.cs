@@ -15,6 +15,16 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public int DefaultClassTimes { get; set; }
 
+        /// <summary>
+        /// 请假是否收费
+        /// </summary>
+        public bool IsLeaveCharge { get; set; }
+
+        /// <summary>
+        /// 未到是否收费
+        /// </summary>
+        public bool IsNotComeCharge { get; set; }
+
         public List<SelectItem> ClassRooms { get; set; }
 
         public List<SelectItem> ClassCourses { get; set; }

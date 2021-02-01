@@ -257,6 +257,8 @@ namespace ETMS.Business
                 DefaultClassTimes = etClass.DefaultClassTimes,
                 Type = etClass.Type,
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
+                IsLeaveCharge = etClass.IsLeaveCharge,
+                IsNotComeCharge = etClass.IsNotComeCharge
             };
             if (!string.IsNullOrEmpty(etClass.CourseList))
             {
