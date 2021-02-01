@@ -583,6 +583,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentLeaveAboutClassCheckSignGet(StudentLeaveAboutClassCheckSignGetRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentLeaveAboutClassCheckSignGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request)
         {
             try

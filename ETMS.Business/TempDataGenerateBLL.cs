@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Business.Common;
 
 namespace ETMS.Business
 {
@@ -36,48 +37,13 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _classTimesDAL, _classDAL, _tempStudentNeedCheckDAL, _studentLeaveApplyLogDAL);
         }
 
-        private List<EtStudentLeaveApplyLog> _studentLeaveApplyLogs;
-        private bool IsCheckStudentIsLeave(int startTime, int endTime, long studentId, DateTime classOt)
-        {
-            if (_studentLeaveApplyLogs != null && _studentLeaveApplyLogs.Count > 0)
-            {
-                var myLeaveApplyLog = _studentLeaveApplyLogs.FirstOrDefault(p => p.StudentId == studentId);
-                if (myLeaveApplyLog != null)
-                {
-                    if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
-                    {
-                        return true;
-                    }
-                    var levelStartTime = myLeaveApplyLog.StartTime;
-                    var levelEndTime = myLeaveApplyLog.EndTime;
-                    if (myLeaveApplyLog.StartDate < classOt)
-                    {
-                        levelStartTime = 0;
-                    }
-                    if (myLeaveApplyLog.EndDate > classOt)
-                    {
-                        levelEndTime = 8888;
-                    }
-                    if (startTime > levelEndTime || endTime < levelStartTime)
-                    {
-                        LOG.Log.Info($"[IsCheckStudentIsLeave]判断是否为请假：startTime:{startTime},endTime:{endTime},levelStartTime:{levelStartTime},levelEndTime:{levelEndTime}", this.GetType());
-                    }
-                    else
-                    {
-                        return true;
-                    }
-
-                }
-            }
-            return false;
-        }
-
         public async Task TempStudentNeedCheckGenerateConsumerEvent(TempStudentNeedCheckGenerateEvent request)
         {
             var tempStudentNeedCheckList = new List<EtTempStudentNeedCheck>();
             var tempTempStudentNeedCheckClassList = new List<EtTempStudentNeedCheckClass>();
             var classOt = request.ClassOt.Date;
-            _studentLeaveApplyLogs = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(classOt);
+            var _studentLeaveApplyLogs = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(classOt);
+            var studentLeaveCheck = new StudentIsLeaveCheck(_studentLeaveApplyLogs);
             foreach (var classTimesId in request.ClassTimesIds)
             {
                 var classTimes = await _classTimesDAL.GetClassTimes(classTimesId);
@@ -98,7 +64,7 @@ namespace ETMS.Business
                 {
                     foreach (var p in myClassTimesStudent)
                     {
-                        if (IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classOt))
+                        if (studentLeaveCheck.IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classOt))
                         {
                             continue;
                         }
@@ -142,7 +108,7 @@ namespace ETMS.Business
                 {
                     foreach (var p in myClassBucket.EtClassStudents)
                     {
-                        if (IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classOt))
+                        if (studentLeaveCheck.IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classOt))
                         {
                             continue;
                         }

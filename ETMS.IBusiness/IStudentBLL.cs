@@ -53,7 +53,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentMarkHidden(StudentMarkHiddenRequest request);
 
+        [Obsolete("已过时，参考StudentLeaveAboutClassCheckSignGet方法")]
         Task<ResponseBase> StudentLeaveApplyPassGet(StudentLeaveApplyPassGetRequest request);
+
+        Task<ResponseBase> StudentLeaveAboutClassCheckSignGet(StudentLeaveAboutClassCheckSignGetRequest request);
 
         Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request);
 

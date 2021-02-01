@@ -51,10 +51,13 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
+
         public ClassTimesBLL(IClassDAL classDAL, IClassRoomDAL classRoomDAL, IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
             IUserDAL userDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentTrackLogDAL studentTrackLogDAL,
             ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher,
-            IStudentCheckOnLogDAL studentCheckOnLogDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
+            IStudentCheckOnLogDAL studentCheckOnLogDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
+            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
         {
             this._classDAL = classDAL;
             this._classRoomDAL = classRoomDAL;
@@ -71,12 +74,13 @@ namespace ETMS.Business
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _classRoomDAL, _studentCourseDAL, _classTimesDAL, _userDAL, _courseDAL, _studentDAL,
-                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL, _studentCheckOnLogDAL);
+                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL);
         }
 
         public async Task<ResponseBase> ClassTimesGetView(ClassTimesGetViewRequest request)
@@ -163,6 +167,10 @@ namespace ETMS.Business
             var tempStudent = await _classTimesDAL.GetClassTimesStudent(request.CId);
             var checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(classTimes.Id);
             var output = new List<ClassTimesStudentGetOutput>();
+            var classOt = classTimes.ClassOt.Date;
+            var studentLeave = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(classOt);
+            var studentLeaveCheck = new StudentIsLeaveCheck(studentLeave);
+            studentLeave = studentLeaveCheck.GetStudentLeaveList(classTimes.StartTime, classTimes.EndTime, classOt);
             if (classStudent != null && classStudent.Any())
             {
                 foreach (var cMyStudent in classStudent)
@@ -172,11 +180,21 @@ namespace ETMS.Business
                     if (classTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
-                        if (myCheck != null)
+                        if (myCheck != null) //是否考勤
                         {
                             classTimesStudent.IsCheckAttendance = true;
                             classTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
                             classTimesStudent.Points = myCheck.Points;
+                        }
+                        if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                        {
+                            var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(classTimes.StartTime, classTimes.EndTime, cMyStudent.StudentId, classOt);
+                            if (myLeaveLog != null)
+                            {
+                                classTimesStudent.IsLeave = true;
+                                classTimesStudent.LeaveDesc = $"{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                                classTimesStudent.LeaveContent = myLeaveLog.LeaveContent;
+                            }
                         }
                         output.Add(classTimesStudent);
                     }
@@ -196,6 +214,16 @@ namespace ETMS.Business
                             tempTimesStudent.IsCheckAttendance = true;
                             tempTimesStudent.DefaultClassTimes = myCheck.DeClassTimes.EtmsToString();
                             tempTimesStudent.Points = myCheck.Points;
+                        }
+                        if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                        {
+                            var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(classTimes.StartTime, classTimes.EndTime, tempTimesStudent.StudentId, classOt);
+                            if (myLeaveLog != null)
+                            {
+                                tempTimesStudent.IsLeave = true;
+                                tempTimesStudent.LeaveDesc = $"{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                                tempTimesStudent.LeaveContent = myLeaveLog.LeaveContent;
+                            }
                         }
                         output.Add(tempTimesStudent);
                     }

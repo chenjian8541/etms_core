@@ -850,6 +850,30 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> StudentLeaveAboutClassCheckSignGet(StudentLeaveAboutClassCheckSignGetRequest request)
+        {
+            var studentLeave = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(request.Ot.Value);
+            var output = new List<StudentLeaveAboutClassCheckSignGetOutput>();
+            if (studentLeave != null && studentLeave.Count > 0)
+            {
+                var studentLeaveCheck = new StudentIsLeaveCheck(studentLeave);
+                var myCheckLeaveResult = studentLeaveCheck.GetStudentLeaveList(request.StartTime, request.EndTime, request.Ot.Value.Date);
+                if (myCheckLeaveResult.Count > 0)
+                {
+                    foreach (var p in myCheckLeaveResult)
+                    {
+                        output.Add(new StudentLeaveAboutClassCheckSignGetOutput()
+                        {
+                            StudentId = p.StudentId,
+                            LeaveDesc = $"{p.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(p.StartTime)}~{p.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(p.EndTime)}",
+                            LeaveContent = p.LeaveContent
+                        });
+                    }
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentGetByCardNo(StudentGetByCardNoRequest request)
         {
             var student = await _studentDAL.GetStudent(request.CardNo);

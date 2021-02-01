@@ -63,5 +63,20 @@ namespace ETMS.Entity.Dto.Educational.Output
         public int Points { get; set; }
 
         public string StudentAvatar { get; set; }
+
+        /// <summary>
+        /// 是否请假
+        /// </summary>
+        public bool IsLeave { get; set; }
+
+        /// <summary>
+        /// 请假时间
+        /// </summary>
+        public string LeaveDesc { get; set; }
+
+        /// <summary>
+        /// 请假内容
+        /// </summary>
+        public string LeaveContent { get; set; }
     }
 }
