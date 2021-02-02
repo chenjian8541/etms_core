@@ -21,8 +21,11 @@ namespace Etms.Tools.Test
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
-            Console.WriteLine(TenantLib.GetTenantEncrypt(207));
-            Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
+            //Console.WriteLine(TenantLib.GetTenantEncrypt(207));
+            //Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
+
+            var myDate = EtmsHelper.GetWeekStartEndDate(DateTime.Now.AddDays(5));
+
             Console.WriteLine();
             Console.Read();
         }

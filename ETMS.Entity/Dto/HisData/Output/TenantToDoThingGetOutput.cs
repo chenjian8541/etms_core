@@ -22,7 +22,7 @@ namespace ETMS.Entity.Dto.HisData.Output
         public int ClassNotScheduled { get; set; }
 
         /// <summary>
-        /// 课次超时未点名
+        /// 课次超时未点名(本周)
         /// </summary>
         public int ClassTimesTimeOutNotCheckSign { get; set; }
 

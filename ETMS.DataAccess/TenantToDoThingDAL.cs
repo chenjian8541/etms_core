@@ -61,7 +61,8 @@ namespace ETMS.DataAccess
 
         private async Task<int> GetClassTimesTimeOutNotCheckSign()
         {
-            var sql = $"SELECT COUNT(0) FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt <= '{DateTime.Now.EtmsToDateString()}'";
+            var thisWeekDate = EtmsHelper.GetWeekStartEndDate(DateTime.Now);
+            var sql = $"SELECT COUNT(0) FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt >= '{thisWeekDate.Item1.EtmsToDateString()}' AND ClassOt <= '{thisWeekDate.Item2.EtmsToDateString()}'";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }
