@@ -149,16 +149,17 @@ namespace ETMS.Business
                 var tempBoxCourse = new DataTempBox<EtCourse>();
                 foreach (var courseId in courseIds)
                 {
-                    var course = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, courseId);
+                    var course = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, courseId);
                     if (course == null)
                     {
                         continue;
                     }
                     var myStudentCourseDetail = new StudentCourseDetailGetOutput()
                     {
-                        CourseName = course.Item1,
-                        CourseColor = course.Item2,
-                        CourseId = courseId
+                        CourseName = course.Name,
+                        CourseColor = course.StyleColor,
+                        CourseId = courseId,
+                        Type = course.Type
                     };
                     var myCourse = studentCourse.Where(p => p.CourseId == courseId);
                     foreach (var theCourse in myCourse)

@@ -114,6 +114,16 @@ namespace ETMS.Business.Common
             return courseSurplusDesc.ToString().TrimEnd();
         }
 
+        internal static async Task<EtCourse> GetCourse(DataTempBox<EtCourse> tempBox, ICourseDAL courseDAL, long courseId)
+        {
+            var course = await tempBox.GetData(courseId, async () =>
+            {
+                var temp = await courseDAL.GetCourse(courseId);
+                return temp?.Item1;
+            });
+            return course;
+        }
+
         internal static async Task<string> GetCourseName(DataTempBox<EtCourse> tempBox, ICourseDAL courseDAL, long courseId)
         {
             var course = await tempBox.GetData(courseId, async () =>

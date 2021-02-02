@@ -10,6 +10,11 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string StudentName { get; set; }
 
+        /// <summary>
+        /// 类型   <see cref="ETMS.Entity.Enum.EmCourseType"/>
+        /// </summary>
+        public byte Type { get; set; }
+
         public long CourseId { get; set; }
 
         public string CourseColor { get; set; }

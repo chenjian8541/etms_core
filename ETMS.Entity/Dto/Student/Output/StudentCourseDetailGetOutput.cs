@@ -12,6 +12,11 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string CourseName { get; set; }
 
+        /// <summary>
+        /// 类型   <see cref="ETMS.Entity.Enum.EmCourseType"/>
+        /// </summary>
+        public byte Type { get; set; }
+
         public byte Status { get; set; }
 
         public string StopTimeDesc { get; set; }

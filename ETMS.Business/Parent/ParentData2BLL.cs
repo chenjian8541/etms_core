@@ -220,18 +220,19 @@ namespace ETMS.Business
                     var courseIds = studentCourse.Select(p => p.CourseId).Distinct();
                     foreach (var courseId in courseIds)
                     {
-                        var course = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, courseId);
+                        var course = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, courseId);
                         if (course == null)
                         {
                             continue;
                         }
                         var myStudentCourseDetail = new StudentCourseGetOutput()
                         {
-                            CourseName = course.Item1,
-                            CourseColor = course.Item2,
+                            CourseName = course.Name,
+                            CourseColor = course.StyleColor,
                             CourseId = courseId,
                             StudentId = studentId,
-                            StudentName = studentInfo.Name
+                            StudentName = studentInfo.Name,
+                            Type = course.Type
                         };
                         var myCourse = studentCourse.Where(p => p.CourseId == courseId);
                         foreach (var theCourse in myCourse)
