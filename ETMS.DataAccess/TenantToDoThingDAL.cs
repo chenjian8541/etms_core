@@ -95,6 +95,12 @@ namespace ETMS.DataAccess
             return obj.ToInt();
         }
 
+        public async Task<bool> ResetTenantToDoThing()
+        {
+            await UpdateCache(_tenantId);
+            return true;
+        }
+
         public async Task<TenantToDoThingBucket> GetTenantToDoThing()
         {
             return await GetCache(_tenantId);

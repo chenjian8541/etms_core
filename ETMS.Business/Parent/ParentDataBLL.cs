@@ -217,6 +217,8 @@ namespace ETMS.Business
             }
             p.HandleStatus = EmStudentLeaveApplyHandleStatus.IsRevoke;
             await _studentLeaveApplyLogDAL.EditStudentLeaveApplyLog(p);
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _studentOperationLogDAL.AddStudentLog(p.StudentId, request.LoginTenantId, $"撤销请假申请", EmStudentOperationLogType.StudentLeaveApply);
             return ResponseBase.Success();
         }

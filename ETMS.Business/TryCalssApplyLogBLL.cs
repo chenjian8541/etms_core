@@ -4,8 +4,10 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Enum;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -26,14 +28,17 @@ namespace ETMS.Business
 
         private readonly INoticeBLL _noticeBLL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public TryCalssApplyLogBLL(ITryCalssApplyLogDAL tryCalssApplyLogDAL, IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL,
-            INoticeBLL noticeBLL)
+            INoticeBLL noticeBLL, IEventPublisher eventPublisher)
         {
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._userDAL = userDAL;
             this._studentDAL = studentDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._noticeBLL = noticeBLL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -116,6 +121,8 @@ namespace ETMS.Business
             applyLog.HandleUser = request.LoginUserId;
             await _tryCalssApplyLogDAL.EditTryCalssApplyLog(applyLog);
             await _noticeBLL.TryCalssApplyLogHandle();
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, "审核试听申请记录", EmUserOperationType.TryCalssApplyLogManage);
             return ResponseBase.Success();
         }

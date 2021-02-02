@@ -516,6 +516,7 @@ namespace ETMS.Business
                 Order = request.Order,
                 OrderDetails = request.OrderDetails
             });
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
 
             //日志
             var opContent = new StringBuilder();

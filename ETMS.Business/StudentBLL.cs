@@ -731,6 +731,8 @@ namespace ETMS.Business
             {
                 StudentLeaveApplyLog = applyLog
             });
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+
             await _userOperationLogDAL.AddUserLog(request, "审核请假记录", EmUserOperationType.StudentLeaveApplyManage);
             return ResponseBase.Success();
         }
@@ -764,6 +766,8 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 Type = (int)EmStudentOperationLogType.StudentLeaveApply
             });
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             return ResponseBase.Success();
         }
 

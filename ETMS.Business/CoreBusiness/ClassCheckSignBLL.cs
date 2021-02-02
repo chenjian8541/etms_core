@@ -489,6 +489,8 @@ namespace ETMS.Business
             {
                 ClassRecordId = recordId
             });
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
+
             await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
             {
                 IpAddress = string.Empty,

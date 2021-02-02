@@ -659,6 +659,8 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrderOperationLog(opLog);
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"补交报名费用-订单号:{order.No},补交金额:{payTotal}", EmUserOperationType.StudentEnrolmentAddPay, now);
             return ResponseBase.Success();
         }

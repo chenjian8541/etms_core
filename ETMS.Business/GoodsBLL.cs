@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Utility;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -20,10 +22,13 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public GoodsBLL(IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly IEventPublisher _eventPublisher;
+
+        public GoodsBLL(IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
         {
             this._goodsDAL = goodsDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -134,6 +139,7 @@ namespace ETMS.Business
                 await _goodsDAL.AddGoodsInventoryLog(inventoryLog);
             }
 
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"编辑物品-{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }
@@ -226,6 +232,8 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 Type = EmGoodsInventoryType.InInventory
             });
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"物品采购-物品[{goods.Name}],采购数量{request.Quantity}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }

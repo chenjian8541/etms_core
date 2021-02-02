@@ -315,6 +315,8 @@ namespace ETMS.Business
             log.HandleUser = request.LoginUserId;
             log.HandleStatus = EmClassRecordAbsenceHandleStatus.MarkFinish;
             await _classRecordDAL.UpdateClassRecordAbsenceLog(log);
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+
             await _userOperationLogDAL.AddUserLog(request, "标记缺勤补课", EmUserOperationType.ClassRecordManage);
             return ResponseBase.Success();
         }

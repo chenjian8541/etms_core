@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -100,6 +101,11 @@ namespace ETMS.Business
                 StudentOrderArrears = data.StudentOrderArrears,
                 TryCalssApplyLogCount = data.TryCalssApplyLogCount
             });
+        }
+
+        public async Task ResetTenantToDoThingConsumerEvent(ResetTenantToDoThingEvent request)
+        {
+            await _tenantToDoThingDAL.ResetTenantToDoThing();
         }
     }
 }

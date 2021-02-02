@@ -895,6 +895,8 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -1085,6 +1087,8 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -1218,6 +1222,8 @@ namespace ETMS.Business
 
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }

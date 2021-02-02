@@ -3,8 +3,10 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Enum;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -27,8 +29,10 @@ namespace ETMS.Business
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly IEventPublisher _eventPublisher;
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
-            IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
+            IEventPublisher eventPublisher)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -36,6 +40,7 @@ namespace ETMS.Business
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -186,6 +191,7 @@ namespace ETMS.Business
                 TouristRemark = request.Remark
             });
 
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(log.TenantId));
             return ResponseBase.Success();
         }
 

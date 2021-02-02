@@ -637,6 +637,7 @@ namespace ETMS.Business
                 CourseId = courseId,
                 ClassTimesId = classTimes.Id
             });
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
             await _userOperationLogDAL.AddUserLog(request, $"插班补课-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加插班补课学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
