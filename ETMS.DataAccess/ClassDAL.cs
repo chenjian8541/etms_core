@@ -119,7 +119,7 @@ namespace ETMS.DataAccess
             var strSql = new StringBuilder();
             foreach (var classId in classIds)
             {
-                strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}' WHERE Id = {classId};");
+                strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}',StudentIds = '',StudentNums = 0 WHERE Id = {classId};");
                 strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
                 strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
                 strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
@@ -136,7 +136,8 @@ namespace ETMS.DataAccess
         public async Task<bool> SetClassOverOneToOne(long classId, DateTime overTime)
         {
             var strSql = new StringBuilder();
-            strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}' WHERE Id = {classId};");
+            strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}',StudentIds = '',StudentNums = 0 WHERE Id = {classId};");
+            strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
             strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
             strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
@@ -273,6 +274,12 @@ namespace ETMS.DataAccess
         public async Task<IEnumerable<EtClass>> GetClassOfTeacher(long teacherId)
         {
             var sql = $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND Teachers LIKE '%,{teacherId},%'";
+            return await _dbWrapper.ExecuteObject<EtClass>(sql);
+        }
+
+        public async Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormal(long studentId, long courseId)
+        {
+            var sql = $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToOne} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND StudentIds LIKE '%,{studentId},%' AND CourseList LIKE '%,{courseId},%'";
             return await _dbWrapper.ExecuteObject<EtClass>(sql);
         }
     }

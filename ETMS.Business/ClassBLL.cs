@@ -204,7 +204,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             var etClass = etClassBucket.EtClass;
-            var student = await GetOneToOneStudentName(etClassBucket);
+            var student = await GetOneToOneStudent(etClassBucket);
             var classRooms = await _classRoomDAL.GetAllClassRoom();
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
@@ -326,7 +326,7 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
-        private async Task<EtStudent> GetOneToOneStudentName(ClassBucket classBucket)
+        private async Task<EtStudent> GetOneToOneStudent(ClassBucket classBucket)
         {
             if (classBucket.EtClass.Type != EmClassType.OneToOne)
             {
@@ -383,22 +383,22 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             var etCLass = etClassBucket.EtClass;
-            if (etCLass.Type != EmClassType.OneToOne || etCLass.OrderId == null)
+            if (etCLass.Type != EmClassType.OneToOne)
             {
                 return ResponseBase.CommonError("班级结课失败");
             }
-            var courseId = etCLass.CourseList.Trim(',').ToLong();
-            var studentCourseDetail = await _studentCourseDAL.GetEtStudentCourseDetail(etCLass.OrderId.Value, courseId);
-            if (studentCourseDetail != null && studentCourseDetail.Status != EmStudentCourseStatus.StopOfClass)
-            {
-                await _studentCourseBLL.StudentCourseClassOver(new StudentCourseClassOverRequest()
-                {
-                    CId = studentCourseDetail.Id,
-                    LoginTenantId = request.LoginTenantId,
-                    LoginUserId = request.LoginUserId,
-                    Remark = "一对一班级结课"
-                });
-            }
+            //var courseId = etCLass.CourseList.Trim(',').ToLong();
+            //var studentCourseDetail = await _studentCourseDAL.GetEtStudentCourseDetail(etCLass.OrderId.Value, courseId);
+            //if (studentCourseDetail != null && studentCourseDetail.Status != EmStudentCourseStatus.StopOfClass)
+            //{
+            //    await _studentCourseBLL.StudentCourseClassOver(new StudentCourseClassOverRequest()
+            //    {
+            //        CId = studentCourseDetail.Id,
+            //        LoginTenantId = request.LoginTenantId,
+            //        LoginUserId = request.LoginUserId,
+            //        Remark = "一对一班级结课"
+            //    });
+            //}
             await _classDAL.SetClassOverOneToOne(request.CId, DateTime.Now);
             await _userOperationLogDAL.AddUserLog(request, $"一对一班级结课-{etCLass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();

@@ -413,6 +413,13 @@ namespace ETMS.Business
             {
                 foreach (var myClass in request.OneToOneClassList)
                 {
+                    var logClass = await _classDAL.GetStudentOneToOneClassNormal(request.TransferOrder.StudentId, myClass.CourseId);
+                    if (logClass.Any())
+                    {
+                        LOG.Log.Info($"[StudentTransferCoursesConsumerEvent]学员存在课程对应的一对一班级,无需创建", this.GetType());
+                        continue;
+                    }
+
                     var classId = await _classDAL.AddClass(new EtClass()
                     {
                         DefaultClassTimes = 1,
