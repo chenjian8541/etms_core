@@ -5,7 +5,7 @@ using System.Text;
 namespace ETMS.Entity.Enum
 {
     /// <summary>
-    /// 班级结课状态
+    /// 班级结业状态
     /// </summary>
     public struct EmClassCompleteStatus
     {

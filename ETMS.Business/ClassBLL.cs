@@ -371,7 +371,7 @@ namespace ETMS.Business
         {
             var classIds = request.Items.Select(p => p.CId).ToList();
             await _classDAL.SetClassOverOneToMany(classIds, DateTime.Now);
-            await _userOperationLogDAL.AddUserLog(request, $"一对多班级结课-{string.Join(",", request.Items.Select(p => p.ClassName))}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"一对多班级结业-{string.Join(",", request.Items.Select(p => p.ClassName))}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -385,7 +385,7 @@ namespace ETMS.Business
             var etCLass = etClassBucket.EtClass;
             if (etCLass.Type != EmClassType.OneToOne)
             {
-                return ResponseBase.CommonError("班级结课失败");
+                return ResponseBase.CommonError("班级结业失败");
             }
             //var courseId = etCLass.CourseList.Trim(',').ToLong();
             //var studentCourseDetail = await _studentCourseDAL.GetEtStudentCourseDetail(etCLass.OrderId.Value, courseId);
@@ -396,11 +396,11 @@ namespace ETMS.Business
             //        CId = studentCourseDetail.Id,
             //        LoginTenantId = request.LoginTenantId,
             //        LoginUserId = request.LoginUserId,
-            //        Remark = "一对一班级结课"
+            //        Remark = "一对一班级结业"
             //    });
             //}
             await _classDAL.SetClassOverOneToOne(request.CId, DateTime.Now);
-            await _userOperationLogDAL.AddUserLog(request, $"一对一班级结课-{etCLass.Name}", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"一对一班级结业-{etCLass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
