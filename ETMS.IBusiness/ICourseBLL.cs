@@ -20,5 +20,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> CourseChangeStatus(CourseChangeStatusRequest request);
 
         Task<ResponseBase> CourseGetPaging(CourseGetPagingRequest request);
+
+        Task<ResponseBase> CourseViewGet(CourseViewGetRequest request);
     }
 }

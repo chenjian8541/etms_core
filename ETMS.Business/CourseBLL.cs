@@ -276,5 +276,32 @@ namespace ETMS.Business
             }
             return roles;
         }
+
+        public async Task<ResponseBase> CourseViewGet(CourseViewGetRequest request)
+        {
+            var courseInfo = await _courseDAL.GetCourse(request.CourseId);
+            if (courseInfo == null || courseInfo.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+            var p = courseInfo.Item1;
+            var priceRules = courseInfo.Item2;
+            return ResponseBase.Success(new CourseGetPagingOutput()
+            {
+                CId = p.Id,
+                Status = p.Status,
+                StatusDesc = EmCourseStatus.GetCourseStatusDesc(p.Status),
+                Name = p.Name,
+                PriceType = p.PriceType,
+                PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc(p.PriceType),
+                Remark = p.Remark,
+                Type = p.Type,
+                TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),
+                PriceRuleDescs = GetPriceRuleDescs(priceRules),
+                Label = p.Name,
+                Value = p.Id,
+                CheckPoints = p.CheckPoints
+            });
+        }
     }
 }
