@@ -455,7 +455,7 @@ namespace ETMS.Business
                     ClassCategoryDesc = ComBusiness.GetClassCategoryDesc(classCategorys, p.ClassCategoryId),
                     ClassRoomDesc = ComBusiness.GetClassRoomDesc(classRooms, p.ClassRoomIds),
                     CompleteStatusDesc = EmClassCompleteStatus.GetClassCompleteStatusDesc(p.CompleteStatus),
-                    CompleteTimeDesc = p.CompleteTime.EtmsToString(),
+                    CompleteTimeDesc = p.CompleteTime.EtmsToDateString(),
                     OneToOneStudentName = student?.Name,
                     OneToOneStudentPhone = student?.Phone,
                     ScheduleStatusDesc = EmClassScheduleStatus.GetClassScheduleStatusDesc(p.ScheduleStatus),
