@@ -44,5 +44,12 @@ namespace ETMS.IBusiness
         /// <param name="request"></param>
         /// <returns></returns>
         Task<ResponseBase> StudentCourseHasDetailGet(StudentCourseHasDetailGetRequest request);
+
+        /// <summary>
+        /// 学员课时不足提醒
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        ResponseBase StudentCourseNotEnoughRemind(StudentCourseNotEnoughRemindRequest request);
     }
 }

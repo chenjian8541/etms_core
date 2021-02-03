@@ -17,9 +17,18 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         {
         }
 
+        /// <summary>
+        /// 课消方式 <see cref="ETMS.Entity.Enum.EmDeClassTimesType"/>
+        /// </summary>
+        public byte DeType { get; set; }
+
         public string CourseName { get; set; }
 
         public string NotEnoughDesc { get; set; }
+
+        public string ExpireDateDesc { get; set; }
+
+        public string SurplusDesc { get; set; }
 
         public List<NoticeStudentCourseNotEnoughStudent> Students { get; set; }
     }

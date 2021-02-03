@@ -15,6 +15,8 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public string CourseName { get; set; }
 
+        public long CourseId { get; set; }
+
         /// <summary>
         /// 课消方式 <see cref="ETMS.Entity.Enum.EmDeClassTimesType"/>
         /// </summary>
@@ -46,6 +48,8 @@ namespace ETMS.Entity.Dto.Student.Output
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }
+
+        public int NotEnoughRemindCount { get; set; }
 
         public long Value { get; set; }
 

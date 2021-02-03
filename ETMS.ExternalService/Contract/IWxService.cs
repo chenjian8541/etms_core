@@ -35,7 +35,11 @@ namespace ETMS.ExternalService.Contract
 
         void StudentMakeup(StudentMakeupRequest request);
 
-        void NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
+        //void NoticeStudentCourseNotEnough(NoticeStudentCourseNotEnoughRequest request);
+
+        void NoticeStudentCourseNotEnough2(NoticeStudentCourseNotEnoughRequest request);
+
+        void NoticeStudentCourseNotEnough3(NoticeStudentCourseNotEnoughRequest request);
 
         void NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request);
 

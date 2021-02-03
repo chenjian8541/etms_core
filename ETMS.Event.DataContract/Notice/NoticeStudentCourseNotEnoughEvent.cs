@@ -12,6 +12,11 @@ namespace ETMS.Event.DataContract
         public long StudentId { get; set; }
 
         public long CourseId { get; set; }
+
+        /// <summary>
+        /// 主动点击
+        /// </summary>
+        public bool IsOwnTrigger { get; set; }
     }
 }
 

@@ -149,6 +149,10 @@ namespace ETMS.Entity.Config
 
         public string StudentCourseNotEnough { get; set; }
 
+        public string StudentCourseNotEnoughClassTimes { get; set; }
+
+        public string StudentCourseNotEnoughClassDay { get; set; }
+
         public string NoticeUserOfClass { get; set; }
 
         public string NoticeUserOfHomeworkFinish { get; set; }

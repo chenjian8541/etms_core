@@ -569,6 +569,25 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// 学员课时不足提醒
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public ResponseBase StudentCourseNotEnoughRemind(StudentCourseNotEnoughRemindRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return _studentCourseBLL.StudentCourseNotEnoughRemind(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyPassGet(StudentLeaveApplyPassGetRequest request)
         {
             try

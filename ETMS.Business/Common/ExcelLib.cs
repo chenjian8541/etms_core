@@ -158,28 +158,36 @@ namespace ETMS.Business.Common
 
         public static string GetCellValue(ICell cell)
         {
-            if (cell == null)
+            try
             {
-                return string.Empty;
-            }
-            switch (cell.CellType)
-            {
-                case CellType.String:
-                    return cell.StringCellValue;
-                case CellType.Numeric:
-                    short format = cell.CellStyle.DataFormat;
-                    if (format != 0)
-                    {
-                        return cell.DateCellValue.ToString();
-                    }
-                    else
-                    {
-                        return cell.NumericCellValue.ToString();
-                    }
-                case CellType.Boolean:
-                    return cell.BooleanCellValue.ToString();
-                default:
+                if (cell == null)
+                {
                     return string.Empty;
+                }
+                switch (cell.CellType)
+                {
+                    case CellType.String:
+                        return cell.StringCellValue;
+                    case CellType.Numeric:
+                        short format = cell.CellStyle.DataFormat;
+                        if (format != 0)
+                        {
+                            return cell.DateCellValue.ToString();
+                        }
+                        else
+                        {
+                            return cell.NumericCellValue.ToString();
+                        }
+                    case CellType.Boolean:
+                        return cell.BooleanCellValue.ToString();
+                    default:
+                        return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Fatal("[GetCellValue]获取excel单元格信息错误", ex, typeof(ExcelLib));
+                return string.Empty;
             }
         }
 

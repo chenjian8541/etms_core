@@ -101,6 +101,10 @@ namespace ETMS.Entity.View
         /// </summary>
         public int ExceedTotalClassTimes { get; set; }
 
+        public int NotEnoughRemindCount { get; set; }
+
+        public DateTime? NotEnoughRemindLastTime { get; set; }
+
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }

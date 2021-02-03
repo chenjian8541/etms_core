@@ -597,16 +597,27 @@ namespace ETMS.Business.SendNotice
         public async Task NoticeStudentCourseNotEnoughConsumerEvent(NoticeStudentCourseNotEnoughEvent request)
         {
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            if (!tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
+            if (!request.IsOwnTrigger && !tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
                 && !tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
             {
                 return;
             }
+            if (request.IsOwnTrigger)
+            {
+                await NoticeStudentCourseNotEnoughConsumerEvent2(request, tenantConfig);
+            }
+            else
+            {
+                await NoticeStudentCourseNotEnoughConsumerEvent1(request, tenantConfig);
+            }
+        }
 
+        public async Task NoticeStudentCourseNotEnoughConsumerEvent1(NoticeStudentCourseNotEnoughEvent request, TenantConfig tenantConfig)
+        {
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
-                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent1]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
                 return;
             }
             var student = studentBucket.Student;
@@ -618,7 +629,7 @@ namespace ETMS.Business.SendNotice
             var myCourse = await _courseDAL.GetCourse(request.CourseId);
             if (myCourse == null || myCourse.Item1 == null)
             {
-                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent1]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
                 return;
             }
 
@@ -631,23 +642,47 @@ namespace ETMS.Business.SendNotice
 
             var notEnoughDesc = string.Empty;
             var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            var deType = EmDeClassTimesType.ClassTimes;
+            var expireDateDesc = string.Empty;
+            var surplusDesc = string.Empty;
+            var nowDate = DateTime.Now.Date;
             if (deClassTimes != null && deClassTimes.SurplusQuantity <= tenantConfig.StudentCourseRenewalConfig.LimitClassTimes)
             {
                 notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitClassTimes}课时";
+                surplusDesc = $"{deClassTimes.SurplusQuantity}课时";
             }
             else
             {
                 notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitDay}天";
+                deType = EmDeClassTimesType.Day;
+
+                var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
+                var dayNotEnough = myStudentCourseDetail.FirstOrDefault(j => j.DeType == EmDeClassTimesType.Day
+                && j.Status != EmStudentCourseStatus.EndOfClass && j.EndTime != null && j.EndTime >= nowDate);
+                if (dayNotEnough != null)
+                {
+                    expireDateDesc = dayNotEnough.EndTime.EtmsToDateString();
+                }
             }
 
             var req = new NoticeStudentCourseNotEnoughRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat))
             {
                 CourseName = myCourse.Item1.Name,
                 NotEnoughDesc = notEnoughDesc,
-                Students = new List<NoticeStudentCourseNotEnoughStudent>()
+                Students = new List<NoticeStudentCourseNotEnoughStudent>(),
+                DeType = deType,
+                ExpireDateDesc = expireDateDesc,
+                SurplusDesc = surplusDesc
             };
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
-            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnough;
+            if (deType == EmDeClassTimesType.ClassTimes)
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnoughClassTimes;
+            }
+            else
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnoughClassDay;
+            }
             req.Url = wxConfig.TemplateNoticeConfig.StudentCourseUrl;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
@@ -673,7 +708,118 @@ namespace ETMS.Business.SendNotice
             {
                 if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat)
                 {
-                    _wxService.NoticeStudentCourseNotEnough(req);
+                    _wxService.NoticeStudentCourseNotEnough2(req);
+                }
+                if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
+                {
+                    await _smsService.NoticeStudentCourseNotEnough(req);
+                }
+            }
+
+            await _studentCourseDAL.UpdateStudentCourseNotEnoughRemindInfo(request.StudentId, request.CourseId);
+        }
+
+        /// <summary>
+        /// 主动点击提醒
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="tenantConfig"></param>
+        /// <returns></returns>
+        public async Task NoticeStudentCourseNotEnoughConsumerEvent2(NoticeStudentCourseNotEnoughEvent request, TenantConfig tenantConfig)
+        {
+            tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat = true;
+            tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms = true;
+
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent2]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            var myCourse = await _courseDAL.GetCourse(request.CourseId);
+            if (myCourse == null || myCourse.Item1 == null)
+            {
+                Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent2]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var deType = EmDeClassTimesType.ClassTimes;
+            var expireDateDesc = string.Empty;
+            var surplusDesc = string.Empty;
+            var nowDate = DateTime.Now.Date;
+
+            var myStudentCourses = await _studentCourseDAL.GetStudentCourse(request.StudentId, request.CourseId);
+            var myDeDayCourses = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day && (p.SurplusQuantity > 0 || p.SurplusSmallQuantity > 0));
+            if (myDeDayCourses != null)
+            {
+                deType = EmDeClassTimesType.Day;
+                var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
+                var dayNotEnough = myStudentCourseDetail.FirstOrDefault(j => j.DeType == EmDeClassTimesType.Day
+                && j.Status != EmStudentCourseStatus.EndOfClass && j.EndTime != null && j.EndTime >= nowDate);
+                if (dayNotEnough != null)
+                {
+                    expireDateDesc = dayNotEnough.EndTime.EtmsToDateString();
+                }
+            }
+            else
+            {
+                var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+                if (deClassTimes != null)
+                {
+                    surplusDesc = $"{deClassTimes.SurplusQuantity}课时";
+                }
+            }
+
+            var req = new NoticeStudentCourseNotEnoughRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat))
+            {
+                CourseName = myCourse.Item1.Name,
+                NotEnoughDesc = string.Empty,
+                Students = new List<NoticeStudentCourseNotEnoughStudent>(),
+                DeType = deType,
+                ExpireDateDesc = expireDateDesc,
+                SurplusDesc = surplusDesc
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            if (deType == EmDeClassTimesType.ClassTimes)
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnoughClassTimes;
+            }
+            else
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentCourseNotEnoughClassDay;
+            }
+            req.Url = wxConfig.TemplateNoticeConfig.StudentCourseUrl;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
+            {
+                StudentName = student.Name,
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id
+            });
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new NoticeStudentCourseNotEnoughStudent()
+                {
+                    StudentName = student.Name,
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat)
+                {
+                    _wxService.NoticeStudentCourseNotEnough3(req);
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
                 {

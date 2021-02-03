@@ -93,6 +93,7 @@ namespace ETMS.Business
                 {
                     CId = p.Id,
                     CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId),
+                    CourseId = p.CourseId,
                     DeTypeDesc = p.DeType == EmDeClassTimesType.ClassTimes ? "按课时" : "按月",
                     ExceedTotalClassTimes = p.ExceedTotalClassTimes,
                     Status = p.Status,
@@ -103,6 +104,7 @@ namespace ETMS.Business
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveSmallQuantity, p.DeType),
                     SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
                     UseQuantityDesc = ComBusiness.GetUseQuantityDesc(p.UseQuantity, p.UseUnit),
+                    NotEnoughRemindCount = p.NotEnoughRemindCount,
                     StudentId = p.StudentId,
                     Value = p.StudentId,
                     Label = p.StudentName
@@ -647,6 +649,22 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(output);
+        }
+
+        /// <summary>
+        /// 学员课时不足提醒
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public ResponseBase StudentCourseNotEnoughRemind(StudentCourseNotEnoughRemindRequest request)
+        {
+            _eventPublisher.Publish(new NoticeStudentCourseNotEnoughEvent(request.LoginTenantId)
+            {
+                CourseId = request.CourseId,
+                StudentId = request.StudentId,
+                IsOwnTrigger = true
+            }); ;
+            return ResponseBase.Success();
         }
     }
 }
