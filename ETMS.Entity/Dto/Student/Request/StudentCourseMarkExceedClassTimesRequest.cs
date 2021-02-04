@@ -12,6 +12,9 @@ namespace ETMS.Entity.Dto.Student.Request
         public long CourseId { get; set; }
 
         public string CourseName { get; set; }
+
+        public decimal ExceedTotalClassTimes { get; set; }
+
         public override string Validate()
         {
             if (StudentId <= 0 || CourseId <= 0)

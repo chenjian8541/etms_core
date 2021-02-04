@@ -92,6 +92,13 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> DelClassStudentByStudentId(long classId, long studentId)
+        {
+            await _dbWrapper.Execute($"DELETE EtClassStudent WHERE TenantId = {_tenantId} AND ClassId = {classId} AND StudentId = {studentId} ");
+            await base.UpdateCache(_tenantId, classId);
+            return true;
+        }
+
         public async Task<long> AddClassTimesRule(long classId, EtClassTimesRule rule)
         {
             await _dbWrapper.Insert(rule);
@@ -281,6 +288,12 @@ namespace ETMS.DataAccess
         {
             var sql = $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToOne} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND StudentIds LIKE '%,{studentId},%' AND CourseList LIKE '%,{courseId},%'";
             return await _dbWrapper.ExecuteObject<EtClass>(sql);
+        }
+
+        public async Task<IEnumerable<OnlyClassId>> GetStudentCourseInClass(long studentId, long courseId)
+        {
+            var sql = $"SELECT ClassId FROM EtClassStudent WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} GROUP BY ClassId ";
+            return await _dbWrapper.ExecuteObject<OnlyClassId>(sql);
         }
     }
 }

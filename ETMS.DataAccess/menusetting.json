@@ -127,6 +127,11 @@
             "Type": 1
           },
           {
+            "ActionId": 59,
+            "Name": "课时清零",
+            "Type": 1
+          },
+          {
             "ActionId": 14,
             "Name": "修正课时",
             "Type": 1

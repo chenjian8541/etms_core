@@ -8,10 +8,10 @@ namespace ETMS.IDataAccess
 {
     public interface IStudentCourseStopLogDAL : IBaseDAL
     {
-        Task<bool> AddStudentCourseStopLog(EtStudentCourseStopLog log);
+        //Task<bool> AddStudentCourseStopLog(EtStudentCourseStopLog log);
 
-        Task<List<EtStudentCourseStopLog>> GetStudentCourseStopLog(long studentId);
+        //Task<List<EtStudentCourseStopLog>> GetStudentCourseStopLog(long studentId);
 
-        Task<bool> StudentCourseRestore(long studentId, long courseId, DateTime restoreTime);
+        //Task<bool> StudentCourseRestore(long studentId, long courseId, DateTime restoreTime);
     }
 }

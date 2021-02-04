@@ -5,18 +5,15 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
-    public class StudentCourseClassOverRequest : RequestBase
+    public class StudentCourseClearRequest : RequestBase
     {
-        public long StudentId { get; set; }
-
-        public long CourseId { get; set; }
-
-        public string CourseName { get; set; }
+        public long CId { get; set; }
 
         public string Remark { get; set; }
+
         public override string Validate()
         {
-            if (StudentId <= 0 || CourseId <= 0)
+            if (CId <= 0)
             {
                 return "请求数据不合法";
             }

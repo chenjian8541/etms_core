@@ -48,6 +48,15 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStudentCourse>(p => p.TenantId == _tenantId && p.StudentId == studentId
             && p.CourseId == courseId && p.IsDeleted == EmIsDeleted.Normal);
         }
+
+        public async Task<bool> SetStudentCourseOver(long studentId, long courseId)
+        {
+            var sql = $"UPDATE EtStudentCourse SET [Status] = {EmStudentCourseStatus.StopOfClass} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(sql);
+            await UpdateCache(_tenantId, studentId);
+            return true;
+        }
+
         public async Task<List<EtStudentCourseDetail>> GetStudentCourseDetail(long studentId, long courseId)
         {
             return await _dbWrapper.FindList<EtStudentCourseDetail>(p => p.TenantId == _tenantId && p.StudentId == studentId

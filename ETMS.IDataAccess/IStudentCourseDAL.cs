@@ -17,6 +17,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStudentCourse>> GetStudentCourseDb(long studentId, long courseId);
 
+        Task<bool> SetStudentCourseOver(long studentId, long courseId);
+
         Task<List<EtStudentCourseDetail>> GetStudentCourseDetail(long studentId, long courseId);
 
         Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId);

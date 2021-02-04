@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +24,8 @@ namespace ETMS.IDataAccess
         Task<bool> AddClassStudent(List<EtClassStudent> etClassStudents);
 
         Task<bool> DelClassStudent(long classId, long id);
+
+        Task<bool> DelClassStudentByStudentId(long classId, long studentId);
 
         Task<long> AddClassTimesRule(long classId, EtClassTimesRule rule);
 
@@ -67,5 +70,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClass>> GetClassOfTeacher(long teacherId);
 
         Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormal(long studentId, long courseId);
+
+        Task<IEnumerable<OnlyClassId>> GetStudentCourseInClass(long studentId, long courseId);
     }
 }

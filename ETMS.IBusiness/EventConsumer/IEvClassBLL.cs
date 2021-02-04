@@ -9,5 +9,7 @@ namespace ETMS.IBusiness.EventConsumer
     public interface IEvClassBLL: IBaseBLL
     {
         Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request);
+
+        Task ClassRemoveStudentConsumerEvent(ClassRemoveStudentEvent request);
     }
 }

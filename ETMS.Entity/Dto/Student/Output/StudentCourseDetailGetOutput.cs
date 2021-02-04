@@ -6,6 +6,10 @@ namespace ETMS.Entity.Dto.Student.Output
 {
     public class StudentCourseDetailGetOutput
     {
+        public string StudentName { get; set; }
+
+        public string StudentPhone { get; set; }
+
         public long CourseId { get; set; }
 
         public string CourseColor { get; set; }
@@ -25,15 +29,13 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string ExceedTotalClassTimes { get; set; }
 
-        public DeTypeClassTimes DeTypeClassTimes { get; set; }
-
-        public DeTypeDay DeTypeDay { get; set; }
+        public string SurplusQuantityDesc { get; set; }
 
         public List<StudentClass> StudentClass { get; set; }
 
         public List<StudentCourseDetail> StudentCourseDetail { get; set; }
 
-        public List<StopLog> StopLogs { get; set; }
+        public List<OpLog> OpLogs { get; set; }
     }
 
     public class StudentCourseDetail
@@ -73,29 +75,28 @@ namespace ETMS.Entity.Dto.Student.Output
         public string Name { get; set; }
     }
 
-    /// <summary>
-    /// 按课时
-    /// </summary>
-    public class DeTypeClassTimes
+    public class OpLog
     {
-        public string SurplusQuantityDesc { get; set; }
-    }
+        public long StudentId { get; set; }
 
-    /// <summary>
-    /// 按天消耗
-    /// </summary>
-    public class DeTypeDay
-    {
-        public string SurplusQuantityDesc { get; set; }
-    }
+        public long CourseId { get; set; }
 
-    public class StopLog
-    {
-        public string StopTimeDesc { get; set; }
+        public string CourseName { get; set; }
 
-        public string RestoreTimeDesc { get; set; }
+        public string OpContent { get; set; }
 
-        public int StopDay { get; set; }
+        /// <summary>
+        /// 类型  <see cref="ETMS.Entity.Enum.EmStudentCourseOpLogType"/>
+        /// </summary>
+        public int OpType { get; set; }
+
+        public string OpTypeDesc { get; set; }
+
+        public DateTime OpTime { get; set; }
+
+        public long OpUser { get; set; }
+
+        public string OpUserName { get; set; }
 
         public string Remark { get; set; }
     }
