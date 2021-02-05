@@ -122,6 +122,11 @@
             "Type": 1
           },
           {
+            "ActionId": 60,
+            "Name": "选班调班",
+            "Type": 1
+          },
+          {
             "ActionId": 13,
             "Name": "学员课程有效期设置",
             "Type": 1

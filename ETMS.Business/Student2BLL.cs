@@ -857,5 +857,109 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "删除考勤记录", EmUserOperationType.StudentCheckOn);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> StudentCourseAndClassGet(StudentCourseAndClassGetRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var ouput = new StudentCourseAndClassGetOutput()
+            {
+                StudentCourses = new List<MyStudentCourseInfo>(),
+                StudentId = request.StudentId,
+                StudentName = studentBucket.Student.Name,
+                StudentPhone = studentBucket.Student.Phone
+            };
+            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId);
+            if (myCourse == null || myCourse.Count == 0)
+            {
+                return ResponseBase.Success(ouput);
+            }
+            var usableCourse = myCourse.Where(p => p.Status == EmStudentCourseStatus.Normal);
+            if (!usableCourse.Any())
+            {
+                return ResponseBase.Success(ouput);
+            }
+
+            var allCourseId = usableCourse.Select(p => p.CourseId).Distinct();
+            var studentInClassInfo = await _classDAL.GetStudentCourseInClass(request.StudentId);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            foreach (var courseId in allCourseId)
+            {
+                var myItemCourse = await _courseDAL.GetCourse(courseId);
+                if (myItemCourse == null || myItemCourse.Item1 == null)
+                {
+                    LOG.Log.Error($"[StudentCourseAndClassGet]课程不存在,TenantId:{request.LoginTenantId},courseId:{courseId}", this.GetType());
+                    continue;
+                }
+                var mySurplusCourse = myCourse.Where(p => p.CourseId == courseId).ToList();
+                var myStudentCourseInfoItem = new MyStudentCourseInfo()
+                {
+                    CourseId = courseId,
+                    CourseName = myItemCourse.Item1.Name,
+                    Type = myItemCourse.Item1.Type,
+                    SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(mySurplusCourse),
+                    StudentCourseInClass = new List<MyStudentCourseInClass>()
+                };
+                if (studentInClassInfo != null && studentInClassInfo.Any())
+                {
+                    var myInClassStudet = studentInClassInfo.Where(p => p.CourseId == courseId);
+                    if (myInClassStudet.Any())
+                    {
+                        var myInClassIds = myInClassStudet.Select(p => p.ClassId).Distinct();
+                        foreach (var classId in myInClassIds)
+                        {
+                            var classBucket = await _classDAL.GetClassBucket(classId);
+                            if (classBucket == null || classBucket.EtClass == null)
+                            {
+                                LOG.Log.Error($"[StudentCourseAndClassGet]班级不存在,TenantId:{request.LoginTenantId},classId:{classId}", this.GetType());
+                                continue;
+                            }
+                            if (classBucket.EtClass.DataType == EmClassDataType.Temp)
+                            {
+                                continue;
+                            }
+                            myStudentCourseInfoItem.StudentCourseInClass.Add(new MyStudentCourseInClass()
+                            {
+                                ClassId = classId,
+                                ClassName = classBucket.EtClass.Name,
+                                TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classBucket.EtClass.Teachers)
+                            });
+                        }
+                    }
+                }
+                ouput.StudentCourses.Add(myStudentCourseInfoItem);
+            }
+            return ResponseBase.Success(ouput);
+        }
+
+        public async Task<ResponseBase> StudentCourseRelationClass(StudentCourseRelationClassRequest request)
+        {
+            var output = new List<StudentCourseRelationClassOutput>();
+            var courseAllClassOneToMore = await _classDAL.GetClassOfCourseIdOneToMore(request.CourseId, request.ClassName);
+            if (courseAllClassOneToMore == null || !courseAllClassOneToMore.Any())
+            {
+                return ResponseBase.Success(output);
+            }
+            var studentInClassIds = await _classDAL.GetStudentCourseInClass(request.StudentId, request.CourseId);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            foreach (var myClass in courseAllClassOneToMore)
+            {
+                output.Add(new StudentCourseRelationClassOutput()
+                {
+                    ClassId = myClass.Id,
+                    LimitStudentNums = myClass.LimitStudentNums,
+                    StudentNums = myClass.StudentNums,
+                    Name = myClass.Name,
+                    TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, myClass.Teachers),
+                    CourseListDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, myClass.CourseList),
+                    IsDefaultInClass = studentInClassIds.FirstOrDefault(p => p.ClassId == myClass.Id) != null
+                });
+            }
+            return ResponseBase.Success(output);
+        }
     }
 }

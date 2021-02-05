@@ -45,6 +45,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "studentClassPlacement/:sid",
+        "Name": "studentClassPlacement",
+        "Type": 1,
+        "Component": "@/components/StudentClassPlacement",
+        "Meta": {
+          "Title": "选班调班",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 6,
         "Path": "trackLog",
         "Name": "trackLog",

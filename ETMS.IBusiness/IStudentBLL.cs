@@ -65,7 +65,5 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentBindingCardNo(StudentBindingCardNoRequest request);
 
         Task<ResponseBase> StudentChangePoints(StudentChangePointsRequest request);
-
-        //Task<ResponseBase> StudentCourseAndClassGet(StudentCourseAndClassGetRequest request);
     }
 }

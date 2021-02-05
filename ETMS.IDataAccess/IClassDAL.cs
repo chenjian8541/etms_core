@@ -69,8 +69,12 @@ namespace ETMS.IDataAccess
 
         Task<IEnumerable<EtClass>> GetClassOfTeacher(long teacherId);
 
+        Task<IEnumerable<EtClass>> GetClassOfCourseIdOneToMore(long courseId, string queryClassName = "");
+
         Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormal(long studentId, long courseId);
 
         Task<IEnumerable<OnlyClassId>> GetStudentCourseInClass(long studentId, long courseId);
+
+        Task<IEnumerable<EtClassStudent>> GetStudentCourseInClass(long studentId);
     }
 }
