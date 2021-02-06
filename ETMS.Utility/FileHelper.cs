@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
 
 namespace ETMS.Utility
@@ -45,6 +47,26 @@ namespace ETMS.Utility
         public static string GetFilePath(string filePath)
         {
             return Path.Combine(AppContext.BaseDirectory, filePath);
+        }
+
+        public static List<string> GetDirectoryNewestFile(string folderPath, string searchPattern)
+        {
+            return Directory.GetFiles(folderPath, searchPattern).OrderByDescending(d => new FileInfo(d).LastWriteTime).ToList();
+        }
+
+        public static string CreateDirectory(string folderPath, string newDirectoryName)
+        {
+            var newPath = Path.Combine(folderPath, newDirectoryName);
+            if (!System.IO.Directory.Exists(newPath))
+            {
+                System.IO.Directory.CreateDirectory(newPath);
+            }
+            return newPath;
+        }
+
+        public static void CompressZip(string folderPath, string zipFilePath)
+        {
+            ZipFile.CreateFromDirectory(folderPath, zipFilePath);
         }
     }
 

@@ -877,7 +877,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.Success(ouput);
             }
-            var usableCourse = myCourse.Where(p => p.Status == EmStudentCourseStatus.Normal);
+            var usableCourse = myCourse.Where(p => p.Status != EmStudentCourseStatus.EndOfClass);
             if (!usableCourse.Any())
             {
                 return ResponseBase.Success(ouput);

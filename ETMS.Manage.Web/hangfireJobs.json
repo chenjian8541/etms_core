@@ -82,5 +82,12 @@
     "Title": "定时分析将过期的优惠券",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "SystemDataBackupsJob",
+    "Cron": "0 0 6 * * ?", //每天凌晨6点执行
+    "Title": "定时备份数据库",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

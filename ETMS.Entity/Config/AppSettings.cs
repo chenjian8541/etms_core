@@ -45,6 +45,29 @@ namespace ETMS.Entity.Config
         public SenparcConfig SenparcConfig { get; set; }
 
         public AliyunOssConfig AliyunOssConfig { get; set; }
+
+        public MailConfig MailConfig { get; set; }
+    }
+
+    public class MailConfig
+    {
+        public string SenderAddress { get; set; }
+
+        public string SenderDisplayName { get; set; }
+
+        public string SenderUserName { get; set; }
+
+        public string SenderPassword { get; set; }
+
+        public string MailHost { get; set; }
+
+        public int MailPort { get; set; }
+
+        public string[] SystemDataBackupsGetUser { get; set; }
+
+        public string SystemDataBackupsSearchPattern { get; set; }
+
+        public string SystemDataBackupsServerPath { get; set; }
     }
 
     public class AliyunOssConfig
