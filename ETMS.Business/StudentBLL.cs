@@ -613,7 +613,7 @@ namespace ETMS.Business
                 {
                     CId = log.Id,
                     TrackTimeDesc = log.TrackTime.EtmsToMinuteString(),
-                    NextTrackTimeDesc = log.NextTrackTime.EtmsToMinuteString(),
+                    NextTrackTimeDesc = log.NextTrackTime.EtmsToDateString(),
                     TrackContent = log.TrackContent,
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, user?.Avatar),
                     TrackUserName = user?.Name
