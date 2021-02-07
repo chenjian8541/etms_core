@@ -40,8 +40,6 @@ namespace ETMS.Business
 
         private readonly IStudentTrackLogDAL _studentTrackLogDAL;
 
-        private readonly INoticeBLL _noticeBLL;
-
         private readonly IStudentPointsLogDAL _studentPointsLog;
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
@@ -58,7 +56,7 @@ namespace ETMS.Business
 
         public ClassCheckSignBLL(IClassDAL classDAL, IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL,
-            IStudentTrackLogDAL studentTrackLogDAL, INoticeBLL noticeBLL, IStudentPointsLogDAL studentPointsLog, IUserDAL userDAL, IUserOperationLogDAL userOperationLogDAL,
+            IStudentTrackLogDAL studentTrackLogDAL, IStudentPointsLogDAL studentPointsLog, IUserDAL userDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             ITempStudentNeedCheckDAL tempStudentNeedCheckDAL)
         {
@@ -71,7 +69,6 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._tryCalssLogDAL = tryCalssLogDAL;
             this._studentTrackLogDAL = studentTrackLogDAL;
-            this._noticeBLL = noticeBLL;
             this._studentPointsLog = studentPointsLog;
             this._userDAL = userDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -83,7 +80,6 @@ namespace ETMS.Business
 
         public void InitTenantId(int tenantId)
         {
-            this._noticeBLL.InitTenantId(tenantId);
             this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _classRecordDAL, _studentDAL, _tryCalssLogDAL, _studentTrackLogDAL,
                 _studentPointsLog, _userDAL, _tenantConfigDAL, _studentCourseDAL, _userOperationLogDAL, _studentCourseConsumeLogDAL,
@@ -438,7 +434,7 @@ namespace ETMS.Business
                 if (student.StudentType == EmClassStudentType.TryCalssStudent && student.StudentTryCalssLogId != null)
                 {
                     //试听处理
-                    await TryCalssStudentProcess(studentTrackLogs, student, recordId, tenantConfig.ClassCheckSignConfig.TryCalssNoticeTrackUser);
+                    await TryCalssStudentProcess(studentTrackLogs, request.ClassRecord, student, recordId, tenantConfig.ClassCheckSignConfig.TryCalssNoticeTrackUser);
                 }
 
                 //学员课程详情
@@ -620,7 +616,7 @@ namespace ETMS.Business
             }
         }
 
-        private async Task TryCalssStudentProcess(List<EtStudentTrackLog> studentTrackLogs, EtClassRecordStudent student, long recordId, bool tryCalssNoticeTrackUser)
+        private async Task TryCalssStudentProcess(List<EtStudentTrackLog> studentTrackLogs, EtClassRecord classRecord, EtClassRecordStudent student, long recordId, bool tryCalssNoticeTrackUser)
         {
             //更新试听记录
             if (student.StudentCheckStatus == EmClassStudentCheckStatus.Arrived || student.StudentCheckStatus == EmClassStudentCheckStatus.BeLate)
@@ -635,11 +631,11 @@ namespace ETMS.Business
             //通知此学员的跟进人
             if (tryCalssNoticeTrackUser)
             {
-                await _noticeBLL.TryCalssNoticeTrackUser(new TryCalssNoticeTrackUserRequest()
+                _eventPublisher.Publish(new NoticeUserOfStudentTryClassFinishEvent(classRecord.TenantId)
                 {
-                    ClassOt = student.ClassOt,
-                    StudentCheckStatus = student.StudentCheckStatus,
-                    StudentId = student.StudentId
+                    StudentId = student.StudentId,
+                    CourseId = student.CourseId,
+                    ClassRecord = classRecord
                 });
             }
 

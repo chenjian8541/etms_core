@@ -269,5 +269,55 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeTeacherOfHomeworkFinish(smsReq);
             }
         }
+
+        public async Task NoticeUserOfStudentTryClassFinishConsumerEvent(NoticeUserOfStudentTryClassFinishEvent request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket.Student.TrackUser == null)
+            {
+                return;
+            }
+            var trackUser = await _userDAL.GetUser(studentBucket.Student.TrackUser.Value);
+            if (trackUser == null)
+            {
+                LOG.Log.Fatal("[NoticeUserOfStudentTryClassFinishConsumerEvent]跟进人未找到", request, this.GetType());
+                return;
+            }
+            var courseBucket = await _courseDAL.GetCourse(request.CourseId);
+            if (courseBucket == null || courseBucket.Item1 == null)
+            {
+                LOG.Log.Fatal("[NoticeUserOfStudentTryClassFinishConsumerEvent]课程未找到", request, this.GetType());
+                return;
+            }
+
+            var userOpenId = await GetOpenId(true, trackUser.Id);
+            if (string.IsNullOrEmpty(userOpenId))
+            {
+                return;
+            }
+
+            var smsReq = new NoticeUserOfStudentTryClassFinishRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                StudentName = studentBucket.Student.Name,
+                StudentPhone = studentBucket.Student.Phone,
+                CourseName = courseBucket.Item1.Name,
+                ClassOtDesc = $"{request.ClassRecord.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(request.ClassRecord.StartTime)}~{EtmsHelper.GetTimeDesc(request.ClassRecord.EndTime)}",
+                Users = new List<NoticeUserOfStudentTryClassFinishUser>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeUserStudentTryClassFinish;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            smsReq.Users.Add(new NoticeUserOfStudentTryClassFinishUser()
+            {
+                Phone = trackUser.Phone,
+                UserId = trackUser.Id,
+                UserName = ComBusiness2.GetParentTeacherName(trackUser),
+                OpendId = userOpenId
+            });
+
+            _wxService.NoticeUserOfStudentTryClassFinish(smsReq);
+        }
     }
 }

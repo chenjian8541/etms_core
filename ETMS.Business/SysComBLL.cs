@@ -62,7 +62,8 @@ namespace ETMS.Business
                 Title = upgradeGetMsg.Title,
                 UpContent = upgradeGetMsg.UpContent,
                 UpgradeId = upgradeGetMsg.Id,
-                VersionNo = upgradeGetMsg.VersionNo
+                VersionNo = upgradeGetMsg.VersionNo,
+                UpTimeDesc = $"{ upgradeGetMsg.StartTime.ToString("yyyy年MM月dd日HH:mm")} - {upgradeGetMsg.EndTime.ToString("MM月dd日HH:mm")}"
             };
             return ResponseBase.Success(output);
         }

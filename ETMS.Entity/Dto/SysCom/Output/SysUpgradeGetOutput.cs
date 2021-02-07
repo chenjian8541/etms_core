@@ -25,5 +25,7 @@ namespace ETMS.Entity.Dto.SysCom.Output
         public DateTime EndTime { get; set; }
 
         public string UpContent { get; set; }
+
+        public string UpTimeDesc { get; set; }
     }
 }

@@ -184,6 +184,8 @@ namespace ETMS.Entity.Config
 
         public string StudentCheckOut { get; set; }
 
+        public string NoticeUserStudentTryClassFinish { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }

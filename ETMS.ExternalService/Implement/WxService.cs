@@ -950,5 +950,38 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeUserOfStudentTryClassFinish(NoticeUserOfStudentTryClassFinishRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var user in request.Users)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(user.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{user.UserName}老师，您跟进的学员{request.StudentName}试听的课程{request.CourseName}已完成，上课时间{request.ClassOtDesc}")),
+                        keyword1 = new TemplateDataItem(request.StudentName, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.StudentPhone, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, user.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeUserOfStudentTryClassFinish]发送试听完成通知出错2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessUserEequireSubscribe(request.LoginTenantId, user.UserId, user.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeUserOfStudentTryClassFinish]发送试听完成通知出错2:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }
