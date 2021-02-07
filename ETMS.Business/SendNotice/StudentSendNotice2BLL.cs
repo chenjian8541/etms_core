@@ -649,7 +649,7 @@ namespace ETMS.Business.SendNotice
             if (deClassTimes != null && deClassTimes.SurplusQuantity <= tenantConfig.StudentCourseRenewalConfig.LimitClassTimes)
             {
                 notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitClassTimes}课时";
-                surplusDesc = $"{deClassTimes.SurplusQuantity}课时";
+                surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时";
             }
             else
             {
@@ -772,7 +772,7 @@ namespace ETMS.Business.SendNotice
                 var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
                 if (deClassTimes != null)
                 {
-                    surplusDesc = $"{deClassTimes.SurplusQuantity}课时";
+                    surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时";
                 }
             }
 

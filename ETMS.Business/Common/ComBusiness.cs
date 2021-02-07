@@ -91,7 +91,7 @@ namespace ETMS.Business.Common
             {
                 var timesStudentCourse = studentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
                 var dayStudentCourse = studentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
-                if (timesStudentCourse != null)
+                if (timesStudentCourse != null && timesStudentCourse.SurplusQuantity > 0)
                 {
                     courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity.EtmsToString()}课时 ");
                 }
