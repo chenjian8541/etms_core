@@ -46,5 +46,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassMyGet(ClassMyGetRequest request);
 
         Task<ResponseBase> ClassStudentTransfer(ClassStudentTransferRequest request);
+
+        Task<ResponseBase> ClassPlacement(ClassPlacementRequest request);
     }
 }

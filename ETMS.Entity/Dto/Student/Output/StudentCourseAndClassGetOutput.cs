@@ -25,6 +25,8 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string SurplusQuantityDesc { get; set; }
 
+        public bool IsActive { get; set; }
+
         public List<MyStudentCourseInClass> StudentCourseInClass { get; set; }
     }
 

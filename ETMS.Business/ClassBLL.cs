@@ -489,7 +489,8 @@ namespace ETMS.Business
                 }
                 if (await _classDAL.IsStudentInClass(request.ClassId, studenInfo.Value))
                 {
-                    return ResponseBase.CommonError($"学员[{studenInfo.Label}]已经在此班级");
+                    //return ResponseBase.CommonError($"学员[{studenInfo.Label}]已经在此班级");
+                    continue;
                 }
                 classStudents.Add(new EtClassStudent()
                 {
@@ -1400,6 +1401,64 @@ namespace ETMS.Business
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.NewClassId));
 
             await _userOperationLogDAL.AddUserLog(request, $"调至其他班-将学员[{studentBucket.Student.Name}]从班级[{oldClass.EtClass.Name}]调至[{newClass.EtClass.Name}]", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassPlacement(ClassPlacementRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var courseBucket = await _courseDAL.GetCourse(request.CourseId);
+            if (courseBucket == null || courseBucket.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+
+            foreach (var placementInfo in request.ClassPlacementInfos)
+            {
+                var myClass = await _classDAL.GetClassBucket(placementInfo.ClassId);
+                if (myClass == null || myClass.EtClass == null)
+                {
+                    LOG.Log.Error("[ClassPlacement]班级不存在", request, this.GetType());
+                    continue;
+                }
+                var existStudent = myClass.EtClassStudents.FirstOrDefault(p => p.StudentId == request.StudentId);
+                if (placementInfo.OpType == ClassPlacementInfoOpType.Add)
+                {
+                    if (existStudent != null)
+                    {
+                        continue;
+                    }
+                    if (myClass.EtClass.CourseList.IndexOf(request.CourseId.ToString()) == -1)
+                    {
+                        LOG.Log.Error("[ClassPlacement]班级未关联课程", request, this.GetType());
+                        continue;
+                    }
+                    await _classDAL.AddClassStudent(new EtClassStudent()
+                    {
+                        ClassId = placementInfo.ClassId,
+                        CourseId = request.CourseId,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Remark = string.Empty,
+                        StudentId = request.StudentId,
+                        TenantId = request.LoginTenantId
+                    });
+                }
+                else
+                {
+                    if (existStudent == null)
+                    {
+                        continue;
+                    }
+                    await _classDAL.DelClassStudentByStudentId(placementInfo.ClassId, request.StudentId);
+                }
+                _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, placementInfo.ClassId));
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"选班调班-学员名称[{studentBucket.Student.Name}],手机号码[{studentBucket.Student.Phone}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
     }
