@@ -665,6 +665,11 @@ namespace ETMS.Business.SendNotice
                 }
             }
 
+            if (string.IsNullOrEmpty(surplusDesc))
+            {
+                surplusDesc = "0课时";
+            }
+
             var req = new NoticeStudentCourseNotEnoughRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat))
             {
                 CourseName = myCourse.Item1.Name,
@@ -774,6 +779,10 @@ namespace ETMS.Business.SendNotice
                 {
                     surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时";
                 }
+            }
+            if (string.IsNullOrEmpty(surplusDesc))
+            {
+                surplusDesc = "0课时";
             }
 
             var req = new NoticeStudentCourseNotEnoughRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat))

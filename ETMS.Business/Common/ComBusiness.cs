@@ -520,6 +520,10 @@ namespace ETMS.Business.Common
             {
                 strDesc.Append($"{surplusSmallQuantity.EtmsToString()}天");
             }
+            if (strDesc.Length == 0)
+            {
+                return "0课时";
+            }
             return strDesc.ToString();
         }
 

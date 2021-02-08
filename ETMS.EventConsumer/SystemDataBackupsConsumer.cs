@@ -21,6 +21,7 @@ namespace ETMS.EventConsumer
             {
                 LOG.Log.Error("[SystemDataBackupsConsumer]未找到数据库备份文件", this.GetType());
             }
+            LOG.Log.Info($"[SystemDataBackupsConsumer]需要备份的数据库文件:{Newtonsoft.Json.JsonConvert.SerializeObject(newBakFiles)}", this.GetType());
             var desc = $"etms_bak_{DateTime.Now.ToString("yyyMMddHHmm")}_{newBakFiles.Count}";
             var newDirectory = FileHelper.CreateDirectory(mailConfig.SystemDataBackupsServerPath, desc);
             foreach (var file in newBakFiles)

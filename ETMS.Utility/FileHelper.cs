@@ -51,7 +51,28 @@ namespace ETMS.Utility
 
         public static List<string> GetDirectoryNewestFile(string folderPath, string searchPattern)
         {
-            return Directory.GetFiles(folderPath, searchPattern).OrderByDescending(d => new FileInfo(d).LastWriteTime).ToList();
+            var allFiles = Directory.GetFiles(folderPath, searchPattern);
+            if (allFiles.Length == 0)
+            {
+                return new List<string>();
+            }
+            var lastFile = allFiles.OrderByDescending(d => new FileInfo(d).LastWriteTime).ToList();
+            var lastWriteTime = string.Empty;
+            var myFile = new List<string>();
+            for (var i = 0; i < lastFile.Count; i++)
+            {
+                var myFileInfoLastWriteTime = new FileInfo(lastFile[i]).LastWriteTime.EtmsToMinuteString();
+                if (i == 0)
+                {
+                    lastWriteTime = myFileInfoLastWriteTime;
+                    myFile.Add(lastFile[i]);
+                }
+                else if (myFileInfoLastWriteTime == lastWriteTime)
+                {
+                    myFile.Add(lastFile[i]);
+                }
+            }
+            return myFile;
         }
 
         public static string CreateDirectory(string folderPath, string newDirectoryName)
