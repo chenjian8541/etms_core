@@ -50,5 +50,10 @@ namespace ETMS.Entity.CacheBucket
         /// 清除数据
         /// </summary>
         public const int ClearDataSaveDays = 60;
+
+        /// <summary>
+        /// 用户、学员对应的机构
+        /// </summary>
+        public const int SysTenantPeopleOutHour = 1;
     }
 }

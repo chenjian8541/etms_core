@@ -54,7 +54,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<List<SysTenant>> GetTenantsNormal()
         {
-            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Status == EmSysTenantStatus.Normal && p.ExDate > DateTime.Now.Date);
+            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Status == EmSysTenantStatus.Normal && p.ExDate >= DateTime.Now.Date);
         }
 
         public async Task<int> AddTenant(SysTenant sysTenant)
