@@ -505,7 +505,7 @@ namespace ETMS.Business.Common
         {
             if (surplusQuantity == 0 && surplusSmallQuantity == 0)
             {
-                return string.Empty;
+                return "0课时";
             }
             if (deType == EmDeClassTimesType.ClassTimes)
             {
