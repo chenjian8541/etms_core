@@ -502,6 +502,10 @@ namespace ETMS.Business
                     TenantId = request.LoginTenantId
                 });
             }
+            if (classStudents.Count == 0)
+            {
+                return ResponseBase.CommonError("学员已在此班级中");
+            }
             await _classDAL.AddClassStudent(classStudents);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
             await _userOperationLogDAL.AddUserLog(request, $"班级添加学员-班级[{etClassBucket.EtClass.Name}]添加学员[{string.Join(',', request.StudentIds.Select(p => p.Label))}]", EmUserOperationType.ClassManage);
