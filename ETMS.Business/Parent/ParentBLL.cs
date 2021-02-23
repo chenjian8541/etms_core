@@ -54,10 +54,12 @@ namespace ETMS.Business
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        private readonly ISysTenantStudentDAL _sysTenantStudentDAL;
+
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
-            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor)
+            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -71,6 +73,7 @@ namespace ETMS.Business
             this._componentAccessBLL = componentAccessBLL;
             this._tenantConfigDAL = tenantConfigDAL;
             this._httpContextAccessor = httpContextAccessor;
+            this._sysTenantStudentDAL = sysTenantStudentDAL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -446,6 +449,65 @@ namespace ETMS.Business
         public async Task<ResponseBase> GetTenantInfo(GetTenantInfoRequest request)
         {
             return await GetTenantInfo(request.LoginTenantId);
+        }
+
+        public async Task<ResponseBase> ParentGetCurrentTenant(ParentRequestBase request)
+        {
+            var myTenants = await _sysTenantStudentDAL.GetTenantStudent(request.LoginPhone);
+            var thisTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            return ResponseBase.Success(new ParentGetCurrentTenantOutput()
+            {
+                CurrentTenantCode = thisTenant.TenantCode,
+                CurrentTenantId = thisTenant.Id,
+                CurrentTenantName = thisTenant.Name,
+                IsHasMultipleTenant = myTenants.Count > 1
+            });
+        }
+
+        public async Task<ResponseBase> ParentGetTenants(ParentRequestBase request)
+        {
+            var myTenants = await _sysTenantStudentDAL.GetTenantStudent(request.LoginPhone);
+            var output = new List<ParentGetTenantsOutput>();
+            foreach (var p in myTenants)
+            {
+                var thisTenant = await _sysTenantDAL.GetTenant(p.TenantId);
+                if (thisTenant == null)
+                {
+                    Log.Error($"[ParentGetTenants]机构不存在，TenantId:{p.TenantId}", this.GetType());
+                    continue;
+                }
+                if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+                {
+                    continue;
+                }
+                output.Add(new ParentGetTenantsOutput()
+                {
+                    TenantCode = thisTenant.TenantCode,
+                    TenantName = thisTenant.Name,
+                    TenantId = thisTenant.Id,
+                    IsCurrentLogin = p.TenantId == request.LoginTenantId
+                });
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ParentTenantEntrance(ParentTenantEntranceRequest request)
+        {
+            if (request.TenantId == request.LoginTenantId)
+            {
+                return ResponseBase.CommonError("已登录此机构");
+            }
+            var thisTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (thisTenant == null)
+            {
+                Log.Error($"[ParentTenantEntrance]机构不存在，TenantId:{request.TenantId}", this.GetType());
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            return await GetParentLoginResult(thisTenant.Id, request.LoginPhone, null);
         }
     }
 }

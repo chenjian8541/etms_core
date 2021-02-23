@@ -200,6 +200,45 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ParentGetCurrentTenant(ParentRequestBase request)
+        {
+            try
+            {
+                return await _parentBLL.ParentGetCurrentTenant(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ParentGetTenants(ParentRequestBase request)
+        {
+            try
+            {
+                return await _parentBLL.ParentGetTenants(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ParentTenantEntrance(ParentTenantEntranceRequest request)
+        {
+            try
+            {
+                return await _parentBLL.ParentTenantEntrance(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentListGet(StudentListGetRequest request)
         {
             try

@@ -24,8 +24,8 @@ namespace Etms.Tools.Test
             //Console.WriteLine(TenantLib.GetTenantEncrypt(207));
             //Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
 
-            var myDate = EtmsHelper.GetWeekStartEndDate(DateTime.Now.AddDays(5));
-
+            //var myDate = EtmsHelper.GetWeekStartEndDate(DateTime.Now.AddDays(5));
+            CreateParentToken();
             Console.WriteLine();
             Console.Read();
         }

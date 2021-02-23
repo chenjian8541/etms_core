@@ -35,5 +35,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetTenantInfoByNo(GetTenantInfoByNoRequest request);
 
         Task<ResponseBase> GetTenantInfo(GetTenantInfoRequest request);
+
+        Task<ResponseBase> ParentGetCurrentTenant(ParentRequestBase request);
+
+        Task<ResponseBase> ParentGetTenants(ParentRequestBase request);
+
+        Task<ResponseBase> ParentTenantEntrance(ParentTenantEntranceRequest request);
     }
 }
