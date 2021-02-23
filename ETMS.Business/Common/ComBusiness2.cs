@@ -293,19 +293,26 @@ namespace ETMS.Business.Common
             }
             else
             {
-                var giveDay = 0;
-                if (p.GiveQuantity > 0)
+                if (p.StartTime != null && p.EndTime != null)
                 {
-                    if (p.GiveUnit == EmCourseUnit.Month)
-                    {
-                        giveDay = p.GiveQuantity * monthToDay;
-                    }
-                    else
-                    {
-                        giveDay = p.GiveQuantity;
-                    }
+                    tempValidSmallQuantity = (int)(p.EndTime.Value - p.StartTime.Value).TotalDays;
                 }
-                tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
+                else
+                {
+                    var giveDay = 0;
+                    if (p.GiveQuantity > 0)
+                    {
+                        if (p.GiveUnit == EmCourseUnit.Month)
+                        {
+                            giveDay = p.GiveQuantity * monthToDay;
+                        }
+                        else
+                        {
+                            giveDay = p.GiveQuantity;
+                        }
+                    }
+                    tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
+                }
             }
             //计算单价，合计金额/总的有效数量(课时/天数)
             var tempCoursePrice = Math.Round(orderDetail.ItemAptSum / tempValidSmallQuantity, 2);
