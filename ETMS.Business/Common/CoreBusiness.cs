@@ -1,7 +1,9 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -165,7 +167,6 @@ namespace ETMS.Business.Common
             //};
         }
 
-
         /// <summary>
         /// 模拟某个课次中 学员记上课
         /// </summary>
@@ -245,6 +246,94 @@ namespace ETMS.Business.Common
             result.Remrak = remrak;
             result.DeCourseId = deCourseId;
             return Tuple.Create(string.Empty, result);
+        }
+
+        public static void ProcessStudentPhoneAboutAdd(EtStudent etStudent, IEventPublisher eventPublisher)
+        {
+            eventPublisher.Publish(new SysTenantStudentAnalysisAddEvent(etStudent.TenantId)
+            {
+                AddStudentId = etStudent.Id,
+                AddPhone = etStudent.Phone,
+                IsRefreshCache = true
+            });
+            if (!string.IsNullOrEmpty(etStudent.PhoneBak))
+            {
+                eventPublisher.Publish(new SysTenantStudentAnalysisAddEvent(etStudent.TenantId)
+                {
+                    AddStudentId = etStudent.Id,
+                    AddPhone = etStudent.PhoneBak,
+                    IsRefreshCache = true
+                });
+            }
+        }
+
+        public static void ProcessStudentPhoneAboutEdit(string oldPhone, string oldPhoneBak, EtStudent newStudent, IEventPublisher eventPublisher)
+        {
+            //移除旧手机号码
+            if (oldPhone != newStudent.Phone && oldPhone != newStudent.PhoneBak)
+            {
+                eventPublisher.Publish(new SysTenantStudentAnalysisRemoveEvent(newStudent.TenantId)
+                {
+                    RemovePhone = oldPhone
+                });
+            }
+            if (!string.IsNullOrEmpty(oldPhoneBak))
+            {
+                if (oldPhoneBak != newStudent.Phone && oldPhoneBak != newStudent.PhoneBak)
+                {
+                    eventPublisher.Publish(new SysTenantStudentAnalysisRemoveEvent(newStudent.TenantId)
+                    {
+                        RemovePhone = oldPhoneBak
+                    });
+                }
+            }
+
+            ProcessStudentPhoneAboutAdd(newStudent, eventPublisher);
+        }
+
+        public static void ProcessStudentPhoneAboutDel(EtStudent newStudent, IEventPublisher eventPublisher)
+        {
+            eventPublisher.Publish(new SysTenantStudentAnalysisRemoveEvent(newStudent.TenantId)
+            {
+                RemovePhone = newStudent.Phone
+            });
+            if (!string.IsNullOrEmpty(newStudent.PhoneBak))
+            {
+                eventPublisher.Publish(new SysTenantStudentAnalysisRemoveEvent(newStudent.TenantId)
+                {
+                    RemovePhone = newStudent.PhoneBak
+                });
+            }
+        }
+
+        public static void ProcessUserPhoneAboutAdd(EtUser newUser, IEventPublisher eventPublisher)
+        {
+            eventPublisher.Publish(new SysTenantUserAnalysisAddEvent(newUser.TenantId)
+            {
+                AddUserId = newUser.Id,
+                AddPhone = newUser.Phone,
+                IsRefreshCache = true
+            });
+        }
+
+        public static void ProcessUserPhoneAboutEdit(string oldPhone, EtUser newUser, IEventPublisher eventPublisher)
+        {
+            if (oldPhone != newUser.Phone)
+            {
+                eventPublisher.Publish(new SysTenantUserAnalysisRemoveEvent(newUser.TenantId)
+                {
+                    RemovePhone = oldPhone
+                });
+            }
+            ProcessUserPhoneAboutAdd(newUser, eventPublisher);
+        }
+
+        public static void ProcessUserPhoneAboutDel(EtUser user, IEventPublisher eventPublisher)
+        {
+            eventPublisher.Publish(new SysTenantUserAnalysisRemoveEvent(user.TenantId)
+            {
+                RemovePhone = user.Phone
+            });
         }
     }
 }

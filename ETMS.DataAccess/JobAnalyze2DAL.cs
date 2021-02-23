@@ -1,6 +1,7 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp.View;
 using ETMS.IDataAccess;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,14 @@ namespace ETMS.DataAccess
         {
         }
 
-        public async Task<Tuple<IEnumerable<EtUser>, int>> GetUserPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<UserPagingView>, int>> GetUserPaging(RequestPagingBase request)
         {
-            return await _dbWrapper.ExecutePage<EtUser>("EtUser", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<UserPagingView>("EtUser", "Id,Phone", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtStudent>, int>> GetStudentPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<StudentPagingView>, int>> GetStudentPaging(RequestPagingBase request)
         {
-            return await _dbWrapper.ExecutePage<EtStudent>("EtStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<StudentPagingView>("EtStudent", "Id,Phone,PhoneBak", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
     }
 }

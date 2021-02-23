@@ -121,6 +121,12 @@ namespace ETMS.DataAccess
             return user != null;
         }
 
+        public async Task<bool> ExistStudentPhone(string phone, long id = 0)
+        {
+            var user = await _dbWrapper.Find<EtStudent>(p => p.TenantId == _tenantId && p.Phone == phone && p.Id != id && p.IsDeleted == EmIsDeleted.Normal);
+            return user != null;
+        }
+
         public async Task<EtStudent> GetStudent(string name, string phone)
         {
             return await _dbWrapper.Find<EtStudent>(p => p.TenantId == _tenantId && p.Phone == phone && p.Name == name && p.IsDeleted == EmIsDeleted.Normal);

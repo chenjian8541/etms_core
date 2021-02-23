@@ -167,6 +167,8 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, etStudent.Ot, true);
+
+            CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"添加学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success(studentId);
         }
@@ -202,6 +204,8 @@ namespace ETMS.Business
             }
             var etStudent = studentBucket.Student;
             var oldAvatar = etStudent.Avatar;
+            var oldPhone = etStudent.Phone;
+            var oldPhoneBak = etStudent.PhoneBak;
             var isChangeStudentSource = request.SourceId != etStudent.SourceId;
 
             etStudent.Name = request.Name;
@@ -246,6 +250,7 @@ namespace ETMS.Business
                 AliyunOssUtil.DeleteObject(oldAvatar);
             }
 
+            CoreBusiness.ProcessStudentPhoneAboutEdit(oldPhone, oldPhoneBak, etStudent, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"编辑学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
@@ -272,6 +277,7 @@ namespace ETMS.Business
             AliyunOssUtil.DeleteObject(etStudent.Avatar, etStudent.FaceGreyKey, etStudent.FaceKey);
             await _aiface.StudentDelete(etStudent.Id);
 
+            CoreBusiness.ProcessStudentPhoneAboutDel(etStudent, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }

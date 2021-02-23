@@ -20,6 +20,7 @@ using ETMS.Business.Common;
 using ETMS.Entity.Config.Menu;
 using ETMS.Entity.Config.Router;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 
 namespace ETMS.Business
 {
@@ -43,9 +44,12 @@ namespace ETMS.Business
 
         private readonly IAppAuthorityDAL _appAuthorityDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
-            IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL)
+            IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
+            IEventPublisher eventPublisher)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -56,6 +60,7 @@ namespace ETMS.Business
             this._subjectDAL = subjectDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._appAuthorityDAL = appAuthorityDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -426,6 +431,8 @@ namespace ETMS.Business
                 JobType = request.JobType
             };
             await _etUserDAL.AddUser(user);
+
+            CoreBusiness.ProcessUserPhoneAboutAdd(user, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"添加员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
@@ -441,6 +448,8 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("手机号码已存在");
             }
+            var oldPhone = user.Phone;
+
             user.Name = request.Name;
             user.Phone = request.Phone;
             user.RoleId = request.RoleId;
@@ -449,6 +458,8 @@ namespace ETMS.Business
             user.IsTeacher = request.IsTeacher;
             user.JobType = request.JobType;
             await _etUserDAL.EditUser(user);
+
+            CoreBusiness.ProcessUserPhoneAboutEdit(oldPhone, user, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"编辑员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
@@ -475,6 +486,7 @@ namespace ETMS.Business
             await _etUserDAL.DelUser(request.CId);
             AliyunOssUtil.DeleteObject(user.Avatar);
 
+            CoreBusiness.ProcessUserPhoneAboutDel(user, _eventPublisher);
             await _userOperationLogDAL.AddUserLog(request, $"删除员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
