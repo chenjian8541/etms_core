@@ -143,6 +143,45 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserGetCurrentTenant(RequestBase request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserGetCurrentTenant(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserGetTenants(RequestBase request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserGetTenants(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserTenantEntrance(UserTenantEntranceRequest request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserTenantEntrance(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 短信登陆H5
         /// </summary>

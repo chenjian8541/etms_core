@@ -54,11 +54,13 @@ namespace ETMS.Business
 
         private readonly IUserWechatDAL _userWechatDAL;
 
+        private readonly ISysTenantUserDAL _sysTenantUserDAL;
+
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
             IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL, IComponentAccessBLL componentAccessBLL,
-            IUserWechatDAL userWechatDAL)
+            IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._etUserDAL = etUserDAL;
@@ -72,6 +74,7 @@ namespace ETMS.Business
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._componentAccessBLL = componentAccessBLL;
             this._userWechatDAL = userWechatDAL;
+            this._sysTenantUserDAL = sysTenantUserDAL;
         }
 
         public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
@@ -395,6 +398,91 @@ namespace ETMS.Business
         public ResponseBase UserCheck(UserCheckRequest request)
         {
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> UserGetCurrentTenant(RequestBase request)
+        {
+            _etUserDAL.InitTenantId(request.LoginTenantId);
+            var user = await _etUserDAL.GetUser(request.LoginUserId);
+            var myTenants = await _sysTenantUserDAL.GetTenantUser(user.Phone);
+            var thisTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            return ResponseBase.Success(new UserGetCurrentTenantOutput()
+            {
+                CurrentTenantCode = thisTenant.TenantCode,
+                CurrentTenantName = thisTenant.Name,
+                CurrentTenantId = thisTenant.Id,
+                IsHasMultipleTenant = myTenants.Count > 1
+            });
+        }
+
+        public async Task<ResponseBase> UserGetTenants(RequestBase request)
+        {
+            _etUserDAL.InitTenantId(request.LoginTenantId);
+            var user = await _etUserDAL.GetUser(request.LoginUserId);
+            var myTenants = await _sysTenantUserDAL.GetTenantUser(user.Phone);
+            var output = new List<UserGetTenantsOutput>();
+            foreach (var p in myTenants)
+            {
+                var thisTenant = await _sysTenantDAL.GetTenant(p.TenantId);
+                if (thisTenant == null)
+                {
+                    Log.Error($"[UserGetTenants]机构不存在，TenantId:{p.TenantId}", this.GetType());
+                    continue;
+                }
+                if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+                {
+                    continue;
+                }
+                output.Add(new UserGetTenantsOutput()
+                {
+                    TenantCode = thisTenant.TenantCode,
+                    TenantName = thisTenant.Name,
+                    TenantId = thisTenant.Id,
+                    IsCurrentLogin = p.TenantId == request.LoginTenantId
+                });
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> UserTenantEntrance(UserTenantEntranceRequest request)
+        {
+            if (request.TenantId == request.LoginTenantId)
+            {
+                return ResponseBase.CommonError("已登录此机构");
+            }
+            var thisTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (thisTenant == null)
+            {
+                Log.Error($"[UserTenantEntrance]机构不存在，TenantId:{request.TenantId}", this.GetType());
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            _etUserDAL.InitTenantId(request.LoginTenantId);
+            var loginUser = await _etUserDAL.GetUser(request.LoginUserId);
+
+            _etUserDAL.ResetTenantId(thisTenant.Id);
+            var thisUser = await _etUserDAL.GetUser(loginUser.Phone);
+            if (thisUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            if (!CheckUserCanLogin(thisUser, out var msg))
+            {
+                return ResponseBase.CommonError(msg);
+            }
+
+            await _sysTenantUserDAL.UpdateTenantUserOpTime(thisTenant.Id, thisUser.Phone, DateTime.Now);
+
+            _etUserOperationLogDAL.InitTenantId(thisTenant.Id);
+            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType);
+            return ResponseBase.Success(new UserLoginBySmsH5Output()
+            {
+                ExpiresTime = result.ExpiresTime,
+                Token = result.Token
+            });
         }
     }
 }

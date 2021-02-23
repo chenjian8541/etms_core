@@ -28,5 +28,11 @@ namespace ETMS.IBusiness
         Task<bool> GetUserDataLimit(RequestBase request);
 
         ResponseBase UserCheck(UserCheckRequest request);
+
+        Task<ResponseBase> UserGetCurrentTenant(RequestBase request);
+
+        Task<ResponseBase> UserGetTenants(RequestBase request);
+
+        Task<ResponseBase> UserTenantEntrance(UserTenantEntranceRequest request);
     }
 }
