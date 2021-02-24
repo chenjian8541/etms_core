@@ -12,6 +12,8 @@ namespace ETMS.IDataAccess
     {
         Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents);
 
+        Task<EtClassRecordAbsenceLog> GetRelatedAbsenceLog(long studentId, long courseId);
+
         void AddClassRecordAbsenceLog(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs);
 
         void AddClassRecordPointsApplyLog(List<EtClassRecordPointsApplyLog> classRecordPointsApplyLog);

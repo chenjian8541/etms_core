@@ -15,7 +15,7 @@ namespace ETMS.Entity.Enum
         public const byte Unprocessed = 0;
 
         /// <summary>
-        /// 标记已补(已完成)
+        /// 已完成
         /// </summary>
         public const byte MarkFinish = 1;
 

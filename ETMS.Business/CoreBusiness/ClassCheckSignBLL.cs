@@ -413,6 +413,10 @@ namespace ETMS.Business
             var studentTrackLogs = new List<EtStudentTrackLog>();
             foreach (var student in request.ClassRecordStudents)
             {
+                if (student.StudentType == EmClassStudentType.MakeUpStudent)
+                {
+                    await MakeUpStudentProcess(request.ClassRecord, student);
+                }
                 if (checkInLog != null && checkInLog.Count > 0)
                 {
                     //考勤记上课
@@ -523,6 +527,10 @@ namespace ETMS.Business
 
         private void ClassRecordAbsenceProcess(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs, EtClassRecordStudent student, long recordId)
         {
+            if (student.StudentType == EmClassStudentType.TryCalssStudent || student.StudentType == EmClassStudentType.MakeUpStudent)
+            {
+                return;
+            }
             if (student.StudentCheckStatus == EmClassStudentCheckStatus.NotArrived || student.StudentCheckStatus == EmClassStudentCheckStatus.Leave)
             {
                 classRecordAbsenceLogs.Add(new EtClassRecordAbsenceLog()
@@ -664,6 +672,24 @@ namespace ETMS.Business
                     ContentType = tryLogContentType,
                     TrackContent = $"预约试听的课程已结束，学员到课状态({EmClassStudentCheckStatus.GetClassStudentCheckStatus(student.StudentCheckStatus)})"
                 });
+            }
+        }
+
+        private async Task MakeUpStudentProcess(EtClassRecord classRecord, EtClassRecordStudent student)
+        {
+            if (EmClassStudentCheckStatus.CheckIsAttend(student.StudentCheckStatus))
+            {
+                //如果是补课学员  则自动标记补课记录
+                var absenceLog = await _classRecordDAL.GetRelatedAbsenceLog(student.StudentId, student.CourseId);
+                if (absenceLog != null)
+                {
+                    var classTimesDesc = $"{classRecord.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}";
+                    absenceLog.HandleStatus = EmClassRecordAbsenceHandleStatus.MarkFinish;
+                    absenceLog.HandleContent = $"[已补课] 上课时间:{classTimesDesc}";
+                    absenceLog.HandleOt = DateTime.Now;
+                    absenceLog.HandleUser = classRecord.CheckUserId;
+                    await _classRecordDAL.UpdateClassRecordAbsenceLog(absenceLog);
+                }
             }
         }
     }

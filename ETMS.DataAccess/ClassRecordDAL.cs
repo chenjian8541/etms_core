@@ -28,6 +28,13 @@ namespace ETMS.DataAccess
             return etClassRecord.Id;
         }
 
+        public async Task<EtClassRecordAbsenceLog> GetRelatedAbsenceLog(long studentId, long courseId)
+        {
+            return await _dbWrapper.Find<EtClassRecordAbsenceLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.StudentId == studentId && p.CourseId == courseId && p.Status == EmClassRecordStatus.Normal
+            && p.HandleStatus != EmClassRecordAbsenceHandleStatus.MarkFinish);
+        }
+
         public void AddClassRecordAbsenceLog(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs)
         {
             this._dbWrapper.InsertRange(classRecordAbsenceLogs);
