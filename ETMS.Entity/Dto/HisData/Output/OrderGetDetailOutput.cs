@@ -135,6 +135,10 @@ namespace ETMS.Entity.Dto.HisData.Output
         public byte IsReturn { get; set; }
 
         public byte IsTransferCourse { get; set; }
+
+        public bool IsHasCourse { get; set; }
+
+        public bool IsOnlyOneToOneCourse { get; set; }
     }
 
     public class OrderGetDetailCoupons

@@ -206,6 +206,8 @@ namespace ETMS.Business
             }
             var orderDetail = await _orderDAL.GetOrderDetail(request.CId);
             output.OrderGetDetailProducts = new List<OrderGetDetailProductInfo>();
+            var isHasCourse = false;
+            var isOnlyOneToOneCourse = true;
             foreach (var myItem in orderDetail)
             {
                 var productName = string.Empty;
@@ -221,7 +223,15 @@ namespace ETMS.Business
                         break;
                     case EmOrderProductType.Course:
                         var myCourse = await _courseDAL.GetCourse(myItem.ProductId);
-                        productName = myCourse?.Item1.Name;
+                        isHasCourse = true;
+                        if (myCourse != null && myCourse.Item1 != null)
+                        {
+                            productName = myCourse.Item1.Name;
+                            if (myCourse.Item1.Type == EmCourseType.OneToMany)
+                            {
+                                isOnlyOneToOneCourse = false;
+                            }
+                        }
                         break;
                 }
                 output.OrderGetDetailProducts.Add(new OrderGetDetailProductInfo()
@@ -260,6 +270,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            output.BascInfo.IsHasCourse = isHasCourse;
+            output.BascInfo.IsOnlyOneToOneCourse = isOnlyOneToOneCourse;
             return ResponseBase.Success(output);
         }
 
