@@ -85,7 +85,7 @@
   },
   {
     "Name": "SystemDataBackupsJob",
-    "Cron": "0 0 6 * * ?", //每天凌晨6点执行
+    "Cron": "0 0 4 * * ?", //每天凌晨4点执行
     "Title": "定时备份数据库",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
