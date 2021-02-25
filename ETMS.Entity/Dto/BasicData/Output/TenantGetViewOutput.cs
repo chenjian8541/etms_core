@@ -20,6 +20,8 @@ namespace ETMS.Entity.Dto.BasicData.Output
 
         public string ExDateDesc { get; set; }
 
+        public bool IsLimitExDate { get; set; }
+
         /// <summary>
         /// 短信数量
         /// </summary>

@@ -67,7 +67,8 @@ namespace ETMS.Business
                 Status = myTenant.Status,
                 StatusDesc = EmSysTenantStatus.GetSysTenantStatusDesc(myTenant.Status, myTenant.ExDate),
                 TenantCode = myTenant.TenantCode,
-                VersionName = version.Name
+                VersionName = version.Name,
+                IsLimitExDate = myTenant.ExDate.Date.AddMonths(-1) <= DateTime.Now.Date
             };
             return ResponseBase.Success(output);
         }
