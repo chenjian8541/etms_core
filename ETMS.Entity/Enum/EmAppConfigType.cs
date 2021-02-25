@@ -13,5 +13,10 @@ namespace ETMS.Entity.Enum
         /// 机构配置
         /// </summary>
         public const byte TenantConfig = 0;
+
+        /// <summary>
+        /// 充值规则设置
+        /// </summary>
+        public const byte RechargeRuleConfig = 1;
     }
 }

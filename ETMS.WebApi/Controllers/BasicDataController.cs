@@ -911,6 +911,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantGetView(TenantGetRequest request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return await _tenantBLL.TenantGetView(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentCourseNotEnoughCountSave(StudentCourseNotEnoughCountSaveRequest request)
         {
             try

@@ -10,6 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IBusiness.SysOp;
+using ETMS.Entity.Dto.BasicData.Output;
+using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Utility;
 
 namespace ETMS.Business
 {
@@ -21,11 +24,15 @@ namespace ETMS.Business
 
         private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
 
-        public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
+        private readonly ISysVersionDAL _sysVersionDAL;
+
+        public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
+            ISysVersionDAL sysVersionDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsLogDAL = studentSmsLogDAL;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
+            this._sysVersionDAL = sysVersionDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -37,6 +44,32 @@ namespace ETMS.Business
         {
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             return ResponseBase.Success(myTenant);
+        }
+
+        public async Task<ResponseBase> TenantGetView(TenantGetRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var version = await _sysVersionDAL.GetVersion(myTenant.VersionId);
+            var output = new TenantGetViewOutput()
+            {
+                Phone = myTenant.Phone,
+                VersionId = myTenant.VersionId,
+                Address = myTenant.Address,
+                BuyStatus = myTenant.BuyStatus,
+                BuyStatusDesc = EmSysTenantBuyStatus.GetSysTenantBuyStatusDesc(myTenant.BuyStatus),
+                ExDateDesc = myTenant.ExDate.Date.AddDays(1).AddMinutes(-1).EtmsToMinuteString(),
+                LinkMan = myTenant.LinkMan,
+                MaxUserCount = myTenant.MaxUserCount,
+                Name = myTenant.Name,
+                OtDesc = myTenant.Ot.EtmsToDateString(),
+                SmsCount = myTenant.SmsCount,
+                SmsSignature = myTenant.SmsSignature,
+                Status = myTenant.Status,
+                StatusDesc = EmSysTenantStatus.GetSysTenantStatusDesc(myTenant.Status, myTenant.ExDate),
+                TenantCode = myTenant.TenantCode,
+                VersionName = version.Name
+            };
+            return ResponseBase.Success(output);
         }
 
         public async Task TenantSmsDeductionEventConsume(TenantSmsDeductionEvent request)

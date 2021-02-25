@@ -146,6 +146,9 @@ namespace ETMS.Entity.Enum
         IncomeLogRevoke = 75,
 
         [Description("学员考勤")]
-        StudentCheckOn = 76
+        StudentCheckOn = 76,
+
+        [Description("充值管理")]
+        StudentAccountRechargeManage = 77
     }
 }
