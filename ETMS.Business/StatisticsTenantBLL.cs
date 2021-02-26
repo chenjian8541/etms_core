@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -25,20 +26,24 @@ namespace ETMS.Business
 
         private readonly ITenantToDoThingDAL _tenantToDoThingDAL;
 
+        private readonly IStatisticsStudentAccountRechargeDAL _statisticsStudentAccountRechargeDAL;
+
         public StatisticsTenantBLL(IStatisticsFinanceIncomeDAL statisticsFinanceIncomeDAL, IStatisticsStudentCountDAL statisticsStudentCountDAL,
-            IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsClassDAL statisticsClassDAL, ITenantToDoThingDAL tenantToDoThingDAL)
+            IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsClassDAL statisticsClassDAL, ITenantToDoThingDAL tenantToDoThingDAL,
+            IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL)
         {
             this._statisticsFinanceIncomeDAL = statisticsFinanceIncomeDAL;
             this._statisticsStudentCountDAL = statisticsStudentCountDAL;
             this._statisticsClassAttendanceTagDAL = statisticsClassAttendanceTagDAL;
             this._statisticsClassDAL = statisticsClassDAL;
             this._tenantToDoThingDAL = tenantToDoThingDAL;
+            this._statisticsStudentAccountRechargeDAL = statisticsStudentAccountRechargeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsFinanceIncomeDAL, _statisticsStudentCountDAL, _statisticsClassAttendanceTagDAL,
-                _statisticsClassDAL, _tenantToDoThingDAL);
+                _statisticsClassDAL, _tenantToDoThingDAL, _statisticsStudentAccountRechargeDAL);
         }
 
         public async Task<ResponseBase> StatisticsTenantGet(StatisticsTenantGetRequest request)
@@ -106,6 +111,11 @@ namespace ETMS.Business
         public async Task ResetTenantToDoThingConsumerEvent(ResetTenantToDoThingEvent request)
         {
             await _tenantToDoThingDAL.ResetTenantToDoThing();
+        }
+
+        public async Task StatisticsStudentAccountRechargeConsumerEvent(StatisticsStudentAccountRechargeEvent request)
+        {
+            await _statisticsStudentAccountRechargeDAL.UpdateStatisticsStudentAccountRecharge();
         }
     }
 }

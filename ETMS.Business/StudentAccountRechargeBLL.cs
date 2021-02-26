@@ -61,5 +61,25 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "充值规则设置", EmUserOperationType.StudentAccountRechargeManage);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> StatisticsStudentAccountRechargeGet(StatisticsStudentAccountRechargeGetRequest request)
+        {
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request)
+        {
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeRequest request)
+        {
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGetPaging(StudentAccountRechargeGetPagingRequest request)
+        {
+            return ResponseBase.Success();
+        }
     }
 }

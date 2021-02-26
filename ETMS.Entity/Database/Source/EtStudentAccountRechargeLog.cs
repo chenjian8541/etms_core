@@ -13,6 +13,8 @@ namespace ETMS.Entity.Database.Source
     {
         public long StudentAccountRechargeId { get; set; }
 
+        public string Phone { get; set; }
+
         public long? RelatedOrderId { get; set; }
 
         public string CgNo { get; set; }

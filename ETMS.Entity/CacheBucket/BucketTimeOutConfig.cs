@@ -9,7 +9,14 @@ namespace ETMS.Entity.CacheBucket
         /// <summary>
         /// 一般数据超时时间
         /// </summary>
-        public const int ComTimeOutDay = 7;
+        public static int ComTimeOutDay
+        {
+            get
+            {
+                var r = new Random();
+                return r.Next(7, 15);
+            }
+        }
 
         /// <summary>
         /// 机构数据超时时间

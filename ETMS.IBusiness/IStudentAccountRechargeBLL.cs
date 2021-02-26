@@ -12,5 +12,13 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request);
 
         Task<ResponseBase> StudentAccountRechargeRuleSave(StudentAccountRechargeRuleSaveRequest request);
+
+        Task<ResponseBase> StatisticsStudentAccountRechargeGet(StatisticsStudentAccountRechargeGetRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeGetPaging(StudentAccountRechargeGetPagingRequest request);
     }
 }
