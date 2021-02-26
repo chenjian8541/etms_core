@@ -109,5 +109,27 @@ namespace ETMS.Utility
             var toNow = new TimeSpan(lTime);
             return dateTimeStart.Add(toNow);
         }
+
+        /// <summary>
+        /// 判断是否为有效的时间
+        /// 最小日期1949-01-01
+        /// 最大日期3000-01-01
+        /// </summary>
+        /// <param name="this"></param>
+        /// <returns></returns>
+        public static bool IsEffectiveDate(this DateTime @this)
+        {
+            var minDate = new DateTime(1949, 1, 1);
+            var maxDate = new DateTime(3000, 1, 1);
+            if (@this < minDate)
+            {
+                return false;
+            }
+            if (@this > maxDate)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

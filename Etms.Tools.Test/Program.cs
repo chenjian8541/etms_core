@@ -25,7 +25,11 @@ namespace Etms.Tools.Test
             //Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
 
             //var myDate = EtmsHelper.GetWeekStartEndDate(DateTime.Now.AddDays(5));
-            CreateParentToken();
+            //CreateParentToken();
+            Console.WriteLine(DateTime.MinValue.IsEffectiveDate());
+            Console.WriteLine(DateTime.MaxValue.IsEffectiveDate());
+            var date = Convert.ToDateTime("2021-10-1");
+            Console.WriteLine(date.IsEffectiveDate());
             Console.WriteLine();
             Console.Read();
         }

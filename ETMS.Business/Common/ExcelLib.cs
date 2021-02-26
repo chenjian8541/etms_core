@@ -259,7 +259,7 @@ namespace ETMS.Business.Common
                 var birthdayCellValue = GetCellValue(myRow.GetCell(++i));
                 if (!string.IsNullOrEmpty(birthdayCellValue))
                 {
-                    if (DateTime.TryParse(birthdayCellValue, out DateTime tempTime))
+                    if (DateTime.TryParse(birthdayCellValue, out DateTime tempTime) && tempTime.IsEffectiveDate())
                     {
                         myStudentItem.Birthday = tempTime;
                     }
@@ -580,7 +580,7 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (DateTime.TryParse(endTime, out DateTime mytempendTime))
+                    if (DateTime.TryParse(endTime, out DateTime mytempendTime) && mytempendTime.IsEffectiveDate())
                     {
                         myStudentCourseItem.EndTime = mytempendTime;
                     }
@@ -633,7 +633,7 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (DateTime.TryParse(orderOt, out DateTime mytemporderOt))
+                    if (DateTime.TryParse(orderOt, out DateTime mytemporderOt) && mytemporderOt.IsEffectiveDate())
                     {
                         myStudentCourseItem.OrderOt = mytemporderOt;
                     }
@@ -873,7 +873,7 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (DateTime.TryParse(startTime, out DateTime mytempstartTime))
+                    if (DateTime.TryParse(startTime, out DateTime mytempstartTime) && mytempstartTime.IsEffectiveDate())
                     {
                         myStudentCourseItem.StartTime = mytempstartTime.Date;
                     }
@@ -891,7 +891,7 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (DateTime.TryParse(endTime, out DateTime mytempendTime))
+                    if (DateTime.TryParse(endTime, out DateTime mytempendTime) && mytempendTime.IsEffectiveDate())
                     {
                         myStudentCourseItem.EndTime = mytempendTime.Date;
                     }
@@ -948,7 +948,7 @@ namespace ETMS.Business.Common
                 }
                 else
                 {
-                    if (DateTime.TryParse(orderOt, out DateTime mytemporderOt))
+                    if (DateTime.TryParse(orderOt, out DateTime mytemporderOt) && mytemporderOt.IsEffectiveDate())
                     {
                         myStudentCourseItem.OrderOt = mytemporderOt;
                     }
