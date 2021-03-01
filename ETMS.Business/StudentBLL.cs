@@ -169,8 +169,17 @@ namespace ETMS.Business
             }, request, etStudent.Ot, true);
 
             CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
+            SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
             await _userOperationLogDAL.AddUserLog(request, $"添加学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success(studentId);
+        }
+
+        private void SyncParentStudents(int tenantId, params string[] phones)
+        {
+            _eventPublisher.Publish(new SyncParentStudentsEvent(tenantId)
+            {
+                Phones = phones
+            }); ;
         }
 
         private void SyncStatisticsStudentInfo(StatisticsStudentCountEvent studentCountEvent, RequestBase request, DateTime ot, bool isChangeStudentSource)
@@ -251,6 +260,7 @@ namespace ETMS.Business
             }
 
             CoreBusiness.ProcessStudentPhoneAboutEdit(oldPhone, oldPhoneBak, etStudent, _eventPublisher);
+            SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak, oldPhone, oldPhoneBak);
             await _userOperationLogDAL.AddUserLog(request, $"编辑学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
@@ -278,6 +288,7 @@ namespace ETMS.Business
             await _aiface.StudentDelete(etStudent.Id);
 
             CoreBusiness.ProcessStudentPhoneAboutDel(etStudent, _eventPublisher);
+            SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
             await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }

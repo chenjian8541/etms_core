@@ -25,5 +25,21 @@ namespace ETMS.Entity.Enum
         /// 退款至账户
         /// </summary>
         public const int OrderRetuen = 3;
+
+        public static string GetStudentAccountRechargeLogTypeDesc(int type)
+        {
+            switch (type)
+            {
+                case Recharge:
+                    return "账户充值";
+                case Refund:
+                    return "账户退款";
+                case Pay:
+                    return "账户支出";
+                case OrderRetuen:
+                    return "退款至账户";
+            }
+            return string.Empty;
+        }
     }
 }

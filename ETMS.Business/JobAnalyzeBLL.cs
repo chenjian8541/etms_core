@@ -31,8 +31,11 @@ namespace ETMS.Business
 
         private readonly IJobAnalyzeDAL _jobAnalyzeDAL;
 
+        private readonly IParentStudentDAL _parentStudentDAL;
+
         public JobAnalyzeBLL(IJobAnalyzeDAL analyzeClassTimesDAL, IClassDAL classDAL, IHolidaySettingDAL holidaySettingDAL, IClassRecordDAL classRecordDAL,
-            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL)
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL,
+            IParentStudentDAL parentStudentDAL)
         {
             this._analyzeClassTimesDAL = analyzeClassTimesDAL;
             this._classDAL = classDAL;
@@ -41,11 +44,13 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._jobAnalyzeDAL = jobAnalyzeDAL;
+            this._parentStudentDAL = parentStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL, _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL);
+            this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL,
+                _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL, _parentStudentDAL);
         }
 
         public void ResetTenantId(int tenantId)
@@ -255,6 +260,19 @@ namespace ETMS.Business
                     ClassTimesIds = classTimes.Select(p => p.Id).ToList(),
                     ClassOt = request.ClassOt
                 });
+            }
+        }
+
+        public async Task SyncParentStudentsConsumerEvent(SyncParentStudentsEvent request)
+        {
+            var myPhone = request.Phones.Distinct();
+            foreach (var p in myPhone)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+                await _parentStudentDAL.UpdateCacheAndGetParentStudents(request.TenantId, p);
             }
         }
     }

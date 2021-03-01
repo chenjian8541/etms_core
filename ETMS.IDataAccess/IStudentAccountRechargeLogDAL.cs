@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,5 +10,7 @@ namespace ETMS.IDataAccess
     public interface IStudentAccountRechargeLogDAL : IBaseDAL
     {
         Task AddStudentAccountRechargeLog(EtStudentAccountRechargeLog log);
+
+        Task<Tuple<IEnumerable<EtStudentAccountRechargeLog>, int>> GetPaging(RequestPagingBase request);
     }
 }

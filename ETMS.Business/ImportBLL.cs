@@ -187,6 +187,11 @@ namespace ETMS.Business
                     OpType = StatisticsStudentOpType.Add,
                     Time = now
                 }, request, now.Date, true);
+                var phones = studentList.Select(p => p.Phone).ToList();
+                _eventPublisher.Publish(new SyncParentStudentsEvent(request.LoginTenantId)
+                {
+                    Phones = phones.ToArray()
+                }); ;
                 await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
             return ResponseBase.Success(new ImportStudentOutput()

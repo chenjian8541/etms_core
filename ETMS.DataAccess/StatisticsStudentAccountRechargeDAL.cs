@@ -66,6 +66,13 @@ namespace ETMS.DataAccess
                     });
                 }
             }
+            await UpdateCache(_tenantId);
+        }
+
+        public async Task<EtStatisticsStudentAccountRecharge> GetStatisticsStudentAccountRecharge()
+        {
+            var bucket = await GetCache(_tenantId);
+            return bucket?.StatisticsStudentAccountRecharge;
         }
     }
 }
