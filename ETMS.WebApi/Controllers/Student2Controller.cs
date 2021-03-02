@@ -51,5 +51,131 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StatisticsStudentAccountRechargeGet(StatisticsStudentAccountRechargeGetRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StatisticsStudentAccountRechargeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGetPaging(StudentAccountRechargeGetPagingRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGetByPhone(StudentAccountRechargeGetByPhoneRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeGetByPhone(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeCreate(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeEditPhone(StudentAccountRechargeEditPhoneRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeEditPhone(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRecharge(StudentAccountRechargeRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRecharge(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRefund(StudentAccountRefundRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRefund(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

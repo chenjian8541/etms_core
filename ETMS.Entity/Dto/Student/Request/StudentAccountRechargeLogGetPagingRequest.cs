@@ -8,6 +8,8 @@ namespace ETMS.Entity.Dto.Student.Request
 {
     public class StudentAccountRechargeLogGetPagingRequest : RequestPagingBase
     {
+        public long? StudentAccountRechargeId { get; set; }
+
         public string Phone { get; set; }
 
         public int? Type { get; set; }
@@ -89,6 +91,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (UserId != null)
             {
                 condition.Append($" AND [UserId] = {UserId.Value}");
+            }
+            if (StudentAccountRechargeId != null)
+            {
+                condition.Append($" AND [StudentAccountRechargeId] = {StudentAccountRechargeId.Value}");
             }
             return condition.ToString();
         }

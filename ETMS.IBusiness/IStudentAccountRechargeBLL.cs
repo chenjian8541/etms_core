@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Student.Request;
+using ETMS.Event.DataContract;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,8 +18,20 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request);
 
-        Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeRequest request);
+        Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request);
 
         Task<ResponseBase> StudentAccountRechargeGetPaging(StudentAccountRechargeGetPagingRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeGetByPhone(StudentAccountRechargeGetByPhoneRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeEditPhone(StudentAccountRechargeEditPhoneRequest request);
+
+        Task<ResponseBase> StudentAccountRecharge(StudentAccountRechargeRequest request);
+
+        Task StudentAccountRechargeConsumerEvent(StudentAccountRechargeEvent request);
+
+        Task<ResponseBase> StudentAccountRefund(StudentAccountRefundRequest request);
     }
 }

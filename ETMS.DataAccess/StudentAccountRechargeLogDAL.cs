@@ -24,5 +24,10 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtStudentAccountRechargeLog>("EtStudentAccountRechargeLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task UpdateStudentAccountRechargeLogPhone(long studentAccountRechargeId, string phone)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudentAccountRechargeLog SET Phone = '{phone}' WHERE TenantId = {_tenantId} AND StudentAccountRechargeId = {studentAccountRechargeId} ");
+        }
     }
 }

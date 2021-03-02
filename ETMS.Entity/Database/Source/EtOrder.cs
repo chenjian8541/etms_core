@@ -17,6 +17,11 @@ namespace ETMS.Entity.Database.Source
         public long StudentId { get; set; }
 
         /// <summary>
+        /// 充值账户ID
+        /// </summary>
+        public long? StudentAccountRechargeId { get; set; }
+
+        /// <summary>
         /// 订单类型   <see cref="ETMS.Entity.Enum.EmOrderType"/>
         /// </summary>
         public int OrderType { get; set; }
@@ -52,6 +57,11 @@ namespace ETMS.Entity.Database.Source
         /// 费用
         /// </summary>
         public string BuyCost { get; set; }
+
+        /// <summary>
+        /// 其它
+        /// </summary>
+        public string BuyOther { get; set; }
 
         /// <summary>
         /// 订单总金额

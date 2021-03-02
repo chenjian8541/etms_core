@@ -33,9 +33,11 @@ namespace ETMS.Business
 
         private readonly IParentStudentDAL _parentStudentDAL;
 
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
         public JobAnalyzeBLL(IJobAnalyzeDAL analyzeClassTimesDAL, IClassDAL classDAL, IHolidaySettingDAL holidaySettingDAL, IClassRecordDAL classRecordDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL,
-            IParentStudentDAL parentStudentDAL)
+            IParentStudentDAL parentStudentDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL)
         {
             this._analyzeClassTimesDAL = analyzeClassTimesDAL;
             this._classDAL = classDAL;
@@ -45,12 +47,14 @@ namespace ETMS.Business
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._jobAnalyzeDAL = jobAnalyzeDAL;
             this._parentStudentDAL = parentStudentDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL,
-                _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL, _parentStudentDAL);
+                _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL, _parentStudentDAL,
+                _studentAccountRechargeLogDAL);
         }
 
         public void ResetTenantId(int tenantId)
@@ -274,6 +278,11 @@ namespace ETMS.Business
                 }
                 await _parentStudentDAL.UpdateCacheAndGetParentStudents(request.TenantId, p);
             }
+        }
+
+        public async Task SyncStudentAccountRechargeLogPhoneConsumerEvent(SyncStudentAccountRechargeLogPhoneEvent request)
+        {
+            await _studentAccountRechargeLogDAL.UpdateStudentAccountRechargeLogPhone(request.StudentAccountRechargeId, request.NewPhone);
         }
     }
 }

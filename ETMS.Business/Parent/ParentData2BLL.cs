@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
+using ETMS.Entity.Temp;
 
 namespace ETMS.Business
 {
@@ -57,11 +58,14 @@ namespace ETMS.Business
 
         private readonly IStudentOperationLogDAL _studentOperationLogDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
         public ParentData2BLL(IClassRecordDAL classRecordDAL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IStudentCourseDAL studentCourseDAL, ICourseDAL courseDAL, IParentStudentDAL parentStudentDAL, IOrderDAL orderDAL,
             ICouponsDAL couponsDAL, ICostDAL costDAL, IGoodsDAL goodsDAL, IIncomeLogDAL incomeLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentRelationshipDAL studentRelationshipDAL,
-            IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL, IStudentOperationLogDAL studentOperationLogDAL)
+            IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL, IStudentOperationLogDAL studentOperationLogDAL,
+            IStudentAccountRechargeDAL studentAccountRechargeDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classDAL = classDAL;
@@ -82,13 +86,46 @@ namespace ETMS.Business
             this._classRoomDAL = classRoomDAL;
             this._classRecordEvaluateDAL = classRecordEvaluateDAL;
             this._studentOperationLogDAL = studentOperationLogDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _classDAL, _userDAL, _studentDAL, _studentCourseDAL,
                 _courseDAL, _parentStudentDAL, _orderDAL, _couponsDAL, _costDAL, _goodsDAL, _incomeLogDAL, _studentPointsLogDAL,
-                _studentRelationshipDAL, _classRoomDAL, _classRecordEvaluateDAL, _studentOperationLogDAL);
+                _studentRelationshipDAL, _classRoomDAL, _classRecordEvaluateDAL, _studentOperationLogDAL, _studentAccountRechargeDAL);
+        }
+
+        private async Task<OrderStudentView> OrderStudentGet(EtOrder order)
+        {
+            var orderStudentView = new OrderStudentView()
+            {
+                StudentId = order.StudentId
+            };
+            if (order.StudentId > 0)
+            {
+                var studentBucket = await _studentDAL.GetStudent(order.StudentId);
+                if (studentBucket != null && studentBucket.Student != null)
+                {
+                    orderStudentView.StudentPhone = studentBucket.Student.Phone;
+                    orderStudentView.StudentName = studentBucket.Student.Name;
+                    orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
+                    return orderStudentView;
+                }
+            }
+            else
+            {
+                if (order.StudentAccountRechargeId != null)
+                {
+                    var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(order.StudentAccountRechargeId.Value);
+                    if (accountLog != null)
+                    {
+                        orderStudentView.StudentPhone = accountLog.Phone;
+                        return orderStudentView;
+                    }
+                }
+            }
+            return orderStudentView;
         }
 
         public async Task<ResponseBase> ClassRecordGet(ClassRecordGetRequest request)
@@ -280,7 +317,7 @@ namespace ETMS.Business
             var output = new List<StudentOrderGetOutput>();
             foreach (var p in pagingData.Item1)
             {
-                var student = await _studentDAL.GetStudent(p.StudentId);
+                var student = await OrderStudentGet(p);
                 output.Add(new StudentOrderGetOutput()
                 {
                     AptSum = p.AptSum,
@@ -295,7 +332,8 @@ namespace ETMS.Business
                     Status = p.Status,
                     StatusDesc = EmOrderStatus.GetOrderStatus(p.Status),
                     StudentId = p.StudentId,
-                    StudentName = student.Student.Name,
+                    StudentName = student.StudentName,
+                    StudentPhone = student.StudentPhone,
                     TotalPoints = p.TotalPoints,
                     Id = p.Id,
                     InOutType = p.InOutType,
@@ -314,7 +352,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("订单不存在");
             }
             var output = new StudentOrderDetailGetOutput();
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var student = await OrderStudentGet(order);
             output.BascInfo = new ParentOrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -327,7 +365,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
+                StudentName = student.StudentName,
+                StudentPhone = student.StudentPhone,
                 TotalPoints = order.TotalPoints,
                 InOutType = order.InOutType,
                 TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
@@ -435,7 +474,7 @@ namespace ETMS.Business
                 InList = new List<StudentOrderTransferCoursesGetDetailIn>(),
                 OutList = new List<StudentOrderTransferCoursesGetDetailOut>()
             };
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var student = await OrderStudentGet(order);
             output.BascInfo = new StudentOrderTransferCoursesGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -452,8 +491,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
-                StudentPhone = student.Phone,
+                StudentName = student.StudentName,
+                StudentPhone = student.StudentPhone,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,

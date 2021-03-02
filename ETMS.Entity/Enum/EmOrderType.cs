@@ -24,6 +24,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte TransferCourse = 2;
 
+        /// <summary>
+        /// 账户充值
+        /// </summary>
+        public const byte StudentAccountRecharge = 3;
+
+        /// <summary>
+        /// 账户退款
+        /// </summary>
+        public const byte StudentAccountRefund = 4;
+
         public static string GetOrderTypeDesc(int orderType)
         {
             switch (orderType)
@@ -34,6 +44,10 @@ namespace ETMS.Entity.Enum
                     return "销售退单";
                 case TransferCourse:
                     return "转课";
+                case StudentAccountRecharge:
+                    return "账户充值";
+                case StudentAccountRefund:
+                    return "账户退款";
             }
             return string.Empty;
         }

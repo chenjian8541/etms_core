@@ -42,5 +42,19 @@ namespace ETMS.Business.Common
             var strRandom = new Random().Next(100, 999);
             return $"{strTime}{strRandom}";
         }
+
+        public static string StudentAccountRecharge()
+        {
+            var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var strRandom = new Random().Next(100, 999);
+            return $"{strTime}{strRandom}";
+        }
+
+        public static string StudentAccountRefund()
+        {
+            var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var strRandom = new Random().Next(100, 999);
+            return $"{strTime}{strRandom}";
+        }
     }
 }

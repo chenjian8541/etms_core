@@ -24,5 +24,7 @@ namespace ETMS.IBusiness
         Task TenantClassTimesTodayConsumerEvent(TenantClassTimesTodayEvent request);
 
         Task SyncParentStudentsConsumerEvent(SyncParentStudentsEvent request);
+
+        Task SyncStudentAccountRechargeLogPhoneConsumerEvent(SyncStudentAccountRechargeLogPhoneEvent request);
     }
 }

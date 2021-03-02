@@ -16,6 +16,7 @@ using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.LOG;
 using ETMS.Entity.Config;
+using ETMS.Entity.Temp;
 
 namespace ETMS.Business
 {
@@ -43,9 +44,11 @@ namespace ETMS.Business
 
         private readonly IStudentCourseDAL _studentCourseDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
-            IStudentCourseDAL studentCourseDAL)
+            IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -58,12 +61,46 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
             this._studentCourseDAL = studentCourseDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
-                _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL);
+                _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL,
+                _studentAccountRechargeDAL);
+        }
+
+        private async Task<OrderStudentView> OrderStudentGet(EtOrder order)
+        {
+            var orderStudentView = new OrderStudentView()
+            {
+                StudentId = order.StudentId
+            };
+            if (order.StudentId > 0)
+            {
+                var studentBucket = await _studentDAL.GetStudent(order.StudentId);
+                if (studentBucket != null && studentBucket.Student != null)
+                {
+                    orderStudentView.StudentPhone = studentBucket.Student.Phone;
+                    orderStudentView.StudentName = studentBucket.Student.Name;
+                    orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
+                    return orderStudentView;
+                }
+            }
+            else
+            {
+                if (order.StudentAccountRechargeId != null)
+                {
+                    var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(order.StudentAccountRechargeId.Value);
+                    if (accountLog != null)
+                    {
+                        orderStudentView.StudentPhone = accountLog.Phone;
+                        return orderStudentView;
+                    }
+                }
+            }
+            return orderStudentView;
         }
 
         public async Task<ResponseBase> OrderGetPaging(OrderGetPagingRequest request)
@@ -73,7 +110,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var p in pagingData.Item1)
             {
-                var student = await _studentDAL.GetStudent(p.StudentId);
+                var studentInfo = await OrderStudentGet(p);
                 orderOutput.Add(new OrderGetPagingOutput()
                 {
                     AptSum = p.AptSum,
@@ -91,8 +128,8 @@ namespace ETMS.Business
                     Status = p.Status,
                     StatusDesc = EmOrderStatus.GetOrderStatus(p.Status),
                     StudentId = p.StudentId,
-                    StudentName = student.Student.Name,
-                    StudentPhone = student.Student.Phone,
+                    StudentName = studentInfo.StudentName,
+                    StudentPhone = studentInfo.StudentPhone,
                     Sum = p.Sum,
                     TotalPoints = p.TotalPoints,
                     TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(p.TotalPoints, p.InOutType),
@@ -139,7 +176,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var studentInfo = await OrderStudentGet(order);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
@@ -159,8 +196,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
-                StudentPhone = student.Phone,
+                StudentName = studentInfo.StudentName,
+                StudentPhone = studentInfo.StudentPhone,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -173,7 +210,7 @@ namespace ETMS.Business
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
-                StudentCardNo = student.CardNo,
+                StudentCardNo = studentInfo.StudentCardNo,
                 GiveSum = order.AptSum - order.Sum
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
@@ -288,7 +325,7 @@ namespace ETMS.Business
                 OutList = new List<OrderTransferCoursesGetDetailOut>()
             };
             var tempBoxUser = new DataTempBox<EtUser>();
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var studentInfo = await OrderStudentGet(order);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderTransferCoursesGetDetailBascInfo()
             {
@@ -308,8 +345,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
-                StudentPhone = student.Phone,
+                StudentName = studentInfo.StudentName,
+                StudentPhone = studentInfo.StudentPhone,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -393,7 +430,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetSimpleDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var studentInfo = await OrderStudentGet(order);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -412,8 +449,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
-                StudentPhone = student.Phone,
+                StudentName = studentInfo.StudentName,
+                StudentPhone = studentInfo.StudentPhone,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -425,7 +462,7 @@ namespace ETMS.Business
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
-                StudentCardNo = student.CardNo,
+                StudentCardNo = studentInfo.StudentCardNo,
                 GiveSum = order.AptSum - order.Sum
             };
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
@@ -457,7 +494,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("订单不存在");
             }
             var tempBoxUser = new DataTempBox<EtUser>();
-            var student = (await _studentDAL.GetStudent(order.StudentId)).Student;
+            var studentInfo = await OrderStudentGet(order);
             var output = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -476,8 +513,8 @@ namespace ETMS.Business
                 Status = order.Status,
                 StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
                 StudentId = order.StudentId,
-                StudentName = student.Name,
-                StudentPhone = student.Phone,
+                StudentName = studentInfo.StudentName,
+                StudentPhone = studentInfo.StudentPhone,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -489,7 +526,7 @@ namespace ETMS.Business
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
-                StudentCardNo = student.CardNo,
+                StudentCardNo = studentInfo.StudentCardNo,
                 GiveSum = order.AptSum - order.Sum
             };
             return ResponseBase.Success(output);

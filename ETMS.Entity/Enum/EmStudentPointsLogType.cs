@@ -79,6 +79,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int TransferCourseDeduction = 13;
 
+        /// <summary>
+        /// 账户充值
+        /// </summary>
+        public const int StudentAccountRecharge = 14;
+
+        /// <summary>
+        /// 账户退款
+        /// </summary>
+        public const int StudentAccountRefund = 15;
+
         public static string GetStudentPointsLogType(int type)
         {
             switch (type)
@@ -111,6 +121,10 @@ namespace ETMS.Entity.Enum
                     return "转课(增加)";
                 case TransferCourseDeduction:
                     return "转课(扣除)";
+                case StudentAccountRecharge:
+                    return "账户充值";
+                case StudentAccountRefund:
+                    return "账户退款";
             }
             return string.Empty;
         }
@@ -146,6 +160,10 @@ namespace ETMS.Entity.Enum
                 case TransferCourseAdd:
                     return $"+{point}";
                 case TransferCourseDeduction:
+                    return $"-{point}";
+                case StudentAccountRecharge:
+                    return $"+{point}";
+                case StudentAccountRefund:
                     return $"-{point}";
             }
             return string.Empty;

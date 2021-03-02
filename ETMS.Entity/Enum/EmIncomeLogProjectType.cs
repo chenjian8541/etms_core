@@ -28,6 +28,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const long TransferCourse = -4;
 
+        /// <summary>
+        /// 账户充值
+        /// </summary>
+        public const long StudentAccountRecharge = -5;
+
+        /// <summary>
+        /// 账户退款
+        /// </summary>
+        public const long StudentAccountRefund = -6;
+
         public static string GetIncomeLogProjectType(List<EtIncomeProjectType> etIncomeProjectTypes, long type)
         {
             if (type >= 0)
@@ -48,6 +58,10 @@ namespace ETMS.Entity.Enum
                     return "销售退单";
                 case TransferCourse:
                     return "转课";
+                case StudentAccountRecharge:
+                    return "账户充值";
+                case StudentAccountRefund:
+                    return "账户退款";
             }
             return string.Empty;
         }
@@ -64,6 +78,10 @@ namespace ETMS.Entity.Enum
                     return "销售退单";
                 case TransferCourse:
                     return "转课";
+                case StudentAccountRecharge:
+                    return "账户充值";
+                case StudentAccountRefund:
+                    return "账户退款";
             }
             return string.Empty;
         }

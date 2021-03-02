@@ -21,5 +21,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public decimal RechargeGiveSum { get; set; }
 
         public DateTime Ot { get; set; }
+
+        public string PelationStudent { get; set; }
     }
 }
