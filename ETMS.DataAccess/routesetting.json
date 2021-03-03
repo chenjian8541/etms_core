@@ -470,6 +470,53 @@
     },
     "Children": [
       {
+        "Id": 88,
+        "Path": "rechargeManage",
+        "Name": "rechargeManage",
+        "Type": 1,
+        "Component": "@/views/finance/rechargeManage",
+        "Meta": {
+          "Title": "充值管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_add/:cid?",
+        "Name": "recharge_add",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/add",
+        "Meta": {
+          "Title": "账户充值",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_refund",
+        "Name": "recharge_refund",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/refund",
+        "Meta": {
+          "Title": "账户退款",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_rule/:cid?",
+        "Name": "recharge_rule",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/rule",
+        "Meta": {
+          "Title": "充值规则设置",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 47,
         "Path": "orderMgr",
         "Name": "orderMgr",
