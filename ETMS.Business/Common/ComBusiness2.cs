@@ -313,6 +313,10 @@ namespace ETMS.Business.Common
                     }
                     tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
                 }
+                if (tempValidSmallQuantity == 0)
+                {
+                    tempValidSmallQuantity = 1;
+                }
             }
             //计算单价，合计金额/总的有效数量(课时/天数)
             var tempCoursePrice = Math.Round(orderDetail.ItemAptSum / tempValidSmallQuantity, 2);
