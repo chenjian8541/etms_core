@@ -450,7 +450,7 @@ namespace ETMS.Business
         }
 
         private EtIncomeLog GetStudentAccountRechargeIncomeLog(byte payType, decimal payValue, DateTime createTime,
-            DateTime ot, string no, RequestBase request)
+            DateTime ot, string no, StudentAccountRechargeRequest request)
         {
             return new EtIncomeLog()
             {
@@ -460,7 +460,7 @@ namespace ETMS.Business
                 Ot = ot,
                 PayType = payType,
                 ProjectType = EmIncomeLogProjectType.StudentAccountRecharge,
-                Remark = string.Empty,
+                Remark = request.Remark,
                 RepealOt = null,
                 OrderId = null,
                 RepealUserId = null,
@@ -475,7 +475,134 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRefund(StudentAccountRefundRequest request)
         {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.StudentAccountRechargeId);
+            if (accountLog == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            if (accountLog.BalanceReal < request.ReturnReal)
+            {
+                return ResponseBase.CommonError("账户实充余额不足");
+            }
+            if (accountLog.BalanceGive < request.ReturnGive)
+            {
+                return ResponseBase.CommonError("账户赠送余额不足");
+            }
+
+            var no = OrderNumberLib.StudentAccountRefund();
+            var now = DateTime.Now;
+
+            await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+            {
+                AddBalanceReal = -request.ReturnReal,
+                AddBalanceGive = -request.ReturnGive,
+                AddRechargeSum = -request.ReturnReal,
+                AddRechargeGiveSum = -request.ReturnGive,
+                StudentAccountRechargeId = request.StudentAccountRechargeId,
+                TryCount = 0
+            });
+
+            _eventPublisher.Publish(new StudentAccountRefundEvent(request.LoginTenantId)
+            {
+                AccountLog = accountLog,
+                RefundRequest = request,
+                No = no,
+                CreateOt = now
+            });
+
             return ResponseBase.Success();
+        }
+
+        public async Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest)
+        {
+            var now = eventRequest.CreateOt;
+            var no = eventRequest.No;
+            var request = eventRequest.RefundRequest;
+            var accountLog = eventRequest.AccountLog;
+            var paySum = request.ReturnReal - request.ReturnServiceCharge;
+
+            var order = new EtOrder()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = request.Ot,
+                CreateOt = now,
+                AptSum = paySum,
+                ArrearsSum = 0,
+                BuyCost = string.Empty,
+                BuyCourse = string.Empty,
+                BuyGoods = string.Empty,
+                BuyOther = "账户退款",
+                CommissionUser = string.Empty,
+                CouponsIds = string.Empty,
+                CouponsStudentGetIds = string.Empty,
+                InOutType = EmOrderInOutType.Out,
+                IsReturn = EmBool.False,
+                IsTransferCourse = EmBool.False,
+                No = no,
+                OrderType = EmOrderType.StudentAccountRefund,
+                PaySum = paySum,
+                Remark = request.Remark,
+                Status = EmOrderStatus.Normal,
+                StudentAccountRechargeId = request.StudentAccountRechargeId,
+                StudentId = 0,
+                Sum = paySum,
+                TenantId = request.LoginTenantId,
+                TotalPoints = 0,
+                UnionOrderId = null,
+                UnionOrderNo = string.Empty,
+                UnionTransferOrderIds = string.Empty,
+                UserId = request.LoginUserId
+            };
+            var orderId = await _orderDAL.AddOrder(order);
+
+            if (paySum > 0)
+            {
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = no,
+                    CreateOt = now,
+                    Ot = request.Ot,
+                    IsDeleted = EmIsDeleted.Normal,
+                    UserId = order.UserId,
+                    No = order.No,
+                    OrderId = orderId,
+                    PayType = request.PayType,
+                    ProjectType = EmIncomeLogProjectType.StudentAccountRefund,
+                    Remark = request.Remark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = paySum,
+                    Type = EmIncomeLogType.AccountOut,
+                    TenantId = order.TenantId
+                });
+            }
+
+            await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+            {
+                TenantId = order.TenantId,
+                Type = EmStudentAccountRechargeLogType.Refund,
+                CgBalanceGive = request.ReturnGive,
+                CgBalanceReal = request.ReturnReal,
+                CgServiceCharge = request.ReturnServiceCharge,
+                CommissionUser = string.Empty,
+                CgNo = order.No,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                Phone = accountLog.Phone,
+                RelatedOrderId = orderId,
+                Remark = request.Remark,
+                Status = EmStudentAccountRechargeLogStatus.Normal,
+                StudentAccountRechargeId = request.StudentAccountRechargeId,
+                UserId = request.LoginUserId
+            });
+
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+            {
+                StatisticsDate = order.Ot
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"账户退款-账户:{accountLog.Phone},实充余额退款:{request.ReturnReal},赠送余额扣减:{request.ReturnGive},手续费:{request.ReturnServiceCharge}", EmUserOperationType.StudentAccountRechargeManage);
         }
     }
 }

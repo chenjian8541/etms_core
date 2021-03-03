@@ -20,11 +20,6 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public byte PayType { get; set; }
 
-        /// <summary>
-        /// 退款金额
-        /// </summary>
-        public decimal PaySum { get; set; }
-
         public DateTime Ot { get; set; }
 
         public string Remark { get; set; }
@@ -38,6 +33,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (ReturnReal <= 0)
             {
                 return "请输入实充余额退款";
+            }
+            if (ReturnServiceCharge > ReturnReal)
+            {
+                return "手续费不能大于实充余额退款";
             }
             return base.Validate();
         }
