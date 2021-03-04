@@ -22,6 +22,6 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public DateTime Ot { get; set; }
 
-        public string PelationStudent { get; set; }
+        public List<string> RelationStudent { get; set; }
     }
 }

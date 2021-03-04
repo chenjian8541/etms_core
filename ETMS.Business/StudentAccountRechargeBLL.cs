@@ -17,6 +17,8 @@ using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.Utility;
 using ETMS.Event.DataContract.Statistics;
+using Microsoft.AspNetCore.Http;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business
 {
@@ -48,11 +50,16 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public StudentAccountRechargeBLL(IAppConfigDAL appConfigDAL, IUserOperationLogDAL userOperationLogDAL,
             IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IUserDAL userDAL, IParentStudentDAL parentStudentDAL,
             IEventPublisher eventPublisher, IStudentPointsLogDAL studentPointsLogDAL, IStudentDAL studentDAL, IOrderDAL orderDAL,
-            IIncomeLogDAL incomeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
+            IIncomeLogDAL incomeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL,
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._appConfigDAL = appConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -67,6 +74,8 @@ namespace ETMS.Business
             this._orderDAL = orderDAL;
             this._incomeLogDAL = incomeLogDAL;
             this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -84,7 +93,12 @@ namespace ETMS.Business
                 return ResponseBase.Success(new StudentAccountRechargeRuleView());
             }
             var rechargeRuleView = JsonConvert.DeserializeObject<StudentAccountRechargeRuleView>(log.ConfigValue);
-            return ResponseBase.Success(rechargeRuleView);
+            return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput()
+            {
+                Explain = rechargeRuleView.Explain,
+                ImgUrlKey = rechargeRuleView.ImgUrlKey,
+                ImgUrlKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, rechargeRuleView.ImgUrlKey),
+            });
         }
 
         public async Task<ResponseBase> StudentAccountRechargeRuleSave(StudentAccountRechargeRuleSaveRequest request)
@@ -133,6 +147,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var p in pagingData.Item1)
             {
+                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, p.Phone);
                 output.Add(new StudentAccountRechargeLogGetPagingOutput()
                 {
                     CgBalanceGive = p.CgBalanceGive,
@@ -150,7 +165,11 @@ namespace ETMS.Business
                     Status = p.Status,
                     StudentAccountRechargeId = p.StudentAccountRechargeId,
                     Type = p.Type,
-                    TypeDesc = EmStudentAccountRechargeLogType.GetStudentAccountRechargeLogTypeDesc(p.Type)
+                    TypeDesc = EmStudentAccountRechargeLogType.GetStudentAccountRechargeLogTypeDesc(p.Type),
+                    RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents),
+                    CgBalanceRealDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceReal, p.Type),
+                    CgBalanceGiveDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceGive, p.Type),
+                    CgServiceChargeDesc = p.CgServiceCharge > 0 ? $"￥{p.CgServiceCharge.ToString("F2")}" : "-"
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentAccountRechargeLogGetPagingOutput>(pagingData.Item2, output));
@@ -164,11 +183,6 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("账户不存在");
             }
             var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
-            var pelationStudentStr = string.Empty;
-            if (parentStudents != null && parentStudents.Any())
-            {
-                pelationStudentStr = string.Join(',', parentStudents);
-            }
             return ResponseBase.Success(new StudentAccountRechargeGetOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
@@ -179,7 +193,7 @@ namespace ETMS.Business
                 Phone = accountLog.Phone,
                 RechargeGiveSum = accountLog.RechargeGiveSum,
                 RechargeSum = accountLog.RechargeSum,
-                PelationStudent = pelationStudentStr
+                RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
             });
         }
 
@@ -190,11 +204,6 @@ namespace ETMS.Business
             foreach (var p in pagingData.Item1)
             {
                 var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, p.Phone);
-                var pelationStudent = string.Empty;
-                if (parentStudents != null && parentStudents.Any())
-                {
-                    pelationStudent = string.Join(',', parentStudents);
-                }
                 output.Add(new StudentAccountRechargeGetPagingOutput()
                 {
                     Phone = p.Phone,
@@ -205,7 +214,7 @@ namespace ETMS.Business
                     RechargeGiveSum = p.RechargeGiveSum,
                     RechargeSum = p.RechargeSum,
                     Id = p.Id,
-                    RelationStudent = pelationStudent
+                    RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentAccountRechargeGetPagingOutput>(pagingData.Item2, output));
@@ -219,11 +228,6 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("账户不存在");
             }
             var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
-            var pelationStudentStr = string.Empty;
-            if (parentStudents != null && parentStudents.Any())
-            {
-                pelationStudentStr = string.Join(',', parentStudents);
-            }
             return ResponseBase.Success(new StudentAccountRechargeGetOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
@@ -234,7 +238,7 @@ namespace ETMS.Business
                 Phone = accountLog.Phone,
                 RechargeGiveSum = accountLog.RechargeGiveSum,
                 RechargeSum = accountLog.RechargeSum,
-                PelationStudent = pelationStudentStr
+                RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
             });
         }
 

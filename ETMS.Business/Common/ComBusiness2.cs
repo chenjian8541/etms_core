@@ -12,6 +12,7 @@ using ETMS.Utility;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Student.Request;
+using ETMS.Entity.CacheBucket;
 
 namespace ETMS.Business.Common
 {
@@ -441,6 +442,20 @@ namespace ETMS.Business.Common
                     return $"{courseName}({returnCount.EtmsToString()}天)";
             }
             return string.Empty;
+        }
+
+        internal static List<string> GetParentStudentsDesc(IEnumerable<ParentStudentInfo> parentStudentInfos)
+        {
+            var result = new List<string>();
+            if (parentStudentInfos == null || parentStudentInfos.Count() == 0)
+            {
+                return result;
+            }
+            foreach (var p in parentStudentInfos)
+            {
+                result.Add($"{p.Name}({p.Phone})");
+            }
+            return result;
         }
     }
 }

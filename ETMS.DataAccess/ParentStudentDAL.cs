@@ -20,7 +20,7 @@ namespace ETMS.DataAccess
         {
             var phone = keys[1].ToString();
             var students = await _dbWrapper.ExecuteObject<ParentStudentInfo>(
-                $"SELECT Id,Name,Gender,Avatar from EtStudent WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {keys[0]} AND (Phone = '{phone}' or PhoneBak = '{phone}')");
+                $"SELECT Id,Name,Gender,Avatar,Phone from EtStudent WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {keys[0]} AND (Phone = '{phone}' or PhoneBak = '{phone}')");
             if (students == null || !students.Any())
             {
                 return null;

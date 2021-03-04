@@ -25,9 +25,15 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public decimal CgBalanceReal { get; set; }
 
+        public string CgBalanceRealDesc { get; set; }
+
         public decimal CgBalanceGive { get; set; }
 
+        public string CgBalanceGiveDesc { get; set; }
+
         public decimal CgServiceCharge { get; set; }
+
+        public string CgServiceChargeDesc { get; set; }
 
         public long UserId { get; set; }
 
@@ -45,5 +51,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte Status { get; set; }
 
         public string Remark { get; set; }
+
+        public List<string> RelationStudent { get; set; }
     }
 }

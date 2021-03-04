@@ -41,5 +41,25 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string GetValueDesc(decimal value, int type)
+        {
+            if (value == 0)
+            {
+                return "-";
+            }
+            switch (type)
+            {
+                case Recharge:
+                    return $"+￥{value.ToString("F2")}";
+                case Refund:
+                    return $"-￥{value.ToString("F2")}";
+                case Pay:
+                    return $"-￥{value.ToString("F2")}";
+                case OrderRetuen:
+                    return $"+￥{value.ToString("F2")}";
+            }
+            return string.Empty;
+        }
     }
 }

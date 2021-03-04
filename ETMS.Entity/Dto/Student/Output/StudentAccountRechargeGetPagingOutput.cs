@@ -10,7 +10,7 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string Phone { get; set; }
 
-        public string RelationStudent { get; set; }
+        public List<string> RelationStudent { get; set; }
 
         public decimal BalanceSum { get; set; }
 

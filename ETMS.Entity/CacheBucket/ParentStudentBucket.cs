@@ -31,5 +31,7 @@ namespace ETMS.Entity.CacheBucket
         public byte? Gender { get; set; }
 
         public string Avatar { get; set; }
+
+        public string Phone { get; set; }
     }
 }
