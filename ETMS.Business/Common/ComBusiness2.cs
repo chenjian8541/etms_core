@@ -457,5 +457,19 @@ namespace ETMS.Business.Common
             }
             return result;
         }
+
+        internal static string GetParentStudentsDesc2(IEnumerable<ParentStudentInfo> parentStudentInfos)
+        {
+            if (parentStudentInfos == null || parentStudentInfos.Count() == 0)
+            {
+                return string.Empty;
+            }
+            var str = new StringBuilder();
+            foreach (var p in parentStudentInfos)
+            {
+                str.Append($"{p.Name},");
+            }
+            return str.ToString().TrimEnd(',');
+        }
     }
 }

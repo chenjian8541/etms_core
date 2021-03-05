@@ -381,6 +381,25 @@ namespace ETMS.Business
                 _incomeLogDAL.AddIncomeLog(incomeLogs);
             }
 
+            await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+            {
+                UserId = request.LoginUserId,
+                StudentAccountRechargeId = request.StudentAccountRechargeId,
+                Phone = accountLog.Phone,
+                CgBalanceGive = request.RechargeGive,
+                CgBalanceReal = request.RechargeReal,
+                CgNo = order.No,
+                CgServiceCharge = 0,
+                CommissionUser = order.CommissionUser,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                RelatedOrderId = order.Id,
+                Remark = order.Remark,
+                Status = EmStudentAccountRechargeLogStatus.Normal,
+                TenantId = order.TenantId,
+                Type = EmStudentAccountRechargeLogType.Recharge
+            });
+
             _eventPublisher.Publish(new StudentAccountRechargeEvent(request.LoginTenantId)
             {
                 AccountLog = accountLog,
@@ -390,7 +409,12 @@ namespace ETMS.Business
                 Order = order
             });
 
-            return ResponseBase.Success();
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+            {
+                StatisticsDate = order.Ot
+            });
+
+            return ResponseBase.Success(order.Id);
         }
 
         public async Task StudentAccountRechargeConsumerEvent(StudentAccountRechargeEvent eventRequest)
@@ -428,30 +452,6 @@ namespace ETMS.Business
                     }
                 }
             }
-
-            await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
-            {
-                UserId = request.LoginUserId,
-                StudentAccountRechargeId = request.StudentAccountRechargeId,
-                Phone = accountLog.Phone,
-                CgBalanceGive = request.RechargeGive,
-                CgBalanceReal = request.RechargeReal,
-                CgNo = order.No,
-                CgServiceCharge = 0,
-                CommissionUser = order.CommissionUser,
-                IsDeleted = EmIsDeleted.Normal,
-                Ot = now,
-                RelatedOrderId = order.Id,
-                Remark = order.Remark,
-                Status = EmStudentAccountRechargeLogStatus.Normal,
-                TenantId = order.TenantId,
-                Type = EmStudentAccountRechargeLogType.Recharge
-            });
-
-            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
-            {
-                StatisticsDate = order.Ot
-            });
 
             await _userOperationLogDAL.AddUserLog(request, $"账户充值-账户:{accountLog.Phone},实充金额:{request.RechargeReal},赠送金额:{request.RechargeGive}", EmUserOperationType.StudentAccountRechargeManage);
         }
@@ -567,25 +567,6 @@ namespace ETMS.Business
                 });
             }
 
-            _eventPublisher.Publish(new StudentAccountRefundEvent(request.LoginTenantId)
-            {
-                AccountLog = accountLog,
-                RefundRequest = request,
-                No = no,
-                CreateOt = now,
-                Order = order
-            });
-
-            return ResponseBase.Success();
-        }
-
-        public async Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest)
-        {
-            var now = eventRequest.CreateOt;
-            var request = eventRequest.RefundRequest;
-            var accountLog = eventRequest.AccountLog;
-            var order = eventRequest.Order;
-
             await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
             {
                 TenantId = order.TenantId,
@@ -605,10 +586,26 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             });
 
+            _eventPublisher.Publish(new StudentAccountRefundEvent(request.LoginTenantId)
+            {
+                AccountLog = accountLog,
+                RefundRequest = request,
+                No = no,
+                CreateOt = now
+            });
+
             _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
             {
                 StatisticsDate = order.Ot
             });
+
+            return ResponseBase.Success(order.Id);
+        }
+
+        public async Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest)
+        {
+            var request = eventRequest.RefundRequest;
+            var accountLog = eventRequest.AccountLog;
 
             await _userOperationLogDAL.AddUserLog(request, $"账户退款-账户:{accountLog.Phone},实充余额退款:{request.ReturnReal},赠送余额扣减:{request.ReturnGive},手续费:{request.ReturnServiceCharge}", EmUserOperationType.StudentAccountRechargeManage);
         }

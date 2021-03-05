@@ -1,10 +1,20 @@
-﻿using System;
+﻿using ETMS.Entity.Dto.Common.Request;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ETMS.Entity.Dto.HisData.Output
 {
-    public class OrderGetPagingOutput
+    public class OrderGetDetailAccountRechargeOutput
+    {
+        public OrderGetDetailAccountRechargeOutputBasc BascInfo { get; set; }
+
+        public OrderGetDetailAccountRechargeOutputRecharge RechargeLog { get; set; }
+
+        public List<OrderGetDetailAccountRechargeOutputIncomeLog> IncomeLogs { get; set; }
+    }
+
+    public class OrderGetDetailAccountRechargeOutputBasc
     {
         public long CId { get; set; }
 
@@ -12,10 +22,6 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 学员ID
         /// </summary>
         public long StudentId { get; set; }
-
-        public string StudentName { get; set; }
-
-        public string StudentPhone { get; set; }
 
         public int OrderType { get; set; }
 
@@ -41,12 +47,12 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// </summary>
         public string BuyGoods { get; set; }
 
+        public string BuyOther { get; set; }
+
         /// <summary>
         /// 费用
         /// </summary>
         public string BuyCost { get; set; }
-
-        public string BuyOther { get; set; }
 
         /// <summary>
         /// 订单总金额
@@ -57,6 +63,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 应收金额
         /// </summary>
         public decimal AptSum { get; set; }
+
+        /// <summary>
+        /// 直减/折扣
+        /// </summary>
+        public decimal GiveSum { get; set; }
 
         /// <summary>
         /// 获得积分
@@ -90,12 +101,16 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// </summary>
         public string OtDesc { get; set; }
 
+        public DateTime CreateOt { get; set; }
+
         /// <summary>
         /// 业绩归属人
         /// </summary>
         public string CommissionUser { get; set; }
 
         public string CommissionUserDesc { get; set; }
+
+        public List<MultiSelectValueRequest> CommissionUserIds { get; set; }
 
         /// <summary>
         /// 状态 <see cref="ETMS.Entity.Enum.EmOrderStatus"/>
@@ -108,5 +123,56 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+    }
+
+    public class OrderGetDetailAccountRechargeOutputRecharge
+    {
+        public long StudentAccountRechargeId { get; set; }
+
+        public string Phone { get; set; }
+
+        public string RelationStudent { get; set; }
+
+        public long? RelatedOrderId { get; set; }
+
+        public string CgNo { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmStudentAccountRechargeLogType"/>
+        /// </summary>
+        public int Type { get; set; }
+
+        public decimal CgBalanceReal { get; set; }
+
+        public decimal CgBalanceGive { get; set; }
+
+        public decimal CgServiceCharge { get; set; }
+
+        public long UserId { get; set; }
+
+        public string CgBalanceRealDesc { get; set; }
+
+        public string CgBalanceGiveDesc { get; set; }
+
+        public string CgServiceChargeDesc { get; set; }
+    }
+
+    public class OrderGetDetailAccountRechargeOutputIncomeLog
+    {
+        public long CId { get; set; }
+
+        public long ProjectType { get; set; }
+
+        public string ProjectTypeName { get; set; }
+
+        public string PayOt { get; set; }
+
+        public string UserName { get; set; }
+
+        public int PayType { get; set; }
+
+        public string PayTypeDesc { get; set; }
+
+        public decimal Sum { get; set; }
     }
 }

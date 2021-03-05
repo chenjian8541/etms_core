@@ -13,6 +13,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> OrderGetDetail(OrderGetDetailRequest request);
 
+        Task<ResponseBase> OrderGetDetailAccountRecharge(OrderGetDetailRequest request);
+
         Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request);
 
         Task<ResponseBase> OrderPayment(OrderPaymentRequest request);

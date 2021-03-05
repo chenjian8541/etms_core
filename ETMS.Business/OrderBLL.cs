@@ -46,9 +46,14 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
 
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
+        private readonly IParentStudentDAL _parentStudentDAL;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
-            IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL)
+            IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
+            IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -62,13 +67,15 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._studentCourseDAL = studentCourseDAL;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._parentStudentDAL = parentStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
                 _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL,
-                _studentAccountRechargeDAL);
+                _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL);
         }
 
         private async Task<OrderStudentView> OrderStudentGet(EtOrder order)
@@ -118,6 +125,7 @@ namespace ETMS.Business
                     BuyCost = p.BuyCost,
                     BuyCourse = p.BuyCourse,
                     BuyGoods = p.BuyGoods,
+                    BuyOther = p.BuyOther,
                     CommissionUser = p.CommissionUser,
                     CommissionUserDesc = await GetCommissionUserDesc(tempBoxUser, p.CommissionUser),
                     No = p.No,
@@ -186,10 +194,12 @@ namespace ETMS.Business
                 AptSum = order.AptSum,
                 BuyCourse = order.BuyCourse,
                 BuyGoods = order.BuyGoods,
+                BuyOther = order.BuyOther,
                 CommissionUser = order.CommissionUser,
                 CommissionUserDesc = string.Join(',', commissionUsers.Select(p => p.Label)),
                 No = order.No,
                 OrderType = order.OrderType,
+                OrderTypeDesc = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 OtDesc = order.Ot.EtmsToDateString(),
                 PaySum = order.PaySum,
                 Remark = order.Remark,
@@ -312,6 +322,90 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> OrderGetDetailAccountRecharge(OrderGetDetailRequest request)
+        {
+            var order = await _orderDAL.GetOrder(request.CId);
+            if (order == null)
+            {
+                return ResponseBase.CommonError("订单不存在");
+            }
+            var output = new OrderGetDetailAccountRechargeOutput();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
+            output.BascInfo = new OrderGetDetailAccountRechargeOutputBasc()
+            {
+                ArrearsSum = order.ArrearsSum,
+                BuyCost = order.BuyCost,
+                CId = order.Id,
+                AptSum = order.AptSum,
+                BuyCourse = order.BuyCourse,
+                BuyGoods = order.BuyGoods,
+                BuyOther = order.BuyOther,
+                CommissionUser = order.CommissionUser,
+                CommissionUserDesc = string.Join(',', commissionUsers.Select(p => p.Label)),
+                No = order.No,
+                OrderType = order.OrderType,
+                OrderTypeDesc = EmOrderType.GetOrderTypeDesc(order.OrderType),
+                OtDesc = order.Ot.EtmsToDateString(),
+                PaySum = order.PaySum,
+                Remark = order.Remark,
+                Status = order.Status,
+                StatusDesc = EmOrderStatus.GetOrderStatus(order.Status),
+                StudentId = order.StudentId,
+                Sum = order.Sum,
+                TotalPoints = order.TotalPoints,
+                UserId = order.UserId,
+                UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, order.UserId),
+                CreateOt = order.CreateOt,
+                CommissionUserIds = commissionUsers,
+                InOutType = order.InOutType,
+                TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
+                GiveSum = order.AptSum - order.Sum
+            };
+            var accountRechargeLog = await _studentAccountRechargeLogDAL.GetAccountRechargeLogByOrderId(order.Id);
+            if (accountRechargeLog != null)
+            {
+                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountRechargeLog.Phone);
+                output.RechargeLog = new OrderGetDetailAccountRechargeOutputRecharge()
+                {
+                    CgBalanceGive = accountRechargeLog.CgBalanceGive,
+                    CgBalanceReal = accountRechargeLog.CgBalanceReal,
+                    CgNo = accountRechargeLog.CgNo,
+                    CgServiceCharge = accountRechargeLog.CgServiceCharge,
+                    Phone = accountRechargeLog.Phone,
+                    RelatedOrderId = accountRechargeLog.RelatedOrderId,
+                    RelationStudent = ComBusiness2.GetParentStudentsDesc2(parentStudents),
+                    StudentAccountRechargeId = accountRechargeLog.StudentAccountRechargeId,
+                    Type = accountRechargeLog.Type,
+                    UserId = accountRechargeLog.UserId,
+                    CgBalanceRealDesc = EmStudentAccountRechargeLogType.GetValueDesc(accountRechargeLog.CgBalanceReal, accountRechargeLog.Type),
+                    CgBalanceGiveDesc = EmStudentAccountRechargeLogType.GetValueDesc(accountRechargeLog.CgBalanceGive, accountRechargeLog.Type),
+                    CgServiceChargeDesc = accountRechargeLog.CgServiceCharge > 0 ? $"￥{accountRechargeLog.CgServiceCharge.ToString("F2")}" : "-"
+                };
+            }
+
+            var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
+            output.IncomeLogs = new List<OrderGetDetailAccountRechargeOutputIncomeLog>();
+            if (payLog != null && payLog.Any())
+            {
+                foreach (var p in payLog)
+                {
+                    output.IncomeLogs.Add(new OrderGetDetailAccountRechargeOutputIncomeLog()
+                    {
+                        PayOt = p.Ot.EtmsToDateString(),
+                        PayType = p.PayType,
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        ProjectType = p.ProjectType,
+                        ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
+                        Sum = p.Sum,
+                        UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
+                        CId = p.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request)
         {
             var order = await _orderDAL.GetOrder(request.CId);
@@ -335,10 +429,12 @@ namespace ETMS.Business
                 AptSum = order.AptSum,
                 BuyCourse = order.BuyCourse,
                 BuyGoods = order.BuyGoods,
+                BuyOther = order.BuyOther,
                 CommissionUser = order.CommissionUser,
                 CommissionUserDesc = string.Join(',', commissionUsers.Select(p => p.Label)),
                 No = order.No,
                 OrderType = order.OrderType,
+                OrderTypeDesc = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 OtDesc = order.Ot.EtmsToDateString(),
                 PaySum = order.PaySum,
                 Remark = order.Remark,
@@ -439,10 +535,12 @@ namespace ETMS.Business
                 AptSum = order.AptSum,
                 BuyCourse = order.BuyCourse,
                 BuyGoods = order.BuyGoods,
+                BuyOther = order.BuyOther,
                 CommissionUser = order.CommissionUser,
                 CommissionUserDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, order.CommissionUser),
                 No = order.No,
                 OrderType = order.OrderType,
+                OrderTypeDesc = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 OtDesc = order.Ot.EtmsToDateString(),
                 PaySum = order.PaySum,
                 Remark = order.Remark,
@@ -503,10 +601,12 @@ namespace ETMS.Business
                 AptSum = order.AptSum,
                 BuyCourse = order.BuyCourse,
                 BuyGoods = order.BuyGoods,
+                BuyOther = order.BuyOther,
                 CommissionUser = order.CommissionUser,
                 CommissionUserDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, order.CommissionUser),
                 No = order.No,
                 OrderType = order.OrderType,
+                OrderTypeDesc = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 OtDesc = order.Ot.EtmsToDateString(),
                 PaySum = order.PaySum,
                 Remark = order.Remark,

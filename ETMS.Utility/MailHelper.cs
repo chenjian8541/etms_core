@@ -38,6 +38,7 @@ namespace ETMS.Utility
             smtpclient.EnableSsl = mailInfo.EnableSsl;
             smtpclient.UseDefaultCredentials = false;
             smtpclient.Credentials = new System.Net.NetworkCredential(mailConfig.SenderUserName, mailConfig.SenderPassword);
+            smtpclient.Timeout = 1000000;
             smtpclient.Send(message);
             return true;
         }

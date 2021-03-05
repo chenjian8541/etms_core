@@ -35,6 +35,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public int OrderType { get; set; }
 
+        public string OrderTypeDesc { get; set; }
+
         /// <summary>
         /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
         /// </summary>
@@ -59,6 +61,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 费用
         /// </summary>
         public string BuyCost { get; set; }
+
+        public string BuyOther { get; set; }
 
         /// <summary>
         /// 订单总金额

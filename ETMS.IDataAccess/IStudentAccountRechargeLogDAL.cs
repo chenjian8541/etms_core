@@ -14,5 +14,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtStudentAccountRechargeLog>, int>> GetPaging(RequestPagingBase request);
 
         Task UpdateStudentAccountRechargeLogPhone(long studentAccountRechargeId,string phone);
+
+        Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderId(long orderId);
     }
 }

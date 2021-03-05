@@ -81,6 +81,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> OrderGetDetailAccountRecharge(OrderGetDetailRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderGetDetailAccountRecharge(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> OrderTransferCoursesGetDetail(OrderTransferCoursesGetDetailRequest request)
         {
             try

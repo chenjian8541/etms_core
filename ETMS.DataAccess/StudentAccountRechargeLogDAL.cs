@@ -1,6 +1,7 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
 using ETMS.IDataAccess;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,11 @@ namespace ETMS.DataAccess
         public async Task UpdateStudentAccountRechargeLogPhone(long studentAccountRechargeId, string phone)
         {
             await _dbWrapper.Execute($"UPDATE EtStudentAccountRechargeLog SET Phone = '{phone}' WHERE TenantId = {_tenantId} AND StudentAccountRechargeId = {studentAccountRechargeId} ");
+        }
+
+        public async Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderId(long orderId)
+        {
+            return await _dbWrapper.Find<EtStudentAccountRechargeLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.RelatedOrderId == orderId);
         }
     }
 }

@@ -39,6 +39,8 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// </summary>
         public string BuyCost { get; set; }
 
+        public string BuyOther { get; set; }
+
         /// <summary>
         /// 应收金额
         /// </summary>

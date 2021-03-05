@@ -325,6 +325,7 @@ namespace ETMS.Business
                     BuyCost = p.BuyCost,
                     BuyCourse = p.BuyCourse,
                     BuyGoods = p.BuyGoods,
+                    BuyOther = p.BuyOther,
                     No = p.No,
                     OrderType = p.OrderType,
                     OtDesc = p.Ot.EtmsToDateString(),
