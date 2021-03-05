@@ -314,23 +314,7 @@ namespace ETMS.Business
                 TryCount = 0
             });
 
-            _eventPublisher.Publish(new StudentAccountRechargeEvent(request.LoginTenantId)
-            {
-                AccountLog = accountLog,
-                RechargeRequest = request,
-                No = no,
-                CreateOt = now
-            });
-
-            return ResponseBase.Success();
-        }
-
-        public async Task StudentAccountRechargeConsumerEvent(StudentAccountRechargeEvent eventRequest)
-        {
-            var now = eventRequest.CreateOt;
-            var no = eventRequest.No;
-            var request = eventRequest.RechargeRequest;
-            var accountLog = eventRequest.AccountLog;
+            //由于需要获取打印信息，所以涉及到订单的处理改成同步执行
             var incomeLogs = new List<EtIncomeLog>();
             if (request.PayInfo.PayWechat > 0)
             {
@@ -387,6 +371,35 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
 
+            var orderId = await _orderDAL.AddOrder(order);
+            if (incomeLogs.Any())
+            {
+                foreach (var p in incomeLogs)
+                {
+                    p.OrderId = orderId;
+                }
+                _incomeLogDAL.AddIncomeLog(incomeLogs);
+            }
+
+            _eventPublisher.Publish(new StudentAccountRechargeEvent(request.LoginTenantId)
+            {
+                AccountLog = accountLog,
+                RechargeRequest = request,
+                No = no,
+                CreateOt = now,
+                Order = order
+            });
+
+            return ResponseBase.Success();
+        }
+
+        public async Task StudentAccountRechargeConsumerEvent(StudentAccountRechargeEvent eventRequest)
+        {
+            var now = eventRequest.CreateOt;
+            var request = eventRequest.RechargeRequest;
+            var accountLog = eventRequest.AccountLog;
+            var order = eventRequest.Order;
+
             //关联的学员 将赠送相应的积分
             if (request.TotalPoints > 0)
             {
@@ -416,16 +429,6 @@ namespace ETMS.Business
                 }
             }
 
-            var orderId = await _orderDAL.AddOrder(order);
-            if (incomeLogs.Any())
-            {
-                foreach (var p in incomeLogs)
-                {
-                    p.OrderId = orderId;
-                }
-                _incomeLogDAL.AddIncomeLog(incomeLogs);
-            }
-
             await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
             {
                 UserId = request.LoginUserId,
@@ -433,12 +436,12 @@ namespace ETMS.Business
                 Phone = accountLog.Phone,
                 CgBalanceGive = request.RechargeGive,
                 CgBalanceReal = request.RechargeReal,
-                CgNo = no,
+                CgNo = order.No,
                 CgServiceCharge = 0,
                 CommissionUser = order.CommissionUser,
                 IsDeleted = EmIsDeleted.Normal,
                 Ot = now,
-                RelatedOrderId = orderId,
+                RelatedOrderId = order.Id,
                 Remark = order.Remark,
                 Status = EmStudentAccountRechargeLogStatus.Normal,
                 TenantId = order.TenantId,
@@ -506,25 +509,7 @@ namespace ETMS.Business
                 TryCount = 0
             });
 
-            _eventPublisher.Publish(new StudentAccountRefundEvent(request.LoginTenantId)
-            {
-                AccountLog = accountLog,
-                RefundRequest = request,
-                No = no,
-                CreateOt = now
-            });
-
-            return ResponseBase.Success();
-        }
-
-        public async Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest)
-        {
-            var now = eventRequest.CreateOt;
-            var no = eventRequest.No;
-            var request = eventRequest.RefundRequest;
-            var accountLog = eventRequest.AccountLog;
             var paySum = request.ReturnReal - request.ReturnServiceCharge;
-
             var order = new EtOrder()
             {
                 IsDeleted = EmIsDeleted.Normal,
@@ -582,6 +567,25 @@ namespace ETMS.Business
                 });
             }
 
+            _eventPublisher.Publish(new StudentAccountRefundEvent(request.LoginTenantId)
+            {
+                AccountLog = accountLog,
+                RefundRequest = request,
+                No = no,
+                CreateOt = now,
+                Order = order
+            });
+
+            return ResponseBase.Success();
+        }
+
+        public async Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest)
+        {
+            var now = eventRequest.CreateOt;
+            var request = eventRequest.RefundRequest;
+            var accountLog = eventRequest.AccountLog;
+            var order = eventRequest.Order;
+
             await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
             {
                 TenantId = order.TenantId,
@@ -594,7 +598,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Ot = now,
                 Phone = accountLog.Phone,
-                RelatedOrderId = orderId,
+                RelatedOrderId = order.Id,
                 Remark = request.Remark,
                 Status = EmStudentAccountRechargeLogStatus.Normal,
                 StudentAccountRechargeId = request.StudentAccountRechargeId,

@@ -11,7 +11,7 @@ namespace ETMS.Event.DataContract
         public StudentAccountRefundEvent(int tenantId) : base(tenantId)
         {
         }
-
+        public EtOrder Order { get; set; }
         public StudentAccountRefundRequest RefundRequest { get; set; }
 
         public EtStudentAccountRecharge AccountLog { get; set; }

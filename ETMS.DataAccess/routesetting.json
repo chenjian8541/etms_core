@@ -495,7 +495,55 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "recharge_refund",
+        "Path": "recharge_add_detail/:cid?",
+        "Name": "recharge_add_detail",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/addDetail",
+        "Meta": {
+          "Title": "账户充值详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_add_print/:cid?",
+        "Name": "recharge_add_print",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/addPrint",
+        "Meta": {
+          "Title": "账户充值打印",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_refund_detail/:cid?",
+        "Name": "recharge_refund_detail",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/refundDetail",
+        "Meta": {
+          "Title": "账户退款详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_refund_print/:cid?",
+        "Name": "recharge_refund_print",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/refundPrint",
+        "Meta": {
+          "Title": "账户退款打印",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_refund/:cid?",
         "Name": "recharge_refund",
         "Type": 1,
         "Component": "@/components/rechargeManage/refund",
