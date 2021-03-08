@@ -96,6 +96,10 @@ namespace ETMS.Business
             if (request.ClassTimesId != null)
             {
                 var classTime = await _classTimesDAL.GetClassTimes(request.ClassTimesId.Value);
+                if (classTime == null)
+                {
+                    return ResponseBase.CommonError("课次不存在");
+                }
                 if (classTime.Status == EmClassTimesStatus.BeRollcall)
                 {
                     return ResponseBase.CommonError("此课次已点名");

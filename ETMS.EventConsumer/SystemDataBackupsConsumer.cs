@@ -20,6 +20,7 @@ namespace ETMS.EventConsumer
             if (newBakFiles.Count == 0)
             {
                 LOG.Log.Error("[SystemDataBackupsConsumer]未找到数据库备份文件", this.GetType());
+                return;
             }
             LOG.Log.Info($"[SystemDataBackupsConsumer]需要备份的数据库文件:{Newtonsoft.Json.JsonConvert.SerializeObject(newBakFiles)}", this.GetType());
             var desc = $"etms_bak_{DateTime.Now.ToString("yyyMMddHHmm")}_{newBakFiles.Count}";
@@ -28,28 +29,39 @@ namespace ETMS.EventConsumer
             {
                 File.Copy(file, Path.Combine(newDirectory, Path.GetFileName(file)), true);
             }
-            var newZipFileName = Path.Combine(mailConfig.SystemDataBackupsServerPath, $"{desc}.zip");
-            if (!File.Exists(newZipFileName))
+            var myZipFile = FileHelper.CompressZipFiles(newDirectory);
+            if (myZipFile.Count == 0)
             {
-                FileHelper.CompressZip(newDirectory, newZipFileName);
+                LOG.Log.Error("[SystemDataBackupsConsumer]创建zip文件失败", this.GetType());
+                return;
             }
-            var attachment = new List<string>();
-            attachment.Add(newZipFileName);
-            MailHelper.Send(new MailSetting()
+            ////所有文件 放入一个zip压缩
+            //var newZipFileName = Path.Combine(mailConfig.SystemDataBackupsServerPath, $"{desc}.zip");
+            //if (!File.Exists(newZipFileName))
+            //{
+            //    FileHelper.CompressZip(newDirectory, newZipFileName);
+            //}
+            foreach (var zipFile in myZipFile)
             {
-                MailHost = mailConfig.MailHost,
-                MailPort = mailConfig.MailPort,
-                SenderAddress = mailConfig.SenderAddress,
-                SenderDisplayName = mailConfig.SenderDisplayName,
-                SenderPassword = mailConfig.SenderPassword,
-                SenderUserName = mailConfig.SenderUserName
-            }, new MailInfo()
-            {
-                AttachmentAddress = attachment,
-                Subject = desc,
-                Body = desc,
-                Recipients = mailConfig.SystemDataBackupsGetUser
-            });
+                var fileName = Path.GetFileNameWithoutExtension(zipFile);
+                var attachment = new List<string>();
+                attachment.Add(zipFile);
+                MailHelper.Send(new MailSetting()
+                {
+                    MailHost = mailConfig.MailHost,
+                    MailPort = mailConfig.MailPort,
+                    SenderAddress = mailConfig.SenderAddress,
+                    SenderDisplayName = mailConfig.SenderDisplayName,
+                    SenderPassword = mailConfig.SenderPassword,
+                    SenderUserName = mailConfig.SenderUserName
+                }, new MailInfo()
+                {
+                    AttachmentAddress = attachment,
+                    Subject = desc,
+                    Body = fileName,
+                    Recipients = mailConfig.SystemDataBackupsGetUser
+                });
+            }
             Directory.Delete(newDirectory, true);
         }
     }

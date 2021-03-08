@@ -15,32 +15,49 @@ namespace ETMS.Utility
         /// <returns></returns>
         public static bool Send(MailSetting mailConfig, MailInfo mailInfo)
         {
-            var message = new MailMessage();
-            if (mailInfo.AttachmentAddress != null && mailInfo.AttachmentAddress.Count > 0)
+            using (var message = new MailMessage())
             {
-                foreach (var file in mailInfo.AttachmentAddress)
+                if (mailInfo.AttachmentAddress != null && mailInfo.AttachmentAddress.Count > 0)
                 {
-                    message.Attachments.Add(new Attachment(file));
+                    foreach (var file in mailInfo.AttachmentAddress)
+                    {
+                        message.Attachments.Add(new Attachment(file));
+                    }
+                }
+                try
+                {
+                    foreach (var address in mailInfo.Recipients)
+                    {
+                        message.To.Add(new MailAddress(address));
+                    }
+                    message.From = new MailAddress(mailConfig.SenderAddress, mailConfig.SenderDisplayName);
+                    message.BodyEncoding = Encoding.GetEncoding(mailInfo.Encoding);
+                    message.Body = mailInfo.Body;
+                    message.SubjectEncoding = Encoding.GetEncoding(mailInfo.Encoding);
+                    message.Subject = mailInfo.Subject;
+                    message.IsBodyHtml = mailInfo.IsBodyHtml;
+                    using (var smtpclient = new SmtpClient(mailConfig.MailHost, mailConfig.MailPort))
+                    {
+                        smtpclient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                        smtpclient.EnableSsl = mailInfo.EnableSsl;
+                        smtpclient.UseDefaultCredentials = false;
+                        smtpclient.Credentials = new System.Net.NetworkCredential(mailConfig.SenderUserName, mailConfig.SenderPassword);
+                        smtpclient.Timeout = 1000000;
+                        smtpclient.Send(message);
+                        return true;
+                    }
+                }
+                finally
+                {
+                    if (message.Attachments != null && message.Attachments.Count > 0)
+                    {
+                        foreach (var f in message.Attachments)
+                        {
+                            f.Dispose();
+                        }
+                    }
                 }
             }
-            foreach (var address in mailInfo.Recipients)
-            {
-                message.To.Add(new MailAddress(address));
-            }
-            message.From = new MailAddress(mailConfig.SenderAddress, mailConfig.SenderDisplayName);
-            message.BodyEncoding = Encoding.GetEncoding(mailInfo.Encoding);
-            message.Body = mailInfo.Body;
-            message.SubjectEncoding = Encoding.GetEncoding(mailInfo.Encoding);
-            message.Subject = mailInfo.Subject;
-            message.IsBodyHtml = mailInfo.IsBodyHtml;
-            var smtpclient = new SmtpClient(mailConfig.MailHost, mailConfig.MailPort);
-            smtpclient.DeliveryMethod = SmtpDeliveryMethod.Network;
-            smtpclient.EnableSsl = mailInfo.EnableSsl;
-            smtpclient.UseDefaultCredentials = false;
-            smtpclient.Credentials = new System.Net.NetworkCredential(mailConfig.SenderUserName, mailConfig.SenderPassword);
-            smtpclient.Timeout = 1000000;
-            smtpclient.Send(message);
-            return true;
         }
     }
 

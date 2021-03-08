@@ -89,6 +89,27 @@ namespace ETMS.Utility
         {
             ZipFile.CreateFromDirectory(folderPath, zipFilePath);
         }
+
+        public static List<string> CompressZipFiles(string folderPath)
+        {
+            var zipFile = new List<string>();
+            var allFiles = Directory.GetFiles(folderPath);
+            if (allFiles.Length == 0)
+            {
+                return zipFile;
+            }
+            foreach (var file in allFiles)
+            {
+                var myFileFullName = Path.GetFileName(file);
+                var myFileName = Path.GetFileNameWithoutExtension(file);
+                var newFileFolderPath = FileHelper.CreateDirectory(folderPath, myFileName);
+                File.Copy(file, Path.Combine(newFileFolderPath, myFileFullName), true);
+                var myZipFileName = Path.Combine(folderPath, $"{myFileName}.zip");
+                FileHelper.CompressZip(newFileFolderPath, myZipFileName);
+                zipFile.Add(myZipFileName);
+            }
+            return zipFile;
+        }
     }
 
     public class CheckImportStudentTemplateFileResult
