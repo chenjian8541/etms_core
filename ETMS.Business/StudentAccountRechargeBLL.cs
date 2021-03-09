@@ -261,7 +261,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.Success();
             }
-            return ResponseBase.Success(new StudentAccountRechargeGetByStudentIdOutput()
+            var output = new StudentAccountRechargeGetByStudentIdOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
                 BalanceReal = accountLog.BalanceReal,
@@ -270,7 +270,13 @@ namespace ETMS.Business
                 RechargeGiveSum = accountLog.RechargeGiveSum,
                 RechargeSum = accountLog.RechargeSum,
                 Id = accountLog.Id
-            });
+            };
+            if (request.IsGetRelationStudent)
+            {
+                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
+                output.RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents);
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request)
