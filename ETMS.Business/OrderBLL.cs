@@ -196,8 +196,8 @@ namespace ETMS.Business
                 PayOt = order.Ot.EtmsToDateString(),
                 PayType = EmPayType.PayAccountRecharge,
                 PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge),
-                ProjectType = projectType,
-                ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(projectType),
+                ProjectType = 0,
+                ProjectTypeName = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 Sum = order.PayAccountRechargeReal + order.PayAccountRechargeGive,
                 UserName = userName
             });
@@ -1378,7 +1378,7 @@ namespace ETMS.Business
             if (isReturnAccountRecharge)
             {
                 returnOrder.PayAccountRechargeReal = request.OrderReturnOrderInfo.PaySum;
-                returnOrder.PayAccountRechargeReal = 0;
+                returnOrder.PayAccountRechargeGive = 0;
                 returnOrder.PayAccountRechargeId = accountLog.Id;
             }
             await _orderDAL.AddOrder(returnOrder, newOrderDetailList);
