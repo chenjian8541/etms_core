@@ -242,6 +242,37 @@ namespace ETMS.Business
             });
         }
 
+        public async Task<ResponseBase> StudentAccountRechargeGetByStudentId(StudentAccountRechargeGetByStudentIdRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(studentBucket.Student.Phone);
+            if (accountLog == null)
+            {
+                if (!string.IsNullOrEmpty(studentBucket.Student.PhoneBak))
+                {
+                    accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(studentBucket.Student.PhoneBak);
+                }
+            }
+            if (accountLog == null)
+            {
+                return ResponseBase.Success();
+            }
+            return ResponseBase.Success(new StudentAccountRechargeGetByStudentIdOutput()
+            {
+                BalanceGive = accountLog.BalanceGive,
+                BalanceReal = accountLog.BalanceReal,
+                BalanceSum = accountLog.BalanceSum,
+                Phone = accountLog.Phone,
+                RechargeGiveSum = accountLog.RechargeGiveSum,
+                RechargeSum = accountLog.RechargeSum,
+                Id = accountLog.Id
+            });
+        }
+
         public async Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request)
         {
             if (await _studentAccountRechargeDAL.ExistStudentAccountRecharge(request.Phone))

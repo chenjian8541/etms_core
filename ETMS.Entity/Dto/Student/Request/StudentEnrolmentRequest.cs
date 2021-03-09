@@ -121,6 +121,12 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayPos { get; set; }
 
+        public decimal PayAccountRechargeReal { get; set; }
+
+        public decimal PayAccountRechargeGive { get; set; }
+
+        public long? PayAccountRechargeId { get; set; }
+
         public string Validate()
         {
             return string.Empty;

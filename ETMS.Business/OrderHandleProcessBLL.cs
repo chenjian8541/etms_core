@@ -34,9 +34,16 @@ namespace ETMS.Business
 
         private readonly IIncomeLogDAL _incomeLogDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
+        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+
         public OrderHandleProcessBLL(IOrderDAL orderDAL, IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL,
             IStudentPointsLogDAL studentPointsLogDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL,
-            IIncomeLogDAL incomeLogDAL)
+            IIncomeLogDAL incomeLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
+            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
         {
             this._orderDAL = orderDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -48,12 +55,17 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._incomeLogDAL = incomeLogDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _orderDAL, _studentCourseDAL, _studentDAL,
-                _studentPointsLogDAL, _goodsDAL, _costDAL, _classDAL, _userOperationLogDAL, _incomeLogDAL);
+                _studentPointsLogDAL, _goodsDAL, _costDAL, _classDAL, _userOperationLogDAL, _incomeLogDAL,
+                _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
 
         /// <summary>
@@ -72,6 +84,47 @@ namespace ETMS.Business
             {
                 StudentId = order.StudentId
             });
+
+            //充值账户
+            if (order.PayAccountRechargeId != null)
+            {
+                //退还至账户
+                var myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(order.PayAccountRechargeId.Value);
+                if (myAccountRecharge == null)
+                {
+                    LOG.Log.Error($"[OrderStudentEnrolmentRepealEventProcess]订单作废时，充值账户未找到", request, this.GetType());
+                }
+                else
+                {
+                    await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
+                    {
+                        AddBalanceReal = order.PayAccountRechargeReal,
+                        AddBalanceGive = order.PayAccountRechargeGive,
+                        AddRechargeSum = 0,
+                        AddRechargeGiveSum = 0,
+                        StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                        TryCount = 0
+                    });
+                    await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                    {
+                        TenantId = order.TenantId,
+                        CgBalanceGive = order.PayAccountRechargeGive,
+                        CgBalanceReal = order.PayAccountRechargeReal,
+                        CgNo = order.No,
+                        CgServiceCharge = 0,
+                        CommissionUser = string.Empty,
+                        IsDeleted = order.IsDeleted,
+                        Ot = DateTime.Now,
+                        Phone = myAccountRecharge.Phone,
+                        Remark = "订单作废",
+                        RelatedOrderId = order.Id,
+                        Status = EmStudentAccountRechargeLogStatus.Normal,
+                        StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                        Type = EmStudentAccountRechargeLogType.OrderRetuen,
+                        UserId = order.UserId
+                    });
+                }
+            }
 
             //扣除奖励积分
             if (order.TotalPoints > 0)

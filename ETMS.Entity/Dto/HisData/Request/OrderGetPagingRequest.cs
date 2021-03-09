@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.HisData.Request
     {
         public long? StudentId { get; set; }
 
+        public long? StudentAccountRechargeId { get; set; }
+
         public string No { get; set; }
 
         public long? UserId { get; set; }
@@ -86,7 +88,14 @@ namespace ETMS.Entity.Dto.HisData.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (StudentId != null)
             {
-                condition.Append($" AND StudentId = {StudentId.Value}");
+                if (StudentAccountRechargeId != null)
+                {
+                    condition.Append($" AND (StudentId = {StudentId.Value} OR StudentAccountRechargeId = {StudentAccountRechargeId.Value})");
+                }
+                else
+                {
+                    condition.Append($" AND StudentId = {StudentId.Value}");
+                }
             }
             if (!string.IsNullOrEmpty(No))
             {

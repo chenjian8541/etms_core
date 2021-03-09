@@ -12,6 +12,6 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> StudentEnrolment(StudentEnrolmentRequest request);
 
-        Task<long> StudentEnrolmentEvent(StudentEnrolmentEvent request);
+        Task StudentEnrolmentEvent(StudentEnrolmentEvent request);
     }
 }

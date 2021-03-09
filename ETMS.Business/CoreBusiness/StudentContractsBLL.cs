@@ -44,9 +44,17 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
+        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+
         public StudentContractsBLL(IStudentDAL studentDAL, ICouponsDAL couponsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
-            IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL)
+            IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
+            IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
+            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
         {
             this._studentDAL = studentDAL;
             this._couponsDAL = couponsDAL;
@@ -60,12 +68,16 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._classDAL = classDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _couponsDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
-                _orderDAL, _studentPointsLog, _classDAL);
+                _orderDAL, _studentPointsLog, _classDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
 
         public async Task<ResponseBase> StudentEnrolment(StudentEnrolmentRequest request)
@@ -75,6 +87,31 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员不存在");
             }
+            long? payAccountRechargeId = null;
+            var payAccountRechargePhone = string.Empty;
+            if (request.EnrolmentPayInfo.PayAccountRechargeId != null &&
+               (request.EnrolmentPayInfo.PayAccountRechargeReal > 0 || request.EnrolmentPayInfo.PayAccountRechargeGive > 0))
+            {
+                //验证充值账户抵扣
+                var myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.EnrolmentPayInfo.PayAccountRechargeId.Value);
+                if (myAccountRecharge == null)
+                {
+                    return ResponseBase.CommonError("充值账户不存在");
+                }
+                if (request.EnrolmentPayInfo.PayAccountRechargeReal > 0
+                    && myAccountRecharge.BalanceReal < request.EnrolmentPayInfo.PayAccountRechargeReal)
+                {
+                    return ResponseBase.CommonError("充值账户实充余额不足");
+                }
+                if (request.EnrolmentPayInfo.PayAccountRechargeGive > 0
+                    && myAccountRecharge.BalanceGive < request.EnrolmentPayInfo.PayAccountRechargeGive)
+                {
+                    return ResponseBase.CommonError("充值账户赠送余额不足");
+                }
+                payAccountRechargeId = myAccountRecharge.Id;
+                payAccountRechargePhone = myAccountRecharge.Phone;
+            }
+
             var student = studentBucket.Student;
             var no = OrderNumberLib.EnrolmentOrderNumber();
             var couponsIds = new List<long>();
@@ -183,6 +220,10 @@ namespace ETMS.Business
             decimal paySum = 0;
             var now = DateTime.Now;
             var incomeLogs = new List<EtIncomeLog>();
+            if (payAccountRechargeId > 0)
+            {
+                paySum += request.EnrolmentPayInfo.PayAccountRechargeReal + request.EnrolmentPayInfo.PayAccountRechargeGive;
+            }
             if (request.EnrolmentPayInfo.PayWechat > 0)
             {
                 paySum += request.EnrolmentPayInfo.PayWechat;
@@ -241,8 +282,78 @@ namespace ETMS.Business
                 PaySum = paySum,
                 Sum = sum,
                 Status = status,
-                CreateOt = now
+                CreateOt = now,
+                PayAccountRechargeGive = request.EnrolmentPayInfo.PayAccountRechargeGive,
+                PayAccountRechargeReal = request.EnrolmentPayInfo.PayAccountRechargeReal,
+                PayAccountRechargeId = payAccountRechargeId
             };
+
+
+            //同步执行
+
+            //订单
+            var orderId = await _orderDAL.AddOrder(order, orderDetails);
+            //收支明细
+            if (incomeLogs.Any())
+            {
+                foreach (var incomeLog in incomeLogs)
+                {
+                    incomeLog.OrderId = orderId;
+                }
+                _incomeLogDAL.AddIncomeLog(incomeLogs);
+            }
+            //充值账户
+            if (order.PayAccountRechargeId != null)
+            {
+                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
+                {
+                    AddBalanceReal = -order.PayAccountRechargeReal,
+                    AddBalanceGive = -order.PayAccountRechargeGive,
+                    AddRechargeSum = 0,
+                    AddRechargeGiveSum = 0,
+                    StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                    TryCount = 0
+                });
+                await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                {
+                    TenantId = order.TenantId,
+                    CgBalanceGive = order.PayAccountRechargeGive,
+                    CgBalanceReal = order.PayAccountRechargeReal,
+                    CgNo = order.No,
+                    CgServiceCharge = 0,
+                    CommissionUser = string.Empty,
+                    IsDeleted = order.IsDeleted,
+                    Ot = order.CreateOt,
+                    Phone = payAccountRechargePhone,
+                    Remark = order.Remark,
+                    RelatedOrderId = order.Id,
+                    Status = EmStudentAccountRechargeLogStatus.Normal,
+                    StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                    Type = EmStudentAccountRechargeLogType.Pay,
+                    UserId = order.UserId
+                });
+            }
+            //学员课程信息
+            if (studentCourseDetails != null && studentCourseDetails.Count > 0)
+            {
+                foreach (var studentCourse in studentCourseDetails)
+                {
+                    studentCourse.OrderId = orderId;
+                }
+                _studentCourseDAL.AddStudentCourseDetail(studentCourseDetails);
+                _eventPublisher.Publish(new StudentCourseAnalyzeEvent(order.TenantId)
+                {
+                    StudentId = order.StudentId
+                });
+                await _studentCourseDAL.ResetStudentCourseNotEnoughRemindInfo(order.StudentId, studentCourseDetails.Select(p => p.CourseId).ToList());
+            }
+            //学员
+            if (studentBucket.Student.StudentType != EmStudentType.ReadingStudent || order.TotalPoints > 0)
+            {
+                await _studentDAL.StudentEnrolmentEventChangeInfo(order.StudentId, order.TotalPoints, EmStudentType.ReadingStudent);
+                _eventPublisher.Publish(new StatisticsStudentEvent(order.TenantId) { OpType = EmStatisticsStudentType.StudentType });
+            }
+
             var studentEnrolmentEvent = new StudentEnrolmentEvent(request.LoginTenantId)
             {
                 UserId = request.LoginUserId,
@@ -255,9 +366,10 @@ namespace ETMS.Business
                 CouponsStudentGetIds = request.CouponsStudentGetIds,
                 LoginClientType = request.LoginClientType
             };
+
             //异步执行
-            //_eventPublisher.Publish(studentEnrolmentEvent);
-            var orderId = await StudentEnrolmentEvent(studentEnrolmentEvent);
+            _eventPublisher.Publish(studentEnrolmentEvent);
+
             return ResponseBase.Success(new StudentEnrolmentOutput()
             {
                 OrderId = orderId
@@ -343,14 +455,9 @@ namespace ETMS.Business
             };
         }
 
-        public async Task<long> StudentEnrolmentEvent(StudentEnrolmentEvent request)
+        public async Task StudentEnrolmentEvent(StudentEnrolmentEvent request)
         {
-            var studentBucket = await _studentDAL.GetStudent(request.Order.StudentId);
-            if (studentBucket.Student.StudentType != EmStudentType.ReadingStudent || request.Order.TotalPoints > 0)
-            {
-                await _studentDAL.StudentEnrolmentEventChangeInfo(request.Order.StudentId, request.Order.TotalPoints, EmStudentType.ReadingStudent);
-                _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId) { OpType = EmStatisticsStudentType.StudentType });
-            }
+            var orderId = request.Order.Id;
 
             //积分变动
             if (request.Order.TotalPoints > 0)
@@ -366,19 +473,6 @@ namespace ETMS.Business
                     TenantId = request.Order.TenantId,
                     Type = EmStudentPointsLogType.StudentEnrolment
                 });
-            }
-
-            //订单
-            var orderId = await _orderDAL.AddOrder(request.Order, request.OrderDetails);
-
-            //收支明细
-            if (request.IncomeLogs.Any())
-            {
-                foreach (var incomeLog in request.IncomeLogs)
-                {
-                    incomeLog.OrderId = orderId;
-                }
-                _incomeLogDAL.AddIncomeLog(request.IncomeLogs);
             }
 
             //物品销售数量和库存变动记录
@@ -434,21 +528,6 @@ namespace ETMS.Business
                         TenantId = request.Order.TenantId
                     });
                 }
-            }
-
-            //学员课程信息
-            if (request.StudentCourseDetails != null && request.StudentCourseDetails.Count > 0)
-            {
-                foreach (var studentCourse in request.StudentCourseDetails)
-                {
-                    studentCourse.OrderId = orderId;
-                }
-                _studentCourseDAL.AddStudentCourseDetail(request.StudentCourseDetails);
-                _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.TenantId)
-                {
-                    StudentId = request.Order.StudentId
-                });
-                await _studentCourseDAL.ResetStudentCourseNotEnoughRemindInfo(request.Order.StudentId, request.StudentCourseDetails.Select(p => p.CourseId).ToList());
             }
 
             //一对一课程
@@ -551,7 +630,6 @@ namespace ETMS.Business
                 OpContent = opContent.ToString(),
                 ClientType = request.LoginClientType
             });
-            return orderId;
         }
     }
 }

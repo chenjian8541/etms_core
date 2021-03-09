@@ -122,6 +122,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentAccountRechargeGetByStudentId(StudentAccountRechargeGetByStudentIdRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeGetByStudentId(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
         public async Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request)
         {
             try

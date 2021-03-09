@@ -24,6 +24,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentAccountRechargeGetByPhone(StudentAccountRechargeGetByPhoneRequest request);
 
+        Task<ResponseBase> StudentAccountRechargeGetByStudentId(StudentAccountRechargeGetByStudentIdRequest request);
+
         Task<ResponseBase> StudentAccountRechargeCreate(StudentAccountRechargeCreateRequest request);
 
         Task<ResponseBase> StudentAccountRechargeEditPhone(StudentAccountRechargeEditPhoneRequest request);
