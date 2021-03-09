@@ -41,6 +41,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int StudentCheckOnLog = 6;
 
+        /// <summary>
+        /// 充值帐户变动提醒
+        /// </summary>
+        public const int StudentAccountRechargeChanged = 7;
+
         public static string GetStudentSmsLogTypeDesc(int t)
         {
             switch (t)
@@ -59,6 +64,8 @@ namespace ETMS.Entity.Enum
                     return "课时不足续费提醒";
                 case StudentCheckOnLog:
                     return "学员考勤";
+                case StudentAccountRechargeChanged:
+                    return "充值帐户变动提醒";
             }
             return string.Empty;
         }

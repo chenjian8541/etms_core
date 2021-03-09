@@ -11,5 +11,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request);
 
         Task NoticeStudentCouponsExplainConsumetEvent(NoticeStudentCouponsExplainEvent request);
+
+        Task NoticeStudentAccountRechargeChangedConsumerEvent(NoticeStudentAccountRechargeChangedEvent request);
     }
 }

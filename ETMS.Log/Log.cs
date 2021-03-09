@@ -91,6 +91,19 @@ namespace ETMS.LOG
         }
 
         /// <summary>
+        /// 记录一般信息日志
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="msg"></param>
+        /// <param name="request"></param>
+        /// <param name="type"></param>
+        public static void Info<T>(string msg, T request, Type type)
+        {
+            var message = string.Format("{0}:{1}", msg, JsonConvert.SerializeObject(request));
+            Info(message, type);
+        }
+
+        /// <summary>
         /// Debug信息
         /// </summary>
         /// <param name="message"></param>

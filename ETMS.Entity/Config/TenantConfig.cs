@@ -359,6 +359,16 @@ namespace ETMS.Entity.Config
         /// 优惠券提醒(微信)
         /// </summary>
         public bool StudentCouponsWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 充值账户变动提醒
+        /// </summary>
+        public bool StudentAccountRechargeChangedWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 充值账户变动提醒
+        /// </summary>
+        public bool StudentAccountRechargeChangedSms { get; set; } = true;
     }
 
     public class ClassCheckSignConfig

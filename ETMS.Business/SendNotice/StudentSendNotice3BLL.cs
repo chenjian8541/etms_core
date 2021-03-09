@@ -33,8 +33,10 @@ namespace ETMS.Business.SendNotice
 
         private readonly ICouponsDAL _couponsDAL;
 
+        private readonly IParentStudentDAL _parentStudentDAL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
-            ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL)
+            ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -43,11 +45,12 @@ namespace ETMS.Business.SendNotice
             this._tenantConfigDAL = tenantConfigDAL;
             this._studentDAL = studentDAL;
             this._couponsDAL = couponsDAL;
+            this._parentStudentDAL = parentStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL);
+            this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL, _parentStudentDAL);
         }
 
         public async Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request)
@@ -203,6 +206,85 @@ namespace ETMS.Business.SendNotice
             if (req.Students.Count > 0)
             {
                 _wxService.NoticeStudentCouponsExplain(req);
+            }
+        }
+
+        public async Task NoticeStudentAccountRechargeChangedConsumerEvent(NoticeStudentAccountRechargeChangedEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat && !tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedSms)
+            {
+                return;
+            }
+            var parentStudents = await _parentStudentDAL.GetParentStudents(request.TenantId, request.StudentAccountRecharge.Phone);
+
+            if (parentStudents == null || parentStudents.Count() == 0)
+            {
+                Log.Info("[NoticeStudentAccountRechargeChangedConsumerEvent]充值账号未关联学员", request, this.GetType());
+                return;
+            }
+
+            var req = new NoticeStudentAccountRechargeChangedRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat))
+            {
+                Students = new List<NoticeStudentAccountRechargeChangedStudent>(),
+                AccountRechargePhone = request.StudentAccountRecharge.Phone,
+                OtDesc = request.OtTime.EtmsToMinuteString(),
+                BalanceDesc = request.StudentAccountRecharge.BalanceSum.ToString("F2"),
+                BalanceRealDesc = request.StudentAccountRecharge.BalanceReal.ToString("F2"),
+                BalanceGiveDesc = request.StudentAccountRecharge.BalanceGive.ToString("F2"),
+                ChangeSumDesc = EtmsHelper.GetMoneyChangeDesc(request.AddBalanceReal + request.AddBalanceGive)
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            if (tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat)
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentAccountRechargeChanged;
+                req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentAccountRechargeUrl, request.StudentAccountRecharge.Id);
+                req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+            }
+
+            foreach (var s in parentStudents)
+            {
+                var studentBucket = await _studentDAL.GetStudent(s.Id);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentAccountRechargeChangedConsumerEvent]未找到学员信息,TenantId:{request.TenantId},StudentId:{s.Id}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+
+                req.Students.Add(new NoticeStudentAccountRechargeChangedStudent()
+                {
+                    StudentId = student.Id,
+                    Name = student.Name,
+                    Phone = student.Phone,
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat, student.Phone)
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentAccountRechargeChangedStudent()
+                    {
+                        StudentId = student.Id,
+                        Name = student.Name,
+                        Phone = student.PhoneBak,
+                        OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat, student.PhoneBak)
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedSms)
+                {
+                    await _smsService.NoticeStudentAccountRechargeChanged(req);
+                }
+                if (tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat)
+                {
+                    _wxService.NoticeStudentAccountRechargeChanged(req);
+                }
             }
         }
     }

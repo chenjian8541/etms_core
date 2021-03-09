@@ -56,6 +56,14 @@ namespace ETMS.Business
                     await _studentAccountRechargeDAL.EditStudentAccountRecharge(accountLog);
 
                     _eventPublisher.Publish(new StatisticsStudentAccountRechargeEvent(request.TenantId));
+
+                    _eventPublisher.Publish(new NoticeStudentAccountRechargeChangedEvent(request.TenantId)
+                    {
+                        StudentAccountRecharge = accountLog,
+                        AddBalanceReal = request.AddBalanceReal,
+                        AddBalanceGive = request.AddBalanceGive,
+                        OtTime = DateTime.Now
+                    });
                 }
                 finally
                 {

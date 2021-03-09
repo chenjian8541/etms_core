@@ -983,5 +983,40 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeStudentAccountRechargeChanged(NoticeStudentAccountRechargeChangedRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的充值账户有新的变动记录，实充余额{request.BalanceDesc}元，赠送余额{request.BalanceGiveDesc}元")),
+                        keyword1 = new TemplateDataItem(request.AccountRechargePhone, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.OtDesc, DefaultColor),
+                        keyword3 = new TemplateDataItem("点击查看详情", LinkColor),
+                        keyword4 = new TemplateDataItem(request.ChangeSumDesc, LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentAccountRechargeChanged]充值账户变动2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentAccountRechargeChanged]充值账户变动:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

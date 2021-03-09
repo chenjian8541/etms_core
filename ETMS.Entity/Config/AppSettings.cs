@@ -186,6 +186,8 @@ namespace ETMS.Entity.Config
 
         public string NoticeUserStudentTryClassFinish { get; set; }
 
+        public string StudentAccountRechargeChanged { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }
@@ -203,6 +205,8 @@ namespace ETMS.Entity.Config
         public string StudentCheckLogUrl { get; set; }
 
         public string CouponsUrl { get; set; }
+
+        public string StudentAccountRechargeUrl { get; set; }
     }
 
     public class ServerConfig
@@ -287,6 +291,13 @@ namespace ETMS.Entity.Config
         public NoticeUserOfClassToday NoticeUserOfClassToday { get; set; }
 
         public StudentCheckOnLog StudentCheckOnLog { get; set; }
+
+        public StudentAccountRechargeChanged StudentAccountRechargeChanged { get; set; }
+    }
+
+    public class StudentAccountRechargeChanged
+    {
+        public string Com { get; set; }
     }
 
     public class StudentCheckOnLog

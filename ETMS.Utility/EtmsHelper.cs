@@ -272,5 +272,14 @@ namespace ETMS.Utility
             return Tuple.Create(firstDate, endDate);
 
         }
+
+        public static string GetMoneyChangeDesc(decimal cgValue)
+        {
+            if (cgValue < 0)
+            {
+                return cgValue.ToString("F2");
+            }
+            return $"+{cgValue.ToString("F2")}";
+        }
     }
 }
