@@ -10,34 +10,39 @@ namespace ETMS.Entity.Enum
     public struct EmPayType
     {
         /// <summary>
+        /// 充值账户
+        /// </summary>
+        public const int PayAccountRecharge = -1;
+
+        /// <summary>
         /// 支付宝
         /// </summary>
-        public const byte Alipay = 0;
+        public const int Alipay = 0;
 
         /// <summary>
         /// 微信支付
         /// </summary>
-        public const byte WeChat = 1;
+        public const int WeChat = 1;
 
         /// <summary>
         /// 现金支付
         /// </summary>
-        public const byte Cash = 2;
+        public const int Cash = 2;
 
         /// <summary>
         /// 银联支付
         /// </summary>
-        public const byte Bank = 3;
+        public const int Bank = 3;
 
         /// <summary>
         /// POS机
         /// </summary>
-        public const byte Pos = 4;
+        public const int Pos = 4;
 
         /// <summary>
         /// 其他支付
         /// </summary>
-        public const byte Other = 99;
+        public const int Other = 99;
 
         public static string GetPayType(int b)
         {
@@ -55,6 +60,8 @@ namespace ETMS.Entity.Enum
                     return "POS机";
                 case Other:
                     return "其他支付";
+                case PayAccountRecharge:
+                    return "充值账户";
             }
             return string.Empty;
         }

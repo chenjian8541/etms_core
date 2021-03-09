@@ -44,7 +44,7 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// <summary>
         /// 支付类型 <see cref="ETMS.Entity.Enum.EmPayType"/>
         /// </summary>
-        public byte PayType { get; set; }
+        public int PayType { get; set; }
 
         /// <summary>
         /// 退款金额
@@ -59,6 +59,8 @@ namespace ETMS.Entity.Dto.HisData.Request
         public string Remark { get; set; }
 
         public int DePoint { get; set; }
+
+        public long? PayStudentAccountRechargeId { get; set; }
     }
 
     public class OrderReturnProductItem : IValidate

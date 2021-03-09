@@ -50,10 +50,13 @@ namespace ETMS.Business
 
         private readonly IParentStudentDAL _parentStudentDAL;
 
+        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
-            IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL)
+            IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL,
+            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -69,10 +72,12 @@ namespace ETMS.Business
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._parentStudentDAL = parentStudentDAL;
+            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
                 _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL,
                 _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL);
@@ -173,6 +178,29 @@ namespace ETMS.Business
                 strUserName.Append($"{tempName},");
             }
             return strUserName.ToString().TrimEnd(',');
+        }
+
+        private void ProcessOrderAccountRechargePay(List<OrderGetDetailIncomeLog> incomeLogs, EtOrder order, string userName)
+        {
+            if (order.PayAccountRechargeId == null || (order.PayAccountRechargeReal == 0 && order.PayAccountRechargeGive == 0))
+            {
+                return;
+            }
+            var projectType = EmIncomeLogProjectType.StudentAccountRecharge;
+            if (order.OrderType == EmOrderType.StudentAccountRefund)
+            {
+                projectType = EmIncomeLogProjectType.StudentAccountRefund;
+            }
+            incomeLogs.Insert(0, new OrderGetDetailIncomeLog()
+            {
+                PayOt = order.Ot.EtmsToDateString(),
+                PayType = EmPayType.PayAccountRecharge,
+                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge),
+                ProjectType = projectType,
+                ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(projectType),
+                Sum = order.PayAccountRechargeReal + order.PayAccountRechargeGive,
+                UserName = userName
+            });
         }
 
         public async Task<ResponseBase> OrderGetDetail(OrderGetDetailRequest request)
@@ -317,6 +345,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order, output.BascInfo.UserName);
+
             output.BascInfo.IsHasCourse = isHasCourse;
             output.BascInfo.IsOnlyOneToOneCourse = isOnlyOneToOneCourse;
             return ResponseBase.Success(output);
@@ -512,6 +542,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order, output.BascInfo.UserName);
+
             output.InSum = output.InList.Sum(j => j.ItemAptSum);
             output.OutSum = output.OutList.Sum(j => j.ItemAptSum);
             return ResponseBase.Success(output);
@@ -581,6 +613,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order, output.BascInfo.UserName);
+
             return ResponseBase.Success(output);
         }
 
@@ -1163,6 +1197,22 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("退单经办日期不能小于原订单经办日期");
             }
+            var isReturnAccountRecharge = false;
+            EtStudentAccountRecharge accountLog = null;
+            if (request.OrderReturnOrderInfo.PaySum > 0)
+            {
+                if (request.OrderReturnOrderInfo.PayType == EmPayType.PayAccountRecharge &&
+                    request.OrderReturnOrderInfo.PayStudentAccountRechargeId != null)
+                {
+                    accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.OrderReturnOrderInfo.PayStudentAccountRechargeId.Value);
+                    if (accountLog == null)
+                    {
+                        return ResponseBase.CommonError("充值账户不存在");
+                    }
+                    isReturnAccountRecharge = true;
+                }
+            }
+
             var sourceOrderDetail = await _orderDAL.GetOrderDetail(request.ReturnOrderId);
             var sourceStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetailByOrderId(request.ReturnOrderId);
             var sourceOrderDetailUpdateEntitys = new List<EtOrderDetail>();
@@ -1325,29 +1375,69 @@ namespace ETMS.Business
                 UnionOrderNo = sourceOrder.No,
                 UserId = request.LoginUserId
             };
+            if (isReturnAccountRecharge)
+            {
+                returnOrder.PayAccountRechargeReal = request.OrderReturnOrderInfo.PaySum;
+                returnOrder.PayAccountRechargeReal = 0;
+                returnOrder.PayAccountRechargeId = accountLog.Id;
+            }
             await _orderDAL.AddOrder(returnOrder, newOrderDetailList);
 
             if (request.OrderReturnOrderInfo.PaySum > 0)
             {
-                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                if (isReturnAccountRecharge)
                 {
-                    AccountNo = string.Empty,
-                    CreateOt = now,
-                    IsDeleted = EmIsDeleted.Normal,
-                    No = returnOrder.No,
-                    OrderId = returnOrder.Id,
-                    Ot = returnOrder.Ot,
-                    PayType = request.OrderReturnOrderInfo.PayType,
-                    ProjectType = EmIncomeLogProjectType.RetuenOrder,
-                    Remark = returnOrder.Remark,
-                    RepealOt = null,
-                    RepealUserId = null,
-                    Status = EmIncomeLogStatus.Normal,
-                    Sum = request.OrderReturnOrderInfo.PaySum,
-                    TenantId = returnOrder.TenantId,
-                    UserId = returnOrder.UserId,
-                    Type = EmIncomeLogType.AccountOut
-                });
+                    //退充值账户
+                    await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                    {
+                        AddBalanceReal = request.OrderReturnOrderInfo.PaySum,
+                        AddBalanceGive = 0,
+                        AddRechargeSum = 0,
+                        AddRechargeGiveSum = 0,
+                        StudentAccountRechargeId = accountLog.Id,
+                        TryCount = 0
+                    });
+                    await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                    {
+                        StudentAccountRechargeId = accountLog.Id,
+                        CgBalanceGive = 0,
+                        CgBalanceReal = request.OrderReturnOrderInfo.PaySum,
+                        CgNo = newOrderNo,
+                        CgServiceCharge = 0,
+                        CommissionUser = string.Empty,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Ot = now,
+                        Phone = accountLog.Phone,
+                        RelatedOrderId = returnOrder.Id,
+                        Remark = "销售退单",
+                        Status = EmStudentAccountRechargeLogStatus.Normal,
+                        TenantId = returnOrder.TenantId,
+                        Type = EmStudentAccountRechargeLogType.OrderReturn,
+                        UserId = request.LoginUserId
+                    });
+                }
+                else
+                {
+                    await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                    {
+                        AccountNo = string.Empty,
+                        CreateOt = now,
+                        IsDeleted = EmIsDeleted.Normal,
+                        No = returnOrder.No,
+                        OrderId = returnOrder.Id,
+                        Ot = returnOrder.Ot,
+                        PayType = request.OrderReturnOrderInfo.PayType,
+                        ProjectType = EmIncomeLogProjectType.RetuenOrder,
+                        Remark = returnOrder.Remark,
+                        RepealOt = null,
+                        RepealUserId = null,
+                        Status = EmIncomeLogStatus.Normal,
+                        Sum = request.OrderReturnOrderInfo.PaySum,
+                        TenantId = returnOrder.TenantId,
+                        UserId = returnOrder.UserId,
+                        Type = EmIncomeLogType.AccountOut
+                    });
+                }
             }
 
             _eventPublisher.Publish(new OrderReturnProductEvent(sourceOrder.TenantId)

@@ -89,12 +89,12 @@ namespace ETMS.Entity.Database.Source
         public decimal ArrearsSum { get; set; }
 
         /// <summary>
-        /// 充值账户抵扣 (充值账户抵扣)
+        /// 充值账户抵扣 (实充)
         /// </summary>
         public decimal PayAccountRechargeReal { get; set; }
 
         /// <summary>
-        /// 充值账户抵扣 (赠送余额抵扣)
+        /// 充值账户抵扣 (赠送)
         /// </summary>
         public decimal PayAccountRechargeGive { get; set; }
 

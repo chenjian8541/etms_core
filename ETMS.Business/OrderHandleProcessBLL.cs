@@ -120,7 +120,7 @@ namespace ETMS.Business
                         RelatedOrderId = order.Id,
                         Status = EmStudentAccountRechargeLogStatus.Normal,
                         StudentAccountRechargeId = order.PayAccountRechargeId.Value,
-                        Type = EmStudentAccountRechargeLogType.OrderRetuen,
+                        Type = EmStudentAccountRechargeLogType.OrderReturn,
                         UserId = order.UserId
                     });
                 }

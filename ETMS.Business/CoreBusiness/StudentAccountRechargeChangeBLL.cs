@@ -44,6 +44,10 @@ namespace ETMS.Business
                 try
                 {
                     var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.StudentAccountRechargeId);
+                    if (accountLog == null)
+                    {
+                        LOG.Log.Error("[StudentAccountRechargeChange]充值账户未找到", request, this.GetType());
+                    }
                     accountLog.BalanceReal += request.AddBalanceReal;
                     accountLog.BalanceGive += request.AddBalanceGive;
                     accountLog.RechargeSum += request.AddRechargeSum;
