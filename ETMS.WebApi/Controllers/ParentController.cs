@@ -239,6 +239,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request)
+        {
+            try
+            {
+                return await _parentBLL.StudentRecommendRuleGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentListGet(StudentListGetRequest request)
         {
             try

@@ -13,7 +13,7 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public override string Validate()
         {
-            if (string.IsNullOrEmpty(Explain))
+            if (string.IsNullOrEmpty(Explain) && string.IsNullOrEmpty(ImgUrlKey))
             {
                 return "请填写规则说明";
             }

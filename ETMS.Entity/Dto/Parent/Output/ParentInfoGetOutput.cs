@@ -30,5 +30,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 充值账户ID
         /// </summary>
         public long? StudentAccountRechargeId { get; set; }
+
+        /// <summary>
+        /// 是否展示 "推荐有礼"
+        /// </summary>
+        public bool IsShowStudentRecommend { get; set; }
     }
 }

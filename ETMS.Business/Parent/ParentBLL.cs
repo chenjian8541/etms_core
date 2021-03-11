@@ -381,6 +381,7 @@ namespace ETMS.Business
         {
             _studentWechatDAL.InitTenantId(request.LoginTenantId);
             _studentAccountRechargeDAL.InitTenantId(request.LoginTenantId);
+            _tenantConfigDAL.InitTenantId(request.LoginTenantId);
             var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
             var myTenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuthSelf(request.LoginTenantId);
             var output = new ParentInfoGetOutput();
@@ -391,11 +392,25 @@ namespace ETMS.Business
                 output.Phone = myStudentWechat.Phone;
             }
             output.IsShowLoginout = myTenantWechartAuth == null;
+
+            //充值账户
             var studentAccountRechargeInfo = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.LoginPhone);
             if (studentAccountRechargeInfo != null)
             {
                 output.StudentAccountRechargeId = studentAccountRechargeInfo.Id;
             }
+
+            //推荐有奖
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            var studentRecommendConfig = config.StudentRecommendConfig;
+            if (studentRecommendConfig.IsOpenBuy || studentRecommendConfig.IsOpenRegistered)
+            {
+                if (!string.IsNullOrEmpty(studentRecommendConfig.RecommendDesText) || !string.IsNullOrEmpty(studentRecommendConfig.RecommendDesImg))
+                {
+                    output.IsShowStudentRecommend = true;
+                }
+            }
+
             return ResponseBase.Success(output);
         }
 
@@ -518,6 +533,18 @@ namespace ETMS.Business
                 return ResponseBase.CommonError(myMsg);
             }
             return await GetParentLoginResult(thisTenant.Id, request.LoginPhone, null);
+        }
+
+        public async Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request)
+        {
+            _tenantConfigDAL.InitTenantId(request.LoginTenantId);
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            var studentRecommendConfig = config.StudentRecommendConfig;
+            return ResponseBase.Success(new StudentRecommendRuleGetOutput()
+            {
+                RecommendDesImgUrl = UrlHelper.GetUrl(studentRecommendConfig.RecommendDesImg),
+                RecommendDesText = studentRecommendConfig.RecommendDesText
+            });
         }
     }
 }

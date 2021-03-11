@@ -994,5 +994,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentRecommendConfigSave(StudentRecommendConfigSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.StudentRecommendConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentRecommendConfigSave2(StudentRecommendConfigSave2Request request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.StudentRecommendConfigSave2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

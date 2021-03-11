@@ -62,6 +62,7 @@ namespace ETMS.Business
                 TenantInfoConfig = config.TenantInfoConfig,
                 TeacherSetConfig = config.TeacherSetConfig,
                 StudentCheckInConfig = config.StudentCheckInConfig,
+                StudentRecommendConfig = config.StudentRecommendConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
@@ -72,6 +73,10 @@ namespace ETMS.Business
             if (!string.IsNullOrEmpty(config.TeacherSetConfig.LoginImage))
             {
                 output.OtherOutput.TeacherLoginImageUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, config.TeacherSetConfig.LoginImage);
+            }
+            if (!string.IsNullOrEmpty(config.StudentRecommendConfig.RecommendDesImg))
+            {
+                output.OtherOutput.RecommendDesImgUrl = UrlHelper.GetUrl(config.StudentRecommendConfig.RecommendDesImg);
             }
             return ResponseBase.Success(output);
         }
@@ -336,6 +341,30 @@ namespace ETMS.Business
 
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "考勤设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentRecommendConfigSave(StudentRecommendConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentRecommendConfig.IsOpenRegistered = request.IsOpenRegistered;
+            config.StudentRecommendConfig.RegisteredGivePoints = request.RegisteredGivePoints;
+            config.StudentRecommendConfig.RegisteredGiveMoney = request.RegisteredGiveMoney;
+            config.StudentRecommendConfig.IsOpenBuy = request.IsOpenBuy;
+            config.StudentRecommendConfig.BuyGivePoints = request.BuyGivePoints;
+            config.StudentRecommendConfig.BuyGiveMoney = request.BuyGiveMoney;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "学员推荐有奖设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentRecommendConfigSave2(StudentRecommendConfigSave2Request request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentRecommendConfig.RecommendDesText = request.RecommendDesText;
+            config.StudentRecommendConfig.RecommendDesImg = request.RecommendDesImg;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "学员推荐有奖设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
     }

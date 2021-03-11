@@ -21,6 +21,7 @@ namespace ETMS.Entity.Config
             TeacherSetConfig = new TeacherSetConfig();
             TenantInfoConfig = new TenantInfoConfig();
             StudentCheckInConfig = new StudentCheckInConfig();
+            StudentRecommendConfig = new StudentRecommendConfig();
         }
 
         /// <summary>
@@ -67,6 +68,57 @@ namespace ETMS.Entity.Config
         /// 学员考勤
         /// </summary>
         public StudentCheckInConfig StudentCheckInConfig { get; set; }
+
+        /// <summary>
+        /// 推荐有奖
+        /// </summary>
+        public StudentRecommendConfig StudentRecommendConfig { get; set; }
+    }
+
+    /// <summary>
+    /// 推荐有奖
+    /// </summary>
+    public class StudentRecommendConfig
+    {
+        /// <summary>
+        /// 注册
+        /// </summary>
+        public bool IsOpenRegistered { get; set; }
+
+        /// <summary>
+        /// 奖励积分
+        /// </summary>
+        public int RegisteredGivePoints { get; set; }
+
+        /// <summary>
+        /// 奖励充值账户
+        /// </summary>
+        public decimal RegisteredGiveMoney { get; set; }
+
+        /// <summary>
+        /// 购课
+        /// </summary>
+        public bool IsOpenBuy { get; set; }
+
+        /// <summary>
+        /// 奖励积分
+        /// </summary>
+        public int BuyGivePoints { get; set; }
+
+        /// <summary>
+        /// 奖励充值账户
+        /// </summary>
+        public decimal BuyGiveMoney { get; set; }
+
+        /// <summary>
+        /// 规则描述(文字)
+        /// </summary>
+        public string RecommendDesText { get; set; }
+
+        /// <summary>
+        /// 规则描述(图片)
+        /// </summary>
+        public string RecommendDesImg { get; set; }
     }
 
     public class StudentCheckInConfig

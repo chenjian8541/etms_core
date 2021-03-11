@@ -53,6 +53,11 @@ namespace ETMS.Entity.Dto.BasicData.Output
         /// 学员考勤
         /// </summary>
         public StudentCheckInConfig StudentCheckInConfig { get; set; }
+
+        /// <summary>
+        /// 推荐有奖
+        /// </summary>
+        public StudentRecommendConfig StudentRecommendConfig { get; set; }
     }
 
     /// <summary>
@@ -68,5 +73,7 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public string ParentLoginImageUrl { get; set; }
 
         public string TeacherLoginImageUrl { get; set; }
+
+        public string RecommendDesImgUrl { get; set; }
     }
 }

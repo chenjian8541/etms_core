@@ -41,5 +41,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentGetTenants(ParentRequestBase request);
 
         Task<ResponseBase> ParentTenantEntrance(ParentTenantEntranceRequest request);
+
+        Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request);
     }
 }

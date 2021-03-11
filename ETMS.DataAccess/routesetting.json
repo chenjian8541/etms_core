@@ -820,6 +820,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recommend_rule",
+        "Name": "recommend_rule",
+        "Type": 1,
+        "Component": "@/components/SystemSet/StudentRecommend/Rule",
+        "Meta": {
+          "Title": "推荐有奖设置",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 81,
         "Path": "tenantSet",
         "Name": "tenantSet",
