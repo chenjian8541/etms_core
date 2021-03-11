@@ -168,7 +168,7 @@ namespace ETMS.Business
                     if (request.TransferCoursesOrderInfo.OutPayInfo.PayStudentAccountRechargeId != null &&
                         request.TransferCoursesOrderInfo.OutPayInfo.PayType == EmPayType.PayAccountRecharge)
                     {
-                        myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeId.Value);
+                        myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.TransferCoursesOrderInfo.OutPayInfo.PayStudentAccountRechargeId.Value);
                         if (myAccountRecharge == null)
                         {
                             return ResponseBase.CommonError("充值账户不存在");

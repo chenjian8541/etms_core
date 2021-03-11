@@ -612,33 +612,6 @@
     "Type": 0,
     "ChildrenPage": [
       {
-        "Id": 88,
-        "Name": "充值管理",
-        "Type": 0,
-        "ChildrenAction": [
-          {
-            "ActionId": 61,
-            "Name": "充值",
-            "Type": 1
-          },
-          {
-            "ActionId": 62,
-            "Name": "退款",
-            "Type": 1
-          },
-          {
-            "ActionId": 63,
-            "Name": "修改充值账户",
-            "Type": 1
-          },
-          {
-            "ActionId": 64,
-            "Name": "充值规则设置",
-            "Type": 1
-          }
-        ]
-      },
-      {
         "Id": 47,
         "Name": "订单管理",
         "Type": 0,
@@ -666,6 +639,33 @@
           {
             "ActionId": 30,
             "Name": "打印收据",
+            "Type": 1
+          }
+        ]
+      },
+      {
+        "Id": 88,
+        "Name": "充值管理",
+        "Type": 0,
+        "ChildrenAction": [
+          {
+            "ActionId": 61,
+            "Name": "充值",
+            "Type": 1
+          },
+          {
+            "ActionId": 62,
+            "Name": "退款",
+            "Type": 1
+          },
+          {
+            "ActionId": 63,
+            "Name": "修改充值账户",
+            "Type": 1
+          },
+          {
+            "ActionId": 64,
+            "Name": "充值规则设置",
             "Type": 1
           }
         ]
