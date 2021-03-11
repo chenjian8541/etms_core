@@ -186,11 +186,6 @@ namespace ETMS.Business
             {
                 return;
             }
-            var projectType = EmIncomeLogProjectType.StudentAccountRecharge;
-            if (order.OrderType == EmOrderType.StudentAccountRefund)
-            {
-                projectType = EmIncomeLogProjectType.StudentAccountRefund;
-            }
             incomeLogs.Insert(0, new OrderGetDetailIncomeLog()
             {
                 PayOt = order.Ot.EtmsToDateString(),

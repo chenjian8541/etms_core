@@ -311,6 +311,23 @@ namespace ETMS.Business
             return ResponseBase.Success(output.OrderBy(p => p.Status));
         }
 
+        private void ProcessOrderAccountRechargePay(List<ParentOrderGetDetailIncomeLog> incomeLogs, EtOrder order)
+        {
+            if (order.PayAccountRechargeId == null || (order.PayAccountRechargeReal == 0 && order.PayAccountRechargeGive == 0))
+            {
+                return;
+            }
+            incomeLogs.Insert(0, new ParentOrderGetDetailIncomeLog()
+            {
+                PayOt = order.Ot.EtmsToDateString(),
+                PayType = EmPayType.PayAccountRecharge,
+                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge),
+                ProjectType = 0,
+                ProjectTypeName = EmOrderType.GetOrderTypeDesc(order.OrderType),
+                Sum = order.PayAccountRechargeReal + order.PayAccountRechargeGive,
+            });
+        }
+
         public async Task<ResponseBase> StudentOrderGet(StudentOrderGetRequest request)
         {
             var pagingData = await _orderDAL.GetOrderPaging(request);
@@ -460,6 +477,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order);
+
             return ResponseBase.Success(output);
         }
 
@@ -560,6 +579,8 @@ namespace ETMS.Business
                     });
                 }
             }
+            ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order);
+
             output.InSum = output.InList.Sum(j => j.ItemAptSum);
             output.OutSum = output.OutList.Sum(j => j.ItemAptSum);
             return ResponseBase.Success(output);
