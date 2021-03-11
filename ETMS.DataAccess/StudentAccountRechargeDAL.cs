@@ -53,6 +53,14 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> EditStudentAccountRechargePhone(long id, string newPhone, string oldPhone)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudentAccountRecharge SET [Phone] = '{newPhone}' WHERE Id = {id} AND TenantId = {_tenantId}");
+            RemoveCache(_tenantId, oldPhone);
+            await UpdateCache(_tenantId, newPhone);
+            return true;
+        }
+
         public async Task<EtStudentAccountRecharge> GetStudentAccountRecharge(string phone)
         {
             var bucket = await GetCache(_tenantId, phone);

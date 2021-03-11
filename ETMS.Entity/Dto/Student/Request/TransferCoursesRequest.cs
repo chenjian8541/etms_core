@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -54,6 +55,22 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 return "请提交转课信息";
             }
+
+            if (TransferCoursesOrderInfo.InOutType == EmOrderInOutType.In)
+            {
+                if (TransferCoursesOrderInfo.InPayInfo == null)
+                {
+                    return "请输入收款信息";
+                }
+                if (TransferCoursesOrderInfo.InPayInfo.PaySum != TransferCoursesOrderInfo.PaySum)
+                {
+                    return "支付金额必须等于收款金额";
+                }
+            }
+            if (TransferCoursesOrderInfo.InOutType == EmOrderInOutType.Out && TransferCoursesOrderInfo.OutPayInfo == null)
+            {
+                return "请输入退款信息";
+            }
             return base.Validate();
         }
     }
@@ -93,14 +110,19 @@ namespace ETMS.Entity.Dto.Student.Request
     public class TransferCoursesOrderInfo
     {
         /// <summary>
-        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
+        /// 收支类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
         /// </summary>
         public byte InOutType { get; set; }
 
         /// <summary>
-        /// 支付类型 <see cref="ETMS.Entity.Enum.EmPayType"/>
+        /// 收入类型
         /// </summary>
-        public byte PayType { get; set; }
+        public InPayInfo InPayInfo { get; set; }
+
+        /// <summary>
+        /// 支出信息
+        /// </summary>
+        public OutPayInfo OutPayInfo { get; set; }
 
         /// <summary>
         /// 金额
@@ -117,5 +139,56 @@ namespace ETMS.Entity.Dto.Student.Request
         public int ChangePoint { get; set; }
 
         public List<long> CommissionUser { get; set; }
+    }
+
+    /// <summary>
+    /// 支付信息
+    /// </summary>
+    public class InPayInfo
+    {
+        public decimal PayWechat { get; set; }
+
+        public decimal PayAlipay { get; set; }
+
+        public decimal PayCash { get; set; }
+
+        public decimal PayBank { get; set; }
+
+        public decimal PayPos { get; set; }
+
+        public decimal PayAccountRechargeReal { get; set; }
+
+        public decimal PayAccountRechargeGive { get; set; }
+
+        public long? PayAccountRechargeId { get; set; }
+
+        public decimal PaySum
+        {
+            get
+            {
+                var temp = PayWechat + PayAlipay + PayCash + PayBank + PayPos;
+                if (PayAccountRechargeId != null)
+                {
+                    temp += PayAccountRechargeReal + PayAccountRechargeGive;
+                }
+                return temp;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 支出信息
+    /// </summary>
+    public class OutPayInfo
+    {
+        /// <summary>
+        /// 支付类型 <see cref="ETMS.Entity.Enum.EmPayType"/>
+        /// </summary>
+        public int PayType { get; set; }
+
+        /// <summary>
+        /// 充值账户ID
+        /// </summary>
+        public long? PayStudentAccountRechargeId { get; set; }
     }
 }

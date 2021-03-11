@@ -15,6 +15,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditStudentAccountRecharge(EtStudentAccountRecharge entity);
 
+        Task<bool> EditStudentAccountRechargePhone(long id, string newPhone, string oldPhone);
+
         Task<EtStudentAccountRecharge> GetStudentAccountRecharge(string phone);
 
         Task<EtStudentAccountRecharge> GetStudentAccountRecharge(long id);

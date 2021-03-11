@@ -44,10 +44,17 @@ namespace ETMS.Business
 
         private readonly IStudentPointsLogDAL _studentPointsLogDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
+        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+
         public StudentTransferCourses(IStudentDAL studentDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
             IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
-            IStudentPointsLogDAL studentPointsLogDAL)
+            IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
+           IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -61,12 +68,16 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._classDAL = classDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
-                _orderDAL, _studentPointsLog, _classDAL, _studentPointsLogDAL);
+                _orderDAL, _studentPointsLog, _classDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
 
         private EtOrderDetail GetTransferOrderDetailOut(EtOrderDetail sourceOrderDetail, TransferCoursesOut productItem,
@@ -119,6 +130,56 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员不存在");
             }
+
+            EtStudentAccountRecharge myAccountRecharge = null;
+            var isPayAccountRecharge = false;
+            var payAccountRechargeReal = 0M;
+            var payAccountRechargeGive = 0M;
+            if (request.TransferCoursesOrderInfo.PaySum > 0)  //验证充值账户支付/支出
+            {
+                if (request.TransferCoursesOrderInfo.InOutType == EmOrderInOutType.In)
+                {
+                    if (request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeId != null &&
+                        (request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeGive > 0
+                        || request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeReal > 0))
+                    {
+                        myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeId.Value);
+                        if (myAccountRecharge == null)
+                        {
+                            return ResponseBase.CommonError("充值账户不存在");
+                        }
+                        if (request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeReal > 0
+                            && myAccountRecharge.BalanceReal < request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeReal)
+                        {
+                            return ResponseBase.CommonError("充值账户实充余额不足");
+                        }
+                        if (request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeGive > 0
+                            && myAccountRecharge.BalanceGive < request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeGive)
+                        {
+                            return ResponseBase.CommonError("充值账户赠送余额不足");
+                        }
+                        isPayAccountRecharge = true;
+                        payAccountRechargeReal = request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeReal;
+                        payAccountRechargeGive = request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeGive;
+                    }
+                }
+                else
+                {
+                    if (request.TransferCoursesOrderInfo.OutPayInfo.PayStudentAccountRechargeId != null &&
+                        request.TransferCoursesOrderInfo.OutPayInfo.PayType == EmPayType.PayAccountRecharge)
+                    {
+                        myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.TransferCoursesOrderInfo.InPayInfo.PayAccountRechargeId.Value);
+                        if (myAccountRecharge == null)
+                        {
+                            return ResponseBase.CommonError("充值账户不存在");
+                        }
+                        isPayAccountRecharge = true;
+                        payAccountRechargeReal = request.TransferCoursesOrderInfo.PaySum;
+                        payAccountRechargeGive = 0;
+                    }
+                }
+            }
+
             var newOrderNo = OrderNumberLib.GetTransferCoursesOrderNumber();
             var now = DateTime.Now;
             var processTransferCoursesBuyResult = await ProcessTransferCoursesBuy(request, studentBucket.Student, newOrderNo);
@@ -163,33 +224,29 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 UnionTransferOrderIds = EtmsHelper.GetMuIds(processTransferCoursesOutRes.SourceOrderIds)
             };
+            if (isPayAccountRecharge)
+            {
+                transferOrder.PayAccountRechargeReal = payAccountRechargeReal;
+                transferOrder.PayAccountRechargeGive = payAccountRechargeGive;
+                transferOrder.PayAccountRechargeId = myAccountRecharge.Id;
+            }
+
             var orderDetail = processTransferCoursesOutRes.NewOrderDetailList;
             orderDetail.AddRange(processTransferCoursesBuyRes.OrderDetails);
             var orderId = await _orderDAL.AddOrder(transferOrder, orderDetail);
 
             await _orderDAL.SetOrderHasIsTransferCourse(processTransferCoursesOutRes.SourceOrderIds);
 
+            if (isPayAccountRecharge)
+            {
+                //处理充值账户支付(支出)
+                await ProcessStudentAccountRechargeChange(request, myAccountRecharge, orderId, newOrderNo, now, request.TransferCoursesOrderInfo.PaySum);
+            }
+
             if (request.TransferCoursesOrderInfo.PaySum > 0)
             {
-                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
-                {
-                    AccountNo = string.Empty,
-                    CreateOt = now,
-                    IsDeleted = EmIsDeleted.Normal,
-                    No = transferOrder.No,
-                    OrderId = transferOrder.Id,
-                    Ot = transferOrder.Ot,
-                    PayType = request.TransferCoursesOrderInfo.PayType,
-                    ProjectType = EmIncomeLogProjectType.TransferCourse,
-                    Remark = request.TransferCoursesOrderInfo.Remark,
-                    RepealOt = null,
-                    RepealUserId = null,
-                    Status = EmIncomeLogStatus.Normal,
-                    Sum = request.TransferCoursesOrderInfo.PaySum,
-                    TenantId = request.LoginTenantId,
-                    UserId = request.LoginUserId,
-                    Type = request.TransferCoursesOrderInfo.InOutType == EmOrderInOutType.Out ? EmIncomeLogType.AccountOut : EmIncomeLogType.AccountIn
-                });
+                //处理收支记录
+                await ProcessIncomeLog(request, orderId, newOrderNo, now, transferOrder.Ot);
             }
 
             _eventPublisher.Publish(new StudentTransferCoursesEvent(request.LoginTenantId)
@@ -207,6 +264,160 @@ namespace ETMS.Business
             //    StudentId = request.StudentId
             //});
             return ResponseBase.Success(orderId);
+        }
+
+        private async Task ProcessStudentAccountRechargeChange(TransferCoursesRequest request, EtStudentAccountRecharge myAccountRecharge,
+            long orderId, string orderNo, DateTime now, decimal paySum)
+        {
+            if (request.TransferCoursesOrderInfo.InOutType == EmOrderInOutType.In)
+            {
+                //充值账户支出
+                var inPayInfo = request.TransferCoursesOrderInfo.InPayInfo;
+                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                {
+                    AddBalanceReal = -inPayInfo.PayAccountRechargeReal,
+                    AddBalanceGive = -inPayInfo.PayAccountRechargeGive,
+                    AddRechargeSum = 0,
+                    AddRechargeGiveSum = 0,
+                    StudentAccountRechargeId = myAccountRecharge.Id,
+                    TryCount = 0
+                });
+                await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                {
+                    TenantId = myAccountRecharge.TenantId,
+                    CgBalanceGive = inPayInfo.PayAccountRechargeGive,
+                    CgBalanceReal = inPayInfo.PayAccountRechargeReal,
+                    CgNo = orderNo,
+                    CgServiceCharge = 0,
+                    CommissionUser = string.Empty,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = now,
+                    Phone = myAccountRecharge.Phone,
+                    Remark = "转课",
+                    RelatedOrderId = orderId,
+                    Status = EmStudentAccountRechargeLogStatus.Normal,
+                    StudentAccountRechargeId = myAccountRecharge.Id,
+                    Type = EmStudentAccountRechargeLogType.Pay,
+                    UserId = request.LoginUserId
+                });
+            }
+            else
+            {
+                //退款至充值账户
+                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                {
+                    AddBalanceReal = paySum,
+                    AddBalanceGive = 0,
+                    AddRechargeSum = 0,
+                    AddRechargeGiveSum = 0,
+                    StudentAccountRechargeId = myAccountRecharge.Id,
+                    TryCount = 0
+                });
+                await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                {
+                    StudentAccountRechargeId = myAccountRecharge.Id,
+                    CgBalanceGive = 0,
+                    CgBalanceReal = paySum,
+                    CgNo = orderNo,
+                    CgServiceCharge = 0,
+                    CommissionUser = string.Empty,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = now,
+                    Phone = myAccountRecharge.Phone,
+                    RelatedOrderId = orderId,
+                    Remark = "转课",
+                    Status = EmStudentAccountRechargeLogStatus.Normal,
+                    TenantId = myAccountRecharge.TenantId,
+                    Type = EmStudentAccountRechargeLogType.OrderReturn,
+                    UserId = request.LoginUserId
+                });
+            }
+        }
+
+        private async Task ProcessIncomeLog(TransferCoursesRequest request, long orderId, string orderNo, DateTime now,
+            DateTime orderOt)
+        {
+            if (request.TransferCoursesOrderInfo.InOutType == EmOrderInOutType.In)
+            {
+                var inPayInfo = request.TransferCoursesOrderInfo.InPayInfo;
+                var incomeLogs = new List<EtIncomeLog>();
+                if (inPayInfo.PayWechat > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.WeChat, inPayInfo.PayWechat, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+                if (inPayInfo.PayAlipay > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Alipay, inPayInfo.PayAlipay, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+                if (inPayInfo.PayCash > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Cash, inPayInfo.PayCash, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+                if (inPayInfo.PayBank > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Bank, inPayInfo.PayBank, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+                if (inPayInfo.PayPos > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Pos, inPayInfo.PayPos, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+                _incomeLogDAL.AddIncomeLog(incomeLogs);
+            }
+            else
+            {
+                var outPayInfo = request.TransferCoursesOrderInfo.OutPayInfo;
+                if (outPayInfo.PayType != EmPayType.PayAccountRecharge)
+                {
+                    await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                    {
+                        AccountNo = string.Empty,
+                        CreateOt = now,
+                        IsDeleted = EmIsDeleted.Normal,
+                        No = orderNo,
+                        OrderId = orderId,
+                        Ot = orderOt,
+                        PayType = outPayInfo.PayType,
+                        ProjectType = EmIncomeLogProjectType.TransferCourse,
+                        Remark = request.TransferCoursesOrderInfo.Remark,
+                        RepealOt = null,
+                        RepealUserId = null,
+                        Status = EmIncomeLogStatus.Normal,
+                        Sum = request.TransferCoursesOrderInfo.PaySum,
+                        TenantId = request.LoginTenantId,
+                        UserId = request.LoginUserId,
+                        Type = EmIncomeLogType.AccountOut
+                    });
+                }
+            }
+        }
+
+        private EtIncomeLog GetEtIncomeLogIn(byte payType, decimal payValue, DateTime createTime, DateTime ot, string no,
+            int tenantId, long userId, string remark, long orderId)
+        {
+            return new EtIncomeLog()
+            {
+                AccountNo = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                No = no,
+                Ot = ot,
+                PayType = payType,
+                ProjectType = EmIncomeLogProjectType.TransferCourse,
+                Remark = remark,
+                RepealOt = null,
+                OrderId = orderId,
+                RepealUserId = null,
+                Status = EmIncomeLogStatus.Normal,
+                Sum = payValue,
+                TenantId = tenantId,
+                Type = EmIncomeLogType.AccountIn,
+                UserId = userId,
+                CreateOt = createTime
+            };
         }
 
         private async Task<ResponseBase> ProcessTransferCoursesBuy(TransferCoursesRequest request,

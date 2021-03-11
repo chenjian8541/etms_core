@@ -305,11 +305,6 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeEditPhone(StudentAccountRechargeEditPhoneRequest request)
         {
-            if (await _studentAccountRechargeDAL.ExistStudentAccountRecharge(request.Phone, request.Id))
-            {
-                return ResponseBase.CommonError("此手机号已存在账户信息");
-            }
-
             var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.Id);
             if (accountLog == null)
             {
@@ -319,9 +314,13 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("账户手机号码相同，无需修改");
             }
+            if (await _studentAccountRechargeDAL.ExistStudentAccountRecharge(request.Phone, request.Id))
+            {
+                return ResponseBase.CommonError("此手机号已存在账户信息");
+            }
 
-            accountLog.Phone = request.Phone;
-            await _studentAccountRechargeDAL.EditStudentAccountRecharge(accountLog);
+            var oldPhone = accountLog.Phone;
+            await _studentAccountRechargeDAL.EditStudentAccountRechargePhone(accountLog.Id, request.Phone, oldPhone);
 
             _eventPublisher.Publish(new SyncStudentAccountRechargeLogPhoneEvent(request.LoginTenantId)
             {

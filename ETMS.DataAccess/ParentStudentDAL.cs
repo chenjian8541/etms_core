@@ -23,7 +23,11 @@ namespace ETMS.DataAccess
                 $"SELECT Id,Name,Gender,Avatar,Phone from EtStudent WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {keys[0]} AND (Phone = '{phone}' or PhoneBak = '{phone}')");
             if (students == null || !students.Any())
             {
-                return null;
+                return new ParentStudentBucket()
+                {
+                    Phone = phone,
+                    ParentStudents = new List<ParentStudentInfo>()
+                };
             }
             return new ParentStudentBucket()
             {
