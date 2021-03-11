@@ -56,10 +56,13 @@ namespace ETMS.Business
 
         private readonly ISysTenantStudentDAL _sysTenantStudentDAL;
 
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
-            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL)
+            ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
+            IStudentAccountRechargeDAL studentAccountRechargeDAL)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -74,6 +77,7 @@ namespace ETMS.Business
             this._tenantConfigDAL = tenantConfigDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._sysTenantStudentDAL = sysTenantStudentDAL;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -376,6 +380,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request)
         {
             _studentWechatDAL.InitTenantId(request.LoginTenantId);
+            _studentAccountRechargeDAL.InitTenantId(request.LoginTenantId);
             var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
             var myTenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuthSelf(request.LoginTenantId);
             var output = new ParentInfoGetOutput();
@@ -386,6 +391,11 @@ namespace ETMS.Business
                 output.Phone = myStudentWechat.Phone;
             }
             output.IsShowLoginout = myTenantWechartAuth == null;
+            var studentAccountRechargeInfo = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.LoginPhone);
+            if (studentAccountRechargeInfo != null)
+            {
+                output.StudentAccountRechargeId = studentAccountRechargeInfo.Id;
+            }
             return ResponseBase.Success(output);
         }
 

@@ -22,5 +22,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request);
 
         Task<ResponseBase> CheckOnLogGet(CheckOnLogGetRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request);
     }
 }

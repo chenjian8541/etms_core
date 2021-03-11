@@ -17,7 +17,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //CreateParentToken();
+            CreateParentToken();
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -30,8 +30,7 @@ namespace Etms.Tools.Test
             //Console.WriteLine(DateTime.MaxValue.IsEffectiveDate());
             //var date = Convert.ToDateTime("2021-10-1");
             //Console.WriteLine(date.IsEffectiveDate());
-            var a = -2;
-            Console.WriteLine(a.ToString("F2"));
+  
             Console.WriteLine();
             Console.Read();
         }

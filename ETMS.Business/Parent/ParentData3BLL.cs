@@ -3,11 +3,13 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,9 +32,17 @@ namespace ETMS.Business
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
         private readonly IEventPublisher _eventPublisher;
+
+        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+
+        private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
+
+        private readonly IAppConfigDAL _appConfigDAL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
+            IAppConfigDAL appConfigDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -41,12 +51,15 @@ namespace ETMS.Business
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._eventPublisher = eventPublisher;
+            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._appConfigDAL = appConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
-                _tryCalssApplyLogDAL, _studentCheckOnLogDAL);
+                _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _appConfigDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -209,6 +222,62 @@ namespace ETMS.Business
                 CheckType = log.CheckType,
                 CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(log.CheckType)
             });
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request)
+        {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.Id);
+            if (accountLog == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            return ResponseBase.Success(new StudentAccountRechargeGetOutput()
+            {
+                BalanceGiveDesc = accountLog.BalanceGive.ToString("F2"),
+                Id = accountLog.Id,
+                BalanceRealDesc = accountLog.BalanceReal.ToString("F2"),
+                BalanceSumDesc = accountLog.BalanceSum.ToString("F2"),
+                Ot = accountLog.Ot,
+                Phone = accountLog.Phone
+            });
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request)
+        {
+            var log = await this._appConfigDAL.GetAppConfig(EmAppConfigType.RechargeRuleConfig);
+            if (log == null)
+            {
+                return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput());
+            }
+            var rechargeRuleView = JsonConvert.DeserializeObject<StudentAccountRechargeRuleView>(log.ConfigValue);
+            return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput()
+            {
+                Explain = rechargeRuleView.Explain,
+                ImgUrlKeyUrl = UrlHelper.GetUrl(rechargeRuleView.ImgUrlKey),
+            });
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request)
+        {
+            var pagingData = await _studentAccountRechargeLogDAL.GetPaging(request);
+            var output = new List<StudentAccountRechargeLogGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new StudentAccountRechargeLogGetPagingOutput()
+                {
+                    CgNo = p.CgNo,
+                    OtDesc = EtmsHelper.GetChangeLogTimeDesc(p.Ot),
+                    StudentAccountRechargeId = p.StudentAccountRechargeId,
+                    Type = p.Type,
+                    TypeDesc = EmStudentAccountRechargeLogType.GetStudentAccountRechargeLogTypeDesc(p.Type),
+                    CgBalanceRealDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceReal, p.Type),
+                    CgBalanceGiveDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceGive, p.Type),
+                    CgBalanceTotalDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceTotal, p.Type),
+                    ChangeType = EmStudentAccountRechargeLogType.GetValueChangeType(p.Type),
+                    Id = p.Id
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentAccountRechargeLogGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

@@ -24,6 +24,8 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public int Type { get; set; }
 
+        public decimal CgBalanceTotal { get; set; }
+
         public decimal CgBalanceReal { get; set; }
 
         public decimal CgBalanceGive { get; set; }

@@ -281,5 +281,14 @@ namespace ETMS.Utility
             }
             return $"+{cgValue.ToString("F2")}";
         }
+
+        public static string GetChangeLogTimeDesc(DateTime time)
+        {
+            if (time.Year == DateTime.Now.Year)
+            {
+                return time.ToString("MM-dd HH:mm");
+            }
+            return time.ToString("yyyy-MM-dd HH:mm");
+        }
     }
 }

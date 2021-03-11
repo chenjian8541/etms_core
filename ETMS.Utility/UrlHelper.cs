@@ -29,5 +29,14 @@ namespace ETMS.Utility
                 return $"{scheme}://{host}:{port}{virtualPath}/{urlKey}";
             }
         }
+
+        public static string GetUrl(string urlKey)
+        {
+            if (string.IsNullOrEmpty(urlKey))
+            {
+                return string.Empty;
+            }
+            return AliyunOssUtil.GetAccessUrlHttps(urlKey);
+        }
     }
 }

@@ -25,5 +25,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 是否显示退出
         /// </summary>
         public bool IsShowLoginout { get; set; }
+
+        /// <summary>
+        /// 充值账户ID
+        /// </summary>
+        public long? StudentAccountRechargeId { get; set; }
     }
 }

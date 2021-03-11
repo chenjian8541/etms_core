@@ -18,10 +18,11 @@ namespace ETMS.DataAccess
 
         public async Task AddStudentAccountRechargeLog(EtStudentAccountRechargeLog log)
         {
+            log.CgBalanceTotal = log.CgBalanceReal + log.CgBalanceGive;
             await this._dbWrapper.Insert(log);
         }
 
-        public async Task<Tuple<IEnumerable<EtStudentAccountRechargeLog>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStudentAccountRechargeLog>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStudentAccountRechargeLog>("EtStudentAccountRechargeLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

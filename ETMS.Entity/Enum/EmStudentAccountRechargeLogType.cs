@@ -42,6 +42,22 @@ namespace ETMS.Entity.Enum
             return string.Empty;
         }
 
+        public static byte GetValueChangeType(int type)
+        {
+            switch (type)
+            {
+                case Recharge:
+                    return EmValueChangeType.Add;
+                case Refund:
+                    return EmValueChangeType.Deduction;
+                case Pay:
+                    return EmValueChangeType.Deduction;
+                case OrderReturn:
+                    return EmValueChangeType.Add;
+            }
+            return EmValueChangeType.Add;
+        }
+
         public static string GetValueDesc(decimal value, int type)
         {
             if (value == 0)
