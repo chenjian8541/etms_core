@@ -370,6 +370,16 @@ namespace ETMS.Business
             //异步执行
             _eventPublisher.Publish(studentEnrolmentEvent);
 
+            if (student.RecommendStudentId != null)
+            {
+                _eventPublisher.Publish(new StudentRecommendRewardEvent(request.LoginTenantId)
+                {
+                    Student = student,
+                    Order = order,
+                    Type = StudentRecommendRewardType.Buy
+                });
+            }
+
             return ResponseBase.Success(new StudentEnrolmentOutput()
             {
                 OrderId = orderId

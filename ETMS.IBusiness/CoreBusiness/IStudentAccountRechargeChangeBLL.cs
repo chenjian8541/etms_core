@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Temp.Request;
+﻿using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp.Request;
 using ETMS.Event.DataContract;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace ETMS.IBusiness
 {
     public interface IStudentAccountRechargeChangeBLL: IBaseBLL
     {
+        Task<EtStudentAccountRecharge> GetStudentAccountRecharge(string phone, string phoneBak);
+
         Task StudentAccountRechargeChange(StudentAccountRechargeChangeEvent request);
     }
 }

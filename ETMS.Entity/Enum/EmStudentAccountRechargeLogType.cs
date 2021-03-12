@@ -26,6 +26,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int OrderReturn = 3;
 
+        /// <summary>
+        /// 推荐有奖(注册)
+        /// </summary>
+        public const int RecommendStudentRegistered = 4;
+
+        /// <summary>
+        /// 推荐有奖(报名/续费)
+        /// </summary>
+        public const int RecommendStudentBuy = 5;
+
         public static string GetStudentAccountRechargeLogTypeDesc(int type)
         {
             switch (type)
@@ -38,6 +48,10 @@ namespace ETMS.Entity.Enum
                     return "账户支出";
                 case OrderReturn:
                     return "退款至账户";
+                case RecommendStudentRegistered:
+                    return "推荐有奖(注册)";
+                case RecommendStudentBuy:
+                    return "推荐有奖(报名/续费)";
             }
             return string.Empty;
         }
@@ -53,6 +67,10 @@ namespace ETMS.Entity.Enum
                 case Pay:
                     return EmValueChangeType.Deduction;
                 case OrderReturn:
+                    return EmValueChangeType.Add;
+                case RecommendStudentRegistered:
+                    return EmValueChangeType.Add;
+                case RecommendStudentBuy:
                     return EmValueChangeType.Add;
             }
             return EmValueChangeType.Add;
@@ -73,6 +91,10 @@ namespace ETMS.Entity.Enum
                 case Pay:
                     return $"-￥{value.ToString("F2")}";
                 case OrderReturn:
+                    return $"+￥{value.ToString("F2")}";
+                case RecommendStudentRegistered:
+                    return $"+￥{value.ToString("F2")}";
+                case RecommendStudentBuy:
                     return $"+￥{value.ToString("F2")}";
             }
             return string.Empty;

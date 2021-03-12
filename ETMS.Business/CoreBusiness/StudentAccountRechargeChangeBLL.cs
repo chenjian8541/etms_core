@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.CacheBucket.RedisLock;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp.Request;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
@@ -33,6 +34,19 @@ namespace ETMS.Business
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentAccountRechargeDAL);
+        }
+
+        public async Task<EtStudentAccountRecharge> GetStudentAccountRecharge(string phone, string phoneBak)
+        {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(phone);
+            if (accountLog == null)
+            {
+                if (!string.IsNullOrEmpty(phoneBak))
+                {
+                    accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(phoneBak);
+                }
+            }
+            return accountLog;
         }
 
         public async Task StudentAccountRechargeChange(StudentAccountRechargeChangeEvent request)

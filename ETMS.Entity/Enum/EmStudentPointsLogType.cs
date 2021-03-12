@@ -89,6 +89,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int StudentAccountRefund = 15;
 
+        /// <summary>
+        /// 推荐有奖(注册)
+        /// </summary>
+        public const int RecommendStudentRegistered = 16;
+
+        /// <summary>
+        /// 推荐有奖(报名)
+        /// </summary>
+        public const int RecommendStudentBuy = 17;
+
         public static string GetStudentPointsLogType(int type)
         {
             switch (type)
@@ -125,6 +135,10 @@ namespace ETMS.Entity.Enum
                     return "账户充值";
                 case StudentAccountRefund:
                     return "账户退款";
+                case RecommendStudentRegistered:
+                    return "推荐有奖(注册)";
+                case RecommendStudentBuy:
+                    return "推荐有奖(报名/续费)";
             }
             return string.Empty;
         }
@@ -165,6 +179,10 @@ namespace ETMS.Entity.Enum
                     return $"+{point}";
                 case StudentAccountRefund:
                     return $"-{point}";
+                case RecommendStudentRegistered:
+                    return $"+{point}";
+                case RecommendStudentBuy:
+                    return $"+{point}";
             }
             return string.Empty;
         }

@@ -171,6 +171,15 @@ namespace ETMS.Business
 
             CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
             SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
+
+            if (etStudent.RecommendStudentId != null)
+            {
+                _eventPublisher.Publish(new StudentRecommendRewardEvent(request.LoginTenantId)
+                {
+                    Student = etStudent,
+                    Type = StudentRecommendRewardType.Registered
+                });
+            }
             await _userOperationLogDAL.AddUserLog(request, $"添加学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success(studentId);
         }

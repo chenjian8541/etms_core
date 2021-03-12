@@ -249,14 +249,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员不存在");
             }
-            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(studentBucket.Student.Phone);
-            if (accountLog == null)
-            {
-                if (!string.IsNullOrEmpty(studentBucket.Student.PhoneBak))
-                {
-                    accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(studentBucket.Student.PhoneBak);
-                }
-            }
+            var accountLog = await _studentAccountRechargeChangeBLL.GetStudentAccountRecharge(studentBucket.Student.Phone, studentBucket.Student.PhoneBak);
             if (accountLog == null)
             {
                 return ResponseBase.Success();
