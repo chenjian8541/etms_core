@@ -228,12 +228,17 @@ namespace ETMS.DataAccess
 
         public async Task<bool> SyncClassInfo(long classId, string studentIdsClass, string courseList, string classRoomIds, string teachers, int teacherNum)
         {
-            var strSql = new StringBuilder();
-            strSql.Append($"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}' WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} GO ;");
-            strSql.Append($"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} GO ;");
-            strSql.Append($"UPDATE EtClassTimes SET ClassRoomIds = '{classRoomIds}' WHERE ClassId = {classId} AND ClassRoomIdsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} GO ;");
-            strSql.Append($"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} GO ;"); ;
-            await _dbWrapper.Execute(strSql.ToString());
+            var strSql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}' WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(strSql);
+
+            strSql = $"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(strSql);
+
+            strSql = $"UPDATE EtClassTimes SET ClassRoomIds = '{classRoomIds}' WHERE ClassId = {classId} AND ClassRoomIdsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(strSql);
+
+            strSql = $"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(strSql);
             return true;
         }
 
