@@ -81,6 +81,10 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string TrackUserName { get; set; }
 
+        public long? RecommendStudentId { get; set; }
+
+        public string RecommendStudentName { get; set; }
+
         /// <summary> 
         /// 意向级别   <see cref="ETMS.Entity.Enum.EmStudentIntentionLevel"/>
         /// </summary>

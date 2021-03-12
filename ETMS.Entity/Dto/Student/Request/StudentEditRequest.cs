@@ -74,6 +74,11 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public long? TrackUser { get; set; }
 
+        /// <summary>
+        /// 推荐人
+        /// </summary>
+        public long? RecommendStudentId { get; set; }
+
         /// <summary> 
         /// 意向级别   <see cref="ETMS.Entity.Enum.EmStudentIntentionLevel"/>
         /// </summary>

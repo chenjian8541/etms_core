@@ -133,6 +133,10 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string LearningManagerDesc { get; set; }
 
+        public long? RecommendStudentId { get; set; }
+
+        public string RecommendStudentDesc { get; set; }
+
         public string LastTrackTimeDesc { get; set; }
 
         public string NextTrackTimeDesc { get; set; }

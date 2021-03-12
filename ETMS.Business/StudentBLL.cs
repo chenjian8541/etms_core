@@ -142,7 +142,8 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 TrackStatus = EmStudentTrackStatus.NotTrack,
                 TrackUser = request.TrackUser,
-                NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower()
+                NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
+                RecommendStudentId = request.RecommendStudentId
             };
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
@@ -206,6 +207,11 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("存在相同姓名和手机号的学员");
             }
+            if (request.RecommendStudentId != null && request.RecommendStudentId.Value == request.CId)
+            {
+                return ResponseBase.CommonError("推荐人不能选择自己");
+            }
+
             var tags = string.Empty;
             if (request.Tags != null && request.Tags.Any())
             {
@@ -234,6 +240,7 @@ namespace ETMS.Business
             etStudent.SourceId = request.SourceId;
             etStudent.Tags = tags;
             etStudent.TrackUser = request.TrackUser;
+            etStudent.RecommendStudentId = request.RecommendStudentId;
             etStudent.NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower();
             etStudent.Age = request.Birthday.EtmsGetAge();
             var studentExtendInfos = new List<EtStudentExtendInfo>();
@@ -303,9 +310,20 @@ namespace ETMS.Business
             var student = studentBucket.Student;
             var studentRelationship = await _studentRelationshipDAL.GetAllStudentRelationship();
             var tempBoxUser = new DataTempBox<EtUser>();
+            var recommendStudentDesc = string.Empty;
+            if (student.RecommendStudentId != null)
+            {
+                var recommendStudentBucket = await _studentDAL.GetStudent(student.RecommendStudentId.Value);
+                if (recommendStudentBucket != null && recommendStudentBucket.Student != null)
+                {
+                    recommendStudentDesc = ComBusiness3.GetStudentDescPC(recommendStudentBucket.Student);
+                }
+            }
             var studentGetOutput = new StudentGetOutput()
             {
                 CId = student.Id,
+                RecommendStudentId = student.RecommendStudentId,
+                RecommendStudentDesc = recommendStudentDesc,
                 AvatarKey = student.Avatar,
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
                 CardNo = student.CardNo,
@@ -377,6 +395,15 @@ namespace ETMS.Business
                 tags = student.Tags.Trim(',').Split(',');
             }
             var tempBoxUser = new DataTempBox<EtUser>();
+            var recommendStudentName = string.Empty;
+            if (student.RecommendStudentId != null)
+            {
+                var recommendStudentBucket = await _studentDAL.GetStudent(student.RecommendStudentId.Value);
+                if (recommendStudentBucket != null && recommendStudentBucket.Student != null)
+                {
+                    recommendStudentName = recommendStudentBucket.Student.Name;
+                }
+            }
             var output = new StudentGetForEditOutput()
             {
                 AvatarKey = student.Avatar,
@@ -400,6 +427,8 @@ namespace ETMS.Business
                 StudentExtendItems = new List<StudentExtendItem>(),
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
                 TrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser),
+                RecommendStudentId = student.RecommendStudentId,
+                RecommendStudentName = recommendStudentName
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var file in studentExtendFileds)

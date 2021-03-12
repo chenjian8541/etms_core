@@ -142,6 +142,11 @@ namespace ETMS.Entity.Database.Source
         public long? LearningManager { get; set; }
 
         /// <summary>
+        /// 推荐人
+        /// </summary>
+        public long? RecommendStudentId { get; set; }
+
+        /// <summary>
         /// 上一次跟进时间
         /// </summary>
         public DateTime? LastTrackTime { get; set; }
