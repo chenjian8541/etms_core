@@ -165,10 +165,82 @@ namespace ETMS.AiFace
             _client.CreatePersonSync(req);
         }
 
-        public bool StudentInitFace(long studentId, string faceGreyKeyUrl)
+        private string CheckFaceQualityInfo(FaceQualityInfo faceQualityInfo)
+        {
+            if (faceQualityInfo.Score == null || faceQualityInfo.Sharpness == null ||
+               faceQualityInfo.Brightness == null || faceQualityInfo.Completeness == null)
+            {
+                return "人脸图像质量不符合要求";
+            }
+            if (faceQualityInfo.Score < 70)
+            {
+                return "人脸图像质量太差";
+            }
+            if (faceQualityInfo.Sharpness < 80)
+            {
+                return "人脸图像过于模糊";
+            }
+            if (faceQualityInfo.Brightness < 30)
+            {
+                return "人脸图像偏暗";
+            }
+            if (faceQualityInfo.Brightness > 70)
+            {
+                return "人脸图像偏亮";
+            }
+            var completeness = faceQualityInfo.Completeness;
+            if (completeness.Eyebrow < 80)
+            {
+                return "请勿遮挡眉毛";
+            }
+            if (completeness.Eye < 80)
+            {
+                return "请勿遮挡眼睛";
+            }
+            if (completeness.Nose < 60)
+            {
+                return "请勿遮挡鼻子";
+            }
+            if (completeness.Cheek < 70)
+            {
+                return "请勿遮挡脸颊";
+            }
+            if (completeness.Mouth < 50)
+            {
+                return "请勿遮挡嘴巴";
+            }
+            if (completeness.Chin < 70)
+            {
+                return "请勿遮挡下巴";
+            }
+            return string.Empty;
+        }
+
+        public string DetectFace(string faceGreyKeyUrl)
+        {
+            DetectFaceRequest req = new DetectFaceRequest();
+            req.NeedFaceAttributes = 1;
+            req.NeedQualityDetection = 1;
+            req.Url = faceGreyKeyUrl;
+            var resp = _client.DetectFaceSync(req);
+            LOG.Log.Info("[AiFaceAccess]人脸检测结果", resp, this.GetType());
+            if (resp.FaceInfos.Length != 1)
+            {
+                return "人脸图像质量不符合要求，请重新采集";
+            }
+            var faceInfo = resp.FaceInfos[0].FaceQualityInfo;
+            return CheckFaceQualityInfo(faceInfo);
+        }
+
+        public Tuple<bool, string> StudentInitFace(long studentId, string faceGreyKeyUrl)
         {
             try
             {
+                var errMsg = DetectFace(faceGreyKeyUrl);
+                if (!string.IsNullOrEmpty(errMsg))
+                {
+                    return Tuple.Create(false, errMsg);
+                }
                 var personBaseInfo = StudentGetPersonInfo(studentId);
                 if (personBaseInfo != null)//删除旧的人员  增加新的人脸
                 {
@@ -186,12 +258,12 @@ namespace ETMS.AiFace
                 }
                 //创建人员 并设置人脸
                 StudentCreate(studentId, faceGreyKeyUrl);
-                return true;
+                return Tuple.Create(true, string.Empty); ;
             }
             catch (Exception ex)
             {
                 Log.Fatal($"[腾讯云人脸识别]人脸采集，{_tenantId}，{studentId},{faceGreyKeyUrl}", ex, this.GetType());
-                return false;
+                return Tuple.Create(false, "人脸图像质量不符合要求，请重新采集"); ;
             }
         }
 

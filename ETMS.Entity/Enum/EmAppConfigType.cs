@@ -18,5 +18,10 @@ namespace ETMS.Entity.Enum
         /// 充值规则设置
         /// </summary>
         public const byte RechargeRuleConfig = 1;
+
+        /// <summary>
+        /// 约课规则设置
+        /// </summary>
+        public const byte ClassReservationSetting = 2;
     }
 }

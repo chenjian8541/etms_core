@@ -37,12 +37,12 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
-        private readonly IAppConfigDAL _appConfigDAL;
+        private readonly IAppConfig2BLL _appConfig2BLL;
 
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             IEventPublisher eventPublisher, IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
-            IAppConfigDAL appConfigDAL)
+           IAppConfig2BLL appConfig2BLL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -53,13 +53,14 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
-            this._appConfigDAL = appConfigDAL;
+            this._appConfig2BLL = appConfig2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
-                _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _appConfigDAL);
+                _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -244,12 +245,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request)
         {
-            var log = await this._appConfigDAL.GetAppConfig(EmAppConfigType.RechargeRuleConfig);
-            if (log == null)
-            {
-                return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput());
-            }
-            var rechargeRuleView = JsonConvert.DeserializeObject<StudentAccountRechargeRuleView>(log.ConfigValue);
+            var rechargeRuleView = await _appConfig2BLL.GetStudentAccountRechargeRule();
             return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput()
             {
                 Explain = rechargeRuleView.Explain,

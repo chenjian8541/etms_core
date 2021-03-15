@@ -54,12 +54,15 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly IAppConfig2BLL _appConfig2BLL;
+
         public StudentAccountRechargeBLL(IAppConfigDAL appConfigDAL, IUserOperationLogDAL userOperationLogDAL,
             IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IUserDAL userDAL, IParentStudentDAL parentStudentDAL,
             IEventPublisher eventPublisher, IStudentPointsLogDAL studentPointsLogDAL, IStudentDAL studentDAL, IOrderDAL orderDAL,
             IIncomeLogDAL incomeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
+            IAppConfig2BLL appConfig2BLL)
         {
             this._appConfigDAL = appConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -76,10 +79,12 @@ namespace ETMS.Business
             this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._appConfig2BLL = appConfig2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._appConfig2BLL.InitTenantId(tenantId);
             this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _appConfigDAL, _userOperationLogDAL, _statisticsStudentAccountRechargeDAL, _studentAccountRechargeDAL,
                 _studentAccountRechargeLogDAL, _userDAL, _parentStudentDAL, _studentPointsLogDAL, _studentDAL, _orderDAL, _incomeLogDAL);
@@ -87,12 +92,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request)
         {
-            var log = await this._appConfigDAL.GetAppConfig(EmAppConfigType.RechargeRuleConfig);
-            if (log == null)
-            {
-                return ResponseBase.Success(new StudentAccountRechargeRuleView());
-            }
-            var rechargeRuleView = JsonConvert.DeserializeObject<StudentAccountRechargeRuleView>(log.ConfigValue);
+            var rechargeRuleView = await _appConfig2BLL.GetStudentAccountRechargeRule();
             return ResponseBase.Success(new StudentAccountRechargeRuleGetOutput()
             {
                 Explain = rechargeRuleView.Explain,

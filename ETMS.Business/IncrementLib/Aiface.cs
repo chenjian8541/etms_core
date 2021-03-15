@@ -64,11 +64,11 @@ namespace ETMS.Business.IncrementLib
             }
         }
 
-        public async Task<bool> StudentInitFace(long studentId, string faceGreyKeyUrl)
+        public async Task<Tuple<bool, string>> StudentInitFace(long studentId, string faceGreyKeyUrl)
         {
             await InitTenantTencentCloudConfig();
             var result = _aiFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
-            if (result)
+            if (result.Item1)
             {
                 _eventPublisher.Publish(new TenantTxCloudUCountEvent(_tenantId)
                 {

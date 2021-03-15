@@ -9,7 +9,7 @@ namespace ETMS.IBusiness.IncrementLib
     {
         Task StudentDelete(long studentId);
 
-        Task<bool> StudentInitFace(long studentId, string faceGreyKeyUrl);
+        Task<Tuple<bool, string>> StudentInitFace(long studentId, string faceGreyKeyUrl);
 
         Task<bool> StudentClearFace(long studentId);
 

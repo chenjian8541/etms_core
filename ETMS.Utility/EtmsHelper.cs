@@ -52,6 +52,10 @@ namespace ETMS.Utility
 
         public static string GetTimeDesc(int time)
         {
+            if (time <= 0)
+            {
+                return string.Empty;
+            }
             var timeValue = time.ToString();
             if (timeValue.Length == 4)
             {

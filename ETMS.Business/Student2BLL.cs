@@ -144,9 +144,9 @@ namespace ETMS.Business
             var student = studentBucket.Student;
             var imgOssKey = ImageLib.SaveStudentFace(request.LoginTenantId, request.FaceImageBase64);
             var initFaceResult = await _aiface.StudentInitFace(request.CId, AliyunOssUtil.GetAccessUrlHttps(imgOssKey));
-            if (!initFaceResult)
+            if (!initFaceResult.Item1)
             {
-                return ResponseBase.CommonError("人脸图片质量不符合要求，请重新采集");
+                return ResponseBase.CommonError(initFaceResult.Item2);
             }
             await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey);
 
