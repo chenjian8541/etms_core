@@ -47,6 +47,11 @@ namespace ETMS.Entity.Database.Source
         public int EndTime { get; set; }
 
         /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
+        /// <summary>
         /// 上课内容
         /// </summary>
         public string ClassContent { get; set; }

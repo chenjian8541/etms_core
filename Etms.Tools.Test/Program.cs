@@ -30,7 +30,8 @@ namespace Etms.Tools.Test
             //Console.WriteLine(DateTime.MaxValue.IsEffectiveDate());
             //var date = Convert.ToDateTime("2021-10-1");
             //Console.WriteLine(date.IsEffectiveDate());
-  
+            int? a = null;
+            Console.WriteLine(a.ToString());
             Console.WriteLine();
             Console.Read();
         }

@@ -38,6 +38,11 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public bool IsJumpHoliday { get; set; }
 
+        /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
         public override string Validate()
         {
             if (ClassId <= 0)

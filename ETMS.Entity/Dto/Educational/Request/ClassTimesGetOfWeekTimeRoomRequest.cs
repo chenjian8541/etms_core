@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -67,6 +68,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public long? CourseId { get; set; }
 
+        public bool IsOnlyReservation { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND Teachers LIKE '%,{LoginUserId},%'";
@@ -85,7 +88,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             }
             if (StudentId != null)
             {
-                condition.Append($" AND (StudentIdsTemp LIKE '%,{StudentId.Value},%' OR StudentIdsClass LIKE '%,{StudentId.Value},%')");
+                condition.Append($" AND (StudentIdsTemp LIKE '%,{StudentId.Value},%' OR StudentIdsReservation LIKE '%,{StudentId.Value},%' OR StudentIdsClass LIKE '%,{StudentId.Value},%')");
             }
             if (TeacherId != null)
             {
@@ -106,6 +109,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (CourseId != null)
             {
                 condition.Append($" AND CourseList LIKE '%,{CourseId.Value},%'");
+            }
+            if (IsOnlyReservation)
+            {
+                condition.Append($" AND ReservationType = {EmBool.True} ");
             }
             if (IsDataLimit)
             {

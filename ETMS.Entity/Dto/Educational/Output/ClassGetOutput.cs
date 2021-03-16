@@ -39,6 +39,13 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// </summary>
         public int? LimitStudentNums { get; set; }
 
+
+        /// <summary>
+        /// 班级容量类型
+        /// <see cref="ETMS.Entity.Enum.EmLimitStudentNumsType"/>
+        /// </summary>
+        public byte LimitStudentNumsType { get; set; }
+
         /// <summary>
         /// 默认课时
         /// </summary>

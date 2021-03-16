@@ -28,5 +28,10 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 是否跳过节假日
         /// </summary>
         public bool IsJumpHoliday { get; set; }
+
+        /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
     }
 }

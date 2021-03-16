@@ -1,16 +1,13 @@
 ﻿using ETMS.Entity.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace ETMS.Entity.Dto.Educational.Request
 {
-    public class ClassTimesRuleAdd2Request : RequestBase
+    public class ClassTimesRuleEditRequest : RequestBase
     {
-        public long ClassId { get; set; }
-
-        public List<string> ClassDate { get; set; }
+        public long ClassRuleId { get; set; }
 
         public int StartTime { get; set; }
 
@@ -33,17 +30,17 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public override string Validate()
         {
-            if (ClassId <= 0)
+            if (ClassRuleId <= 0)
             {
-                return "请选择班级";
+                return "数据不合法";
             }
-            if (ClassDate == null || !ClassDate.Any())
+            if (CourseIds == null || CourseIds.Count == 0)
             {
-                return "请选择上课日期";
+                return "请选择授课课程";
             }
-            if (ClassDate.Count > 100)
+            if (TeacherIds == null || TeacherIds.Count == 0)
             {
-                return "一次性最多选择50个日期";
+                return "请选择上课老师";
             }
             if (StartTime <= 0 || EndTime <= 0)
             {

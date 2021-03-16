@@ -117,5 +117,12 @@ namespace ETMS.Entity.Dto.Educational.Output
         public string ClassTimesDesc { get; set; }
 
         public int DefaultClassTimes { get; set; }
+
+        /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
+        public bool IsTry { get; set; }
     }
 }

@@ -137,5 +137,15 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<EtClassTimes>(
                 $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{checkOt.EtmsToDateString()}' AND StartTime >= {minMime} AND StartTime <= {maxMime} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%')");
         }
+
+        public async Task SyncClassTimesReservationType(long ruleId, byte newReservationType)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimes SET ReservationType = {newReservationType} WHERE RuleId = {ruleId} AND TenantId = {_tenantId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+        }
+
+        public async Task SyncClassTimesOfClassTimesRule(EtClassTimesRule rule)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimes SET ReservationType = {rule.ReservationType},StartTime={rule.StartTime},EndTime={rule.EndTime},ClassContent='{rule.ClassContent}',Teachers='{rule.Teachers}',ClassRoomIds='{rule.ClassRoomIds}',CourseList='{rule.CourseList}',CourseListIsAlone={EmBool.True},ClassRoomIdsIsAlone={EmBool.True},TeachersIsAlone={EmBool.True} WHERE RuleId = {rule.Id} AND TenantId = {_tenantId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+        }
     }
 }

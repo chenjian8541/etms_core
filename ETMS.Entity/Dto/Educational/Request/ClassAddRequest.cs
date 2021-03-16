@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using ETMS.Entity.Dto.Common.Request;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Entity.Dto.Educational.Request
 {
@@ -14,6 +15,12 @@ namespace ETMS.Entity.Dto.Educational.Request
         public List<MultiSelectValueRequest> CourseIds { get; set; }
 
         public int? LimitStudentNums { get; set; }
+
+        /// <summary>
+        /// 班级容量类型
+        /// <see cref="ETMS.Entity.Enum.EmLimitStudentNumsType"/>
+        /// </summary>
+        public byte LimitStudentNumsType { get; set; }
 
         public long? ClassCategoryId { get; set; }
 
@@ -38,6 +45,13 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (CourseIds == null || !CourseIds.Any())
             {
                 return "请选择关联课程";
+            }
+            if (LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+            {
+                if (LimitStudentNums == null || LimitStudentNums <= 0)
+                {
+                    return "请设置班级容量";
+                }
             }
             return base.Validate();
         }

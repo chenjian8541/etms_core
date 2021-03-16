@@ -96,5 +96,14 @@ namespace ETMS.Utility
             }
             return temp;
         }
+
+        public static string EtmsToSqlString(this int? @this)
+        {
+            if (@this == null)
+            {
+                return "null";
+            }
+            return @this.ToString();
+        }
     }
 }

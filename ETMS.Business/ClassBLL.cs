@@ -117,7 +117,8 @@ namespace ETMS.Business
                 Type = EmClassType.OneToMany,
                 Teachers = GetMuIds(request.TeacherIds),
                 StudentIds = string.Empty,
-                OrderId = null
+                OrderId = null,
+                LimitStudentNumsType = request.LimitStudentNumsType
             };
             await _classDAL.AddClass(etClass);
             await _userOperationLogDAL.AddUserLog(request, $"添加班级-{request.Name}", EmUserOperationType.ClassManage);
@@ -134,6 +135,7 @@ namespace ETMS.Business
             var etClass = etClassBucket.EtClass;
             etClass.Name = request.Name;
             etClass.LimitStudentNums = request.LimitStudentNums;
+            etClass.LimitStudentNumsType = request.LimitStudentNumsType;
             etClass.ClassCategoryId = request.ClassCategoryId;
             etClass.DefaultClassTimes = request.DefaultClassTimes;
             etClass.ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
@@ -190,6 +192,7 @@ namespace ETMS.Business
                 StudentNums = etClass.StudentNums,
                 TeacherNum = etClass.TeacherNum,
                 Teachers = etClass.Teachers,
+                LimitStudentNumsType = etClass.LimitStudentNumsType,
                 Type = etClass.Type,
                 CourseIds = await ComBusiness.GetCourseMultiSelectValue(tempBoxCourse, _courseDAL, etClass.CourseList),
                 TeacherIds = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, etClass.Teachers)
@@ -218,6 +221,7 @@ namespace ETMS.Business
                 DefaultClassTimes = etClass.DefaultClassTimes,
                 IsNotComeCharge = etClass.IsNotComeCharge,
                 LimitStudentNums = etClass.LimitStudentNums,
+                LimitStudentNumsType = etClass.LimitStudentNumsType,
                 Name = etClass.Name,
                 PlanCount = etClass.PlanCount,
                 CompleteStatus = etClass.CompleteStatus,
@@ -236,7 +240,7 @@ namespace ETMS.Business
                 OneToOneStudentName = student?.Name,
                 OneToOneStudentPhone = student?.Phone,
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
-                LimitStudentNumsDesc = etClass.LimitStudentNums == null ? "未设置" : etClass.LimitStudentNums.Value.ToString()
+                LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(etClass.StudentNums, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
             });
         }
 
@@ -444,7 +448,7 @@ namespace ETMS.Business
                     DefaultClassTimes = p.DefaultClassTimes,
                     IsLeaveCharge = p.IsLeaveCharge,
                     LimitStudentNums = p.LimitStudentNums,
-                    LimitStudentNumsDesc = p.LimitStudentNums == null ? "未设置" : p.LimitStudentNums.Value.ToString(),
+                    LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(p.StudentNums, p.LimitStudentNums, p.LimitStudentNumsType),
                     IsNotComeCharge = p.IsNotComeCharge,
                     Name = p.Name,
                     PlanCount = p.PlanCount,
@@ -463,7 +467,8 @@ namespace ETMS.Business
                     CourseDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, p.CourseList),
                     TypeDesc = EmClassType.GetClassTypeDesc(p.Type),
                     Label = p.Name,
-                    Value = p.Id
+                    Value = p.Id,
+                    LimitStudentNumsType = p.LimitStudentNumsType
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassViewOutput>(pagingData.Item2, classViewList));
@@ -630,7 +635,8 @@ namespace ETMS.Business
                     StartTime = request.StartTime,
                     TeacherIds = request.TeacherIds,
                     Weeks = request.Weeks,
-                    CourseIds = request.CourseIds
+                    CourseIds = request.CourseIds,
+                    ReservationType = request.ReservationType
                 });
             }
             return await ProcessClassTimesRuleAddOfLimitCount(request);
@@ -785,7 +791,13 @@ namespace ETMS.Business
                     CourseList = preInfo.CourseList,
                     CourseListIsAlone = preInfo.CourseListIsAlone,
                     StudentIdsTemp = string.Empty,
-                    StudentIdsClass = preInfo.StudentIdsClass
+                    StudentIdsClass = preInfo.StudentIdsClass,
+                    LimitStudentNums = etClass.LimitStudentNums,
+                    LimitStudentNumsIsAlone = false,
+                    LimitStudentNumsType = etClass.LimitStudentNumsType,
+                    ReservationType = request.ReservationType,
+                    StudentIdsReservation = string.Empty,
+                    StudentCount = etClass.StudentNums
                 });
                 indexCount++;
                 currentDate = currentDate.AddDays(1);
@@ -888,7 +900,8 @@ namespace ETMS.Business
                     DateDesc = dateDesc,
                     TimeDesc = $"{EtmsHelper.GetTimeDesc(request.StartTime)}~{EtmsHelper.GetTimeDesc(request.EndTime)}",
                     Type = type,
-                    RuleDesc = type == EmClassTimesRuleType.Loop ? "每周循环" : "单次"
+                    RuleDesc = type == EmClassTimesRuleType.Loop ? "每周循环" : "单次",
+                    ReservationType = request.ReservationType
                 };
                 var ruleId = await _classDAL.AddClassTimesRule(request.ClassId, classTimesRule);
                 foreach (var times in thisWeekTimes)
@@ -918,6 +931,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("排课规则已超过限制条数");
             }
+            var etClass = etClassBucket.EtClass;
 
             var preInfo = GetClassTimesPreInfo(new GetClassTimesPreInfoRequest()
             {
@@ -983,7 +997,13 @@ namespace ETMS.Business
                     StudentIdsTemp = string.Empty,
                     TeacherNum = preInfo.TeacherCount,
                     Teachers = preInfo.TeacherIds,
-                    TeachersIsAlone = preInfo.TeachersIsAlone
+                    TeachersIsAlone = preInfo.TeachersIsAlone,
+                    LimitStudentNums = etClass.LimitStudentNums,
+                    StudentIdsReservation = string.Empty,
+                    LimitStudentNumsIsAlone = false,
+                    LimitStudentNumsType = etClass.LimitStudentNumsType,
+                    ReservationType = request.ReservationType,
+                    StudentCount = etClass.StudentNums
                 });
                 indexCount++;
                 currentDate = currentDate.AddDays(1);
@@ -1080,7 +1100,8 @@ namespace ETMS.Business
                     DateDesc = dateDesc,
                     TimeDesc = $"{EtmsHelper.GetTimeDesc(request.StartTime)}~{EtmsHelper.GetTimeDesc(request.EndTime)}",
                     Type = type,
-                    RuleDesc = type == EmClassTimesRuleType.Loop ? "每周循环" : "单次"
+                    RuleDesc = type == EmClassTimesRuleType.Loop ? "每周循环" : "单次",
+                    ReservationType = request.ReservationType
                 };
                 var ruleId = await _classDAL.AddClassTimesRule(request.ClassId, classTimesRule);
                 foreach (var times in thisWeekTimes)
@@ -1110,6 +1131,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("排课规则已超过限制条数");
             }
+            var etClass = etClassBucket.EtClass;
 
             var preInfo = GetClassTimesPreInfo(new GetClassTimesPreInfoRequest()
             {
@@ -1162,7 +1184,13 @@ namespace ETMS.Business
                     StudentIdsTemp = string.Empty,
                     TeacherNum = preInfo.TeacherCount,
                     Teachers = preInfo.TeacherIds,
-                    TeachersIsAlone = preInfo.TeachersIsAlone
+                    TeachersIsAlone = preInfo.TeachersIsAlone,
+                    LimitStudentNums = etClass.LimitStudentNums,
+                    LimitStudentNumsIsAlone = false,
+                    LimitStudentNumsType = etClass.LimitStudentNumsType,
+                    StudentCount = etClass.StudentNums,
+                    ReservationType = request.ReservationType,
+                    StudentIdsReservation = string.Empty
                 });
             };
             if (weekDays.Count == 0)
@@ -1218,7 +1246,8 @@ namespace ETMS.Business
                     DateDesc = dateDesc,
                     TimeDesc = $"{EtmsHelper.GetTimeDesc(request.StartTime)}~{EtmsHelper.GetTimeDesc(request.EndTime)}",
                     Type = EmClassTimesRuleType.UnLoop,
-                    RuleDesc = "单次"
+                    RuleDesc = "单次",
+                    ReservationType = request.ReservationType
                 };
                 var ruleId = await _classDAL.AddClassTimesRule(request.ClassId, classTimesRule);
                 myTime.RuleId = ruleId;
@@ -1260,7 +1289,8 @@ namespace ETMS.Business
             await _classDAL.ClassEditStudentInfo(request.ClassId, studentIds, studentCount);
 
             //同步课次信息（授课课程、教室、老师、班级学员） 
-            await _classDAL.SyncClassInfo(request.ClassId, studentIds, etClass.CourseList, etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum);
+            await _classDAL.SyncClassInfo(request.ClassId, studentIds, etClass.CourseList,
+                etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum, etClass.LimitStudentNums, etClass.LimitStudentNumsType);
         }
 
         public async Task<ResponseBase> ClassTimesRuleGet(ClassTimesRuleGetRequest request)
@@ -1323,7 +1353,8 @@ namespace ETMS.Business
                         TimeDesc = rule.TimeDesc,
                         ClassId = rule.ClassId,
                         RuleId = rule.Id,
-                        IsJumpHoliday = rule.IsJumpHoliday
+                        IsJumpHoliday = rule.IsJumpHoliday,
+                        ReservationType = rule.ReservationType
                     });
                 }
             }
@@ -1463,6 +1494,75 @@ namespace ETMS.Business
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"选班调班-学员名称[{studentBucket.Student.Name}],手机号码[{studentBucket.Student.Phone}]", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
+        [Obsolete("未用")]
+        public async Task<ResponseBase> ClassTimesRuleReservationTypeChange(ClassTimesRuleReservationTypeChangeRequest request)
+        {
+            var classRule = await _classDAL.GetClassTimesRuleBuyId(request.ClassRuleId);
+            if (classRule == null)
+            {
+                return ResponseBase.CommonError("排课信息未找到");
+            }
+            var newReservationType = EmBool.False;
+            if (classRule.ReservationType == EmBool.False)
+            {
+                newReservationType = EmBool.True;
+            }
+            classRule.ReservationType = newReservationType;
+            await _classDAL.EditClassTimesRule(classRule);
+
+            await _classTimesDAL.SyncClassTimesReservationType(request.ClassRuleId, newReservationType);
+
+            await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleDefiniteGet(ClassTimesRuleDefiniteGetRequest request)
+        {
+            var classRule = await _classDAL.GetClassTimesRuleBuyId(request.ClassRuleId);
+            if (classRule == null)
+            {
+                return ResponseBase.CommonError("排课信息未找到");
+            }
+            var output = new ClassTimesRuleDefiniteGetOutput()
+            {
+                ClassContent = classRule.ClassContent,
+                ClassId = classRule.ClassId,
+                ClassRoomIds = EtmsHelper.AnalyzeMuIds(classRule.ClassRoomIds),
+                CourseIds = EtmsHelper.AnalyzeMuIds(classRule.CourseList),
+                StartTimeDesc = EtmsHelper.GetTimeDesc(classRule.StartTime),
+                EndTimeDesc = EtmsHelper.GetTimeDesc(classRule.EndTime),
+                IsJumpHoliday = classRule.IsJumpHoliday,
+                Remark = classRule.Remark,
+                ReservationType = classRule.ReservationType,
+                TeacherIds = EtmsHelper.AnalyzeMuIds(classRule.Teachers),
+                Id = classRule.Id
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleEdit(ClassTimesRuleEditRequest request)
+        {
+            var classRule = await _classDAL.GetClassTimesRuleBuyId(request.ClassRuleId);
+            if (classRule == null)
+            {
+                return ResponseBase.CommonError("排课信息未找到");
+            }
+            classRule.IsJumpHoliday = request.IsJumpHoliday;
+            classRule.StartTime = request.StartTime;
+            classRule.EndTime = request.EndTime;
+            classRule.TimeDesc = $"{EtmsHelper.GetTimeDesc(request.StartTime)}~{EtmsHelper.GetTimeDesc(request.EndTime)}";
+            classRule.ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
+            classRule.Teachers = EtmsHelper.GetMuIds(request.TeacherIds);
+            classRule.CourseList = EtmsHelper.GetMuIds(request.CourseIds);
+            classRule.ClassContent = request.ClassContent;
+            classRule.ReservationType = request.ReservationType;
+            await _classDAL.EditClassTimesRule(classRule);
+            await _classTimesDAL.SyncClassTimesOfClassTimesRule(classRule);
+
+            await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
     }

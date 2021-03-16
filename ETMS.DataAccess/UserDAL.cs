@@ -87,12 +87,14 @@ namespace ETMS.DataAccess
         public async Task<bool> UpdateTeacherClassTimesInfo(long teacherId, int addClassTimes, int addClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes + {addClassTimes} , TotalClassCount = TotalClassCount + {addClassCount} WHERE Id = {teacherId}");
+            await UpdateCache(_tenantId, teacherId);
             return count > 0;
         }
 
         public async Task<bool> DeTeacherClassTimesInfo(long teacherId, int deClassTimes, int deClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes - {deClassTimes} , TotalClassCount = TotalClassCount - {deClassCount} WHERE Id = {teacherId}");
+            await UpdateCache(_tenantId, teacherId);
             return count > 0;
         }
 

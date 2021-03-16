@@ -123,7 +123,8 @@ namespace ETMS.Business
                 TeacherNum = classTimes.TeacherNum,
                 Teachers = classTimes.Teachers,
                 TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers),
-                DefaultClassTimes = etClass.EtClass.DefaultClassTimes
+                DefaultClassTimes = etClass.EtClass.DefaultClassTimes,
+                ReservationType = classTimes.ReservationType
             });
         }
 
@@ -294,7 +295,8 @@ namespace ETMS.Business
                 CourseIds = EtmsHelper.AnalyzeMuIds(classTimes.CourseList),
                 StartTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime),
                 EndTimeDesc = EtmsHelper.GetTimeDesc(classTimes.EndTime),
-                TeacherIds = EtmsHelper.AnalyzeMuIds(classTimes.Teachers)
+                TeacherIds = EtmsHelper.AnalyzeMuIds(classTimes.Teachers),
+                ReservationType = classTimes.ReservationType
             };
             return ResponseBase.Success(output);
         }
@@ -331,6 +333,7 @@ namespace ETMS.Business
             classTimes.CourseList = EtmsHelper.GetMuIds(request.CourseIds);
             classTimes.ClassRoomIdsIsAlone = true;
             classTimes.ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
+            classTimes.ReservationType = request.ReservationType;
             await _classTimesDAL.EditClassTimes(classTimes);
             await _classTimesDAL.UpdateClassTimesStudent(classTimes.Id, request.ClassOt);
             await _userOperationLogDAL.AddUserLog(request, $"编辑课次-班级[{etClass.EtClass.Name}],编辑课次:{request.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(request.StartTime, request.EndTime)})", EmUserOperationType.ClassManage);
@@ -711,7 +714,13 @@ namespace ETMS.Business
                 Teachers = teachers,
                 TeachersIsAlone = true,
                 TenantId = request.LoginTenantId,
-                Week = (byte)request.ClassOt.Value.DayOfWeek
+                Week = (byte)request.ClassOt.Value.DayOfWeek,
+                LimitStudentNums = etClass.LimitStudentNums,
+                LimitStudentNumsType = etClass.LimitStudentNumsType,
+                StudentCount = 1,
+                LimitStudentNumsIsAlone = true,
+                ReservationType = EmBool.False,
+                StudentIdsReservation = string.Empty
             };
             var classTimesId = await this._classTimesDAL.AddClassTimes(classTimes);
             classTimes.Id = classTimesId;
@@ -947,7 +956,8 @@ namespace ETMS.Business
                     WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
                     TeacherNum = classTimes.TeacherNum,
                     Teachers = classTimes.Teachers,
-                    TeachersDesc = teachersDesc
+                    TeachersDesc = teachersDesc,
+                    ReservationType = classTimes.ReservationType
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassTimesGetPagingOutput>(pagingData.Item2, output));
@@ -1013,11 +1023,11 @@ namespace ETMS.Business
                     var teachersDesc = string.Empty;
                     var etClass = await ComBusiness.GetClass(tempClass, _classDAL, classTimes.ClassId);
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
-                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                     className = etClass.Name;
                     courseListDesc = courseInfo.Item1;
                     courseStyleColor = courseInfo.Item2;
-                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                     if (string.IsNullOrEmpty(courseStyleColor))
                     {
                         courseStyleColor = "#1E90FF";
@@ -1059,7 +1069,9 @@ namespace ETMS.Business
                         TeachersDesc = teachersDesc,
                         Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                         ClassTimesDesc = classTimesDesc,
-                        DefaultClassTimes = etClass.DefaultClassTimes
+                        DefaultClassTimes = etClass.DefaultClassTimes,
+                        ReservationType = classTimes.ReservationType,
+                        IsTry = etClass.DataType == EmClassDataType.Temp
                     };
                     output.Add(temp);
                 }
@@ -1095,11 +1107,11 @@ namespace ETMS.Business
                     var teachersDesc = string.Empty;
                     var etClass = await ComBusiness.GetClass(tempClass, _classDAL, classTimes.ClassId);
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
-                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                     className = etClass.Name;
                     courseListDesc = courseInfo.Item1;
                     courseStyleColor = courseInfo.Item2;
-                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                     if (string.IsNullOrEmpty(courseStyleColor))
                     {
                         courseStyleColor = "#1E90FF";
@@ -1141,7 +1153,9 @@ namespace ETMS.Business
                         TeachersDesc = teachersDesc,
                         Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                         ClassTimesDesc = classTimesDesc,
-                        DefaultClassTimes = etClass.DefaultClassTimes
+                        DefaultClassTimes = etClass.DefaultClassTimes,
+                        ReservationType = classTimes.ReservationType,
+                        IsTry = etClass.DataType == EmClassDataType.Temp
                     };
                     switch (classTimes.ClassOt.DayOfWeek)
                     {
@@ -1220,11 +1234,11 @@ namespace ETMS.Business
                         var teachersDesc = string.Empty;
                         var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
                         var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
-                        classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                        classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                         className = etClass.Name;
                         courseListDesc = courseInfo.Item1;
                         courseStyleColor = courseInfo.Item2;
-                        teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                        teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                         if (string.IsNullOrEmpty(courseStyleColor))
                         {
                             courseStyleColor = "#1E90FF";
@@ -1267,7 +1281,9 @@ namespace ETMS.Business
                             Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                             ClassTimesDesc = classTimesDesc,
                             DefaultClassTimes = etClass.DefaultClassTimes,
-                            Color = courseStyleColor
+                            Color = courseStyleColor,
+                            ReservationType = classTimes.ReservationType,
+                            IsTry = etClass.DataType == EmClassDataType.Temp
                         };
                         myProcessedClassTimes.Add(temp);
                     }
@@ -1348,11 +1364,11 @@ namespace ETMS.Business
                         var teachersDesc = string.Empty;
                         var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
                         var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
-                        classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                        classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                         className = etClass.Name;
                         courseListDesc = courseInfo.Item1;
                         courseStyleColor = courseInfo.Item2;
-                        teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                        teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                         if (string.IsNullOrEmpty(courseStyleColor))
                         {
                             courseStyleColor = "#1E90FF";
@@ -1395,7 +1411,9 @@ namespace ETMS.Business
                             Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                             ClassTimesDesc = classTimesDesc,
                             DefaultClassTimes = etClass.DefaultClassTimes,
-                            Color = courseStyleColor
+                            Color = courseStyleColor,
+                            ReservationType = classTimes.ReservationType,
+                            IsTry = etClass.DataType == EmClassDataType.Temp
                         };
                         myProcessedClassTimes.Add(temp);
                     }
@@ -1427,6 +1445,5 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(outPut);
         }
-
     }
 }

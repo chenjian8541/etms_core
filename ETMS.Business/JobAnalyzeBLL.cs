@@ -163,7 +163,13 @@ namespace ETMS.Business
                         TenantId = classRule.TenantId,
                         Week = classRule.Week,
                         StudentIdsTemp = string.Empty,
-                        StudentIdsClass = studentIdsClass
+                        StudentIdsClass = studentIdsClass,
+                        LimitStudentNums = etClass.EtClass.LimitStudentNums,
+                        StudentIdsReservation = string.Empty,
+                        StudentCount = etClass.EtClass.StudentNums,
+                        ReservationType = classRule.ReservationType,
+                        LimitStudentNumsIsAlone = false,
+                        LimitStudentNumsType = etClass.EtClass.LimitStudentNumsType
                     });
                     break;
                 }

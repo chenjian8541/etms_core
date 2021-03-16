@@ -811,5 +811,47 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ClassTimesRuleReservationTypeChange(ClassTimesRuleReservationTypeChangeRequest request)
+        {
+            try
+            {
+                _classBLL.InitTenantId(request.LoginTenantId);
+                return await _classBLL.ClassTimesRuleReservationTypeChange(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleDefiniteGet(ClassTimesRuleDefiniteGetRequest request)
+        {
+            try
+            {
+                _classBLL.InitTenantId(request.LoginTenantId);
+                return await _classBLL.ClassTimesRuleDefiniteGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleEdit(ClassTimesRuleEditRequest request)
+        {
+            try
+            {
+                _classBLL.InitTenantId(request.LoginTenantId);
+                return await _classBLL.ClassTimesRuleEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

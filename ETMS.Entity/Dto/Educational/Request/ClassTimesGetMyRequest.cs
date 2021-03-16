@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace ETMS.Entity.Dto.Educational.Request
     public class ClassTimesGetMyRequest : RequestBase
     {
         public long TeacherId { get; set; }
+
+        public bool IsOnlyReservation { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -74,6 +77,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (EndOt != null)
             {
                 condition.Append($" AND ClassOt < '{EndOt.Value.EtmsToDateString()}'");
+            }
+            if (IsOnlyReservation)
+            {
+                condition.Append($" AND ReservationType = {EmBool.True} ");
             }
             return condition.ToString();
         }

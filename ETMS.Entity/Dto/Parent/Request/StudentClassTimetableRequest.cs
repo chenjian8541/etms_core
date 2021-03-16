@@ -66,18 +66,18 @@ namespace ETMS.Entity.Dto.Parent.Request
             }
             if (ParentStudentIds.Count == 1)
             {
-                return $"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (StudentIdsTemp LIKE '%,{ParentStudentIds[0]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[0]},%')";
+                return $"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (StudentIdsTemp LIKE '%,{ParentStudentIds[0]},%' OR StudentIdsReservation LIKE '%,{ParentStudentIds[0]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[0]},%')";
             }
             var studentLimit = new StringBuilder($"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (");
             for (var i = 0; i < ParentStudentIds.Count; i++)
             {
                 if (i == ParentStudentIds.Count - 1)
                 {
-                    studentLimit.Append($"StudentIdsTemp LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[i]},%' )");
+                    studentLimit.Append($"StudentIdsTemp LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsReservation LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[i]},%' )");
                 }
                 else
                 {
-                    studentLimit.Append($"StudentIdsTemp LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[i]},%' OR ");
+                    studentLimit.Append($"StudentIdsTemp LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsReservation LIKE '%,{ParentStudentIds[i]},%' OR StudentIdsClass LIKE '%,{ParentStudentIds[i]},%' OR ");
                 }
             }
             return studentLimit.ToString();

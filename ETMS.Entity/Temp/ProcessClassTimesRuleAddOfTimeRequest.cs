@@ -31,5 +31,10 @@ namespace ETMS.Entity.Temp
         public string ClassContent { get; set; }
 
         public bool IsJumpHoliday { get; set; }
+
+        /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
     }
 }

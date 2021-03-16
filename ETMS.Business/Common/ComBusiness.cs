@@ -60,11 +60,11 @@ namespace ETMS.Business.Common
             };
         }
 
-        internal static string GetDesc<T>(List<T> entitys, string strIds) where T : Entity<long>, IHasName
+        internal static string GetDesc<T>(List<T> entitys, string strIds, string defaultStr = "") where T : Entity<long>, IHasName
         {
             if (string.IsNullOrEmpty(strIds))
             {
-                return string.Empty;
+                return defaultStr;
             }
             var ids = strIds.Split(',');
             var strDesc = new StringBuilder();
@@ -80,6 +80,10 @@ namespace ETMS.Business.Common
                     continue;
                 }
                 strDesc.Append($"{myEntity.Name},");
+            }
+            if (strDesc.Length == 0)
+            {
+                return defaultStr;
             }
             return strDesc.ToString().TrimEnd(',');
         }
@@ -267,11 +271,11 @@ namespace ETMS.Business.Common
             return user?.Name;
         }
 
-        internal static async Task<string> GetUserNames(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users)
+        internal static async Task<string> GetUserNames(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users, string defaultStr = "")
         {
             if (string.IsNullOrEmpty(users))
             {
-                return string.Empty;
+                return defaultStr;
             }
             var teacherIds = users.Split(',');
             var teacherDesc = new StringBuilder();
@@ -290,6 +294,10 @@ namespace ETMS.Business.Common
                 {
                     teacherDesc.Append($"{user.Name},");
                 }
+            }
+            if (teacherDesc.Length == 0)
+            {
+                return defaultStr;
             }
             return teacherDesc.ToString().TrimEnd(',');
         }

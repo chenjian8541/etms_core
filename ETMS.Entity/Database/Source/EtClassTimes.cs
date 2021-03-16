@@ -42,6 +42,11 @@ namespace ETMS.Entity.Database.Source
         public int EndTime { get; set; }
 
         /// <summary>
+        /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
+        /// <summary>
         /// 上课内容
         /// </summary>
         public string ClassContent { get; set; }
@@ -55,6 +60,32 @@ namespace ETMS.Entity.Database.Source
         /// 学员（班级）
         /// </summary>
         public string StudentIdsClass { get; set; }
+
+        /// <summary>
+        /// 学员(试听)
+        /// </summary>
+        public string StudentIdsReservation { get; set; }
+
+        /// <summary>
+        /// 学生个数
+        /// </summary>
+        public int StudentCount { get; set; }
+
+        /// <summary>
+        /// 班级容量
+        /// </summary>
+        public int? LimitStudentNums { get; set; }
+
+        /// <summary>
+        /// 班级容量类型
+        /// <see cref="ETMS.Entity.Enum.EmLimitStudentNumsType"/>
+        /// </summary>
+        public byte LimitStudentNumsType { get; set; }
+
+        /// <summary>
+        /// 班级容量是否跟随班级改变
+        /// </summary>
+        public bool LimitStudentNumsIsAlone { get; set; }
 
         /// <summary>
         /// 此课次的授课课程信息是否跟随班级改变

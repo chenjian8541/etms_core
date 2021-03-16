@@ -29,6 +29,10 @@ namespace ETMS.IDataAccess
 
         Task<long> AddClassTimesRule(long classId, EtClassTimesRule rule);
 
+        Task<EtClassTimesRule> GetClassTimesRuleBuyId(long id);
+
+        Task EditClassTimesRule(EtClassTimesRule rule);
+
         bool AddClassTimesRule(long classId, IEnumerable<EtClassTimesRule> rules);
 
         Task<Tuple<IEnumerable<EtClass>, int>> GetPaging(RequestPagingBase request);
@@ -57,7 +61,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> ClassEditStudentInfo(long classId, string studentIds, int studentNums);
 
-        Task<bool> SyncClassInfo(long classId, string studentIdsClass, string courseList, string classRoomIds, string teachers, int teacherNum);
+        Task<bool> SyncClassInfo(long classId, string studentIdsClass, string courseList, string classRoomIds, 
+            string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType);
 
         Task<IEnumerable<EtClass>> GetStudentClass(long studentId);
 

@@ -191,6 +191,16 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtClassTimesRule>(p => p.TenantId == _tenantId && p.ClassId == classId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
+        public async Task<EtClassTimesRule> GetClassTimesRuleBuyId(long id)
+        {
+            return await _dbWrapper.Find<EtClassTimesRule>(p => p.Id == id);
+        }
+
+        public async Task EditClassTimesRule(EtClassTimesRule rule)
+        {
+            await _dbWrapper.Update(rule);
+        }
+
         public async Task<bool> UpdateClassPlanTimes(long classId, byte newScheduleStatus)
         {
             var obj = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM  EtClassTimes WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}");
@@ -226,7 +236,8 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> SyncClassInfo(long classId, string studentIdsClass, string courseList, string classRoomIds, string teachers, int teacherNum)
+        public async Task<bool> SyncClassInfo(long classId, string studentIdsClass,
+            string courseList, string classRoomIds, string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType)
         {
             var strSql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}' WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
             await _dbWrapper.Execute(strSql);
@@ -238,6 +249,9 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute(strSql);
 
             strSql = $"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(strSql);
+
+            strSql = $"UPDATE EtClassTimes SET LimitStudentNums = {limitStudentNums.EtmsToSqlString()},LimitStudentNumsType = {limitStudentNumsType} WHERE ClassId = {classId} AND LimitStudentNumsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
             await _dbWrapper.Execute(strSql);
             return true;
         }

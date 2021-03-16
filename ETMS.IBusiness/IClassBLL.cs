@@ -48,5 +48,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassStudentTransfer(ClassStudentTransferRequest request);
 
         Task<ResponseBase> ClassPlacement(ClassPlacementRequest request);
+
+        Task<ResponseBase> ClassTimesRuleReservationTypeChange(ClassTimesRuleReservationTypeChangeRequest request);
+
+        Task<ResponseBase> ClassTimesRuleDefiniteGet(ClassTimesRuleDefiniteGetRequest request);
+
+        Task<ResponseBase> ClassTimesRuleEdit(ClassTimesRuleEditRequest request);
     }
 }
