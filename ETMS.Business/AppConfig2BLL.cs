@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.View;
 using ETMS.IBusiness;
@@ -36,6 +37,19 @@ namespace ETMS.Business
             return rechargeRuleView;
         }
 
+        public async Task SaveStudentAccountRechargeRule(int tenantId, StudentAccountRechargeRuleView configModel)
+        {
+            var config = new EtAppConfig()
+            {
+                ConfigValue = JsonConvert.SerializeObject(configModel),
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                TenantId = tenantId,
+                Type = EmAppConfigType.RechargeRuleConfig
+            };
+            await this._appConfigDAL.SaveAppConfig(config);
+        }
+
         public async Task<ClassReservationSettingView> GetClassReservationSetting()
         {
             var log = await this._appConfigDAL.GetAppConfig(EmAppConfigType.ClassReservationSetting);
@@ -45,6 +59,19 @@ namespace ETMS.Business
             }
             var classReservationSettingView = JsonConvert.DeserializeObject<ClassReservationSettingView>(log.ConfigValue);
             return classReservationSettingView;
+        }
+
+        public async Task SaveClassReservationSetting(int tenantId, ClassReservationSettingView configModel)
+        {
+            var config = new EtAppConfig()
+            {
+                ConfigValue = JsonConvert.SerializeObject(configModel),
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                TenantId = tenantId,
+                Type = EmAppConfigType.ClassReservationSetting
+            };
+            await this._appConfigDAL.SaveAppConfig(config);
         }
     }
 }

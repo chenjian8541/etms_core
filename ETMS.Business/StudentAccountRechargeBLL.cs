@@ -24,8 +24,6 @@ namespace ETMS.Business
 {
     public class StudentAccountRechargeBLL : IStudentAccountRechargeBLL
     {
-        private readonly IAppConfigDAL _appConfigDAL;
-
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
         private readonly IStatisticsStudentAccountRechargeDAL _statisticsStudentAccountRechargeDAL;
@@ -56,7 +54,7 @@ namespace ETMS.Business
 
         private readonly IAppConfig2BLL _appConfig2BLL;
 
-        public StudentAccountRechargeBLL(IAppConfigDAL appConfigDAL, IUserOperationLogDAL userOperationLogDAL,
+        public StudentAccountRechargeBLL(IUserOperationLogDAL userOperationLogDAL,
             IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IUserDAL userDAL, IParentStudentDAL parentStudentDAL,
             IEventPublisher eventPublisher, IStudentPointsLogDAL studentPointsLogDAL, IStudentDAL studentDAL, IOrderDAL orderDAL,
@@ -64,7 +62,6 @@ namespace ETMS.Business
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IAppConfig2BLL appConfig2BLL)
         {
-            this._appConfigDAL = appConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._statisticsStudentAccountRechargeDAL = statisticsStudentAccountRechargeDAL;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
@@ -86,7 +83,7 @@ namespace ETMS.Business
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _appConfigDAL, _userOperationLogDAL, _statisticsStudentAccountRechargeDAL, _studentAccountRechargeDAL,
+            this.InitDataAccess(tenantId, _userOperationLogDAL, _statisticsStudentAccountRechargeDAL, _studentAccountRechargeDAL,
                 _studentAccountRechargeLogDAL, _userDAL, _parentStudentDAL, _studentPointsLogDAL, _studentDAL, _orderDAL, _incomeLogDAL);
         }
 
@@ -103,20 +100,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeRuleSave(StudentAccountRechargeRuleSaveRequest request)
         {
-            var configModel = new StudentAccountRechargeRuleView()
+            await this._appConfig2BLL.SaveStudentAccountRechargeRule(request.LoginTenantId, new StudentAccountRechargeRuleView()
             {
                 Explain = request.Explain,
                 ImgUrlKey = request.ImgUrlKey
-            };
-            var config = new EtAppConfig()
-            {
-                ConfigValue = JsonConvert.SerializeObject(configModel),
-                IsDeleted = EmIsDeleted.Normal,
-                Remark = string.Empty,
-                TenantId = request.LoginTenantId,
-                Type = EmAppConfigType.RechargeRuleConfig
-            };
-            await this._appConfigDAL.SaveAppConfig(config);
+            });
 
             await _userOperationLogDAL.AddUserLog(request, "充值规则设置", EmUserOperationType.StudentAccountRechargeManage);
             return ResponseBase.Success();

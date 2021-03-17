@@ -10,6 +10,10 @@ namespace ETMS.IBusiness
     {
         Task<StudentAccountRechargeRuleView> GetStudentAccountRechargeRule();
 
+        Task SaveStudentAccountRechargeRule(int tenantId, StudentAccountRechargeRuleView configModel);
+
         Task<ClassReservationSettingView> GetClassReservationSetting();
+
+        Task SaveClassReservationSetting(int tenantId, ClassReservationSettingView configModel);
     }
 }
