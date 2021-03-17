@@ -47,5 +47,6 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassTimesGetOfWeekTimeRoom(ClassTimesGetOfWeekTimeRoomRequest request);
 
+        Task<ResponseBase> ClassTimesGetOfWeekTimeClass(ClassTimesGetOfWeekTimeClassRequest request);
     }
 }

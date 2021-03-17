@@ -1446,5 +1446,123 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(outPut);
         }
+
+        public async Task<ResponseBase> ClassTimesGetOfWeekTimeClass(ClassTimesGetOfWeekTimeClassRequest request)
+        {
+            if (request.StartOt == null || request.StartOt.Value.DayOfWeek != DayOfWeek.Monday)
+            {
+                return ResponseBase.CommonError("请求时间格式错误");
+            }
+            var classTimesData = await _classTimesDAL.GetList(request);
+            var outPut = new List<ClassTimesGetOfWeekTime2Output>();
+            if (classTimesData.Any())
+            {
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var arrClassAllIds = classTimesData.Select(p => p.ClassId).Distinct();
+                foreach (var classId in arrClassAllIds)
+                {
+                    var item = new ClassTimesGetOfWeekTime2Output();
+                    var etClassBucket = await _classDAL.GetClassBucket(classId);
+                    if (etClassBucket == null || etClassBucket.EtClass == null)
+                    {
+                        LOG.Log.Error($"[ClassTimesGetOfWeekTimeClass]班级不存在:classId:{classId},TenantId:{request.LoginTenantId}", this.GetType());
+                        continue;
+                    }
+                    var etClass = etClassBucket.EtClass;
+                    item.Name = etClass.Name;
+                    var myInClassTimes = classTimesData.Where(p => p.ClassId == classId).OrderBy(p => p.StartTime);
+                    item.TotalCount = myInClassTimes.Count();
+                    var myProcessedClassTimes = new List<ClassTimesGetOfWeekTimeTeacherItems>();
+                    foreach (var classTimes in myInClassTimes)
+                    {
+                        var classRoomIdsDesc = string.Empty;
+                        var courseListDesc = string.Empty;
+                        var courseStyleColor = string.Empty;
+                        var className = string.Empty;
+                        var teachersDesc = string.Empty;
+                        var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
+                        classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
+                        className = etClass.Name;
+                        courseListDesc = courseInfo.Item1;
+                        courseStyleColor = courseInfo.Item2;
+                        teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
+                        if (string.IsNullOrEmpty(courseStyleColor))
+                        {
+                            courseStyleColor = "#1E90FF";
+                        }
+                        if (classTimes.Status == EmClassTimesStatus.BeRollcall)
+                        {
+                            courseStyleColor = "#C0C4CC";
+                        }
+                        var classTimesDesc = string.Empty;
+                        if (string.IsNullOrEmpty(teachersDesc))
+                        {
+                            classTimesDesc = className;
+                        }
+                        else
+                        {
+                            classTimesDesc = $"{className}({teachersDesc})";
+                        }
+                        var temp = new ClassTimesGetOfWeekTimeTeacherItems()
+                        {
+                            CId = classTimes.Id,
+                            ClassContent = classTimes.ClassContent,
+                            ClassId = classTimes.ClassId,
+                            ClassName = className,
+                            ClassOt = classTimes.ClassOt.EtmsToDateString(),
+                            ClassRoomIds = classTimes.ClassRoomIds,
+                            ClassRoomIdsDesc = classRoomIdsDesc,
+                            CourseList = classTimes.CourseList,
+                            CourseListDesc = courseListDesc,
+                            ClassTimesColor = courseStyleColor,
+                            EndTime = EtmsHelper.GetTimeDesc(classTimes.EndTime),
+                            StartTime = EtmsHelper.GetTimeDesc(classTimes.StartTime),
+                            Startop = EtmsHelper.GetTimeDesc(classTimes.StartTime),
+                            Status = classTimes.Status,
+                            Week = classTimes.Week,
+                            WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
+                            TimeDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                            TeacherNum = classTimes.TeacherNum,
+                            Teachers = classTimes.Teachers,
+                            TeachersDesc = teachersDesc,
+                            Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
+                            ClassTimesDesc = classTimesDesc,
+                            DefaultClassTimes = etClass.DefaultClassTimes,
+                            Color = courseStyleColor,
+                            ReservationType = classTimes.ReservationType,
+                            IsTry = etClass.DataType == EmClassDataType.Temp
+                        };
+                        myProcessedClassTimes.Add(temp);
+                    }
+
+                    //周一
+                    item.MondyList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Monday);
+
+                    //周二
+                    item.TuesdayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Tuesday);
+
+                    //周三
+                    item.WednesdayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Wednesday);
+
+                    //周四
+                    item.ThursdayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Thursday);
+
+                    //周五
+                    item.FridayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Friday);
+
+                    //周六
+                    item.SaturdayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Saturday);
+
+                    //周天
+                    item.SundayList = myProcessedClassTimes.Where(p => p.Week == (int)DayOfWeek.Sunday);
+
+                    outPut.Add(item);
+                }
+                return ResponseBase.Success(outPut.OrderByDescending(p => p.TotalCount));
+            }
+            return ResponseBase.Success(outPut);
+        }
     }
 }
