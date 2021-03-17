@@ -13,6 +13,8 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// </summary>
         public long ClassId { get; set; }
 
+        public string ClassName { get; set; }
+
         /// <summary>
         /// 上课时间
         /// </summary>

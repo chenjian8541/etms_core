@@ -194,6 +194,30 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "reservation_go",
+        "Name": "reservation_go",
+        "Type": 1,
+        "Component": "@/components/timetableMgr/ReservationMgr/reservationTimes",
+        "Meta": {
+          "Title": "发起约课",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "reservation_rule",
+        "Name": "reservation_rule",
+        "Type": 1,
+        "Component": "@/components/timetableMgr/ReservationMgr/reservationRule",
+        "Meta": {
+          "Title": "约课设置",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 26,
         "Path": "courseMgr",
         "Name": "courseMgr",

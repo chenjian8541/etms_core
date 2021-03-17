@@ -342,6 +342,18 @@
             "Name": "数据视图",
             "Type": 0
           }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 65,
+            "Name": "发起约课",
+            "Type": 1
+          },
+          {
+            "ActionId": 66,
+            "Name": "约课设置",
+            "Type": 1
+          }
         ]
       },
       {

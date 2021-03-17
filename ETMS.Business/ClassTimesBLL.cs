@@ -296,7 +296,8 @@ namespace ETMS.Business
                 StartTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime),
                 EndTimeDesc = EtmsHelper.GetTimeDesc(classTimes.EndTime),
                 TeacherIds = EtmsHelper.AnalyzeMuIds(classTimes.Teachers),
-                ReservationType = classTimes.ReservationType
+                ReservationType = classTimes.ReservationType,
+                ClassName = etClass.EtClass.Name
             };
             return ResponseBase.Success(output);
         }
