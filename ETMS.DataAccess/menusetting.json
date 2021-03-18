@@ -355,6 +355,16 @@
             "Type": 1
           },
           {
+            "ActionId": 67,
+            "Name": "取消约课",
+            "Type": 1
+          },
+          {
+            "ActionId": 68,
+            "Name": "约课记录",
+            "Type": 1
+          },
+          {
             "ActionId": 66,
             "Name": "约课设置",
             "Type": 1

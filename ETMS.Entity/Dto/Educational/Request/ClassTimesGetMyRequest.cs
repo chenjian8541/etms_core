@@ -11,7 +11,7 @@ namespace ETMS.Entity.Dto.Educational.Request
     {
         public long TeacherId { get; set; }
 
-        public bool IsOnlyReservation { get; set; }
+        public byte? ReservationType { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -78,9 +78,9 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND ClassOt < '{EndOt.Value.EtmsToDateString()}'");
             }
-            if (IsOnlyReservation)
+            if (ReservationType != null)
             {
-                condition.Append($" AND ReservationType = {EmBool.True} ");
+                condition.Append($" AND ReservationType = {ReservationType.Value} ");
             }
             return condition.ToString();
         }

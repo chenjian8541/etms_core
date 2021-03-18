@@ -146,6 +146,7 @@ namespace ETMS.Business
                     {
                         ClassContent = classRule.ClassContent,
                         ClassId = classRule.ClassId,
+                        ClassType = etClass.EtClass.Type,
                         ClassOt = currentDate,
                         ClassRecordId = null,
                         ClassRoomIds = classRoomIds,

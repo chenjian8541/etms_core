@@ -546,6 +546,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassTimesGoReservation(ClassTimesGoReservationRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.ClassTimesGoReservation(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassTimesGoReservationCancel(ClassTimesGoReservationCancelRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.ClassTimesGoReservationCancel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassCheckSign(ClassCheckSignRequest request)
         {
             try
@@ -818,20 +846,6 @@ namespace ETMS.WebApi.Controllers
             {
                 _classBLL.InitTenantId(request.LoginTenantId);
                 return await _classBLL.ClassPlacement(request);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(request, ex, this.GetType());
-                return ResponseBase.UnKnownError();
-            }
-        }
-
-        public async Task<ResponseBase> ClassTimesRuleReservationTypeChange(ClassTimesRuleReservationTypeChangeRequest request)
-        {
-            try
-            {
-                _classBLL.InitTenantId(request.LoginTenantId);
-                return await _classBLL.ClassTimesRuleReservationTypeChange(request);
             }
             catch (Exception ex)
             {

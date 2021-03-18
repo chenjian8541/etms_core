@@ -149,6 +149,9 @@ namespace ETMS.Entity.Enum
         StudentCheckOn = 76,
 
         [Description("充值管理")]
-        StudentAccountRechargeManage = 77
+        StudentAccountRechargeManage = 77,
+
+        [Description("课次管理")]
+        ClassTimesMgr = 78
     }
 }

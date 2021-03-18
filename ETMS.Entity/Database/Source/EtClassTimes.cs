@@ -17,6 +17,11 @@ namespace ETMS.Entity.Database.Source
 		public long ClassId { get; set; }
 
         /// <summary>
+        /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
+        /// </summary>
+        public byte ClassType { get; set; }
+
+        /// <summary>
         /// 规则ID
         /// </summary>
         public long RuleId { get; set; }

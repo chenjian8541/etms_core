@@ -15,7 +15,11 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public long? TeacherId { get; set; }
 
-        public bool IsOnlyReservation { get; set; }
+        public byte? ReservationType { get; set; }
+
+        public byte? Status { get; set; }
+
+        public byte? ClassType { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -112,9 +116,17 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND CourseList LIKE '%,{CourseId.Value},%'");
             }
-            if (IsOnlyReservation)
+            if (ReservationType != null)
             {
-                condition.Append($" AND ReservationType = {EmBool.True} ");
+                condition.Append($" AND ReservationType = {ReservationType.Value} ");
+            }
+            if (Status != null)
+            {
+                condition.Append($" AND [Status] = {Status.Value} ");
+            }
+            if (ClassType != null)
+            {
+                condition.Append($" AND [ClassType] = {ClassType.Value} ");
             }
             if (IsDataLimit)
             {

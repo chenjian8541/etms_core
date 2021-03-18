@@ -218,6 +218,30 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "reservation_cancel",
+        "Name": "reservation_cancel",
+        "Type": 1,
+        "Component": "@/components/timetableMgr/ReservationMgr/reservationTimesCancel",
+        "Meta": {
+          "Title": "取消约课",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "reservation_log",
+        "Name": "reservation_log",
+        "Type": 1,
+        "Component": "@/components/timetableMgr/ReservationMgr/reservationTimesLog",
+        "Meta": {
+          "Title": "约课记录",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 26,
         "Path": "courseMgr",
         "Name": "courseMgr",

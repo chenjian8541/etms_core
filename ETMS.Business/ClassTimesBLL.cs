@@ -698,6 +698,7 @@ namespace ETMS.Business
             {
                 ClassContent = request.ClassContent,
                 ClassId = classId,
+                ClassType = etClass.Type,
                 ClassOt = request.ClassOt.Value,
                 ClassRecordId = null,
                 ClassRoomIds = rooms,
@@ -1563,6 +1564,22 @@ namespace ETMS.Business
                 return ResponseBase.Success(outPut.OrderByDescending(p => p.TotalCount));
             }
             return ResponseBase.Success(outPut);
+        }
+
+        public async Task<ResponseBase> ClassTimesGoReservation(ClassTimesGoReservationRequest request)
+        {
+            await _classTimesDAL.SyncClassTimesReservationType(request.ClassTimesIds, EmBool.True);
+
+            await _userOperationLogDAL.AddUserLog(request, "发起约课", EmUserOperationType.ClassTimesMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassTimesGoReservationCancel(ClassTimesGoReservationCancelRequest request)
+        {
+            await _classTimesDAL.SyncClassTimesReservationType(request.ClassTimesIds, EmBool.False);
+
+            await _userOperationLogDAL.AddUserLog(request, "取消约课", EmUserOperationType.ClassTimesMgr);
+            return ResponseBase.Success();
         }
     }
 }

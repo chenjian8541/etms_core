@@ -54,8 +54,8 @@ namespace ETMS.IDataAccess
 
         Task<IEnumerable<EtClassTimes>> GetStudentCheckOnAttendClass(DateTime checkOt, long studentId, int relationClassTimesLimitMinuteCard);
 
-        Task SyncClassTimesReservationType(long ruleId, byte newReservationType);
-
         Task SyncClassTimesOfClassTimesRule(EtClassTimesRule rule);
+
+        Task SyncClassTimesReservationType(List<long> classTimesIds, byte newReservationType);
     }
 }

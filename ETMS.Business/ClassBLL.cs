@@ -775,6 +775,7 @@ namespace ETMS.Business
                 {
                     ClassContent = request.ClassContent,
                     ClassId = request.ClassId,
+                    ClassType = etClass.Type,
                     ClassOt = currentDate,
                     StartTime = request.StartTime,
                     EndTime = request.EndTime,
@@ -796,7 +797,7 @@ namespace ETMS.Business
                     LimitStudentNumsIsAlone = false,
                     LimitStudentNumsType = etClass.LimitStudentNumsType,
                     ReservationType = request.ReservationType,
-                    StudentIdsReservation = string.Empty,
+                    StudentIdsReservation = string.Empty, 
                     StudentCount = etClass.StudentNums
                 });
                 indexCount++;
@@ -981,6 +982,7 @@ namespace ETMS.Business
                 {
                     ClassContent = request.ClassContent,
                     ClassId = request.ClassId,
+                    ClassType = etClass.Type,
                     ClassOt = currentDate,
                     StartTime = request.StartTime,
                     EndTime = request.EndTime,
@@ -1168,6 +1170,7 @@ namespace ETMS.Business
                 {
                     ClassContent = request.ClassContent,
                     ClassId = request.ClassId,
+                    ClassType = etClass.Type,
                     ClassOt = currentDate,
                     StartTime = request.StartTime,
                     EndTime = request.EndTime,
@@ -1494,28 +1497,6 @@ namespace ETMS.Business
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"选班调班-学员名称[{studentBucket.Student.Name}],手机号码[{studentBucket.Student.Phone}]", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
-        }
-
-        [Obsolete("未用")]
-        public async Task<ResponseBase> ClassTimesRuleReservationTypeChange(ClassTimesRuleReservationTypeChangeRequest request)
-        {
-            var classRule = await _classDAL.GetClassTimesRuleBuyId(request.ClassRuleId);
-            if (classRule == null)
-            {
-                return ResponseBase.CommonError("排课信息未找到");
-            }
-            var newReservationType = EmBool.False;
-            if (classRule.ReservationType == EmBool.False)
-            {
-                newReservationType = EmBool.True;
-            }
-            classRule.ReservationType = newReservationType;
-            await _classDAL.EditClassTimesRule(classRule);
-
-            await _classTimesDAL.SyncClassTimesReservationType(request.ClassRuleId, newReservationType);
-
-            await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
