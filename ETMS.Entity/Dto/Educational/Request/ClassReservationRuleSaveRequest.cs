@@ -45,6 +45,16 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// </summary>
         public bool IsParentShowClassCount { get; set; }
 
+        /// <summary>
+        /// 取消预约类型  <see cref="EmCancelClassReservaType"/>
+        /// </summary>
+        public byte CancelClassReservaType { get; set; }
+
+        /// <summary>
+        /// 取消预约时间
+        /// </summary>
+        public int CancelClassReservaValue { get; set; }
+
         public override string Validate()
         {
             if (StartClassReservaLimitType != EmStartClassReservaLimitType.NotLimit && StartClassReservaLimitValue <= 0)
@@ -62,6 +72,14 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (MaxCountClassReservaLimitType != EmMaxCountClassReservaLimitType.NotLimit && MaxCountClassReservaLimitValue <= 0)
             {
                 return "请设置预约次数限制";
+            }
+            if (CancelClassReservaValue <= 0)
+            {
+                return "请设置取消预约时间";
+            }
+            if (CancelClassReservaType == EmCancelClassReservaType.LimitMinute && CancelClassReservaValue < 5)
+            {
+                return "取消预约时间不能小于5分钟";
             }
             return string.Empty;
         }

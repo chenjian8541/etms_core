@@ -44,5 +44,15 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 家长端报名人数展示
         /// </summary>
         public bool IsParentShowClassCount { get; set; }
+
+        /// <summary>
+        /// 取消预约类型  <see cref="EmCancelClassReservaType"/>
+        /// </summary>
+        public byte CancelClassReservaType { get; set; }
+
+        /// <summary>
+        /// 取消预约时间
+        /// </summary>
+        public int CancelClassReservaValue { get; set; }
     }
 }

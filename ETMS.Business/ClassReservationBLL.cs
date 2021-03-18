@@ -42,7 +42,9 @@ namespace ETMS.Business
                 MaxCountClassReservaLimitType = rule.MaxCountClassReservaLimitType,
                 StartClassReservaLimitType = rule.StartClassReservaLimitType,
                 StartClassReservaLimitValue = rule.StartClassReservaLimitValue,
-                MaxCountClassReservaLimitValue = rule.MaxCountClassReservaLimitValue
+                MaxCountClassReservaLimitValue = rule.MaxCountClassReservaLimitValue,
+                CancelClassReservaType = rule.CancelClassReservaType,
+                CancelClassReservaValue = rule.CancelClassReservaValue
             });
         }
 
@@ -57,6 +59,8 @@ namespace ETMS.Business
             rule.StartClassReservaLimitType = request.StartClassReservaLimitType;
             rule.StartClassReservaLimitValue = request.StartClassReservaLimitValue;
             rule.MaxCountClassReservaLimitValue = request.MaxCountClassReservaLimitValue;
+            rule.CancelClassReservaType = request.CancelClassReservaType;
+            rule.CancelClassReservaValue = request.CancelClassReservaValue;
 
             await _appConfig2BLL.SaveClassReservationSetting(request.LoginTenantId, rule);
             return ResponseBase.Success();

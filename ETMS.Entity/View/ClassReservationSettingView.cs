@@ -42,6 +42,16 @@ namespace ETMS.Entity.View
         /// 家长端报名人数展示
         /// </summary>
         public bool IsParentShowClassCount { get; set; }
+
+        /// <summary>
+        /// 取消预约类型  <see cref="EmCancelClassReservaType"/>
+        /// </summary>
+        public byte CancelClassReservaType { get; set; } = 2;
+
+        /// <summary>
+        /// 取消预约时间
+        /// </summary>
+        public int CancelClassReservaValue { get; set; } = 1;
     }
 
     public struct EmStartClassReservaLimitType
@@ -85,12 +95,31 @@ namespace ETMS.Entity.View
         public const byte LimitDay = 3;
     }
 
-    public struct EmMaxCountClassReservaLimitType {
+    public struct EmMaxCountClassReservaLimitType
+    {
         /// <summary>
         /// 不限制
         /// </summary>
         public const byte NotLimit = 0;
 
         public const byte SameCourseLimit = 1;
+    }
+
+    public struct EmCancelClassReservaType
+    {
+        /// <summary>
+        /// 上课前XX分钟
+        /// </summary>
+        public const byte LimitMinute = 1;
+
+        /// <summary>
+        /// 上课前XX小时
+        /// </summary>
+        public const byte LimitHour = 2;
+
+        /// <summary>
+        /// 上课前XX天
+        /// </summary>
+        public const byte LimitDay = 3;
     }
 }
