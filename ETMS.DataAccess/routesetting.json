@@ -225,7 +225,7 @@
         "Type": 1,
         "Component": "@/components/timetableMgr/ReservationMgr/reservationTimesCancel",
         "Meta": {
-          "Title": "取消约课",
+          "Title": "关闭约课",
           "Icon": "item"
         }
       },

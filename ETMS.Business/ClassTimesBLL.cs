@@ -1578,7 +1578,7 @@ namespace ETMS.Business
         {
             await _classTimesDAL.SyncClassTimesReservationType(request.ClassTimesIds, EmBool.False);
 
-            await _userOperationLogDAL.AddUserLog(request, "取消约课", EmUserOperationType.ClassTimesMgr);
+            await _userOperationLogDAL.AddUserLog(request, "关闭约课", EmUserOperationType.ClassTimesMgr);
             return ResponseBase.Success();
         }
     }
