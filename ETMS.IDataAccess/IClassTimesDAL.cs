@@ -48,7 +48,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> UpdateClassTimesIsClassCheckSign(long classTimesId, long classRecordId, byte newStatus, EtClassRecord record);
 
-        Task<EtClassTimesStudent> GetClassTimesStudent(long classTimesId,long studentTryCalssLogId);
+        Task<EtClassTimesStudent> GetClassTimesStudent(long classTimesId, long studentTryCalssLogId);
 
         Task<EtClassTimesStudent> GetClassTimesTryStudent(long studentId, long courseId, DateTime classOt);
 
@@ -57,5 +57,19 @@ namespace ETMS.IDataAccess
         Task SyncClassTimesOfClassTimesRule(EtClassTimesRule rule);
 
         Task SyncClassTimesReservationType(List<long> classTimesIds, byte newReservationType);
+
+        Task SyncClassTimesReservationLog(EtClassTimes classTimes);
+
+        Task ClassTimesReservationLogAdd(EtClassTimesReservationLog entity);
+
+        Task ClassTimesReservationLogSetCancel(long classTimesId, long studentId);
+
+        Task<int> ClassTimesReservationLogGetCount(long courseId, long studentId, DateTime time);
+
+        Task<Tuple<IEnumerable<EtClassTimesReservationLog>, int>> ReservationLogGetPaging(RequestPagingBase request);
+
+        Task ClassTimesReservationLogEditStatus(long classTimesId, byte newStatus);
+
+        Task ClassTimesReservationLogEditStatusBuyClassCheck(long classTimesId, List<long> inStudentId);
     }
 }

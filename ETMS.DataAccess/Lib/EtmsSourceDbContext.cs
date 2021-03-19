@@ -117,5 +117,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsStudentAccountRecharge> EtStatisticsStudentAccountRecharges { get; set; }
         public DbSet<EtStudentAccountRecharge> EtStudentAccountRecharges { get; set; }
         public DbSet<EtStudentAccountRechargeLog> EtStudentAccountRechargeLogs { get; set; }
+
+        public DbSet<EtClassTimesReservationLog> EtClassTimesReservationLogs { get; set; }
     }
 }

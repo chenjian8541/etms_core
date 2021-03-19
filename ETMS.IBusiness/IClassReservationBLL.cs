@@ -12,5 +12,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassReservationRuleGet(RequestBase request);
 
         Task<ResponseBase> ClassReservationRuleSave(ClassReservationRuleSaveRequest request);
+
+        Task<ResponseBase> ClassReservationLogGetPaging(ClassReservationLogGetPagingRequest request);
     }
 }

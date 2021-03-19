@@ -44,6 +44,7 @@ namespace ETMS.DataAccess
             {
                 await _dbWrapper.Execute($"DELETE EtClassTimesStudent WHERE ClassTimesId = {id}");
             }
+            await ClassTimesReservationLogEditStatus(id, EmClassTimesReservationLogStatus.Invalidation);
             return count > 0;
         }
 
@@ -146,6 +147,51 @@ namespace ETMS.DataAccess
         public async Task SyncClassTimesReservationType(List<long> classTimesIds, byte newReservationType)
         {
             await _dbWrapper.Execute($"UPDATE [EtClassTimes] SET ReservationType = {newReservationType} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Id In ({string.Join(',', classTimesIds)})");
+        }
+
+        public async Task SyncClassTimesReservationLog(EtClassTimes classTimes)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Week] = {classTimes.Week},[StartTime] = {classTimes.StartTime},EndTime = {classTimes.EndTime},[ClassOt] = '{classTimes.ClassOt.EtmsToString()}' WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimes.Id} AND [Status] = {EmClassTimesReservationLogStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} ");
+        }
+
+        public async Task ClassTimesReservationLogAdd(EtClassTimesReservationLog entity)
+        {
+            await _dbWrapper.Insert(entity);
+        }
+
+        public async Task ClassTimesReservationLogSetCancel(long classTimesId, long studentId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Cancel} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} ");
+        }
+
+        public async Task<int> ClassTimesReservationLogGetCount(long courseId, long studentId, DateTime time)
+        {
+            var ot = time.EtmsToDateString();
+            var myTime = Convert.ToInt32(time.ToString("HHmm"));
+            var obj = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtClassTimesReservationLog WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} AND (ClassOt> '{ot}' OR (ClassOt = '{ot}' AND EndTime > {myTime})) ");
+            return obj.ToInt();
+        }
+
+        public async Task<Tuple<IEnumerable<EtClassTimesReservationLog>, int>> ReservationLogGetPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtClassTimesReservationLog>("EtClassTimesReservationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task ClassTimesReservationLogEditStatus(long classTimesId, byte newStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Status] = {newStatus} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ");
+        }
+
+        public async Task ClassTimesReservationLogEditStatusBuyClassCheck(long classTimesId, List<long> inStudentId)
+        {
+            //先将状态标记为失效
+            await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ");
+
+            //再将到课学员标记为 已上课
+            if (inStudentId != null && inStudentId.Count > 0)
+            {
+                await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.BeClassArrived} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND StudentId IN ({string.Join(',', inStudentId)}) ");
+            }
         }
     }
 }

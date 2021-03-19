@@ -102,5 +102,11 @@ namespace ETMS.IDataAccess.SysOp
         Task<bool> ClearStatisticsClass();
 
         #endregion 
+
+        Task<bool> ClearUserLog();
+
+        Task<bool> ClearStudentCheckLog();
+
+        Task<bool> ClearStudentAccountRecharge();
     }
 }

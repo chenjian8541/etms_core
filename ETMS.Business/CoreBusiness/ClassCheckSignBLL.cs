@@ -324,8 +324,13 @@ namespace ETMS.Business
             }
             var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
             var isProcess = false;
+            var attendStudentIds = new List<long>();
             foreach (var student in request.ClassRecordStudents)
             {
+                if (EmClassStudentCheckStatus.CheckIsAttend(student.StudentCheckStatus))
+                {
+                    attendStudentIds.Add(student.StudentId);
+                }
                 isProcess = false;
                 var deStudentClassTimesResult = DeStudentClassTimesResult.GetNotDeEntity();
                 if (checkInLog != null && checkInLog.Count > 0)
@@ -410,6 +415,7 @@ namespace ETMS.Business
                 {
                     await _studentCheckOnLogDAL.UpdateStudentCheckOnIsBeRollcall(request.ClassRecord.ClassTimesId.Value);
                 }
+                await _classTimesDAL.ClassTimesReservationLogEditStatusBuyClassCheck(request.ClassRecord.ClassTimesId.Value, attendStudentIds);
             }
             var classRecordAbsenceLogs = new List<EtClassRecordAbsenceLog>();
             var classRecordPointsApplyLog = new List<EtClassRecordPointsApplyLog>();

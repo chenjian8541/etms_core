@@ -266,6 +266,8 @@ namespace ETMS.Business.SysOp
             await this.ClearStudentSmsLog();
             await this.ClearClassRecordEvaluate();
 
+            await _sysDataClearDAL.ClearStudentCheckLog();
+            await _sysDataClearDAL.ClearStudentAccountRecharge();
             return true;
         }
 
@@ -279,6 +281,7 @@ namespace ETMS.Business.SysOp
             await this.ClearCourse();
             await _sysDataClearDAL.ClearUser();
             await _sysDataClearDAL.ClearUserOperationLog();
+            await _sysDataClearDAL.ClearUserLog();
             return true;
         }
 

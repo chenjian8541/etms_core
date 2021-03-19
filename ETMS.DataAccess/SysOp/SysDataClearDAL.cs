@@ -230,6 +230,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtStudentCourseDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStudentCourseStopLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStudentCourseConsumeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStudentCourseOpLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             var tempStudentIds = await GetStudentIds();
             var keys = new List<string>();
@@ -263,6 +264,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtClassTimesStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtTempStudentClassNotice SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtClassTimesReservationLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             _cacheProvider.Remove(_tenantId, new TempStudentClassNoticeBucket().GetKeyFormat(_tenantId, DateTime.Now));
             await _dbWrapper.Execute(sql.ToString());
             return true;
@@ -440,6 +442,40 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
-        #endregion 
+        #endregion
+
+        #region 其它
+
+        public async Task<bool> ClearUserLog()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtTempUserClassNotice SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtUserSmsLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtUserNotice SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
+        public async Task<bool> ClearStudentCheckLog()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTempStudentNeedCheck SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTempStudentNeedCheckClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
+        public async Task<bool> ClearStudentAccountRecharge()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtStatisticsStudentAccountRecharge SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStudentAccountRecharge SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStudentAccountRechargeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
+        #endregion
     }
 }

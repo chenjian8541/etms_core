@@ -337,6 +337,8 @@ namespace ETMS.Business
             classTimes.ReservationType = request.ReservationType;
             await _classTimesDAL.EditClassTimes(classTimes);
             await _classTimesDAL.UpdateClassTimesStudent(classTimes.Id, request.ClassOt);
+            await _classTimesDAL.SyncClassTimesReservationLog(classTimes);
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑课次-班级[{etClass.EtClass.Name}],编辑课次:{request.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(request.StartTime, request.EndTime)})", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -921,6 +923,7 @@ namespace ETMS.Business
 
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
             foreach (var classTimes in pagingData.Item1)
             {
                 var classRoomIdsDesc = string.Empty;
@@ -930,10 +933,10 @@ namespace ETMS.Business
                 var teachersDesc = string.Empty;
                 if (request.IsGetComplexInfo)
                 {
-                    var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
+                    var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                     classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
-                    className = etClass.EtClass.Name;
+                    className = etClass?.Name;
                     courseListDesc = courseInfo.Item1;
                     courseStyleColor = courseInfo.Item2;
                     teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);

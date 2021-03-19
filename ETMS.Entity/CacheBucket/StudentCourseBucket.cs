@@ -13,6 +13,8 @@ namespace ETMS.Entity.CacheBucket
     {
         public List<EtStudentCourse> StudentCourses { get; set; }
 
+        public List<long> StudentCourseIds { get; set; }
+
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.ComTimeOutDay);
 
         /// <summary>

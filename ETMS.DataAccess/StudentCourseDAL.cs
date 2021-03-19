@@ -26,9 +26,15 @@ namespace ETMS.DataAccess
         {
             var studentCourses = await _dbWrapper.FindList<EtStudentCourse>(p => p.TenantId == _tenantId && p.StudentId == keys[1].ToLong()
             && p.IsDeleted == EmIsDeleted.Normal);
+            var studentCourseIds = new List<long>();
+            if (studentCourses != null && studentCourses.Count > 0)
+            {
+                studentCourseIds = studentCourses.Select(p => p.CourseId).ToList();
+            }
             return new StudentCourseBucket()
             {
-                StudentCourses = studentCourses
+                StudentCourses = studentCourses,
+                StudentCourseIds = studentCourseIds
             };
         }
 
@@ -41,6 +47,24 @@ namespace ETMS.DataAccess
         {
             var allCourse = await base.GetCache(_tenantId, studentId);
             return allCourse.StudentCourses.Where(p => p.CourseId == courseId).ToList();
+        }
+
+        public async Task<List<long>> GetStudentCourseId(long studentId)
+        {
+            var allCourseBucket = await base.GetCache(_tenantId, studentId);
+            if (allCourseBucket == null)
+            {
+                return null;
+            }
+            if (allCourseBucket.StudentCourseIds != null && allCourseBucket.StudentCourseIds.Count > 0)
+            {
+                return allCourseBucket.StudentCourseIds;
+            }
+            if (allCourseBucket.StudentCourses != null && allCourseBucket.StudentCourses.Count > 0)
+            {
+                return allCourseBucket.StudentCourses.Select(p => p.CourseId).ToList();
+            }
+            return null;
         }
 
         public async Task<List<EtStudentCourse>> GetStudentCourseDb(long studentId, long courseId)

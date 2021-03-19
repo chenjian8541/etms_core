@@ -66,6 +66,7 @@ namespace ETMS.DataAccess
             strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
             strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId};");
+            strSql.Append($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;");
             await _dbWrapper.Execute(strSql.ToString());
             RemoveCache(_tenantId, classId);
             return true;
@@ -224,6 +225,7 @@ namespace ETMS.DataAccess
             strSql.Append($"DELETE EtClassTimesRule WHERE Id = {ruleId} ;");
             strSql.Append($"DELETE EtClassTimes WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};");
+            strSql.Append($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND RuleId = {ruleId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;");
             await _dbWrapper.Execute(strSql.ToString());
             await UpdateClassPlanTimes(classId);
             return true;
