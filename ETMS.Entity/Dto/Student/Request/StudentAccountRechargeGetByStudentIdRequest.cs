@@ -15,7 +15,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (StudentId <= 0)
             {
-                return "数据不合法";
+                return "数据格式错误";
             }
             return base.Validate();
         }

@@ -19,7 +19,7 @@ namespace ETMS.Entity.Dto.Parent.Request
         {
             if (Id <= 0 || TeacherId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (StarValue <= 0 && string.IsNullOrEmpty(EvaluateContent))
             {

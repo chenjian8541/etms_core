@@ -81,6 +81,18 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "取消预约时间不能小于5分钟";
             }
+            if (StartClassReservaLimitType != EmStartClassReservaLimitType.NotLimit
+                && StartClassReservaLimitType == DeadlineClassReservaLimitType)
+            {
+                if (StartClassReservaLimitValue < DeadlineClassReservaLimitValue)
+                {
+                    return "截止预约时间不能早于开始预约时间";
+                }
+                if (StartClassReservaLimitValue == DeadlineClassReservaLimitValue && StartClassReservaLimitValue != EmStartClassReservaLimitType.LimitDay)
+                {
+                    return "截止预约时间不能早于开始预约时间";
+                }
+            }
             return string.Empty;
         }
     }

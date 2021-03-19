@@ -27,7 +27,7 @@ namespace ETMS.Entity.Dto.HisData.Request
         {
             if (OrderId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if ((PayWechat + PayAlipay + PayCash + PayBank + PayPos) <= 0)
             {

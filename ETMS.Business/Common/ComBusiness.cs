@@ -302,11 +302,12 @@ namespace ETMS.Business.Common
             return teacherDesc.ToString().TrimEnd(',');
         }
 
-        internal static async Task<string> GetParentTeachers(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users)
+        internal static async Task<string> GetParentTeachers(DataTempBox<EtUser> tempBox, IUserDAL userDAL,
+            string users, string defaultDesc = "")
         {
             if (string.IsNullOrEmpty(users))
             {
-                return string.Empty;
+                return defaultDesc;
             }
             var teacherIds = users.Split(',');
             var teacherDesc = new StringBuilder();
@@ -332,6 +333,10 @@ namespace ETMS.Business.Common
                         teacherDesc.Append($"{user.NickName},");
                     }
                 }
+            }
+            if (teacherDesc.Length == 0)
+            {
+                return defaultDesc;
             }
             return teacherDesc.ToString().TrimEnd(',');
         }

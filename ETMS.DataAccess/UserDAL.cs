@@ -79,7 +79,7 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<Tuple<IEnumerable<UserView>, int>> GetUserPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<UserView>, int>> GetUserPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<UserView>("UserView", "*", request.PageSize, request.PageCurrent, "jobtype asc,Id DESC", request.ToString());
         }

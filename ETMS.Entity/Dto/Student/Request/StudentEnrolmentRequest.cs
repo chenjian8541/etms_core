@@ -26,7 +26,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (StudentId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if ((EnrolmentCourses == null || !EnrolmentCourses.Any())
                 && (EnrolmentGoodss == null || !EnrolmentGoodss.Any())
@@ -158,7 +158,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (CostId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (BuyQuantity <= 0)
             {
@@ -193,7 +193,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (GoodsId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (BuyQuantity <= 0)
             {
@@ -250,7 +250,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (CourseId <= 0 || CoursePriceRuleId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (BuyQuantity <= 0)
             {

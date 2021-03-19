@@ -19,7 +19,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
         {
             if (HomeworkId <= 0 || HomeworkDetailId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (string.IsNullOrEmpty(CommentContent))
             {

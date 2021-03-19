@@ -158,6 +158,15 @@ namespace ETMS.Business.Common
             return user.NickName;
         }
 
+        internal static string GetParentTeacherName(string name, string nickName)
+        {
+            if (string.IsNullOrEmpty(nickName))
+            {
+                return name;
+            }
+            return nickName;
+        }
+
         internal static async Task<string> GetParentTeacherName(IUserDAL userDAL, long? userId)
         {
             if (userId == null)

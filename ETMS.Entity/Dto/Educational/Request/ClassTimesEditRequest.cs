@@ -33,7 +33,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         {
             if (ClassTimesId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (ClassOt == null)
             {

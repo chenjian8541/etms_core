@@ -1035,7 +1035,7 @@ namespace ETMS.Business
                     teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                     if (string.IsNullOrEmpty(courseStyleColor))
                     {
-                        courseStyleColor = "#1E90FF";
+                        courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                     }
                     if (classTimes.Status == EmClassTimesStatus.BeRollcall)
                     {
@@ -1119,7 +1119,7 @@ namespace ETMS.Business
                     teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                     if (string.IsNullOrEmpty(courseStyleColor))
                     {
-                        courseStyleColor = "#1E90FF";
+                        courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                     }
                     if (classTimes.Status == EmClassTimesStatus.BeRollcall)
                     {
@@ -1246,7 +1246,7 @@ namespace ETMS.Business
                         teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                         if (string.IsNullOrEmpty(courseStyleColor))
                         {
-                            courseStyleColor = "#1E90FF";
+                            courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                         }
                         if (classTimes.Status == EmClassTimesStatus.BeRollcall)
                         {
@@ -1376,7 +1376,7 @@ namespace ETMS.Business
                         teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                         if (string.IsNullOrEmpty(courseStyleColor))
                         {
-                            courseStyleColor = "#1E90FF";
+                            courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                         }
                         if (classTimes.Status == EmClassTimesStatus.BeRollcall)
                         {
@@ -1494,7 +1494,7 @@ namespace ETMS.Business
                         teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers, "暂无老师");
                         if (string.IsNullOrEmpty(courseStyleColor))
                         {
-                            courseStyleColor = "#1E90FF";
+                            courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                         }
                         if (classTimes.Status == EmClassTimesStatus.BeRollcall)
                         {

@@ -25,7 +25,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (StudentId <= 0 || CourseId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (TransferCoursesOut == null || TransferCoursesOut.Count == 0)
             {
@@ -93,7 +93,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             if (OrderDetailId <= 0 || ProductId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (ReturnCount <= 0)
             {

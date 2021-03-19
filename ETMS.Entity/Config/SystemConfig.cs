@@ -207,5 +207,10 @@ namespace ETMS.Entity.Config
         /// 一个月的天数
         /// </summary>
         public int MonthToDay = 30;
+
+        /// <summary>
+        /// 课程默认颜色
+        /// </summary>
+        public string CourseDefaultStyleColor = "#78BFFA";
     }
 }

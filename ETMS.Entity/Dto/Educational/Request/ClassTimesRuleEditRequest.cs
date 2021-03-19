@@ -32,7 +32,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         {
             if (ClassRuleId <= 0)
             {
-                return "数据不合法";
+                return "数据格式错误";
             }
             if (CourseIds == null || CourseIds.Count == 0)
             {

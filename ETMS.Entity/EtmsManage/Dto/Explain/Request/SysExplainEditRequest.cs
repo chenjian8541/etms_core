@@ -19,7 +19,7 @@ namespace ETMS.Entity.EtmsManage.Dto.Explain.Request
         {
             if (Id <= 0)
             {
-                return "数据不合法";
+                return "数据格式错误";
             }
             if (string.IsNullOrEmpty(Title))
             {

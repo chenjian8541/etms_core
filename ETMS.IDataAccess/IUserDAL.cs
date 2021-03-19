@@ -26,7 +26,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> DelUser(long id);
 
-        Task<Tuple<IEnumerable<UserView>, int>> GetUserPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<UserView>, int>> GetUserPaging(IPagingRequest request);
 
         Task<bool> UpdateTeacherClassTimesInfo(long teacherId, int addClassTimes, int addClassCount);
 

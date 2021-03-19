@@ -2,6 +2,7 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.IDataAccess;
 using ETMS.Utility;
 using System;
@@ -192,6 +193,18 @@ namespace ETMS.DataAccess
             {
                 await _dbWrapper.Execute($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.BeClassArrived} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND StudentId IN ({string.Join(',', inStudentId)}) ");
             }
+        }
+
+        public async Task<IEnumerable<ClassTimesClassOtGroupCountView>> ClassTimesClassOtGroupCount(IValidate request)
+        {
+            var sql = $"SELECT ClassOt,COUNT(ClassOt) AS TotalCount FROM EtClassTimes WHERE {request.ToString()} GROUP BY ClassOt";
+            return await _dbWrapper.ExecuteObject<ClassTimesClassOtGroupCountView>(sql);
+        }
+
+        public async Task<IEnumerable<EtClassTimes>> GetClassTimes(IValidate request)
+        {
+            var sql = $"SELECT TOP 100 * FROM EtClassTimes WHERE {request.ToString()}";
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
         }
     }
 }

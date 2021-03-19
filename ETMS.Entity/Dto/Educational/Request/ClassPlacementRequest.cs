@@ -17,7 +17,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         {
             if (StudentId <= 0 || CourseId <= 0)
             {
-                return "数据不合法";
+                return "数据格式错误";
             }
             if (ClassPlacementInfos == null || ClassPlacementInfos.Count == 0)
             {

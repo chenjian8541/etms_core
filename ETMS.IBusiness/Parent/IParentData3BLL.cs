@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Parent.Request;
+using ETMS.Entity.Dto.Parent2.Request;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,5 +29,21 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request);
 
         Task<ResponseBase> StudentAccountRechargeLogGetPaging(StudentAccountRechargeLogGetPagingRequest request);
+
+        Task<ResponseBase> TeacherGetPaging(TeacherGetPagingRequest request);
+
+        Task<ResponseBase> StudentReservationTimetable(StudentReservationTimetableRequest request);
+
+        Task<ResponseBase> StudentReservationTimetableDetail(StudentReservationTimetableDetailRequest request);
+
+        Task<ResponseBase> StudentReservationDetail(StudentReservationDetailRequest request);
+
+        Task<ResponseBase> StudentReservationLogGetPaging(StudentReservationLogGetPagingRequest request);
+
+        Task<ResponseBase> StudentReservationLogDetail(StudentReservationLogDetailRequest request);
+
+       Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request);
+
+        Task<ResponseBase> StudentReservationCancel(StudentReservationCancelRequest request);
     }
 }

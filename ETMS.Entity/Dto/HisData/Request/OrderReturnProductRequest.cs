@@ -17,7 +17,7 @@ namespace ETMS.Entity.Dto.HisData.Request
         {
             if (ReturnOrderId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (OrderReturnOrderInfo == null)
             {
@@ -81,7 +81,7 @@ namespace ETMS.Entity.Dto.HisData.Request
         {
             if (OrderDetailId <= 0 || ProductId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (ReturnCount <= 0)
             {

@@ -32,6 +32,11 @@ namespace ETMS.Entity.Common
         /// </summary>
         public List<long> ParentStudentIds { get; set; }
 
+        protected virtual string DataFilterWhere2()
+        {
+            return $"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} ";
+        }
+
         protected virtual string DataFilterWhere(string studentFieldName = "StudentId")
         {
             if (ParentStudentIds.Count == 0)

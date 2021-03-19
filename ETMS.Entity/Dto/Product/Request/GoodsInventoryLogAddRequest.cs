@@ -23,7 +23,7 @@ namespace ETMS.Entity.Dto.Product.Request
         {
             if (GoodsId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (Quantity <= 0)
             {

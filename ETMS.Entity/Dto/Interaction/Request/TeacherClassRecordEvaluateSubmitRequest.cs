@@ -15,7 +15,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
         {
             if (ClassRecordStudentId <= 0)
             {
-                return "请求数据不合法";
+                return "请求数据格式错误";
             }
             if (string.IsNullOrEmpty(EvaluateContent))
             {
