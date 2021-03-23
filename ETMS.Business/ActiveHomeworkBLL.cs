@@ -406,5 +406,83 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "删除作业评语", EmUserOperationType.ActiveHomeworkMgr);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> ActiveHomeworkStudentGetPaging(ActiveHomeworkStudentGetPagingRequest request)
+        {
+            var pagingData = await _activeHomeworkDetailDAL.GetPaging(request);
+            var output = new List<ActiveHomeworkStudentGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempBoxClass = new DataTempBox<EtClass>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                    output.Add(new ActiveHomeworkStudentGetPagingOutput()
+                    {
+                        ClassId = p.ClassId,
+                        ClassName = myClass?.Name,
+                        TeacherName = await ComBusiness.GetParentTeacher(tempBoxUser, _userDAL, p.CreateUserId),
+                        OtDesc = p.Ot.EtmsToMinuteString(),
+                        Title = p.Title,
+                        Type = p.Type,
+                        TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
+                        AnswerStatus = p.AnswerStatus,
+                        HomeworkDetailId = p.Id,
+                        HomeworkId = p.HomeworkId,
+                        AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
+                        AnswerOtDesc = p.AnswerOt.EtmsToMinuteString(),
+                        WorkContent = p.WorkContent,
+                        WorkMediasUrl = GetMediasUrl(p.WorkMedias),
+                        ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString()
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActiveHomeworkStudentGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActiveHomeworkStudentGet(ActiveHomeworkStudentGetRequest request)
+        {
+            var homeworkDetailBucket = await _activeHomeworkDetailDAL.GetActiveHomeworkDetailBucket(request.HomeworkDetailId);
+            if (homeworkDetailBucket == null || homeworkDetailBucket.ActiveHomeworkDetail == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var p = homeworkDetailBucket.ActiveHomeworkDetail;
+            var classInfo = await _classDAL.GetClassBucket(p.ClassId);
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.CreateUserId);
+            var output = new ActiveHomeworkStudentGetOutput()
+            {
+                ClassId = p.ClassId,
+                ClassName = classInfo?.EtClass.Name,
+                ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString(),
+                HomeworkDetailId = p.Id,
+                HomeworkId = p.HomeworkId,
+                OtDesc = p.Ot.EtmsToMinuteString(),
+                ReadStatus = p.ReadStatus,
+                TeacherName = ComBusiness2.GetParentTeacherName(teacher),
+                TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
+                Title = p.Title,
+                Type = p.Type,
+                TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
+                WorkContent = p.WorkContent,
+                WorkMediasUrl = GetMediasUrl(p.WorkMedias),
+                AnswerStatus = p.AnswerStatus,
+                AnswerStatusDesc = EmActiveHomeworkDetailAnswerStatus.ActiveHomeworkDetailAnswerStatusDesc(p.AnswerStatus),
+                AnswerInfo = null,
+                CommentOutputs = await GetCommentOutput(homeworkDetailBucket.ActiveHomeworkDetailComments, tempBoxUser)
+            };
+            if (p.AnswerStatus == EmActiveHomeworkDetailAnswerStatus.Answered)
+            {
+                output.AnswerInfo = new HomeworkDetailAnswerInfo2()
+                {
+                    AnswerContent = p.AnswerContent,
+                    AnswerMediasUrl = GetMediasUrl(p.AnswerMedias),
+                    AnswerOtDesc = p.AnswerOt.EtmsToMinuteString()
+                };
+            }
+            return ResponseBase.Success(output);
+        }
     }
 }

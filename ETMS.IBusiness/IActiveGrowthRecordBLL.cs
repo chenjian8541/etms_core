@@ -27,5 +27,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ActiveGrowthCommentAdd(ActiveGrowthCommentAddRequest request);
 
         Task<ResponseBase> ActiveGrowthCommentDel(ActiveGrowthCommentDelRequest request);
+
+        Task<ResponseBase> ActiveGrowthStudentGetPaging(ActiveGrowthStudentGetPagingRequest request);
     }
 }

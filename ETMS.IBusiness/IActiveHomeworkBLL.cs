@@ -24,5 +24,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ActiveHomeworkCommentAdd(ActiveHomeworkCommentAddRequest request);
 
         Task<ResponseBase> ActiveHomeworkCommentDel(ActiveHomeworkCommentDelRequest request);
+
+        Task<ResponseBase> ActiveHomeworkStudentGetPaging(ActiveHomeworkStudentGetPagingRequest request);
+
+        Task<ResponseBase> ActiveHomeworkStudentGet(ActiveHomeworkStudentGetRequest request);
     }
 }

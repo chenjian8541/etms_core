@@ -147,6 +147,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveHomeworkStudentGetPaging(ActiveHomeworkStudentGetPagingRequest request)
+        {
+            try
+            {
+                _activeHomeworkBLL.InitTenantId(request.LoginTenantId);
+                return await _activeHomeworkBLL.ActiveHomeworkStudentGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveHomeworkStudentGet(ActiveHomeworkStudentGetRequest request)
+        {
+            try
+            {
+                _activeHomeworkBLL.InitTenantId(request.LoginTenantId);
+                return await _activeHomeworkBLL.ActiveHomeworkStudentGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActiveGrowthRecordClassGetPaging(ActiveGrowthRecordClassGetPagingRequest request)
         {
             try
@@ -251,6 +279,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
                 return await _activeGrowthRecordBLL.ActiveGrowthCommentDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthStudentGetPaging(ActiveGrowthStudentGetPagingRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthStudentGetPaging(request);
             }
             catch (Exception ex)
             {

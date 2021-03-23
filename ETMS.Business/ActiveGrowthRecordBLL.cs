@@ -437,5 +437,33 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "删除成长档案评论", EmUserOperationType.ActiveGrowthRecord);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> ActiveGrowthStudentGetPaging(ActiveGrowthStudentGetPagingRequest request)
+        {
+            var pagingData = await _activeGrowthRecordDAL.GetDetailPaging(request);
+            var output = new List<ActiveGrowthStudentGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var allstudentGrowingTag = await _studentGrowingTagDAL.GetAllStudentGrowingTag();
+                foreach (var p in pagingData.Item1)
+                {
+                    var myGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
+                    output.Add(new ActiveGrowthStudentGetPagingOutput()
+                    {
+                        FavoriteStatus = p.FavoriteStatus,
+                        GrowingTag = p.GrowingTag,
+                        GrowingTagDesc = myGrowingTag?.Name,
+                        GrowthContent = p.GrowthContent,
+                        GrowthMediasUrl = GetMediasUrl(p.GrowthMedias),
+                        GrowthRecordDetailId = p.Id,
+                        GrowthRecordId = p.GrowthRecordId,
+                        OtDesc = p.Ot.EtmsToMinuteString(),
+                        UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.CreateUserId)
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActiveGrowthStudentGetPagingOutput>(pagingData.Item2, output));
+        }
     }
 }
