@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Parent2.Output
 {
-    public class StudentReservationTimetableOutput
+    public class StudentTimetableCountOutput
     {
         public string Date { get; set; }
 

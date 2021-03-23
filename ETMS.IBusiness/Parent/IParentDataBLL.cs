@@ -19,6 +19,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentLeaveApplyRevoke(StudentLeaveApplyRevokeRequest request);
 
+        Task<ResponseBase> StudentClassTimetableCountGet(StudentClassTimetableCountGetRequest request);
+
         Task<ResponseBase> StudentClassTimetableGet(StudentClassTimetableRequest request);
 
         Task<ResponseBase> StudentClassTimetableDetailGet(StudentClassTimetableDetailGetRequest request);

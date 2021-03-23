@@ -352,6 +352,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentClassTimetableCountGet(StudentClassTimetableCountGetRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.StudentClassTimetableCountGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentClassTimetableGet(StudentClassTimetableRequest request)
         {
             try

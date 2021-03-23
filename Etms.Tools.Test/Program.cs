@@ -17,7 +17,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //CreateParentToken();
+            CreateParentToken();
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -32,11 +32,11 @@ namespace Etms.Tools.Test
             //Console.WriteLine(date.IsEffectiveDate());
             //int? a = null;
 
-            var now = DateTime.Now;
-            var startTime = 1230;
-            var newNow = new DateTime(now.Year, now.Month, now.Day, startTime / 100, startTime % 100,0);
+            //var now = DateTime.Now;
+            //var startTime = 1230;
+            //var newNow = new DateTime(now.Year, now.Month, now.Day, startTime / 100, startTime % 100,0);
 
-            Console.WriteLine(newNow);
+            //Console.WriteLine(newNow);
 
             Console.WriteLine();
             Console.Read();

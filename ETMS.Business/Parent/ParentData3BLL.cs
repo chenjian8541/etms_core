@@ -326,7 +326,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentReservationTimetable(StudentReservationTimetableRequest request)
         {
-            var output = new List<StudentReservationTimetableOutput>();
+            var output = new List<StudentTimetableCountOutput>();
             var studentCourseIds = await _studentCourseDAL.GetStudentCourseId(request.StudentId);
             if (studentCourseIds == null || studentCourseIds.Count == 0)
             {
@@ -334,7 +334,7 @@ namespace ETMS.Business
             }
             request.StudentCourseIds = studentCourseIds; //购买的课程
             var classTimeGroupCount = await _classTimesDAL.ClassTimesClassOtGroupCount(request);
-            return ResponseBase.Success(classTimeGroupCount.Select(p => new StudentReservationTimetableOutput()
+            return ResponseBase.Success(classTimeGroupCount.Select(p => new StudentTimetableCountOutput()
             {
                 ClassTimesCount = p.TotalCount,
                 Date = p.ClassOt.EtmsToDateString()
@@ -752,7 +752,8 @@ namespace ETMS.Business
                         StudentAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor,
                         _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar),
                         StudentCountLimitDesc = studentCountLimitDesc,
-                        StudentCountSurplusDesc = studentCountSurplusDesc
+                        StudentCountSurplusDesc = studentCountSurplusDesc,
+                        StudentCountFinish = classTimes.StudentCount
                     });
                 }
             }

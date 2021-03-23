@@ -35,6 +35,8 @@ namespace ETMS.Entity.Dto.Parent2.Output
 
         public string TeachersDesc { get; set; }
 
+        public int StudentCountFinish { get; set; }
+
         public string StudentCountLimitDesc { get; set; }
 
         public string StudentCountSurplusDesc { get; set; }

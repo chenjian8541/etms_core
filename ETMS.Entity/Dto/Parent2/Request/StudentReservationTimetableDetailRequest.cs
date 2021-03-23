@@ -21,7 +21,7 @@ namespace ETMS.Entity.Dto.Parent2.Request
         {
             var condition = new StringBuilder(DataFilterWhere2());
             condition.Append($" AND ClassType = {EmClassType.OneToMany} AND ReservationType = {EmBool.True} AND ClassOt = '{SldTime.EtmsToDateString()}'");
-            condition.Append($" AND StudentIdsClass NOT LIKE '%,{StudentId},%'");
+            condition.Append($" AND (StudentIdsClass NOT LIKE '%,{StudentId},%' OR StudentIdsClass IS NULL)");
             if (TeacherId != null)
             {
                 condition.Append($" AND Teachers LIKE '%,{TeacherId.Value},%'");

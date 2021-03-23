@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
+using ETMS.Entity.Dto.Parent2.Output;
 
 namespace ETMS.Business
 {
@@ -221,6 +222,16 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _studentOperationLogDAL.AddStudentLog(p.StudentId, request.LoginTenantId, $"撤销请假申请", EmStudentOperationLogType.StudentLeaveApply);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentClassTimetableCountGet(StudentClassTimetableCountGetRequest request)
+        {
+            var classTimeGroupCount = await _classTimesDAL.ClassTimesClassOtGroupCount(request);
+            return ResponseBase.Success(classTimeGroupCount.Select(p => new StudentTimetableCountOutput()
+            {
+                ClassTimesCount = p.TotalCount,
+                Date = p.ClassOt.EtmsToDateString()
+            }));
         }
 
         public async Task<ResponseBase> StudentClassTimetableGet(StudentClassTimetableRequest request)
