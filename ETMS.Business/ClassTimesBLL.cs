@@ -142,7 +142,7 @@ namespace ETMS.Business
                 foreach (var cMyStudent in classStudent)
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
-                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null, etClass.EtClass.DefaultClassTimes);
+                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null, etClass.EtClass.DefaultClassTimes, EmBool.False);
                     if (classTimesStudent != null)
                     {
                         output.Add(classTimesStudent);
@@ -177,7 +177,8 @@ namespace ETMS.Business
                 foreach (var cMyStudent in classStudent)
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
-                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null, etClass.EtClass.DefaultClassTimes);
+                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null, etClass.EtClass.DefaultClassTimes,
+                        EmBool.False);
                     if (classTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
@@ -206,7 +207,8 @@ namespace ETMS.Business
                 foreach (var tMyStudent in tempStudent)
                 {
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
-                        tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId, etClass.EtClass.DefaultClassTimes);
+                        tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
+                        etClass.EtClass.DefaultClassTimes, tMyStudent.IsReservation);
                     if (tempTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
@@ -234,7 +236,8 @@ namespace ETMS.Business
         }
 
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
-            long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, int defaultClassTimes)
+            long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, int defaultClassTimes,
+            byte isReservation)
         {
             var myStudent = await _studentDAL.GetStudent(studentId);
             if (myStudent == null)
@@ -269,6 +272,7 @@ namespace ETMS.Business
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
                 DefaultClassTimes = defaultClassTimes.ToString(),
                 Points = myCourse.Item1.CheckPoints,
+                IsReservation = isReservation,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Student.Avatar),
             };
         }
@@ -387,11 +391,7 @@ namespace ETMS.Business
             }
             foreach (var student in request.StudentIds)
             {
-                if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == student.Value.ToString()) != null)
-                {
-                    return ResponseBase.CommonError($"学员[{student.Label}]已存在");
-                }
-                if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == student.Value.ToString()) != null)
+                if (ComBusiness3.CheckStudentInClassTimes(classTimes, student.Value))
                 {
                     return ResponseBase.CommonError($"学员[{student.Label}]已存在");
                 }
@@ -432,6 +432,11 @@ namespace ETMS.Business
             }
             await _classTimesDAL.EditClassTimes(classTimes);
             var studenName = string.Join(',', studentNames);
+
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = classTimes.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, $"添加临时学员-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加临时学员[{studenName}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -486,13 +491,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("请选择此课次关联的课程");
             }
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == request.StudentId.ToString()) != null)
+
+            if (ComBusiness3.CheckStudentInClassTimes(classTimes, request.StudentId))
             {
-                return ResponseBase.CommonError($"学员已在此课次中");
-            }
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == request.StudentId.ToString()) != null)
-            {
-                return ResponseBase.CommonError($"学员已在此课次中");
+                return ResponseBase.CommonError("学员已在此课次中");
             }
 
             var myCourse = await _courseDAL.GetCourse(request.CourseId);
@@ -546,6 +548,11 @@ namespace ETMS.Business
                 classTimes.StudentIdsTemp = $"{classTimes.StudentIdsTemp}{request.StudentId},";
             }
             await _classTimesDAL.EditClassTimes(classTimes);
+
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = classTimes.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, $"添加试听学员-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加试听学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -579,14 +586,9 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此课次不包含需要补的课程");
             }
-
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            if (ComBusiness3.CheckStudentInClassTimes(classTimes, studentId))
             {
-                return ResponseBase.CommonError($"学员已在此课次中");
-            }
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
-            {
-                return ResponseBase.CommonError($"学员已在此课次中");
+                return ResponseBase.CommonError("学员已在此课次中");
             }
 
             var myCourse = await _courseDAL.GetCourse(courseId);
@@ -645,6 +647,10 @@ namespace ETMS.Business
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = classTimes.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, $"插班补课-班级[{etClass.EtClass.Name}],课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})添加插班补课学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -803,6 +809,10 @@ namespace ETMS.Business
             {
                 return await ClassTimesDelMakeUpStudent(request, etClass.EtClass, classTimes, classTimesStudent);
             }
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = classTimes.Id
+            });
             return ResponseBase.CommonError("无法移除此学员");
         }
         private async Task<ResponseBase> ClassTimesDelTempStudent(ClassTimesDelTempOrTryStudentRequest request, EtClass etClass, EtClassTimes etClassTimes)

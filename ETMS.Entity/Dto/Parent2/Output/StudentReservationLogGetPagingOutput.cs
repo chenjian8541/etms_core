@@ -4,13 +4,8 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Parent2.Output
 {
-    public class StudentReservationDetailOutput
+    public class StudentReservationLogGetPagingOutput
     {
-        /// <summary>
-        /// <see cref="ETMS.Entity.Enum.EmStudentReservationTimetableOutputStatus"/>
-        /// </summary>
-        public byte Status { get; set; }
-
         public long ClassTimesId { get; set; }
 
         /// <summary>
@@ -40,35 +35,12 @@ namespace ETMS.Entity.Dto.Parent2.Output
 
         public string TeachersDesc { get; set; }
 
-        public int StudentCountFinish { get; set; }
-
         public string StudentCountLimitDesc { get; set; }
 
         public string StudentCountSurplusDesc { get; set; }
 
-        public long CourseId { get; set; }
-
-        public bool IsCanReservation { get; set; }
-
-        public string RuleStartClassReservaLimitDesc { get; set; }
-
-        public string RuleDeadlineClassReservaLimitDesc { get; set; }
-
-        public string RuleMaxCountClassReservaLimitDesc { get; set; }
-
-        public string RuleCancelClassReservaDesc { get; set; }
-
-        public string CantReservationErrDesc { get; set; }
-
-        public StudentReservationSuccess StudentReservationSuccess { get; set; }
-    }
-
-    public class StudentReservationSuccess {
-
         public string StudentName { get; set; }
 
         public string StudentAvatarUrl { get; set; }
-
-        public string CancelDesc { get; set; }
     }
 }

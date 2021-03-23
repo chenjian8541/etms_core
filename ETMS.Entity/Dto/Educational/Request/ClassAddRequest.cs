@@ -46,12 +46,20 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请选择关联课程";
             }
+            if (CourseIds.Count > 5)
+            {
+                return "最多设置5门关联的课程";
+            }
             if (LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
             {
                 if (LimitStudentNums == null || LimitStudentNums <= 0)
                 {
                     return "请设置班级容量";
                 }
+            }
+            if (TeacherIds != null && TeacherIds.Count > 10)
+            {
+                return "最多设置10位上课老师";
             }
             return base.Validate();
         }

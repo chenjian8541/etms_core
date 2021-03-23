@@ -77,6 +77,11 @@ namespace ETMS.Entity.Database.Source
         public int StudentCount { get; set; }
 
         /// <summary>
+        /// 临时学员数量
+        /// </summary>
+        public int StudentTempCount { get; set; }
+
+        /// <summary>
         /// 班级容量
         /// </summary>
         public int? LimitStudentNums { get; set; }

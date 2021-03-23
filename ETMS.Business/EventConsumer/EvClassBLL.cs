@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Enum;
 using ETMS.IEventProvider;
+using ETMS.Utility;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -15,17 +16,20 @@ namespace ETMS.Business.EventConsumer
     {
         private readonly IClassDAL _classDAL;
 
+        private readonly IClassTimesDAL _classTimesDAL;
+
         private readonly IEventPublisher _eventPublisher;
 
-        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher)
+        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL)
         {
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
+            this._classTimesDAL = classTimesDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classDAL);
+            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
@@ -60,6 +64,50 @@ namespace ETMS.Business.EventConsumer
                 await _classDAL.DelClassStudentByStudentId(myClass.ClassId, request.StudentId);
                 _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myClass.ClassId));
             }
+        }
+
+        public async Task SyncClassTimesStudentConsumerEvent(SyncClassTimesStudentEvent request)
+        {
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                LOG.Log.Error("[SyncClassTimesStudentConsumerEvent]班级不存在", request, this.GetType());
+                return;
+            }
+            var classStudent = classBucket.EtClassStudents;
+            var classTimesStudent = await _classTimesDAL.GetClassTimesStudent(classTimes.Id);
+            var studentCount = 0;
+            var studentTempCount = 0;
+            var strStudentIdsClass = string.Empty;
+            var strStudentIdsTemp = string.Empty;
+            var strStudentIdsReservation = string.Empty;
+            if (classStudent != null && classStudent.Count > 0)
+            {
+                strStudentIdsClass = EtmsHelper.GetMuIds(classStudent.Select(p => p.StudentId));
+                studentCount += classStudent.Count;
+            }
+            if (classTimesStudent != null && classTimesStudent.Count > 0)
+            {
+                var reservationStudent = classTimesStudent.Where(p => p.IsReservation == EmBool.True);
+                var notReservationStudent = classTimesStudent.Where(p => p.IsReservation == EmBool.False);
+                if (reservationStudent.Any())
+                {
+                    strStudentIdsReservation = EtmsHelper.GetMuIds(reservationStudent.Select(p => p.StudentId));
+                }
+                if (notReservationStudent.Any())
+                {
+                    strStudentIdsTemp = EtmsHelper.GetMuIds(notReservationStudent.Select(p => p.StudentId));
+                }
+                studentTempCount = classTimesStudent.Count;
+                studentCount += classTimesStudent.Count;
+            }
+            classTimes.StudentIdsClass = strStudentIdsClass;
+            classTimes.StudentIdsTemp = strStudentIdsTemp;
+            classTimes.StudentIdsReservation = strStudentIdsReservation;
+            classTimes.StudentCount = studentCount;
+            classTimes.StudentTempCount = studentTempCount;
+            await _classTimesDAL.EditClassTimes(classTimes);
         }
     }
 }

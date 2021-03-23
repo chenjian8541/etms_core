@@ -11,5 +11,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request);
 
         Task ClassRemoveStudentConsumerEvent(ClassRemoveStudentEvent request);
+
+        Task SyncClassTimesStudentConsumerEvent(SyncClassTimesStudentEvent request);
     }
 }

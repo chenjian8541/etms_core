@@ -797,7 +797,7 @@ namespace ETMS.Business
                     LimitStudentNumsIsAlone = false,
                     LimitStudentNumsType = etClass.LimitStudentNumsType,
                     ReservationType = request.ReservationType,
-                    StudentIdsReservation = string.Empty, 
+                    StudentIdsReservation = string.Empty,
                     StudentCount = etClass.StudentNums
                 });
                 indexCount++;
@@ -1293,7 +1293,8 @@ namespace ETMS.Business
 
             //同步课次信息（授课课程、教室、老师、班级学员） 
             await _classDAL.SyncClassInfo(request.ClassId, studentIds, etClass.CourseList,
-                etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum, etClass.LimitStudentNums, etClass.LimitStudentNumsType);
+                etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum, etClass.LimitStudentNums, etClass.LimitStudentNumsType,
+                studentCount);
         }
 
         public async Task<ResponseBase> ClassTimesRuleGet(ClassTimesRuleGetRequest request)

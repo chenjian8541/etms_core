@@ -97,7 +97,7 @@ namespace ETMS.DataAccess
             return count > 0;
         }
 
-        public async Task<Tuple<IEnumerable<EtClassTimes>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtClassTimes>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtClassTimes>("EtClassTimes", "*", request.PageSize, request.PageCurrent, "ClassOt ASC,StartTime ASC", request.ToString());
         }

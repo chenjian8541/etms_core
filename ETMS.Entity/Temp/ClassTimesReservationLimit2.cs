@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Temp
 {
-    public class ClassTimesReservationLimit
+    public class ClassTimesReservationLimit2
     {
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmStudentReservationTimetableOutputStatus"/>
@@ -17,6 +17,18 @@ namespace ETMS.Entity.Temp
 
         public string StudentCountSurplusDesc { get; set; }
 
+        public string RuleStartClassReservaLimitDesc { get; set; } = "不限制";
+
+        public string RuleDeadlineClassReservaLimitDesc { get; set; } = "不限制";
+
+        public string RuleMaxCountClassReservaLimitDesc { get; set; } = "不限制";
+
+        public string RuleCancelClassReservaDesc { get; set; } = "不限制";
+
         public string CantReservationErrDesc { get; set; }
+
+        public string CancelDesc { get; set; }
+
+        public long CourseId { get; set; }
     }
 }

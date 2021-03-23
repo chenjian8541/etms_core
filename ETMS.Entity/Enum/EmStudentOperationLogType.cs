@@ -26,6 +26,9 @@ namespace ETMS.Entity.Enum
         GrowthRecord = 6,
 
         [Description("评价老师")]
-        EvaluateTeacher = 7
+        EvaluateTeacher = 7,
+
+        [Description("在线约课")]
+        StudentReservation = 8
     }
 }

@@ -44,6 +44,12 @@ namespace ETMS.Entity.Database.Source
         public long? StudentTryCalssLogId { get; set; }
 
         /// <summary>
+        /// 是否预约
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsReservation { get; set; }
+
+        /// <summary>
         /// 上课时间
         /// </summary>
         public DateTime ClassOt { get; set; }

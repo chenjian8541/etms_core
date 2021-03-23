@@ -43,7 +43,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> DelClassTimesStudent(long id);
 
-        Task<Tuple<IEnumerable<EtClassTimes>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtClassTimes>, int>> GetPaging(IPagingRequest request);
 
         Task<IEnumerable<EtClassTimes>> GetList(IValidate request);
 

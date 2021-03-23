@@ -138,20 +138,6 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> StudentReservationLogDetail(StudentReservationLogDetailRequest request)
-        {
-            try
-            {
-                _parentData3BLL.InitTenantId(request.LoginTenantId);
-                return await _parentData3BLL.StudentReservationLogDetail(request);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(request, ex, this.GetType());
-                return ResponseBase.UnKnownError();
-            }
-        }
-
         public async Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request)
         {
             try

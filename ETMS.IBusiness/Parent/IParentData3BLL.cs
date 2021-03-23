@@ -40,8 +40,6 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentReservationLogGetPaging(StudentReservationLogGetPagingRequest request);
 
-        Task<ResponseBase> StudentReservationLogDetail(StudentReservationLogDetailRequest request);
-
        Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request);
 
         Task<ResponseBase> StudentReservationCancel(StudentReservationCancelRequest request);

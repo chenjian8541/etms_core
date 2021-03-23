@@ -94,5 +94,22 @@ namespace ETMS.Business.Common
 
             return result;
         }
+
+        internal static bool CheckStudentInClassTimes(EtClassTimes classTimes, long studentId)
+        {
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            {
+                return true;
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            {
+                return true;
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation) && classTimes.StudentIdsReservation.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

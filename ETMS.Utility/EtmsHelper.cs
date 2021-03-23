@@ -294,5 +294,10 @@ namespace ETMS.Utility
             }
             return time.ToString("yyyy-MM-dd HH:mm");
         }
+
+        public static DateTime GetTime(DateTime ot, int time)
+        {
+            return new DateTime(ot.Year, ot.Month, ot.Day, time / 100, time % 100, 0);
+        }
     }
 }

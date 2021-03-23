@@ -14,6 +14,7 @@ using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -57,11 +58,18 @@ namespace ETMS.Business
 
         private readonly IClassRoomDAL _classRoomDAL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
+        private readonly IStudentOperationLogDAL _studentOperationLogDAL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             IEventPublisher eventPublisher, IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
            IAppConfig2BLL appConfig2BLL, IUserDAL userDAL, IClassTimesDAL classTimesDAL, IStudentCourseDAL studentCourseDAL,
-           IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL)
+           IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL,
+           IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentOperationLogDAL studentOperationLogDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -79,6 +87,9 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._courseDAL = courseDAL;
             this._classRoomDAL = classRoomDAL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
+            this._studentOperationLogDAL = studentOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -86,7 +97,7 @@ namespace ETMS.Business
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
                 _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
-                _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL);
+                _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL, _studentOperationLogDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -340,17 +351,31 @@ namespace ETMS.Business
             if (myClassTimes.Status == EmClassTimesStatus.BeRollcall || myClassTimes.ClassOt < now)
             {
                 result.Status = EmStudentReservationTimetableOutputStatus.Over;
+                result.CantReservationErrDesc = "课次已结束，无法预约";
             }
             else
             {
-                if (!string.IsNullOrEmpty(myClassTimes.StudentIdsReservation)
-                    && myClassTimes.StudentIdsReservation.IndexOf($",{studentId},") != -1)
+                if (!string.IsNullOrEmpty(myClassTimes.StudentIdsReservation) && myClassTimes.StudentIdsReservation.IndexOf($",{studentId},") != -1)
                 {
                     result.Status = EmStudentReservationTimetableOutputStatus.IsReservationed;
                 }
                 else
                 {
                     result.IsCanReservation = true;
+                }
+            }
+
+            if (result.IsCanReservation)
+            {
+                if (!string.IsNullOrEmpty(myClassTimes.StudentIdsClass) && myClassTimes.StudentIdsClass.IndexOf($",{studentId},") != -1)
+                {
+                    result.IsCanReservation = false;
+                    result.CantReservationErrDesc = "学员已在此班级，无法预约";
+                }
+                if (!string.IsNullOrEmpty(myClassTimes.StudentIdsTemp) && myClassTimes.StudentIdsTemp.IndexOf($",{studentId},") != -1)
+                {
+                    result.IsCanReservation = false;
+                    result.CantReservationErrDesc = "学员已在此课次，无法预约";
                 }
             }
 
@@ -366,6 +391,7 @@ namespace ETMS.Business
                     myClassTimes.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
                 {
                     result.IsCanReservation = false;
+                    result.CantReservationErrDesc = "班级容量限制，无法预约";
                 }
                 if (myClassTimes.LimitStudentNumsType == EmLimitStudentNumsType.CanOverflow)
                 {
@@ -437,8 +463,174 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        private async Task<ClassTimesReservationLimit2> GetCheckClassTimesReservationLimit2(EtClassTimes classTimes, long studentId, DateTime now)
+        {
+            var result = new ClassTimesReservationLimit2();
+            var classDateTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.StartTime);
+            var classTimesCourseIds = EtmsHelper.AnalyzeMuIds(classTimes.CourseList);
+            var cantReservationErrDesc = string.Empty;
+            var courseId = 0L;
+            var reservationLimit = CheckClassTimesReservationLimit(classTimes, studentId, now.Date);
+            cantReservationErrDesc = reservationLimit.CantReservationErrDesc;
+
+            var diffTime = classDateTime - now;
+            var diffTotalMinutes = diffTime.TotalMinutes;
+            if (reservationLimit.IsCanReservation)
+            {
+                //默认1分种之内无法预约
+                if (diffTotalMinutes <= 1)
+                {
+                    reservationLimit.IsCanReservation = false;
+                    cantReservationErrDesc = "截止预约时间限制，无法预约";
+                }
+            }
+
+            if (reservationLimit.IsCanReservation)
+            {
+                //判断购买的课程 课时是否足够
+                var isHasSurplusCourse = false;
+                var myCourse = await _studentCourseDAL.GetStudentCourse(studentId);
+                foreach (var id in classTimesCourseIds)
+                {
+                    var myCourseDetail = myCourse.Where(p => p.CourseId == id);
+                    if (myCourseDetail.Any())
+                    {
+                        if (ComBusiness3.CheckStudentCourseHasSurplus(myCourseDetail))
+                        {
+                            isHasSurplusCourse = true;
+                            courseId = id; //课预约的课程
+                            break;
+                        }
+                    }
+                }
+
+                if (!isHasSurplusCourse)
+                {
+                    reservationLimit.IsCanReservation = false;
+                    cantReservationErrDesc = "学员课程剩余课时不足，无法预约";
+                }
+            }
+
+            #region 预约配置
+            var ruleConfig = await _appConfig2BLL.GetClassReservationSetting();
+            if (ruleConfig.StartClassReservaLimitType != EmStartClassReservaLimitType.NotLimit) //开始预约时间
+            {
+                switch (ruleConfig.StartClassReservaLimitType)
+                {
+                    case EmStartClassReservaLimitType.LimitHour:
+                        var tempLimitMinutes = ruleConfig.StartClassReservaLimitValue * 60;
+                        if (diffTotalMinutes > tempLimitMinutes)
+                        {
+                            reservationLimit.IsCanReservation = false;
+                            cantReservationErrDesc = "开始预约时间限制，无法预约";
+                        }
+                        result.RuleStartClassReservaLimitDesc = $"上课前{ruleConfig.StartClassReservaLimitValue}小时内可以预约";
+                        break;
+                    case EmStartClassReservaLimitType.LimitDay:
+                        var startReservationDate = classTimes.ClassOt.AddDays(-ruleConfig.StartClassReservaLimitValue).Date;
+                        if (now < startReservationDate)
+                        {
+                            reservationLimit.IsCanReservation = false;
+                            cantReservationErrDesc = "开始预约时间限制，无法预约";
+                        }
+                        result.RuleStartClassReservaLimitDesc = $"上课前{ruleConfig.StartClassReservaLimitValue}天内可以预约";
+                        break;
+                }
+            }
+
+            if (ruleConfig.DeadlineClassReservaLimitType != EmDeadlineClassReservaLimitType.NotLimit)//截止预约时间
+            {
+                switch (ruleConfig.DeadlineClassReservaLimitType)
+                {
+                    case EmDeadlineClassReservaLimitType.LimitMinute:
+                        if (diffTotalMinutes < ruleConfig.DeadlineClassReservaLimitValue)
+                        {
+                            reservationLimit.IsCanReservation = false;
+                            cantReservationErrDesc = "截止预约时间限制，无法预约";
+                        }
+                        result.RuleDeadlineClassReservaLimitDesc = $"上课前{ruleConfig.DeadlineClassReservaLimitValue}分钟截止预约";
+                        break;
+                    case EmDeadlineClassReservaLimitType.LimitHour:
+                        var tempLimitHourValue = ruleConfig.DeadlineClassReservaLimitValue * 60;
+                        if (diffTotalMinutes < tempLimitHourValue)
+                        {
+                            reservationLimit.IsCanReservation = false;
+                            cantReservationErrDesc = "截止预约时间限制，无法预约";
+                        }
+                        result.RuleDeadlineClassReservaLimitDesc = $"上课前{ruleConfig.DeadlineClassReservaLimitValue}小时截止预约";
+                        break;
+                    case EmDeadlineClassReservaLimitType.LimitDay:
+                        var limitReservaDateTime = EtmsHelper.GetTime(classTimes.ClassOt.AddDays(-ruleConfig.DeadlineClassReservaLimitValue),
+                            ruleConfig.DeadlineClassReservaLimitDayTimeValue);
+                        if (now > limitReservaDateTime)
+                        {
+                            reservationLimit.IsCanReservation = false;
+                            cantReservationErrDesc = "截止预约时间限制，无法预约";
+                        }
+                        result.RuleDeadlineClassReservaLimitDesc = $"上课前{ruleConfig.DeadlineClassReservaLimitValue}天的{EtmsHelper.GetTimeDesc(ruleConfig.DeadlineClassReservaLimitDayTimeValue)}截止预约";
+                        break;
+                }
+            }
+
+            if (ruleConfig.MaxCountClassReservaLimitType != EmMaxCountClassReservaLimitType.NotLimit) //预约次数限制
+            {
+                var sameCount = await _classTimesDAL.ClassTimesReservationLogGetCount(courseId, studentId, now);
+                if (sameCount >= ruleConfig.MaxCountClassReservaLimitValue)
+                {
+                    reservationLimit.IsCanReservation = false;
+                    cantReservationErrDesc = "预约次数限制，无法预约";
+                }
+                result.RuleMaxCountClassReservaLimitDesc = $"同一门课程最多可约{ruleConfig.MaxCountClassReservaLimitValue}次";
+            }
+
+            switch (ruleConfig.CancelClassReservaType)
+            {
+                case EmCancelClassReservaType.LimitMinute:
+                    result.RuleCancelClassReservaDesc = $"必须提前{ruleConfig.CancelClassReservaValue}分钟才能取消已预约的课次";
+                    break;
+                case EmCancelClassReservaType.LimitHour:
+                    result.RuleCancelClassReservaDesc = $"必须提前{ruleConfig.CancelClassReservaValue}小时才能取消已预约的课次";
+                    break;
+                case EmCancelClassReservaType.LimitDay:
+                    result.RuleCancelClassReservaDesc = $"必须提前{ruleConfig.CancelClassReservaValue}天才能取消已预约的课次";
+                    break;
+            }
+            #endregion
+
+            if (reservationLimit.Status == EmStudentReservationTimetableOutputStatus.IsReservationed)
+            {
+                DateTime tempTime = classDateTime;
+                switch (ruleConfig.CancelClassReservaType)
+                {
+                    case EmCancelClassReservaType.LimitMinute:
+                        tempTime = classDateTime.AddMinutes(-ruleConfig.CancelClassReservaValue);
+                        break;
+                    case EmCancelClassReservaType.LimitHour:
+                        tempTime = classDateTime.AddHours(-ruleConfig.CancelClassReservaValue);
+                        break;
+                    case EmCancelClassReservaType.LimitDay:
+                        tempTime = classDateTime.AddDays(-ruleConfig.CancelClassReservaValue);
+                        break;
+                }
+                result.CancelDesc = $"{tempTime.ToString("MM月dd日 HH:mm前可取消")}";
+            }
+
+            result.Status = reservationLimit.Status;
+            result.IsCanReservation = reservationLimit.IsCanReservation;
+            result.StudentCountLimitDesc = reservationLimit.StudentCountLimitDesc;
+            result.StudentCountSurplusDesc = reservationLimit.StudentCountSurplusDesc;
+            result.CourseId = courseId;
+            result.CantReservationErrDesc = cantReservationErrDesc;
+            return result;
+        }
+
         public async Task<ResponseBase> StudentReservationDetail(StudentReservationDetailRequest request)
         {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
             var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
             if (classTimes == null)
             {
@@ -449,36 +641,17 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("班级不存在");
             }
-
-            var classTimesCourseIds = EtmsHelper.AnalyzeMuIds(classTimes.CourseList);
-            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId);
-            var isHasSurplusCourse = false;
-            var cantReservationErrDesc = string.Empty;
-            foreach (var id in classTimesCourseIds)
-            {
-                var myCourseDetail = myCourse.Where(p => p.CourseId == id);
-                if (myCourseDetail.Any())
-                {
-                    if (ComBusiness3.CheckStudentCourseHasSurplus(myCourseDetail))
-                    {
-                        isHasSurplusCourse = true;
-                        break;
-                    }
-                }
-            }
             var now = DateTime.Now;
-            var reservationLimit = CheckClassTimesReservationLimit(classTimes, request.StudentId, now);
-            if (!isHasSurplusCourse)
-            {
-                cantReservationErrDesc = "学员课程剩余课时不足";
-                reservationLimit.IsCanReservation = false;
-            }
+            var limitResult = await GetCheckClassTimesReservationLimit2(classTimes, request.StudentId, now);
 
-            var ruleConfig = await _appConfig2BLL.GetClassReservationSetting();
-            if (reservationLimit.IsCanReservation)
+            StudentReservationSuccess reservationSuccess = null;
+            if (limitResult.Status == EmStudentReservationTimetableOutputStatus.IsReservationed)
             {
-                //通过约课设置 判断是否可以预约
-
+                reservationSuccess = new StudentReservationSuccess();
+                reservationSuccess.StudentName = studentBucket.Student.Name;
+                reservationSuccess.StudentAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor,
+                    _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar);
+                reservationSuccess.CancelDesc = limitResult.CancelDesc;
             }
 
             var classRoomIdsDesc = "未安排教室";
@@ -492,36 +665,226 @@ namespace ETMS.Business
             var output = new StudentReservationDetailOutput()
             {
                 ClassName = etClass.EtClass.Name,
-                CantReservationErrDesc = cantReservationErrDesc,
+                CantReservationErrDesc = limitResult.CantReservationErrDesc,
                 ClassContent = classTimes.ClassContent,
                 ClassId = classTimes.ClassId,
                 ClassOt = classTimes.ClassOt.EtmsToDateString(),
                 ClassRoomIdsDesc = classRoomIdsDesc,
                 ClassTimesId = classTimes.Id,
                 CourseListDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, classTimes.CourseList),
-                IsCanReservation = reservationLimit.IsCanReservation,
+                IsCanReservation = limitResult.IsCanReservation,
                 StudentCountFinish = classTimes.StudentCount,
-                StudentCountLimitDesc = reservationLimit.StudentCountLimitDesc,
-                StudentCountSurplusDesc = reservationLimit.StudentCountSurplusDesc,
+                StudentCountLimitDesc = limitResult.StudentCountLimitDesc,
+                StudentCountSurplusDesc = limitResult.StudentCountSurplusDesc,
                 TeachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, classTimes.Teachers, "未安排老师"),
                 TimeDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
                 WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
-
+                RuleCancelClassReservaDesc = limitResult.RuleCancelClassReservaDesc,
+                RuleDeadlineClassReservaLimitDesc = limitResult.RuleDeadlineClassReservaLimitDesc,
+                RuleMaxCountClassReservaLimitDesc = limitResult.RuleMaxCountClassReservaLimitDesc,
+                RuleStartClassReservaLimitDesc = limitResult.RuleStartClassReservaLimitDesc,
+                CourseId = limitResult.CourseId,
+                Status = limitResult.Status,
+                StudentReservationSuccess = reservationSuccess
             };
 
-            return ResponseBase.Success();
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StudentReservationLogGetPaging(StudentReservationLogGetPagingRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var pagingData = await _classTimesDAL.GetPaging(request);
+            var output = new List<StudentReservationLogGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempBoxClass = new DataTempBox<EtClass>();
+                foreach (var classTimes in pagingData.Item1)
+                {
+                    var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
+                    var studentCountLimitDesc = string.Empty;
+                    var studentCountSurplusDesc = string.Empty;
+                    if (classTimes.LimitStudentNums == null)
+                    {
+                        studentCountLimitDesc = "-";
+                        studentCountSurplusDesc = "不限制";
+                    }
+                    else
+                    {
+                        studentCountLimitDesc = classTimes.LimitStudentNums.Value.ToString();
+                        if (classTimes.LimitStudentNumsType == EmLimitStudentNumsType.CanOverflow)
+                        {
+                            studentCountSurplusDesc = "不限制";
+                        }
+                        else
+                        {
+                            if (classTimes.StudentCount >= classTimes.LimitStudentNums)
+                            {
+                                studentCountSurplusDesc = "0";
+                            }
+                            else
+                            {
+                                studentCountSurplusDesc = (classTimes.LimitStudentNums.Value - classTimes.StudentCount).ToString();
+                            }
+                        }
 
-        public async Task<ResponseBase> StudentReservationLogDetail(StudentReservationLogDetailRequest request)
-        { return ResponseBase.Success(); }
+                    }
+                    output.Add(new StudentReservationLogGetPagingOutput()
+                    {
+                        ClassContent = classTimes.ClassContent,
+                        ClassId = classTimes.ClassId,
+                        ClassName = etClass?.Name,
+                        ClassOt = classTimes.ClassOt.EtmsToDateString(),
+                        ClassRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds),
+                        ClassTimesId = classTimes.Id,
+                        CourseListDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, classTimes.CourseList),
+                        TimeDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
+                        TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers),
+                        StudentName = studentBucket.Student.Name,
+                        StudentAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor,
+                        _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar),
+                        StudentCountLimitDesc = studentCountLimitDesc,
+                        StudentCountSurplusDesc = studentCountSurplusDesc
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentReservationLogGetPagingOutput>(pagingData.Item2, output));
+        }
 
         public async Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (etClass == null || etClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            var now = DateTime.Now;
+            var limitResult = await GetCheckClassTimesReservationLimit2(classTimes, request.StudentId, now);
+            if (!limitResult.IsCanReservation)
+            {
+                var err = limitResult.CantReservationErrDesc;
+                if (string.IsNullOrEmpty(err))
+                {
+                    err = "无法预约此课次";
+                }
+                return ResponseBase.CommonError(err);
+            }
+            var isInClassTimes = ComBusiness3.CheckStudentInClassTimes(classTimes, request.StudentId);
+            if (isInClassTimes)
+            {
+                return ResponseBase.CommonError("您已在此课次中");
+            }
+            await _classTimesDAL.AddClassTimesStudent(new EtClassTimesStudent()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                ClassId = classTimes.ClassId,
+                ClassOt = classTimes.ClassOt,
+                ClassTimesId = classTimes.Id,
+                CourseId = request.CourseId,
+                Remark = "预约上课",
+                RuleId = classTimes.RuleId,
+                Status = classTimes.Status,
+                StudentId = request.StudentId,
+                StudentTryCalssLogId = null,
+                StudentType = EmClassStudentType.TempStudent,
+                TenantId = classTimes.TenantId,
+                IsReservation = EmBool.True
+            });
+            if (string.IsNullOrEmpty(classTimes.StudentIdsReservation))
+            {
+                classTimes.StudentIdsReservation = $",{request.StudentId},";
+            }
+            else
+            {
+                classTimes.StudentIdsReservation = $"{classTimes.StudentIdsReservation}{request.StudentId},";
+            }
+            await _classTimesDAL.EditClassTimes(classTimes);
+
+            await _classTimesDAL.ClassTimesReservationLogAdd(new EtClassTimesReservationLog()
+            {
+                StudentId = request.StudentId,
+                ClassTimesId = classTimes.Id,
+                ClassId = classTimes.ClassId,
+                CourseId = request.CourseId,
+                ClassOt = classTimes.ClassOt,
+                IsDeleted = classTimes.IsDeleted,
+                StartTime = classTimes.StartTime,
+                Week = classTimes.Week,
+                RuleId = classTimes.RuleId,
+                Status = EmClassTimesReservationLogStatus.Normal,
+                EndTime = classTimes.EndTime,
+                TenantId = classTimes.TenantId,
+                CreateOt = DateTime.Now
+            });
+
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = request.ClassTimesId
+            });
+            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"预约上课-班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
+            return ResponseBase.Success();
+        }
 
         public async Task<ResponseBase> StudentReservationCancel(StudentReservationCancelRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (etClass == null || etClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            var classTimesStudents = await _classTimesDAL.GetClassTimesStudent(request.ClassTimesId);
+            var reservationLog = classTimesStudents.FirstOrDefault(p => p.StudentId == request.StudentId && p.IsReservation == EmBool.True);
+            if (reservationLog == null)
+            {
+                return ResponseBase.CommonError("未查找到预约课次");
+            }
+            await _classTimesDAL.DelClassTimesStudent(reservationLog.Id);
+            classTimesStudents.Remove(reservationLog);
+            var surplusReservation = classTimesStudents.Where(p => p.IsReservation == EmBool.True);
+            var studentIdsReservation = string.Empty;
+            if (surplusReservation != null && surplusReservation.Any())
+            {
+                studentIdsReservation = EtmsHelper.GetMuIds(surplusReservation.Select(p => p.StudentId));
+            }
+            classTimes.StudentIdsReservation = studentIdsReservation;
+            await _classTimesDAL.EditClassTimes(classTimes);
+
+            await _classTimesDAL.ClassTimesReservationLogSetCancel(request.ClassTimesId, request.StudentId);
+
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = request.ClassTimesId
+            });
+            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{etClass.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
+            return ResponseBase.Success();
+        }
     }
 }

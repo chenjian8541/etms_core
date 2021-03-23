@@ -170,15 +170,15 @@ namespace ETMS.AiFace
             if (faceQualityInfo.Score == null || faceQualityInfo.Sharpness == null ||
                faceQualityInfo.Brightness == null || faceQualityInfo.Completeness == null)
             {
-                return "人脸图像质量不符合要求";
+                return "人脸图像质量不符合要求，建议使用高清摄像头";
             }
             if (faceQualityInfo.Score < 70)
             {
-                return "人脸图像质量太差";
+                return "人脸图像质量太差，建议使用高清摄像头";
             }
             if (faceQualityInfo.Sharpness < 80)
             {
-                return "人脸图像过于模糊";
+                return "人脸图像过于模糊，建议使用高清摄像头";
             }
             if (faceQualityInfo.Brightness < 30)
             {
@@ -223,10 +223,10 @@ namespace ETMS.AiFace
             req.NeedQualityDetection = 1;
             req.Url = faceGreyKeyUrl;
             var resp = _client.DetectFaceSync(req);
-            LOG.Log.Info("[AiFaceAccess]人脸检测结果", resp, this.GetType());
+            LOG.Log.Info($"[AiFaceAccess]人脸检测结果:{faceGreyKeyUrl}", resp, this.GetType());
             if (resp.FaceInfos.Length != 1)
             {
-                return "人脸图像质量不符合要求，请重新采集";
+                return "人脸图像质量不符合要求，建议使用高清摄像头";
             }
             var faceInfo = resp.FaceInfos[0].FaceQualityInfo;
             return CheckFaceQualityInfo(faceInfo);

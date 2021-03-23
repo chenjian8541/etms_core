@@ -53,6 +53,10 @@ namespace ETMS.Entity.Dto.Educational.Request
                     return "请设置班级容量";
                 }
             }
+            if (TeacherIds != null && TeacherIds.Count > 10)
+            {
+                return "最多设置10位上课老师";
+            }
             return base.Validate();
         }
     }

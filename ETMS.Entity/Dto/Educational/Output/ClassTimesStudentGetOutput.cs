@@ -78,5 +78,11 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 请假内容
         /// </summary>
         public string LeaveContent { get; set; }
+
+        /// <summary>
+        /// 是否预约
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsReservation { get; set; }
     }
 }

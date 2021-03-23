@@ -239,9 +239,10 @@ namespace ETMS.DataAccess
         }
 
         public async Task<bool> SyncClassInfo(long classId, string studentIdsClass,
-            string courseList, string classRoomIds, string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType)
+            string courseList, string classRoomIds, string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType,
+            int studentClassCount)
         {
-            var strSql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}' WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            var strSql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}',StudentCount = StudentTempCount + {studentClassCount} WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
             await _dbWrapper.Execute(strSql);
 
             strSql = $"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
