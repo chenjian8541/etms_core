@@ -124,7 +124,9 @@ namespace ETMS.Business
                 Teachers = classTimes.Teachers,
                 TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers),
                 DefaultClassTimes = etClass.EtClass.DefaultClassTimes,
-                ReservationType = classTimes.ReservationType
+                ReservationType = classTimes.ReservationType,
+                ClassType = etClass.EtClass.Type,
+                LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(classTimes.StudentCount, etClass.EtClass.LimitStudentNums, etClass.EtClass.LimitStudentNumsType)
             });
         }
 

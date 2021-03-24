@@ -84,5 +84,12 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte ReservationType { get; set; }
+
+        public string LimitStudentNumsDesc { get; set; }
+
+        /// <summary>
+        /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
+        /// </summary>
+        public byte ClassType { get; set; }
     }
 }
