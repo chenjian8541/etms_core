@@ -35,8 +35,15 @@ namespace ETMS.Business.SendNotice
 
         private readonly IParentStudentDAL _parentStudentDAL;
 
+        private readonly IClassTimesDAL _classTimesDAL;
+
+        private readonly IClassDAL _classDAL;
+
+        private readonly ICourseDAL _courseDAL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
-            ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL)
+            ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
+            IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -46,11 +53,15 @@ namespace ETMS.Business.SendNotice
             this._studentDAL = studentDAL;
             this._couponsDAL = couponsDAL;
             this._parentStudentDAL = parentStudentDAL;
+            this._classTimesDAL = classTimesDAL;
+            this._classDAL = classDAL;
+            this._courseDAL = courseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL, _parentStudentDAL);
+            this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
+                _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL);
         }
 
         public async Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request)
@@ -285,6 +296,82 @@ namespace ETMS.Business.SendNotice
                 {
                     _wxService.NoticeStudentAccountRechargeChanged(req);
                 }
+            }
+        }
+
+        public async Task NoticeStudentReservationConsumerEvent(NoticeStudentReservationEvent request)
+        {
+            var classTimesStudent = request.ClassTimesStudent;
+            var classTimes = request.ClassTimes;
+            if (classTimes == null)
+            {
+                await _classTimesDAL.GetClassTimes(classTimesStudent.ClassTimesId);
+            }
+            if (classTimes == null)
+            {
+                Log.Error("[NoticeStudentReservationConsumerEvent]未找到课次", request, this.GetType());
+                return;
+            }
+            var studentBucket = await _studentDAL.GetStudent(classTimesStudent.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error("[NoticeStudentReservationConsumerEvent]未找到学员信息", request, this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
+            if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            var title = string.Empty;
+            if (request.OpType == NoticeStudentReservationOpType.Success)
+            {
+                title = "恭喜您成功预约课程";
+            }
+            else
+            {
+                title = "您预约的课程已取消";
+            }
+            var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+            var courseBucket = await _courseDAL.GetCourse(classTimesStudent.CourseId);
+
+            var req = new NoticeStudentReservationRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Students = new List<NoticeStudentReservationStudent>(),
+                Title = title,
+                CourseDesc = $"{classBucket.EtClass.Name}({courseBucket.Item1.Name})",
+                ClassOtDesc = $"{classTimes.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}) {EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                StudentCount = classTimes.StudentCount.ToString()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentReservation;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            req.Students.Add(new NoticeStudentReservationStudent()
+            {
+                Name = student.Name,
+                OpendId = await GetOpenId(true, student.Phone),
+                Phone = student.Phone,
+                StudentId = student.Id
+            });
+
+            if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+            {
+                req.Students.Add(new NoticeStudentReservationStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, student.PhoneBak),
+                    Phone = student.PhoneBak,
+                    StudentId = student.Id,
+                });
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.NoticeStudentReservation(req);
             }
         }
     }

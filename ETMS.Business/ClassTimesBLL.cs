@@ -365,6 +365,20 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
+            var reservationStudent = await _classTimesDAL.GetClassTimesStudentAboutReservation(request.CId);
+            if (reservationStudent.Any())
+            {
+                foreach (var s in reservationStudent)
+                {
+                    _eventPublisher.Publish(new NoticeStudentReservationEvent(request.LoginTenantId)
+                    {
+                        ClassTimesStudent = s,
+                        OpType = NoticeStudentReservationOpType.Cancel,
+                        ClassTimes = classTimes
+                    });
+                }
+            }
+
             await _classTimesDAL.DelClassTimes(request.CId);
             await _userOperationLogDAL.AddUserLog(request, $"删除课次-班级[{etClass.EtClass.Name}],删除课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
@@ -815,6 +829,14 @@ namespace ETMS.Business
             {
                 ClassTimesId = classTimes.Id
             });
+            if (classTimesStudent.IsReservation == EmBool.True)
+            {
+                _eventPublisher.Publish(new NoticeStudentReservationEvent(request.LoginTenantId)
+                {
+                    ClassTimesStudent = classTimesStudent,
+                    OpType = NoticeStudentReservationOpType.Cancel
+                });
+            }
             return ResponseBase.CommonError("无法移除此学员");
         }
         private async Task<ResponseBase> ClassTimesDelTempStudent(ClassTimesDelTempOrTryStudentRequest request, EtClass etClass, EtClassTimes etClassTimes)

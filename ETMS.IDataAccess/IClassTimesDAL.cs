@@ -22,6 +22,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtClassTimesStudent>> GetClassTimesStudent(long classTimesId);
 
+        Task<List<EtClassTimesStudent>> GetClassTimesStudentAboutReservation(long classTimesId);
+
         Task<EtClassTimesStudent> GetClassTimesStudentById(long id);
 
         /// <summary>

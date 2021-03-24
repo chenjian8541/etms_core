@@ -54,6 +54,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtClassTimesStudent>(p => p.TenantId == _tenantId && p.ClassTimesId == classTimesId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
+        public async Task<List<EtClassTimesStudent>> GetClassTimesStudentAboutReservation(long classTimesId)
+        {
+            return await _dbWrapper.FindList<EtClassTimesStudent>(p => p.TenantId == _tenantId && p.ClassTimesId == classTimesId
+            && p.IsReservation == EmBool.True && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
         public async Task<EtClassTimesStudent> GetClassTimesStudentById(long id)
         {
             return await _dbWrapper.Find<EtClassTimesStudent>(id);

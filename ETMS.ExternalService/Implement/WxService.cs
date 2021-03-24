@@ -1018,5 +1018,40 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeStudentReservation(NoticeStudentReservationRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, request.Title)),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.CourseDesc, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.ClassOtDesc, DefaultColor),
+                        keyword4 = new TemplateDataItem(request.StudentCount, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentReservation]在线约课2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentReservation]在线约课:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

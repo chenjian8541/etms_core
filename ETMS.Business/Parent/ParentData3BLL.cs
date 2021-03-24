@@ -793,7 +793,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("您已在此课次中");
             }
-            await _classTimesDAL.AddClassTimesStudent(new EtClassTimesStudent()
+            var classTimeStudent = new EtClassTimesStudent()
             {
                 IsDeleted = EmIsDeleted.Normal,
                 ClassId = classTimes.ClassId,
@@ -808,7 +808,8 @@ namespace ETMS.Business
                 StudentType = EmClassStudentType.TempStudent,
                 TenantId = classTimes.TenantId,
                 IsReservation = EmBool.True
-            });
+            };
+            await _classTimesDAL.AddClassTimesStudent(classTimeStudent);
             if (string.IsNullOrEmpty(classTimes.StudentIdsReservation))
             {
                 classTimes.StudentIdsReservation = $",{request.StudentId},";
@@ -840,6 +841,12 @@ namespace ETMS.Business
             {
                 ClassTimesId = request.ClassTimesId
             });
+            _eventPublisher.Publish(new NoticeStudentReservationEvent(request.LoginTenantId)
+            {
+                ClassTimesStudent = classTimeStudent,
+                OpType = NoticeStudentReservationOpType.Success
+            });
+
             await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"预约上课-班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
         }
@@ -884,6 +891,12 @@ namespace ETMS.Business
             {
                 ClassTimesId = request.ClassTimesId
             });
+            _eventPublisher.Publish(new NoticeStudentReservationEvent(request.LoginTenantId)
+            {
+                ClassTimesStudent = reservationLog,
+                OpType = NoticeStudentReservationOpType.Cancel
+            });
+
             await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{etClass.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
         }

@@ -56,5 +56,7 @@ namespace ETMS.ExternalService.Contract
         void NoticeUserOfStudentTryClassFinish(NoticeUserOfStudentTryClassFinishRequest request);
 
         void NoticeStudentAccountRechargeChanged(NoticeStudentAccountRechargeChangedRequest request);
+
+        void NoticeStudentReservation(NoticeStudentReservationRequest request);
     }
 }
