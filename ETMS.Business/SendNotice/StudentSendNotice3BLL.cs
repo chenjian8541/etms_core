@@ -310,7 +310,7 @@ namespace ETMS.Business.SendNotice
             var classTimes = request.ClassTimes;
             if (classTimes == null)
             {
-                await _classTimesDAL.GetClassTimes(classTimesStudent.ClassTimesId);
+                classTimes = await _classTimesDAL.GetClassTimes(classTimesStudent.ClassTimesId);
             }
             if (classTimes == null)
             {

@@ -156,7 +156,7 @@ namespace ETMS.Business.EventConsumer
                 await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
                 {
                     IsDeleted = EmIsDeleted.Normal,
-                    No = string.Empty,
+                    No = request.Order.No,
                     Ot = now,
                     Points = studentRecommendConfig.BuyGivePoints,
                     Remark = $"推荐学员消费[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.BuyGivePoints}积分",
@@ -184,7 +184,7 @@ namespace ETMS.Business.EventConsumer
 
                 await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
                 {
-                    CgNo = string.Empty,
+                    CgNo = request.Order.No,
                     CgBalanceReal = 0,
                     CgBalanceGive = studentRecommendConfig.BuyGiveMoney,
                     CgServiceCharge = 0,
@@ -192,7 +192,7 @@ namespace ETMS.Business.EventConsumer
                     IsDeleted = EmIsDeleted.Normal,
                     Ot = now,
                     Phone = accountLog.Phone,
-                    RelatedOrderId = null,
+                    RelatedOrderId = request.Order.Id,
                     Remark = $"推荐学员消费[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.BuyGiveMoney}金额",
                     Status = EmStudentAccountRechargeLogStatus.Normal,
                     StudentAccountRechargeId = accountLog.Id,

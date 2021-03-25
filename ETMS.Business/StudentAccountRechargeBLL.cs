@@ -571,7 +571,7 @@ namespace ETMS.Business
             {
                 await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
                 {
-                    AccountNo = no,
+                    AccountNo = string.Empty,
                     CreateOt = now,
                     Ot = request.Ot,
                     IsDeleted = EmIsDeleted.Normal,
