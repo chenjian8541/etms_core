@@ -46,21 +46,20 @@ namespace ETMS.Business
 
         private readonly IIncomeLogDAL _incomeLogDAL;
 
-        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
-
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
         private readonly IAppConfig2BLL _appConfig2BLL;
 
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
+
         public StudentAccountRechargeBLL(IUserOperationLogDAL userOperationLogDAL,
             IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IUserDAL userDAL, IParentStudentDAL parentStudentDAL,
             IEventPublisher eventPublisher, IStudentPointsLogDAL studentPointsLogDAL, IStudentDAL studentDAL, IOrderDAL orderDAL,
-            IIncomeLogDAL incomeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
-            IAppConfig2BLL appConfig2BLL)
+            IIncomeLogDAL incomeLogDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
+            IAppConfig2BLL appConfig2BLL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._userOperationLogDAL = userOperationLogDAL;
             this._statisticsStudentAccountRechargeDAL = statisticsStudentAccountRechargeDAL;
@@ -73,16 +72,16 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._orderDAL = orderDAL;
             this._incomeLogDAL = incomeLogDAL;
-            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._appConfig2BLL = appConfig2BLL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
-            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _userOperationLogDAL, _statisticsStudentAccountRechargeDAL, _studentAccountRechargeDAL,
                 _studentAccountRechargeLogDAL, _userDAL, _parentStudentDAL, _studentPointsLogDAL, _studentDAL, _orderDAL, _incomeLogDAL);
         }
@@ -132,33 +131,39 @@ namespace ETMS.Business
         {
             var pagingData = await _studentAccountRechargeLogDAL.GetPaging(request);
             var output = new List<StudentAccountRechargeLogGetPagingOutput>();
-            var tempBoxUser = new DataTempBox<EtUser>();
-            foreach (var p in pagingData.Item1)
+            if (pagingData.Item1.Any())
             {
-                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, p.Phone);
-                output.Add(new StudentAccountRechargeLogGetPagingOutput()
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempBoxStudentAccountRechargeView = new DataTempBox2<StudentAccountRechargeView>();
+                foreach (var p in pagingData.Item1)
                 {
-                    CgBalanceGive = p.CgBalanceGive,
-                    CgBalanceReal = p.CgBalanceReal,
-                    CgNo = p.CgNo,
-                    CgServiceCharge = p.CgServiceCharge,
-                    CommissionUser = p.CommissionUser,
-                    CommissionUserDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.CommissionUser),
-                    UserId = p.UserId,
-                    UserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
-                    Ot = p.Ot,
-                    Phone = p.Phone,
-                    RelatedOrderId = p.RelatedOrderId,
-                    Remark = p.Remark,
-                    Status = p.Status,
-                    StudentAccountRechargeId = p.StudentAccountRechargeId,
-                    Type = p.Type,
-                    TypeDesc = EmStudentAccountRechargeLogType.GetStudentAccountRechargeLogTypeDesc(p.Type),
-                    RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents),
-                    CgBalanceRealDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceReal, p.Type),
-                    CgBalanceGiveDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceGive, p.Type),
-                    CgServiceChargeDesc = p.CgServiceCharge > 0 ? $"￥{p.CgServiceCharge.ToString("F2")}" : "-"
-                });
+                    var parentStudents = await ComBusiness3.GetStudentAccountRechargeView(tempBoxStudentAccountRechargeView,
+                        _studentAccountRechargeCoreBLL, p.Phone, p.StudentAccountRechargeId);
+                    output.Add(new StudentAccountRechargeLogGetPagingOutput()
+                    {
+                        CgBalanceGive = p.CgBalanceGive,
+                        CgBalanceReal = p.CgBalanceReal,
+                        CgNo = p.CgNo,
+                        CgServiceCharge = p.CgServiceCharge,
+                        CommissionUser = p.CommissionUser,
+                        CommissionUserDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.CommissionUser),
+                        UserId = p.UserId,
+                        UserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
+                        Ot = p.Ot,
+                        Phone = p.Phone,
+                        RelatedOrderId = p.RelatedOrderId,
+                        Remark = p.Remark,
+                        Status = p.Status,
+                        StudentAccountRechargeId = p.StudentAccountRechargeId,
+                        Id = p.Id,
+                        Type = p.Type,
+                        TypeDesc = EmStudentAccountRechargeLogType.GetStudentAccountRechargeLogTypeDesc(p.Type),
+                        RelationStudent = ComBusiness2.GetStudentsDesc(parentStudents?.Binders),
+                        CgBalanceRealDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceReal, p.Type),
+                        CgBalanceGiveDesc = EmStudentAccountRechargeLogType.GetValueDesc(p.CgBalanceGive, p.Type),
+                        CgServiceChargeDesc = p.CgServiceCharge > 0 ? $"￥{p.CgServiceCharge.ToString("F2")}" : "-"
+                    });
+                }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentAccountRechargeLogGetPagingOutput>(pagingData.Item2, output));
         }
@@ -170,7 +175,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("账户不存在");
             }
-            var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
+            var studentAccountRechargeView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(accountLog.Phone);
             return ResponseBase.Success(new StudentAccountRechargeGetOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
@@ -181,7 +186,7 @@ namespace ETMS.Business
                 Phone = accountLog.Phone,
                 RechargeGiveSum = accountLog.RechargeGiveSum,
                 RechargeSum = accountLog.RechargeSum,
-                RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
+                RelationStudent = ComBusiness2.GetStudentsDesc(studentAccountRechargeView.Binders)
             });
         }
 
@@ -191,7 +196,7 @@ namespace ETMS.Business
             var pagingData = await _studentAccountRechargeDAL.GetPaging(request);
             foreach (var p in pagingData.Item1)
             {
-                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, p.Phone);
+                var studentAccountRechargeView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(p.Phone);
                 output.Add(new StudentAccountRechargeGetPagingOutput()
                 {
                     Phone = p.Phone,
@@ -202,7 +207,7 @@ namespace ETMS.Business
                     RechargeGiveSum = p.RechargeGiveSum,
                     RechargeSum = p.RechargeSum,
                     Id = p.Id,
-                    RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
+                    RelationStudent = ComBusiness2.GetStudentsDesc(studentAccountRechargeView.Binders)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentAccountRechargeGetPagingOutput>(pagingData.Item2, output));
@@ -210,12 +215,12 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeGetByPhone(StudentAccountRechargeGetByPhoneRequest request)
         {
-            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.Phone);
-            if (accountLog == null)
+            var accountLogView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(request.Phone);
+            if (accountLogView == null || accountLogView.StudentAccountRecharge == null)
             {
                 return ResponseBase.CommonError("账户不存在");
             }
-            var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
+            var accountLog = accountLogView.StudentAccountRecharge;
             return ResponseBase.Success(new StudentAccountRechargeGetOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
@@ -226,7 +231,7 @@ namespace ETMS.Business
                 Phone = accountLog.Phone,
                 RechargeGiveSum = accountLog.RechargeGiveSum,
                 RechargeSum = accountLog.RechargeSum,
-                RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents)
+                RelationStudent = ComBusiness2.GetStudentsDesc(accountLogView.Binders)
             });
         }
 
@@ -237,11 +242,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员不存在");
             }
-            var accountLog = await _studentAccountRechargeChangeBLL.GetStudentAccountRecharge(studentBucket.Student.Phone, studentBucket.Student.PhoneBak);
-            if (accountLog == null)
+            var accountLogBucket = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByStudentId(studentBucket.Student.Id);
+            if (accountLogBucket == null || accountLogBucket.StudentAccountRecharge == null)
             {
                 return ResponseBase.Success();
             }
+            var accountLog = accountLogBucket.StudentAccountRecharge;
             var output = new StudentAccountRechargeGetByStudentIdOutput()
             {
                 BalanceGive = accountLog.BalanceGive,
@@ -254,8 +260,7 @@ namespace ETMS.Business
             };
             if (request.IsGetRelationStudent)
             {
-                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
-                output.RelationStudent = ComBusiness2.GetParentStudentsDesc(parentStudents);
+                output.RelationStudent = ComBusiness2.GetStudentsDesc(accountLogBucket.Binders);
             }
             return ResponseBase.Success(output);
         }
@@ -321,7 +326,7 @@ namespace ETMS.Business
             }
             var no = OrderNumberLib.StudentAccountRecharge();
             var now = DateTime.Now;
-            await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+            await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
             {
                 AddBalanceReal = request.RechargeReal,
                 AddBalanceGive = request.RechargeGive,
@@ -444,11 +449,12 @@ namespace ETMS.Business
             //关联的学员 将赠送相应的积分
             if (request.TotalPoints > 0)
             {
-                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountLog.Phone);
-                if (parentStudents != null && parentStudents.Any())
+                var studentAccountRechargeCoreView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(accountLog.Phone);
+                var binderStudents = studentAccountRechargeCoreView.Binders;
+                if (binderStudents != null && binderStudents.Any())
                 {
                     var studentPointsLogs = new List<EtStudentPointsLog>();
-                    foreach (var p in parentStudents)
+                    foreach (var p in binderStudents)
                     {
                         studentPointsLogs.Add(new EtStudentPointsLog()
                         {
@@ -457,11 +463,11 @@ namespace ETMS.Business
                             Ot = now,
                             Points = request.TotalPoints,
                             Remark = string.Empty,
-                            StudentId = p.Id,
+                            StudentId = p.StudentId,
                             TenantId = order.TenantId,
                             Type = EmStudentPointsLogType.StudentAccountRecharge
                         });
-                        await _studentDAL.AddPoint(p.Id, request.TotalPoints);
+                        await _studentDAL.AddPoint(p.StudentId, request.TotalPoints);
                     }
                     if (studentPointsLogs.Count > 0)
                     {
@@ -516,7 +522,7 @@ namespace ETMS.Business
             var no = OrderNumberLib.StudentAccountRefund();
             var now = DateTime.Now;
 
-            await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+            await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
             {
                 AddBalanceReal = -request.ReturnReal,
                 AddBalanceGive = -request.ReturnGive,
@@ -625,6 +631,99 @@ namespace ETMS.Business
             var accountLog = eventRequest.AccountLog;
 
             await _userOperationLogDAL.AddUserLog(request, $"账户退款-账户:{accountLog.Phone},实充余额退款:{request.ReturnReal},赠送余额扣减:{request.ReturnGive},手续费:{request.ReturnServiceCharge}", EmUserOperationType.StudentAccountRechargeManage);
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeGetDetail(StudentAccountRechargeGetDetailRequest request)
+        {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.StudentAccountRechargeId);
+            if (accountLog == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            var studentAccountRechargeView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(accountLog.Phone);
+            var output = new StudentAccountRechargeGetDetailOutput()
+            {
+                BalanceGive = accountLog.BalanceGive,
+                Id = accountLog.Id,
+                BalanceReal = accountLog.BalanceReal,
+                BalanceSum = accountLog.BalanceSum,
+                Ot = accountLog.Ot,
+                Phone = accountLog.Phone,
+                RechargeGiveSum = accountLog.RechargeGiveSum,
+                RechargeSum = accountLog.RechargeSum,
+                RelationStudent = new List<StudentAccountRechargeBinder>()
+            };
+            if (studentAccountRechargeView.Binders != null && studentAccountRechargeView.Binders.Count > 0)
+            {
+                foreach (var p in studentAccountRechargeView.Binders)
+                {
+                    output.RelationStudent.Add(new StudentAccountRechargeBinder()
+                    {
+                        StudentAccountRechargeBinderId = p.StudentAccountRechargeBinderId,
+                        StudentAvatar = p.StudentAvatar,
+                        StudentAvatarUrl = p.StudentAvatarUrl,
+                        StudentId = p.StudentId,
+                        StudentName = p.StudentName,
+                        StudentPhone = p.StudentPhone
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeBinderAdd(StudentAccountRechargeBinderAddRequest request)
+        {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.StudentAccountRechargeId);
+            if (accountLog == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+
+            var hisLog = await _studentAccountRechargeDAL.GetAccountRechargeBinderByStudentId(request.StudentId);
+            if (hisLog != null)
+            {
+                return ResponseBase.CommonError("此学员已被其他充值账户关联");
+            }
+
+            await _studentAccountRechargeDAL.StudentAccountRechargeBinderAdd(accountLog.Phone, new EtStudentAccountRechargeBinder()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                StudentAccountRechargeId = accountLog.Id,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"添加关联学员-账户:{accountLog.Phone},学员:{studentBucket.Student.Name}({studentBucket.Student.Phone})", EmUserOperationType.StudentAccountRechargeManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeBinderRemove(StudentAccountRechargeBinderRemoveRequest request)
+        {
+            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.StudentAccountRechargeId);
+            if (accountLog == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var hisLog = await _studentAccountRechargeDAL.GetAccountRechargeBinderByStudentId(request.StudentId);
+            if (hisLog == null)
+            {
+                return ResponseBase.CommonError("此学员未关联充值账户");
+            }
+
+            await _studentAccountRechargeDAL.StudentAccountRechargeBinderRemove(accountLog.Phone, request.StudentAccountRechargeBinderId, request.StudentId);
+
+            await _userOperationLogDAL.AddUserLog(request, $"移除关联学员-账户:{accountLog.Phone},学员:{studentBucket.Student.Name}({studentBucket.Student.Phone})", EmUserOperationType.StudentAccountRechargeManage);
+            return ResponseBase.Success();
         }
     }
 }

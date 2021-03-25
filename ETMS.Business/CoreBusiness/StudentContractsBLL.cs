@@ -48,13 +48,13 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
-        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         public StudentContractsBLL(IStudentDAL studentDAL, ICouponsDAL couponsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
             IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
             IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
-            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._studentDAL = studentDAL;
             this._couponsDAL = couponsDAL;
@@ -70,12 +70,12 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
-            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _couponsDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
                 _orderDAL, _studentPointsLog, _classDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
@@ -305,7 +305,7 @@ namespace ETMS.Business
             //充值账户
             if (order.PayAccountRechargeId != null)
             {
-                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
                 {
                     AddBalanceReal = -order.PayAccountRechargeReal,
                     AddBalanceGive = -order.PayAccountRechargeGive,

@@ -13,6 +13,7 @@ using ETMS.Entity.Temp;
 using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.CacheBucket;
+using ETMS.Entity.View;
 
 namespace ETMS.Business.Common
 {
@@ -467,6 +468,20 @@ namespace ETMS.Business.Common
             return result;
         }
 
+        internal static List<string> GetStudentsDesc(IEnumerable<StudentAccountRechargeBinderView> studentInfos)
+        {
+            var result = new List<string>();
+            if (studentInfos == null || studentInfos.Count() == 0)
+            {
+                return result;
+            }
+            foreach (var p in studentInfos)
+            {
+                result.Add($"{p.StudentName}({p.StudentPhone})");
+            }
+            return result;
+        }
+
         internal static string GetParentStudentsDesc2(IEnumerable<ParentStudentInfo> parentStudentInfos)
         {
             if (parentStudentInfos == null || parentStudentInfos.Count() == 0)
@@ -477,6 +492,20 @@ namespace ETMS.Business.Common
             foreach (var p in parentStudentInfos)
             {
                 str.Append($"{p.Name},");
+            }
+            return str.ToString().TrimEnd(',');
+        }
+
+        internal static string GetStudentsDesc2(IEnumerable<StudentAccountRechargeBinderView> studentInfos)
+        {
+            if (studentInfos == null || studentInfos.Count() == 0)
+            {
+                return string.Empty;
+            }
+            var str = new StringBuilder();
+            foreach (var p in studentInfos)
+            {
+                str.Append($"{p.StudentName},");
             }
             return str.ToString().TrimEnd(',');
         }

@@ -17,5 +17,19 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string BalanceGiveDesc { get; set; }
 
         public DateTime Ot { get; set; }
+
+         public List<AccountRechargeBinder> Students { get; set; }
+    }
+
+    public class AccountRechargeBinder {
+
+        public long StudentId { get; set; }
+
+        public string StudentName { get; set; }
+
+        public string StudentPhone { get; set; }
+
+        public string StudentAvatarUrl { get; set; }
+
     }
 }

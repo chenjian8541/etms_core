@@ -40,8 +40,6 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
-        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
-
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
         private readonly IAppConfig2BLL _appConfig2BLL;
@@ -64,11 +62,13 @@ namespace ETMS.Business
 
         private readonly IStudentOperationLogDAL _studentOperationLogDAL;
 
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
-            IEventPublisher eventPublisher, IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
+            IEventPublisher eventPublisher, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
            IAppConfig2BLL appConfig2BLL, IUserDAL userDAL, IClassTimesDAL classTimesDAL, IStudentCourseDAL studentCourseDAL,
-           IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL,
+           IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentOperationLogDAL studentOperationLogDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
@@ -78,7 +78,6 @@ namespace ETMS.Business
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._eventPublisher = eventPublisher;
-            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._appConfig2BLL = appConfig2BLL;
             this._userDAL = userDAL;
@@ -90,13 +89,15 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentOperationLogDAL = studentOperationLogDAL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
-                _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
+                _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeLogDAL,
                 _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL, _studentOperationLogDAL);
         }
 
@@ -264,20 +265,36 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request)
         {
-            var accountLog = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.Id);
-            if (accountLog == null)
+            var accountLogBucket = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(request.LoginPhone);
+            if (accountLogBucket == null || accountLogBucket.StudentAccountRecharge == null)
             {
                 return ResponseBase.CommonError("账户不存在");
             }
-            return ResponseBase.Success(new StudentAccountRechargeGetOutput()
+            var accountLog = accountLogBucket.StudentAccountRecharge;
+            var output = new StudentAccountRechargeGetOutput()
             {
                 BalanceGiveDesc = accountLog.BalanceGive.ToString("F2"),
                 Id = accountLog.Id,
                 BalanceRealDesc = accountLog.BalanceReal.ToString("F2"),
                 BalanceSumDesc = accountLog.BalanceSum.ToString("F2"),
                 Ot = accountLog.Ot,
-                Phone = accountLog.Phone
-            });
+                Phone = accountLog.Phone,
+                Students = new List<AccountRechargeBinder>()
+            };
+            if (accountLogBucket.Binders != null && accountLogBucket.Binders.Count > 0)
+            {
+                foreach (var p in accountLogBucket.Binders)
+                {
+                    output.Students.Add(new AccountRechargeBinder()
+                    {
+                        StudentAvatarUrl = p.StudentAvatarUrl,
+                        StudentId = p.StudentId,
+                        StudentName = p.StudentName,
+                        StudentPhone = p.StudentPhone
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request)

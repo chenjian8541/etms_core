@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Business.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.IBusiness;
 
 namespace ETMS.Business.SendNotice
 {
@@ -41,9 +42,11 @@ namespace ETMS.Business.SendNotice
 
         private readonly ICourseDAL _courseDAL;
 
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
-            IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL)
+            IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -56,10 +59,12 @@ namespace ETMS.Business.SendNotice
             this._classTimesDAL = classTimesDAL;
             this._classDAL = classDAL;
             this._courseDAL = courseDAL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
                 _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL);
         }
@@ -227,9 +232,9 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
-            var parentStudents = await _parentStudentDAL.GetParentStudents(request.TenantId, request.StudentAccountRecharge.Phone);
-
-            if (parentStudents == null || parentStudents.Count() == 0)
+            var studentAccountRechargeView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(request.StudentAccountRecharge.Phone);
+            var binderStudents = studentAccountRechargeView.Binders;
+            if (binderStudents == null || binderStudents.Count() == 0)
             {
                 Log.Info("[NoticeStudentAccountRechargeChangedConsumerEvent]充值账号未关联学员", request, this.GetType());
                 return;
@@ -253,12 +258,12 @@ namespace ETMS.Business.SendNotice
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
 
-            foreach (var s in parentStudents)
+            foreach (var s in binderStudents)
             {
-                var studentBucket = await _studentDAL.GetStudent(s.Id);
+                var studentBucket = await _studentDAL.GetStudent(s.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
-                    Log.Warn($"[NoticeStudentAccountRechargeChangedConsumerEvent]未找到学员信息,TenantId:{request.TenantId},StudentId:{s.Id}", this.GetType());
+                    Log.Warn($"[NoticeStudentAccountRechargeChangedConsumerEvent]未找到学员信息,TenantId:{request.TenantId},StudentId:{s.StudentId}", this.GetType());
                     continue;
                 }
                 var student = studentBucket.Student;

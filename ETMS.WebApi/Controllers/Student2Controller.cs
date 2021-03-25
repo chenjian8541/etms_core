@@ -190,5 +190,47 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentAccountRechargeGetDetail(StudentAccountRechargeGetDetailRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeBinderAdd(StudentAccountRechargeBinderAddRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeBinderAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentAccountRechargeBinderRemove(StudentAccountRechargeBinderRemoveRequest request)
+        {
+            try
+            {
+                _studentAccountRechargeBLL.InitTenantId(request.LoginTenantId);
+                return await _studentAccountRechargeBLL.StudentAccountRechargeBinderRemove(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

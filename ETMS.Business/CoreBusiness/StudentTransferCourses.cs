@@ -48,13 +48,13 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
-        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         public StudentTransferCourses(IStudentDAL studentDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
             IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
             IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
-           IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
+           IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -70,12 +70,12 @@ namespace ETMS.Business
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
-            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
                 _orderDAL, _studentPointsLog, _classDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
         }
@@ -273,7 +273,7 @@ namespace ETMS.Business
             {
                 //充值账户支出
                 var inPayInfo = request.TransferCoursesOrderInfo.InPayInfo;
-                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
                 {
                     AddBalanceReal = -inPayInfo.PayAccountRechargeReal,
                     AddBalanceGive = -inPayInfo.PayAccountRechargeGive,
@@ -304,7 +304,7 @@ namespace ETMS.Business
             else
             {
                 //退款至充值账户
-                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
                 {
                     AddBalanceReal = paySum,
                     AddBalanceGive = 0,

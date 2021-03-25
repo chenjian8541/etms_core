@@ -13,9 +13,9 @@ namespace ETMS.EventConsumer
     {
         protected override async Task Receive(StudentAccountRechargeChangeEvent eEvent)
         {
-            var studentAccountRechargeChangeBLL = CustomServiceLocator.GetInstance<IStudentAccountRechargeChangeBLL>();
-            studentAccountRechargeChangeBLL.InitTenantId(eEvent.TenantId);
-            await studentAccountRechargeChangeBLL.StudentAccountRechargeChange(eEvent);
+            var studentAccountRechargeCoreBLL = CustomServiceLocator.GetInstance<IStudentAccountRechargeCoreBLL>();
+            studentAccountRechargeCoreBLL.InitTenantId(eEvent.TenantId);
+            await studentAccountRechargeCoreBLL.StudentAccountRechargeChange(eEvent);
         }
     }
 }

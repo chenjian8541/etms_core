@@ -26,11 +26,11 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
-        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
-            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -38,12 +38,12 @@ namespace ETMS.Business.EventConsumer
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._appConfigDAL = appConfigDAL;
             this._tenantConfigDAL = tenantConfigDAL;
-            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
                _appConfigDAL, _tenantConfigDAL);
         }
@@ -101,12 +101,12 @@ namespace ETMS.Business.EventConsumer
             if (studentRecommendConfig.RegisteredGiveMoney > 0)
             {
                 //奖励金额
-                var accountLog = await _studentAccountRechargeChangeBLL.GetStudentAccountRecharge(recommendStudent.Phone, recommendStudent.PhoneBak);
+                var accountLog = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByStudentId2(recommendStudent.Id);
                 if (accountLog == null)
                 {
                     return;
                 }
-                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(recommendStudent.TenantId)
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(recommendStudent.TenantId)
                 {
                     AddBalanceReal = 0,
                     AddBalanceGive = studentRecommendConfig.RegisteredGiveMoney,
@@ -167,12 +167,12 @@ namespace ETMS.Business.EventConsumer
             }
             if (studentRecommendConfig.BuyGiveMoney > 0)
             {
-                var accountLog = await _studentAccountRechargeChangeBLL.GetStudentAccountRecharge(recommendStudent.Phone, recommendStudent.PhoneBak);
+                var accountLog = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByStudentId2(recommendStudent.Id);
                 if (accountLog == null)
                 {
                     return;
                 }
-                await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(recommendStudent.TenantId)
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(recommendStudent.TenantId)
                 {
                     AddBalanceReal = 0,
                     AddBalanceGive = studentRecommendConfig.BuyGiveMoney,

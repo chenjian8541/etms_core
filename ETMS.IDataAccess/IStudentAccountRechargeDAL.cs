@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,16 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditStudentAccountRechargePhone(long id, string newPhone, string oldPhone);
 
-        Task<EtStudentAccountRecharge> GetStudentAccountRecharge(string phone);
+        Task<StudentAccountRechargeBucket> GetStudentAccountRecharge(string phone);
 
         Task<EtStudentAccountRecharge> GetStudentAccountRecharge(long id);
 
         Task<Tuple<IEnumerable<EtStudentAccountRecharge>, int>> GetPaging(RequestPagingBase request);
+
+        Task<EtStudentAccountRechargeBinder> GetAccountRechargeBinderByStudentId(long studentId);
+
+        Task<bool> StudentAccountRechargeBinderAdd(string phone, EtStudentAccountRechargeBinder entity);
+
+        Task<bool> StudentAccountRechargeBinderRemove(string phone, long rechargeBinderId,long studentId);
     }
 }

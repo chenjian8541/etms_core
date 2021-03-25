@@ -686,13 +686,13 @@
             "Type": 1
           },
           {
-            "ActionId": 63,
-            "Name": "修改充值账户",
+            "ActionId": 64,
+            "Name": "充值规则设置",
             "Type": 1
           },
           {
-            "ActionId": 64,
-            "Name": "充值规则设置",
+            "ActionId": 63,
+            "Name": "充值账户学员管理",
             "Type": 1
           }
         ]

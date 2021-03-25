@@ -50,13 +50,13 @@ namespace ETMS.Business
 
         private readonly IParentStudentDAL _parentStudentDAL;
 
-        private readonly IStudentAccountRechargeChangeBLL _studentAccountRechargeChangeBLL;
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL,
-            IStudentAccountRechargeChangeBLL studentAccountRechargeChangeBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -72,12 +72,12 @@ namespace ETMS.Business
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._parentStudentDAL = parentStudentDAL;
-            this._studentAccountRechargeChangeBLL = studentAccountRechargeChangeBLL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this._studentAccountRechargeChangeBLL.InitTenantId(tenantId);
+            this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
                 _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL,
                 _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL);
@@ -390,7 +390,7 @@ namespace ETMS.Business
             var accountRechargeLog = await _studentAccountRechargeLogDAL.GetAccountRechargeLogByOrderId(order.Id);
             if (accountRechargeLog != null)
             {
-                var parentStudents = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, accountRechargeLog.Phone);
+                var studentAccountRechargeView = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(accountRechargeLog.Phone);
                 output.RechargeLog = new OrderGetDetailAccountRechargeOutputRecharge()
                 {
                     CgBalanceGive = accountRechargeLog.CgBalanceGive,
@@ -399,7 +399,7 @@ namespace ETMS.Business
                     CgServiceCharge = accountRechargeLog.CgServiceCharge,
                     Phone = accountRechargeLog.Phone,
                     RelatedOrderId = accountRechargeLog.RelatedOrderId,
-                    RelationStudent = ComBusiness2.GetParentStudentsDesc2(parentStudents),
+                    RelationStudent = ComBusiness2.GetStudentsDesc2(studentAccountRechargeView.Binders),
                     StudentAccountRechargeId = accountRechargeLog.StudentAccountRechargeId,
                     Type = accountRechargeLog.Type,
                     UserId = accountRechargeLog.UserId,
@@ -1383,7 +1383,7 @@ namespace ETMS.Business
                 if (isReturnAccountRecharge)
                 {
                     //退充值账户
-                    await _studentAccountRechargeChangeBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
+                    await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
                     {
                         AddBalanceReal = request.OrderReturnOrderInfo.PaySum,
                         AddBalanceGive = 0,

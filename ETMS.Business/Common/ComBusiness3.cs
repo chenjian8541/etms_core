@@ -7,6 +7,8 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.Utility;
+using ETMS.IBusiness;
+using System.Threading.Tasks;
 
 namespace ETMS.Business.Common
 {
@@ -110,6 +112,15 @@ namespace ETMS.Business.Common
                 return true;
             }
             return false;
+        }
+
+        internal static async Task<StudentAccountRechargeView> GetStudentAccountRechargeView(DataTempBox2<StudentAccountRechargeView> tempBox,
+            IStudentAccountRechargeCoreBLL coreBLL, string phone, long id)
+        {
+            return await tempBox.GetData(id, async () =>
+            {
+                return await coreBLL.GetStudentAccountRechargeByPhone(phone);
+            });
         }
     }
 }

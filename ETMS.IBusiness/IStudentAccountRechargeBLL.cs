@@ -37,5 +37,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentAccountRefund(StudentAccountRefundRequest request);
 
         Task StudentAccountRefundConsumerEvent(StudentAccountRefundEvent eventRequest);
+
+        Task<ResponseBase> StudentAccountRechargeGetDetail(StudentAccountRechargeGetDetailRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeBinderAdd(StudentAccountRechargeBinderAddRequest request);
+
+        Task<ResponseBase> StudentAccountRechargeBinderRemove(StudentAccountRechargeBinderRemoveRequest request);
     }
 }

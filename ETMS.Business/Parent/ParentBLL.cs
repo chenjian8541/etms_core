@@ -56,13 +56,13 @@ namespace ETMS.Business
 
         private readonly ISysTenantStudentDAL _sysTenantStudentDAL;
 
-        private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
+        private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
-            IStudentAccountRechargeDAL studentAccountRechargeDAL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -77,7 +77,7 @@ namespace ETMS.Business
             this._tenantConfigDAL = tenantConfigDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._sysTenantStudentDAL = sysTenantStudentDAL;
-            this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -380,8 +380,8 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request)
         {
             _studentWechatDAL.InitTenantId(request.LoginTenantId);
-            _studentAccountRechargeDAL.InitTenantId(request.LoginTenantId);
             _tenantConfigDAL.InitTenantId(request.LoginTenantId);
+            _studentAccountRechargeCoreBLL.InitTenantId(request.LoginTenantId);
             var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
             var myTenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuthSelf(request.LoginTenantId);
             var output = new ParentInfoGetOutput();
@@ -394,7 +394,7 @@ namespace ETMS.Business
             output.IsShowLoginout = myTenantWechartAuth == null;
 
             //充值账户
-            var studentAccountRechargeInfo = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.LoginPhone);
+            var studentAccountRechargeInfo = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone2(request.LoginPhone);
             if (studentAccountRechargeInfo != null)
             {
                 output.StudentAccountRechargeId = studentAccountRechargeInfo.Id;
