@@ -9,6 +9,7 @@ using ETMS.Entity.View;
 using ETMS.Utility;
 using ETMS.IBusiness;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace ETMS.Business.Common
 {
@@ -121,6 +122,15 @@ namespace ETMS.Business.Common
             {
                 return await coreBLL.GetStudentAccountRechargeByPhone(phone);
             });
+        }
+
+        internal static string PhoneSecrecy(string phone, int loginClientType)
+        {
+            if (loginClientType == EmUserOperationLogClientType.WeChat)
+            {
+                return Regex.Replace(phone, "(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+            }
+            return phone;
         }
     }
 }

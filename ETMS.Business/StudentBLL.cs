@@ -347,8 +347,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = student.Phone,
-                PhoneBak = student.PhoneBak,
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.LoginClientType),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -476,8 +476,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = student.Phone,
-                PhoneBak = student.PhoneBak,
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.LoginClientType),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -760,7 +760,7 @@ namespace ETMS.Business
                     HandleUserDesc = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
                     LeaveContent = p.LeaveContent,
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.LoginClientType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentLeaveApplyLogPagingOutput>(pagingData.Item2, output));

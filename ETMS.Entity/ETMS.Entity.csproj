@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Folder Include="Dto\Open\Output\" />
+    <Folder Include="EtmsAttribute\" />
     <Folder Include="Web\" />
   </ItemGroup>
 
