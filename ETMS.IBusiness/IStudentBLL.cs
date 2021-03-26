@@ -9,6 +9,8 @@ namespace ETMS.IBusiness
 {
     public interface IStudentBLL : IBaseBLL
     {
+        Task<ResponseBase> StudentDuplicateCheck(StudentDuplicateCheckRequest request);
+
         Task<ResponseBase> StudentAdd(StudentAddRequest request);
 
         Task<ResponseBase> StudentEdit(StudentEditRequest request);

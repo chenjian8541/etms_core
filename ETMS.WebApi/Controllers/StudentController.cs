@@ -37,6 +37,20 @@ namespace ETMS.WebApi.Controllers
             this._student2BLL = student2BLL;
         }
 
+        public async Task<ResponseBase> StudentDuplicateCheck(StudentDuplicateCheckRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentDuplicateCheck(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [ActionName("studentAdd")]
         [HttpPost]
         public async Task<ResponseBase> StudentAdd(StudentAddRequest request)

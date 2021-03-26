@@ -97,6 +97,27 @@ namespace ETMS.Business
                 _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL);
         }
 
+        public async Task<ResponseBase> StudentDuplicateCheck(StudentDuplicateCheckRequest request)
+        {
+            if (await _studentDAL.ExistStudent(request.Name, request.Phone))
+            {
+                return ResponseBase.CommonError("该学员已经存在");
+            }
+            var logStudents = await _studentDAL.GetStudentsByPhone(request.Phone);
+            if (logStudents.Any())
+            {
+                return ResponseBase.Success(logStudents.Select(p => new StudentDuplicateCheckOutput()
+                {
+                    StudentId = p.Id,
+                    Name = p.Name,
+                    Phone = p.Phone,
+                    StudentType = p.StudentType,
+                    StudentTypeDesc = EmStudentType.GetStudentTypeDesc(p.StudentType)
+                }));
+            }
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentAdd(StudentAddRequest request)
         {
             if (await _studentDAL.ExistStudent(request.Name, request.Phone))

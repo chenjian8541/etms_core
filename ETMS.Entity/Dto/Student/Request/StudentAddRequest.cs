@@ -101,6 +101,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public override string Validate()
         {
+            Name = Name.Trim();
+            Phone = Phone.Trim();
             if (string.IsNullOrEmpty(Name))
             {
                 return "学员名称不能为空";

@@ -66,5 +66,7 @@ namespace ETMS.IDataAccess
         Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime);
 
         Task<IEnumerable<StudentFaceView>> GetStudentFace();
+
+        Task<List<EtStudent>> GetStudentsByPhone(string phone);
     }
 }

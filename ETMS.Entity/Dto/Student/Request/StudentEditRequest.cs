@@ -103,6 +103,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public override string Validate()
         {
+            Name = Name.Trim();
+            Phone = Phone.Trim();
             if (CId <= 0)
             {
                 return "请求数据格式错误";

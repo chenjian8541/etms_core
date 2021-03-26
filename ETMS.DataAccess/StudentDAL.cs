@@ -287,5 +287,10 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<StudentFaceView>(
                 $"SELECT TOP 100 Id,FaceGreyKey FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND FaceGreyKey <> '' ORDER BY FaceUseLastTime DESC");
         }
+
+        public async Task<List<EtStudent>> GetStudentsByPhone(string phone)
+        {
+            return await this._dbWrapper.FindList<EtStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
+        }
     }
 }
