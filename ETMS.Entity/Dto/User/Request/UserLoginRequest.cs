@@ -20,6 +20,9 @@ namespace ETMS.Entity.Dto.User.Request
 
         public string Validate()
         {
+            Code = Code.Trim();
+            Phone = Phone.Trim();
+            Pwd = Pwd.Trim();
             if (string.IsNullOrEmpty(Code))
             {
                 return "机构编码不能为空";

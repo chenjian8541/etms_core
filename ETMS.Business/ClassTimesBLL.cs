@@ -303,7 +303,9 @@ namespace ETMS.Business
                 EndTimeDesc = EtmsHelper.GetTimeDesc(classTimes.EndTime),
                 TeacherIds = EtmsHelper.AnalyzeMuIds(classTimes.Teachers),
                 ReservationType = classTimes.ReservationType,
-                ClassName = etClass.EtClass.Name
+                ClassName = etClass.EtClass.Name,
+                ClassType = etClass.EtClass.Type,
+                LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(classTimes.StudentCount, etClass.EtClass.LimitStudentNums, etClass.EtClass.LimitStudentNumsType)
             };
             return ResponseBase.Success(output);
         }
@@ -813,17 +815,18 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
             var classTimesStudent = await _classTimesDAL.GetClassTimesStudentById(request.ClassTimesStudentId);
+            var result = ResponseBase.CommonError("无法处理此请求");
             if (classTimesStudent.StudentType == EmClassStudentType.TempStudent)
             {
-                return await ClassTimesDelTempStudent(request, etClass.EtClass, classTimes);
+                result = await ClassTimesDelTempStudent(request, etClass.EtClass, classTimes);
             }
             if (classTimesStudent.StudentType == EmClassStudentType.TryCalssStudent)
             {
-                return await ClassTimesDelTryStudent(request, etClass.EtClass, classTimes, classTimesStudent);
+                result = await ClassTimesDelTryStudent(request, etClass.EtClass, classTimes, classTimesStudent);
             }
             if (classTimesStudent.StudentType == EmClassStudentType.MakeUpStudent)
             {
-                return await ClassTimesDelMakeUpStudent(request, etClass.EtClass, classTimes, classTimesStudent);
+                result = await ClassTimesDelMakeUpStudent(request, etClass.EtClass, classTimes, classTimesStudent);
             }
             _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
             {
@@ -837,7 +840,7 @@ namespace ETMS.Business
                     OpType = NoticeStudentReservationOpType.Cancel
                 });
             }
-            return ResponseBase.CommonError("无法移除此学员");
+            return result;
         }
         private async Task<ResponseBase> ClassTimesDelTempStudent(ClassTimesDelTempOrTryStudentRequest request, EtClass etClass, EtClassTimes etClassTimes)
         {
