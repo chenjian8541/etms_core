@@ -17,7 +17,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //CreateParentToken();
+            CreateParentToken("13410282152");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -81,13 +81,13 @@ namespace Etms.Tools.Test
             }
         }
 
-        public static void CreateParentToken()
+        public static void CreateParentToken(string phone)
         {
             var exTime = DateTime.Now.Date.AddDays(7).EtmsGetTimestamp().ToString();
             var parentTokenConfig = new ParentTokenConfig()
             {
                 ExTimestamp = exTime,
-                Phone = "13410271814",
+                Phone = phone,
                 TenantId = 1
             };
             var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);

@@ -93,5 +93,13 @@ namespace ETMS.Entity.Common
             response.message = "凭证已过期";
             return response;
         }
+
+        public static ResponseBase ParentUnBindStudent()
+        {
+            var response = new ResponseBase();
+            response.code = StatusCode.ParentUnBindStudent;
+            response.message = "未关联学员";
+            return response;
+        }
     }
 }

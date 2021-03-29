@@ -55,6 +55,11 @@ namespace ETMS.Entity.Common
         public const string BusError = "10008";
 
         /// <summary>
+        /// 家长未关联学员
+        /// </summary>
+        public const string ParentUnBindStudent = "10009";
+
+        /// <summary>
         /// 登录次数超过限制
         /// </summary>
         public const string Login20003 = "20003";

@@ -81,8 +81,8 @@ namespace ETMS.WebApi.FilterAttribute
                     var myStudents = parentBLL.GetMyStudent(request).Result;
                     if (myStudents == null || !myStudents.Any())
                     {
-                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                        context.Result = new JsonResult(ResponseBase.CommonError("您未绑定学员"));
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.OK;
+                        context.Result = new JsonResult(ResponseBase.ParentUnBindStudent());
                         return;
                     }
                     request.ParentStudentIds = myStudents.Select(p => p.Id).ToList();
