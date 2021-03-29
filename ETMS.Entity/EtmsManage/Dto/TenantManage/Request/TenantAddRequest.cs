@@ -46,6 +46,13 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public override string Validate()
         {
+            TenantCode = TenantCode.Trim();
+            Name = Name.Trim();
+            Phone = Phone.Trim();
+            if (!string.IsNullOrEmpty(SmsSignature))
+            {
+                SmsSignature = SmsSignature.Trim();
+            }
             if (string.IsNullOrEmpty(TenantCode))
             {
                 return "机构编码不能为空";

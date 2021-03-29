@@ -70,7 +70,7 @@ namespace ETMS.Utility
             }
             catch (Exception ex)
             {
-                LOG.Log.Error("[GetPinyinInitials]获取汉字拼音的首字母出错:{str}", ex, typeof(PinyinHelper));
+                LOG.Log.Error($"[GetPinyinInitials]获取汉字拼音的首字母出错:{str}", ex, typeof(PinyinHelper));
                 return string.Empty;
             }
         }

@@ -45,6 +45,12 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public override string Validate()
         {
+            Name = Name.Trim();
+            Phone = Phone.Trim();
+            if (!string.IsNullOrEmpty(SmsSignature))
+            {
+                SmsSignature = SmsSignature.Trim();
+            }
             if (Id <= 0)
             {
                 return "数据格式错误";
