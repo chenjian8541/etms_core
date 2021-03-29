@@ -130,6 +130,11 @@ namespace ETMS.Business
                 tags = $",{string.Join(',', request.Tags)},";
             }
             var now = DateTime.Now;
+            var trackUser = request.TrackUser;
+            if (trackUser == null)
+            {
+                trackUser = request.LoginUserId;
+            }
             var etStudent = new EtStudent()
             {
                 Age = request.Birthday.EtmsGetAge(),
@@ -162,7 +167,7 @@ namespace ETMS.Business
                 Tags = tags,
                 TenantId = request.LoginTenantId,
                 TrackStatus = EmStudentTrackStatus.NotTrack,
-                TrackUser = request.TrackUser,
+                TrackUser = trackUser,
                 NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
                 RecommendStudentId = request.RecommendStudentId
             };
