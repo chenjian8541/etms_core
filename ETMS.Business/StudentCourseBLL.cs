@@ -327,6 +327,25 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("不存在此学员");
             }
+
+            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId, request.CourseId);
+            var stopTime = myCourse.First().StopTime.Value.Date;
+            var now = DateTime.Now.Date;
+            //处理过期时间
+            var stopCourseDetail = await _studentCourseDAL.GetStudentCourseDetailStop(request.StudentId, request.CourseId);
+            if (stopCourseDetail.Any())
+            {
+                foreach (var p in stopCourseDetail)
+                {
+                    if (p.EndTime != null && p.EndTime.Value > stopTime)
+                    {
+                        var diff = (p.EndTime.Value - stopTime).TotalDays; //计算停课那天 还剩余多久的课程
+                        p.EndTime = now.AddDays(diff);
+                    }
+                }
+                await _studentCourseDAL.UpdateStudentCourseDetail(stopCourseDetail);
+            }
+
             await _studentCourseDAL.StudentCourseRestoreTime(request.StudentId, request.CourseId);
             //await _studentCourseStopLogDAL.StudentCourseRestore(request.StudentId, request.CourseId, DateTime.Now);
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)

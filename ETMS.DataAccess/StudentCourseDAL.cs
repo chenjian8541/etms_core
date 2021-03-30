@@ -87,6 +87,12 @@ namespace ETMS.DataAccess
             && p.IsDeleted == EmIsDeleted.Normal && p.CourseId == courseId);
         }
 
+        public async Task<List<EtStudentCourseDetail>> GetStudentCourseDetailStop(long studentId, long courseId)
+        {
+            return await _dbWrapper.FindList<EtStudentCourseDetail>(p => p.TenantId == _tenantId && p.StudentId == studentId
+            && p.IsDeleted == EmIsDeleted.Normal && p.CourseId == courseId && p.Status == EmStudentCourseStatus.StopOfClass);
+        }
+
         public async Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId)
         {
             return await _dbWrapper.ExecuteObject<StudentBuyCourse>($"SELECT DISTINCT CourseId FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND StudentId = {studentId} ");

@@ -38,7 +38,10 @@ namespace Etms.Tools.Test
 
             //Console.WriteLine(newNow);
 
-            Console.WriteLine();
+            var time1 = new DateTime(2021, 03, 30);
+
+            Console.WriteLine(time1.AddDays(1));
+            Console.WriteLine(time1);
             Console.Read();
         }
 
