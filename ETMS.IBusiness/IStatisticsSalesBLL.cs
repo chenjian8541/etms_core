@@ -17,5 +17,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetStatisticsSalesProductProportion(GetStatisticsSalesProductProportionRequest request);
 
         Task StatisticsSalesOrderConsumerEvent(StatisticsSalesOrderEvent request);
+
+        Task<ResponseBase> StatisticsSalesTenantGet(RequestBase request);
+
+        Task<ResponseBase> StatisticsSalesTenantGet2(StatisticsSalesTenantGet2Request request);
+
+        Task<ResponseBase> StatisticsSalesUserGet(StatisticsSalesUserGetRequest request);
     }
 }

@@ -239,44 +239,6 @@ namespace ETMS.Utility
             return str.Split(intervalStr).ToList();
         }
 
-        /// <summary>
-        /// 获取本周开始日期和结束日期
-        /// </summary>
-        /// <param name="now"></param>
-        /// <returns></returns>
-        public static Tuple<DateTime, DateTime> GetWeekStartEndDate(DateTime now)
-        {
-            now = now.Date;
-            DateTime firstDate = now;
-            switch (now.DayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    firstDate = now;
-                    break;
-                case DayOfWeek.Tuesday:
-                    firstDate = now.AddDays(-1);
-                    break;
-                case DayOfWeek.Wednesday:
-                    firstDate = now.AddDays(-2);
-                    break;
-                case DayOfWeek.Thursday:
-                    firstDate = now.AddDays(-3);
-                    break;
-                case DayOfWeek.Friday:
-                    firstDate = now.AddDays(-4);
-                    break;
-                case DayOfWeek.Saturday:
-                    firstDate = now.AddDays(-5);
-                    break;
-                case DayOfWeek.Sunday:
-                    firstDate = now.AddDays(-6);
-                    break;
-            }
-            var endDate = firstDate.AddDays(6);
-            return Tuple.Create(firstDate, endDate);
-
-        }
-
         public static string GetMoneyChangeDesc(decimal cgValue)
         {
             if (cgValue < 0)

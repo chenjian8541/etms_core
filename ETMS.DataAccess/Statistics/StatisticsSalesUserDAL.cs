@@ -37,7 +37,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<StatisticsSalesUserView>> GetStatisticsSalesUser(DateTime startTime, DateTime endTime)
         {
-            var sql = $"SELECT UserId,SUM(OrderNewCount) AS TotalOrderNewCount,SUM(OrderRenewCount) AS TotalOrderRenewCount,SUM(OrderBuyCount) AS TotalOrderBuyCount,SUM(OrderNewSum) AS TotalOrderNewSum,SUM(OrderRenewSum) AS TotalOrderRenewSum,SUM(OrderTransferOutSum) AS TotalOrderTransferOutSum,SUM(OrderReturnSum) AS TotalOrderReturnSum,SUM(OrderSum) AS TotalOrderSum FROM EtStatisticsSalesUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startTime.EtmsToDateString()}' AND Ot <= '{endTime.EtmsToDateString()}' GROUP BY UserId";
+            var sql = $"SELECT TOP 1000 UserId,SUM(OrderNewCount) AS TotalOrderNewCount,SUM(OrderRenewCount) AS TotalOrderRenewCount,SUM(OrderBuyCount) AS TotalOrderBuyCount,SUM(OrderNewSum) AS TotalOrderNewSum,SUM(OrderRenewSum) AS TotalOrderRenewSum,SUM(OrderTransferOutSum) AS TotalOrderTransferOutSum,SUM(OrderReturnSum) AS TotalOrderReturnSum,SUM(OrderSum) AS TotalOrderSum FROM EtStatisticsSalesUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startTime.EtmsToDateString()}' AND Ot <= '{endTime.EtmsToDateString()}' GROUP BY UserId";
             return await _dbWrapper.ExecuteObject<StatisticsSalesUserView>(sql);
         }
     }

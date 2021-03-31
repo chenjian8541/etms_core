@@ -13,6 +13,6 @@ namespace ETMS.IDataAccess
 
         Task SaveStatisticsSalesTenant(EtStatisticsSalesTenant entity);
 
-        Task<IEnumerable<StatisticsSalesTenantView>> GetStatisticsSalesTenant(DateTime startTime, DateTime endTime);
+        Task<StatisticsSalesTenantView> GetStatisticsSalesTenant(DateTime startTime, DateTime endTime);
     }
 }

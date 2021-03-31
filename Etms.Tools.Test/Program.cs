@@ -17,7 +17,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            CreateParentToken("13410282152");
+            //CreateParentToken("13410282152");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -38,10 +38,14 @@ namespace Etms.Tools.Test
 
             //Console.WriteLine(newNow);
 
-            var time1 = new DateTime(2021, 03, 30);
+            var now = DateTime.Now.Date.AddDays(-2);
+            Console.WriteLine(EtmsHelper2.GetThisWeek(now));
+            Console.WriteLine(EtmsHelper2.GetThisMonth(now));
+            Console.WriteLine(EtmsHelper2.GetLastWeek(now));
+            Console.WriteLine(EtmsHelper2.GetLastMonth(now));
 
-            Console.WriteLine(time1.AddDays(1));
-            Console.WriteLine(time1);
+            Console.WriteLine();
+            Console.WriteLine();
             Console.Read();
         }
 

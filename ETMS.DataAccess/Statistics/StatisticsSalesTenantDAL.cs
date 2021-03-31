@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess.Statistics
 {
@@ -35,10 +36,11 @@ namespace ETMS.DataAccess.Statistics
             }
         }
 
-        public async Task<IEnumerable<StatisticsSalesTenantView>> GetStatisticsSalesTenant(DateTime startTime, DateTime endTime)
+        public async Task<StatisticsSalesTenantView> GetStatisticsSalesTenant(DateTime startTime, DateTime endTime)
         {
             var sql = $"SELECT SUM(OrderNewCount) AS TotalOrderNewCount,SUM(OrderRenewCount) AS TotalOrderRenewCount,SUM(OrderBuyCount) AS TotalOrderBuyCount,SUM(OrderNewSum) AS TotalOrderNewSum,SUM(OrderRenewSum) AS TotalOrderRenewSum,SUM(OrderTransferOutSum) AS TotalOrderTransferOutSum,SUM(OrderReturnSum) AS TotalOrderReturnSum,SUM(OrderSum) AS TotalOrderSum FROM EtStatisticsSalesTenant WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startTime.EtmsToDateString()}' AND Ot <= '{endTime.EtmsToDateString()}'";
-            return await _dbWrapper.ExecuteObject<StatisticsSalesTenantView>(sql);
+            var result = await _dbWrapper.ExecuteObject<StatisticsSalesTenantView>(sql);
+            return result.FirstOrDefault();
         }
     }
 }

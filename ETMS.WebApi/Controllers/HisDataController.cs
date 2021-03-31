@@ -388,6 +388,48 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StatisticsSalesTenantGet(RequestBase request)
+        {
+            try
+            {
+                _statisticsSalesBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsSalesBLL.StatisticsSalesTenantGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsSalesTenantGet2(StatisticsSalesTenantGet2Request request)
+        {
+            try
+            {
+                _statisticsSalesBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsSalesBLL.StatisticsSalesTenantGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsSalesUserGet(StatisticsSalesUserGetRequest request)
+        {
+            try
+            {
+                _statisticsSalesBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsSalesBLL.StatisticsSalesUserGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> GetStatisticsFinanceIn(GetStatisticsFinanceInRequest request)
         {
             try

@@ -493,5 +493,105 @@ namespace ETMS.Business
                 }
             }
         }
+
+        public async Task<ResponseBase> StatisticsSalesTenantGet(RequestBase request)
+        {
+            var output = new StatisticsSalesTenantGetOutput();
+            var nowDate = DateTime.Now.Date;
+            var thisWeek = EtmsHelper2.GetThisWeek(nowDate);
+            var thisWeekData = await _statisticsSalesTenantDAL.GetStatisticsSalesTenant(thisWeek.Item1, thisWeek.Item2);
+            if (thisWeekData != null)
+            {
+                output.ThisWeek = new StatisticsSalesTenantValue()
+                {
+                    OrderBuyCount = thisWeekData.TotalOrderBuyCount,
+                    OrderNewCount = thisWeekData.TotalOrderNewCount,
+                    OrderNewSum = thisWeekData.TotalOrderNewSum,
+                    OrderRenewCount = thisWeekData.TotalOrderRenewCount,
+                    OrderRenewSum = thisWeekData.TotalOrderRenewSum,
+                    OrderReturnSum = thisWeekData.TotalOrderReturnSum,
+                    OrderSum = thisWeekData.TotalOrderSum,
+                    OrderTransferOutSum = thisWeekData.TotalOrderTransferOutSum
+                };
+            }
+            var thisMonth = EtmsHelper2.GetThisMonth(nowDate);
+            var thisMonthData = await _statisticsSalesTenantDAL.GetStatisticsSalesTenant(thisMonth.Item1, thisMonth.Item2);
+            if (thisMonthData != null)
+            {
+                output.ThisMonth = new StatisticsSalesTenantValue()
+                {
+                    OrderBuyCount = thisMonthData.TotalOrderBuyCount,
+                    OrderNewCount = thisMonthData.TotalOrderNewCount,
+                    OrderNewSum = thisMonthData.TotalOrderNewSum,
+                    OrderRenewCount = thisMonthData.TotalOrderRenewCount,
+                    OrderRenewSum = thisMonthData.TotalOrderRenewSum,
+                    OrderReturnSum = thisMonthData.TotalOrderReturnSum,
+                    OrderSum = thisMonthData.TotalOrderSum,
+                    OrderTransferOutSum = thisMonthData.TotalOrderTransferOutSum
+                };
+            }
+
+            var lastWeek = EtmsHelper2.GetLastWeek(nowDate);
+            var lastWeekData = await _statisticsSalesTenantDAL.GetStatisticsSalesTenant(lastWeek.Item1, lastWeek.Item2);
+            if (lastWeekData != null)
+            {
+                output.LastWeek = new StatisticsSalesTenantValue()
+                {
+                    OrderBuyCount = lastWeekData.TotalOrderBuyCount,
+                    OrderNewCount = lastWeekData.TotalOrderNewCount,
+                    OrderNewSum = lastWeekData.TotalOrderNewSum,
+                    OrderRenewCount = lastWeekData.TotalOrderRenewCount,
+                    OrderRenewSum = lastWeekData.TotalOrderRenewSum,
+                    OrderReturnSum = lastWeekData.TotalOrderReturnSum,
+                    OrderSum = lastWeekData.TotalOrderSum,
+                    OrderTransferOutSum = lastWeekData.TotalOrderTransferOutSum
+                };
+            }
+
+            var lastMonth = EtmsHelper2.GetLastMonth(nowDate);
+            var lastMonthData = await _statisticsSalesTenantDAL.GetStatisticsSalesTenant(lastMonth.Item1, lastMonth.Item2);
+            if (lastMonthData != null)
+            {
+                output.LastMonth = new StatisticsSalesTenantValue()
+                {
+                    OrderBuyCount = lastMonthData.TotalOrderBuyCount,
+                    OrderNewCount = lastMonthData.TotalOrderNewCount,
+                    OrderNewSum = lastMonthData.TotalOrderNewSum,
+                    OrderRenewCount = lastMonthData.TotalOrderRenewCount,
+                    OrderRenewSum = lastMonthData.TotalOrderRenewSum,
+                    OrderReturnSum = lastMonthData.TotalOrderReturnSum,
+                    OrderSum = lastMonthData.TotalOrderSum,
+                    OrderTransferOutSum = lastMonthData.TotalOrderTransferOutSum
+                };
+            }
+
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StatisticsSalesTenantGet2(StatisticsSalesTenantGet2Request request)
+        {
+            var output = new StatisticsSalesTenantValue();
+            var myData = await _statisticsSalesTenantDAL.GetStatisticsSalesTenant(request.StartOt.Value, request.EndOt.Value);
+            if (myData != null)
+            {
+                output = new StatisticsSalesTenantValue()
+                {
+                    OrderBuyCount = myData.TotalOrderBuyCount,
+                    OrderNewCount = myData.TotalOrderNewCount,
+                    OrderNewSum = myData.TotalOrderNewSum,
+                    OrderRenewCount = myData.TotalOrderRenewCount,
+                    OrderRenewSum = myData.TotalOrderRenewSum,
+                    OrderReturnSum = myData.TotalOrderReturnSum,
+                    OrderSum = myData.TotalOrderSum,
+                    OrderTransferOutSum = myData.TotalOrderTransferOutSum
+                };
+            }
+            return ResponseBase.Success(myData);
+        }
+
+        public async Task<ResponseBase> StatisticsSalesUserGet(StatisticsSalesUserGetRequest request)
+        {
+            return ResponseBase.Success();
+        }
     }
 }
