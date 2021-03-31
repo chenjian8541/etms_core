@@ -121,5 +121,9 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtClassTimesReservationLog> EtClassTimesReservationLogs { get; set; }
 
         public DbSet<EtStudentAccountRechargeBinder> EtStudentAccountRechargeBinders { get; set; }
+
+        public DbSet<EtStatisticsSalesTenant> EtStatisticsSalesTenants { get; set; }
+
+        public DbSet<EtStatisticsSalesUser> EtStatisticsSalesUsers { get; set; }
     }
 }

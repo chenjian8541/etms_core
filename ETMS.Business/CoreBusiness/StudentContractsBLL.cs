@@ -288,8 +288,11 @@ namespace ETMS.Business
                 PayAccountRechargeId = payAccountRechargeId
             };
 
-
-            //同步执行
+            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId);
+            if (myCourse != null && myCourse.Count > 0)
+            {
+                order.BuyType = EmOrderBuyType.Renew;
+            }
 
             //订单
             var orderId = await _orderDAL.AddOrder(order, orderDetails);
@@ -379,6 +382,12 @@ namespace ETMS.Business
                     Type = StudentRecommendRewardType.Buy
                 });
             }
+
+            _eventPublisher.Publish(new StatisticsSalesOrderEvent(request.LoginTenantId)
+            {
+                Order1 = order,
+                OpType = StatisticsSalesOrderOpType.StudentEnrolment
+            });
 
             return ResponseBase.Success(new StudentEnrolmentOutput()
             {

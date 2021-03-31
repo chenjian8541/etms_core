@@ -426,6 +426,8 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtStatisticsSalesProduct SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStatisticsSalesCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStatisticsFinanceIncome SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStatisticsSalesTenant SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStatisticsSalesUser SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }

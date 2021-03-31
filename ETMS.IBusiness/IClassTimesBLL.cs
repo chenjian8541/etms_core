@@ -52,5 +52,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesGoReservation(ClassTimesGoReservationRequest request);
 
         Task<ResponseBase> ClassTimesGoReservationCancel(ClassTimesGoReservationCancelRequest request);
+
+        Task<ResponseBase> TeacherClassTimetableCountGetMy(TeacherClassTimetableCountGetMyRequest request);
     }
 }

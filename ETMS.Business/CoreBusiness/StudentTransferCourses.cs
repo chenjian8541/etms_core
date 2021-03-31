@@ -263,6 +263,11 @@ namespace ETMS.Business
             //    CourseId = request.CourseId,
             //    StudentId = request.StudentId
             //});
+            _eventPublisher.Publish(new StatisticsSalesOrderEvent(request.LoginTenantId)
+            {
+                Order1 = transferOrder,
+                OpType = StatisticsSalesOrderOpType.TransferCourse
+            });
             return ResponseBase.Success(orderId);
         }
 

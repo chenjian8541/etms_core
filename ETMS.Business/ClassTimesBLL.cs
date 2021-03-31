@@ -1621,5 +1621,15 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "关闭约课", EmUserOperationType.ClassTimesMgr);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> TeacherClassTimetableCountGetMy(TeacherClassTimetableCountGetMyRequest request)
+        {
+            var classTimeGroupCount = await _classTimesDAL.ClassTimesClassOtGroupCount(request);
+            return ResponseBase.Success(classTimeGroupCount.Select(p => new UserTimetableCountOutput()
+            {
+                ClassTimesCount = p.TotalCount,
+                Date = p.ClassOt.EtmsToDateString()
+            }));
+        }
     }
 }

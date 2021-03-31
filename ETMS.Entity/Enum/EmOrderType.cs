@@ -34,6 +34,24 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte StudentAccountRefund = 4;
 
+        public static bool IsBuyOrder(int orderType)
+        {
+            switch (orderType)
+            {
+                case StudentEnrolment:
+                    return true;
+                case ReturnOrder:
+                    return true;
+                case TransferCourse:
+                    return true;
+                case StudentAccountRecharge:
+                    return false;
+                case StudentAccountRefund:
+                    return false;
+            }
+            return false;
+        }
+
         public static string GetOrderTypeDesc(int orderType)
         {
             switch (orderType)

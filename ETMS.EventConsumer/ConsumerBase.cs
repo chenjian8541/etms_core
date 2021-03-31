@@ -14,25 +14,27 @@ namespace ETMS.EventConsumer
     /// <typeparam name="T"></typeparam>
     public abstract class ConsumerBase<T> : IEventConsumer<T> where T : ETMS.Event.DataContract.Event
     {
+        public virtual string ClassName { get; set; }
+
         /// <summary>
         /// 执行消息消费的方法
         /// </summary>
         /// <param name="eEvent">当前队列的消息</param>
         public async Task Consume(T eEvent)
         {
-            var className = eEvent.GetType().Name;
+            ClassName = eEvent.GetType().Name;
             try
             {
-                Console.WriteLine($"【{className}】准备处理消息:{eEvent.Id}");
-                Log.Debug($"【{className}】准备处理消息:{eEvent.Id},参数:{JsonConvert.SerializeObject(eEvent)}", this.GetType());
+                Console.WriteLine($"【{ClassName}】准备处理消息:{eEvent.Id}");
+                Log.Debug($"【{ClassName}】准备处理消息:{eEvent.Id},参数:{JsonConvert.SerializeObject(eEvent)}", this.GetType());
                 await Receive(eEvent);
-                Console.WriteLine($"【{className}】处理完成:{eEvent.Id}");
-                Log.Debug($"【{className}】处理完成:{eEvent.Id}", this.GetType());
+                Console.WriteLine($"【{ClassName}】处理完成:{eEvent.Id}");
+                Log.Debug($"【{ClassName}】处理完成:{eEvent.Id}", this.GetType());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"【{className}】消息处理失败{eEvent.Id}");
-                Log.Error($"【{className}】消息处理失败,参数:{JsonConvert.SerializeObject(eEvent)}", ex, this.GetType());
+                Console.WriteLine($"【{ClassName}】消息处理失败{eEvent.Id}");
+                Log.Error($"【{ClassName}】消息处理失败,参数:{JsonConvert.SerializeObject(eEvent)}", ex, this.GetType());
             }
         }
 

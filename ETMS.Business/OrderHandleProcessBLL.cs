@@ -228,6 +228,11 @@ namespace ETMS.Business
             {
                 StatisticsDate = order.Ot
             });
+            _eventPublisher.Publish(new StatisticsSalesOrderEvent(request.TenantId)
+            {
+                Order1 = order,
+                OpType = StatisticsSalesOrderOpType.Repeal
+            });
         }
 
         public async Task OrderReturnProductEventProcess(OrderReturnProductEvent request)

@@ -574,6 +574,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TeacherClassTimetableCountGetMy(TeacherClassTimetableCountGetMyRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.TeacherClassTimetableCountGetMy(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassCheckSign(ClassCheckSignRequest request)
         {
             try

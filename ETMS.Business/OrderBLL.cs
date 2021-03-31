@@ -1006,6 +1006,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此订单已作废，无法编辑");
             }
+            var oldCommissionUser = order.CommissionUser;
             var newNames = string.Empty;
             var newIds = string.Empty;
             if (request.NewCommissionUsers != null && request.NewCommissionUsers.Any())
@@ -1036,6 +1037,16 @@ namespace ETMS.Business
                 UserId = request.LoginUserId
             };
             await _orderDAL.AddOrderOperationLog(opLog);
+
+            if (EmOrderType.IsBuyOrder(order.OrderType))
+            {
+                _eventPublisher.Publish(new StatisticsSalesOrderEvent(request.LoginTenantId)
+                {
+                    Order1 = order,
+                    OpType = StatisticsSalesOrderOpType.ChangeCommissionUser,
+                    OldCommissionUser = oldCommissionUser
+                });
+            }
             await _userOperationLogDAL.AddUserLog(request, $"修改业绩归属人-订单号:{order.No},新业绩归属人:{newNames}", EmUserOperationType.OrderMgr, now);
             return ResponseBase.Success();
         }
@@ -1355,7 +1366,7 @@ namespace ETMS.Business
                 BuyCourse = EtmsHelper.DescPrefix(buyCourse.ToString().TrimEnd('；'), "退课程"),
                 BuyGoods = EtmsHelper.DescPrefix(buyGoods.ToString().TrimEnd('；'), "退物品"),
                 BuyCost = EtmsHelper.DescPrefix(buyCost.ToString().TrimEnd('；'), "退费用"),
-                CommissionUser = string.Empty,
+                CommissionUser = sourceOrder.CommissionUser, //退单的业绩 算在原始订单业绩归属人身上
                 CouponsIds = string.Empty,
                 CouponsStudentGetIds = string.Empty,
                 CreateOt = now,
@@ -1442,6 +1453,11 @@ namespace ETMS.Business
                 returnRequest = request,
                 SourceOrder = sourceOrder,
                 UserId = request.LoginUserId
+            });
+            _eventPublisher.Publish(new StatisticsSalesOrderEvent(request.LoginTenantId)
+            {
+                Order1 = returnOrder,
+                OpType = StatisticsSalesOrderOpType.ReturnOrder
             });
             return ResponseBase.Success(returnOrder.Id);
         }
