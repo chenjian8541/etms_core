@@ -14,5 +14,7 @@ namespace ETMS.IDataAccess
         Task SaveStatisticsSalesTenant(EtStatisticsSalesTenant entity);
 
         Task<StatisticsSalesTenantView> GetStatisticsSalesTenant(DateTime startTime, DateTime endTime);
+
+        Task<IEnumerable<StatisticsSalesTenantView2>> GetStatisticsSalesTenantGroupByOt(DateTime startTime, DateTime endTime);
     }
 }

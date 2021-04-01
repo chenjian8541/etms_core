@@ -23,5 +23,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StatisticsSalesTenantGet2(StatisticsSalesTenantGet2Request request);
 
         Task<ResponseBase> StatisticsSalesUserGet(StatisticsSalesUserGetRequest request);
+
+        Task<ResponseBase> StatisticsSalesTenantEchartsBarMulti1(StatisticsSalesTenantEchartsBarMulti1Request request);
+
+        Task<ResponseBase> StatisticsSalesTenantEchartsBarMulti2(StatisticsSalesTenantEchartsBarMulti2Request request);
     }
 }

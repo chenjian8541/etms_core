@@ -641,5 +641,67 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(outPut);
         }
+
+        public async Task<ResponseBase> StatisticsSalesTenantEchartsBarMulti1(StatisticsSalesTenantEchartsBarMulti1Request request)
+        {
+            var currentDate = request.StartOt.Value;
+            var endDate = request.EndOt.Value;
+            var statisticsSalesTenantGroupByOt = await _statisticsSalesTenantDAL.GetStatisticsSalesTenantGroupByOt(currentDate, endDate);
+            var outPut = new EchartsBarMulti();
+            outPut.SourceItems.Add(new List<string>() { "ot", "销售金额", "新签", "续签", "转课", "退单" });
+            while (currentDate <= endDate)
+            {
+                var mySourceItem = new List<string>();
+                mySourceItem.Add(currentDate.ToString("MM-dd"));
+                var myCourseSum = statisticsSalesTenantGroupByOt.FirstOrDefault(p => p.Ot == currentDate);
+                if (myCourseSum != null)
+                {
+                    mySourceItem.Add(myCourseSum.TotalOrderSum.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderNewSum.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderRenewSum.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderTransferOutSum.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderReturnSum.ToString());
+                }
+                else
+                {
+                    mySourceItem.Add("0");
+                    mySourceItem.Add("0");
+                    mySourceItem.Add("0");
+                }
+                outPut.SourceItems.Add(mySourceItem);
+                currentDate = currentDate.AddDays(1);
+            }
+            return ResponseBase.Success(outPut);
+        }
+
+        public async Task<ResponseBase> StatisticsSalesTenantEchartsBarMulti2(StatisticsSalesTenantEchartsBarMulti2Request request)
+        {
+            var currentDate = request.StartOt.Value;
+            var endDate = request.EndOt.Value;
+            var statisticsSalesTenantGroupByOt = await _statisticsSalesTenantDAL.GetStatisticsSalesTenantGroupByOt(currentDate, endDate);
+            var outPut = new EchartsBarMulti();
+            outPut.SourceItems.Add(new List<string>() { "ot", "销售成单", "新签", "续签" });
+            while (currentDate <= endDate)
+            {
+                var mySourceItem = new List<string>();
+                mySourceItem.Add(currentDate.ToString("MM-dd"));
+                var myCourseSum = statisticsSalesTenantGroupByOt.FirstOrDefault(p => p.Ot == currentDate);
+                if (myCourseSum != null)
+                {
+                    mySourceItem.Add(myCourseSum.TotalOrderBuyCount.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderNewCount.ToString());
+                    mySourceItem.Add(myCourseSum.TotalOrderRenewCount.ToString());
+                }
+                else
+                {
+                    mySourceItem.Add("0");
+                    mySourceItem.Add("0");
+                    mySourceItem.Add("0");
+                }
+                outPut.SourceItems.Add(mySourceItem);
+                currentDate = currentDate.AddDays(1);
+            }
+            return ResponseBase.Success(outPut);
+        }
     }
 }
