@@ -110,6 +110,7 @@ namespace ETMS.Business
                     orderStudentView.StudentPhone = studentBucket.Student.Phone;
                     orderStudentView.StudentName = studentBucket.Student.Name;
                     orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
+                    orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar);
                     return orderStudentView;
                 }
             }
@@ -352,6 +353,7 @@ namespace ETMS.Business
                     StudentId = p.StudentId,
                     StudentName = student.StudentName,
                     StudentPhone = student.StudentPhone,
+                    StudentAvatar = student.StudentAvatar,
                     TotalPoints = p.TotalPoints,
                     Id = p.Id,
                     InOutType = p.InOutType,
@@ -385,6 +387,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = student.StudentName,
                 StudentPhone = student.StudentPhone,
+                StudentAvatar = student.StudentAvatar,
                 TotalPoints = order.TotalPoints,
                 InOutType = order.InOutType,
                 TotalPointsDesc = EmOrderInOutType.GetTotalPointsDesc(order.TotalPoints, order.InOutType),
@@ -513,6 +516,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = student.StudentName,
                 StudentPhone = student.StudentPhone,
+                StudentAvatar = student.StudentAvatar,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,

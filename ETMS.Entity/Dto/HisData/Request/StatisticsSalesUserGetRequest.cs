@@ -11,7 +11,7 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// <summary>
         /// 排序
         /// </summary>
-        public int OrderType { get; set; }
+        public byte OrderType { get; set; }
 
         /// <summary>
         /// 查询时间

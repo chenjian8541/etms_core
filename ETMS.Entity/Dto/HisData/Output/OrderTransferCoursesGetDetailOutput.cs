@@ -33,6 +33,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentAvatar { get; set; }
+
         public int OrderType { get; set; }
 
         public string OrderTypeDesc { get; set; }

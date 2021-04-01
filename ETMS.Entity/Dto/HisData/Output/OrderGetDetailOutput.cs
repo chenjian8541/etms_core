@@ -29,6 +29,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentAvatar { get; set; }
+
         public string StudentCardNo { get; set; }
 
         public int OrderType { get; set; }

@@ -13,5 +13,7 @@ namespace ETMS.Entity.Temp
         public string StudentName { get; set; }
 
         public string StudentCardNo { get; set; }
+
+        public string StudentAvatar { get; set; }
     }
 }

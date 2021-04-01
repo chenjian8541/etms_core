@@ -788,6 +788,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "saleAmountdetail",
+        "Name": "saleAmountdetail",
+        "Type": 1,
+        "Component": "@/components/hisData/saleAmountdetail",
+        "Meta": {
+          "Title": "销售金额分析",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 53,
         "Path": "academic",
         "Name": "academic",

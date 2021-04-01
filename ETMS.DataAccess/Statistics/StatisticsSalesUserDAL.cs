@@ -35,9 +35,17 @@ namespace ETMS.DataAccess
             }
         }
 
-        public async Task<IEnumerable<StatisticsSalesUserView>> GetStatisticsSalesUser(DateTime startTime, DateTime endTime)
+        public async Task<IEnumerable<StatisticsSalesUserView>> GetStatisticsSalesUser(DateTime startTime, DateTime endTime,
+            byte orderType)
         {
             var sql = $"SELECT TOP 1000 UserId,SUM(OrderNewCount) AS TotalOrderNewCount,SUM(OrderRenewCount) AS TotalOrderRenewCount,SUM(OrderBuyCount) AS TotalOrderBuyCount,SUM(OrderNewSum) AS TotalOrderNewSum,SUM(OrderRenewSum) AS TotalOrderRenewSum,SUM(OrderTransferOutSum) AS TotalOrderTransferOutSum,SUM(OrderReturnSum) AS TotalOrderReturnSum,SUM(OrderSum) AS TotalOrderSum FROM EtStatisticsSalesUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startTime.EtmsToDateString()}' AND Ot <= '{endTime.EtmsToDateString()}' GROUP BY UserId";
+            if (orderType == 0)
+            {
+                sql = $"{sql} ORDER BY TotalOrderSum DESC";
+            }
+            else {
+                sql = $"{sql} ORDER BY TotalOrderBuyCount DESC";
+            }
             return await _dbWrapper.ExecuteObject<StatisticsSalesUserView>(sql);
         }
     }

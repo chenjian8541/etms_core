@@ -33,6 +33,8 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentAvatar { get; set; }
+
         public int OrderType { get; set; }
 
         /// <summary>

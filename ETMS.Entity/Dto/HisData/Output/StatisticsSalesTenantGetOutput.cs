@@ -8,10 +8,10 @@ namespace ETMS.Entity.Dto.HisData.Output
     {
         public StatisticsSalesTenantGetOutput()
         {
-            ThisWeek = new StatisticsSalesTenantValue();
-            ThisMonth = new StatisticsSalesTenantValue();
-            LastWeek = new StatisticsSalesTenantValue();
-            LastMonth = new StatisticsSalesTenantValue();
+            //ThisWeek = new StatisticsSalesTenantValue();
+            //ThisMonth = new StatisticsSalesTenantValue();
+            //LastWeek = new StatisticsSalesTenantValue();
+            //LastMonth = new StatisticsSalesTenantValue();
         }
         public StatisticsSalesTenantValue ThisWeek { get; set; }
 
@@ -24,6 +24,8 @@ namespace ETMS.Entity.Dto.HisData.Output
 
     public class StatisticsSalesTenantValue
     {
+        public string DateDesc { get; set; }
+
         public int OrderNewCount { get; set; }
 
         public int OrderRenewCount { get; set; }

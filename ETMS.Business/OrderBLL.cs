@@ -17,6 +17,7 @@ using ETMS.Event.DataContract;
 using ETMS.LOG;
 using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
+using Microsoft.AspNetCore.Http;
 
 namespace ETMS.Business
 {
@@ -52,11 +53,16 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL,
-            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IHttpContextAccessor httpContextAccessor,
+            IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -73,6 +79,8 @@ namespace ETMS.Business
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._parentStudentDAL = parentStudentDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._httpContextAccessor = httpContextAccessor;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -97,6 +105,7 @@ namespace ETMS.Business
                     orderStudentView.StudentPhone = studentBucket.Student.Phone;
                     orderStudentView.StudentName = studentBucket.Student.Name;
                     orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
+                    orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar);
                     return orderStudentView;
                 }
             }
@@ -231,6 +240,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = studentInfo.StudentName,
                 StudentPhone = studentInfo.StudentPhone,
+                StudentAvatar = studentInfo.StudentAvatar,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -468,6 +478,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = studentInfo.StudentName,
                 StudentPhone = studentInfo.StudentPhone,
+                StudentAvatar = studentInfo.StudentAvatar,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -576,6 +587,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = studentInfo.StudentName,
                 StudentPhone = studentInfo.StudentPhone,
+                StudentAvatar = studentInfo.StudentAvatar,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,
@@ -644,6 +656,7 @@ namespace ETMS.Business
                 StudentId = order.StudentId,
                 StudentName = studentInfo.StudentName,
                 StudentPhone = studentInfo.StudentPhone,
+                StudentAvatar = studentInfo.StudentAvatar,
                 Sum = order.Sum,
                 TotalPoints = order.TotalPoints,
                 UserId = order.UserId,

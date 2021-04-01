@@ -97,6 +97,15 @@ namespace ETMS.Business
             {
                 return;
             }
+            //处理提成人,如果未设置提成人，则加入“未分配”统计
+            if (string.IsNullOrEmpty(request.Order1.CommissionUser))
+            {
+                request.Order1.CommissionUser = "0";
+            }
+            if (string.IsNullOrEmpty(request.OldCommissionUser))
+            {
+                request.OldCommissionUser = "0";
+            }
             switch (request.OpType)
             {
                 case StatisticsSalesOrderOpType.StudentEnrolment:
@@ -511,7 +520,8 @@ namespace ETMS.Business
                     OrderRenewSum = thisWeekData.TotalOrderRenewSum,
                     OrderReturnSum = thisWeekData.TotalOrderReturnSum,
                     OrderSum = thisWeekData.TotalOrderSum,
-                    OrderTransferOutSum = thisWeekData.TotalOrderTransferOutSum
+                    OrderTransferOutSum = thisWeekData.TotalOrderTransferOutSum,
+                    DateDesc = "本周"
                 };
             }
             var thisMonth = EtmsHelper2.GetThisMonth(nowDate);
@@ -527,7 +537,8 @@ namespace ETMS.Business
                     OrderRenewSum = thisMonthData.TotalOrderRenewSum,
                     OrderReturnSum = thisMonthData.TotalOrderReturnSum,
                     OrderSum = thisMonthData.TotalOrderSum,
-                    OrderTransferOutSum = thisMonthData.TotalOrderTransferOutSum
+                    OrderTransferOutSum = thisMonthData.TotalOrderTransferOutSum,
+                    DateDesc = "本月"
                 };
             }
 
@@ -544,7 +555,8 @@ namespace ETMS.Business
                     OrderRenewSum = lastWeekData.TotalOrderRenewSum,
                     OrderReturnSum = lastWeekData.TotalOrderReturnSum,
                     OrderSum = lastWeekData.TotalOrderSum,
-                    OrderTransferOutSum = lastWeekData.TotalOrderTransferOutSum
+                    OrderTransferOutSum = lastWeekData.TotalOrderTransferOutSum,
+                    DateDesc = "上周"
                 };
             }
 
@@ -561,7 +573,8 @@ namespace ETMS.Business
                     OrderRenewSum = lastMonthData.TotalOrderRenewSum,
                     OrderReturnSum = lastMonthData.TotalOrderReturnSum,
                     OrderSum = lastMonthData.TotalOrderSum,
-                    OrderTransferOutSum = lastMonthData.TotalOrderTransferOutSum
+                    OrderTransferOutSum = lastMonthData.TotalOrderTransferOutSum,
+                    DateDesc = "上月"
                 };
             }
 
@@ -586,12 +599,47 @@ namespace ETMS.Business
                     OrderTransferOutSum = myData.TotalOrderTransferOutSum
                 };
             }
-            return ResponseBase.Success(myData);
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StatisticsSalesUserGet(StatisticsSalesUserGetRequest request)
         {
-            return ResponseBase.Success();
+            var outPut = new List<StatisticsSalesUserGetOutput>();
+            var myData = await _statisticsSalesUserDAL.GetStatisticsSalesUser(request.StartOt.Value, request.EndOt.Value, request.OrderType);
+            if (myData != null && myData.Any())
+            {
+                foreach (var p in myData)
+                {
+                    var userName = string.Empty;
+                    if (p.UserId > 0)
+                    {
+                        var user = await _userDAL.GetUser(p.UserId);
+                        if (user == null)
+                        {
+                            continue;
+                        }
+                        userName = user.Name;
+                    }
+                    else
+                    {
+                        userName = "未分配";
+                    }
+                    outPut.Add(new StatisticsSalesUserGetOutput()
+                    {
+                        UserId = p.UserId,
+                        OrderBuyCount = p.TotalOrderBuyCount,
+                        OrderNewCount = p.TotalOrderNewCount,
+                        OrderNewSum = p.TotalOrderNewSum,
+                        OrderRenewCount = p.TotalOrderRenewCount,
+                        OrderRenewSum = p.TotalOrderRenewSum,
+                        OrderReturnSum = p.TotalOrderReturnSum,
+                        OrderSum = p.TotalOrderSum,
+                        OrderTransferOutSum = p.TotalOrderTransferOutSum,
+                        UserName = userName
+                    });
+                }
+            }
+            return ResponseBase.Success(outPut);
         }
     }
 }
