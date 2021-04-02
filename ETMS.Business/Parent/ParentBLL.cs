@@ -267,6 +267,7 @@ namespace ETMS.Business
             var sysTenantInfo = await _sysTenantDAL.GetTenant(sysStudentWechartLog.TenantId);
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
+                await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid); //修复bug 机构无法登录时 删除微信绑定信息
                 return ResponseBase.CommonError(myMsg);
             }
             _studentWechatDAL.InitTenantId(sysStudentWechartLog.TenantId);
