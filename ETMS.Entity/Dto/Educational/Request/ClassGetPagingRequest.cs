@@ -30,7 +30,7 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public string GetDataLimitFilterWhere()
         {
-            return $" AND UserId = {LoginUserId}";
+            return $" AND (UserId = {LoginUserId} OR Teachers LIKE '%,{LoginUserId},%')";
         }
 
         /// <summary>
