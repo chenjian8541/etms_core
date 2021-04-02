@@ -126,9 +126,20 @@ namespace ETMS.Business.Common
 
         internal static string PhoneSecrecy(string phone, int loginClientType)
         {
+            if (string.IsNullOrEmpty(phone))
+            {
+                return string.Empty;
+            }
             if (loginClientType == EmUserOperationLogClientType.WeChat)
             {
-                return Regex.Replace(phone, "(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+                try
+                {
+                    return Regex.Replace(phone, "(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[PhoneSecrecy]{phone}", ex, typeof(ComBusiness3));
+                }
             }
             return phone;
         }
