@@ -38,15 +38,25 @@ namespace Etms.Tools.Test
 
             //Console.WriteLine(newNow);
 
-            var now = DateTime.Now.Date.AddDays(-2);
-            Console.WriteLine(EtmsHelper2.GetThisWeek(now));
-            Console.WriteLine(EtmsHelper2.GetThisMonth(now));
-            Console.WriteLine(EtmsHelper2.GetLastWeek(now));
-            Console.WriteLine(EtmsHelper2.GetLastMonth(now));
+            //var now = DateTime.Now.Date.AddDays(-2);
+            //Console.WriteLine(EtmsHelper2.GetThisWeek(now));
+            //Console.WriteLine(EtmsHelper2.GetThisMonth(now));
+            //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
+            //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
 
-            Console.WriteLine();
+            Console.WriteLine(DbDecrypt3DES("MFTi97yij6knyrahExwfdP8R3AE5YRP/xPlIbNz4wWM3xHRrmpS2bT4qpKsXGxZM2rwdJevcLP3NV0F75VKmMdVtaG3vnc82/TZqrDCBzBeZpciByVvIR/CWkdSnjgWa19E9MAswxaqVX6/i7dREosEt/b5G4Mjx"));
             Console.WriteLine();
             Console.Read();
+        }
+
+        public static string DbDecrypt3DES(string connectionString)
+        {
+            return CryptogramHelper.Decrypt3DES(connectionString, SystemConfig.CryptogramConfig.Key);
+        }
+
+        public static string DbEncrypt3DES(string connectionString)
+        {
+            return CryptogramHelper.Encrypt3DES(connectionString, SystemConfig.CryptogramConfig.Key);
         }
 
         public static void CreateTencentCloudAccount()

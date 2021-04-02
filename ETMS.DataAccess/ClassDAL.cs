@@ -221,12 +221,14 @@ namespace ETMS.DataAccess
         }
         public async Task<bool> DelClassTimesRule(long classId, long ruleId)
         {
-            var strSql = new StringBuilder();
-            strSql.Append($"DELETE EtClassTimesRule WHERE Id = {ruleId} ;");
-            strSql.Append($"DELETE EtClassTimes WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};");
-            strSql.Append($"DELETE EtClassTimesStudent WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};");
-            strSql.Append($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND RuleId = {ruleId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;");
-            await _dbWrapper.Execute(strSql.ToString());
+            var strSql = $"DELETE EtClassTimesRule WHERE Id = {ruleId} ;";
+            await _dbWrapper.Execute(strSql);
+            strSql = $"DELETE EtClassTimes WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};";
+            await _dbWrapper.Execute(strSql);
+            strSql = $"DELETE EtClassTimesStudent WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};";
+            await _dbWrapper.Execute(strSql);
+            strSql = $"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND RuleId = {ruleId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;";
+            await _dbWrapper.Execute(strSql);
             await UpdateClassPlanTimes(classId);
             return true;
         }
