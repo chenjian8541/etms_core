@@ -16,13 +16,23 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int WeChat = 1;
 
+        /// <summary>
+        /// 安卓端
+        /// </summary>
+        public const int Android = 2;
+
         public static string GetClientTypeDesc(int type)
         {
-            if (type == PC)
+            switch (type)
             {
-                return "PC端";
+                case 0:
+                    return "PC端";
+                case 1:
+                    return "微信公众号";
+                case 2:
+                    return "手机APP";
             }
-            return "微信公众号";
+            return string.Empty;
         }
     }
 }

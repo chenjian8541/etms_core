@@ -43,5 +43,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysExplain> SysExplains { get; set; }
         public DbSet<SysTenantUser> SysTenantUsers { get; set; }
         public DbSet<SysTenantStudent> SysTenantStudents { get; set; }
+        public DbSet<SysClientUpgrade> SysClientUpgrades { get; set; }
     }
 }
