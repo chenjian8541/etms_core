@@ -46,21 +46,28 @@ namespace ETMS.EventConsumer
                 var fileName = Path.GetFileNameWithoutExtension(zipFile);
                 var attachment = new List<string>();
                 attachment.Add(zipFile);
-                MailHelper.Send(new MailSetting()
+                try
                 {
-                    MailHost = mailConfig.MailHost,
-                    MailPort = mailConfig.MailPort,
-                    SenderAddress = mailConfig.SenderAddress,
-                    SenderDisplayName = mailConfig.SenderDisplayName,
-                    SenderPassword = mailConfig.SenderPassword,
-                    SenderUserName = mailConfig.SenderUserName
-                }, new MailInfo()
+                    MailHelper.Send(new MailSetting()
+                    {
+                        MailHost = mailConfig.MailHost,
+                        MailPort = mailConfig.MailPort,
+                        SenderAddress = mailConfig.SenderAddress,
+                        SenderDisplayName = mailConfig.SenderDisplayName,
+                        SenderPassword = mailConfig.SenderPassword,
+                        SenderUserName = mailConfig.SenderUserName
+                    }, new MailInfo()
+                    {
+                        AttachmentAddress = attachment,
+                        Subject = desc,
+                        Body = fileName,
+                        Recipients = mailConfig.SystemDataBackupsGetUser
+                    });
+                }
+                catch (Exception ex)
                 {
-                    AttachmentAddress = attachment,
-                    Subject = desc,
-                    Body = fileName,
-                    Recipients = mailConfig.SystemDataBackupsGetUser
-                });
+                    LOG.Log.Error("[SystemDataBackupsConsumer]备份文件出错", ex, this.GetType());
+                }
             }
             Directory.Delete(newDirectory, true);
         }
