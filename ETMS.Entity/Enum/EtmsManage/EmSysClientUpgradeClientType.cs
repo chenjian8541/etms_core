@@ -10,5 +10,10 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 安卓端
         /// </summary>
         public const int Android = 0;
+
+        public static string GetSysClientUpgradeClientTypeDesc(int type)
+        {
+            return "安卓端";
+        }
     }
 }

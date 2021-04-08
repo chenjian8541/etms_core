@@ -27,7 +27,7 @@ namespace ETMS.DataAccess.EtmsManage
                 $"SELECT TOP 1 * FROM SysClientUpgrade WHERE ClientType = {keys[0].ToInt()} AND IsDeleted = {EmIsDeleted.Normal} ORDER BY Id DESC");
             if (!log.Any())
             {
-                return null;
+                return new SysClientUpgradeBucket();
             }
             return new SysClientUpgradeBucket()
             {
@@ -49,6 +49,12 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task SysClientUpgradeEdit(SysClientUpgrade entity)
         {
             await this.Update(entity);
+            await UpdateCache(entity.ClientType);
+        }
+
+        public async Task SysClientUpgradeDel(SysClientUpgrade entity)
+        {
+            await this.Execute($"DELETE [SysClientUpgrade] WHERE Id = {entity.Id} ");
             await UpdateCache(entity.ClientType);
         }
 

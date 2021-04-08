@@ -15,5 +15,14 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 强制更新
         /// </summary>
         public const byte Forcibly = 1;
+
+        public static string GetSysClientUpgradeUpgradeTypeDesc(byte type)
+        {
+            if (type == NotForcibly)
+            {
+                return "非强制";
+            }
+            return "强制更新";
+        }
     }
 }

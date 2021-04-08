@@ -22,7 +22,7 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("机构管理")]
         public const int TenantMange = 5;
 
-        [Description("系统升级管理")]
+        [Description("主系统升级管理")]
         public const int VersionUpgrade = 6;
 
         [Description("系统公告")]
@@ -30,6 +30,9 @@ namespace ETMS.Entity.Enum.EtmsManage
 
         [Description("主系统配置")]
         public const int EtmsSysSetting = 8;
+
+        [Description("客户端升级管理")]
+        public const int SysClientUpgradeMgr = 9;
 
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
@@ -46,11 +49,13 @@ namespace ETMS.Entity.Enum.EtmsManage
                 case TenantMange:
                     return "机构管理";
                 case VersionUpgrade:
-                    return "系统升级管理";
+                    return "主系统升级管理";
                 case SysExplainMgr:
                     return "系统公告";
                 case EtmsSysSetting:
                     return "主系统配置";
+                case SysClientUpgradeMgr:
+                    return "客户端升级管理";
             }
             return string.Empty;
         }

@@ -15,6 +15,8 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task SysClientUpgradeEdit(SysClientUpgrade entity);
 
+        Task SysClientUpgradeDel(SysClientUpgrade entity);
+
         Task<SysClientUpgrade> SysClientUpgradeLatestGet(int clientType);
 
         Task<Tuple<IEnumerable<SysClientUpgrade>, int>> GetPaging(AgentPagingBase request);
