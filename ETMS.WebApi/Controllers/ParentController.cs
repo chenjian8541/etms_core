@@ -252,6 +252,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public ResponseBase UploadConfigGet(ParentRequestBase request)
+        {
+            try
+            {
+                return _parentBLL.UploadConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentListGet(StudentListGetRequest request)
         {
             try

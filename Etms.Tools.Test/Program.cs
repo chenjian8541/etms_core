@@ -18,7 +18,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //CreateParentToken("13410282152");
+            CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -44,7 +44,7 @@ namespace Etms.Tools.Test
             //Console.WriteLine(EtmsHelper2.GetThisMonth(now));
             //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
             //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
-            AliyunOssSTS2();
+            //AliyunOssSTS2();
             Console.WriteLine();
             Console.Read();
         }

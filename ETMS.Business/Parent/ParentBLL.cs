@@ -25,6 +25,7 @@ using ETMS.IBusiness.Wechart;
 using Senparc.Weixin.Open.OAuthAPIs;
 using Senparc.Weixin.Open.Containers;
 using Microsoft.AspNetCore.Http;
+using ETMS.Entity.Dto.SysCom.Output;
 
 namespace ETMS.Business
 {
@@ -546,6 +547,22 @@ namespace ETMS.Business
             {
                 RecommendDesImgUrl = UrlHelper.GetUrl(studentRecommendConfig.RecommendDesImg),
                 RecommendDesText = studentRecommendConfig.RecommendDesText
+            });
+        }
+
+        public ResponseBase UploadConfigGet(ParentRequestBase request)
+        {
+            var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(request.LoginTenantId);
+            return ResponseBase.Success(new UploadConfigGetOutput()
+            {
+                AccessKeyId = aliyunOssSTS.Credentials.AccessKeyId,
+                AccessKeySecret = aliyunOssSTS.Credentials.AccessKeySecret,
+                Bucket = AliyunOssUtil.BucketName,
+                Region = AliyunOssSTSUtil.STSRegion,
+                Basckey = AliyunOssUtil.GetBascKeyPrefix(request.LoginTenantId, AliyunOssFileTypeEnum.STS),
+                ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
+                BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
+                SecurityToken = aliyunOssSTS.Credentials.SecurityToken
             });
         }
     }
