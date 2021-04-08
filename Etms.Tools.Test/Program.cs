@@ -4,6 +4,7 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.View;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -43,10 +44,34 @@ namespace Etms.Tools.Test
             //Console.WriteLine(EtmsHelper2.GetThisMonth(now));
             //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
             //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
-
-            Console.WriteLine(DbDecrypt3DES("MFTi97yij6knyrahExwfdP8R3AE5YRP/xPlIbNz4wWM3xHRrmpS2bT4qpKsXGxZM2rwdJevcLP3NV0F75VKmMdVtaG3vnc82/TZqrDCBzBeZpciByVvIR/CWkdSnjgWa19E9MAswxaqVX6/i7dREosEt/b5G4Mjx"));
+            AliyunOssSTS2();
             Console.WriteLine();
             Console.Read();
+        }
+
+        public static AlibabaCloud.SDK.Sts20150401.Client CreateClient(string accessKeyId, string accessKeySecret)
+        {
+            AlibabaCloud.OpenApiClient.Models.Config config = new AlibabaCloud.OpenApiClient.Models.Config
+            {
+                AccessKeyId = "LTAI5tGMXgiia8tRJm8F6hd7",
+                AccessKeySecret = "1a5DVo7YO7MEMWGulJcZSKAaYJkoeP",
+            };
+            config.Endpoint = "sts.cn-qingdao.aliyuncs.com";
+            return new AlibabaCloud.SDK.Sts20150401.Client(config);
+        }
+
+        public static void AliyunOssSTS2()
+        {
+            AlibabaCloud.SDK.Sts20150401.Client client = CreateClient("accessKeyId", "accessKeySecret");
+            AlibabaCloud.SDK.Sts20150401.Models.AssumeRoleRequest assumeRoleRequest = new AlibabaCloud.SDK.Sts20150401.Models.AssumeRoleRequest
+            {
+                DurationSeconds = 900,
+                Policy = "{ \"Version\": \"1\", \"Statement\": [  {    \"Effect\": \"Allow\",        \"Action\": [          \"oss:PutObject\"        ],    \"Resource\": [      \"acs:oss:*:*:*\"    ]  } ] }",
+                RoleArn = "acs:ram::1956403767422035:role/xiaohebang",
+                RoleSessionName = "etms_xiaohebang",
+            };
+            var res = client.AssumeRole(assumeRoleRequest);
+            Console.WriteLine(res);
         }
 
         public static string DbDecrypt3DES(string connectionString)

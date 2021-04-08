@@ -85,6 +85,14 @@ namespace ETMS.Entity.Config
         public string OssAccessUrlHttps { get; set; }
 
         public string RootFolder { get; set; }
+
+        public string STSAccessKeyId { get; set; }
+
+        public string STSAccessKeySecret { get; set; }
+
+        public string STSRoleArn { get; set; }
+
+        public string STSEndpoint { get; set; }
     }
 
     public class SenparcConfig

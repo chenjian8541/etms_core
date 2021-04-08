@@ -14,5 +14,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> SysUpgradeSetRead(SysUpgradeSetReadRequest request);
 
         Task<ResponseBase> SysKefu(SysKefuRequest request);
+
+        ResponseBase UploadConfigGet(RequestBase request);
     }
 }

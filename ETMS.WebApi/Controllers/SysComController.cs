@@ -62,5 +62,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase UploadConfigGet(RequestBase request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return _sysComBLL.UploadConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

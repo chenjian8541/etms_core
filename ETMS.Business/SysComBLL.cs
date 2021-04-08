@@ -131,5 +131,21 @@ namespace ETMS.Business
             output.KefuInfo.Kefu53 = globalConfig.Kefu53;
             return ResponseBase.Success(output);
         }
+
+        public ResponseBase UploadConfigGet(RequestBase request)
+        {
+            var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(request.LoginTenantId);
+            return ResponseBase.Success(new UploadConfigGetOutput()
+            {
+                AccessKeyId = aliyunOssSTS.Credentials.AccessKeyId,
+                AccessKeySecret = aliyunOssSTS.Credentials.AccessKeySecret,
+                Bucket = AliyunOssUtil.BucketName,
+                Region = AliyunOssSTSUtil.STSRegion,
+                Basckey = AliyunOssUtil.GetBascKeyPrefix(request.LoginTenantId, AliyunOssFileTypeEnum.STS),
+                ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
+                BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
+                SecurityToken = aliyunOssSTS.Credentials.SecurityToken
+            });
+        }
     }
 }

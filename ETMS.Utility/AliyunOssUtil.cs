@@ -12,7 +12,7 @@ namespace ETMS.Utility
         /// <summary>
         /// Bucket名称
         /// </summary>
-        private static string BucketName { get; set; }
+        public static string BucketName { get; set; }
 
         /// <summary>
         /// AccessKeyId
@@ -37,7 +37,7 @@ namespace ETMS.Utility
         /// <summary>
         /// 外网访问地址(https)
         /// </summary>
-        private static string OssAccessUrlHttps { get; set; }
+        public static string OssAccessUrlHttps { get; set; }
 
         /// <summary>
         /// 根文件夹
@@ -48,6 +48,11 @@ namespace ETMS.Utility
         /// 临时文件
         /// </summary>
         private const string TempFolder = "temporary";
+
+        public static string GetBascKeyPrefix(int tenantId, string fileType)
+        {
+            return $"{RootFolder}/{tenantId}/{fileType}/";
+        }
 
         /// <summary>
         /// 上传文件
@@ -285,6 +290,11 @@ namespace ETMS.Utility
         /// Video
         /// </summary>
         public const string Video = "video";
+
+        /// <summary>
+        /// sts临时授权上传
+        /// </summary>
+        public const string STS = "sts";
 
         /// <summary>
         /// 学生人脸

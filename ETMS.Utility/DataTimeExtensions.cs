@@ -135,5 +135,10 @@ namespace ETMS.Utility
             }
             return true;
         }
+
+        public static DateTime ToBeijingTime(this DateTime @this)
+        {
+            return System.TimeZoneInfo.ConvertTimeFromUtc(@this, TimeZoneInfo.Local);
+        }
     }
 }
