@@ -56,7 +56,7 @@ namespace ETMS.Entity.Dto.User.Output
         /// <summary>
         /// 已授课时
         /// </summary>
-        public int TotalClassTimes { get; set; }
+        public string TotalClassTimes { get; set; }
 
         /// <summary>
         /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>

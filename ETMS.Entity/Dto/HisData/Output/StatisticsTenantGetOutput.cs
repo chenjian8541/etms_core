@@ -19,7 +19,7 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// <summary>
         /// 本月授课课时
         /// </summary>
-        public int ClassTimesThisMonth { get; set; }
+        public string ClassTimesThisMonth { get; set; }
 
         /// <summary>
         /// 今日实到人次

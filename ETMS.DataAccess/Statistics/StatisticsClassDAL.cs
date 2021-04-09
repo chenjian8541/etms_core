@@ -33,7 +33,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsClassAttendance>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
         }
 
-        public async Task StatisticsClassTimesSave(DateTime ot, int addClassTimes, decimal addDeSum)
+        public async Task StatisticsClassTimesSave(DateTime ot, decimal addClassTimes, decimal addDeSum)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassTimes>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot);
             if (hisData != null)
@@ -55,7 +55,7 @@ namespace ETMS.DataAccess
             }
         }
 
-        public async Task StatisticsClassTimesDeduction(DateTime ot, int deClassTimes, decimal deDeSum)
+        public async Task StatisticsClassTimesDeduction(DateTime ot, decimal deClassTimes, decimal deDeSum)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassTimes>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot);
             if (hisData != null)
@@ -71,7 +71,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsClassTimes>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
         }
 
-        public async Task StatisticsClassCourseSave(DateTime ot, long courseId, int addClassTimes)
+        public async Task StatisticsClassCourseSave(DateTime ot, long courseId, decimal addClassTimes)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassCourse>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot && p.CourseId == courseId);
             if (hisData != null)
@@ -92,7 +92,7 @@ namespace ETMS.DataAccess
             }
         }
 
-        public async Task StatisticsClassCourseDeduction(DateTime ot, long courseId, int deClassTimes)
+        public async Task StatisticsClassCourseDeduction(DateTime ot, long courseId, decimal deClassTimes)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassCourse>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot && p.CourseId == courseId);
             if (hisData != null)
@@ -107,7 +107,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<StatisticsClassCourseView>($"SELECT TOP {topLimit} CourseId,SUM(ClassTimes) AS TotalClassTimes FROM EtStatisticsClassCourse WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startTime.EtmsToDateString()}' AND Ot <= '{endTime.EtmsToDateString()}' GROUP BY CourseId ORDER BY TotalClassTimes DESC");
         }
 
-        public async Task StatisticsClassTeacherSave(DateTime ot, long teacherId, int addClassTimes)
+        public async Task StatisticsClassTeacherSave(DateTime ot, long teacherId, decimal addClassTimes)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassTeacher>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot && p.TeacherId == teacherId);
             if (hisData != null)
@@ -128,7 +128,7 @@ namespace ETMS.DataAccess
             }
         }
 
-        public async Task StatisticsClassTeacherDeduction(DateTime ot, long teacherId, int deClassTimes)
+        public async Task StatisticsClassTeacherDeduction(DateTime ot, long teacherId, decimal deClassTimes)
         {
             var hisData = await this._dbWrapper.Find<EtStatisticsClassTeacher>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == ot && p.TeacherId == teacherId);
             if (hisData != null)

@@ -75,7 +75,7 @@ namespace ETMS.Entity.Dto.User.Output
         /// <summary>
         /// 已授课时
         /// </summary>
-        public int TotalClassTimes { get; set; }
+        public string TotalClassTimes { get; set; }
 
         public int TotalClassCount { get; set; }
 

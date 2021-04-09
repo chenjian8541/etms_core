@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.Utility;
 
 namespace ETMS.Business
 {
@@ -86,7 +87,7 @@ namespace ETMS.Business
                 ClassActuallyCountToday = classActuallyCountToday,
                 ClassLeaveCountToday = classLeaveCountToday,
                 ClassNotArrivedToday = classNotArrivedToday,
-                ClassTimesThisMonth = classTimes.Sum(p => p.ClassTimes),
+                ClassTimesThisMonth = classTimes.Sum(p => p.ClassTimes).EtmsToString(),
                 IsDataLimit = request.IsDataLimit
             };
             return ResponseBase.Success(output);

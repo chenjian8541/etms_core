@@ -13,7 +13,7 @@ namespace ETMS.Entity.Database.Source
     {
         public DateTime Ot { get; set; }
 
-        public int ClassTimes { get; set; }
+        public decimal ClassTimes { get; set; }
 
         [Obsolete("未使用")]
         public decimal DeSum { get; set; }

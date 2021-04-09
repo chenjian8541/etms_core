@@ -51,7 +51,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// <summary>
         /// 默认课时
         /// </summary>
-        public int DefaultClassTimes { get; set; }
+        public string DefaultClassTimes { get; set; }
 
         /// <summary>
         /// 教室

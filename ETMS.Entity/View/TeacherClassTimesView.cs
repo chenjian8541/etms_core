@@ -44,7 +44,7 @@ namespace ETMS.Entity.View
         /// <summary>
         /// 课时
         /// </summary>
-        public int ClassTimes { get; set; }
+        public decimal ClassTimes { get; set; }
 
         /// <summary>
         /// 课次

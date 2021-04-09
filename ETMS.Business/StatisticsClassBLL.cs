@@ -95,12 +95,12 @@ namespace ETMS.Business
             });
         }
 
-        private async Task StatisticsClassTimesHandle(DateTime ot, int addClassTimes, decimal addDeSum)
+        private async Task StatisticsClassTimesHandle(DateTime ot, decimal addClassTimes, decimal addDeSum)
         {
             await _statisticsClassDAL.StatisticsClassTimesSave(ot, addClassTimes, addDeSum);
         }
 
-        private async Task StatisticsClassCourseHandle(DateTime ot, int classTimes, string classRecordCourses)
+        private async Task StatisticsClassCourseHandle(DateTime ot, decimal classTimes, string classRecordCourses)
         {
             var myCourses = classRecordCourses.Split(',');
             foreach (var p in myCourses)
@@ -113,7 +113,7 @@ namespace ETMS.Business
             }
         }
 
-        private async Task StatisticsClassTeacherHandle(DateTime ot, int classTimes, string classRecordTeachers)
+        private async Task StatisticsClassTeacherHandle(DateTime ot, decimal classTimes, string classRecordTeachers)
         {
             var myTeachers = classRecordTeachers.Split(',');
             foreach (var p in myTeachers)
@@ -154,12 +154,12 @@ namespace ETMS.Business
             var currentDate = request.StartOt.Value;
             var endDate = request.EndOt.Value;
             var statisticsClassTimes = await _statisticsClassDAL.StatisticsClassTimesGet(currentDate, endDate);
-            var echartsBar = new EchartsBar<int>();
+            var echartsBar = new EchartsBar<string>();
             while (currentDate <= endDate)
             {
                 var myStatisticsClassTime = statisticsClassTimes.FirstOrDefault(p => p.Ot == currentDate);
                 echartsBar.XData.Add(currentDate.ToString("MM-dd"));
-                echartsBar.MyData.Add(myStatisticsClassTime == null ? 0 : myStatisticsClassTime.ClassTimes);
+                echartsBar.MyData.Add(myStatisticsClassTime == null ? "0" : myStatisticsClassTime.ClassTimes.EtmsToString());
                 currentDate = currentDate.AddDays(1);
             }
             return ResponseBase.Success(echartsBar);
@@ -171,7 +171,7 @@ namespace ETMS.Business
             var endDate = request.EndOt.Value;
             var statisticsData = await _statisticsClassDAL.StatisticsClassCourseGet(currentDate, endDate, 20);
             statisticsData = statisticsData.OrderBy(p => p.TotalClassTimes);
-            var echartsBarVerticalOutput = new EchartsBarVertical<int>();
+            var echartsBarVerticalOutput = new EchartsBarVertical<string>();
             if (statisticsData != null && statisticsData.Any())
             {
                 var tempBox = new DataTempBox<EtCourse>();
@@ -183,7 +183,7 @@ namespace ETMS.Business
                         continue;
                     }
                     echartsBarVerticalOutput.YData.Add(courseName);
-                    echartsBarVerticalOutput.XData.Add(item.TotalClassTimes);
+                    echartsBarVerticalOutput.XData.Add(item.TotalClassTimes.EtmsToString());
                 }
             }
             return ResponseBase.Success(echartsBarVerticalOutput);
@@ -195,7 +195,7 @@ namespace ETMS.Business
             var endDate = request.EndOt.Value;
             var statisticsData = await _statisticsClassDAL.StatisticsClassTeacherGet(currentDate, endDate, 20);
             statisticsData = statisticsData.OrderBy(p => p.TotalClassTimes);
-            var echartsBarVerticalOutput = new EchartsBarVertical<int>();
+            var echartsBarVerticalOutput = new EchartsBarVertical<string>();
             if (statisticsData != null && statisticsData.Any())
             {
                 var tempBox = new DataTempBox<EtUser>();
@@ -207,7 +207,7 @@ namespace ETMS.Business
                         continue;
                     }
                     echartsBarVerticalOutput.YData.Add(teacherName);
-                    echartsBarVerticalOutput.XData.Add(item.TotalClassTimes);
+                    echartsBarVerticalOutput.XData.Add(item.TotalClassTimes.EtmsToString());
                 }
             }
             return ResponseBase.Success(echartsBarVerticalOutput);

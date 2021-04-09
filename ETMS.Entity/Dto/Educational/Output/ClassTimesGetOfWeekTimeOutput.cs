@@ -100,7 +100,7 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public string ClassTimesDesc { get; set; }
 
-        public int DefaultClassTimes { get; set; }
+        public string DefaultClassTimes { get; set; }
 
         /// <summary>
         /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>

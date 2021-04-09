@@ -28,13 +28,13 @@ namespace ETMS.IDataAccess
 
         Task<Tuple<IEnumerable<UserView>, int>> GetUserPaging(IPagingRequest request);
 
-        Task<bool> UpdateTeacherClassTimesInfo(long teacherId, int addClassTimes, int addClassCount);
+        Task<bool> UpdateTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount);
 
-        Task<bool> DeTeacherClassTimesInfo(long teacherId, int deClassTimes, int deClassCount);
+        Task<bool> DeTeacherClassTimesInfo(long teacherId, decimal deClassTimes, int deClassCount);
 
-        Task<bool> AddTeacherMonthClassTimes(long teacherId, DateTime classTime, int addClassTimes, int addClassCount);
+        Task<bool> AddTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal addClassTimes, int addClassCount);
 
-        Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, int deClassTimes, int deClassCount);
+        Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal deClassTimes, int deClassCount);
 
         Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request);
 

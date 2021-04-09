@@ -55,7 +55,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 默认课时
         /// </summary>
-        public int DefaultClassTimes { get; set; }
+        public decimal DefaultClassTimes { get; set; }
 
         /// <summary>
         /// 教室, 各教室Id之间以“,”隔开

@@ -8,6 +8,6 @@ namespace ETMS.Entity.View.Persistence
     {
         public long CourseId { get; set; }
 
-        public int TotalClassTimes { get; set; }
+        public decimal TotalClassTimes { get; set; }
     }
 }

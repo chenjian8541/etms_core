@@ -36,7 +36,7 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public int NeedAttendNumber { get; set; }
 
-        public int ClassTimes { get; set; }
+        public string ClassTimes { get; set; }
 
         public decimal DeSum { get; set; }
 

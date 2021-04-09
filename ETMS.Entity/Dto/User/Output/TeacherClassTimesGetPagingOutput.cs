@@ -11,7 +11,7 @@ namespace ETMS.Entity.Dto.User.Output
         /// <summary>
         /// 课时
         /// </summary>
-        public int ClassTimes { get; set; }
+        public string ClassTimes { get; set; }
 
         /// <summary>
         /// 课次

@@ -15,21 +15,21 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStatisticsClassAttendance>> StatisticsClassAttendanceGet(DateTime startTime, DateTime endTime);
 
-        Task StatisticsClassTimesSave(DateTime ot, int addClassTimes, decimal addDeSum);
+        Task StatisticsClassTimesSave(DateTime ot, decimal addClassTimes, decimal addDeSum);
 
-        Task StatisticsClassTimesDeduction(DateTime ot, int deClassTimes, decimal deDeSum);
+        Task StatisticsClassTimesDeduction(DateTime ot, decimal deClassTimes, decimal deDeSum);
 
         Task<List<EtStatisticsClassTimes>> StatisticsClassTimesGet(DateTime startTime, DateTime endTime);
 
-        Task StatisticsClassCourseSave(DateTime ot, long courseId, int addClassTimes);
+        Task StatisticsClassCourseSave(DateTime ot, long courseId, decimal addClassTimes);
 
-        Task StatisticsClassCourseDeduction(DateTime ot, long courseId, int deClassTimes);
+        Task StatisticsClassCourseDeduction(DateTime ot, long courseId, decimal deClassTimes);
 
         Task<IEnumerable<StatisticsClassCourseView>> StatisticsClassCourseGet(DateTime startTime, DateTime endTime, int topLimit);
 
-        Task StatisticsClassTeacherSave(DateTime ot, long teacherId, int addClassTimes);
+        Task StatisticsClassTeacherSave(DateTime ot, long teacherId, decimal addClassTimes);
 
-        Task StatisticsClassTeacherDeduction(DateTime ot, long teacherId, int deClassTimes);
+        Task StatisticsClassTeacherDeduction(DateTime ot, long teacherId, decimal deClassTimes);
 
         Task<IEnumerable<StatisticsClassTeacherView>> StatisticsClassTeacherGet(DateTime startTime, DateTime endTime, int topLimit);
     }

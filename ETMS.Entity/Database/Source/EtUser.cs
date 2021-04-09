@@ -84,7 +84,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// 已授课时
         /// </summary>
-        public int TotalClassTimes { get; set; }
+        public decimal TotalClassTimes { get; set; }
 
 
         /// <summary>

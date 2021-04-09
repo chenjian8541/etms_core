@@ -84,21 +84,21 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecutePage<UserView>("UserView", "*", request.PageSize, request.PageCurrent, "jobtype asc,Id DESC", request.ToString());
         }
 
-        public async Task<bool> UpdateTeacherClassTimesInfo(long teacherId, int addClassTimes, int addClassCount)
+        public async Task<bool> UpdateTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes + {addClassTimes} , TotalClassCount = TotalClassCount + {addClassCount} WHERE Id = {teacherId}");
             await UpdateCache(_tenantId, teacherId);
             return count > 0;
         }
 
-        public async Task<bool> DeTeacherClassTimesInfo(long teacherId, int deClassTimes, int deClassCount)
+        public async Task<bool> DeTeacherClassTimesInfo(long teacherId, decimal deClassTimes, int deClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes - {deClassTimes} , TotalClassCount = TotalClassCount - {deClassCount} WHERE Id = {teacherId}");
             await UpdateCache(_tenantId, teacherId);
             return count > 0;
         }
 
-        public async Task<bool> AddTeacherMonthClassTimes(long teacherId, DateTime classTime, int addClassTimes, int addClassCount)
+        public async Task<bool> AddTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal addClassTimes, int addClassCount)
         {
             var year = classTime.Year;
             var moth = classTime.Month;
@@ -126,7 +126,7 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, int deClassTimes, int deClassCount)
+        public async Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal deClassTimes, int deClassCount)
         {
             var year = classTime.Year;
             var moth = classTime.Month;

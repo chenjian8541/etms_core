@@ -123,7 +123,7 @@ namespace ETMS.Business
                 TeacherNum = classTimes.TeacherNum,
                 Teachers = classTimes.Teachers,
                 TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers),
-                DefaultClassTimes = etClass.EtClass.DefaultClassTimes,
+                DefaultClassTimes = etClass.EtClass.DefaultClassTimes.EtmsToString(),
                 ReservationType = classTimes.ReservationType,
                 ClassType = etClass.EtClass.Type,
                 LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(classTimes.StudentCount, etClass.EtClass.LimitStudentNums, etClass.EtClass.LimitStudentNumsType)
@@ -144,7 +144,8 @@ namespace ETMS.Business
                 foreach (var cMyStudent in classStudent)
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
-                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null, etClass.EtClass.DefaultClassTimes, EmBool.False);
+                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null,
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False);
                     if (classTimesStudent != null)
                     {
                         output.Add(classTimesStudent);
@@ -179,7 +180,8 @@ namespace ETMS.Business
                 foreach (var cMyStudent in classStudent)
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
-                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null, etClass.EtClass.DefaultClassTimes,
+                        cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null,
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(),
                         EmBool.False);
                     if (classTimesStudent != null)
                     {
@@ -210,7 +212,7 @@ namespace ETMS.Business
                 {
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
-                        etClass.EtClass.DefaultClassTimes, tMyStudent.IsReservation);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation);
                     if (tempTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
@@ -238,7 +240,7 @@ namespace ETMS.Business
         }
 
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
-            long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, int defaultClassTimes,
+            long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, string defaultClassTimes,
             byte isReservation)
         {
             var myStudent = await _studentDAL.GetStudent(studentId);
@@ -254,7 +256,7 @@ namespace ETMS.Business
             var studentCourse = await _studentCourseDAL.GetStudentCourse(studentId, courseId);
             if (studentType == EmClassStudentType.TryCalssStudent)
             {
-                defaultClassTimes = 0;
+                defaultClassTimes = "0";
             }
             return new ClassTimesStudentGetOutput()
             {
@@ -272,7 +274,7 @@ namespace ETMS.Business
                 ClassTimesStudentId = classTimesStudentId,
                 StudentTryCalssLogId = studentTryCalssLogId,
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
-                DefaultClassTimes = defaultClassTimes.ToString(),
+                DefaultClassTimes = defaultClassTimes,
                 Points = myCourse.Item1.CheckPoints,
                 IsReservation = isReservation,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Student.Avatar),
@@ -1111,7 +1113,7 @@ namespace ETMS.Business
                         TeachersDesc = teachersDesc,
                         Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                         ClassTimesDesc = classTimesDesc,
-                        DefaultClassTimes = etClass.DefaultClassTimes,
+                        DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                         ReservationType = classTimes.ReservationType,
                         IsTry = etClass.DataType == EmClassDataType.Temp
                     };
@@ -1195,7 +1197,7 @@ namespace ETMS.Business
                         TeachersDesc = teachersDesc,
                         Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                         ClassTimesDesc = classTimesDesc,
-                        DefaultClassTimes = etClass.DefaultClassTimes,
+                        DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                         ReservationType = classTimes.ReservationType,
                         IsTry = etClass.DataType == EmClassDataType.Temp
                     };
@@ -1322,7 +1324,7 @@ namespace ETMS.Business
                             TeachersDesc = teachersDesc,
                             Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                             ClassTimesDesc = classTimesDesc,
-                            DefaultClassTimes = etClass.DefaultClassTimes,
+                            DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp
@@ -1452,7 +1454,7 @@ namespace ETMS.Business
                             TeachersDesc = teachersDesc,
                             Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                             ClassTimesDesc = classTimesDesc,
-                            DefaultClassTimes = etClass.DefaultClassTimes,
+                            DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp
@@ -1570,7 +1572,7 @@ namespace ETMS.Business
                             TeachersDesc = teachersDesc,
                             Duration = EtmsHelper.GetTimeDuration(classTimes.StartTime, classTimes.EndTime),
                             ClassTimesDesc = classTimesDesc,
-                            DefaultClassTimes = etClass.DefaultClassTimes,
+                            DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp

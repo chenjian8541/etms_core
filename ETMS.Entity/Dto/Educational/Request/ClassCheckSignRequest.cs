@@ -46,7 +46,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// <summary>
         /// 授课课时
         /// </summary>
-        public int ClassTimes { get; set; }
+        public decimal ClassTimes { get; set; }
 
         /// <summary>
         /// 教室

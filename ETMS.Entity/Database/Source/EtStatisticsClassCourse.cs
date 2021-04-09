@@ -15,6 +15,6 @@ namespace ETMS.Entity.Database.Source
 
         public long CourseId { get; set; }
 
-        public int ClassTimes { get; set; }
+        public decimal ClassTimes { get; set; }
     }
 }

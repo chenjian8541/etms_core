@@ -113,7 +113,7 @@ namespace ETMS.Business
                     CheckOt = classRecord.CheckOt,
                     CheckUserId = classRecord.CheckUserId,
                     NeedAttendNumber = classRecord.NeedAttendNumber,
-                    ClassTimes = classRecord.ClassTimes,
+                    ClassTimes = classRecord.ClassTimes.EtmsToString(),
                     DeSum = classRecord.DeSum,
                     StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                     CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId)
@@ -171,7 +171,7 @@ namespace ETMS.Business
                 CheckOt = classRecord.CheckOt,
                 CheckUserId = classRecord.CheckUserId,
                 NeedAttendNumber = classRecord.NeedAttendNumber,
-                ClassTimes = classRecord.ClassTimes,
+                ClassTimes = classRecord.ClassTimes.EtmsToString(),
                 DeSum = classRecord.DeSum,
                 StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                 CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId)

@@ -532,7 +532,7 @@ namespace ETMS.Business
                 TeacherCertification = p.TeacherCertification,
                 SubjectsGoodAtDesc = p.SubjectsGoodAt.ToItemDesc(allSubject),
                 TotalClassCount = p.TotalClassCount,
-                TotalClassTimes = p.TotalClassTimes,
+                TotalClassTimes = p.TotalClassTimes.EtmsToString(),
                 Gender = p.Gender,
                 GenderDesc = EmGender.GetGenderDesc(p.Gender),
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p.Avatar),
@@ -629,7 +629,7 @@ namespace ETMS.Business
                 SubjectsGoodAt = user.SubjectsGoodAt,
                 TeacherCertification = user.TeacherCertification,
                 TotalClassCount = user.TotalClassCount,
-                TotalClassTimes = user.TotalClassTimes,
+                TotalClassTimes = user.TotalClassTimes.EtmsToString(),
                 SubjectsGoodAtItems = subjectsGoodAtItems
             });
         }
@@ -642,7 +642,7 @@ namespace ETMS.Business
                 UserName = p.UserName,
                 UserPhone = p.UserPhone,
                 ClassCount = p.ClassCount,
-                ClassTimes = p.ClassTimes,
+                ClassTimes = p.ClassTimes.EtmsToString(),
                 DateDesc = p.FirstTime.ToString("yyyy年MM月")
             })));
         }

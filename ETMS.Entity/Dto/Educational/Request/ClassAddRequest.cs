@@ -24,7 +24,7 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public long? ClassCategoryId { get; set; }
 
-        public int DefaultClassTimes { get; set; }
+        public decimal DefaultClassTimes { get; set; }
 
         public List<long> ClassRoomIds { get; set; }
 
