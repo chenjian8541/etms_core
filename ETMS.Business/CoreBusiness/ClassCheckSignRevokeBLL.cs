@@ -29,11 +29,13 @@ namespace ETMS.Business
 
         private readonly IUserDAL _userDAL;
 
+        private readonly IClassTimesDAL _classTimesDAL;
+
         private readonly IEventPublisher _eventPublisher;
 
         public ClassCheckSignRevokeBLL(IClassRecordDAL classRecordDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL,
-            IUserDAL userDAL, IEventPublisher eventPublisher)
+            IUserDAL userDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -42,11 +44,13 @@ namespace ETMS.Business
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._userDAL = userDAL;
             this._eventPublisher = eventPublisher;
+            this._classTimesDAL = classTimesDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classRecordDAL, _studentCourseDAL, _studentDAL, _studentCourseConsumeLogDAL, _studentPointsLogDAL, _userDAL);
+            this.InitDataAccess(tenantId, _classRecordDAL, _studentCourseDAL, _studentDAL, _studentCourseConsumeLogDAL,
+                _studentPointsLogDAL, _userDAL, _classTimesDAL);
         }
 
         public async Task<ResponseBase> ClassCheckSignRevoke(ClassCheckSignRevokeRequest request)
@@ -175,6 +179,21 @@ namespace ETMS.Business
                 TenantId = classRecord.TenantId,
                 UserId = request.UserId
             });
+
+            //排课课次
+            if (classRecord.ClassTimesId != null)
+            {
+                await _classTimesDAL.UpdateClassTimesClassCheckSignRevoke(classRecord.ClassTimesId.Value, EmClassTimesStatus.UnRollcall);
+                _eventPublisher.Publish(new SyncClassTimesStudentEvent(classRecord.TenantId)
+                {
+                    ClassTimesId = classRecord.ClassTimesId.Value
+                });
+                _eventPublisher.Publish(new NoticeStudentClassCheckSignRevokeEvent(classRecord.TenantId)
+                {
+                    ClassRecord = classRecord,
+                    ClassRecordStudent = classRecordStudents
+                });
+            }
 
             //统计信息
             _eventPublisher.Publish(new StatisticsClassRevokeEvent(request.TenantId)

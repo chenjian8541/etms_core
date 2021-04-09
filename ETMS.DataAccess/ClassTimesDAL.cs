@@ -124,6 +124,15 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> UpdateClassTimesClassCheckSignRevoke(long classTimesId, byte newStatus)
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtClassTimes SET [Status] = {newStatus} ,ClassRecordId = null WHERE Id = {classTimesId} ;");
+            sql.Append($"UPDATE EtClassTimesStudent SET [Status] = {newStatus} WHERE ClassTimesId = {classTimesId} ;");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
         public async Task<EtClassTimesStudent> GetClassTimesStudent(long classTimesId, long studentTryCalssLogId)
         {
             return await _dbWrapper.Find<EtClassTimesStudent>(p => p.ClassTimesId == classTimesId && p.StudentTryCalssLogId == studentTryCalssLogId &&

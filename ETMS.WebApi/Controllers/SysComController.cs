@@ -76,5 +76,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return await _sysComBLL.ClientUpgradeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -379,5 +379,83 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeStudentReservation(req);
             }
         }
+
+        public async Task NoticeStudentClassCheckSignRevokeConsumerEvent(NoticeStudentClassCheckSignRevokeEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
+            {
+                return;
+            }
+            var classRecord = request.ClassRecord;
+            var classRecordStudent = request.ClassRecordStudent;
+            var classInfo = await _classDAL.GetClassBucket(classRecord.ClassId);
+            if (classInfo == null || classInfo.EtClass == null)
+            {
+                Log.Warn($"[NoticeStudentClassCheckSignRevokeConsumerEvent]未找到上课班级,ClassRecordId:{classRecord.Id}", this.GetType());
+                return;
+            }
+
+            var req = new NoticeStudentCustomizeMsgRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
+            {
+                OtTime = DateTime.Now.EtmsToMinuteString(),
+                Students = new List<NoticeStudentCustomizeMsgStudent>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
+            {
+                req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
+                req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+            }
+
+            foreach (var p in classRecordStudent)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+
+                var title = $"你所在的班级({classInfo.EtClass.Name})在{classRecord.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}的上课记录已撤销";
+                if (p.DeType == EmDeClassTimesType.ClassTimes)
+                {
+                    title = $"{title} 返还{p.DeClassTimes.EtmsToString()}课时";
+                }
+                req.Students.Add(new NoticeStudentCustomizeMsgStudent()
+                {
+                    Name = student.Name,
+                    Msg = string.Empty,
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Title = title
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentCustomizeMsgStudent()
+                    {
+                        Name = student.Name,
+                        Msg = string.Empty,
+                        OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Title = title
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
+                {
+                    _wxService.NoticeStudentCustomizeMsg(req);
+                }
+            }
+        }
     }
 }

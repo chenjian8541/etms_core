@@ -51,6 +51,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> UpdateClassTimesIsClassCheckSign(long classTimesId, long classRecordId, byte newStatus, EtClassRecord record);
 
+        Task<bool> UpdateClassTimesClassCheckSignRevoke(long classTimesId, byte newStatus);
+
         Task<EtClassTimesStudent> GetClassTimesStudent(long classTimesId, long studentTryCalssLogId);
 
         Task<EtClassTimesStudent> GetClassTimesTryStudent(long studentId, long courseId, DateTime classOt);

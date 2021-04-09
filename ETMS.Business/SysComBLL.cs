@@ -25,14 +25,17 @@ namespace ETMS.Business
 
         private readonly ISysAppsettingsBLL _sysAppsettingsBLL;
 
+        private readonly ISysClientUpgradeDAL _sysClientUpgradeDAL;
+
         public SysComBLL(ISysUpgradeMsgDAL sysUpgradeMsgDAL, ISysTenantDAL sysTenantDAL, ISysExplainDAL sysExplainDAL,
-            ISysAgentDAL sysAgentDAL, ISysAppsettingsBLL sysAppsettingsBLL)
+            ISysAgentDAL sysAgentDAL, ISysAppsettingsBLL sysAppsettingsBLL, ISysClientUpgradeDAL sysClientUpgradeDAL)
         {
             this._sysUpgradeMsgDAL = sysUpgradeMsgDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._sysExplainDAL = sysExplainDAL;
             this._sysAgentDAL = sysAgentDAL;
             this._sysAppsettingsBLL = sysAppsettingsBLL;
+            this._sysClientUpgradeDAL = sysClientUpgradeDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -145,6 +148,23 @@ namespace ETMS.Business
                 ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
                 BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
                 SecurityToken = aliyunOssSTS.Credentials.SecurityToken
+            });
+        }
+
+        public async Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request)
+        {
+            var clientType = EmUserOperationLogClientType.GetClientUpgradeClientType(request.LoginClientType);
+            var log = await _sysClientUpgradeDAL.SysClientUpgradeLatestGet(clientType);
+            if (log == null)
+            {
+                return ResponseBase.Success();
+            }
+            return ResponseBase.Success(new ClientUpgradeGetOutput()
+            {
+                FileUrl = log.FileUrl,
+                UpgradeContent = log.UpgradeContent,
+                UpgradeType = log.UpgradeType,
+                VersionNo = log.VersionNo
             });
         }
     }

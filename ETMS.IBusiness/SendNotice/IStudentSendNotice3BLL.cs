@@ -15,5 +15,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeStudentAccountRechargeChangedConsumerEvent(NoticeStudentAccountRechargeChangedEvent request);
 
         Task NoticeStudentReservationConsumerEvent(NoticeStudentReservationEvent request);
+
+        Task NoticeStudentClassCheckSignRevokeConsumerEvent(NoticeStudentClassCheckSignRevokeEvent request);
     }
 }

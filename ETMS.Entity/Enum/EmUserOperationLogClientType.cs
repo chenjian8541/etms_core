@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Enum.EtmsManage;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -33,6 +34,15 @@ namespace ETMS.Entity.Enum
                     return "手机APP";
             }
             return string.Empty;
+        }
+
+        public static int GetClientUpgradeClientType(int logClientType)
+        {
+            if (logClientType == 2)
+            {
+                return EmSysClientUpgradeClientType.Android;
+            }
+            return -1;
         }
     }
 }

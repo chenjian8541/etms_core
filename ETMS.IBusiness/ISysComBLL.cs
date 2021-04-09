@@ -16,5 +16,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> SysKefu(SysKefuRequest request);
 
         ResponseBase UploadConfigGet(RequestBase request);
+
+        Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request);
     }
 }
