@@ -89,6 +89,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtCourse>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Name == name);
         }
 
+        public async Task<EtCourse> GetCourse(string name, byte courseType)
+        {
+            return await _dbWrapper.Find<EtCourse>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Name == name && p.Type == courseType);
+        }
+
         public async Task<bool> DelCourse(long id)
         {
             await _dbWrapper.Execute($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtCoursePriceRule WHERE CourseId = {id}");

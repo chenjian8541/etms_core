@@ -18,6 +18,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditCourse(EtCourse course);
 
+        Task<EtCourse> GetCourse(string name, byte courseType);
+
         Task<Tuple<EtCourse, List<EtCoursePriceRule>>> GetCourse(long id);
 
         Task<EtCourse> GetCourse(string name);

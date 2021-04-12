@@ -10,6 +10,11 @@ namespace ETMS.Entity.Dto.Student.Request
     public class StudentNeedAttendClassGetPagingRequest : RequestPagingBase
     {
         /// <summary>
+        /// 学员ID
+        /// </summary>
+        public long? StudentId { get; set; }
+
+        /// <summary>
         /// 获取SQL语句
         /// </summary>
         /// <returns></returns>
@@ -17,6 +22,10 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             var condition = new StringBuilder(DataFilterWhere);
             condition.Append($" AND [Status] = {EmTempStudentNeedCheckClassStatus.NotAttendClass} AND Ot = '{DateTime.Now.EtmsToDateString()}' ");
+            if (StudentId != null)
+            {
+                condition.Append($" AND StudentId = {StudentId.Value}");
+            }
             return condition.ToString();
         }
     }

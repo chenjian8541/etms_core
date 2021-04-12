@@ -13,6 +13,10 @@ namespace ETMS.Entity.CacheBucket
 
         public int NeedAttendClassCount { get; set; }
 
+        public int NeedCheckCount { get; set; }
+
+        public int FinishCheckInCount { get; set; }
+
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.TempTwoDays);
 
         public string GetKeyFormat(params object[] parms)

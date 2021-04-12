@@ -562,7 +562,11 @@ namespace ETMS.Business
             var isShowAttendClass = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn.IsRelationClassTimesCard == EmBool.True
                 || tenantConfig.StudentCheckInConfig.StudentUseFaceCheckIn.IsRelationClassTimesFace == EmBool.True;
 
-            var output = new StudentNeedCheckStatisticsOutput() { IsShowCheckOut = isShowCheckOut, IsShowAttendClass = isShowAttendClass };
+            var output = new StudentNeedCheckStatisticsOutput()
+            {
+                IsShowCheckOut = isShowCheckOut,
+                IsShowAttendClass = isShowAttendClass
+            };
             var tempStudentNeedCheckCountBucket = await _tempStudentNeedCheckDAL.GetTempStudentNeedCheckCount(DateTime.Now);
             if (tempStudentNeedCheckCountBucket == null)
             {
@@ -571,6 +575,8 @@ namespace ETMS.Business
             output.NeedAttendClassCount = tempStudentNeedCheckCountBucket.NeedAttendClassCount;
             output.NeedCheckInCount = tempStudentNeedCheckCountBucket.NeedCheckInCount;
             output.NeedCheckOutCount = tempStudentNeedCheckCountBucket.NeedCheckOutCount;
+            output.NeedCheckCount = tempStudentNeedCheckCountBucket.NeedCheckCount;
+            output.FinishCheckInCount = tempStudentNeedCheckCountBucket.FinishCheckInCount;
             return ResponseBase.Success(output);
         }
 

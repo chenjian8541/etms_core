@@ -285,7 +285,7 @@ namespace ETMS.Business
                     await _studentDAL.StudentEnrolmentEventChangeInfo(student.Id, 0, EmStudentType.ReadingStudent);
                 }
 
-                var course = await _courseDAL.GetCourse(p.CourseName);
+                var course = await _courseDAL.GetCourse(p.CourseName, p.CourseType);
                 decimal price = 0;
                 if (p.AptSum > 0 && p.BuyQuantity > 0)
                 {
@@ -550,7 +550,7 @@ namespace ETMS.Business
                     await _studentDAL.StudentEnrolmentEventChangeInfo(student.Id, 0, EmStudentType.ReadingStudent);
                 }
 
-                var course = await _courseDAL.GetCourse(p.CourseName);
+                var course = await _courseDAL.GetCourse(p.CourseName, p.CourseType);
                 var dayDeff = EtmsHelper.GetDffTime(p.StartTime, p.EndTime.AddDays(1));
                 var myMonths = dayDeff.Item1;
                 if (myMonths == 0)

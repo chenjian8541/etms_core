@@ -15,5 +15,9 @@ namespace ETMS.Entity.Dto.Student.Output
         public bool IsShowCheckOut { get; set; }
 
         public bool IsShowAttendClass { get; set; }
+
+        public int NeedCheckCount { get; set; }
+
+        public int FinishCheckInCount { get; set; }
     }
 }

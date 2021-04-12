@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp.View;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -23,15 +25,28 @@ namespace ETMS.DataAccess
         {
             var ot = Convert.ToDateTime(keys[1]);
             var otDesc = ot.EtmsToDateString();
+            var needCheckStatistics = await _dbWrapper.ExecuteObject<StatisticsGroupCount>($"SELECT IsCheckIn as SType,COUNT(IsCheckIn) as SCount FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsDeleted = {EmIsDeleted.Normal} GROUP BY IsCheckIn");
             var needCheckInCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsCheckIn = {EmBool.False} AND IsDeleted = {EmIsDeleted.Normal}");
             var needCheckOutCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND IsCheckIn = {EmBool.True} AND IsCheckOut = {EmBool.False} AND IsDeleted = {EmIsDeleted.Normal}");
             var needAttendClassCount = await _dbWrapper.ExecuteScalar($"SELECT COUNT(0) FROM EtTempStudentNeedCheckClass WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' AND [Status] = {EmTempStudentNeedCheckClassStatus.NotAttendClass} AND IsDeleted = {EmIsDeleted.Normal}");
-            return new TempStudentNeedCheckCountBucket()
+            var bucket = new TempStudentNeedCheckCountBucket()
             {
                 NeedAttendClassCount = needAttendClassCount.ToInt(),
                 NeedCheckInCount = needCheckInCount.ToInt(),
-                NeedCheckOutCount = needCheckOutCount.ToInt()
+                NeedCheckOutCount = needCheckOutCount.ToInt(),
+                FinishCheckInCount = 0,
+                NeedCheckCount = 0
             };
+            if (needCheckStatistics.Any())
+            {
+                bucket.NeedCheckCount = needCheckStatistics.Sum(p => p.SCount);
+                var isFinishCheckIn = needCheckStatistics.FirstOrDefault(p => p.SType == EmBool.True);
+                if (isFinishCheckIn != null)
+                {
+                    bucket.FinishCheckInCount = isFinishCheckIn.SCount;
+                }
+            }
+            return bucket;
         }
 
         public async Task<TempStudentNeedCheckCountBucket> GetTempStudentNeedCheckCount(DateTime ot)
