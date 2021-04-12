@@ -1,4 +1,6 @@
-﻿using ETMS.Entity.Enum;
+﻿using ETMS.Entity;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.ExternalService.Contract;
@@ -35,13 +37,16 @@ namespace ETMS.ExternalService.Implement
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly ISysTenantWechartErrorDAL _sysTenantWechartErrorDAL;
+
         public WxService(IStudentWechatDAL studentWechatDAL, ISysWechartAuthTemplateMsgDAL sysWechartAuthTemplateMsgDAL,
-            IUserWechatDAL userWechatDAL, IStudentDAL studentDAL)
+            IUserWechatDAL userWechatDAL, IStudentDAL studentDAL, ISysTenantWechartErrorDAL sysTenantWechartErrorDAL)
         {
             this._studentWechatDAL = studentWechatDAL;
             this._sysWechartAuthTemplateMsgDAL = sysWechartAuthTemplateMsgDAL;
             this._userWechatDAL = userWechatDAL;
             this._studentDAL = studentDAL;
+            this._sysTenantWechartErrorDAL = sysTenantWechartErrorDAL;
         }
 
         private string GetFirstDesc(NoticeRequestBase requestBase, string first)
@@ -75,7 +80,18 @@ namespace ETMS.ExternalService.Implement
             }
             else
             {
-                throw new Exception($"[ResetTemplateId]添加模板消息ID失败：requestBase:{JsonConvert.SerializeObject(requestBase)}:result:{JsonConvert.SerializeObject(result)}");
+                var err = $"[ResetTemplateId]添加模板消息ID失败：requestBase:{JsonConvert.SerializeObject(requestBase)}:result:{JsonConvert.SerializeObject(result)}";
+                _sysTenantWechartErrorDAL.AddSysTenantWechartError(new SysTenantWechartError()
+                {
+                    AuthorizerAppid = requestBase.AuthorizerAppid,
+                    ErrMsg = err,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = DateTime.Now.Date,
+                    Remark = string.Empty,
+                    TemplateIdShort = requestBase.TemplateIdShort,
+                    TenantId = requestBase.LoginTenantId
+                }).Wait();
+                throw new EtmsFatalException(err);
             }
         }
 

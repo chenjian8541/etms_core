@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ETMS.LOG;
 using System.Transactions;
+using ETMS.Entity;
 
 namespace ETMS.EventConsumer
 {
@@ -30,6 +31,11 @@ namespace ETMS.EventConsumer
                 await Receive(eEvent);
                 Console.WriteLine($"【{ClassName}】处理完成:{eEvent.Id}");
                 Log.Debug($"【{ClassName}】处理完成:{eEvent.Id}", this.GetType());
+            }
+            catch (EtmsFatalException eMsg)
+            {
+                Console.WriteLine($"【{ClassName}】消息处理失败{eEvent.Id}");
+                Log.Fatal($"【{ClassName}】消息处理失败,参数:{JsonConvert.SerializeObject(eEvent)}", eMsg, this.GetType());
             }
             catch (Exception ex)
             {
