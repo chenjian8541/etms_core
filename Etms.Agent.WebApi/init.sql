@@ -263,7 +263,7 @@ INSERT [EtRole] ([TenantId],
                  [AuthorityValueData],
                  [Remark],
                  [IsDeleted])
-VALUES ('{0}', N'校长', N'309485009821345068724781054|2305843009213693950|309485009821345068724781054', N'0', N'校长', 0);
+VALUES ('{0}', N'校长', N'1237940039285380274899124222|590295810358705651710|1237940039285380274899124222', N'0', N'校长', 0);
 GO
 --[EtUser]
 INSERT [EtUser] ([TenantId],
@@ -290,4 +290,4 @@ INSERT [EtUser] ([TenantId],
                  [IsAdmin],
                  [IsDeleted])
 VALUES ('{0}', (SELECT TOP 1 Id FROM EtRole WHERE TenantId = '{0}'), N'{2}', N'{3}', N'1zU2c+OVLS2oIG6BqOyw2g==', N'',
-        1, NULL, N'{3}', 0, N'', 0, GETDATE(), N'', 0, 0, N'', N'', NULL, N'', N'', 1, 0);
+        1, NULL, '', 0, N'', 0, GETDATE(), N'', 0, 0, N'', N'', NULL, N'', N'', 1, 0);

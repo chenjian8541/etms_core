@@ -70,28 +70,45 @@ namespace ETMS.ExternalService.Implement
 
         private string ResetTemplateId(NoticeRequestBase requestBase)
         {
-            LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：requestBase:{JsonConvert.SerializeObject(requestBase)}", this.GetType());
-            var result = TemplateApi.Addtemplate(requestBase.AccessToken, requestBase.TemplateIdShort);
-            LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：result:{JsonConvert.SerializeObject(result)}", this.GetType());
-            if (result.errcode == ReturnCode.请求成功)
+            try
             {
-                _sysWechartAuthTemplateMsgDAL.SaveSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort, result.template_id).Wait();
-                return result.template_id;
+                LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：requestBase:{JsonConvert.SerializeObject(requestBase)}", this.GetType());
+                var result = TemplateApi.Addtemplate(requestBase.AccessToken, requestBase.TemplateIdShort);
+                LOG.Log.Info($"[ResetTemplateId]添加模板消息ID：result:{JsonConvert.SerializeObject(result)}", this.GetType());
+                if (result.errcode == ReturnCode.请求成功)
+                {
+                    _sysWechartAuthTemplateMsgDAL.SaveSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort, result.template_id).Wait();
+                    return result.template_id;
+                }
+                else
+                {
+                    var err = $"[ResetTemplateId]添加模板消息ID失败：requestBase:{JsonConvert.SerializeObject(requestBase)}:result:{JsonConvert.SerializeObject(result)}";
+                    _sysTenantWechartErrorDAL.AddSysTenantWechartError(new SysTenantWechartError()
+                    {
+                        AuthorizerAppid = requestBase.AuthorizerAppid,
+                        ErrMsg = err,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Ot = DateTime.Now.Date,
+                        Remark = string.Empty,
+                        TemplateIdShort = requestBase.TemplateIdShort,
+                        TenantId = requestBase.LoginTenantId
+                    }).Wait();
+                    throw new EtmsFatalException(err);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var err = $"[ResetTemplateId]添加模板消息ID失败：requestBase:{JsonConvert.SerializeObject(requestBase)}:result:{JsonConvert.SerializeObject(result)}";
                 _sysTenantWechartErrorDAL.AddSysTenantWechartError(new SysTenantWechartError()
                 {
                     AuthorizerAppid = requestBase.AuthorizerAppid,
-                    ErrMsg = err,
+                    ErrMsg = ex.Message,
                     IsDeleted = EmIsDeleted.Normal,
                     Ot = DateTime.Now.Date,
                     Remark = string.Empty,
                     TemplateIdShort = requestBase.TemplateIdShort,
                     TenantId = requestBase.LoginTenantId
                 }).Wait();
-                throw new EtmsFatalException(err);
+                throw new EtmsFatalException(ex.Message);
             }
         }
 
