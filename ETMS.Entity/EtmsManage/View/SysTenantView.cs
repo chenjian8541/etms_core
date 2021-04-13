@@ -84,5 +84,26 @@ namespace ETMS.Entity.EtmsManage.View
         public string Address { get; set; }
 
         public string SmsSignature { get; set; }
+
+        /// <summary>
+        /// 限制用户数
+        /// (0:不限制)
+        /// </summary>
+        public int MaxUserCount { get; set; }
+
+        /// <summary>
+        /// 云AI类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantAICloudType"/>
+        /// </summary>
+        public int AICloudType { get; set; }
+
+        /// <summary>
+        /// 腾讯云账号ID 
+        /// </summary>
+        public int TencentCloudId { get; set; }
+
+        /// <summary>
+        /// 百度云账号ID 
+        /// </summary>
+        public int BaiduCloudId { get; set; }
     }
 }

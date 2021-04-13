@@ -73,9 +73,19 @@ namespace ETMS.Entity.Database.Manage
         public int ConnectionId { get; set; }
 
         /// <summary>
-        /// 腾讯云账号ID （用于人脸识别）
+        /// 云AI类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantAICloudType"/>
+        /// </summary>
+        public int AICloudType { get; set; }
+
+        /// <summary>
+        /// 腾讯云账号ID 
         /// </summary>
         public int TencentCloudId { get; set; }
+
+        /// <summary>
+        /// 百度云账号ID 
+        /// </summary>
+        public int BaiduCloudId { get; set; }
 
         /// <summary>
         /// 联系人名称

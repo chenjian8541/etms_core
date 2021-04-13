@@ -45,5 +45,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantStudent> SysTenantStudents { get; set; }
         public DbSet<SysClientUpgrade> SysClientUpgrades { get; set; }
         public DbSet<SysTenantWechartError> SysTenantWechartErrors { get; set; }
+        public DbSet<SysAITenantAccount> SysAITenantAccounts { get; set; }
+        public DbSet<SysAIFaceBiduAccount> SysAIFaceBiduAccounts { get; set; }
     }
 }

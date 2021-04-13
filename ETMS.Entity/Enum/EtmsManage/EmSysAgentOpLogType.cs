@@ -34,6 +34,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("客户端升级管理")]
         public const int SysClientUpgradeMgr = 9;
 
+        [Description("云账户管理")]
+        public const int AICloudMgr = 10;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -56,6 +59,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "主系统配置";
                 case SysClientUpgradeMgr:
                     return "客户端升级管理";
+                case AICloudMgr:
+                    return "云账户管理";
             }
             return string.Empty;
         }

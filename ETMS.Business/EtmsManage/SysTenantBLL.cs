@@ -35,10 +35,15 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysConnectionStringDAL _sysConnectionStringDAL;
 
+        private readonly ISysAIFaceBiduAccountDAL _sysAIFaceBiduAccountDAL;
+
+        private readonly ISysAITenantAccountDAL _sysAITenantAccountDAL;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
-            ISysConnectionStringDAL sysConnectionStringDAL)
+            ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
+            ISysAITenantAccountDAL sysAITenantAccountDAL)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -47,6 +52,8 @@ namespace ETMS.Business.EtmsManage
             this._sysAgentDAL = sysAgentDAL;
             this._sysAgentLogDAL = sysAgentLogDAL;
             this._sysConnectionStringDAL = sysConnectionStringDAL;
+            this._sysAIFaceBiduAccountDAL = sysAIFaceBiduAccountDAL;
+            this._sysAITenantAccountDAL = sysAITenantAccountDAL;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -84,7 +91,11 @@ namespace ETMS.Business.EtmsManage
                     IdCard = p.IdCard,
                     LinkMan = p.LinkMan,
                     BuyStatus = p.BuyStatus,
-                    BuyStatusDesc = EmSysTenantBuyStatus.GetSysTenantBuyStatusDesc(p.BuyStatus)
+                    BuyStatusDesc = EmSysTenantBuyStatus.GetSysTenantBuyStatusDesc(p.BuyStatus),
+                    AICloudType = p.AICloudType,
+                    BaiduCloudId = p.BaiduCloudId,
+                    MaxUserCount = p.MaxUserCount,
+                    TencentCloudId = p.TencentCloudId
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -162,6 +173,12 @@ namespace ETMS.Business.EtmsManage
                 exDate = now.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
             }
             var buyStatus = request.EtmsCount > 0 ? EmSysTenantBuyStatus.Official : EmSysTenantBuyStatus.Test;
+
+            //初始化云账户(人脸识别)
+            var biduCloudAccount = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccountSystem();
+            var index = new Random().Next(0, biduCloudAccount.Count);
+            var biduCloudAccountId = biduCloudAccount[index].Id;
+
             var tenantId = await _sysTenantDAL.AddTenant(new SysTenant
             {
                 AgentId = request.LoginAgentId,
@@ -181,7 +198,10 @@ namespace ETMS.Business.EtmsManage
                 Address = request.Address,
                 SmsSignature = request.SmsSignature,
                 BuyStatus = buyStatus,
-                MaxUserCount = SystemConfig.TenantDefaultConfig.MaxUserCountDefault
+                MaxUserCount = SystemConfig.TenantDefaultConfig.MaxUserCountDefault,
+                AICloudType = EmSysTenantAICloudType.BaiduCloud,
+                TencentCloudId = 0,
+                BaiduCloudId = biduCloudAccountId
             });
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);
@@ -540,6 +560,228 @@ namespace ETMS.Business.EtmsManage
             });
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, remeak, EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantBindCloudSave(TenantBindCloudSaveRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            tenant.AICloudType = request.AICloudType;
+            tenant.TencentCloudId = request.TencentCloudId;
+            tenant.BaiduCloudId = request.BaiduCloudId;
+            await _sysTenantDAL.EditTenant(tenant);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request,
+                $"绑定机构云账户:名称:{tenant.Name};机构编码:{tenant.TenantCode};", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceBiduAccountGet(AIFaceBiduAccountGetRequest request)
+        {
+            var output = new List<AIFaceBiduAccountGetOutput>();
+            var dataLog = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccount();
+            if (dataLog.Any())
+            {
+                foreach (var p in dataLog)
+                {
+                    output.Add(new AIFaceBiduAccountGetOutput()
+                    {
+                        Remark = p.Remark,
+                        Id = p.Id,
+                        Label = p.Remark,
+                        Value = p.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> AIFaceBiduAccountGetPaging(AIFaceBiduAccountGetPagingRequest request)
+        {
+            var pagingData = await _sysAIFaceBiduAccountDAL.GetPaging(request);
+            var output = new List<AIFaceBiduAccountGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new AIFaceBiduAccountGetPagingOutput()
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    Remark = p.Remark,
+                    ApiKey = p.ApiKey,
+                    Appid = p.Appid,
+                    SecretKey = p.SecretKey
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<AIFaceBiduAccountGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> AIFaceBiduAccountAdd(AIFaceBiduAccountAddRequest request)
+        {
+            if (await _sysAIFaceBiduAccountDAL.ExistAIFaceBiduAccount(request.Appid))
+            {
+                return ResponseBase.CommonError("Appid已存在");
+            }
+            await _sysAIFaceBiduAccountDAL.AddSysAIFaceBiduAccount(new SysAIFaceBiduAccount()
+            {
+                ApiKey = request.ApiKey,
+                Appid = request.Appid,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = request.Remark,
+                SecretKey = request.SecretKey,
+                Type = EmSysAIInterfaceType.Customize
+            });
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"添加百度云账户:{request.Appid}", EmSysAgentOpLogType.AICloudMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceBiduAccountEdit(AIFaceBiduAccountEditRequest request)
+        {
+            var aIFaceBiduAccount = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccount(request.Id);
+            if (aIFaceBiduAccount == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            if (await _sysAIFaceBiduAccountDAL.ExistAIFaceBiduAccount(request.Appid, request.Id))
+            {
+                return ResponseBase.CommonError("Appid已存在");
+            }
+
+            aIFaceBiduAccount.Appid = request.Appid;
+            aIFaceBiduAccount.ApiKey = request.ApiKey;
+            aIFaceBiduAccount.SecretKey = request.SecretKey;
+            aIFaceBiduAccount.Remark = request.Remark;
+            await _sysAIFaceBiduAccountDAL.EditSysAIFaceBiduAccount(aIFaceBiduAccount);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑百度云账户:{request.Appid}", EmSysAgentOpLogType.AICloudMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceBiduAccountDel(AIFaceBiduAccountDelRequest request)
+        {
+            var aIFaceBiduAccount = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccount(request.Id);
+            if (aIFaceBiduAccount == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            if (aIFaceBiduAccount.Type == EmSysAIInterfaceType.System)
+            {
+                return ResponseBase.CommonError("系统保留账户，无法删除");
+            }
+            if (await _sysAIFaceBiduAccountDAL.IsCanNotDel(request.Id))
+            {
+                return ResponseBase.CommonError("账户已使用，无法删除");
+            }
+
+            aIFaceBiduAccount.IsDeleted = EmIsDeleted.Normal;
+            await _sysAIFaceBiduAccountDAL.EditSysAIFaceBiduAccount(aIFaceBiduAccount);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"删除百度云账户:{aIFaceBiduAccount.Appid}", EmSysAgentOpLogType.AICloudMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceTenantAccountGet(AIFaceTenantAccountGetRequest request)
+        {
+            var output = new List<AIFaceTenantAccountGetOutput>();
+            var dataLog = await _sysAITenantAccountDAL.GetSysAITenantAccount();
+            if (dataLog.Any())
+            {
+                foreach (var p in dataLog)
+                {
+                    output.Add(new AIFaceTenantAccountGetOutput()
+                    {
+                        Id = p.Id,
+                        Label = p.Remark,
+                        Remark = p.Remark,
+                        Value = p.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(dataLog);
+        }
+
+        public async Task<ResponseBase> AIFaceTenantAccountGetGetPaging(AIFaceTenantAccountGetGetPagingRequest request)
+        {
+            var pagingData = await _sysAITenantAccountDAL.GetPaging(request);
+            var output = new List<AIFaceTenantAccountGetGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new AIFaceTenantAccountGetGetPagingOutput()
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    Remark = p.Remark,
+                    SecretKey = p.SecretKey,
+                    SecretId = p.SecretId,
+                    Endpoint = p.Endpoint,
+                    Region = p.Region
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<AIFaceTenantAccountGetGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> AIFaceTenantAccountAdd(AIFaceTenantAccountAddRequest request)
+        {
+            if (await _sysAITenantAccountDAL.ExistAITenantAccount(request.SecretId))
+            {
+                return ResponseBase.CommonError("SecretId已存在");
+            }
+            await _sysAITenantAccountDAL.AddSysAITenantAccount(new SysAITenantAccount()
+            {
+                SecretId = request.SecretId,
+                IsDeleted = EmIsDeleted.Normal,
+                Region = request.Region,
+                Endpoint = request.Endpoint,
+                Remark = request.Remark,
+                SecretKey = request.SecretKey,
+                Type = EmSysAIInterfaceType.Customize
+            });
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"添加腾讯云账户:{request.SecretId}", EmSysAgentOpLogType.AICloudMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceTenantAccountEdit(AIFaceTenantAccountEditRequest request)
+        {
+            var sysAITenantAccount = await _sysAITenantAccountDAL.GetSysAITenantAccount(request.Id);
+            if (sysAITenantAccount == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            if (await _sysAITenantAccountDAL.ExistAITenantAccount(request.SecretId, request.Id))
+            {
+                return ResponseBase.CommonError("SecretId已存在");
+            }
+            sysAITenantAccount.SecretId = request.SecretId;
+            sysAITenantAccount.SecretKey = request.SecretKey;
+            sysAITenantAccount.Endpoint = request.Endpoint;
+            sysAITenantAccount.Region = request.Region;
+            await _sysAITenantAccountDAL.EditSysAITenantAccount(sysAITenantAccount);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑腾讯云账户:{request.SecretId}", EmSysAgentOpLogType.AICloudMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceTenantAccountDel(AIFaceTenantAccountDelRequest request)
+        {
+            var sysAITenantAccount = await _sysAITenantAccountDAL.GetSysAITenantAccount(request.Id);
+            if (sysAITenantAccount == null)
+            {
+                return ResponseBase.CommonError("账户不存在");
+            }
+            if (sysAITenantAccount.Type == EmSysAIInterfaceType.System)
+            {
+                return ResponseBase.CommonError("系统保留账户，无法删除");
+            }
+            if (await _sysAITenantAccountDAL.IsCanNotDel(request.Id))
+            {
+                return ResponseBase.CommonError("账户已使用，无法删除");
+            }
+
+            sysAITenantAccount.IsDeleted = EmIsDeleted.Normal;
+            await _sysAITenantAccountDAL.EditSysAITenantAccount(sysAITenantAccount);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"删除腾讯云账户:{sysAITenantAccount.SecretId}", EmSysAgentOpLogType.AICloudMgr);
             return ResponseBase.Success();
         }
     }
