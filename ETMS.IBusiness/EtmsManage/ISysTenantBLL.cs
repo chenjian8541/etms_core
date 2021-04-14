@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using System;
 using System.Collections.Generic;
@@ -52,5 +53,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> AIFaceTenantAccountEdit(AIFaceTenantAccountEditRequest request);
 
         Task<ResponseBase> AIFaceTenantAccountDel(AIFaceTenantAccountDelRequest request);
+
+        Task<ResponseBase> AIFaceAllAccountGet(AgentRequestBase request);
     }
 }

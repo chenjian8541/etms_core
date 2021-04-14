@@ -14,6 +14,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public string Region { get; set; }
 
+        public string Remark { get; set; }
+
         public override string Validate()
         {
             if (Id <= 0)

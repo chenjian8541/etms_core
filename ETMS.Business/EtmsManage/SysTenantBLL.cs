@@ -3,6 +3,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Output;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using ETMS.IBusiness;
@@ -673,7 +674,7 @@ namespace ETMS.Business.EtmsManage
                 return ResponseBase.CommonError("账户已使用，无法删除");
             }
 
-            aIFaceBiduAccount.IsDeleted = EmIsDeleted.Normal;
+            aIFaceBiduAccount.IsDeleted = EmIsDeleted.Deleted;
             await _sysAIFaceBiduAccountDAL.EditSysAIFaceBiduAccount(aIFaceBiduAccount);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"删除百度云账户:{aIFaceBiduAccount.Appid}", EmSysAgentOpLogType.AICloudMgr);
@@ -756,6 +757,7 @@ namespace ETMS.Business.EtmsManage
             sysAITenantAccount.SecretKey = request.SecretKey;
             sysAITenantAccount.Endpoint = request.Endpoint;
             sysAITenantAccount.Region = request.Region;
+            sysAITenantAccount.Remark = request.Remark;
             await _sysAITenantAccountDAL.EditSysAITenantAccount(sysAITenantAccount);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑腾讯云账户:{request.SecretId}", EmSysAgentOpLogType.AICloudMgr);
@@ -778,11 +780,45 @@ namespace ETMS.Business.EtmsManage
                 return ResponseBase.CommonError("账户已使用，无法删除");
             }
 
-            sysAITenantAccount.IsDeleted = EmIsDeleted.Normal;
+            sysAITenantAccount.IsDeleted = EmIsDeleted.Deleted;
             await _sysAITenantAccountDAL.EditSysAITenantAccount(sysAITenantAccount);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"删除腾讯云账户:{sysAITenantAccount.SecretId}", EmSysAgentOpLogType.AICloudMgr);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AIFaceAllAccountGet(AgentRequestBase request)
+        {
+            var dataTenantLog = await _sysAITenantAccountDAL.GetSysAITenantAccount();
+            var dataBiduLog = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccount();
+            var output = new AIFaceAllAccountGetOutput()
+            {
+                BiduAccounts = new List<SelectItem<int>>(),
+                TenantAccounts = new List<SelectItem<int>>()
+            };
+            if (dataTenantLog.Any())
+            {
+                foreach (var p in dataTenantLog)
+                {
+                    output.TenantAccounts.Add(new SelectItem<int>()
+                    {
+                        Label = p.Remark,
+                        Value = p.Id
+                    });
+                }
+            }
+            if (dataBiduLog.Any())
+            {
+                foreach (var p in dataBiduLog)
+                {
+                    output.BiduAccounts.Add(new SelectItem<int>()
+                    {
+                        Value = p.Id,
+                        Label = p.Remark
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
     }
 }

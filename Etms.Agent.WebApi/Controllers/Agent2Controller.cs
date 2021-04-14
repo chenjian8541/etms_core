@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
@@ -162,6 +163,19 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysTenantBLL.AIFaceTenantAccountDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> AIFaceAllAccountGet(AgentRequestBase request)
+        {
+            try
+            {
+                return await _sysTenantBLL.AIFaceAllAccountGet(request);
             }
             catch (Exception ex)
             {
