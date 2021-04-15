@@ -210,7 +210,7 @@ namespace ETMS.Business.Common
                         }
                         else
                         {
-                            return ResponseBase.Success(StudentCheckOutput.CheckFail(msg, _request.FaceWhite));
+                            return ResponseBase.Success(StudentCheckOutput.CheckFail("请勿重复考勤", _request.FaceWhite));
                         }
                     }
                 }
@@ -233,7 +233,7 @@ namespace ETMS.Business.Common
                         }
                         else
                         {
-                            return ResponseBase.Success(StudentCheckOutput.CheckFail(msg, _request.FaceWhite));
+                            return ResponseBase.Success(StudentCheckOutput.CheckFail("请勿重复考勤", _request.FaceWhite));
                         }
                     }
                     if (lastChekLog.CheckType == EmStudentCheckOnLogCheckType.CheckIn && _request.IsMustCheckOut == EmBool.True) //判断是否为签退

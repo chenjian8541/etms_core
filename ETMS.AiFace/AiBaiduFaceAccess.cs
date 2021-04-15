@@ -64,17 +64,19 @@ namespace ETMS.AiFace
             if (bucket != null && bucket.ExTime > now)
             {
                 this._access_token = bucket.AccessToken;
-                return;
             }
-            var tokenResult = this.AiBaiduGetAccessToken();
-            this._access_token = tokenResult.access_token;
-            var exTime = now.AddSeconds(tokenResult.expires_in / 2);
-            _tempDataCacheDAL.SetBaiduCloudAccessTokenBucket(new BaiduCloudAccessTokenBucket()
+            else
             {
-                AccessToken = tokenResult.access_token,
-                Appid = this._appid,
-                ExTime = exTime
-            });
+                var tokenResult = this.AiBaiduGetAccessToken();
+                this._access_token = tokenResult.access_token;
+                var exTime = now.AddSeconds(tokenResult.expires_in / 2);
+                _tempDataCacheDAL.SetBaiduCloudAccessTokenBucket(new BaiduCloudAccessTokenBucket()
+                {
+                    AccessToken = tokenResult.access_token,
+                    Appid = this._appid,
+                    ExTime = exTime
+                });
+            }
             this.AiBaiduInitGroup();
         }
 
@@ -119,16 +121,16 @@ namespace ETMS.AiFace
         {
             if (output.result.face_list == null || output.result.face_list.Count == 0)
             {
-                return "人脸图像质量不符合要求，建议使用高清摄像头";
+                return "人脸图像过于模糊";
             }
             var faceQualityInfo = output.result.face_list[0].quality;
             if (faceQualityInfo.blur >= 0.7)
             {
-                return "人脸图像过于模糊，建议使用高清摄像头";
+                return "人脸图像过于模糊";
             }
             if (faceQualityInfo.illumination <= 40)
             {
-                return "人脸图像过于模糊，建议使用高清摄像头";
+                return "人脸图像过于模糊";
             }
             if (faceQualityInfo.occlusion.left_eye > 0.6)
             {

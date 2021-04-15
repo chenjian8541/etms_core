@@ -6,7 +6,7 @@ namespace ETMS.Entity.Dto.Student.Output
 {
     public class StudentCheckOutput
     {
-        public static StudentCheckOutput CheckFail(string errMsg, FaceInfo faceWhite)
+        public static StudentCheckOutput CheckFail(string errMsg, FaceInfo faceWhite, bool isSpeakErrMsg = false)
         {
             return new StudentCheckOutput()
             {
@@ -15,7 +15,8 @@ namespace ETMS.Entity.Dto.Student.Output
                 ErrMsg = errMsg,
                 FaceBlack = null,
                 FaceWhite = faceWhite,
-                NeedDeClassTimes = null
+                NeedDeClassTimes = null,
+                IsSpeakErrMsg = isSpeakErrMsg
             };
         }
 
@@ -25,6 +26,8 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte CheckState { get; set; }
 
         public string ErrMsg { get; set; }
+
+        public bool IsSpeakErrMsg { get; set; }
 
         /// <summary>
         /// 考勤结果
@@ -104,5 +107,6 @@ namespace ETMS.Entity.Dto.Student.Output
         public const byte Fail = 0;
 
         public const byte Success = 1;
+
     }
 }

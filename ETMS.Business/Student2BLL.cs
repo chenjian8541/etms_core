@@ -146,7 +146,7 @@ namespace ETMS.Business
             var initFaceResult = await _aiface.StudentInitFace(request.CId, AliyunOssUtil.GetAccessUrlHttps(imgOssKey));
             if (!initFaceResult.Item1)
             {
-                return ResponseBase.CommonError(initFaceResult.Item2);
+                return ResponseBase.Success(new StudentBindingFaceOutput(StudentBindingFaceOutputState.Fail, initFaceResult.Item2));
             }
             await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey);
 
@@ -156,7 +156,7 @@ namespace ETMS.Business
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"学员人脸采集-姓名:{student.Name},手机号码:{student.Phone}", Entity.Enum.EmUserOperationType.StudentManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new StudentBindingFaceOutput(StudentBindingFaceOutputState.Success, initFaceResult.Item2));
         }
 
         public async Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request)
@@ -327,7 +327,7 @@ namespace ETMS.Business
             var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
             if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2))
             {
-                return ResponseBase.FaceErr(faceResult.Item2);
+                return ResponseBase.Success(StudentCheckOutput.CheckFail(faceResult.Item2, null, true));
             }
             if (faceResult.Item1 == 0)
             {

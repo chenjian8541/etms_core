@@ -77,7 +77,7 @@ namespace ETMS.DataAccess.EtmsManage
         {
             sysTenant.SmsCount = 0;
             sysTenant.IsDeleted = EmIsDeleted.Deleted;
-            sysTenant.TenantCode = $"{sysTenant.TenantCode}_del";
+            sysTenant.TenantCode = $"{sysTenant.TenantCode}_del_{DateTime.Now.ToString("ddHHmm")}";
             await this.Update(sysTenant);
             RemoveCache(sysTenant.Id);
             return true;
