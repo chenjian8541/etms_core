@@ -886,6 +886,10 @@ namespace ETMS.Business
             await _studentDAL.EditStudentType(request.CId, EmStudentType.HistoryStudent, DateTime.Now);
             await _studentCourseDAL.StudentMarkGraduation(request.CId);
             await _classDAL.RemoveStudent(request.CId);
+            _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
+            {
+                StudentId = request.CId
+            });
             _eventPublisher.Publish(new StatisticsStudentEvent(request.LoginTenantId) { OpType = EmStatisticsStudentType.StudentType });
             await _userOperationLogDAL.AddUserLog(request, $"标记毕业-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
