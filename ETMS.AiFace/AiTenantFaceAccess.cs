@@ -9,7 +9,7 @@ using TencentCloud.Iai.V20200303.Models;
 
 namespace ETMS.AiFace
 {
-    public class AiFaceAccess : IAiFaceAccess
+    public class AiTenantFaceAccess : IAiTenantFaceAccess
     {
         private int _tenantId;
 
@@ -285,7 +285,7 @@ namespace ETMS.AiFace
             }
         }
 
-        public long SearchPerson(string imageBase64)
+        public Tuple<long, string> SearchPerson(string imageBase64)
         {
             try
             {
@@ -297,18 +297,19 @@ namespace ETMS.AiFace
                 LOG.Log.Debug($"[腾讯云人脸识别]人脸搜索结果:PersonId:{myCandidates.PersonId},Score:{myCandidates.Score}", this.GetType());
                 if (myCandidates.Score != null && myCandidates.Score.Value >= 80)
                 {
-                    return GetStudentId(myCandidates.PersonId);
+                    var id = GetStudentId(myCandidates.PersonId);
+                    return Tuple.Create(id, string.Empty);
                 }
                 else
                 {
                     Log.Fatal($"[腾讯云人脸识别]人脸搜索结果,分数太低:{Newtonsoft.Json.JsonConvert.SerializeObject(myCandidates)}", this.GetType());
-                    return 0;
+                    return Tuple.Create(0L, string.Empty);
                 }
             }
             catch (Exception ex)
             {
                 Log.Fatal($"[腾讯云人脸识别]人脸搜索失败，{_tenantId}", ex, this.GetType());
-                return 0;
+                return Tuple.Create(0L, string.Empty); ;
             }
         }
     }

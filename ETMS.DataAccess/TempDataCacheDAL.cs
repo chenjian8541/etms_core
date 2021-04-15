@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.Other;
 using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.ICache;
 using ETMS.IDataAccess;
@@ -103,6 +104,17 @@ namespace ETMS.DataAccess
                 StudentCheckLastTime = lastCheckTime
             };
             var key = bucket.GetKeyFormat(tenantId, studentId);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
+
+        public BaiduCloudAccessTokenBucket GetBaiduCloudAccessTokenBucket(string appid)
+        {
+            return _cacheProvider.Get<BaiduCloudAccessTokenBucket>(0, new BaiduCloudAccessTokenBucket().GetKeyFormat(appid));
+        }
+
+        public void SetBaiduCloudAccessTokenBucket(BaiduCloudAccessTokenBucket bucket)
+        {
+            var key = bucket.GetKeyFormat(bucket.Appid);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
         }
     }

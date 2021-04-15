@@ -60,6 +60,11 @@ namespace ETMS.Entity.Common
         public const string ParentUnBindStudent = "10009";
 
         /// <summary>
+        /// 人脸错误
+        /// </summary>
+        public const string FaceError = "10010";
+
+        /// <summary>
         /// 登录次数超过限制
         /// </summary>
         public const string Login20003 = "20003";

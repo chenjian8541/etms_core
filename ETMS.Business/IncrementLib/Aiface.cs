@@ -20,18 +20,30 @@ namespace ETMS.Business.IncrementLib
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
-        private readonly ISysAppsettingsBLL _sysAppsettingsBLL;
-
-        private readonly IAiFaceAccess _aiFaceAccess;
+        private readonly IAiTenantFaceAccess _aiTenantFaceAccess;
 
         private readonly IEventPublisher _eventPublisher;
 
-        public Aiface(ISysTenantDAL sysTenantDAL, ISysAppsettingsBLL sysAppsettingsBLL, IAiFaceAccess aiFaceAccess, IEventPublisher eventPublisher)
+        private readonly IAiBaiduFaceAccess _aiBaiduFaceAccess;
+
+        private readonly ISysAIFaceBiduAccountDAL _sysAIFaceBiduAccountDAL;
+
+        private readonly ISysAITenantAccountDAL _sysAITenantAccountDAL;
+
+        /// <summary>
+        /// 云AI类型 <see cref="EmSysTenantAICloudType"/>
+        /// </summary>
+        public int AICloudType { get; set; }
+
+        public Aiface(ISysTenantDAL sysTenantDAL, IAiTenantFaceAccess aiFaceAccess, IEventPublisher eventPublisher,
+            IAiBaiduFaceAccess aiBaiduFaceAccess, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL, ISysAITenantAccountDAL sysAITenantAccountDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
-            this._sysAppsettingsBLL = sysAppsettingsBLL;
-            this._aiFaceAccess = aiFaceAccess;
+            this._aiTenantFaceAccess = aiFaceAccess;
             this._eventPublisher = eventPublisher;
+            this._aiBaiduFaceAccess = aiBaiduFaceAccess;
+            this._sysAIFaceBiduAccountDAL = sysAIFaceBiduAccountDAL;
+            this._sysAITenantAccountDAL = sysAITenantAccountDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -39,24 +51,41 @@ namespace ETMS.Business.IncrementLib
             this._tenantId = tenantId;
         }
 
-        private async Task InitTenantTencentCloudConfig()
+        private async Task InitTenantCloudConfig()
         {
             if (_isInitTenantTencentCloudConfig)
             {
                 return;
             }
             var myTenant = await _sysTenantDAL.GetTenant(_tenantId);
-            var tencentCloudAccount = await _sysAppsettingsBLL.GetTencentCloudAccount(myTenant.TencentCloudId);
-            _aiFaceAccess.InitTencentCloudConfig(_tenantId, tencentCloudAccount.SecretId, tencentCloudAccount.SecretKey,
-                tencentCloudAccount.Endpoint, tencentCloudAccount.Region);
+            this.AICloudType = myTenant.AICloudType;
+            if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
+            {
+                var tencentCloudAccount = await _sysAITenantAccountDAL.GetSysAITenantAccount(myTenant.TencentCloudId);
+                _aiTenantFaceAccess.InitTencentCloudConfig(_tenantId, tencentCloudAccount.SecretId, tencentCloudAccount.SecretKey,
+                    tencentCloudAccount.Endpoint, tencentCloudAccount.Region);
+            }
+            else
+            {
+                var baiduCloudAccount = await _sysAIFaceBiduAccountDAL.GetSysAIFaceBiduAccount(myTenant.BaiduCloudId);
+                _aiBaiduFaceAccess.InitBaiduCloudConfig(_tenantId, baiduCloudAccount.Appid, baiduCloudAccount.ApiKey,
+                    baiduCloudAccount.SecretKey);
+            }
         }
 
         public async Task StudentDelete(long studentId)
         {
             try
             {
-                await InitTenantTencentCloudConfig();
-                _aiFaceAccess.StudentDel(studentId);
+                await InitTenantCloudConfig();
+                if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
+                {
+                    _aiTenantFaceAccess.StudentDel(studentId);
+                }
+                else
+                {
+                    _aiBaiduFaceAccess.StudentDel(studentId);
+                }
             }
             catch (Exception ex)
             {
@@ -66,8 +95,16 @@ namespace ETMS.Business.IncrementLib
 
         public async Task<Tuple<bool, string>> StudentInitFace(long studentId, string faceGreyKeyUrl)
         {
-            await InitTenantTencentCloudConfig();
-            var result = _aiFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
+            await InitTenantCloudConfig();
+            Tuple<bool, string> result;
+            if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
+            {
+                result = _aiTenantFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
+            }
+            else
+            {
+                result = _aiBaiduFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
+            }
             if (result.Item1)
             {
                 _eventPublisher.Publish(new TenantTxCloudUCountEvent(_tenantId)
@@ -82,25 +119,40 @@ namespace ETMS.Business.IncrementLib
 
         public async Task<bool> StudentClearFace(long studentId)
         {
-            await InitTenantTencentCloudConfig();
-            _aiFaceAccess.StudentClearFace(studentId);
+            await InitTenantCloudConfig();
+            if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
+            {
+                _aiTenantFaceAccess.StudentClearFace(studentId);
+            }
+            else
+            {
+                _aiBaiduFaceAccess.StudentClearFace(studentId);
+            }
             return true;
         }
 
-        public async Task<long> SearchPerson(string imageBase64)
+        public async Task<Tuple<long, string>> SearchPerson(string imageBase64)
         {
-            await InitTenantTencentCloudConfig();
-            var studentId = _aiFaceAccess.SearchPerson(imageBase64);
-            if (studentId > 0)
+            await InitTenantCloudConfig();
+            Tuple<long, string> result;
+            if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
+            {
+                result = _aiTenantFaceAccess.SearchPerson(imageBase64);
+            }
+            else
+            {
+                result = _aiBaiduFaceAccess.SearchPerson(imageBase64);
+            }
+            if (result.Item1 > 0)
             {
                 _eventPublisher.Publish(new TenantTxCloudUCountEvent(_tenantId)
                 {
                     Type = EmSysTenantTxCloudUCountType.SearchPerson,
                     AddUseCount = 1,
-                    StudentId = studentId
+                    StudentId = result.Item1
                 });
             }
-            return studentId;
+            return result;
         }
     }
 }

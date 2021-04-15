@@ -101,5 +101,13 @@ namespace ETMS.Entity.Common
             response.message = "未关联学员";
             return response;
         }
+
+        public static ResponseBase FaceErr(string msg)
+        {
+            var response = new ResponseBase();
+            response.code = StatusCode.FaceError;
+            response.message = msg;
+            return response;
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace ETMS.Business.EtmsManage
             return Newtonsoft.Json.JsonConvert.DeserializeObject<SysTenantWechartAuth>(log.Data);
         }
 
+        [Obsolete("使用SysAITenantAccount,SysAIFaceBiduAccount库存储云账户")]
         public async Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId)
         {
             var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.TencentCloudAccount);

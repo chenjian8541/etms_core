@@ -13,6 +13,7 @@ namespace ETMS.IBusiness.EtmsManage
     {
         Task<SysTenantWechartAuth> GetWechartAuthDefault();
 
+        [Obsolete("使用SysAITenantAccount,SysAIFaceBiduAccount库存储云账户")]
         Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId);
 
         Task<EtmsGlobalConfig> GetEtmsGlobalConfig();

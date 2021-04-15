@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.Other;
 using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.Entity.Database.Source;
 using System;
@@ -33,5 +34,9 @@ namespace ETMS.IDataAccess
         StudentCheckLastTimeBucket GetStudentCheckLastTimeBucket(int tenantId, long studentId);
 
         void SetStudentCheckLastTimeBucket(int tenantId, long studentId, DateTime lastCheckTime);
+
+        BaiduCloudAccessTokenBucket GetBaiduCloudAccessTokenBucket(string appid);
+
+        void SetBaiduCloudAccessTokenBucket(BaiduCloudAccessTokenBucket bucket);
     }
 }

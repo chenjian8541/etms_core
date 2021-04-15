@@ -2,7 +2,7 @@
 
 namespace ETMS.IAiFace
 {
-    public interface IAiFaceAccess
+    public interface IAiTenantFaceAccess
     {
         void InitTencentCloudConfig(int tenantId, string secretId, string secretKey, string endpoint, string region);
 
@@ -12,6 +12,6 @@ namespace ETMS.IAiFace
 
         bool StudentClearFace(long studentId);
 
-        long SearchPerson(string imageBase64);
+        Tuple<long, string> SearchPerson(string imageBase64);
     }
 }

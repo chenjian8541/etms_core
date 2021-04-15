@@ -324,8 +324,12 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCheckByFace2(StudentCheckByFace2Request request)
         {
-            var studentId = await _aiface.SearchPerson(request.FaceImageBase64);
-            if (studentId == 0)
+            var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
+            if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2))
+            {
+                return ResponseBase.FaceErr(faceResult.Item2);
+            }
+            if (faceResult.Item1 == 0)
             {
                 //未识别
                 var unCheckMedium = ImageLib.SaveStudentSearchFace(request.LoginTenantId, request.FaceImageBase64, AliyunOssTempFileTypeEnum.FaceBlacklist);
@@ -350,7 +354,7 @@ namespace ETMS.Business
                 LoginClientType = request.LoginClientType,
                 LoginTimestamp = request.LoginTimestamp,
                 LoginUserId = request.LoginUserId,
-                StudentId = studentId,
+                StudentId = faceResult.Item1,
                 ImageIsFaceWhite = true
             });
         }
@@ -833,6 +837,7 @@ namespace ETMS.Business
                 });
 
                 await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassById(request.NeedCheckClassLogId);
+                await _tempStudentNeedCheckDAL.TempStudentNeedCheckSetIsCheckIn(log.StudentId, now);
                 //发通知
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
                 {

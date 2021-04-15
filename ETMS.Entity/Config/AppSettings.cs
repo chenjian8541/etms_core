@@ -47,6 +47,22 @@ namespace ETMS.Entity.Config
         public AliyunOssConfig AliyunOssConfig { get; set; }
 
         public MailConfig MailConfig { get; set; }
+
+        public CloudBaiduConfig CloudBaiduConfig { get; set; }
+    }
+
+    public class CloudBaiduConfig {
+        public string Token { get; set; }
+
+        public string FaceGroupAdd { get; set; }
+
+        public string FaceUserUpdate { get; set; }
+
+        public string FaceUserDelete { get; set; }
+
+        public string FaceDetect { get; set; }
+
+        public string FaceSearch { get; set; }
     }
 
     public class MailConfig

@@ -13,6 +13,6 @@ namespace ETMS.IBusiness.IncrementLib
 
         Task<bool> StudentClearFace(long studentId);
 
-        Task<long> SearchPerson(string imageBase64);
+        Task<Tuple<long, string>> SearchPerson(string imageBase64);
     }
 }

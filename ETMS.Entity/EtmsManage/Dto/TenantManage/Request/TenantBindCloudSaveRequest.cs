@@ -31,11 +31,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             {
                 return "机构Id不能为空";
             }
-            if (AICloudType == EmSysTenantAICloudType.BaiduCloud && BaiduCloudId <= 0)
+            if (AICloudType == EmSysTenantAICloudType.BaiduCloud && BaiduCloudId < 0)
             {
                 return "请选择百度云账户";
             }
-            if (AICloudType == EmSysTenantAICloudType.TencentCloud && TencentCloudId <= 0)
+            if (AICloudType == EmSysTenantAICloudType.TencentCloud && TencentCloudId < 0)
             {
                 return "请选择腾讯云账户";
             }
