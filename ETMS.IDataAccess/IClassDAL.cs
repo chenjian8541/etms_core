@@ -17,7 +17,9 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditClass(EtClass etClass);
 
-        Task<bool> DelClass(long classId);
+        Task<bool> DelClass(long classId, bool isIgnoreCheck = false);
+
+        Task<bool> DelClassDepth(long classId);
 
         Task<bool> AddClassStudent(EtClassStudent etClassStudent);
 

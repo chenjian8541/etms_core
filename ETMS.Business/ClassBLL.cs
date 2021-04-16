@@ -362,13 +362,23 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("班级不存在");
             }
-            if (await _classDAL.IsClassCanNotBeDelete(request.CId))
+            if (!request.IsIgnoreCheck)
             {
-                return ResponseBase.CommonError("班级已存在点名记录，无法删除");
+                if (await _classDAL.IsClassCanNotBeDelete(request.CId))
+                {
+                    return ResponseBase.Success(new DelOutput(false, true));
+                }
             }
-            await _classDAL.DelClass(request.CId);
+            if (request.IsIgnoreCheck)
+            {
+                await _classDAL.DelClassDepth(request.CId);
+            }
+            else
+            {
+                await _classDAL.DelClass(request.CId);
+            }
             await _userOperationLogDAL.AddUserLog(request, $"删除班级-{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new DelOutput(true));
         }
 
         public async Task<ResponseBase> ClassOverOneToMany(ClassOverRequest request)

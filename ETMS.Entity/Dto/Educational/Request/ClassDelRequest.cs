@@ -9,6 +9,8 @@ namespace ETMS.Entity.Dto.Educational.Request
     {
         public long CId { get; set; }
 
+        public bool IsIgnoreCheck { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)
