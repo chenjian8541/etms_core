@@ -13,6 +13,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentRelieveFace(StudentRelieveFaceKeyRequest request);
 
+        Task<ResponseBase> StudentBindingFaceCheck(StudentBindingFaceCheckRequest request);
+
         Task<ResponseBase> StudentBindingFace(StudentBindingFaceKeyRequest request);
 
         Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request);

@@ -134,12 +134,76 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        [Obsolete("合并到StudentBindingFace接口")]
+        public async Task<ResponseBase> StudentBindingFaceCheck(StudentBindingFaceCheckRequest request)
+        {
+            var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
+            var output = new StudentBindingFaceCheckOutput();
+            if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2)) //人脸图像模糊
+            {
+                output.IsCanBinding = false;
+                output.ErrMsg = faceResult.Item2;
+                return ResponseBase.Success(output);
+            }
+            if (faceResult.Item1 > 0 && faceResult.Item1 != request.CId) //检测到其他学员
+            {
+                var studentBucket = await _studentDAL.GetStudent(faceResult.Item1);
+                if (studentBucket != null && studentBucket.Student != null)
+                {
+                    output.IsCanBinding = false;
+                    output.IsSameStudent = true;
+                    output.SameStudentName = studentBucket.Student.Name;
+                    output.SameStudentPhone = studentBucket.Student.Phone;
+                    return ResponseBase.Success(output);
+                }
+                else
+                {
+                    //检测到的学员不存在
+                    await _aiface.StudentClearFace(faceResult.Item1);
+                }
+            }
+            output.IsCanBinding = true;
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentBindingFace(StudentBindingFaceKeyRequest request)
         {
             var studentBucket = await _studentDAL.GetStudent(request.CId);
             if (studentBucket == null || studentBucket.Student == null)
             {
                 return ResponseBase.CommonError("学员不存在");
+            }
+            if (!request.IsIgnoreSameStudent) //检验是否有其他学员
+            {
+                var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
+                if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2)) //人脸图像模糊
+                {
+                    return ResponseBase.Success(new StudentBindingFaceOutput()
+                    {
+                        BindingState = StudentBindingFaceOutputState.Fail,
+                        ErrMsg = faceResult.Item2
+                    });
+                }
+                if (faceResult.Item1 > 0 && faceResult.Item1 != request.CId) //检测到其他学员
+                {
+                    var otherStudentBucket = await _studentDAL.GetStudent(faceResult.Item1);
+                    if (otherStudentBucket != null && otherStudentBucket.Student != null)
+                    {
+                        return ResponseBase.Success(new StudentBindingFaceOutput()
+                        {
+                            BindingState = StudentBindingFaceOutputState.Fail,
+                            ErrMsg = "人脸信息重复",
+                            IsSameStudent = true,
+                            SameStudentName = otherStudentBucket.Student.Name,
+                            SameStudentPhone = otherStudentBucket.Student.Phone
+                        });
+                    }
+                    else
+                    {
+                        //检测到的学员不存在
+                        await _aiface.StudentClearFace(faceResult.Item1);
+                    }
+                }
             }
             var student = studentBucket.Student;
             var imgOssKey = ImageLib.SaveStudentFace(request.LoginTenantId, request.FaceImageBase64);
@@ -287,6 +351,7 @@ namespace ETMS.Business
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
+                await _aiface.StudentDelete(request.StudentId);
                 return ResponseBase.CommonError("未找到此学员");
             }
             var checkMedium = ImageLib.SaveStudentSearchFace(request.LoginTenantId, request.FaceImageBase64, AliyunOssTempFileTypeEnum.FaceStudentCheckOn);

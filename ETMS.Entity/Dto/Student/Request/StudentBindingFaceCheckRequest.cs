@@ -5,16 +5,11 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
-    public class StudentBindingFaceKeyRequest : RequestBase
+    public class StudentBindingFaceCheckRequest : RequestBase
     {
         public long CId { get; set; }
 
         public string FaceImageBase64 { get; set; }
-
-        /// <summary>
-        /// 是否忽略其他学员
-        /// </summary>
-        public bool IsIgnoreSameStudent { get; set; }
 
         public override string Validate()
         {
@@ -30,4 +25,3 @@ namespace ETMS.Entity.Dto.Student.Request
         }
     }
 }
-
