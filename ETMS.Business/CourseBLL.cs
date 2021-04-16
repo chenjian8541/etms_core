@@ -12,6 +12,7 @@ using System.Linq;
 using ETMS.Entity.Dto.Product.Output;
 using ETMS.Utility;
 using ETMS.Business.Common;
+using ETMS.Entity.Dto.Common.Output;
 
 namespace ETMS.Business
 {
@@ -208,15 +209,25 @@ namespace ETMS.Business
             }
             if (await _courseDAL.IsCanNotDelete(request.CId))
             {
-                return ResponseBase.CommonError("此课程已使用，无法删除");
+                return ResponseBase.CommonError("此课程有关联的班级，请先删除所关联的班级");
             }
-            if (await _orderDAL.ExistProduct(EmOrderProductType.Course, request.CId))
+            if (!request.IsIgnoreCheck)
             {
-                return ResponseBase.CommonError("此课程已使用，无法删除");
+                if (await _orderDAL.ExistProduct(EmOrderProductType.Course, request.CId))
+                {
+                    return ResponseBase.Success(new DelOutput(false, true));
+                }
             }
-            await _courseDAL.DelCourse(request.CId);
+            if (request.IsIgnoreCheck)
+            {
+                await _courseDAL.DelCourseDepth(request.CId);
+            }
+            else
+            {
+                await _courseDAL.DelCourse(request.CId);
+            }
             await _userOperationLogDAL.AddUserLog(request, $"删除课程-{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new DelOutput(true));
         }
 
         public async Task<ResponseBase> CourseChangeStatus(CourseChangeStatusRequest request)

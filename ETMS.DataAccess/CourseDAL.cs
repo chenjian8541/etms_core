@@ -101,6 +101,36 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> DelCourseDepth(long id)
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType = {EmOrderProductType.Course} and  TenantId = {_tenantId} and ProductId = {id} ;");
+            sql.Append($"UPDATE EtOrder SET IsDeleted = {EmIsDeleted.Deleted} WHERE id in (select OrderId from EtOrderDetail where ProductType = {EmOrderProductType.Course} and  TenantId = {_tenantId} and ProductId = {id}) and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCourseOpLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCourseDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassTimesStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassTimesReservationLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassRecordStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassRecordPointsApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassRecordAbsenceLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCourseConsumeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTryCalssApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTryCalssLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStatisticsSalesCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStatisticsClassCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTempStudentNeedCheckClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            var tempSql = sql.ToString();
+            LOG.Log.Info($"[DelCourseDepth]执行深度删除:{tempSql}", this.GetType());
+            await _dbWrapper.Execute(tempSql);
+            base.RemoveCache(_tenantId, id);
+            return true;
+        }
+
         public async Task<Tuple<IEnumerable<EtCourse>, int>> GetPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtCourse>("EtCourse", "*", request.PageSize, request.PageCurrent, "[Status] ASC,Id DESC", request.ToString());

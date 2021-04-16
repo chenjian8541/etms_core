@@ -26,6 +26,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> DelCourse(long id);
 
+        Task<bool> DelCourseDepth(long id);
+
         Task<Tuple<IEnumerable<EtCourse>, int>> GetPaging(RequestPagingBase request);
 
         Task<bool> IsCanNotDelete(long id);

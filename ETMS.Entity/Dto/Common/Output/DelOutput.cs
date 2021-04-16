@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ETMS.Entity.Dto.Student.Output
+namespace ETMS.Entity.Dto.Common.Output
 {
-    public class StudentDelOutput
+    public class DelOutput
     {
-        public StudentDelOutput(bool isDelFinish, bool isWarningHisData = false)
+        public DelOutput(bool isDelFinish, bool isWarningHisData = false)
         {
             this.IsDelFinish = isDelFinish;
             this.IsWarningHisData = isWarningHisData;

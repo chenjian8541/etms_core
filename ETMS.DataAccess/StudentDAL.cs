@@ -148,7 +148,9 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtActiveWxMessageDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentAccountRechargeBinder SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
-            await _dbWrapper.Execute(sql.ToString());
+            var tempSql = sql.ToString();
+            LOG.Log.Info($"[DelStudentDepth]执行深度删除:{tempSql}", this.GetType());
+            await _dbWrapper.Execute(tempSql);
             base.RemoveCache(_tenantId, studentId);
             return true;
         }

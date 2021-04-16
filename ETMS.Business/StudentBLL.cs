@@ -17,6 +17,7 @@ using ETMS.Business.Common;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.IncrementLib;
+using ETMS.Entity.Dto.Common.Output;
 
 namespace ETMS.Business
 {
@@ -319,7 +320,7 @@ namespace ETMS.Business
             {
                 if (await _studentDAL.CheckStudentHasOrder(request.CId))
                 {
-                    return ResponseBase.Success(new StudentDelOutput(false, true));
+                    return ResponseBase.Success(new DelOutput(false, true));
                 }
             }
             if (request.IsIgnoreCheck)
@@ -346,7 +347,7 @@ namespace ETMS.Business
                 StudentId = request.CId
             });
             await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
-            return ResponseBase.Success(new StudentDelOutput(true));
+            return ResponseBase.Success(new DelOutput(true));
         }
 
         public async Task<ResponseBase> StudentGet(StudentGetRequest request)
