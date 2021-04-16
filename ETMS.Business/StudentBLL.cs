@@ -315,11 +315,21 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("学员不存在");
             }
             var etStudent = studentBucket.Student;
-            if (await _studentDAL.CheckStudentHasOrder(request.CId))
+            if (!request.IsIgnoreCheck)
             {
-                return ResponseBase.CommonError("学员存在订单记录，无法删除");
+                if (await _studentDAL.CheckStudentHasOrder(request.CId))
+                {
+                    return ResponseBase.Success(new StudentDelOutput(false, true));
+                }
             }
-            await _studentDAL.DelStudent(request.CId);
+            if (request.IsIgnoreCheck)
+            {
+                await _studentDAL.DelStudentDepth(request.CId);
+            }
+            else
+            {
+                await _studentDAL.DelStudent(request.CId);
+            }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
                 Time = etStudent.Ot,
@@ -331,8 +341,12 @@ namespace ETMS.Business
 
             CoreBusiness.ProcessStudentPhoneAboutDel(etStudent, _eventPublisher);
             SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
+            _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
+            {
+                StudentId = request.CId
+            });
             await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new StudentDelOutput(true));
         }
 
         public async Task<ResponseBase> StudentGet(StudentGetRequest request)

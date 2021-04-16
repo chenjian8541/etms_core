@@ -27,6 +27,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> DelStudent(long studentId);
 
+        Task<bool> DelStudentDepth(long studentId);
+
         Task<Tuple<IEnumerable<EtStudent>, int>> GetStudentPaging(RequestPagingBase request);
 
         Task<bool> ExistStudent(string name, string phone, long id = 0);
