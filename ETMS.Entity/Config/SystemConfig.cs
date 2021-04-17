@@ -185,7 +185,7 @@ namespace ETMS.Entity.Config
         /// <summary>
         /// 一个班级最多可以创建的排课规则数
         /// </summary>
-        public int ClassTimesRuleMaxCount = 50;
+        public int ClassTimesRuleMaxCount = 100;
 
         /// <summary>
         /// 创建班级排课规则时预生成的课次数量
