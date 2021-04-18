@@ -261,5 +261,11 @@ namespace ETMS.Utility
         {
             return new DateTime(ot.Year, ot.Month, ot.Day, time / 100, time % 100, 0);
         }
+
+        public static int GetTimeHourAndMinuteDesc(DateTime time)
+        {
+            var temp = time.ToString("HHmm");
+            return temp.ToInt();
+        }
     }
 }
