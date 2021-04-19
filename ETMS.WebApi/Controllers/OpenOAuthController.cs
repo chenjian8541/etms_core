@@ -9,6 +9,7 @@ using ETMS.WebApi.Controllers.Open;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Senparc.Weixin.Exceptions;
 using Senparc.Weixin.Open.ComponentAPIs;
 using Senparc.Weixin.Open.Containers;
 using System;
@@ -88,6 +89,11 @@ namespace ETMS.WebApi.Controllers
                     return await AuthorizerInfoService.AddAuthorizerInfo(appSettings, queryAuthResult.authorization_info, authorizerInfoResult.authorizer_info, request.TenantId, _componentAccessBLL);
                 }
                 return ResponseBase.Success();
+            }
+            catch (ErrorJsonResultException errMsg)
+            {
+                Log.Error($"[OpenOAuthCallback]{JsonConvert.SerializeObject(request)}", errMsg, this.GetType());
+                return ResponseBase.CommonError("公众号授权失败,只支持已认证的服务号");
             }
             catch (Exception ex)
             {
