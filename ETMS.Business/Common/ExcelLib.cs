@@ -472,7 +472,7 @@ namespace ETMS.Business.Common
 
             var strError = new StringBuilder();
             var readRowIndex = validDataRowIndex;
-            var now = DateTime.Now;
+            var now = DateTime.Now.Date;
             while (readRowIndex <= workSheet.LastRowNum)
             {
                 if (strError.Length > 200)
@@ -635,7 +635,7 @@ namespace ETMS.Business.Common
                 {
                     if (DateTime.TryParse(orderOt, out DateTime mytemporderOt) && mytemporderOt.IsEffectiveDate())
                     {
-                        myStudentCourseItem.OrderOt = mytemporderOt;
+                        myStudentCourseItem.OrderOt = mytemporderOt.Date;
                     }
                     else
                     {
@@ -820,7 +820,7 @@ namespace ETMS.Business.Common
 
             var strError = new StringBuilder();
             var readRowIndex = validDataRowIndex;
-            var now = DateTime.Now;
+            var now = DateTime.Now.Date;
             while (readRowIndex <= workSheet.LastRowNum)
             {
                 if (strError.Length > 200)
@@ -950,7 +950,7 @@ namespace ETMS.Business.Common
                 {
                     if (DateTime.TryParse(orderOt, out DateTime mytemporderOt) && mytemporderOt.IsEffectiveDate())
                     {
-                        myStudentCourseItem.OrderOt = mytemporderOt;
+                        myStudentCourseItem.OrderOt = mytemporderOt.Date;
                     }
                     else
                     {
