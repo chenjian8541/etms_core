@@ -2,6 +2,7 @@
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
@@ -318,6 +319,46 @@ namespace ETMS.Business.SendNotice
             });
 
             _wxService.NoticeUserOfStudentTryClassFinish(smsReq);
+        }
+
+        public async Task NoticeTeacherStudentReservation(NoticeStudentReservationEvent request, NoticeStudentOrUserReservationRequest req, EtClassTimes classTimes,
+            EtStudent student)
+        {
+            req.StudentOrUsers = new List<NoticeStudentReservationStudent>();
+            if (request.OpType == NoticeStudentReservationOpType.Success)
+            {
+                req.Title = "老师您好,有学生预约了您的课程!";
+            }
+            else
+            {
+                req.Title = "学生预约的您的课程已取消，请及时查看";
+            }
+            var teachers = classTimes.Teachers.Split(',');
+            foreach (var p in teachers)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+                var userId = p.ToLong();
+                var user = await _userDAL.GetUser(userId);
+                if (user == null)
+                {
+                    continue;
+                }
+                req.StudentOrUsers.Add(new NoticeStudentReservationStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, userId),
+                    Phone = student.Phone,
+                    StudentId = student.Id
+                });
+            }
+
+            if (req.StudentOrUsers.Count > 0)
+            {
+                _wxService.NoticeStudentOrUserReservation(req);
+            }
         }
     }
 }

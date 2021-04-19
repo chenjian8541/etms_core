@@ -44,9 +44,12 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly IUserSendNoticeBLL _userSendNoticeBLL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
-            IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
+            IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
+            IUserSendNoticeBLL userSendNoticeBLL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -65,6 +68,7 @@ namespace ETMS.Business.SendNotice
         public void InitTenantId(int tenantId)
         {
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
+            this._userSendNoticeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
                 _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL);
         }
@@ -341,9 +345,9 @@ namespace ETMS.Business.SendNotice
             var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
             var courseBucket = await _courseDAL.GetCourse(classTimesStudent.CourseId);
 
-            var req = new NoticeStudentReservationRequest(await GetNoticeRequestBase(request.TenantId))
+            var req = new NoticeStudentOrUserReservationRequest(await GetNoticeRequestBase(request.TenantId))
             {
-                Students = new List<NoticeStudentReservationStudent>(),
+                StudentOrUsers = new List<NoticeStudentReservationStudent>(),
                 Title = title,
                 CourseDesc = $"{classBucket.EtClass.Name}({courseBucket.Item1.Name})",
                 ClassOtDesc = $"{classTimes.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}) {EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
@@ -355,7 +359,7 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
-            req.Students.Add(new NoticeStudentReservationStudent()
+            req.StudentOrUsers.Add(new NoticeStudentReservationStudent()
             {
                 Name = student.Name,
                 OpendId = await GetOpenId(true, student.Phone),
@@ -365,7 +369,7 @@ namespace ETMS.Business.SendNotice
 
             if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
             {
-                req.Students.Add(new NoticeStudentReservationStudent()
+                req.StudentOrUsers.Add(new NoticeStudentReservationStudent()
                 {
                     Name = student.Name,
                     OpendId = await GetOpenId(true, student.PhoneBak),
@@ -374,10 +378,12 @@ namespace ETMS.Business.SendNotice
                 });
             }
 
-            if (req.Students.Count > 0)
+            if (req.StudentOrUsers.Count > 0)
             {
-                _wxService.NoticeStudentReservation(req);
+                _wxService.NoticeStudentOrUserReservation(req);
             }
+
+            await this._userSendNoticeBLL.NoticeTeacherStudentReservation(request, req, classTimes, student);
         }
 
         public async Task NoticeStudentClassCheckSignRevokeConsumerEvent(NoticeStudentClassCheckSignRevokeEvent request)

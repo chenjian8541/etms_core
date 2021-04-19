@@ -1,4 +1,6 @@
-﻿using ETMS.Event.DataContract;
+﻿using ETMS.Entity.Database.Source;
+using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Event.DataContract;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,5 +19,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeTeacherOfHomeworkFinishConsumerEvent(NoticeTeacherOfHomeworkFinishEvent request);
 
         Task NoticeUserOfStudentTryClassFinishConsumerEvent(NoticeUserOfStudentTryClassFinishEvent request);
+
+        Task NoticeTeacherStudentReservation(NoticeStudentReservationEvent request, NoticeStudentOrUserReservationRequest req, EtClassTimes classTimes, EtStudent student);
     }
 }

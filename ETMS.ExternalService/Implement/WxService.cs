@@ -1052,10 +1052,10 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
-        public void NoticeStudentReservation(NoticeStudentReservationRequest request)
+        public void NoticeStudentOrUserReservation(NoticeStudentOrUserReservationRequest request)
         {
             request.TemplateId = GetTemplateId(request);
-            foreach (var student in request.Students)
+            foreach (var student in request.StudentOrUsers)
             {
                 try
                 {
