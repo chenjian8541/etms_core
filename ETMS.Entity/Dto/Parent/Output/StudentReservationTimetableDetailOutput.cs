@@ -15,6 +15,10 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string StatusDesc { get; set; }
 
+        public int StartTime { get; set; }
+
+        public int EndTime { get; set; }
+
         public string StartTimeDesc { get; set; }
 
         public string EndTimeDesc { get; set; }

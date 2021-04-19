@@ -365,10 +365,25 @@ namespace ETMS.Business
                 IsCanReservation = false,
                 Status = EmStudentReservationTimetableOutputStatus.Normal
             };
-            if (myClassTimes.Status == EmClassTimesStatus.BeRollcall || myClassTimes.ClassOt < now)
+            var thisDate = now.Date;
+            var thisTime = EtmsHelper.GetTimeHourAndMinuteDesc(now.AddMinutes(-1));//至少要提前一分钟预约
+            if (myClassTimes.Status == EmClassTimesStatus.BeRollcall || myClassTimes.ClassOt < thisDate)
             {
                 result.Status = EmStudentReservationTimetableOutputStatus.Over;
                 result.CantReservationErrDesc = "课次已结束，无法预约";
+            }
+            if (thisDate == myClassTimes.ClassOt && myClassTimes.StartTime < thisTime)
+            {
+                if (myClassTimes.EndTime <= thisTime)
+                {
+                    result.Status = EmStudentReservationTimetableOutputStatus.Over;
+                    result.CantReservationErrDesc = "课次已结束，无法预约";
+                }
+                else
+                {
+                    result.Status = EmStudentReservationTimetableOutputStatus.Over;
+                    result.CantReservationErrDesc = "已开始上课，无法预约";
+                }
             }
             else
             {
@@ -445,7 +460,7 @@ namespace ETMS.Business
                 var tempBoxCourse = new DataTempBox<EtCourse>();
                 var tempClass = new DataTempBox<EtClass>();
                 var tempBoxUser = new DataTempBox<EtUser>();
-                var now = DateTime.Now.Date;
+                var now = DateTime.Now;
                 foreach (var myClassTimes in classTimesList)
                 {
                     var etClass = await ComBusiness.GetClass(tempClass, _classDAL, myClassTimes.ClassId);
@@ -473,11 +488,13 @@ namespace ETMS.Business
                         StatusDesc = EmStudentReservationTimetableOutputStatus.GetStudentReservationTimetableOutputStatusDesc(reservationLimit.Status),
                         IsCanReservation = reservationLimit.IsCanReservation,
                         StudentCountFinish = myClassTimes.StudentCount,
-                        StudentCountLimitDesc = reservationLimit.StudentCountLimitDesc
+                        StudentCountLimitDesc = reservationLimit.StudentCountLimitDesc,
+                        StartTime = myClassTimes.StartTime,
+                        EndTime = myClassTimes.EndTime
                     });
                 }
             }
-            return ResponseBase.Success(output);
+            return ResponseBase.Success(output.OrderByDescending(p => p.IsCanReservation).ThenBy(p => p.StartTime));
         }
 
         private async Task<ClassTimesReservationLimit2> GetCheckClassTimesReservationLimit2(EtClassTimes classTimes, long studentId, DateTime now)
@@ -487,7 +504,7 @@ namespace ETMS.Business
             var classTimesCourseIds = EtmsHelper.AnalyzeMuIds(classTimes.CourseList);
             var cantReservationErrDesc = string.Empty;
             var courseId = 0L;
-            var reservationLimit = CheckClassTimesReservationLimit(classTimes, studentId, now.Date);
+            var reservationLimit = CheckClassTimesReservationLimit(classTimes, studentId, now);
             cantReservationErrDesc = reservationLimit.CantReservationErrDesc;
 
             var diffTime = classDateTime - now;
