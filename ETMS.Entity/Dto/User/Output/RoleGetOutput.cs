@@ -21,5 +21,7 @@ namespace ETMS.Entity.Dto.User.Output
         public bool IsDataLimit { get; set; }
 
         public List<RoleMenuViewOutput> Menus { get; set; }
+
+        public RoleNoticeSettingOutput RoleNoticeSetting { get; set; }
     }
 }

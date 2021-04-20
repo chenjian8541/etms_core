@@ -192,6 +192,55 @@ namespace ETMS.Business
             });
         }
 
+        private string GetNoticeSetting(RoleNoticeSettingRequest request)
+        {
+            var mySetting = new List<int>();
+            if (request.IsStudentLeaveApply)
+            {
+                mySetting.Add(RoleNoticeSetting.StudentLeaveApply);
+            }
+            if (request.IsStudentContractsNotArrived)
+            {
+                mySetting.Add(RoleNoticeSetting.StudentContractsNotArrived);
+            }
+            if (request.IsTryCalssApply)
+            {
+                mySetting.Add(RoleNoticeSetting.TryCalssApply);
+            }
+            return EtmsHelper.GetMuIds(mySetting);
+        }
+
+        private RoleNoticeSettingOutput AnalyzeNoticeSetting(string noticeSetting)
+        {
+            var output = new RoleNoticeSettingOutput();
+            if (string.IsNullOrEmpty(noticeSetting))
+            {
+                return output;
+            }
+            var settings = noticeSetting.Split(',');
+            foreach (var p in settings)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+                var temp = p.ToInt();
+                switch (temp)
+                {
+                    case RoleNoticeSetting.StudentLeaveApply:
+                        output.IsStudentLeaveApply = true;
+                        break;
+                    case RoleNoticeSetting.StudentContractsNotArrived:
+                        output.IsStudentContractsNotArrived = true;
+                        break;
+                    case RoleNoticeSetting.TryCalssApply:
+                        output.IsTryCalssApply = true;
+                        break;
+                }
+            }
+            return output;
+        }
+
         public async Task<ResponseBase> RoleAdd(RoleAddRequest request)
         {
             await _roleDAL.AddRole(new EtRole()
@@ -201,7 +250,8 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Remark = request.Remark,
-                TenantId = request.LoginTenantId
+                TenantId = request.LoginTenantId,
+                NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting)
             });
             await _userOperationLogDAL.AddUserLog(request, $"添加角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -218,6 +268,7 @@ namespace ETMS.Business
             role.Remark = request.Remark;
             role.AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
+            role.NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting);
             await _roleDAL.EditRole(role);
             await _userOperationLogDAL.AddUserLog(request, $"编辑角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -263,7 +314,8 @@ namespace ETMS.Business
                 Name = role.Name,
                 Remark = role.Remark,
                 Menus = GetRoleMenuViewOutputs(myAllMenus),
-                IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData)
+                IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
+                RoleNoticeSetting = AnalyzeNoticeSetting(role.NoticeSetting)
             });
         }
 

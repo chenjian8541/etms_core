@@ -384,6 +384,7 @@ namespace ETMS.Business
             }
 
             await _classTimesDAL.DelClassTimes(request.CId);
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"删除课次-班级[{etClass.EtClass.Name}],删除课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }

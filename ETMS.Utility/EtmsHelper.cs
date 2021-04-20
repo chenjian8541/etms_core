@@ -97,6 +97,15 @@ namespace ETMS.Utility
             return $",{string.Join(',', ids)},";
         }
 
+        public static string GetMuIds(IEnumerable<int> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return string.Empty;
+            }
+            return $",{string.Join(',', ids)},";
+        }
+
         public static List<long> AnalyzeMuIds(string muIds)
         {
             var result = new List<long>();

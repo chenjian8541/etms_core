@@ -21,5 +21,11 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeUserOfStudentTryClassFinishConsumerEvent(NoticeUserOfStudentTryClassFinishEvent request);
 
         Task NoticeTeacherStudentReservation(NoticeStudentReservationEvent request, NoticeStudentOrUserReservationRequest req, EtClassTimes classTimes, EtStudent student);
+
+        Task NoticeUserStudentLeaveApplyConsumerEvent(NoticeUserStudentLeaveApplyEvent request);
+
+        Task NoticeUserContractsNotArrivedConsumerEvent(NoticeUserContractsNotArrivedEvent request);
+
+        Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request);
     }
 }

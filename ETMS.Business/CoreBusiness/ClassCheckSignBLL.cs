@@ -513,6 +513,17 @@ namespace ETMS.Business
                 Type = (int)EmUserOperationType.ClassCheckSign,
                 ClientType = request.LoginClientType
             });
+
+            var notArrivedStudents = request.ClassRecordStudents.Where(p => p.StudentCheckStatus == EmClassStudentCheckStatus.NotArrived).ToList();
+            if (notArrivedStudents.Count > 0)
+            {
+                _eventPublisher.Publish(new NoticeUserContractsNotArrivedEvent(request.TenantId)
+                {
+                    ClassRecordNotArrivedStudents = notArrivedStudents,
+                    ClassName = request.ClassName,
+                    ClassRecord = request.ClassRecord
+                });
+            }
         }
 
         private async Task<DeStudentClassTimesResult> DeStudentClassTimes(EtClassRecordStudent classRecordStudent, bool isLeaveCharge, bool isNotComeCharge)

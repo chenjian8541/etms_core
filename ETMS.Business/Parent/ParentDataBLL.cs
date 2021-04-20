@@ -214,13 +214,17 @@ namespace ETMS.Business
             var p = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyLog(request.Id);
             if (p.HandleStatus != EmStudentLeaveApplyHandleStatus.Unreviewed)
             {
-                return ResponseBase.CommonError("无法撤销");
+                return ResponseBase.CommonError("已审核,无法撤销");
             }
             p.HandleStatus = EmStudentLeaveApplyHandleStatus.IsRevoke;
             await _studentLeaveApplyLogDAL.EditStudentLeaveApplyLog(p);
 
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
-            await _studentOperationLogDAL.AddStudentLog(p.StudentId, request.LoginTenantId, $"撤销请假申请", EmStudentOperationLogType.StudentLeaveApply);
+            _eventPublisher.Publish(new NoticeUserStudentLeaveApplyEvent(request.LoginTenantId)
+            {
+                StudentLeaveApplyLog = p
+            });
+            await _studentOperationLogDAL.AddStudentLog(p.StudentId, request.LoginTenantId, "撤销请假申请", EmStudentOperationLogType.StudentLeaveApply);
             return ResponseBase.Success();
         }
 

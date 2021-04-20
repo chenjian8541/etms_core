@@ -60,5 +60,7 @@ namespace ETMS.ExternalService.Contract
         void NoticeStudentOrUserReservation(NoticeStudentOrUserReservationRequest request);
 
         void NoticeStudentCustomizeMsg(NoticeStudentCustomizeMsgRequest request);
+
+        void NoticeUserMessage(NoticeUserMessageRequest request);
     }
 }

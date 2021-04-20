@@ -19,6 +19,8 @@ namespace ETMS.Entity.Dto.User.Request
 
         public bool IsMyDataLimit { get; set; }
 
+        public RoleNoticeSettingRequest RoleNoticeSetting { get; set; }
+
         public override string Validate()
         {
             if (string.IsNullOrEmpty(Name))
@@ -28,6 +30,10 @@ namespace ETMS.Entity.Dto.User.Request
             if (PageIds == null || PageIds.Count == 0)
             {
                 return "请选择权限";
+            }
+            if (RoleNoticeSetting == null)
+            {
+                return "请填写配置信息";
             }
             return string.Empty;
         }

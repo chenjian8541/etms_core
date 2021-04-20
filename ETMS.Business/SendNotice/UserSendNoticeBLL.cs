@@ -360,5 +360,14 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeStudentOrUserReservation(req);
             }
         }
+
+        public async Task NoticeUserStudentLeaveApplyConsumerEvent(NoticeUserStudentLeaveApplyEvent request)
+        { }
+
+        public async Task NoticeUserContractsNotArrivedConsumerEvent(NoticeUserContractsNotArrivedEvent request)
+        { }
+
+        public async Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request)
+        { }
     }
 }

@@ -835,7 +835,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request)
         {
-            await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(new EtStudentLeaveApplyLog()
+            var log = new EtStudentLeaveApplyLog()
             {
                 ApplyOt = DateTime.Now,
                 EndDate = request.EndDate,
@@ -850,7 +850,8 @@ namespace ETMS.Business
                 StartTime = request.StartTime,
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId
-            });
+            };
+            await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(log);
             await _studentOperationLogDAL.AddStudentLog(new EtStudentOperationLog()
             {
                 IpAddress = string.Empty,
@@ -864,6 +865,11 @@ namespace ETMS.Business
             });
 
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            _eventPublisher.Publish(new NoticeUserStudentLeaveApplyEvent(request.LoginTenantId)
+            {
+                StudentLeaveApplyLog = log
+            });
+
             return ResponseBase.Success();
         }
 

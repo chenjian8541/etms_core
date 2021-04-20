@@ -1134,5 +1134,39 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeUserMessage(NoticeUserMessageRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            foreach (var user in request.Users)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(user.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, request.Title), DefaultColor),
+                        keyword1 = new TemplateDataItem(user.UserName, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.OtDesc, DefaultColor),
+                        keyword3 = new TemplateDataItem(request.Content, DefaultColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, user.OpendId, request.TemplateId, request.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeUserMessage]老师私信提醒2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessUserEequireSubscribe(request.LoginTenantId, user.UserId, user.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeUserMessage]老师私信提醒:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
     }
 }

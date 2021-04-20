@@ -63,6 +63,7 @@ namespace ETMS.Business.SendNotice
             this._classDAL = classDAL;
             this._courseDAL = courseDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._userSendNoticeBLL = userSendNoticeBLL;
         }
 
         public void InitTenantId(int tenantId)

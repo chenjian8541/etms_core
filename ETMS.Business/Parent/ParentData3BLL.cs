@@ -222,7 +222,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("成长档案不存在");
             }
-            await _tryCalssApplyLogDAL.AddTryCalssApplyLog(new EtTryCalssApplyLog()
+            var applyLog = new EtTryCalssApplyLog()
             {
                 ApplyOt = DateTime.Now,
                 ClassOt = null,
@@ -241,9 +241,15 @@ namespace ETMS.Business
                 TenantId = request.TenantId,
                 TouristName = request.Name,
                 TouristRemark = request.Remark
-            });
+            };
+            await _tryCalssApplyLogDAL.AddTryCalssApplyLog(applyLog);
 
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(log.TenantId));
+            _eventPublisher.Publish(new NoticeUserTryCalssApplyEvent(log.TenantId)
+            {
+                TryCalssApplyLog = applyLog
+            });
+
             return ResponseBase.Success();
         }
 
