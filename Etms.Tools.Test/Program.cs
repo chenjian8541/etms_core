@@ -18,7 +18,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            CreateParentToken("13410271814");
+            //CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -45,8 +45,17 @@ namespace Etms.Tools.Test
             //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
             //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
             //AliyunOssSTS2();
-            Console.WriteLine();
+            Console.WriteLine(SerializeObjectDynamicData(new
+            {
+                name = "chenjain",
+                age = 29
+            }));
             Console.Read();
+        }
+
+        private static string SerializeObjectDynamicData(dynamic postData)
+        {
+            return JsonConvert.SerializeObject(postData);
         }
 
         public static AlibabaCloud.SDK.Sts20150401.Client CreateClient(string accessKeyId, string accessKeySecret)

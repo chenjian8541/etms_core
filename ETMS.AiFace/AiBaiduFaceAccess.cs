@@ -91,8 +91,10 @@ namespace ETMS.AiFace
 
         private void AiBaiduInitGroup()
         {
-            var paraList = new List<KeyValuePair<string, string>>();
-            paraList.Add(new KeyValuePair<string, string>("group_id", this._tenantGroupId));
+            var paraList = new
+            {
+                group_id = this._tenantGroupId
+            };
             try
             {
                 HttpLib.BaiduAPISendPost<OutputBase<ComOutput>>(_cloudBaiduConfig.FaceGroupAdd, paraList, this._access_token);
@@ -104,9 +106,11 @@ namespace ETMS.AiFace
 
         public void StudentDel(long studentId)
         {
-            var paraList = new List<KeyValuePair<string, string>>();
-            paraList.Add(new KeyValuePair<string, string>("group_id", this._tenantGroupId));
-            paraList.Add(new KeyValuePair<string, string>("user_id", this.GetUserId(studentId)));
+            var paraList = new
+            {
+                group_id = this._tenantGroupId,
+                user_id = this.GetUserId(studentId)
+            };
             try
             {
                 HttpLib.BaiduAPISendPost<OutputBase<ComOutput>>(_cloudBaiduConfig.FaceUserDelete, paraList, this._access_token);
@@ -169,22 +173,26 @@ namespace ETMS.AiFace
 
         public string DetectFace(string faceGreyKeyUrl)
         {
-            var paraList = new List<KeyValuePair<string, string>>();
-            paraList.Add(new KeyValuePair<string, string>("image_type", "URL"));
-            paraList.Add(new KeyValuePair<string, string>("image", faceGreyKeyUrl));
-            paraList.Add(new KeyValuePair<string, string>("face_field", "quality,beauty,face_shape,eye_status,emotion,face_type,mask,spoofing"));
-            paraList.Add(new KeyValuePair<string, string>("max_face_num", "1"));
+            var paraList = new
+            {
+                image_type = "URL",
+                image = faceGreyKeyUrl,
+                face_field = "quality,beauty,face_shape,eye_status,emotion,face_type,mask,spoofing",
+                max_face_num = 1
+            };
             var result = HttpLib.BaiduAPISendPost<OutputBase<DetectOutput>>(_cloudBaiduConfig.FaceDetect, paraList, this._access_token);
             return CheckFace(result);
         }
 
         public string DetectFace2(string base64Img)
         {
-            var paraList = new List<KeyValuePair<string, string>>();
-            paraList.Add(new KeyValuePair<string, string>("image_type", "BASE64"));
-            paraList.Add(new KeyValuePair<string, string>("image", base64Img));
-            paraList.Add(new KeyValuePair<string, string>("face_field", "quality,beauty,face_shape,eye_status,emotion,face_type,mask,spoofing"));
-            paraList.Add(new KeyValuePair<string, string>("max_face_num", "1"));
+            var paraList = new
+            {
+                image_type = "BASE64",
+                image = base64Img,
+                face_field = "quality,beauty,face_shape,eye_status,emotion,face_type,mask,spoofing",
+                max_face_num = 1
+            };
             var result = HttpLib.BaiduAPISendPost<OutputBase<DetectOutput>>(_cloudBaiduConfig.FaceDetect, paraList, this._access_token);
             return CheckFace(result);
         }
@@ -192,15 +200,17 @@ namespace ETMS.AiFace
         public void ReplaceUser(long studentId, string faceGreyKeyUrl)
         {
             var userId = GetUserId(studentId);
-            var paraList = new List<KeyValuePair<string, string>>();
-            paraList.Add(new KeyValuePair<string, string>("image_type", "URL"));
-            paraList.Add(new KeyValuePair<string, string>("image", faceGreyKeyUrl));
-            paraList.Add(new KeyValuePair<string, string>("group_id", this._tenantGroupId));
-            paraList.Add(new KeyValuePair<string, string>("user_id", userId));
-            paraList.Add(new KeyValuePair<string, string>("user_info", userId));
-            paraList.Add(new KeyValuePair<string, string>("quality_control", "NORMAL"));
-            paraList.Add(new KeyValuePair<string, string>("liveness_control", "NORMAL"));
-            paraList.Add(new KeyValuePair<string, string>("action_type", "REPLACE"));
+            var paraList = new
+            {
+                image_type = "URL",
+                image = faceGreyKeyUrl,
+                group_id = this._tenantGroupId,
+                user_id = userId,
+                user_info = userId,
+                quality_control = "NORMAL",
+                liveness_control = "NORMAL",
+                action_type = "REPLACE"
+            };
             HttpLib.BaiduAPISendPost<OutputBase<UserUpdateOutput>>(_cloudBaiduConfig.FaceUserUpdate, paraList, this._access_token);
         }
 
@@ -239,10 +249,12 @@ namespace ETMS.AiFace
                 {
                     return Tuple.Create(0L, checkImg);
                 }
-                var paraList = new List<KeyValuePair<string, string>>();
-                paraList.Add(new KeyValuePair<string, string>("image_type", "BASE64"));
-                paraList.Add(new KeyValuePair<string, string>("image", imageBase64));
-                paraList.Add(new KeyValuePair<string, string>("group_id_list", this._tenantGroupId));
+                var paraList = new
+                {
+                    image_type = "BASE64",
+                    image = imageBase64,
+                    group_id_list = this._tenantGroupId
+                };
                 var result = HttpLib.BaiduAPISendPost<OutputBase<SearchOutput>>(_cloudBaiduConfig.FaceSearch, paraList, this._access_token);
                 var myCandidates = result.result.user_list[0];
                 if (myCandidates.score >= 80)
