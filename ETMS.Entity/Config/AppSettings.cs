@@ -235,6 +235,12 @@ namespace ETMS.Entity.Config
         public string CouponsUrl { get; set; }
 
         public string StudentAccountRechargeUrl { get; set; }
+
+        public string UserStudentLeaveApplyUrl { get; set; }
+
+        public string UserClassRecordDetailUrl { get; set; }
+
+        public string UserTryCalssApplyDetailUrl { get; set; }
     }
 
     public class ServerConfig

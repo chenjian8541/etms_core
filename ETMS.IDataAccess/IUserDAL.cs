@@ -41,5 +41,7 @@ namespace ETMS.IDataAccess
         Task<int> GetUserCount();
 
         Task<bool> UserEditWx(long userId, string wechatOpenid, string wechatUnionid);
+
+        Task<List<EtUser>> GetUserAboutNotice(int roleNoticeType);
     }
 }

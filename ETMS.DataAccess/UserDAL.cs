@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.ICache;
 using ETMS.IDataAccess;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -160,6 +162,27 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute(sql);
             await UpdateCache(_tenantId, userId);
             return true;
+        }
+
+        public async Task<List<EtUser>> GetUserAboutNotice(int roleNoticeType)
+        {
+            var sltRule = $"SELECT TOP 50 Id FROM EtRole WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND NoticeSetting LIKE '%,{roleNoticeType},%'";
+            var myRoleId = (await _dbWrapper.ExecuteObject<OnlyId>(sltRule)).ToList();
+            if (myRoleId.Count == 0)
+            {
+                return null;
+            }
+            var sql = string.Empty;
+            if (myRoleId.Count == 1)
+            {
+                sql = $"SELECT TOP 100 * FROM EtUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND RoleId = {myRoleId[0].Id} ";
+            }
+            else
+            {
+                var ids = myRoleId.Select(p => p.Id);
+                sql = $"SELECT TOP 100 * FROM EtUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND RoleId IN ({string.Join(',', ids)}) ";
+            }
+            return (await _dbWrapper.ExecuteObject<EtUser>(sql)).ToList();
         }
     }
 }

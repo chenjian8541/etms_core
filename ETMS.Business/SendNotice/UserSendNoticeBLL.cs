@@ -362,12 +362,169 @@ namespace ETMS.Business.SendNotice
         }
 
         public async Task NoticeUserStudentLeaveApplyConsumerEvent(NoticeUserStudentLeaveApplyEvent request)
-        { }
+        {
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.StudentLeaveApply);
+            if (noticeUser == null || noticeUser.Count == 0)
+            {
+                return;
+            }
+            var studentLeaveApplyLog = request.StudentLeaveApplyLog;
+            var studentBucket = await _studentDAL.GetStudent(studentLeaveApplyLog.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error("[NoticeUserStudentLeaveApplyConsumerEvent]未找到学员", request, this.GetType());
+                return;
+            }
+
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            if (studentLeaveApplyLog.HandleStatus == EmStudentLeaveApplyHandleStatus.IsRevoke)
+            {
+                smsReq.Title = $"学员[{studentBucket.Student.Name}]请假撤销通知";
+            }
+            else
+            {
+                smsReq.Title = $"学员[{studentBucket.Student.Name}]请假通知";
+            }
+            if (studentLeaveApplyLog.StartDate == studentLeaveApplyLog.EndDate)
+            {
+                smsReq.OtDesc = $"{studentLeaveApplyLog.StartDate.EtmsToDateString()} ({EtmsHelper.GetTimeDesc(studentLeaveApplyLog.StartTime)}~{EtmsHelper.GetTimeDesc(studentLeaveApplyLog.EndTime)})";
+            }
+            else
+            {
+                smsReq.OtDesc = $"{studentLeaveApplyLog.StartDate.EtmsToDateString()}({EtmsHelper.GetTimeDesc(studentLeaveApplyLog.StartTime)})~{studentLeaveApplyLog.EndDate.EtmsToDateString()}({EtmsHelper.GetTimeDesc(studentLeaveApplyLog.EndTime)})";
+            }
+
+            smsReq.Content = $"请假事由_{studentLeaveApplyLog.LeaveContent}";
+
+            foreach (var user in noticeUser)
+            {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
+                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserStudentLeaveApplyUrl, studentLeaveApplyLog.Id)
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
 
         public async Task NoticeUserContractsNotArrivedConsumerEvent(NoticeUserContractsNotArrivedEvent request)
-        { }
+        {
+            if (request.ClassRecordNotArrivedStudents == null || request.ClassRecordNotArrivedStudents.Count == 0)
+            {
+                return;
+            }
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.StudentContractsNotArrived);
+            if (noticeUser == null || noticeUser.Count == 0)
+            {
+                return;
+            }
+
+            var classRecord = request.ClassRecord;
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>(),
+                Title = "上课点名未到学员通知",
+                OtDesc = classRecord.CheckOt.EtmsToMinuteString()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            var studentNames = new StringBuilder();
+            foreach (var p in request.ClassRecordNotArrivedStudents)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                studentNames.Append($"{studentBucket.Student.Name},");
+            }
+            smsReq.Content = $"班级[{request.ClassName}]在{classRecord.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classRecord.Week)}) {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}上课时，学员[{studentNames.ToString().TrimEnd(',')}]未到";
+
+            foreach (var user in noticeUser)
+            {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
+                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserClassRecordDetailUrl, classRecord.Id)
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
 
         public async Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request)
-        { }
+        {
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.TryCalssApply);
+            if (noticeUser == null || noticeUser.Count == 0)
+            {
+                return;
+            }
+
+            var tryCalssApplyLog = request.TryCalssApplyLog;
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>(),
+                Title = "试听申请通知",
+                OtDesc = tryCalssApplyLog.ApplyOt.EtmsToMinuteString()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            var studentName = tryCalssApplyLog.TouristName;
+            var phone = tryCalssApplyLog.Phone;
+            if (tryCalssApplyLog.StudentId != null)
+            {
+                var studentBucket = await _studentDAL.GetStudent(tryCalssApplyLog.StudentId.Value);
+                if (studentBucket != null && studentBucket.Student != null)
+                {
+                    studentName = studentBucket.Student.Name;
+                    phone = studentBucket.Student.Phone;
+                }
+            }
+            smsReq.Content = $"[{studentName}_{phone}]申请试听课程，申请备注_{tryCalssApplyLog.TouristRemark}";
+
+            foreach (var user in noticeUser)
+            {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
+                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserTryCalssApplyDetailUrl, tryCalssApplyLog.Id)
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
     }
 }
