@@ -1,4 +1,6 @@
-﻿using ETMS.Event.DataContract;
+﻿using ETMS.Entity.CacheBucket.RedisLock;
+using ETMS.Event.DataContract;
+using ETMS.EventConsumer.Lib;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IOC;
 using System;
@@ -13,9 +15,14 @@ namespace ETMS.EventConsumer
     {
         protected override async Task Receive(SyncClassTimesStudentEvent eEvent)
         {
+            var _lockKey = new SyncClassTimesStudentConsumerToken(eEvent.TenantId, eEvent.ClassTimesId);
             var evClassBLL = CustomServiceLocator.GetInstance<IEvClassBLL>();
             evClassBLL.InitTenantId(eEvent.TenantId);
-            await evClassBLL.SyncClassTimesStudentConsumerEvent(eEvent);
+            var lockTakeHandler = new LockTakeHandler<SyncClassTimesStudentConsumerToken>(_lockKey, eEvent, this.ClassName,
+                async () =>
+                await evClassBLL.SyncClassTimesStudentConsumerEvent(eEvent)
+                );
+            await lockTakeHandler.Process();
         }
     }
 }
