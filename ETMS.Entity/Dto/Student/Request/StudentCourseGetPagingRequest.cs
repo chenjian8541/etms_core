@@ -49,6 +49,11 @@ namespace ETMS.Entity.Dto.Student.Request
         public byte? StudentType { get; set; }
 
         /// <summary>
+        /// 加载学员信息
+        /// </summary>
+        public bool IsLoadRich { get; set; }
+
+        /// <summary>
         /// 获取SQL语句
         /// </summary>
         /// <returns></returns>

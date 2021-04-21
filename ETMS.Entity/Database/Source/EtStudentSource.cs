@@ -9,7 +9,7 @@ namespace ETMS.Entity.Database.Source
     /// 学员来源
     /// </summary>
     [Table("EtStudentSource")]
-    public class EtStudentSource : Entity<long>
+    public class EtStudentSource : Entity<long>, IHasName
     {
         /// <summary>
         /// 名称

@@ -53,11 +53,16 @@ namespace ETMS.Business
 
         private readonly IUserDAL _userDAL;
 
+        private readonly IStudentSourceDAL _studentSourceDAL;
+
+        private readonly IGradeDAL _gradeDAL;
+
         public StudentCourseBLL(ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IStudentDAL studentDAL,
             IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher, IClassRecordDAL classRecordDAL,
             IStudentCourseStopLogDAL studentCourseStopLogDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
-            IOrderDAL orderDAL, IStudentCourseOpLogDAL studentCourseOpLogDAL, IUserDAL userDAL)
+            IOrderDAL orderDAL, IStudentCourseOpLogDAL studentCourseOpLogDAL, IUserDAL userDAL,
+            IStudentSourceDAL studentSourceDAL, IGradeDAL gradeDAL)
         {
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -74,12 +79,15 @@ namespace ETMS.Business
             this._orderDAL = orderDAL;
             this._studentCourseOpLogDAL = studentCourseOpLogDAL;
             this._userDAL = userDAL;
+            this._studentSourceDAL = studentSourceDAL;
+            this._gradeDAL = gradeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _courseDAL, _studentCourseDAL, _classDAL, _studentDAL, _userOperationLogDAL, _classRecordDAL,
-                _studentCourseStopLogDAL, _studentCourseConsumeLogDAL, _tenantConfigDAL, _orderDAL, _studentCourseOpLogDAL, _userDAL);
+                _studentCourseStopLogDAL, _studentCourseConsumeLogDAL, _tenantConfigDAL, _orderDAL, _studentCourseOpLogDAL,
+                _userDAL, _gradeDAL, _studentSourceDAL);
         }
 
         public async Task<ResponseBase> StudentCourseGetPaging(StudentCourseGetPagingRequest request)
@@ -93,9 +101,19 @@ namespace ETMS.Business
             var pagingData = await _studentCourseDAL.GetStudentCoursePaging(request);
             var studentCourses = new List<StudentCourseGetPagingOutput>();
             var tempBoxCourse = new DataTempBox<EtCourse>();
+
+            List<EtStudentSource> sources = null;
+            List<EtGrade> grades = null;
+            DataTempBox<EtUser> tempBoxUser = null;
+            if (request.IsLoadRich)
+            {
+                sources = await _studentSourceDAL.GetAllStudentSource();
+                grades = await _gradeDAL.GetAllGrade();
+                tempBoxUser = new DataTempBox<EtUser>();
+            }
             foreach (var p in pagingData.Item1)
             {
-                studentCourses.Add(new StudentCourseGetPagingOutput()
+                var myCourse = new StudentCourseGetPagingOutput()
                 {
                     CId = p.Id,
                     CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId),
@@ -114,7 +132,30 @@ namespace ETMS.Business
                     StudentId = p.StudentId,
                     Value = p.StudentId,
                     Label = p.StudentName
-                });
+                };
+                if (request.IsLoadRich)
+                {
+                    var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                    if (studentBucket == null || studentBucket.Student == null)
+                    {
+                        continue;
+                    }
+                    var student = studentBucket.Student;
+                    myCourse.Age = student.Age;
+                    myCourse.TrackUser = student.TrackUser;
+                    myCourse.GradeId = student.GradeId;
+                    myCourse.SourceId = student.SourceId;
+                    myCourse.SchoolName = student.SchoolName;
+                    myCourse.GradeIdDesc = ComBusiness3.GetName(grades, student.GradeId);
+                    myCourse.BirthdayDesc = student.Birthday.EtmsToDateString();
+                    myCourse.HomeAddress = student.HomeAddress;
+                    myCourse.LearningManager = student.LearningManager;
+                    myCourse.LearningManagerDesc = ComBusiness.GetUserName(tempBoxUser, _userDAL, student.LearningManager).Result;
+                    myCourse.Points = student.Points;
+                    myCourse.SourceIdDesc = ComBusiness3.GetName(sources, student.SourceId);
+                    myCourse.TrackUserDesc = ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser).Result;
+                }
+                studentCourses.Add(myCourse);
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseGetPagingOutput>(pagingData.Item2, studentCourses));
         }

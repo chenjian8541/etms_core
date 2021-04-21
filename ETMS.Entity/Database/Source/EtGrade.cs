@@ -9,7 +9,7 @@ namespace ETMS.Entity.Database.Source
     /// 年级
     /// </summary>
     [Table("EtGrade")]
-    public class EtGrade : Entity<long>
+    public class EtGrade : Entity<long>, IHasName
     {
         /// <summary>
 		/// 名称

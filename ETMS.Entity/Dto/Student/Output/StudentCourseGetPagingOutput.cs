@@ -54,5 +54,58 @@ namespace ETMS.Entity.Dto.Student.Output
         public long Value { get; set; }
 
         public string Label { get; set; }
+
+        /// <summary>
+        /// 年龄
+        /// </summary>
+        public int? Age { get; set; }
+
+        /// <summary>
+        /// 生日
+        /// </summary>
+        public string BirthdayDesc { get; set; }
+
+        /// <summary>
+        /// 年级
+        /// </summary>
+        public long? GradeId { get; set; }
+
+        public string GradeIdDesc { get; set; }
+
+        /// <summary>
+        /// 学校名称
+        /// </summary>
+        public string SchoolName { get; set; }
+
+        /// <summary>
+        /// 家庭住址
+        /// </summary>
+        public string HomeAddress { get; set; }
+
+        /// <summary>
+        /// 跟进人
+        /// </summary>
+        public long? TrackUser { get; set; }
+
+        public string TrackUserDesc { get; set; }
+
+        /// <summary>
+        /// 来源
+        /// </summary>
+        public long? SourceId { get; set; }
+
+        public string SourceIdDesc { get; set; }
+
+        /// <summary>
+        /// 积分
+        /// </summary>
+        public int Points { get; set; }
+
+        /// <summary>
+        /// 学管师
+        /// </summary>
+        public long? LearningManager { get; set; }
+
+        public string LearningManagerDesc { get; set; }
     }
 }

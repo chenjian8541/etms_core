@@ -143,5 +143,15 @@ namespace ETMS.Business.Common
             }
             return phone;
         }
+
+        internal static string GetName<T>(List<T> entitys, long? id) where T : Entity<long>, IHasName
+        {
+            if (id == null)
+            {
+                return string.Empty;
+            }
+            var myData = entitys.FirstOrDefault(p => p.Id == id.Value);
+            return myData?.Name;
+        }
     }
 }
