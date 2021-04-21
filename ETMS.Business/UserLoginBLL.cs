@@ -153,7 +153,7 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(msg);
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, EmUserOperationLogClientType.PC);
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
