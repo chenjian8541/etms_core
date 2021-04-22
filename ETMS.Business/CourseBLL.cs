@@ -55,17 +55,19 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 PriceType = coursePriceRuleInfo.Item2,
                 Status = EmCourseStatus.Enabled,
-                CheckPoints = request.CheckPoints.EtmsToPoints()
+                CheckPoints = request.CheckPoints.EtmsToPoints(),
+                PriceTypeDesc = coursePriceRuleInfo.Item3
             };
             await _courseDAL.AddCourse(course, coursePriceRuleInfo.Item1);
             await _userOperationLogDAL.AddUserLog(request, $"添加课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
 
-        private Tuple<List<EtCoursePriceRule>, byte> GetCoursePriceRule(CoursePriceRule coursePriceRule, long courseId, int tenantId)
+        private Tuple<List<EtCoursePriceRule>, byte, string> GetCoursePriceRule(CoursePriceRule coursePriceRule, long courseId, int tenantId)
         {
             var rules = new List<EtCoursePriceRule>();
             var priceTypes = new List<byte>();
+            var strPriceTypeDesc = new StringBuilder();
             if (coursePriceRule.IsByClassTimes)
             {
                 foreach (var p in coursePriceRule.ByClassTimes)
@@ -83,8 +85,9 @@ namespace ETMS.Business
                         TenantId = tenantId,
                         Points = p.Points.EtmsToPoints()
                     });
-                    priceTypes.Add(EmCoursePriceType.ClassTimes);
                 }
+                priceTypes.Add(EmCoursePriceType.ClassTimes);
+                strPriceTypeDesc.Append("按课时&");
             }
             if (coursePriceRule.IsByMonth)
             {
@@ -103,15 +106,36 @@ namespace ETMS.Business
                         TenantId = tenantId,
                         Points = p.Points.EtmsToPoints()
                     });
-                    priceTypes.Add(EmCoursePriceType.Month);
                 }
+                priceTypes.Add(EmCoursePriceType.Month);
+                strPriceTypeDesc.Append("按月&");
             }
-            var totalPriceTypes = priceTypes.Distinct();
-            if (totalPriceTypes.Count() > 1)
+            if (coursePriceRule.IsByDay)
             {
-                return Tuple.Create(rules, EmCoursePriceType.ClassTimesAndMonth);
+                foreach (var p in coursePriceRule.ByDay)
+                {
+                    rules.Add(new EtCoursePriceRule()
+                    {
+                        CourseId = courseId,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Name = p.Name,
+                        Price = p.Price,
+                        PriceType = EmCoursePriceType.Day,
+                        PriceUnit = EmCourseUnit.Day,
+                        Quantity = p.Quantity,
+                        TotalPrice = p.TotalPrice,
+                        TenantId = tenantId,
+                        Points = p.Points.EtmsToPoints()
+                    });
+                }
+                priceTypes.Add(EmCoursePriceType.Day);
+                strPriceTypeDesc.Append("按天&");
             }
-            return Tuple.Create(rules, totalPriceTypes.First());
+            if (priceTypes.Count() > 1)
+            {
+                return Tuple.Create(rules, EmCoursePriceType.MultipleWays, strPriceTypeDesc.ToString().TrimEnd('&'));
+            }
+            return Tuple.Create(rules, priceTypes.First(), strPriceTypeDesc.ToString().TrimEnd('&'));
         }
 
         public async Task<ResponseBase> CourseEdit(CourseEditRequest request)
@@ -133,6 +157,7 @@ namespace ETMS.Business
             //course.Type = request.Type;
             var coursePriceRuleInfo = GetCoursePriceRule(request.CoursePriceRules, course.Id, course.TenantId);
             course.PriceType = coursePriceRuleInfo.Item2;
+            course.PriceTypeDesc = coursePriceRuleInfo.Item3;
             await _courseDAL.EditCourse(course, coursePriceRuleInfo.Item1);
             await _userOperationLogDAL.AddUserLog(request, $"编辑课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
@@ -159,7 +184,8 @@ namespace ETMS.Business
                 CoursePriceRules = new CoursePriceRuleOutput()
                 {
                     ByClassTimes = new List<CoursePriceRuleOutputItem>(),
-                    ByMonth = new List<CoursePriceRuleOutputItem>()
+                    ByMonth = new List<CoursePriceRuleOutputItem>(),
+                    ByDay = new List<CoursePriceRuleOutputItem>()
                 }
             };
             if (coursePriceRules != null && coursePriceRules.Any())
@@ -187,6 +213,22 @@ namespace ETMS.Business
                     foreach (var p in byMonth)
                     {
                         courseGetOutput.CoursePriceRules.ByMonth.Add(new CoursePriceRuleOutputItem()
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                            Quantity = p.Quantity,
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points
+                        });
+                    }
+                }
+                var byDay = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.Day);
+                if (byDay.Any())
+                {
+                    courseGetOutput.CoursePriceRules.IsByDay = true;
+                    foreach (var p in byDay)
+                    {
+                        courseGetOutput.CoursePriceRules.ByDay.Add(new CoursePriceRuleOutputItem()
                         {
                             Name = p.Name,
                             Price = p.Price,
@@ -260,7 +302,7 @@ namespace ETMS.Business
                     StatusDesc = EmCourseStatus.GetCourseStatusDesc(p.Status),
                     Name = p.Name,
                     PriceType = p.PriceType,
-                    PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc(p.PriceType),
+                    PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc2(p.PriceType, p.PriceTypeDesc),
                     Remark = p.Remark,
                     Type = p.Type,
                     TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),
@@ -304,7 +346,7 @@ namespace ETMS.Business
                 StatusDesc = EmCourseStatus.GetCourseStatusDesc(p.Status),
                 Name = p.Name,
                 PriceType = p.PriceType,
-                PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc(p.PriceType),
+                PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc2(p.PriceType, p.PriceTypeDesc),
                 Remark = p.Remark,
                 Type = p.Type,
                 TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),

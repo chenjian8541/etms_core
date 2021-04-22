@@ -13,6 +13,10 @@ namespace ETMS.Entity.Dto.Product.Output
         public bool IsByMonth { get; set; }
 
         public List<CoursePriceRuleOutputItem> ByMonth { get; set; }
+
+        public bool IsByDay { get; set; }
+
+        public List<CoursePriceRuleOutputItem> ByDay { get; set; }
     }
 
     public class CoursePriceRuleOutputItem

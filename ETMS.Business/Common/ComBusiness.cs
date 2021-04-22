@@ -38,13 +38,13 @@ namespace ETMS.Business.Common
             {
                 givePointsDesc = $",赠送{p.Points}积分";
             }
-            var priceTypeDesc = p.PriceType == EmCoursePriceType.ClassTimes ? "课时" : "月";
+            var priceTypeDesc = EmCoursePriceType.GetGetCourseUnitDesc(p.PriceType);
             if (p.Quantity == 1)
             {
                 return new PriceRuleDesc()
                 {
                     PriceType = p.PriceType,
-                    Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元/{(p.PriceType == EmCoursePriceType.ClassTimes ? "课时" : "月")}){givePointsDesc}",
+                    Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元/{priceTypeDesc}){givePointsDesc}",
                     RuleValue = rule,
                     PriceTypeDesc = priceTypeDesc,
                     CId = p.Id
@@ -53,7 +53,7 @@ namespace ETMS.Business.Common
             return new PriceRuleDesc()
             {
                 PriceType = p.PriceType,
-                Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元{p.Quantity}{(p.PriceType == EmCoursePriceType.ClassTimes ? "课时" : "个月")}){givePointsDesc}",
+                Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元{p.Quantity}{priceTypeDesc}){givePointsDesc}",
                 RuleValue = rule,
                 PriceTypeDesc = priceTypeDesc,
                 CId = p.Id

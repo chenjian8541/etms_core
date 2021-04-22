@@ -16,9 +16,13 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public List<CoursePriceRuleItem> ByMonth { get; set; }
 
+        public bool IsByDay { get; set; }
+
+        public List<CoursePriceRuleItem> ByDay { get; set; }
+
         public string Validate()
         {
-            if (!IsByClassTimes && !IsByMonth)
+            if (!IsByClassTimes && !IsByMonth && !IsByDay)
             {
                 return "请设置收费标准";
             }
@@ -52,6 +56,25 @@ namespace ETMS.Entity.Dto.Product.Request
                     return "最多允许设置10种收费方式";
                 }
                 foreach (var rule in ByMonth)
+                {
+                    var msg = rule.Validate();
+                    if (!string.IsNullOrEmpty(msg))
+                    {
+                        return msg;
+                    }
+                }
+            }
+            if (IsByDay)
+            {
+                if (ByDay == null || !ByDay.Any())
+                {
+                    return "请正确设置收费标准";
+                }
+                if (ByDay.Count > 10)
+                {
+                    return "最多允许设置10种收费方式";
+                }
+                foreach (var rule in ByDay)
                 {
                     var msg = rule.Validate();
                     if (!string.IsNullOrEmpty(msg))

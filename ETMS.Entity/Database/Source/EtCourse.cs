@@ -42,6 +42,11 @@ namespace ETMS.Entity.Database.Source
         public byte PriceType { get; set; }
 
         /// <summary>
+        /// 收费类型描述
+        /// </summary>
+        public string PriceTypeDesc { get; set; }
+
+        /// <summary>
         /// 创建人
         /// </summary>
         public long UserId { get; set; }
