@@ -816,6 +816,11 @@ namespace ETMS.Business
                 }
                 return $"{tag}{deClassTimes.EtmsToString()}课时";
             }
+            if (deClassTimes != 0 && deClassTimesSmall != 0)
+            {
+                var tatalDay = deClassTimes * 30 + deClassTimesSmall;
+                return $"{tatalDay.EtmsToString()}天";
+            }
             var strDesc = new StringBuilder();
             if (deClassTimes != 0)
             {

@@ -47,14 +47,24 @@ namespace ETMS.Business.Common
         {
             var buyQuantity = priceRule.Quantity > 1 ? priceRule.Quantity : enrolmentCourse.BuyQuantity;
             var deType = priceRule.PriceUnit == EmCourseUnit.ClassTimes ? EmDeClassTimesType.ClassTimes : EmDeClassTimesType.Day;
-            var surplusQuantity = buyQuantity;
+            var surplusQuantity = 0;
             var surplusSmallQuantity = 0;
+            if (priceRule.PriceUnit == EmDeClassTimesType.Day)
+            {
+                surplusQuantity = 0;
+                surplusSmallQuantity = buyQuantity;
+            }
+            else
+            {
+                surplusQuantity = buyQuantity;
+                surplusSmallQuantity = 0;
+            }
             var useUnit = priceRule.PriceUnit == EmCourseUnit.ClassTimes ? EmCourseUnit.ClassTimes : EmCourseUnit.Day;
             if (enrolmentCourse.GiveQuantity > 0)
             {
                 if (priceRule.PriceUnit != EmCourseUnit.ClassTimes && enrolmentCourse.GiveUnit == EmCourseUnit.Day)
                 {
-                    surplusSmallQuantity = enrolmentCourse.GiveQuantity;
+                    surplusSmallQuantity += enrolmentCourse.GiveQuantity;
                 }
                 else
                 {
@@ -322,7 +332,14 @@ namespace ETMS.Business.Common
                             giveDay = p.GiveQuantity;
                         }
                     }
-                    tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
+                    if (p.BugUnit == EmCourseUnit.Month)
+                    {
+                        tempValidSmallQuantity = p.BuyQuantity * monthToDay + giveDay;
+                    }
+                    else
+                    {
+                        tempValidSmallQuantity = p.BuyQuantity + giveDay;
+                    }
                 }
                 if (tempValidSmallQuantity == 0)
                 {

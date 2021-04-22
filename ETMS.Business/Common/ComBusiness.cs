@@ -636,7 +636,16 @@ namespace ETMS.Business.Common
             {
                 return $"{buyQuantity}笔";
             }
-            return bugUnit == EmCourseUnit.ClassTimes ? $"{buyQuantity}课时" : $"{buyQuantity}个月";
+            switch (bugUnit)
+            {
+                case EmCourseUnit.ClassTimes:
+                    return $"{buyQuantity}课时";
+                case EmCourseUnit.Day:
+                    return $"{buyQuantity}天";
+                case EmCourseUnit.Month:
+                    return $"{buyQuantity}个月";
+            }
+            return string.Empty;
         }
 
         internal static string GetOutQuantityDesc(decimal outQuantity, byte bugUnit, byte productType)

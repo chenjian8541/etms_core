@@ -1306,7 +1306,7 @@ namespace ETMS.Business
                                 }
                                 else
                                 {
-                                    var tatalDay = mySourceStudentCourseDetail.SurplusQuantity * monthToDay + mySourceStudentCourseDetail.SurplusSmallQuantity; //剩余总天数
+                                    var tatalDay = (int)(mySourceStudentCourseDetail.SurplusQuantity * monthToDay + mySourceStudentCourseDetail.SurplusSmallQuantity); //剩余总天数
                                     tatalDay = tatalDay - deDay;
                                     if (tatalDay < 0)
                                     {
