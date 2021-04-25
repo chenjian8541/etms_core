@@ -390,7 +390,8 @@ namespace ETMS.Business
                     Name = p.Name,
                     Price = p.Price,
                     Status = p.Status,
-                    Points = p.Points
+                    Points = p.Points,
+                    StatusDesc = EmProductStatus.GetCourseStatusDesc(p.Status),
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SuitGetPagingOutput>(pagingData.Item2, output));

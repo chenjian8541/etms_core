@@ -277,6 +277,30 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "suitEdit/:cid",
+        "Name": "suitEdit",
+        "Type": 1,
+        "Component": "@/components/suitMgr/suitEdit",
+        "Meta": {
+          "Title": "编辑套餐",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "suitAdd",
+        "Name": "suitAdd",
+        "Type": 1,
+        "Component": "@/components/suitMgr/suitEdit",
+        "Meta": {
+          "Title": "添加套餐",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 27,
         "Path": "toll",
         "Name": "toll",

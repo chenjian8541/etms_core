@@ -26,6 +26,8 @@ namespace ETMS.Entity.Dto.Product.Output
         /// </summary>
         public byte Status { get; set; }
 
+        public string StatusDesc { get; set; }
+
         /// <summary>
         /// 单价
         /// </summary>
