@@ -11,6 +11,11 @@ namespace ETMS.Entity.Dto.Interaction.Request
 
         public string EvaluateContent { get; set; }
 
+        /// <summary>
+        /// 媒体文件
+        /// </summary>
+        public List<string> EvaluateMediasKeys { get; set; }
+
         public override string Validate()
         {
             if (ClassRecordStudentId <= 0)

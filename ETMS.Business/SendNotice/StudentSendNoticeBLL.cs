@@ -703,7 +703,7 @@ namespace ETMS.Business
             }
 
             var buyDesc = new StringBuilder();
-            var buyCourse = request.OrderDetails.Where(p => p.ProductType == EmOrderProductType.Course);
+            var buyCourse = request.OrderDetails.Where(p => p.ProductType == EmProductType.Course);
             if (buyCourse.Any())
             {
                 var tempCount = buyCourse.Count();
@@ -717,7 +717,7 @@ namespace ETMS.Business
                     buyDesc.Append($"报读了{tempCount}门课程");
                 }
             }
-            var buyGoods = request.OrderDetails.Where(p => p.ProductType == EmOrderProductType.Goods);
+            var buyGoods = request.OrderDetails.Where(p => p.ProductType == EmProductType.Goods);
             if (buyGoods.Any())
             {
                 var tempCount = buyGoods.Count();
@@ -730,7 +730,7 @@ namespace ETMS.Business
                     buyDesc.Append($"购买了{tempCount}件物品");
                 }
             }
-            var buyCost = request.OrderDetails.Where(p => p.ProductType == EmOrderProductType.Cost);
+            var buyCost = request.OrderDetails.Where(p => p.ProductType == EmProductType.Cost);
             if (buyCost.Any())
             {
                 var tempCount = buyCost.Count();

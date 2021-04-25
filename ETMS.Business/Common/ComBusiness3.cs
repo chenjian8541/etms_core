@@ -10,6 +10,7 @@ using ETMS.Utility;
 using ETMS.IBusiness;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using ETMS.Entity.Dto.Product.Output;
 
 namespace ETMS.Business.Common
 {
@@ -152,6 +153,39 @@ namespace ETMS.Business.Common
             }
             var myData = entitys.FirstOrDefault(p => p.Id == id.Value);
             return myData?.Name;
+        }
+
+        internal static List<string> GetMediasUrl(string workMedias)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(workMedias))
+            {
+                return result;
+            }
+            var myMedias = workMedias.Split('|');
+            foreach (var p in myMedias)
+            {
+                if (!string.IsNullOrEmpty(p))
+                {
+                    result.Add(AliyunOssUtil.GetAccessUrlHttps(p));
+                }
+            }
+            return result;
+        }
+
+        internal static List<PriceRuleDesc> GetPriceRuleDescs(List<EtCoursePriceRule> priceRules)
+        {
+            if (priceRules == null || !priceRules.Any())
+            {
+                return new List<PriceRuleDesc>();
+            }
+            var myPriceRules = priceRules.OrderBy(p => p.PriceType);
+            var roles = new List<PriceRuleDesc>();
+            foreach (var p in myPriceRules)
+            {
+                roles.Add(ComBusiness.GetPriceRuleDesc(p));
+            }
+            return roles;
         }
     }
 }

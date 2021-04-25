@@ -146,7 +146,7 @@ namespace ETMS.Business
             var orderDetail = await _orderDAL.GetOrderDetail(request.OrderId);
 
             //物品销售数量和库存变动
-            var orderGoodsList = orderDetail.Where(p => p.ProductType == EmOrderProductType.Goods);
+            var orderGoodsList = orderDetail.Where(p => p.ProductType == EmProductType.Goods);
             if (orderGoodsList.Any())
             {
                 foreach (var p in orderGoodsList)
@@ -169,7 +169,7 @@ namespace ETMS.Business
             }
 
             //费用销售数量
-            var orderCostList = orderDetail.Where(p => p.ProductType == EmOrderProductType.Cost);
+            var orderCostList = orderDetail.Where(p => p.ProductType == EmProductType.Cost);
             if (orderCostList.Any())
             {
                 foreach (var p in orderCostList)
@@ -263,9 +263,9 @@ namespace ETMS.Business
             {
                 switch (returnDetail.ProductType)
                 {
-                    case EmOrderProductType.Course:
+                    case EmProductType.Course:
                         break;
-                    case EmOrderProductType.Goods:
+                    case EmProductType.Goods:
                         var tempMyGoodsReturnQuantity = (int)returnDetail.OutQuantity;
                         await _goodsDAL.AddInventoryAndDeductionSaleQuantity(returnDetail.ProductId, tempMyGoodsReturnQuantity);
                         await _goodsDAL.AddGoodsInventoryLog(new EtGoodsInventoryLog()
@@ -282,7 +282,7 @@ namespace ETMS.Business
                             UserId = request.UserId
                         });
                         break;
-                    case EmOrderProductType.Cost:
+                    case EmProductType.Cost:
                         var tempMyCostReturnQuantity = (int)returnDetail.OutQuantity;
                         await _costDAL.DeductioneSaleQuantity(returnDetail.ProductId, tempMyCostReturnQuantity);
                         break;

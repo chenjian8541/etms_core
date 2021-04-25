@@ -180,7 +180,8 @@ namespace ETMS.Business
                         EvaluateIsRead = p.IsRead,
                         EvaluateOt = p.Ot,
                         EvaluateUserAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
-                        EvaluateUserName = userInfo.Name
+                        EvaluateUserName = userInfo.Name,
+                        EvaluateMedias = ComBusiness3.GetMediasUrl(p.EvaluateImg)
                     });
                 }
             }
@@ -195,6 +196,11 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("点名记录不存在");
             }
             var now = DateTime.Now;
+            var evaluateMedias = string.Empty;
+            if (request.EvaluateMediasKeys != null && request.EvaluateMediasKeys.Count > 0)
+            {
+                evaluateMedias = string.Join('|', request.EvaluateMediasKeys);
+            }
             await _classRecordEvaluateDAL.AddClassRecordEvaluateStudent(new EtClassRecordEvaluateStudent()
             {
                 ClassRecordId = classRecordStudentLog.Id,
@@ -207,7 +213,7 @@ namespace ETMS.Business
                 ClassId = classRecordStudentLog.ClassId,
                 ClassOt = classRecordStudentLog.ClassOt,
                 EndTime = classRecordStudentLog.EndTime,
-                EvaluateImg = string.Empty,
+                EvaluateImg = evaluateMedias,
                 StartTime = classRecordStudentLog.StartTime,
                 Status = classRecordStudentLog.Status,
                 StudentId = classRecordStudentLog.StudentId,
@@ -266,7 +272,8 @@ namespace ETMS.Business
                     EvaluateUserName = evaluateUserName,
                     IsRead = evaluateStudent.IsRead,
                     StudentName = student.Name,
-                    StudentPhone = student.Phone
+                    StudentPhone = student.Phone,
+                    EvaluateMedias = ComBusiness3.GetMediasUrl(evaluateStudent.EvaluateImg)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateLogGetPagingOutput>(pagingData.Item2, output));

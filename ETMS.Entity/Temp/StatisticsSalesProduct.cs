@@ -9,7 +9,7 @@ namespace ETMS.Entity.Temp
         public decimal DaySum { get; set; }
 
         /// <summary>
-        /// 产品类型  <see cref=" ETMS.Entity.Enum.EmOrderProductType"/>
+        /// 产品类型  <see cref=" ETMS.Entity.Enum.EmProductType"/>
         /// </summary>
         public byte ProductType { get; set; }
     }

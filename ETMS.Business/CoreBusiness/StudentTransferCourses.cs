@@ -89,7 +89,7 @@ namespace ETMS.Business
                 buyUnit = EmCourseUnit.Day;
             }
             var buyQuantity = Convert.ToInt32(productItem.ReturnCount);
-            if (sourceOrderDetail.ProductType == EmOrderProductType.Course && sourceOrderDetail.BugUnit != EmCourseUnit.ClassTimes)
+            if (sourceOrderDetail.ProductType == EmProductType.Course && sourceOrderDetail.BugUnit != EmCourseUnit.ClassTimes)
             {
                 buyQuantity = buyQuantity / 30;
             }
@@ -99,7 +99,7 @@ namespace ETMS.Business
                 BugUnit = buyUnit,
                 BuyQuantity = -buyQuantity,
                 OutQuantity = productItem.ReturnCount,
-                DiscountType = EmOrderDiscountType.Nothing,
+                DiscountType = EmDiscountType.Nothing,
                 DiscountValue = 0,
                 GiveQuantity = 0,
                 GiveUnit = sourceOrderDetail.GiveUnit,

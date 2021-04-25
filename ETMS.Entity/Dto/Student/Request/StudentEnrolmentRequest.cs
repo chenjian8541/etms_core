@@ -140,7 +140,7 @@ namespace ETMS.Entity.Dto.Student.Request
         public int BuyQuantity { get; set; }
 
         /// <summary>
-        /// 折扣  <see cref="ETMS.Entity.Enum.EmOrderDiscountType"/>
+        /// 折扣  <see cref="ETMS.Entity.Enum.EmDiscountType"/>
         /// </summary>
         public byte DiscountType { get; set; }
 
@@ -175,7 +175,7 @@ namespace ETMS.Entity.Dto.Student.Request
         public int BuyQuantity { get; set; }
 
         /// <summary>
-        /// 折扣  <see cref="ETMS.Entity.Enum.EmOrderDiscountType"/>
+        /// 折扣  <see cref="ETMS.Entity.Enum.EmDiscountType"/>
         /// </summary>
         public byte DiscountType { get; set; }
 
@@ -222,7 +222,7 @@ namespace ETMS.Entity.Dto.Student.Request
         public byte GiveUnit { get; set; }
 
         /// <summary>
-        /// 折扣  <see cref="ETMS.Entity.Enum.EmOrderDiscountType"/>
+        /// 折扣  <see cref="ETMS.Entity.Enum.EmDiscountType"/>
         /// </summary>
         public byte DiscountType { get; set; }
 

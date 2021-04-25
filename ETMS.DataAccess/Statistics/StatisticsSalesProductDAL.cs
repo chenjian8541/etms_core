@@ -22,9 +22,9 @@ namespace ETMS.DataAccess
         {
             var statisticsSql = $"SELECT ProductType,SUM(ItemAptSum) AS DaySum FROM EtOrderDetail WHERE Ot = '{date.EtmsToDateString()}' AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmOrderStatus.Repeal} GROUP BY ProductType";
             var myStatisticsSales = await _dbWrapper.ExecuteObject<StatisticsSalesProduct>(statisticsSql);
-            var courseSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmOrderProductType.Course);
-            var goodsSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmOrderProductType.Goods);
-            var costSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmOrderProductType.Cost);
+            var courseSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmProductType.Course);
+            var goodsSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmProductType.Goods);
+            var costSumLog = myStatisticsSales.FirstOrDefault(p => p.ProductType == EmProductType.Cost);
             var myCourseSum = courseSumLog == null ? 0 : courseSumLog.DaySum;
             var myGoodsSum = goodsSumLog == null ? 0 : goodsSumLog.DaySum;
             var myCostSum = costSumLog == null ? 0 : costSumLog.DaySum;

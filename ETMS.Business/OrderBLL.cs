@@ -293,15 +293,15 @@ namespace ETMS.Business
                 var productName = string.Empty;
                 switch (myItem.ProductType)
                 {
-                    case EmOrderProductType.Cost:
+                    case EmProductType.Cost:
                         var myCost = await _costDAL.GetCost(myItem.ProductId);
                         productName = myCost?.Name;
                         break;
-                    case EmOrderProductType.Goods:
+                    case EmProductType.Goods:
                         var myGoods = await _goodsDAL.GetGoods(myItem.ProductId);
                         productName = myGoods?.Name;
                         break;
-                    case EmOrderProductType.Course:
+                    case EmProductType.Course:
                         var myCourse = await _courseDAL.GetCourse(myItem.ProductId);
                         isHasCourse = true;
                         if (myCourse != null && myCourse.Item1 != null)
@@ -324,7 +324,7 @@ namespace ETMS.Business
                     ItemAptSum = Math.Abs(myItem.ItemAptSum),
                     ItemSum = Math.Abs(myItem.ItemSum),
                     PriceRule = myItem.PriceRule,
-                    ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
+                    ProductTypeDesc = EmProductType.GetProductType(myItem.ProductType),
                     ProductName = productName,
                     CId = myItem.Id,
                     OutQuantity = myItem.OutQuantity,
@@ -507,7 +507,7 @@ namespace ETMS.Business
                     ItemAptSum = Math.Abs(myItem.ItemAptSum),
                     ItemSum = Math.Abs(myItem.ItemSum),
                     PriceRule = myItem.PriceRule,
-                    ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
+                    ProductTypeDesc = EmProductType.GetProductType(myItem.ProductType),
                     ProductName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, myItem.ProductId),
                     CId = myItem.Id,
                     OutQuantity = myItem.OutQuantity,
@@ -693,7 +693,7 @@ namespace ETMS.Business
             {
                 switch (p.ProductType)
                 {
-                    case EmOrderProductType.Course:
+                    case EmProductType.Course:
                         var tempCourse = await _courseDAL.GetCourse(p.ProductId);
                         var tempCourseNmae = tempCourse.Item1.Name;
                         var myStudentCourseDetail = studentCourseDetail.FirstOrDefault(j => j.CourseId == p.ProductId);
@@ -721,12 +721,12 @@ namespace ETMS.Business
                             SurplusQuantityDesc = courseCanReturnInfo.SurplusQuantityDesc,
                             Status = courseCanReturnInfo.IsHas ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
-                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductTypeDesc = EmProductType.GetProductType(p.ProductType),
                             ProductId = p.ProductId,
                             BuyValidSmallQuantity = courseCanReturnInfo.BuyValidSmallQuantity
                         });
                         break;
-                    case EmOrderProductType.Goods:
+                    case EmProductType.Goods:
                         var tempGoods = await _goodsDAL.GetGoods(p.ProductId);
                         var tempGoodsName = tempGoods?.Name;
                         var tempGoodsTotalQuantity = p.BuyQuantity + p.GiveQuantity;
@@ -747,12 +747,12 @@ namespace ETMS.Business
                             Status = tempGoodsSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
                             ItemAptSum = p.ItemAptSum,
-                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductTypeDesc = EmProductType.GetProductType(p.ProductType),
                             ProductId = p.ProductId,
                             BuyValidSmallQuantity = tempGoodsTotalQuantity
                         });
                         break;
-                    case EmOrderProductType.Cost:
+                    case EmProductType.Cost:
                         var tempCost = await _costDAL.GetCost(p.ProductId);
                         var tempCostName = tempCost?.Name;
                         var tempCostTotalQuantity = p.BuyQuantity + p.GiveQuantity;
@@ -773,7 +773,7 @@ namespace ETMS.Business
                             Status = tempCostSurplusQuantity > 0 ? OrderGetProductInfoItemsStatus.Normal : OrderGetProductInfoItemsStatus.Disable,
                             ItemSum = p.ItemSum,
                             ItemAptSum = p.ItemAptSum,
-                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                            ProductTypeDesc = EmProductType.GetProductType(p.ProductType),
                             ProductId = p.ProductId,
                             BuyValidSmallQuantity = tempCostTotalQuantity
                         });
@@ -915,15 +915,15 @@ namespace ETMS.Business
                         var productName = string.Empty;
                         switch (orderDetail.ProductType)
                         {
-                            case EmOrderProductType.Cost:
+                            case EmProductType.Cost:
                                 var myCost = await _costDAL.GetCost(orderDetail.ProductId);
                                 productName = myCost?.Name;
                                 break;
-                            case EmOrderProductType.Goods:
+                            case EmProductType.Goods:
                                 var myGoods = await _goodsDAL.GetGoods(orderDetail.ProductId);
                                 productName = myGoods?.Name;
                                 break;
-                            case EmOrderProductType.Course:
+                            case EmProductType.Course:
                                 var myCourse = await _courseDAL.GetCourse(orderDetail.ProductId);
                                 productName = myCourse?.Item1.Name;
                                 break;
@@ -934,7 +934,7 @@ namespace ETMS.Business
                             ItemAptSum = Math.Abs(orderDetail.ItemAptSum),
                             ItemSum = Math.Abs(orderDetail.ItemSum),
                             OutQuantity = orderDetail.OutQuantity.EtmsToString(),
-                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(orderDetail.ProductType),
+                            ProductTypeDesc = EmProductType.GetProductType(orderDetail.ProductType),
                             ProductName = productName,
                             OutQuantityDesc = ComBusiness.GetOutQuantityDesc(orderDetail.OutQuantity, orderDetail.BugUnit, orderDetail.ProductType)
                         });
@@ -1159,7 +1159,7 @@ namespace ETMS.Business
                 buyUnit = EmCourseUnit.Day;
             }
             var buyQuantity = Convert.ToInt32(productItem.ReturnCount);
-            if (sourceOrderDetail.ProductType == EmOrderProductType.Course && sourceOrderDetail.BugUnit != EmCourseUnit.ClassTimes)
+            if (sourceOrderDetail.ProductType == EmProductType.Course && sourceOrderDetail.BugUnit != EmCourseUnit.ClassTimes)
             {
                 buyQuantity = buyQuantity / 30;
             }
@@ -1169,7 +1169,7 @@ namespace ETMS.Business
                 BugUnit = buyUnit,
                 BuyQuantity = -buyQuantity,
                 OutQuantity = productItem.ReturnCount,
-                DiscountType = EmOrderDiscountType.Nothing,
+                DiscountType = EmDiscountType.Nothing,
                 DiscountValue = 0,
                 GiveQuantity = 0,
                 GiveUnit = sourceOrderDetail.GiveUnit,
@@ -1252,7 +1252,7 @@ namespace ETMS.Business
                 newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now, sourceOrder.Id, sourceOrder.No));
                 switch (mySourceOrderDetail.ProductType)
                 {
-                    case EmOrderProductType.Course:
+                    case EmProductType.Course:
                         var mySourceStudentCourseDetail = sourceStudentCourseDetail.FirstOrDefault(p => p.CourseId == changeOrderDetail.ProductId);
                         if (mySourceStudentCourseDetail == null)
                         {
@@ -1334,7 +1334,7 @@ namespace ETMS.Business
                         mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
                         sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
                         break;
-                    case EmOrderProductType.Goods:
+                    case EmProductType.Goods:
                         if (changeOrderDetail.ReturnCount > (mySourceOrderDetail.BuyQuantity + mySourceOrderDetail.GiveQuantity - mySourceOrderDetail.OutQuantity))
                         {
                             return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");
@@ -1343,7 +1343,7 @@ namespace ETMS.Business
                         mySourceOrderDetail.OutQuantity += (int)changeOrderDetail.ReturnCount;
                         sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
                         break;
-                    case EmOrderProductType.Cost:
+                    case EmProductType.Cost:
                         if (changeOrderDetail.ReturnCount > (mySourceOrderDetail.BuyQuantity + mySourceOrderDetail.GiveQuantity - mySourceOrderDetail.OutQuantity))
                         {
                             return ResponseBase.CommonError($"[{changeOrderDetail.ProductName}]剩余数量不足");

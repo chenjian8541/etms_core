@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Enum
 {
-    public struct EmCourseStatus
+    public struct EmProductStatus
     {
         /// <summary>
         /// 启用

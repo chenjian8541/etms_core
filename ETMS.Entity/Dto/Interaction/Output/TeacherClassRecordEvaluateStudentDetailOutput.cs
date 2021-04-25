@@ -14,6 +14,8 @@ namespace ETMS.Entity.Dto.Interaction.Output
 
         public string EvaluateContent { get; set; }
 
+        public List<string> EvaluateMedias { get; set; }
+
         /// <summary>
         /// 是否已读
         /// </summary>

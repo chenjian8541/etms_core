@@ -152,6 +152,9 @@ namespace ETMS.Entity.Enum
         StudentAccountRechargeManage = 77,
 
         [Description("课次管理")]
-        ClassTimesMgr = 78
+        ClassTimesMgr = 78,
+
+        [Description("套餐管理")]
+        SuitMgr = 79
     }
 }

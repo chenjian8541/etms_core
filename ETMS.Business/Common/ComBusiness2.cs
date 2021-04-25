@@ -133,7 +133,7 @@ namespace ETMS.Business.Common
                 ItemSum = itemSum,
                 PriceRule = priceRuleDesc,
                 ProductId = course.Id,
-                ProductType = EmOrderProductType.Course,
+                ProductType = EmProductType.Course,
                 Remark = string.Empty,
                 Status = EmOrderStatus.Normal,
                 TenantId = tenantId,

@@ -43,6 +43,8 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// </summary>
         public string EvaluateContent { get; set; }
 
+        public List<string> EvaluateMedias { get; set; }
+
         public string ClassOtDesc { get; set; }
 
         public string ClassTimeDesc { get; set; }

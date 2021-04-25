@@ -45,11 +45,11 @@ namespace Etms.Tools.Test
             //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
             //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
             //AliyunOssSTS2();
-            Console.WriteLine(SerializeObjectDynamicData(new
+            var account = new Test()
             {
-                name = "chenjain",
-                age = 29
-            }));
+                Money = 300
+            };
+            Console.WriteLine(JsonConvert.SerializeObject(account));
             Console.Read();
         }
 
@@ -249,5 +249,10 @@ namespace Etms.Tools.Test
             return newstr;
 
         }
+    }
+
+    public class Test
+    {
+        public decimal Money { get; set; }
     }
 }

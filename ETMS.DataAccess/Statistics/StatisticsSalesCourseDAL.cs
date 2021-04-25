@@ -21,7 +21,7 @@ namespace ETMS.DataAccess
         public async Task UpdateStatisticsSalesCourse(DateTime time)
         {
             var otDesc = time.EtmsToDateString();
-            var dayData = await this._dbWrapper.ExecuteObject<StatisticsSalesCourseView>($"SELECT ProductId AS CourseId,BugUnit,SUM(BuyQuantity) AS TotalCount,SUM(ItemAptSum) AS TotalAmount  FROM EtOrderDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmOrderStatus.Repeal} AND ProductType = {EmOrderProductType.Course} AND Ot = '{otDesc}' GROUP BY ProductId,BugUnit");
+            var dayData = await this._dbWrapper.ExecuteObject<StatisticsSalesCourseView>($"SELECT ProductId AS CourseId,BugUnit,SUM(BuyQuantity) AS TotalCount,SUM(ItemAptSum) AS TotalAmount  FROM EtOrderDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmOrderStatus.Repeal} AND ProductType = {EmProductType.Course} AND Ot = '{otDesc}' GROUP BY ProductId,BugUnit");
             await _dbWrapper.ExecuteScalar($"DELETE EtStatisticsSalesCourse WHERE TenantId = {_tenantId} AND Ot = '{otDesc}'");
             var statisticsSalesCourseData = new List<EtStatisticsSalesCourse>();
             foreach (var p in dayData)

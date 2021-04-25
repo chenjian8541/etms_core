@@ -104,5 +104,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string EvaluateOtDesc { get; set; }
 
         public string EvaluateContent { get; set; }
+
+        public List<string> EvaluateMedias { get; set; }
     }
 }

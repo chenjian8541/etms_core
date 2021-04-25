@@ -125,5 +125,9 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsSalesTenant> EtStatisticsSalesTenants { get; set; }
 
         public DbSet<EtStatisticsSalesUser> EtStatisticsSalesUsers { get; set; }
+
+        public DbSet<EtSuit> EtSuits { get; set; }
+
+        public DbSet<EtSuitDetail> EtSuitDetails { get; set; }
     }
 }

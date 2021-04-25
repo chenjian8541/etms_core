@@ -6,45 +6,14 @@ using System.Text;
 namespace ETMS.Entity.Database.Source
 {
     /// <summary>
-    /// 订单详情
+    /// 套餐详情
     /// </summary>
-    [Table("EtOrderDetail")]
-    public class EtOrderDetail : Entity<long>
+    [Table("EtSuitDetail")]
+    public class EtSuitDetail : Entity<long>
     {
-        /// <summary>
-        /// 经办人
-        /// </summary>
-        public long UserId { get; set; }
+        public long SuitId { get; set; }
 
-        /// <summary>
-        /// 订单ID
-        /// </summary>
-        public long OrderId { get; set; }
-
-        /// <summary>
-        /// 单号
-        /// </summary>
-        public string OrderNo { get; set; }
-
-        /// <summary>
-        /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
-        /// </summary>
-        public byte InOutType { get; set; }
-
-        /// <summary>
-        /// 退货数量/或者转课数量
-        /// </summary>
-        public decimal OutQuantity { get; set; }
-
-        /// <summary>
-        /// 退 订单ID
-        /// </summary>
-        public long? OutOrderId { get; set; }
-
-        /// <summary>
-        /// 退 订单号
-        /// </summary>
-        public string OutOrderNo { get; set; }
+        public long? CoursePriceRuleId { get; set; }
 
         /// <summary>
         /// 产品类型  <see cref=" ETMS.Entity.Enum.EmProductType"/>
@@ -67,14 +36,14 @@ namespace ETMS.Entity.Database.Source
         public decimal Price { get; set; }
 
         /// <summary>
-        /// 购买数量
+        /// 购买数量 
         /// </summary>
         public int BuyQuantity { get; set; }
 
         /// <summary>
-        /// 购买单位
+        /// 购买单位 <see cref=" ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
-        public byte BugUnit { get; set; }
+        public byte BuyUnit { get; set; }
 
         /// <summary>
         /// 赠送数量
@@ -82,7 +51,7 @@ namespace ETMS.Entity.Database.Source
         public int GiveQuantity { get; set; }
 
         /// <summary>
-        /// 赠送单位
+        /// 赠送单位 <see cref=" ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
         public byte GiveUnit { get; set; }
 
@@ -105,20 +74,5 @@ namespace ETMS.Entity.Database.Source
         /// 折扣值
         /// </summary>
         public decimal DiscountValue { get; set; }
-
-        /// <summary>
-        /// 订单时间
-        /// </summary>
-        public DateTime Ot { get; set; }
-
-        /// <summary>
-        /// 状态  <see cref="ETMS.Entity.Enum.EmOrderStatus"/>
-        /// </summary>
-        public byte Status { get; set; }
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Remark { get; set; }
     }
 }

@@ -415,7 +415,7 @@ namespace ETMS.Business
                 ItemSum = (enrolmentGoods.BuyQuantity * goods.Price).EtmsToRound(),
                 PriceRule = priceRuleDesc,
                 ProductId = goods.Id,
-                ProductType = EmOrderProductType.Goods,
+                ProductType = EmProductType.Goods,
                 Remark = string.Empty,
                 Status = EmOrderStatus.Normal,
                 TenantId = request.LoginTenantId,
@@ -443,7 +443,7 @@ namespace ETMS.Business
                 ItemSum = (enrolmentCost.BuyQuantity * cost.Price).EtmsToRound(),
                 PriceRule = priceRuleDesc,
                 ProductId = cost.Id,
-                ProductType = EmOrderProductType.Cost,
+                ProductType = EmProductType.Cost,
                 Remark = string.Empty,
                 Status = EmOrderStatus.Normal,
                 TenantId = request.LoginTenantId,
@@ -495,7 +495,7 @@ namespace ETMS.Business
             }
 
             //物品销售数量和库存变动记录
-            var saleGoods = request.OrderDetails.Where(p => p.ProductType == EmOrderProductType.Goods);
+            var saleGoods = request.OrderDetails.Where(p => p.ProductType == EmProductType.Goods);
             if (saleGoods.Any())
             {
                 foreach (var goodsLog in saleGoods)
@@ -518,7 +518,7 @@ namespace ETMS.Business
             }
 
             //费用销售数量
-            var saleCost = request.OrderDetails.Where(p => p.ProductType == EmOrderProductType.Cost);
+            var saleCost = request.OrderDetails.Where(p => p.ProductType == EmProductType.Cost);
             if (saleCost.Any())
             {
                 foreach (var costLog in saleCost)

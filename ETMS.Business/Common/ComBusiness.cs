@@ -628,11 +628,11 @@ namespace ETMS.Business.Common
             {
                 return string.Empty;
             }
-            if (productType == EmOrderProductType.Goods)
+            if (productType == EmProductType.Goods)
             {
                 return $"{buyQuantity}件";
             }
-            if (productType == EmOrderProductType.Cost)
+            if (productType == EmProductType.Cost)
             {
                 return $"{buyQuantity}笔";
             }
@@ -655,11 +655,11 @@ namespace ETMS.Business.Common
             {
                 return string.Empty;
             }
-            if (productType == EmOrderProductType.Goods)
+            if (productType == EmProductType.Goods)
             {
                 return $"{tempOutQuantity}件";
             }
-            if (productType == EmOrderProductType.Cost)
+            if (productType == EmProductType.Cost)
             {
                 return $"{tempOutQuantity}笔";
             }
@@ -679,11 +679,11 @@ namespace ETMS.Business.Common
             {
                 return string.Empty;
             }
-            if (productType == EmOrderProductType.Goods)
+            if (productType == EmProductType.Goods)
             {
                 return $"{surplusQuantity}件";
             }
-            if (productType == EmOrderProductType.Cost)
+            if (productType == EmProductType.Cost)
             {
                 return $"{surplusQuantity}笔";
             }
@@ -698,11 +698,11 @@ namespace ETMS.Business.Common
         /// <returns></returns>
         internal static string GetProductPriceDesc(decimal price, byte productType)
         {
-            if (productType == EmOrderProductType.Goods)
+            if (productType == EmProductType.Goods)
             {
                 return $"{price.ToString("F2")}元/件";
             }
-            if (productType == EmOrderProductType.Cost)
+            if (productType == EmProductType.Cost)
             {
                 return $"{price.ToString("F2")}元/笔";
             }
@@ -717,11 +717,11 @@ namespace ETMS.Business.Common
             }
             switch (discountType)
             {
-                case EmOrderDiscountType.Nothing:
+                case EmDiscountType.Nothing:
                     return string.Empty;
-                case EmOrderDiscountType.DeductionMoney:
+                case EmDiscountType.DeductionMoney:
                     return $"直减{discountValue}";
-                case EmOrderDiscountType.Discount:
+                case EmDiscountType.Discount:
                     return $"折扣系数{discountValue}";
             }
             return string.Empty;

@@ -316,7 +316,7 @@ namespace ETMS.Business
                         Type = p.CourseType,
                         UserId = request.LoginUserId,
                         PriceType = EmCoursePriceType.ClassTimes,
-                        Status = EmCourseStatus.Enabled
+                        Status = EmProductStatus.Enabled
                     };
                     await _courseDAL.AddCourse(course, new List<EtCoursePriceRule>() { priceRule });
                 }
@@ -364,7 +364,7 @@ namespace ETMS.Business
                     Ot = p.OrderOt,
                     Price = price,
                     BuyQuantity = p.BuyQuantity,
-                    DiscountType = EmOrderDiscountType.Nothing,
+                    DiscountType = EmDiscountType.Nothing,
                     DiscountValue = 0,
                     GiveQuantity = p.GiveQuantity,
                     GiveUnit = EmCourseUnit.ClassTimes,
@@ -373,7 +373,7 @@ namespace ETMS.Business
                     ItemSum = p.AptSum,
                     PriceRule = string.Empty,
                     ProductId = course.Id,
-                    ProductType = EmOrderProductType.Course,
+                    ProductType = EmProductType.Course,
                     Remark = remark,
                     Status = EmOrderStatus.Normal,
                     TenantId = request.LoginTenantId,
@@ -588,7 +588,7 @@ namespace ETMS.Business
                         Type = p.CourseType,
                         UserId = request.LoginUserId,
                         PriceType = EmCoursePriceType.Month,
-                        Status = EmCourseStatus.Enabled
+                        Status = EmProductStatus.Enabled
                     };
                     await _courseDAL.AddCourse(course, new List<EtCoursePriceRule>() { priceRule });
                 }
@@ -636,7 +636,7 @@ namespace ETMS.Business
                     Ot = p.OrderOt,
                     Price = price,
                     BuyQuantity = myMonths,
-                    DiscountType = EmOrderDiscountType.Nothing,
+                    DiscountType = EmDiscountType.Nothing,
                     DiscountValue = 0,
                     GiveQuantity = 0,
                     GiveUnit = EmCourseUnit.Day,
@@ -645,7 +645,7 @@ namespace ETMS.Business
                     ItemSum = p.AptSum,
                     PriceRule = string.Empty,
                     ProductId = course.Id,
-                    ProductType = EmOrderProductType.Course,
+                    ProductType = EmProductType.Course,
                     Remark = remark,
                     Status = EmOrderStatus.Normal,
                     TenantId = request.LoginTenantId,

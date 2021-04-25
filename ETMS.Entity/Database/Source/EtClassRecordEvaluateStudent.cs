@@ -47,7 +47,7 @@ namespace ETMS.Entity.Database.Source
         public long TeacherId { get; set; }
 
         /// <summary>
-        /// 图片  多张图片以”|”隔开
+        /// 评论的媒体文件信息
         /// </summary>
         public string EvaluateImg { get; set; }
 

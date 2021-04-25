@@ -328,18 +328,7 @@
         "Type": 1,
         "Component": "@/views/educational/checkWork/faceSwiping",
         "Meta": {
-          "Title": "人脸考勤",
-          "Icon": "item"
-        }
-      },
-      {
-        "Id": 83,
-        "Path": "cardCheckMgr",
-        "Name": "cardCheckMgr",
-        "Type": 1,
-        "Component": "@/views/educational/checkWork/magneticCard",
-        "Meta": {
-          "Title": "刷卡考勤",
+          "Title": "学员考勤",
           "Icon": "item"
         }
       }

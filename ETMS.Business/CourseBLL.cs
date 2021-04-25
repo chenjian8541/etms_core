@@ -54,7 +54,7 @@ namespace ETMS.Business
                 Type = request.Type,
                 UserId = request.LoginUserId,
                 PriceType = coursePriceRuleInfo.Item2,
-                Status = EmCourseStatus.Enabled,
+                Status = EmProductStatus.Enabled,
                 CheckPoints = request.CheckPoints.EtmsToPoints(),
                 PriceTypeDesc = coursePriceRuleInfo.Item3
             };
@@ -255,7 +255,7 @@ namespace ETMS.Business
             }
             if (!request.IsIgnoreCheck)
             {
-                if (await _orderDAL.ExistProduct(EmOrderProductType.Course, request.CId))
+                if (await _orderDAL.ExistProduct(EmProductType.Course, request.CId))
                 {
                     return ResponseBase.Success(new DelOutput(false, true));
                 }
@@ -282,7 +282,7 @@ namespace ETMS.Business
             var course = courseInfo.Item1;
             course.Status = request.NewStatus;
             await _courseDAL.EditCourse(course);
-            var tag = request.NewStatus == EmCourseStatus.Enabled ? "启用" : "禁用";
+            var tag = request.NewStatus == EmProductStatus.Enabled ? "启用" : "禁用";
             await _userOperationLogDAL.AddUserLog(request, $"{tag}课程-{courseInfo.Item1.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }
@@ -299,35 +299,20 @@ namespace ETMS.Business
                 {
                     CId = p.Id,
                     Status = p.Status,
-                    StatusDesc = EmCourseStatus.GetCourseStatusDesc(p.Status),
+                    StatusDesc = EmProductStatus.GetCourseStatusDesc(p.Status),
                     Name = p.Name,
                     PriceType = p.PriceType,
                     PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc2(p.PriceType, p.PriceTypeDesc),
                     Remark = p.Remark,
                     Type = p.Type,
                     TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),
-                    PriceRuleDescs = GetPriceRuleDescs(priceRules),
+                    PriceRuleDescs = ComBusiness3.GetPriceRuleDescs(priceRules),
                     Label = p.Name,
                     Value = p.Id,
                     CheckPoints = p.CheckPoints
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CourseGetPagingOutput>(pagingData.Item2, courseGetPagingOutput));
-        }
-
-        private List<PriceRuleDesc> GetPriceRuleDescs(List<EtCoursePriceRule> priceRules)
-        {
-            if (priceRules == null || !priceRules.Any())
-            {
-                return new List<PriceRuleDesc>();
-            }
-            var myPriceRules = priceRules.OrderBy(p => p.PriceType);
-            var roles = new List<PriceRuleDesc>();
-            foreach (var p in myPriceRules)
-            {
-                roles.Add(ComBusiness.GetPriceRuleDesc(p));
-            }
-            return roles;
         }
 
         public async Task<ResponseBase> CourseViewGet(CourseViewGetRequest request)
@@ -343,14 +328,14 @@ namespace ETMS.Business
             {
                 CId = p.Id,
                 Status = p.Status,
-                StatusDesc = EmCourseStatus.GetCourseStatusDesc(p.Status),
+                StatusDesc = EmProductStatus.GetCourseStatusDesc(p.Status),
                 Name = p.Name,
                 PriceType = p.PriceType,
                 PriceTypeDesc = EmCoursePriceType.GetCoursePriceTypeDesc2(p.PriceType, p.PriceTypeDesc),
                 Remark = p.Remark,
                 Type = p.Type,
                 TypeDesc = EmCourseType.GetCourseTypeDesc(p.Type),
-                PriceRuleDescs = GetPriceRuleDescs(priceRules),
+                PriceRuleDescs = ComBusiness3.GetPriceRuleDescs(priceRules),
                 Label = p.Name,
                 Value = p.Id,
                 CheckPoints = p.CheckPoints

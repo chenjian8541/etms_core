@@ -6,10 +6,10 @@ using System.Text;
 namespace ETMS.Entity.Database.Source
 {
     /// <summary>
-    /// 课程
+    /// 套餐
     /// </summary>
-    [Table("EtCourse")]
-    public class EtCourse : Entity<long>
+    [Table("EtSuit")]
+    public class EtSuit : Entity<long>
     {
         /// <summary>
         /// 名称
@@ -17,42 +17,32 @@ namespace ETMS.Entity.Database.Source
         public string Name { get; set; }
 
         /// <summary>
-        /// 类型   <see cref="ETMS.Entity.Enum.EmCourseType"/>
-        /// </summary>
-        public byte Type { get; set; }
-
-        /// <summary>
-        /// 课程颜色
-        /// </summary>
-        public string StyleColor { get; set; }
-
-        /// <summary>
         /// 是否启用 <see cref="ETMS.Entity.Enum.EmProductStatus"/>
         /// </summary>
         public byte Status { get; set; }
 
         /// <summary>
-        /// 点名或者考勤时默认赠送的积分
+        /// 销售数量
         /// </summary>
-        public int CheckPoints { get; set; }
+        public int SalesCount { get; set; }
 
         /// <summary>
-        /// 收费类型   <see cref="ETMS.Entity.Enum.EmCoursePriceType"/>
+        /// 单价
         /// </summary>
-        public byte PriceType { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
-        /// 收费类型描述
+        /// 积分
         /// </summary>
-        public string PriceTypeDesc { get; set; }
+        public int Points { get; set; }
 
         /// <summary>
-        /// 创建人
+        /// 用户
         /// </summary>
         public long UserId { get; set; }
 
         /// <summary>
-        /// 时间
+        /// 创建时间
         /// </summary>
         public DateTime Ot { get; set; }
 

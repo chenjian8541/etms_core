@@ -124,7 +124,7 @@ namespace ETMS.Business
                     StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(p.Status),
                     StudentName = p.StudentName,
                     StudentPhone = p.StudentPhone,
-                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, EmOrderProductType.Course),
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, EmProductType.Course),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveSmallQuantity, p.DeType),
                     SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
                     UseQuantityDesc = ComBusiness.GetUseQuantityDesc(p.UseQuantity, p.UseUnit),
@@ -265,7 +265,7 @@ namespace ETMS.Business
                             OrderNo = p.OrderNo,
                             Status = p.Status,
                             ExpirationDate = ComBusiness.GetExpirationDate(p),
-                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, EmOrderProductType.Course),
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, EmProductType.Course),
                             GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(giveQuantity, giveSmallQuantity, p.DeType),
                             CId = p.Id,
                             SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
@@ -876,7 +876,7 @@ namespace ETMS.Business
                     {
                         continue;
                     }
-                    var p = await _orderDAL.GetOrderDetail(courseDetail.OrderId, courseDetail.CourseId, EmOrderProductType.Course);
+                    var p = await _orderDAL.GetOrderDetail(courseDetail.OrderId, courseDetail.CourseId, EmProductType.Course);
                     if (p.OutOrderId != null)
                     {
                         continue;
@@ -911,7 +911,7 @@ namespace ETMS.Business
                         SurplusQuantity = courseCanReturnInfo.SurplusQuantity.EtmsToString(),
                         SurplusQuantityDesc = courseCanReturnInfo.SurplusQuantityDesc,
                         ItemSum = p.ItemSum,
-                        ProductTypeDesc = EmOrderProductType.GetOrderProductType(p.ProductType),
+                        ProductTypeDesc = EmProductType.GetProductType(p.ProductType),
                         ProductId = p.ProductId,
                         BuyValidSmallQuantity = courseCanReturnInfo.BuyValidSmallQuantity,
                         OrderNo = p.OrderNo,

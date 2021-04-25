@@ -374,7 +374,19 @@
       {
         "Id": 26,
         "Name": "课程管理",
-        "Type": 0
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 90,
+            "Name": "课程",
+            "Type": 0
+          },
+          {
+            "Id": 91,
+            "Name": "套餐",
+            "Type": 0
+          }
+        ]
       },
       {
         "Id": 27,
@@ -456,12 +468,17 @@
       },
       {
         "Id": 82,
-        "Name": "人脸考勤",
+        "Name": "学员考勤",
         "Type": 0,
         "ChildrenPage": [
           {
             "Id": 84,
             "Name": "人脸考勤",
+            "Type": 0
+          },
+          {
+            "Id": 83,
+            "Name": "刷卡考勤",
             "Type": 0
           },
           {
@@ -480,26 +497,7 @@
             "ActionId": 52,
             "Name": "人脸考勤",
             "Type": 1
-          }
-        ]
-      },
-      {
-        "Id": 83,
-        "Name": "刷卡考勤",
-        "Type": 0,
-        "ChildrenPage": [
-          {
-            "Id": 86,
-            "Name": "刷卡考勤",
-            "Type": 0
           },
-          {
-            "Id": 87,
-            "Name": "考勤记录",
-            "Type": 0
-          }
-        ],
-        "ChildrenAction": [
           {
             "ActionId": 50,
             "Name": "撤销记上课",

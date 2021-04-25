@@ -228,7 +228,8 @@ namespace ETMS.Business
                         EvaluateOtDesc = EtmsHelper.GetOtFriendlyDesc(classRecordEvaluateStudent.Ot),
                         TeacherId = classRecordEvaluateStudent.TeacherId,
                         TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
-                        TeacherName = ComBusiness2.GetParentTeacherName(teacher)
+                        TeacherName = ComBusiness2.GetParentTeacherName(teacher),
+                        EvaluateMedias = ComBusiness3.GetMediasUrl(classRecordEvaluateStudent.EvaluateImg)
                     });
                     if (!classRecordEvaluateStudent.IsRead)
                     {
@@ -431,15 +432,15 @@ namespace ETMS.Business
                 var productName = string.Empty;
                 switch (myItem.ProductType)
                 {
-                    case EmOrderProductType.Cost:
+                    case EmProductType.Cost:
                         var myCost = await _costDAL.GetCost(myItem.ProductId);
                         productName = myCost?.Name;
                         break;
-                    case EmOrderProductType.Goods:
+                    case EmProductType.Goods:
                         var myGoods = await _goodsDAL.GetGoods(myItem.ProductId);
                         productName = myGoods?.Name;
                         break;
-                    case EmOrderProductType.Course:
+                    case EmProductType.Course:
                         var myCourse = await _courseDAL.GetCourse(myItem.ProductId);
                         productName = myCourse?.Item1.Name;
                         break;
@@ -454,7 +455,7 @@ namespace ETMS.Business
                     ItemAptSum = myItem.ItemAptSum,
                     ItemSum = myItem.ItemSum,
                     PriceRule = myItem.PriceRule,
-                    ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
+                    ProductTypeDesc = EmProductType.GetProductType(myItem.ProductType),
                     ProductName = productName,
                     Id = myItem.Id,
                     ProductType = myItem.ProductType,
@@ -543,7 +544,7 @@ namespace ETMS.Business
                     ItemAptSum = Math.Abs(myItem.ItemAptSum),
                     ItemSum = Math.Abs(myItem.ItemSum),
                     PriceRule = myItem.PriceRule,
-                    ProductTypeDesc = EmOrderProductType.GetOrderProductType(myItem.ProductType),
+                    ProductTypeDesc = EmProductType.GetProductType(myItem.ProductType),
                     ProductName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, myItem.ProductId),
                     CId = myItem.Id,
                     OutQuantity = myItem.OutQuantity,
@@ -623,15 +624,15 @@ namespace ETMS.Business
                         var productName = string.Empty;
                         switch (orderDetail.ProductType)
                         {
-                            case EmOrderProductType.Cost:
+                            case EmProductType.Cost:
                                 var myCost = await _costDAL.GetCost(orderDetail.ProductId);
                                 productName = myCost?.Name;
                                 break;
-                            case EmOrderProductType.Goods:
+                            case EmProductType.Goods:
                                 var myGoods = await _goodsDAL.GetGoods(orderDetail.ProductId);
                                 productName = myGoods?.Name;
                                 break;
-                            case EmOrderProductType.Course:
+                            case EmProductType.Course:
                                 var myCourse = await _courseDAL.GetCourse(orderDetail.ProductId);
                                 productName = myCourse?.Item1.Name;
                                 break;
@@ -642,7 +643,7 @@ namespace ETMS.Business
                             ItemAptSum = Math.Abs(orderDetail.ItemAptSum),
                             ItemSum = Math.Abs(orderDetail.ItemSum),
                             OutQuantity = orderDetail.OutQuantity.EtmsToString(),
-                            ProductTypeDesc = EmOrderProductType.GetOrderProductType(orderDetail.ProductType),
+                            ProductTypeDesc = EmProductType.GetProductType(orderDetail.ProductType),
                             ProductName = productName,
                             OutQuantityDesc = ComBusiness.GetOutQuantityDesc(orderDetail.OutQuantity, orderDetail.BugUnit, orderDetail.ProductType)
                         });

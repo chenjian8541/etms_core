@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Product.Request;
 using ETMS.IBusiness;
+using ETMS.IDataAccess;
 using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +22,15 @@ namespace ETMS.WebApi.Controllers
         private readonly ICostBLL _costBLL;
 
         private readonly ICourseBLL _courseBLL;
-        public ProductController(IGoodsBLL goodsBLL, ICostBLL costBLL, ICourseBLL courseBLL)
+
+        private readonly ISuitBLL _suitBLL;
+
+        public ProductController(IGoodsBLL goodsBLL, ICostBLL costBLL, ICourseBLL courseBLL, ISuitBLL suitBLL)
         {
             this._goodsBLL = goodsBLL;
             this._costBLL = costBLL;
             this._courseBLL = courseBLL;
+            this._suitBLL = suitBLL;
         }
 
         [HttpPost]
@@ -322,6 +327,90 @@ namespace ETMS.WebApi.Controllers
             {
                 _courseBLL.InitTenantId(request.LoginTenantId);
                 return await _courseBLL.CourseViewGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitAdd(SuitAddRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitEdit(SuitEditRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitGet(SuitGetRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitDel(SuitDelRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitChangeStatus(SuitChangeStatusRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitChangeStatus(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SuitGetPaging(SuitGetPagingRequest request)
+        {
+            try
+            {
+                _suitBLL.InitTenantId(request.LoginTenantId);
+                return await _suitBLL.SuitGetPaging(request);
             }
             catch (Exception ex)
             {

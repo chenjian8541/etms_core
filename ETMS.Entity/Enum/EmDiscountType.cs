@@ -7,7 +7,7 @@ namespace ETMS.Entity.Enum
     /// <summary>
     /// 订单折扣类别
     /// </summary>
-    public struct EmOrderDiscountType
+    public struct EmDiscountType
     {
         /// <summary>
         /// 无折扣

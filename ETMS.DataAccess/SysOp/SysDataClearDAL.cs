@@ -312,6 +312,8 @@ namespace ETMS.DataAccess.SysOp
             var sql = new StringBuilder();
             sql.Append($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtSuit SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtSuitDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }
@@ -322,7 +324,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtGoodsInventoryLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtCost SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
-            sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType <> {EmOrderProductType.Course} ;");
+            sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType <> {EmProductType.Course} ;");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }

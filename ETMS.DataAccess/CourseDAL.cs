@@ -106,8 +106,8 @@ namespace ETMS.DataAccess
             var sql = new StringBuilder();
             sql.Append($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
-            sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType = {EmOrderProductType.Course} and  TenantId = {_tenantId} and ProductId = {id} ;");
-            sql.Append($"UPDATE EtOrder SET IsDeleted = {EmIsDeleted.Deleted} WHERE id in (select OrderId from EtOrderDetail where ProductType = {EmOrderProductType.Course} and  TenantId = {_tenantId} and ProductId = {id}) and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType = {EmProductType.Course} and  TenantId = {_tenantId} and ProductId = {id} ;");
+            sql.Append($"UPDATE EtOrder SET IsDeleted = {EmIsDeleted.Deleted} WHERE id in (select OrderId from EtOrderDetail where ProductType = {EmProductType.Course} and  TenantId = {_tenantId} and ProductId = {id}) and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCourseOpLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCourseDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");

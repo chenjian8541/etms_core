@@ -7,7 +7,7 @@ namespace ETMS.Entity.Enum
     /// <summary>
     /// 订单产品类型
     /// </summary>
-    public struct EmOrderProductType
+    public struct EmProductType
     {
         /// <summary>
         /// 课程
@@ -24,7 +24,7 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte Cost = 2;
 
-        public static string GetOrderProductType(byte b)
+        public static string GetProductType(byte b)
         {
             switch (b)
             {
