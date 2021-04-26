@@ -10,17 +10,25 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public List<CoursePriceRuleOutputItem> ByClassTimes { get; set; }
 
+        public bool ByClassTimesIsCanModify { get; set; }
+
         public bool IsByMonth { get; set; }
 
         public List<CoursePriceRuleOutputItem> ByMonth { get; set; }
 
+        public bool ByMonthIsCanModify { get; set; }
+
         public bool IsByDay { get; set; }
 
         public List<CoursePriceRuleOutputItem> ByDay { get; set; }
+
+        public bool ByDayIsCanModify { get; set; }
     }
 
     public class CoursePriceRuleOutputItem
     {
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public int Quantity { get; set; }
@@ -30,5 +38,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public decimal Price { get; set; }
 
         public int Points { get; set; }
+
+        public bool IsCanModify { get; set; }
     }
 }

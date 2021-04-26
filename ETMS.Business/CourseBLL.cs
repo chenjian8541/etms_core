@@ -24,16 +24,19 @@ namespace ETMS.Business
 
         private readonly IOrderDAL _orderDAL;
 
-        public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL)
+        private readonly ISuitDAL _suitDAL;
+
+        public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL, ISuitDAL suitDAL)
         {
             this._courseDAL = courseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._orderDAL = orderDAL;
+            this._suitDAL = suitDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _courseDAL, _userOperationLogDAL, _orderDAL);
+            this.InitDataAccess(tenantId, _courseDAL, _userOperationLogDAL, _orderDAL, _suitDAL);
         }
 
         public async Task<ResponseBase> CourseAdd(CourseAddRequest request)
@@ -83,7 +86,8 @@ namespace ETMS.Business
                         Quantity = p.Quantity,
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
-                        Points = p.Points.EtmsToPoints()
+                        Points = p.Points.EtmsToPoints(),
+                        Id = p.Id
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.ClassTimes);
@@ -104,7 +108,8 @@ namespace ETMS.Business
                         Quantity = p.Quantity,
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
-                        Points = p.Points.EtmsToPoints()
+                        Points = p.Points.EtmsToPoints(),
+                        Id = p.Id
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Month);
@@ -125,7 +130,8 @@ namespace ETMS.Business
                         Quantity = p.Quantity,
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
-                        Points = p.Points.EtmsToPoints()
+                        Points = p.Points.EtmsToPoints(),
+                        Id = p.Id
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Day);
@@ -185,9 +191,13 @@ namespace ETMS.Business
                 {
                     ByClassTimes = new List<CoursePriceRuleOutputItem>(),
                     ByMonth = new List<CoursePriceRuleOutputItem>(),
-                    ByDay = new List<CoursePriceRuleOutputItem>()
+                    ByDay = new List<CoursePriceRuleOutputItem>(),
+                    ByClassTimesIsCanModify = true,
+                    ByDayIsCanModify = true,
+                    ByMonthIsCanModify = true
                 }
             };
+            var suitUsedPriceRuleIds = await _suitDAL.GetCoursePriceRuleUsed(course.Id);
             if (coursePriceRules != null && coursePriceRules.Any())
             {
                 var byClassTimes = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.ClassTimes);
@@ -196,14 +206,26 @@ namespace ETMS.Business
                     courseGetOutput.CoursePriceRules.IsByClassTimes = true;
                     foreach (var p in byClassTimes)
                     {
-                        courseGetOutput.CoursePriceRules.ByClassTimes.Add(new CoursePriceRuleOutputItem()
+                        var tempByClassTimes = new CoursePriceRuleOutputItem()
                         {
                             Name = p.Name,
                             Price = p.Price,
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
-                            Points = p.Points
-                        });
+                            Points = p.Points,
+                            IsCanModify = true
+                        };
+                        if (suitUsedPriceRuleIds.Any())
+                        {
+                            var isHasSuit = suitUsedPriceRuleIds.Exists(j => j == p.Id);
+                            if (isHasSuit)
+                            {
+                                tempByClassTimes.Id = p.Id;   //通过赋值Id，则保存的时候为修改
+                                tempByClassTimes.IsCanModify = false;
+                                courseGetOutput.CoursePriceRules.ByClassTimesIsCanModify = false;
+                            }
+                        }
+                        courseGetOutput.CoursePriceRules.ByClassTimes.Add(tempByClassTimes);
                     }
                 }
                 var byMonth = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.Month);
@@ -212,14 +234,26 @@ namespace ETMS.Business
                     courseGetOutput.CoursePriceRules.IsByMonth = true;
                     foreach (var p in byMonth)
                     {
-                        courseGetOutput.CoursePriceRules.ByMonth.Add(new CoursePriceRuleOutputItem()
+                        var tempByMonth = new CoursePriceRuleOutputItem()
                         {
                             Name = p.Name,
                             Price = p.Price,
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
-                            Points = p.Points
-                        });
+                            Points = p.Points,
+                            IsCanModify = true
+                        };
+                        if (suitUsedPriceRuleIds.Any())
+                        {
+                            var isHasSuit = suitUsedPriceRuleIds.Exists(j => j == p.Id);
+                            if (isHasSuit)
+                            {
+                                tempByMonth.Id = p.Id;
+                                tempByMonth.IsCanModify = false;
+                                courseGetOutput.CoursePriceRules.ByMonthIsCanModify = false;
+                            }
+                        }
+                        courseGetOutput.CoursePriceRules.ByMonth.Add(tempByMonth);
                     }
                 }
                 var byDay = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.Day);
@@ -228,14 +262,26 @@ namespace ETMS.Business
                     courseGetOutput.CoursePriceRules.IsByDay = true;
                     foreach (var p in byDay)
                     {
-                        courseGetOutput.CoursePriceRules.ByDay.Add(new CoursePriceRuleOutputItem()
+                        var tempByDay = new CoursePriceRuleOutputItem()
                         {
                             Name = p.Name,
                             Price = p.Price,
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
-                            Points = p.Points
-                        });
+                            Points = p.Points,
+                            IsCanModify = true
+                        };
+                        if (suitUsedPriceRuleIds.Any())
+                        {
+                            var isHasSuit = suitUsedPriceRuleIds.Exists(j => j == p.Id);
+                            if (isHasSuit)
+                            {
+                                tempByDay.Id = p.Id;
+                                tempByDay.IsCanModify = false;
+                                courseGetOutput.CoursePriceRules.ByDayIsCanModify = false;
+                            }
+                        }
+                        courseGetOutput.CoursePriceRules.ByDay.Add(tempByDay);
                     }
                 }
             }
@@ -248,6 +294,12 @@ namespace ETMS.Business
             if (courseInfo == null || courseInfo.Item1 == null)
             {
                 return ResponseBase.CommonError("课程不存在");
+            }
+            var used = await _suitDAL.GetProductSuitUsed(EmProductType.Course, courseInfo.Item1.Id);
+            if (used.Any())
+            {
+                var usedSuit = string.Join(',', used.Select(p => p.Name));
+                return ResponseBase.CommonError($"想要删除此课程，请先删除套餐[{usedSuit}]内的此课程");
             }
             if (await _courseDAL.IsCanNotDelete(request.CId))
             {

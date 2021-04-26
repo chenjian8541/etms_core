@@ -36,5 +36,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public byte Status { get; set; }
 
         public int Points { get; set; }
+
+        public bool IsCanModifyPrice { get; set; }
     }
 }

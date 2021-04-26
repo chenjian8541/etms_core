@@ -19,15 +19,18 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public CostBLL(ICostDAL costDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly ISuitDAL _suitDAL;
+
+        public CostBLL(ICostDAL costDAL, IUserOperationLogDAL userOperationLogDAL, ISuitDAL suitDAL)
         {
             this._costDAL = costDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._suitDAL = suitDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _costDAL, _userOperationLogDAL);
+            this.InitDataAccess(tenantId, _costDAL, _userOperationLogDAL, _suitDAL);
         }
 
         public async Task<ResponseBase> CostAdd(CostAddRequest request)
@@ -81,6 +84,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("费用不存在");
             }
+            var isCanModifyPrice = true;
+            var used = await _suitDAL.GetProductSuitUsed(EmProductType.Cost, cost.Id);
+            if (used.Any())
+            {
+                isCanModifyPrice = false;
+            }
             return ResponseBase.Success(new CostGetOutput()
             {
                 CId = cost.Id,
@@ -88,7 +97,8 @@ namespace ETMS.Business
                 Price = cost.Price,
                 Remark = cost.Remark,
                 Status = cost.Status,
-                Points = cost.Points
+                Points = cost.Points,
+                IsCanModifyPrice = isCanModifyPrice
             });
         }
 
@@ -98,6 +108,12 @@ namespace ETMS.Business
             if (cost == null)
             {
                 return ResponseBase.CommonError("费用不存在");
+            }
+            var used = await _suitDAL.GetProductSuitUsed(EmProductType.Cost, cost.Id);
+            if (used.Any())
+            {
+                var usedSuit = string.Join(',', used.Select(p => p.Name));
+                return ResponseBase.CommonError($"想要删除此费用，请先删除套餐[{usedSuit}]内的此费用");
             }
             if (cost.SaleQuantity > 0)
             {

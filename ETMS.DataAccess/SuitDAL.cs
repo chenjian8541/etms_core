@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -95,6 +96,19 @@ namespace ETMS.DataAccess
         public async Task<Tuple<IEnumerable<EtSuit>, int>> GetPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtSuit>("EtSuit", "*", request.PageSize, request.PageCurrent, "[Status] ASC,Id DESC", request.ToString());
+        }
+
+        public async Task<IEnumerable<SuitExistProduct>> GetProductSuitUsed(byte productType, long productId)
+        {
+            var sql = $"SELECT TOP 5 Id,Name FROM EtSuitDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ProductType = {productType} AND ProductId = {productId}";
+            return await _dbWrapper.ExecuteObject<SuitExistProduct>(sql);
+        }
+
+        public async Task<List<long>> GetCoursePriceRuleUsed(long courseId)
+        {
+            var sql = $"SELECT CoursePriceRuleId AS Id FROM EtSuitDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ProductId = {courseId} AND ProductType = {EmProductType.Course} GROUP BY CoursePriceRuleId";
+            var result = await _dbWrapper.ExecuteObject<OnlyId>(sql);
+            return result.Select(p => p.Id).ToList();
         }
     }
 }

@@ -7,6 +7,8 @@ namespace ETMS.Entity.Dto.Product.Request
 {
     public class CoursePriceRuleItem : IValidate
     {
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public int Quantity { get; set; }

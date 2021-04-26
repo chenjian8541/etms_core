@@ -42,7 +42,7 @@ namespace ETMS.Business
         }
 
         private async Task<Tuple<string, List<EtSuitDetail>>> GetSuitDetail(int tenantId, List<SuitCourseInput> suitCourse,
-            List<SuitGoodsInput> suitGoods, List<SuitCostInput> suitCost, long suitId)
+            List<SuitGoodsInput> suitGoods, List<SuitCostInput> suitCost, string name, long suitId)
         {
             var suitDetail = new List<EtSuitDetail>();
             if (suitCourse != null && suitCourse.Count > 0)
@@ -82,7 +82,8 @@ namespace ETMS.Business
                         PriceRule = priceRuleDesc,
                         ProductId = p.CourseId,
                         ProductType = EmProductType.Course,
-                        SuitId = suitId
+                        SuitId = suitId,
+                        Name = name
                     });
                 }
             }
@@ -100,7 +101,7 @@ namespace ETMS.Business
                     {
                         BuyQuantity = p.BuyQuantity,
                         BuyUnit = 0,
-                        CoursePriceRuleId = null,
+                        CoursePriceRuleId = 0,
                         DiscountType = p.DiscountType,
                         DiscountValue = p.DiscountValue,
                         GiveQuantity = 0,
@@ -113,7 +114,8 @@ namespace ETMS.Business
                         ProductId = p.GoodsId,
                         ProductType = EmProductType.Goods,
                         TenantId = tenantId,
-                        SuitId = suitId
+                        SuitId = suitId,
+                        Name = name
                     });
                 }
             }
@@ -131,7 +133,7 @@ namespace ETMS.Business
                     {
                         BuyQuantity = p.BuyQuantity,
                         BuyUnit = 0,
-                        CoursePriceRuleId = null,
+                        CoursePriceRuleId = 0,
                         DiscountType = p.DiscountType,
                         DiscountValue = p.DiscountValue,
                         GiveQuantity = 0,
@@ -144,7 +146,8 @@ namespace ETMS.Business
                         ProductId = p.CostId,
                         ProductType = EmProductType.Cost,
                         TenantId = tenantId,
-                        SuitId = suitId
+                        SuitId = suitId,
+                        Name = name
                     });
                 }
             }
@@ -158,7 +161,8 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("已存在相同名称的套餐");
             }
-            var suitDetailResult = await GetSuitDetail(request.LoginTenantId, request.SuitCourse, request.SuitGoods, request.SuitCost, 0);
+            var suitDetailResult = await GetSuitDetail(request.LoginTenantId, request.SuitCourse, request.SuitGoods,
+                request.SuitCost, request.Name, 0);
             if (!string.IsNullOrEmpty(suitDetailResult.Item1))
             {
                 return ResponseBase.CommonError(suitDetailResult.Item1);
@@ -195,7 +199,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("已存在相同名称的套餐");
             }
             var suitDetailResult = await GetSuitDetail(request.LoginTenantId, request.SuitCourse, request.SuitGoods,
-                request.SuitCost, request.Id);
+                request.SuitCost, request.Name, request.Id);
             if (!string.IsNullOrEmpty(suitDetailResult.Item1))
             {
                 return ResponseBase.CommonError(suitDetailResult.Item1);
@@ -228,6 +232,8 @@ namespace ETMS.Business
                 Name = suit.Name,
                 Remark = suit.Remark,
                 Points = suit.Points,
+                Price = suit.Price,
+                SalesCount = suit.SalesCount,
                 SuitCost = new List<SuitDetailCostItem>(),
                 SuitCourse = new List<SuitDetailCourseItem>(),
                 SuitGoods = new List<SuitDetailGoodsItem>()
@@ -242,7 +248,7 @@ namespace ETMS.Business
                         {
                             continue;
                         }
-                        var myCoursePriceRule = myCourseResult.Item2.FirstOrDefault(j => j.Id == myDetail.CoursePriceRuleId.Value);
+                        var myCoursePriceRule = myCourseResult.Item2.FirstOrDefault(j => j.Id == myDetail.CoursePriceRuleId);
                         if (myCoursePriceRule == null)
                         {
                             continue;
@@ -273,7 +279,7 @@ namespace ETMS.Business
                             MyItemAptSum = myDetail.ItemAptSum,
                             MyBuyQuantity = myDetail.BuyQuantity,
                             MyBuyUnit = myDetail.BuyUnit,
-                            MyCoursePriceRuleId = myDetail.CoursePriceRuleId.Value,
+                            MyCoursePriceRuleId = myDetail.CoursePriceRuleId,
                             MyDiscountType = myDetail.DiscountType,
                             MyDiscountValue = myDetail.DiscountValue == 0 ? "" : myDetail.DiscountValue.EtmsToString(),
                             MyGiveQuantity = myDetail.GiveQuantity == 0 ? "" : myDetail.GiveQuantity.ToString(),
@@ -281,7 +287,8 @@ namespace ETMS.Business
                             PriceType = myCoursePriceRule.PriceType,
                             PriceTypeDesc = ComBusiness.GetPriceRuleDesc(myCoursePriceRule).PriceTypeDesc,
                             Quantity = myCoursePriceRule.Quantity,
-                            TotalPrice = myCoursePriceRule.TotalPrice
+                            TotalPrice = myCoursePriceRule.TotalPrice,
+                            Points = myCoursePriceRule.Points
                         });
                         break;
                     case EmProductType.Goods:
@@ -311,7 +318,8 @@ namespace ETMS.Business
                             MyItemAptSum = myDetail.ItemAptSum,
                             Name = myGoods.Name,
                             Price = myDetail.Price,
-                            Quantity = 1
+                            Quantity = 1,
+                            Points = myGoods.Points
                         });
                         break;
                     case EmProductType.Cost:
@@ -341,7 +349,8 @@ namespace ETMS.Business
                             MyData = costView,
                             MyItemAptSum = myDetail.ItemAptSum,
                             Name = myCost.Name,
-                            Quantity = 1
+                            Quantity = 1,
+                            Points = myCost.Points
                         });
                         break;
                 }

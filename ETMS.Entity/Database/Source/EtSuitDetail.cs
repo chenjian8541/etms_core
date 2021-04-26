@@ -13,7 +13,9 @@ namespace ETMS.Entity.Database.Source
     {
         public long SuitId { get; set; }
 
-        public long? CoursePriceRuleId { get; set; }
+        public string Name { get; set; }
+
+        public long CoursePriceRuleId { get; set; }
 
         /// <summary>
         /// 产品类型  <see cref=" ETMS.Entity.Enum.EmProductType"/>

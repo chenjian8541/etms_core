@@ -22,6 +22,16 @@ namespace ETMS.Entity.Dto.Product.Output
         public int Points { get; set; }
 
         /// <summary>
+        /// 销售数量
+        /// </summary>
+        public int SalesCount { get; set; }
+
+        /// <summary>
+        /// 单价
+        /// </summary>
+        public decimal Price { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }
@@ -68,6 +78,8 @@ namespace ETMS.Entity.Dto.Product.Output
         public long MyCoursePriceRuleId { get; set; }
 
         public decimal TotalPrice { get; set; }
+
+        public int Points { get; set; }
     }
 
     public class SuitDetailGoodsItem
@@ -91,6 +103,8 @@ namespace ETMS.Entity.Dto.Product.Output
         public decimal MyItemAptSum { get; set; }
 
         public decimal Price { get; set; }
+
+        public int Points { get; set; }
     }
 
     public class SuitDetailCostItem {
@@ -113,5 +127,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public decimal MyItemAptSum { get; set; }
 
         public decimal Price { get; set; }
+
+        public int Points { get; set; }
     }
 }

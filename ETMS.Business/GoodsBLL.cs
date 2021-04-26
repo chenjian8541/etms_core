@@ -24,16 +24,20 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
-        public GoodsBLL(IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
+        private readonly ISuitDAL _suitDAL;
+
+        public GoodsBLL(IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
+            ISuitDAL suitDAL)
         {
             this._goodsDAL = goodsDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
+            this._suitDAL = suitDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _goodsDAL, _userOperationLogDAL);
+            this.InitDataAccess(tenantId, _goodsDAL, _userOperationLogDAL, _suitDAL);
         }
 
         public async Task<ResponseBase> GoodsAdd(GoodsAddRequest request)
@@ -151,6 +155,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("物品不存在");
             }
+            var isCanModifyPrice = true;
+            var used = await _suitDAL.GetProductSuitUsed(EmProductType.Goods, goods.Id);
+            if (used.Any())
+            {
+                isCanModifyPrice = false;
+            }
             return ResponseBase.Success(new GoodsGetOutput()
             {
                 CId = goods.Id,
@@ -160,7 +170,8 @@ namespace ETMS.Business
                 Remark = goods.Remark,
                 Status = goods.Status,
                 InventoryQuantity = goods.InventoryQuantity,
-                Points = goods.Points
+                Points = goods.Points,
+                IsCanModifyPrice = isCanModifyPrice
             });
         }
 
@@ -170,6 +181,12 @@ namespace ETMS.Business
             if (goods == null)
             {
                 return ResponseBase.CommonError("物品不存在");
+            }
+            var used = await _suitDAL.GetProductSuitUsed(EmProductType.Goods, goods.Id);
+            if (used.Any())
+            {
+                var usedSuit = string.Join(',', used.Select(p => p.Name));
+                return ResponseBase.CommonError($"想要删除此物品，请先删除套餐[{usedSuit}]内的此物品");
             }
             if (goods.SaleQuantity > 0 || goods.InventoryQuantity > 0)
             {

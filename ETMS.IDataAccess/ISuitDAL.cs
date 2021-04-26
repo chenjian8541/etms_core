@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,5 +23,9 @@ namespace ETMS.IDataAccess
         Task<bool> DelSuit(long id);
 
         Task<Tuple<IEnumerable<EtSuit>, int>> GetPaging(RequestPagingBase request);
+
+        Task<IEnumerable<SuitExistProduct>> GetProductSuitUsed(byte productType, long productId);
+
+        Task<List<long>> GetCoursePriceRuleUsed(long courseId);
     }
 }

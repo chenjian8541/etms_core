@@ -82,7 +82,6 @@ namespace ETMS.Business.Common
                 startTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[0]).Date;
                 endTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[1]).Date;
             }
-
             return new EtStudentCourseDetail()
             {
                 BugUnit = priceRule.PriceUnit,
@@ -98,7 +97,7 @@ namespace ETMS.Business.Common
                 EndCourseUser = null,
                 GiveQuantity = enrolmentCourse.GiveQuantity,
                 GiveUnit = enrolmentCourse.GiveUnit,
-                Price = priceRule.Price,
+                Price = GetOneClassDeSum(enrolmentCourse.ItemAptSum, deType, surplusQuantity, surplusSmallQuantity),
                 StartTime = startTime,
                 EndTime = endTime,
                 Status = EmStudentCourseStatus.Normal,
@@ -108,6 +107,36 @@ namespace ETMS.Business.Common
                 UseQuantity = 0,
                 UseUnit = useUnit
             };
+        }
+
+        /// <summary>
+        /// 消耗一节课大概的价格（课消金额）
+        /// </summary>
+        /// <param name="itemAptSum"></param>
+        /// <param name="deType"></param>
+        /// <param name="surplusQuantity"></param>
+        /// <param name="surplusSmallQuantity"></param>
+        /// <returns></returns>
+        internal static decimal GetOneClassDeSum(decimal itemAptSum, byte deType, int surplusQuantity, int surplusSmallQuantity)
+        {
+            var price = 0M;
+            if (itemAptSum > 0)
+            {
+                var totalCount = 0;
+                if (deType == EmDeClassTimesType.Day)
+                {
+                    totalCount = surplusQuantity * SystemConfig.ComConfig.MonthToDay + surplusSmallQuantity;
+                }
+                else
+                {
+                    totalCount = surplusQuantity;
+                }
+                if (totalCount > 0)
+                {
+                    price = Math.Round(itemAptSum / totalCount, 2);
+                }
+            }
+            return price;
         }
 
         internal static Tuple<EtOrderDetail, string> GetCourseOrderDetail(EtCourse course, EtCoursePriceRule priceRule,

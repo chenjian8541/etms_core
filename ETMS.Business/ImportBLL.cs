@@ -413,6 +413,7 @@ namespace ETMS.Business
                 }
 
                 var useQuantity = p.BuyQuantity + p.GiveQuantity - p.SurplusQuantity;
+                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.ClassTimes, p.BuyQuantity + p.GiveQuantity, 0);
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
                     BugUnit = EmCourseUnit.ClassTimes,
@@ -428,7 +429,7 @@ namespace ETMS.Business
                     EndCourseUser = null,
                     GiveQuantity = p.GiveQuantity,
                     GiveUnit = EmCourseUnit.ClassTimes,
-                    Price = price,
+                    Price = courseDetailPrice,
                     StartTime = null,
                     EndTime = p.EndTime,
                     Status = EmStudentCourseStatus.Normal,
@@ -701,6 +702,8 @@ namespace ETMS.Business
                     surplusQuantity = daySurplusQuantityDeff.Item1;
                     surplusSmallQuantity = daySurplusQuantityDeff.Item2;
                 }
+                var buyTotalDays = (int)(p.EndTime.AddDays(1) - p.StartTime).TotalDays;
+                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.Day, 0, buyTotalDays);
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
                     BugUnit = EmCourseUnit.Month,
@@ -716,7 +719,7 @@ namespace ETMS.Business
                     EndCourseUser = null,
                     GiveQuantity = 0,
                     GiveUnit = EmCourseUnit.Day,
-                    Price = price,
+                    Price = courseDetailPrice,
                     StartTime = p.StartTime,
                     EndTime = p.EndTime,
                     Status = EmStudentCourseStatus.Normal,

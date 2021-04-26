@@ -58,10 +58,29 @@ namespace ETMS.DataAccess
         public async Task<bool> EditCourse(EtCourse course, List<EtCoursePriceRule> coursePriceRules)
         {
             await _dbWrapper.Update(course);
-            await _dbWrapper.Execute($"DELETE EtCoursePriceRule WHERE CourseId = {course.Id}");
-            if (coursePriceRules != null && coursePriceRules.Any())
+            var updatePriceRule = coursePriceRules.Where(p => p.Id > 0).ToList();
+            var InsertPriceRule = coursePriceRules.Where(p => p.Id == 0).ToList();
+            if (updatePriceRule.Any())
             {
-                _dbWrapper.InsertRange(coursePriceRules);
+                var notIds = string.Join(',', updatePriceRule.Select(p => p.Id));
+                await _dbWrapper.Execute($"DELETE EtCoursePriceRule WHERE TenantId = {_tenantId} AND CourseId = {course.Id} AND Id NOT IN ({notIds})");
+            }
+            else
+            {
+                await _dbWrapper.Execute($"DELETE EtCoursePriceRule WHERE TenantId = {_tenantId} AND CourseId = {course.Id}");
+            }
+            if (updatePriceRule.Any()) //只能编辑名称
+            {
+                var sql = new StringBuilder();
+                foreach (var p in updatePriceRule)
+                {
+                    sql.Append($"UPDATE EtCoursePriceRule SET Name = '{p.Name}' WHERE Id = {p.Id} AND TenantId = {p.TenantId} ;");
+                }
+                await _dbWrapper.Execute(sql.ToString());
+            }
+            if (InsertPriceRule.Any())
+            {
+                _dbWrapper.InsertRange(InsertPriceRule);
             }
             await base.UpdateCache(_tenantId, course.Id);
             return true;
