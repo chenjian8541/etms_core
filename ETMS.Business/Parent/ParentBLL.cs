@@ -182,22 +182,25 @@ namespace ETMS.Business
                 _studentWechatDAL.InitTenantId(tenantId);
                 _studentDAL.InitTenantId(tenantId);
                 var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(studentWechartId.ToLong());
-                sysStudentWechartLog.TenantId = tenantId;
-                await _sysStudentWechartDAL.EditSysStudentWechart(sysStudentWechartLog);
-                await _studentWechatDAL.DelStudentWechat(phone, sysStudentWechartLog.WechatOpenid);
-                await _studentWechatDAL.AddStudentWechat(new Entity.Database.Source.EtStudentWechat()
+                if (sysStudentWechartLog != null)
                 {
-                    IsDeleted = EmIsDeleted.Normal,
-                    Nickname = sysStudentWechartLog.Nickname,
-                    Headimgurl = sysStudentWechartLog.Headimgurl,
-                    Phone = phone,
-                    Remark = string.Empty,
-                    StudentId = students.First().Id,
-                    TenantId = tenantId,
-                    WechatOpenid = sysStudentWechartLog.WechatOpenid,
-                    WechatUnionid = sysStudentWechartLog.WechatUnionid
-                });
-                await _studentDAL.UpdateStudentIsBindingWechat(students.Select(p => p.Id).ToList());
+                    sysStudentWechartLog.TenantId = tenantId;
+                    await _sysStudentWechartDAL.EditSysStudentWechart(sysStudentWechartLog);
+                    await _studentWechatDAL.DelStudentWechat(phone, sysStudentWechartLog.WechatOpenid);
+                    await _studentWechatDAL.AddStudentWechat(new Entity.Database.Source.EtStudentWechat()
+                    {
+                        IsDeleted = EmIsDeleted.Normal,
+                        Nickname = sysStudentWechartLog.Nickname,
+                        Headimgurl = sysStudentWechartLog.Headimgurl,
+                        Phone = phone,
+                        Remark = string.Empty,
+                        StudentId = students.First().Id,
+                        TenantId = tenantId,
+                        WechatOpenid = sysStudentWechartLog.WechatOpenid,
+                        WechatUnionid = sysStudentWechartLog.WechatUnionid
+                    });
+                    await _studentDAL.UpdateStudentIsBindingWechat(students.Select(p => p.Id).ToList());
+                }
             }
             var exTime = DateTime.Now.Date.AddDays(_appConfigurtaionServices.AppSettings.ParentConfig.TokenExpiredDay).EtmsGetTimestamp().ToString();
             var parentTokenConfig = new ParentTokenConfig()

@@ -186,7 +186,11 @@ namespace ETMS.Business
             var courseTempBox = new DataTempBox<EtCourse>();
             foreach (var p in classRecordStudents)
             {
-                var student = await _studentDAL.GetStudent(p.StudentId);
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
                 var deClassTimes = p.DeClassTimes.EtmsToString();
                 outPut.Add(new ClassRecordStudentGetOutput()
                 {
@@ -203,8 +207,8 @@ namespace ETMS.Business
                     RewardPoints = p.RewardPoints,
                     StudentCheckStatus = p.StudentCheckStatus,
                     StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
-                    StudentName = student.Student.Name,
-                    StudentPhone = student.Student.Phone,
+                    StudentName = studentBucket.Student.Name,
+                    StudentPhone = studentBucket.Student.Phone,
                     StudentType = p.StudentType,
                     StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(p.StudentType),
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
@@ -215,7 +219,7 @@ namespace ETMS.Business
                     NewRemark = p.Remark,
                     NewStudentCheckStatus = p.StudentCheckStatus,
                     NewRewardPoints = p.RewardPoints,
-                    StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Student.Avatar)
+                    StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
                 });
             }
             return ResponseBase.Success(outPut);
