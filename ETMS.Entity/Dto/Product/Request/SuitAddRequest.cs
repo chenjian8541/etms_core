@@ -10,11 +10,6 @@ namespace ETMS.Entity.Dto.Product.Request
     {
         public string Name { get; set; }
 
-        /// <summary>
-        /// 积分
-        /// </summary>
-        public int Points { get; set; }
-
         public string Remark { get; set; }
 
         public List<SuitCourseInput> SuitCourse { get; set; }

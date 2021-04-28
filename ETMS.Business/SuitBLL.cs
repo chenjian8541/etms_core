@@ -180,7 +180,7 @@ namespace ETMS.Business
                 Status = EmProductStatus.Enabled,
                 TenantId = request.LoginTenantId,
                 UserId = request.LoginUserId,
-                Points = request.Points
+                Points = 0
             };
             await _suitDAL.AddSuit(suit, suitDetail);
             await _userOperationLogDAL.AddUserLog(request, $"添加套餐-{request.Name}", EmUserOperationType.SuitMgr);
@@ -210,7 +210,7 @@ namespace ETMS.Business
             suit.Name = request.Name;
             suit.Remark = request.Remark;
             suit.Price = suitPrice;
-            suit.Points = request.Points;
+            suit.Points = 0;
             await _suitDAL.EditSuit(suit, suitDetail);
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑套餐-{request.Name}", EmUserOperationType.SuitMgr);
