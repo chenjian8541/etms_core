@@ -155,14 +155,16 @@ namespace ETMS.Business
             }
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(role, request.ClientType, out var msgRoleLimit))
+                if (!CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
                 {
                     return response.GetResponseError(msgRoleLimit);
                 }
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType, role);
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType,
+                role, roleSetting);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -182,12 +184,11 @@ namespace ETMS.Business
             return true;
         }
 
-        private bool CheckRoleCanLogin(EtRole role, int clientType, out string msg)
+        private bool CheckRoleCanLogin(RoleNoticeSettingOutput roleSetting, int clientType, out string msg)
         {
             msg = string.Empty;
             if (clientType == EmUserOperationLogClientType.Android)
             {
-                var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting);
                 if (!roleSetting.IsAllowAppLogin)
                 {
                     msg = "您无权限登录，请联系管理员";
@@ -284,14 +285,16 @@ namespace ETMS.Business
             }
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(role, request.ClientType, out var msgRoleLimit))
+                if (!CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
                 {
                     return response.GetResponseError(msgRoleLimit);
                 }
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType, role);
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType, role,
+                roleSetting);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -358,7 +361,7 @@ namespace ETMS.Business
         }
 
         private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress,
-            string code, string phone, int clientType, EtRole role)
+            string code, string phone, int clientType, EtRole role, RoleNoticeSettingOutput roleSetting)
         {
             var time = DateTime.Now;
             var nowTimestamp = time.EtmsGetTimestamp().ToString();
@@ -384,7 +387,8 @@ namespace ETMS.Business
                 ExpiresTime = exTime,
                 Permission = ComBusiness.GetPermissionOutput(myAllMenus, role.AuthorityValueMenu, userInfo.IsAdmin),
                 UId = userInfo.Id,
-                TId = userInfo.TenantId
+                TId = userInfo.TenantId,
+                RoleSetting = roleSetting
             };
         }
 
@@ -416,9 +420,10 @@ namespace ETMS.Business
 
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(role, request.LoginClientType, out var msgRoleLimit))
+                if (!CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
                 {
                     return ResponseBase.CommonError(msgRoleLimit);
                 }
@@ -520,14 +525,16 @@ namespace ETMS.Business
 
             _roleDAL.InitTenantId(userInfo.TenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(role, request.LoginClientType, out var msgRoleLimit))
+                if (!CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
                 {
                     return ResponseBase.CommonError(msgRoleLimit);
                 }
             }
-            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType, role);
+            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType, role,
+                roleSetting);
             return ResponseBase.Success(new UserLoginBySmsH5Output()
             {
                 ExpiresTime = result.ExpiresTime,

@@ -190,8 +190,20 @@ namespace ETMS.Business.Common
             return roles;
         }
 
-        internal static RoleNoticeSettingOutput AnalyzeNoticeSetting(string noticeSetting)
+        internal static RoleNoticeSettingOutput AnalyzeNoticeSetting(string noticeSetting, bool isAdmin = false)
         {
+            if (isAdmin)
+            {
+                return new RoleNoticeSettingOutput() //这里，一些接收微信消息的权限给了true，因为前端没用到暂且这么处理
+                {
+                    IsAllowAppLogin = true,
+                    IsAllowLookStatistics = true,
+                    IsReceiveInteractiveStudent = true,
+                    IsStudentContractsNotArrived = true,
+                    IsStudentLeaveApply = true,
+                    IsTryCalssApply = true
+                };
+            }
             var output = new RoleNoticeSettingOutput();
             if (string.IsNullOrEmpty(noticeSetting))
             {

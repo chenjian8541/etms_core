@@ -19,5 +19,7 @@ namespace ETMS.Entity.Dto.User.Output
         public long UId { get; set; }
 
         public int TId { get; set; }
+
+        public RoleNoticeSettingOutput RoleSetting { get; set; }
     }
 }
