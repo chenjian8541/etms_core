@@ -1,4 +1,6 @@
-﻿using ETMS.Event.DataContract;
+﻿using ETMS.Entity.CacheBucket.RedisLock;
+using ETMS.Event.DataContract;
+using ETMS.EventConsumer.Lib;
 using ETMS.IBusiness;
 using ETMS.IOC;
 using System;
@@ -13,9 +15,15 @@ namespace ETMS.EventConsumer
     {
         protected override async Task Receive(StatisticsSalesCourseEvent eEvent)
         {
+            var _lockKey = new StatisticsSalesCourseToken(eEvent.TenantId, eEvent.StatisticsDate);
             var statisticsSalesCourseBLL = CustomServiceLocator.GetInstance<IStatisticsSalesCourseBLL>();
             statisticsSalesCourseBLL.InitTenantId(eEvent.TenantId);
-            await statisticsSalesCourseBLL.StatisticsSalesCourseConsumeEvent(eEvent);
+            var lockTakeHandler = new LockTakeHandler<StatisticsSalesCourseToken>(_lockKey, eEvent, this.ClassName,
+                async () =>
+                await statisticsSalesCourseBLL.StatisticsSalesCourseConsumeEvent(eEvent)
+                );
+            await lockTakeHandler.Process();
+
         }
     }
 }

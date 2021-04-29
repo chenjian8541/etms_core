@@ -47,6 +47,62 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _tryCalssApplyLogDAL, _userDAL, _studentDAL, _userOperationLogDAL);
         }
 
+        public async Task<ResponseBase> TryCalssApplyLogGet(TryCalssApplyLogGetRequest request)
+        {
+            var p = await _tryCalssApplyLogDAL.GetTryCalssApplyLog(request.CId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("试听申请记录不存在");
+            }
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            var studentName = string.Empty;
+            var phone = string.Empty;
+
+            if (p.StudentId != null)
+            {
+                var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId.Value);
+                if (student != null)
+                {
+                    studentName = student.Name;
+                    phone = student.Phone;
+                }
+            }
+            else
+            {
+                phone = p.Phone;
+                studentName = p.TouristName;
+            }
+            var recommandStudentDesc = string.Empty;
+            if (p.RecommandStudentId != null)
+            {
+                var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RecommandStudentId.Value);
+                if (myStudent != null)
+                {
+                    recommandStudentDesc = $"学员：{myStudent.Name},{myStudent.Phone}";
+                }
+            }
+            return ResponseBase.Success(new TryCalssApplyLogPagingOutput()
+            {
+                ApplyOt = p.ApplyOt,
+                ClassOtDesc = p.ClassOt.EtmsToDateString(),
+                ClassTime = p.ClassTime,
+                CourseDesc = p.CourseDesc,
+                HandleOtDesc = p.HandleOt.EtmsToString(),
+                HandleRemark = p.HandleRemark,
+                HandleStatus = p.HandleStatus,
+                HandleStatusDesc = EmTryCalssApplyHandleStatus.GetTryCalssApplyHandleStatusDesc(p.HandleStatus),
+                HandleUserDesc = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
+                SourceType = p.SourceType,
+                SourceTypeDesc = EmTryCalssSourceType.GetTryCalssSourceTypeDesc(p.SourceType),
+                Phone = phone,
+                StudentName = studentName,
+                RecommandStudentDesc = recommandStudentDesc,
+                CId = p.Id,
+                TouristRemark = p.TouristRemark
+            });
+        }
+
         public async Task<ResponseBase> TryCalssApplyLogPaging(TryCalssApplyLogPagingRequest request)
         {
             var pagingData = await _tryCalssApplyLogDAL.GetPaging(request);

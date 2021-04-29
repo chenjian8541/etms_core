@@ -784,6 +784,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TryCalssApplyLogGet(TryCalssApplyLogGetRequest request)
+        {
+            try
+            {
+                _tryCalssApplyLogBLL.InitTenantId(request.LoginTenantId);
+                return await _tryCalssApplyLogBLL.TryCalssApplyLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TryCalssApplyLogPaging(TryCalssApplyLogPagingRequest request)
         {
             try

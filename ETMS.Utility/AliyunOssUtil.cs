@@ -166,9 +166,10 @@ namespace ETMS.Utility
         public static void SetBucketLifecycle(string fileType, int expriationDays)
         {
             var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
+            var id = $"{RootFolder}_{TempFolder}_{fileType}";
             setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
             {
-                ID = $"{TempFolder}_{fileType}",
+                ID = id,
                 Prefix = $"{RootFolder}/{TempFolder}/{fileType}/",
                 Status = RuleStatus.Enabled,
                 ExpriationDays = expriationDays

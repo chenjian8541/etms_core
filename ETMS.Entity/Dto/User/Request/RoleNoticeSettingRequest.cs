@@ -20,5 +20,10 @@ namespace ETMS.Entity.Dto.User.Request
         /// 试听申请
         /// </summary>
         public bool IsTryCalssApply { get; set; }
+
+        /// <summary>
+        /// 接收学员互动消息提醒
+        /// </summary>
+        public bool IsReceiveInteractiveStudent { get; set; }
     }
 }

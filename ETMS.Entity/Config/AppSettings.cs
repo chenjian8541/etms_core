@@ -241,6 +241,10 @@ namespace ETMS.Entity.Config
         public string UserClassRecordDetailUrl { get; set; }
 
         public string UserTryCalssApplyDetailUrl { get; set; }
+
+        public string ParentActiveGrowthRecordDetailUrl { get; set; }
+
+        public string TeacherActiveGrowthRecordDetailUrl { get; set; }
     }
 
     public class ServerConfig

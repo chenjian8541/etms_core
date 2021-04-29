@@ -345,6 +345,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentLeaveApplyLogGet(StudentLeaveApplyLogGetRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentLeaveApplyLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyLogPaging(StudentLeaveApplyLogPagingRequest request)
         {
             try

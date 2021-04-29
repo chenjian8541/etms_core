@@ -20,5 +20,10 @@ namespace ETMS.Entity.Config
         ///试听申请
         /// </summary>
         public const int TryCalssApply = 3;
+
+        /// <summary>
+        /// 接收学员互动提醒
+        /// </summary>
+        public const int ReceiveInteractiveStudent = 4;
     }
 }

@@ -404,6 +404,7 @@ namespace ETMS.Business.SendNotice
 
             smsReq.Content = $"请假事由_{studentLeaveApplyLog.LeaveContent}";
 
+            var url = string.Format(wxConfig.TemplateNoticeConfig.UserStudentLeaveApplyUrl, studentLeaveApplyLog.Id);
             foreach (var user in noticeUser)
             {
                 smsReq.Users.Add(new NoticeUserMessageUser()
@@ -412,7 +413,7 @@ namespace ETMS.Business.SendNotice
                     UserId = user.Id,
                     UserName = ComBusiness2.GetParentTeacherName(user),
                     OpendId = await GetOpenId(true, user.Id),
-                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserStudentLeaveApplyUrl, studentLeaveApplyLog.Id)
+                    Url = url
                 });
             }
 
@@ -458,6 +459,7 @@ namespace ETMS.Business.SendNotice
             }
             smsReq.Content = $"班级[{request.ClassName}]在{classRecord.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classRecord.Week)}) {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}上课时，学员[{studentNames.ToString().TrimEnd(',')}]未到";
 
+            var url = string.Format(wxConfig.TemplateNoticeConfig.UserClassRecordDetailUrl, classRecord.Id);
             foreach (var user in noticeUser)
             {
                 smsReq.Users.Add(new NoticeUserMessageUser()
@@ -466,7 +468,7 @@ namespace ETMS.Business.SendNotice
                     UserId = user.Id,
                     UserName = ComBusiness2.GetParentTeacherName(user),
                     OpendId = await GetOpenId(true, user.Id),
-                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserClassRecordDetailUrl, classRecord.Id)
+                    Url = url
                 });
             }
 
@@ -509,6 +511,7 @@ namespace ETMS.Business.SendNotice
             }
             smsReq.Content = $"[{studentName}_{phone}]申请试听课程，申请备注_{tryCalssApplyLog.TouristRemark}";
 
+            var url = string.Format(wxConfig.TemplateNoticeConfig.UserTryCalssApplyDetailUrl, tryCalssApplyLog.Id);
             foreach (var user in noticeUser)
             {
                 smsReq.Users.Add(new NoticeUserMessageUser()
@@ -517,7 +520,7 @@ namespace ETMS.Business.SendNotice
                     UserId = user.Id,
                     UserName = ComBusiness2.GetParentTeacherName(user),
                     OpendId = await GetOpenId(true, user.Id),
-                    Url = string.Format(wxConfig.TemplateNoticeConfig.UserTryCalssApplyDetailUrl, tryCalssApplyLog.Id)
+                    Url = url
                 });
             }
 

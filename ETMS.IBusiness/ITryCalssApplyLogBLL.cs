@@ -9,6 +9,8 @@ namespace ETMS.IBusiness
 {
     public interface ITryCalssApplyLogBLL: IBaseBLL
     {
+        Task<ResponseBase> TryCalssApplyLogGet(TryCalssApplyLogGetRequest request);
+
         Task<ResponseBase> TryCalssApplyLogPaging(TryCalssApplyLogPagingRequest request);
 
         Task<ResponseBase> TryCalssApplyLogHandle(TryCalssApplyLogHandleRequest request);

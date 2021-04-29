@@ -17,6 +17,7 @@ using System.Linq;
 using ETMS.Business.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.IBusiness;
+using ETMS.Entity.Temp.Request;
 
 namespace ETMS.Business.SendNotice
 {
@@ -46,10 +47,12 @@ namespace ETMS.Business.SendNotice
 
         private readonly IUserSendNoticeBLL _userSendNoticeBLL;
 
+        private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
             IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
-            IUserSendNoticeBLL userSendNoticeBLL)
+            IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -64,6 +67,7 @@ namespace ETMS.Business.SendNotice
             this._courseDAL = courseDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._userSendNoticeBLL = userSendNoticeBLL;
+            this._activeGrowthRecordDAL = activeGrowthRecordDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -71,7 +75,7 @@ namespace ETMS.Business.SendNotice
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this._userSendNoticeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
-                _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL);
+                _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL, _activeGrowthRecordDAL);
         }
 
         public async Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request)
@@ -334,7 +338,7 @@ namespace ETMS.Business.SendNotice
                 return;
             }
 
-            var title = string.Empty;
+            string title;
             if (request.OpType == NoticeStudentReservationOpType.Success)
             {
                 title = "恭喜您成功预约课程";
@@ -461,6 +465,95 @@ namespace ETMS.Business.SendNotice
                 if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
                 {
                     _wxService.NoticeStudentCustomizeMsg(req);
+                }
+            }
+        }
+
+        public async Task NoticeStudentActiveGrowthCommentConsumerEvent(NoticeStudentActiveGrowthCommentEvent request)
+        {
+            var pagingRequest = new TempActiveGrowthRecordDetailGetPagingRequest()
+            {
+                GrowthRecordId = request.ActiveGrowthRecordDetailComment.GrowthRecordId,
+                IpAddress = string.Empty,
+                IsDataLimit = false,
+                LoginClientType = EmUserOperationLogClientType.PC,
+                LoginTenantId = request.TenantId,
+                LoginUserId = request.UserId,
+                PageCurrent = 1,
+                PageSize = 50
+            };
+            var activeGrowthRecordDetailPagingData = await _activeGrowthRecordDAL.GetDetailPaging(pagingRequest);
+            if (activeGrowthRecordDetailPagingData.Item2 == 0)
+            {
+                return;
+            }
+            var req = new NoticeStudentMessageRequest(await GetNoticeRequestBase(request.TenantId, true))
+            {
+                Title = "老师评论了您的成长档案，赶快去看看吧！！！",
+                OtDesc = request.ActiveGrowthRecordDetailComment.Ot.EtmsToMinuteString(),
+                Content = "点击查看详情"
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            await NoticeStudentActiveGrowthCommentConsumerEventHandle(request, activeGrowthRecordDetailPagingData.Item1, req,
+                wxConfig.TemplateNoticeConfig.ParentActiveGrowthRecordDetailUrl);
+            var totalPage = EtmsHelper.GetTotalPage(activeGrowthRecordDetailPagingData.Item2, pagingRequest.PageSize);
+            pagingRequest.PageCurrent++;
+            while (pagingRequest.PageCurrent <= totalPage)
+            {
+                LOG.Log.Info($"[NoticeStudentActiveGrowthCommentConsumerEvent]处理第{pagingRequest.PageCurrent}页的数据", this.GetType());
+                var result = await _activeGrowthRecordDAL.GetDetailPaging(pagingRequest);
+                NoticeStudentActiveGrowthCommentConsumerEventHandle(request, result.Item1, req,
+                    wxConfig.TemplateNoticeConfig.ParentActiveGrowthRecordDetailUrl).Wait();
+                pagingRequest.PageCurrent++;
+            }
+        }
+
+        public async Task NoticeStudentActiveGrowthCommentConsumerEventHandle(NoticeStudentActiveGrowthCommentEvent request,
+            IEnumerable<EtActiveGrowthRecordDetail> details, NoticeStudentMessageRequest req, string parentActiveGrowthRecordDetailUrl)
+        {
+            req.Students = new List<NoticeStudentMessageStudent>();
+            if (details != null && details.Any())
+            {
+                foreach (var p in details)
+                {
+                    var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                    if (studentBucket == null || studentBucket.Student == null)
+                    {
+                        continue;
+                    }
+                    var student = studentBucket.Student;
+                    if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    var url = string.Format(parentActiveGrowthRecordDetailUrl, p.Id, p.TenantId);
+                    req.Students.Add(new NoticeStudentMessageStudent()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetOpenId(true, student.Phone),
+                        Phone = student.Phone,
+                        StudentId = student.Id,
+                        Url = url
+                    });
+                    if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                    {
+                        req.Students.Add(new NoticeStudentMessageStudent()
+                        {
+                            Name = student.Name,
+                            OpendId = await GetOpenId(true, student.PhoneBak),
+                            Phone = student.PhoneBak,
+                            StudentId = student.Id,
+                            Url = url
+                        });
+                    }
+                }
+                if (req.Students.Any())
+                {
+                    _wxService.NoticeStudentMessage(req);
                 }
             }
         }

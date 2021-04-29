@@ -231,6 +231,10 @@ namespace ETMS.Business.Common
                 }
                 var myStudentItem = new ImportStudentContentItem();
                 var i = myRow.FirstCellNum;
+                if (i < 0)
+                {
+                    break;
+                }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));
                 if (string.IsNullOrEmpty(studentNameValue))
@@ -487,6 +491,10 @@ namespace ETMS.Business.Common
                 }
                 var myStudentCourseItem = new ImportCourseTimesItem();
                 var i = myRow.FirstCellNum;
+                if (i < 0)
+                {
+                    break;
+                }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
                 if (string.IsNullOrEmpty(studentNameValue))
@@ -835,6 +843,10 @@ namespace ETMS.Business.Common
                 }
                 var myStudentCourseItem = new ImportCourseDayItem();
                 var i = myRow.FirstCellNum;
+                if (i < 0)
+                {
+                    break;
+                }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
                 if (string.IsNullOrEmpty(studentNameValue))

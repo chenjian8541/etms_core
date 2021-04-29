@@ -859,6 +859,10 @@ namespace ETMS.Business
             };
             await _activeGrowthRecordDAL.AddActiveGrowthRecordDetailComment(comment);
 
+            _eventPublisher.Publish(new NoticeUserActiveGrowthCommentEvent(request.LoginTenantId)
+            {
+                ActiveGrowthRecordDetailComment = comment
+            });
             await _studentOperationLogDAL.AddStudentLog(growthRecordDetail.StudentId, request.LoginTenantId, $"评论成长档案：{growthRecordDetail.GrowthContent}", EmStudentOperationLogType.GrowthRecord);
             return ResponseBase.Success();
         }

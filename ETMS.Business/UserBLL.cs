@@ -207,6 +207,10 @@ namespace ETMS.Business
             {
                 mySetting.Add(RoleNoticeSetting.TryCalssApply);
             }
+            if (request.IsReceiveInteractiveStudent)
+            {
+                mySetting.Add(RoleNoticeSetting.ReceiveInteractiveStudent);
+            }
             return EtmsHelper.GetMuIds(mySetting);
         }
 
@@ -235,6 +239,9 @@ namespace ETMS.Business
                         break;
                     case RoleNoticeSetting.TryCalssApply:
                         output.IsTryCalssApply = true;
+                        break;
+                    case RoleNoticeSetting.ReceiveInteractiveStudent:
+                        output.IsReceiveInteractiveStudent = true;
                         break;
                 }
             }

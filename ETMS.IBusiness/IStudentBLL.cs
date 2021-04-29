@@ -41,6 +41,8 @@ namespace ETMS.IBusiness
 
         ResponseBase StudentOperationLogTypeGet(RequestBase request);
 
+        Task<ResponseBase> StudentLeaveApplyLogGet(StudentLeaveApplyLogGetRequest request);
+
         Task<ResponseBase> StudentLeaveApplyLogPaging(StudentLeaveApplyLogPagingRequest request);
 
         Task<ResponseBase> StudentLeaveApplyHandle(StudentLeaveApplyHandleRequest request);

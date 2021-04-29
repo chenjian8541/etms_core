@@ -778,6 +778,44 @@ namespace ETMS.Business
             return ResponseBase.Success(EnumDataLib.GetStudentOperationTypeDesc);
         }
 
+        public async Task<ResponseBase> StudentLeaveApplyLogGet(StudentLeaveApplyLogGetRequest request)
+        {
+            var applyLog = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyLog(request.StudentLeaveApplyLogId);
+            if (applyLog == null)
+            {
+                return ResponseBase.CommonError("请假记录不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(applyLog.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("请假学员不存在");
+            }
+            var handleUserDesc = string.Empty;
+            if (applyLog.HandleUser != null)
+            {
+                var user = await _userDAL.GetUser(applyLog.HandleUser.Value);
+                handleUserDesc = user?.Name;
+            }
+            var student = studentBucket.Student;
+            return ResponseBase.Success(new StudentLeaveApplyLogPagingOutput() {
+                ApplyOt = applyLog.ApplyOt,
+                CId = applyLog.Id,
+                EndDateDesc = applyLog.EndDate.EtmsToDateString(),
+                EndTimeDesc = EtmsHelper.GetTimeDesc(applyLog.EndTime),
+                StartDateDesc = applyLog.StartDate.EtmsToDateString(),
+                StartTimeDesc = EtmsHelper.GetTimeDesc(applyLog.StartTime),
+                HandleRemark = applyLog.HandleRemark,
+                HandleOtDesc = applyLog.HandleOt == null ? string.Empty : applyLog.HandleOt.EtmsToString(),
+                HandleStatus = applyLog.HandleStatus,
+                HandleStatusDesc = EmStudentLeaveApplyHandleStatus.GetStudentLeaveApplyHandleStatusDesc(applyLog.HandleStatus),
+                HandleUser = applyLog.HandleUser,
+                HandleUserDesc = handleUserDesc,
+                LeaveContent = applyLog.LeaveContent,
+                StudentName = student.Name,
+                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType)
+            });
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyLogPaging(StudentLeaveApplyLogPagingRequest request)
         {
             var pagingData = await _studentLeaveApplyLogDAL.GetPaging(request);
