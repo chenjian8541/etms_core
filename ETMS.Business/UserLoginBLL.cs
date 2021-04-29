@@ -153,7 +153,16 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(msg);
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType);
+            _roleDAL.InitTenantId(userInfo.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            if (!userInfo.IsAdmin)
+            {
+                if (!CheckRoleCanLogin(role, request.ClientType, out var msgRoleLimit))
+                {
+                    return response.GetResponseError(msgRoleLimit);
+                }
+            }
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType, role);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -169,6 +178,21 @@ namespace ETMS.Business
             {
                 msg = "您已离职，无法登陆";
                 return false;
+            }
+            return true;
+        }
+
+        private bool CheckRoleCanLogin(EtRole role, int clientType, out string msg)
+        {
+            msg = string.Empty;
+            if (clientType == EmUserOperationLogClientType.Android)
+            {
+                var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting);
+                if (!roleSetting.IsAllowAppLogin)
+                {
+                    msg = "您无权限登录，请联系管理员";
+                    return false;
+                }
             }
             return true;
         }
@@ -258,7 +282,16 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(msg);
             }
-            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType);
+            _roleDAL.InitTenantId(userInfo.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            if (!userInfo.IsAdmin)
+            {
+                if (!CheckRoleCanLogin(role, request.ClientType, out var msgRoleLimit))
+                {
+                    return response.GetResponseError(msgRoleLimit);
+                }
+            }
+            var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType, role);
             return response.GetResponseSuccess(userLoginOutput);
         }
 
@@ -325,7 +358,7 @@ namespace ETMS.Business
         }
 
         private async Task<UserLoginOutput> LoginSuccessProcess(EtUser userInfo, string ipAddress,
-            string code, string phone, int clientType)
+            string code, string phone, int clientType, EtRole role)
         {
             var time = DateTime.Now;
             var nowTimestamp = time.EtmsGetTimestamp().ToString();
@@ -343,8 +376,6 @@ namespace ETMS.Business
                 Type = (int)EmUserOperationType.Login,
                 ClientType = clientType
             });
-            _roleDAL.InitTenantId(userInfo.TenantId);
-            var role = await _roleDAL.GetRole(userInfo.RoleId);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(userInfo.TenantId);
             _tempDataCacheDAL.SetUserLoginOnlineBucket(userInfo.TenantId, userInfo.Id, nowTimestamp, clientType);
             return new UserLoginOutput()
@@ -365,8 +396,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError(myMsg);
             }
             _etUserDAL.InitTenantId(request.LoginTenantId);
-            var user = await _etUserDAL.GetUser(request.LoginUserId);
-            if (!CheckUserCanLogin(user, out var msg))
+            var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
+            if (!CheckUserCanLogin(userInfo, out var msg))
             {
                 return ResponseBase.CommonError(msg);
             }
@@ -380,6 +411,16 @@ namespace ETMS.Business
                     || !_appConfigurtaionServices.AppSettings.UserConfig.LoginWhitelistTenantUser.Exists(p => p == strLoginTenantUser))
                 {
                     return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
+                }
+            }
+
+            _roleDAL.InitTenantId(userInfo.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            if (!userInfo.IsAdmin)
+            {
+                if (!CheckRoleCanLogin(role, request.LoginClientType, out var msgRoleLimit))
+                {
+                    return ResponseBase.CommonError(msgRoleLimit);
                 }
             }
 
@@ -461,10 +502,10 @@ namespace ETMS.Business
                 return ResponseBase.CommonError(myMsg);
             }
             _etUserDAL.InitTenantId(request.LoginTenantId);
-            var loginUser = await _etUserDAL.GetUser(request.LoginUserId);
+            var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
 
             _etUserDAL.ResetTenantId(thisTenant.Id);
-            var thisUser = await _etUserDAL.GetUser(loginUser.Phone);
+            var thisUser = await _etUserDAL.GetUser(userInfo.Phone);
             if (thisUser == null)
             {
                 return ResponseBase.CommonError("用户不存在");
@@ -475,9 +516,18 @@ namespace ETMS.Business
             }
 
             await _sysTenantUserDAL.UpdateTenantUserOpTime(thisTenant.Id, thisUser.Phone, DateTime.Now);
-
             _etUserOperationLogDAL.InitTenantId(thisTenant.Id);
-            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType);
+
+            _roleDAL.InitTenantId(userInfo.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            if (!userInfo.IsAdmin)
+            {
+                if (!CheckRoleCanLogin(role, request.LoginClientType, out var msgRoleLimit))
+                {
+                    return ResponseBase.CommonError(msgRoleLimit);
+                }
+            }
+            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType, role);
             return ResponseBase.Success(new UserLoginBySmsH5Output()
             {
                 ExpiresTime = result.ExpiresTime,

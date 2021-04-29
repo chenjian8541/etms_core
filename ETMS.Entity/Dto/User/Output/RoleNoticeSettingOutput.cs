@@ -25,5 +25,15 @@ namespace ETMS.Entity.Dto.User.Output
         /// 接收学员互动消息提醒
         /// </summary>
         public bool IsReceiveInteractiveStudent { get; set; }
+
+        /// <summary>
+        /// 允许使用APP登录(人脸考勤)
+        /// </summary>
+        public bool IsAllowAppLogin { get; set; }
+
+        /// <summary>
+        /// 允许查看机构统计信息
+        /// </summary>
+        public bool IsAllowLookStatistics { get; set; }
     }
 }

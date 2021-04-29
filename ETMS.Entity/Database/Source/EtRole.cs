@@ -30,7 +30,7 @@ namespace ETMS.Entity.Database.Source
         public string AuthorityValueData { get; set; }
 
         /// <summary>
-        /// 通知配置  <see cref="ETMS.Entity.Config.RoleNoticeSetting"/>
+        /// 通知配置  <see cref="ETMS.Entity.Config.RoleOtherSetting"/>
         /// </summary>
         public string NoticeSetting { get; set; }
 

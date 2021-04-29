@@ -11,6 +11,8 @@ using ETMS.IBusiness;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using ETMS.Entity.Dto.Product.Output;
+using ETMS.Entity.Dto.User.Output;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business.Common
 {
@@ -186,6 +188,46 @@ namespace ETMS.Business.Common
                 roles.Add(ComBusiness.GetPriceRuleDesc(p));
             }
             return roles;
+        }
+
+        internal static RoleNoticeSettingOutput AnalyzeNoticeSetting(string noticeSetting)
+        {
+            var output = new RoleNoticeSettingOutput();
+            if (string.IsNullOrEmpty(noticeSetting))
+            {
+                return output;
+            }
+            var settings = noticeSetting.Split(',');
+            foreach (var p in settings)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+                var temp = p.ToInt();
+                switch (temp)
+                {
+                    case RoleOtherSetting.StudentLeaveApply:
+                        output.IsStudentLeaveApply = true;
+                        break;
+                    case RoleOtherSetting.StudentContractsNotArrived:
+                        output.IsStudentContractsNotArrived = true;
+                        break;
+                    case RoleOtherSetting.TryCalssApply:
+                        output.IsTryCalssApply = true;
+                        break;
+                    case RoleOtherSetting.ReceiveInteractiveStudent:
+                        output.IsReceiveInteractiveStudent = true;
+                        break;
+                    case RoleOtherSetting.AllowAppLogin:
+                        output.IsAllowAppLogin = true;
+                        break;
+                    case RoleOtherSetting.AllowLookStatistics:
+                        output.IsAllowLookStatistics = true;
+                        break;
+                }
+            }
+            return output;
         }
     }
 }

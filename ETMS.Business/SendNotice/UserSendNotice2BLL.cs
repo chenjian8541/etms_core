@@ -98,7 +98,7 @@ namespace ETMS.Business.SendNotice
                 }
             }
 
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.ReceiveInteractiveStudent);
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.ReceiveInteractiveStudent);
             if (noticeUser == null || noticeUser.Count == 0)
             {
                 if (myNoticeUsers.Count == 0)

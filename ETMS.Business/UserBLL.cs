@@ -197,55 +197,29 @@ namespace ETMS.Business
             var mySetting = new List<int>();
             if (request.IsStudentLeaveApply)
             {
-                mySetting.Add(RoleNoticeSetting.StudentLeaveApply);
+                mySetting.Add(RoleOtherSetting.StudentLeaveApply);
             }
             if (request.IsStudentContractsNotArrived)
             {
-                mySetting.Add(RoleNoticeSetting.StudentContractsNotArrived);
+                mySetting.Add(RoleOtherSetting.StudentContractsNotArrived);
             }
             if (request.IsTryCalssApply)
             {
-                mySetting.Add(RoleNoticeSetting.TryCalssApply);
+                mySetting.Add(RoleOtherSetting.TryCalssApply);
             }
             if (request.IsReceiveInteractiveStudent)
             {
-                mySetting.Add(RoleNoticeSetting.ReceiveInteractiveStudent);
+                mySetting.Add(RoleOtherSetting.ReceiveInteractiveStudent);
+            }
+            if (request.IsAllowAppLogin)
+            {
+                mySetting.Add(RoleOtherSetting.AllowAppLogin);
+            }
+            if (request.IsAllowLookStatistics)
+            {
+                mySetting.Add(RoleOtherSetting.AllowLookStatistics);
             }
             return EtmsHelper.GetMuIds(mySetting);
-        }
-
-        private RoleNoticeSettingOutput AnalyzeNoticeSetting(string noticeSetting)
-        {
-            var output = new RoleNoticeSettingOutput();
-            if (string.IsNullOrEmpty(noticeSetting))
-            {
-                return output;
-            }
-            var settings = noticeSetting.Split(',');
-            foreach (var p in settings)
-            {
-                if (string.IsNullOrEmpty(p))
-                {
-                    continue;
-                }
-                var temp = p.ToInt();
-                switch (temp)
-                {
-                    case RoleNoticeSetting.StudentLeaveApply:
-                        output.IsStudentLeaveApply = true;
-                        break;
-                    case RoleNoticeSetting.StudentContractsNotArrived:
-                        output.IsStudentContractsNotArrived = true;
-                        break;
-                    case RoleNoticeSetting.TryCalssApply:
-                        output.IsTryCalssApply = true;
-                        break;
-                    case RoleNoticeSetting.ReceiveInteractiveStudent:
-                        output.IsReceiveInteractiveStudent = true;
-                        break;
-                }
-            }
-            return output;
         }
 
         public async Task<ResponseBase> RoleAdd(RoleAddRequest request)
@@ -322,7 +296,7 @@ namespace ETMS.Business
                 Remark = role.Remark,
                 Menus = GetRoleMenuViewOutputs(myAllMenus),
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
-                RoleNoticeSetting = AnalyzeNoticeSetting(role.NoticeSetting)
+                RoleNoticeSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting)
             });
         }
 

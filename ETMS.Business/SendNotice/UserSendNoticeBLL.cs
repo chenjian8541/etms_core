@@ -363,7 +363,7 @@ namespace ETMS.Business.SendNotice
 
         public async Task NoticeUserStudentLeaveApplyConsumerEvent(NoticeUserStudentLeaveApplyEvent request)
         {
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.StudentLeaveApply);
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentLeaveApply);
             if (noticeUser == null || noticeUser.Count == 0)
             {
                 return;
@@ -429,7 +429,7 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.StudentContractsNotArrived);
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentContractsNotArrived);
             if (noticeUser == null || noticeUser.Count == 0)
             {
                 return;
@@ -480,7 +480,7 @@ namespace ETMS.Business.SendNotice
 
         public async Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request)
         {
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleNoticeSetting.TryCalssApply);
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.TryCalssApply);
             if (noticeUser == null || noticeUser.Count == 0)
             {
                 return;
