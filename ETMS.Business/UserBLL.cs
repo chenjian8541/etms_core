@@ -82,7 +82,8 @@ namespace ETMS.Business
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
                 RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu, userInfo.IsAdmin),
-                OrgName = tenant.Name
+                OrgName = tenant.Name,
+                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin)
             });
         }
 
@@ -98,7 +99,8 @@ namespace ETMS.Business
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
                 OrgName = tenant.Name,
-                Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin)
+                Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin),
+                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin)
             });
         }
 

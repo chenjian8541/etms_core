@@ -39,5 +39,10 @@ namespace ETMS.Entity.Dto.User.Output
         /// 机构名称
         /// </summary>
         public string OrgName { get; set; }
+
+        /// <summary>
+        /// 角色设置权限
+        /// </summary>
+        public RoleNoticeSettingOutput RoleSetting { get; set; }
     }
 }

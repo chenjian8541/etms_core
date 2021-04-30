@@ -35,5 +35,10 @@ namespace ETMS.Entity.Dto.User.Output
         /// 权限
         /// </summary>
         public PermissionOutput Permission { get; set; }
+
+        /// <summary>
+        /// 角色设置权限
+        /// </summary>
+        public RoleNoticeSettingOutput RoleSetting { get; set; }
     }
 }
