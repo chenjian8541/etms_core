@@ -327,19 +327,44 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ClassRecordPointsApplyHandle(ClassRecordPointsApplyHandleRequest request)
         {
-            var log = await _classRecordDAL.GetClassRecordPointsApplyLog(request.ClassRecordPointsApplyLogId);
+            var processMsg = await ClassRecordPointsApplyHandleProcess(DateTime.Now, request.ClassRecordPointsApplyLogId, request.NewHandleStatus,
+                request.HandleContent, request.LoginUserId);
+            if (!string.IsNullOrEmpty(processMsg))
+            {
+                return ResponseBase.CommonError(processMsg);
+            }
+            await _userOperationLogDAL.AddUserLog(request, "课堂积分奖励审核", EmUserOperationType.ClassRecordManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassRecordPointsApplyHandleBatch(ClassRecordPointsApplyHandleBatchRequest request)
+        {
+            var now = DateTime.Now;
+            foreach (var p in request.ClassRecordPointsApplyLogIds)
+            {
+                await ClassRecordPointsApplyHandleProcess(now, p, request.NewHandleStatus, request.HandleContent, request.LoginUserId);
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, "课堂积分奖励批量审核", EmUserOperationType.ClassRecordManage);
+            return ResponseBase.Success();
+        }
+
+        private async Task<string> ClassRecordPointsApplyHandleProcess(DateTime now, long classRecordPointsApplyLogId,
+            byte newHandleStatus, string handleContent, long userId)
+        {
+            var log = await _classRecordDAL.GetClassRecordPointsApplyLog(classRecordPointsApplyLogId);
             if (log == null)
             {
-                return ResponseBase.CommonError("申请记录不存在");
+                return "申请记录不存在";
             }
             if (log.HandleStatus != EmClassRecordPointsApplyHandleStatus.NotCheckd)
             {
-                return ResponseBase.CommonError("此申请记录已审核");
+                return "此申请记录已审核";
             }
-            log.HandleOt = DateTime.Now;
-            log.HandleStatus = request.NewHandleStatus;
-            log.HandleUser = request.LoginUserId;
-            log.HandleContent = request.HandleContent;
+            log.HandleOt = now;
+            log.HandleStatus = newHandleStatus;
+            log.HandleUser = userId;
+            log.HandleContent = handleContent;
             await _classRecordDAL.EditClassRecordPointsApplyLog(log);
             if (log.HandleStatus == EmClassRecordPointsApplyHandleStatus.CheckPass)
             {
@@ -356,8 +381,7 @@ namespace ETMS.Business
                 });
                 await _studentDAL.AddPoint(log.StudentId, log.Points);
             }
-            await _userOperationLogDAL.AddUserLog(request, "课堂积分奖励审核", EmUserOperationType.ClassRecordManage);
-            return ResponseBase.Success();
+            return string.Empty;
         }
 
         public async Task<ResponseBase> StudentClassRecordGetPaging(StudentClassRecordGetPagingRequest request)

@@ -714,6 +714,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassRecordPointsApplyHandleBatch(ClassRecordPointsApplyHandleBatchRequest request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordPointsApplyHandleBatch(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentClassRecordGetPaging(StudentClassRecordGetPagingRequest request)
         {
             try

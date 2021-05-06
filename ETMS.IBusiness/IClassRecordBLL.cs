@@ -25,6 +25,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassRecordPointsApplyHandle(ClassRecordPointsApplyHandleRequest request);
 
+        Task<ResponseBase> ClassRecordPointsApplyHandleBatch(ClassRecordPointsApplyHandleBatchRequest request);
+
         Task<ResponseBase> StudentClassRecordGetPaging(StudentClassRecordGetPagingRequest request);
 
         Task<ResponseBase> ClassRecordPointsApplyLogPaging(ClassRecordPointsApplyLogPagingRequest request);
