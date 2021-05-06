@@ -613,7 +613,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = request.CourseId,
-                StudentId = request.StudentId
+                StudentId = request.StudentId,
+                IsClassOfOneAutoOver = true
             });
             _eventPublisher.Publish(new ClassRemoveStudentEvent(request.LoginTenantId)
             {

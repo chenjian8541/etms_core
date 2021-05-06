@@ -225,11 +225,14 @@ namespace ETMS.Business
             if (!newCourseDetail.Where(p => p.Status != EmStudentCourseStatus.EndOfClass).Any()) //所有课程已结课
             {
                 courseClassTimes.Status = courseDay.Status = EmStudentCourseStatus.EndOfClass;
-                _eventPublisher.Publish(new ClassOfOneAutoOverEvent(request.TenantId)
+                if (request.IsClassOfOneAutoOver)
                 {
-                    CourseId = request.CourseId,
-                    StudentId = request.StudentId
-                });
+                    _eventPublisher.Publish(new ClassOfOneAutoOverEvent(request.TenantId)
+                    {
+                        CourseId = request.CourseId,
+                        StudentId = request.StudentId
+                    });
+                }
             }
 
             var newCourse = new List<EtStudentCourse>();

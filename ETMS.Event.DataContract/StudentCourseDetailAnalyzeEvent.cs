@@ -12,5 +12,7 @@ namespace ETMS.Event.DataContract
         public long StudentId { get; set; }
 
         public long CourseId { get; set; }
+
+        public bool IsClassOfOneAutoOver { get; set; }
     }
 }
