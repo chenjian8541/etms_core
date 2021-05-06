@@ -31,6 +31,12 @@ namespace ETMS.DataAccess.Lib
             _pageAllList = new List<int>();
             _pageAllList.Add(2);
             _pageAllList.Add(67);
+            _pageAllList.Add(23);
+            _pageAllList.Add(19);
+            _pageAllList.Add(34);
+            _pageAllList.Add(76);
+            _pageAllList.Add(70);
+            _pageAllList.Add(63);
             _actionAllList = new List<int>();
             _actionAllList.Add(1);
             _actionAllList.Add(2);

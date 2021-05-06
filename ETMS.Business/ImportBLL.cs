@@ -452,19 +452,6 @@ namespace ETMS.Business
                 {
                     StudentId = student.Id
                 });
-
-                _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
-                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
-                _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
@@ -472,6 +459,23 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
+
+            var allDate = request.ImportCourseTimess.Select(p => p.OrderOt).Distinct();
+            foreach (var myDate in allDate)
+            {
+                _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+                _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+            }
 
             return ResponseBase.Success(new ImportCourseOutput()
             {
@@ -742,19 +746,6 @@ namespace ETMS.Business
                 {
                     StudentId = student.Id
                 });
-
-                _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
-                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
-                _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
-                {
-                    StatisticsDate = p.OrderOt
-                });
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
@@ -762,6 +753,23 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
+
+            var allDate = request.ImportCourseDays.Select(p => p.OrderOt).Distinct();
+            foreach (var myDate in allDate)
+            {
+                _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+                _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = myDate
+                });
+            }
 
             return ResponseBase.Success(new ImportCourseOutput()
             {
