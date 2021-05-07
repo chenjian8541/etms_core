@@ -109,11 +109,11 @@ namespace ETMS.DataAccess
             var sql = string.Empty;
             if (studentIds.Count > 1)
             {
-                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND StudentId IN ({string.Join(',', studentIds)}) ";
+                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId IN ({string.Join(',', studentIds)}) ";
             }
             else
             {
-                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND StudentId = {studentIds[0]} ";
+                sql = $"SELECT Id,StudentId FROM EtActiveWxMessageDetail WHERE TenantId = {_tenantId} AND WxMessageId = {wxMessageId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentIds[0]} ";
             }
             return await this._dbWrapper.ExecuteObject<WxMessageDetailIdView>(sql);
         }

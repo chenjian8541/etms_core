@@ -57,7 +57,7 @@ namespace ETMS.DataAccess
 
         public async Task<List<EtClassRecordStudent>> GetClassRecordStudents(long classRecordId)
         {
-            return await _dbWrapper.FindList<EtClassRecordStudent>(p => p.ClassRecordId == classRecordId);
+            return await _dbWrapper.FindList<EtClassRecordStudent>(p => p.ClassRecordId == classRecordId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
         public async Task<Tuple<IEnumerable<ClassRecordAbsenceLogView>, int>> GetClassRecordAbsenceLogPaging(RequestPagingBase request)

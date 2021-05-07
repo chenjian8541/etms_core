@@ -280,7 +280,7 @@ namespace ETMS.Business.EtmsManage
             tenant.IdCard = request.IdCard;
             tenant.Address = request.Address;
             tenant.SmsSignature = request.SmsSignature;
-            tenant.BuyStatus = request.BuyStatus;
+            //tenant.BuyStatus = request.BuyStatus;
             await _sysTenantDAL.EditTenant(tenant);
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"编辑机构:名称:{request.Name};机构编码:{tenant.TenantCode};手机号码:{request.Phone}", EmSysAgentOpLogType.TenantMange);
