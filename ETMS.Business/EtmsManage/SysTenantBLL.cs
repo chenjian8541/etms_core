@@ -8,6 +8,7 @@ using ETMS.Entity.EtmsManage.Dto.TenantManage.Output;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using ETMS.IBusiness;
 using ETMS.IBusiness.EtmsManage;
+using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.Utility;
 using Microsoft.AspNetCore.Builder;
@@ -40,11 +41,13 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysAITenantAccountDAL _sysAITenantAccountDAL;
 
+        private readonly IUserDAL _userDAL;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
-            ISysAITenantAccountDAL sysAITenantAccountDAL)
+            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -55,6 +58,7 @@ namespace ETMS.Business.EtmsManage
             this._sysConnectionStringDAL = sysConnectionStringDAL;
             this._sysAIFaceBiduAccountDAL = sysAIFaceBiduAccountDAL;
             this._sysAITenantAccountDAL = sysAITenantAccountDAL;
+            this._userDAL = userDAL;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -819,6 +823,16 @@ namespace ETMS.Business.EtmsManage
                 }
             }
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ResetTenantAdminUserPwd(ResetTenantAdminUserPwdRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            _userDAL.InitTenantId(tenant.Id);
+            var userInfo = await _userDAL.GetAdminUser();
+            userInfo.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
+            await _userDAL.EditUser(userInfo);
+            return ResponseBase.Success();
         }
     }
 }

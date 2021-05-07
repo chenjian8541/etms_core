@@ -55,5 +55,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> AIFaceTenantAccountDel(AIFaceTenantAccountDelRequest request);
 
         Task<ResponseBase> AIFaceAllAccountGet(AgentRequestBase request);
+
+        Task<ResponseBase> ResetTenantAdminUserPwd(ResetTenantAdminUserPwdRequest request);
     }
 }

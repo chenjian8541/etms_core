@@ -55,6 +55,11 @@
         "ActionId": 18,
         "Name": "绑定云账户",
         "Type": 1
+      },
+      {
+        "ActionId": 19,
+        "Name": "修改机构管理员密码",
+        "Type": 1
       }
     ]
   },

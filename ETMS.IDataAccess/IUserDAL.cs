@@ -10,6 +10,8 @@ namespace ETMS.IDataAccess
 {
     public interface IUserDAL : IBaseDAL
     {
+        Task<EtUser> GetAdminUser();
+
         Task<EtUser> GetUser(long userId);
 
         Task<EtUser> GetUser(string phone);

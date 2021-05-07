@@ -35,6 +35,12 @@ namespace ETMS.DataAccess
             };
         }
 
+        public async Task<EtUser> GetAdminUser()
+        {
+            return await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.IsAdmin == true);
+        }
+
         public async Task<EtUser> GetUser(long userId)
         {
             var userBucket = await base.GetCache(_tenantId, userId);
