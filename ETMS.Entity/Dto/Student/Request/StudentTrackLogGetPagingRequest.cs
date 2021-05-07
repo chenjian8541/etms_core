@@ -63,6 +63,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public bool IsTodayMustTrack { get; set; }
 
+        public string TrackContent { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -89,6 +91,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsTodayMustTrack)
             {
                 condition.Append($" AND NextTrackTime = '{DateTime.Now.EtmsToDateString()}'");
+            }
+            if (!string.IsNullOrEmpty(TrackContent))
+            {
+                condition.Append($" AND TrackContent LIKE '%{TrackContent}%'");
             }
             return condition.ToString();
         }

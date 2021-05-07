@@ -64,6 +64,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public int? Type { get; set; }
 
+        public string OpContent { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -86,6 +88,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (Type != null)
             {
                 condition.Append($" AND Type = {Type}");
+            }
+            if (!string.IsNullOrEmpty(OpContent))
+            {
+                condition.Append($" AND OpContent LIKE '%{OpContent}%'");
             }
             return condition.ToString();
         }

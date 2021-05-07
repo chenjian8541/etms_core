@@ -74,6 +74,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public bool? IsQueryHasArrears { get; set; }
 
+        public string Remark { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND UserId = {LoginUserId}";
@@ -124,6 +126,10 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToString()}'");
+            }
+            if (!string.IsNullOrEmpty(Remark))
+            {
+                condition.Append($" AND Remark LIKE '%{Remark}%'");
             }
             if (IsQueryHasArrears != null && IsQueryHasArrears.Value)
             {

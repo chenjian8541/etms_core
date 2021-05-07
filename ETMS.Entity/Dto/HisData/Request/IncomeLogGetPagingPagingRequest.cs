@@ -69,6 +69,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public int? PayType { get; set; }
 
+        public string Remark { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND UserId = {LoginUserId}";
@@ -112,6 +114,10 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (PayType != null)
             {
                 condition.Append($" AND PayType = {PayType.Value}");
+            }
+            if (!string.IsNullOrEmpty(Remark))
+            {
+                condition.Append($" AND Remark LIKE '%{Remark}%'");
             }
             if (IsDataLimit)
             {

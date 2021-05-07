@@ -134,6 +134,8 @@ namespace ETMS.Entity.Dto.Student.Request
             }
         }
 
+        public string Remark { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -234,6 +236,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (EndClassOtEnd != null)
             {
                 condition.Append($" AND EndClassOt < '{EndClassOtEnd.Value.EtmsToString()}'");
+            }
+            if (!string.IsNullOrEmpty(Remark))
+            {
+                condition.Append($" AND Remark LIKE '%{Remark}%'");
             }
             if (IsDataLimit && SceneType == 0)
             {

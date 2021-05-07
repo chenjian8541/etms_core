@@ -45,11 +45,16 @@ namespace Etms.Tools.Test
             //Console.WriteLine(EtmsHelper2.GetLastWeek(now));
             //Console.WriteLine(EtmsHelper2.GetLastMonth(now));
             //AliyunOssSTS2();
-            var account = new Test()
-            {
-                Money = 300
-            };
-            Console.WriteLine(JsonConvert.SerializeObject(account));
+            //var account = new Test()
+            //{
+            //    Money = 300
+            //};
+            //Console.WriteLine(JsonConvert.SerializeObject(account));
+            var now = DateTime.Now.Date;
+            var startTime = new DateTime(now.Year, now.Month, 1);
+            var endTime = startTime.AddMonths(1).AddDays(-1);
+            Console.WriteLine(startTime);
+            Console.WriteLine(endTime);
             Console.Read();
         }
 
