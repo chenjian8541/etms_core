@@ -35,7 +35,7 @@ namespace ETMS.DataAccess
 
         public async Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging(RequestPagingBase request)
         {
-            return await _dbWrapper.ExecutePage<EtTryCalssApplyLog>("EtTryCalssApplyLog", "*", request.PageSize, request.PageCurrent, "HandleStatus ASC,Id DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<EtTryCalssApplyLog>("EtTryCalssApplyLog", "*", request.PageSize, request.PageCurrent, $"case when HandleStatus = {EmTryCalssApplyHandleStatus.Unreviewed} then 1 else 2 end,id desc", request.ToString());
         }
     }
 }

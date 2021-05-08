@@ -38,7 +38,7 @@ namespace ETMS.DataAccess
 
         public async Task<Tuple<IEnumerable<StudentLeaveApplyLogView>, int>> GetPaging(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<StudentLeaveApplyLogView>("StudentLeaveApplyLogView", "*", request.PageSize, request.PageCurrent, "HandleStatus ASC,Id DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<StudentLeaveApplyLogView>("StudentLeaveApplyLogView", "*", request.PageSize, request.PageCurrent, $"case when HandleStatus = {EmStudentLeaveApplyHandleStatus.Unreviewed} then 1 else 2 end,id desc", request.ToString());
         }
 
         public async Task<bool> AddStudentLeaveApplyLog(EtStudentLeaveApplyLog log)
