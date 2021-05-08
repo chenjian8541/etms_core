@@ -40,7 +40,7 @@ namespace ETMS.DataAccess
             }
             if (newEtStatisticsFinanceIncome.Any())
             {
-                _dbWrapper.InsertRange(newEtStatisticsFinanceIncome);
+                await _dbWrapper.InsertRangeAsync(newEtStatisticsFinanceIncome);
             }
         }
 

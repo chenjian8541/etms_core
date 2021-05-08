@@ -39,7 +39,7 @@ namespace ETMS.DataAccess
             }
             if (statisticsSalesCourseData.Any())
             {
-                _dbWrapper.InsertRange(statisticsSalesCourseData);
+                await _dbWrapper.InsertRangeAsync(statisticsSalesCourseData);
             }
         }
 

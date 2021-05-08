@@ -37,7 +37,7 @@ namespace ETMS.DataAccess
             }
             if (listData.Any())
             {
-                _dbWrapper.InsertRange(listData);
+               await _dbWrapper.InsertRangeAsync(listData);
             }
         }
 
