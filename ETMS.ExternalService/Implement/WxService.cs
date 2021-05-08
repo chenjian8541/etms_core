@@ -1154,7 +1154,7 @@ namespace ETMS.ExternalService.Implement
                         keyword3 = new TemplateDataItem(request.Content, DefaultColor),
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };
-                    TemplateApi.SendTemplateMessage(request.AccessToken, user.OpendId, request.TemplateId, request.Url, data);
+                    TemplateApi.SendTemplateMessage(request.AccessToken, user.OpendId, request.TemplateId, user.Url, data);
                 }
                 catch (ErrorJsonResultException exJsonResultException)
                 {

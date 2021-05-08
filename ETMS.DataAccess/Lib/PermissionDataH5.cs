@@ -37,10 +37,17 @@ namespace ETMS.DataAccess.Lib
             _pageAllList.Add(76);
             _pageAllList.Add(70);
             _pageAllList.Add(63);
+
             _actionAllList = new List<int>();
             _actionAllList.Add(1);
             _actionAllList.Add(2);
             _actionAllList.Add(4);
+
+            _actionAllList.Add(7);  //添加跟进记录
+            _actionAllList.Add(38); //撤销上课记录
+            _actionAllList.Add(46); //修改上课记录
+            _actionAllList.Add(24); //编辑课次
+            _actionAllList.Add(25); //删除课次
         }
     }
 }

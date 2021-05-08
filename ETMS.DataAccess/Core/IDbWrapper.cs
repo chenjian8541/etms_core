@@ -39,6 +39,8 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         bool InsertRange<T>(IEnumerable<T> entitys, Action finishWork = null) where T : class;
 
+        Task<bool> InsertRangeAsync<T>(IEnumerable<T> entitys) where T : class;
+
         /// <summary>
         /// 删除一条记录
         /// </summary>

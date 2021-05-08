@@ -616,7 +616,7 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingH5Request request)
+        public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingRequest request)
         {
             try
             {

@@ -115,6 +115,21 @@ namespace ETMS.DataAccess.Core
         }
 
         /// <summary>
+        /// 批量插入数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entitys"></param>
+        /// <returns></returns>
+        public async Task<bool> InsertRangeAsync<T>(IEnumerable<T> entitys) where T : class
+        {
+            using (var content = new EtmsSourceDbContext(ConnectionString))
+            {
+                content.AddRange(entitys);
+                return await content.SaveChangesAsync() > 0;
+            }
+        }
+
+        /// <summary>
         /// 删除一条记录
         /// </summary>
         /// <typeparam name="T"></typeparam>

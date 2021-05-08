@@ -122,20 +122,9 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetPagingOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingH5Request request)
+        public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingRequest request)
         {
-            var req = new ClassRecordGetPagingRequest()
-            {
-                LoginTenantId = request.LoginTenantId,
-                LoginUserId = request.LoginUserId,
-                Ot = request.Ot,
-                IpAddress = request.IpAddress,
-                PageCurrent = request.PageCurrent,
-                PageSize = request.PageSize,
-                TeacherId = request.LoginUserId,
-                IsDataLimit = true
-            };
-            return ResponseBase.Success(await ClassRecordGetPaging(req));
+            return ResponseBase.Success(await ClassRecordGetPaging(request));
         }
 
         public async Task<ResponseBase> ClassRecordGet(ClassRecordGetRequest request)
