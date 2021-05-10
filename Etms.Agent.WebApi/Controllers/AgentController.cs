@@ -131,6 +131,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> AgentGetView(AgentGetViewRequest request)
+        {
+            try
+            {
+                return await _agentBLL.AgentGetView(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> AgentEdit(AgentEditRequest request)
         {
             try

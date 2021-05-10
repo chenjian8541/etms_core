@@ -283,6 +283,14 @@ namespace ETMS.Business
                     }
                 }
             }
+            if (request.IsSendNoticeStudent)
+            {
+                _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
+                {
+                    CourseId = request.CourseId,
+                    StudentId = request.StudentId
+                });
+            }
         }
 
         public async Task TenantStudentCourseNotEnoughConsumerEvent(TenantStudentCourseNotEnoughEvent request)

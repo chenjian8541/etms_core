@@ -8,10 +8,14 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 {
     public class AgentSmsLogPagingRequest : AgentPagingBase
     {
+        public int? AgentId { get; set; }
+
         /// <summary>
         /// 代理商信息
         /// </summary>
         public string Key { get; set; }
+
+        public string Remark { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -62,6 +66,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             }
         }
 
+        public byte? ChangeType { get; set; }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet());
@@ -76,6 +82,18 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToDateString()}'");
+            }
+            if (!string.IsNullOrEmpty(Remark))
+            {
+                condition.Append($" AND Remark LIKE '%{Remark}%'");
+            }
+            if (AgentId != null)
+            {
+                condition.Append($" AND AgentId = {AgentId.Value}");
+            }
+            if (ChangeType != null)
+            {
+                condition.Append($" AND [ChangeType] = {ChangeType.Value}");
             }
             return condition.ToString();
         }

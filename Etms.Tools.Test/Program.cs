@@ -50,11 +50,15 @@ namespace Etms.Tools.Test
             //    Money = 300
             //};
             //Console.WriteLine(JsonConvert.SerializeObject(account));
-            var now = DateTime.Now.Date;
-            var startTime = new DateTime(now.Year, now.Month, 1);
-            var endTime = startTime.AddMonths(1).AddDays(-1);
-            Console.WriteLine(startTime);
-            Console.WriteLine(endTime);
+            //var now = DateTime.Now.Date;
+            //var startTime = new DateTime(now.Year, now.Month, 1);
+            //var endTime = startTime.AddMonths(1).AddDays(-1);
+            //Console.WriteLine(startTime);
+            //Console.WriteLine(endTime);
+            var ss = EtmsHelper2.GetStartStepToAnd(DateTime.Now, DateTime.Now.AddDays(5));
+            var ss2 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(5));
+            var ss3 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-1));
+            var ss4 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2));
             Console.Read();
         }
 

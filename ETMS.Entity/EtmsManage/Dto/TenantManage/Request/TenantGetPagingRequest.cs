@@ -84,6 +84,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public string Remark { get; set; }
 
+        public int? AgentId { get; set; }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet());
@@ -147,6 +149,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (BuyStatus != null)
             {
                 condition.Append($" AND BuyStatus = {BuyStatus.Value}");
+            }
+            if (AgentId != null)
+            {
+                condition.Append($" AND AgentId = {AgentId.Value}");
             }
             return condition.ToString();
         }

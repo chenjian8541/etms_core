@@ -392,7 +392,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = request.CourseId,
-                StudentId = request.StudentId
+                StudentId = request.StudentId,
+                IsSendNoticeStudent = true
             });
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
@@ -423,7 +424,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = request.CourseId,
-                StudentId = request.StudentId
+                StudentId = request.StudentId,
+                IsSendNoticeStudent = true
             });
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
@@ -490,7 +492,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = studentCourseDetail.CourseId,
-                StudentId = studentCourseDetail.StudentId
+                StudentId = studentCourseDetail.StudentId,
+                IsSendNoticeStudent = true
             });
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
@@ -542,7 +545,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = studentCourseDetail.CourseId,
-                StudentId = studentCourseDetail.StudentId
+                StudentId = studentCourseDetail.StudentId,
+                IsSendNoticeStudent = true
             });
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
@@ -614,7 +618,8 @@ namespace ETMS.Business
             {
                 CourseId = request.CourseId,
                 StudentId = request.StudentId,
-                IsClassOfOneAutoOver = true
+                IsClassOfOneAutoOver = true,
+                IsSendNoticeStudent = true
             });
             _eventPublisher.Publish(new ClassRemoveStudentEvent(request.LoginTenantId)
             {
@@ -691,7 +696,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = studentCourseDetail.CourseId,
-                StudentId = studentCourseDetail.StudentId
+                StudentId = studentCourseDetail.StudentId,
+                IsSendNoticeStudent = true
             });
 
             var endSurplusDesc = ComBusiness.GetSurplusQuantityDesc(studentCourseDetail.SurplusQuantity, studentCourseDetail.SurplusSmallQuantity, studentCourseDetail.DeType);

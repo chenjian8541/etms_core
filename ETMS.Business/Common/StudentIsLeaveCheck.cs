@@ -70,32 +70,38 @@ namespace ETMS.Business.Common
         {
             if (_studentLeaveApplyLogs != null && _studentLeaveApplyLogs.Count > 0)
             {
-                var myLeaveApplyLog = _studentLeaveApplyLogs.FirstOrDefault(p => p.StudentId == studentId);
-                if (myLeaveApplyLog != null)
+                var myLeaveApplyLogs = _studentLeaveApplyLogs.Where(p => p.StudentId == studentId);
+                if (myLeaveApplyLogs.Any())
                 {
-                    if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
+                    foreach (var myLeaveApplyLog in myLeaveApplyLogs)
                     {
-                        return myLeaveApplyLog;
-                    }
-                    var levelStartTime = myLeaveApplyLog.StartTime;
-                    var levelEndTime = myLeaveApplyLog.EndTime;
-                    if (myLeaveApplyLog.StartDate < classOt)
-                    {
-                        levelStartTime = 0;
-                    }
-                    if (myLeaveApplyLog.EndDate > classOt)
-                    {
-                        levelEndTime = 8888;
-                    }
-                    if (startTime > levelEndTime || endTime < levelStartTime)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return myLeaveApplyLog;
-                    }
+                        if (myLeaveApplyLog != null)
+                        {
+                            if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
+                            {
+                                return myLeaveApplyLog;
+                            }
+                            var levelStartTime = myLeaveApplyLog.StartTime;
+                            var levelEndTime = myLeaveApplyLog.EndTime;
+                            if (myLeaveApplyLog.StartDate < classOt)
+                            {
+                                levelStartTime = 0;
+                            }
+                            if (myLeaveApplyLog.EndDate > classOt)
+                            {
+                                levelEndTime = 8888;
+                            }
+                            if (startTime > levelEndTime || endTime < levelStartTime)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                return myLeaveApplyLog;
+                            }
 
+                        }
+                    }
                 }
             }
             return null;

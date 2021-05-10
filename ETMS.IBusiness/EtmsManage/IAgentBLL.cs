@@ -27,6 +27,8 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> AgentGet(AgentGetRequest request);
 
+        Task<ResponseBase> AgentGetView(AgentGetViewRequest request);
+
         Task<ResponseBase> AgentEdit(AgentEditRequest request);
 
         Task<ResponseBase> AgentDel(AgentDelRequest request);

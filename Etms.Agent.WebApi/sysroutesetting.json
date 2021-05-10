@@ -137,6 +137,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "agent_detail/:cid",
+        "Name": "agent_detail",
+        "Type": 1,
+        "Component": "@/components/AgentMgr/detail",
+        "Meta": {
+          "Title": "代理商详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "roleAdd",
         "Name": "roleAdd",
         "Type": 1,

@@ -24,9 +24,9 @@ namespace ETMS.Entity.Enum
             switch (status)
             {
                 case EmClassCompleteStatus.UnComplete:
-                    return "未结课";
+                    return "未结业";
                 default:
-                    return "已结课";
+                    return "已结业";
             }
         }
     }

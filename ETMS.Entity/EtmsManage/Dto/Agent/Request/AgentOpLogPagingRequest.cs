@@ -8,10 +8,14 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 {
     public class AgentOpLogPagingRequest : AgentPagingBase
     {
+        public int? AgentId { get; set; }
+
         /// <summary>
         /// 代理商信息
         /// </summary>
         public string Key { get; set; }
+
+        public string OpContent { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -76,6 +80,14 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToDateString()}'");
+            }
+            if (!string.IsNullOrEmpty(OpContent))
+            {
+                condition.Append($" AND OpContent LIKE '%{OpContent}%'");
+            }
+            if (AgentId != null)
+            {
+                condition.Append($" AND AgentId = {AgentId.Value}");
             }
             return condition.ToString();
         }

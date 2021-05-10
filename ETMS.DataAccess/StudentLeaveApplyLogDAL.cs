@@ -25,7 +25,7 @@ namespace ETMS.DataAccess
         {
             var time = Convert.ToDateTime(keys[1]).Date;
             var logs = await _dbWrapper.FindList<EtStudentLeaveApplyLog>(p => p.TenantId == _tenantId
-            && p.EndDate >= time && p.StartDate <= time && p.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass && p.IsDeleted == EmIsDeleted.Normal);
+            && (p.EndDate >= time || p.StartDate <= time) && p.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass && p.IsDeleted == EmIsDeleted.Normal);
             if (logs == null || !logs.Any())
             {
                 return null;
@@ -43,12 +43,28 @@ namespace ETMS.DataAccess
 
         public async Task<bool> AddStudentLeaveApplyLog(EtStudentLeaveApplyLog log)
         {
-            return await _dbWrapper.Insert(log, async () => { await UpdateCache(_tenantId, log.StartDate); });
+            await _dbWrapper.Insert(log);
+            await UpdateCache(log);
+            return true;
         }
 
         public async Task<bool> EditStudentLeaveApplyLog(EtStudentLeaveApplyLog log)
         {
-            return await _dbWrapper.Update(log, async () => { await UpdateCache(_tenantId, log.StartDate); });
+            await _dbWrapper.Update(log);
+            await UpdateCache(log);
+            return true;
+        }
+
+        private async Task UpdateCache(EtStudentLeaveApplyLog log)
+        {
+            var allDate = EtmsHelper2.GetStartStepToAnd(log.StartDate, log.EndDate);
+            if (allDate != null && allDate.Count > 0)
+            {
+                foreach (var p in allDate)
+                {
+                    await UpdateCache(_tenantId, log.StartDate);
+                }
+            }
         }
 
         public async Task<EtStudentLeaveApplyLog> GetStudentLeaveApplyLog(long id)

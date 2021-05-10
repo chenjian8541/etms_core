@@ -2,6 +2,7 @@
 using ETMS.Business.EtmsManage.Common;
 using ETMS.DataAccess.EtmsManage.Lib;
 using ETMS.DataAccess.Lib;
+using ETMS.Entity.CacheBucket.EtmsManage;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Config.Menu;
@@ -121,13 +122,8 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success(output);
         }
 
-        public async Task<ResponseBase> AgentLoginInfoGetBasc(AgentLoginInfoGetBascRequest request)
+        private async Task<AgentLoginInfoGetBascOutput> AgentGetViewInfo(SysAgentBucket agentBucket)
         {
-            var agentBucket = await _sysAgentDAL.GetAgent(request.LoginAgentId);
-            if (agentBucket == null)
-            {
-                return ResponseBase.CommonError("代理商不存在");
-            }
             var agent = agentBucket.SysAgent;
             var output = new AgentLoginInfoGetBascOutput()
             {
@@ -154,7 +150,17 @@ namespace ETMS.Business.EtmsManage
                     });
                 }
             }
-            return ResponseBase.Success(output);
+            return output;
+        }
+
+        public async Task<ResponseBase> AgentLoginInfoGetBasc(AgentLoginInfoGetBascRequest request)
+        {
+            var agentBucket = await _sysAgentDAL.GetAgent(request.LoginAgentId);
+            if (agentBucket == null)
+            {
+                return ResponseBase.CommonError("代理商不存在");
+            }
+            return ResponseBase.Success(await AgentGetViewInfo(agentBucket));
         }
 
         public async Task<ResponseBase> AgentLoginPermissionGet(AgentLoginPermissionGetRequest request)
@@ -231,6 +237,15 @@ namespace ETMS.Business.EtmsManage
                 KefuPhone = p.KefuPhone,
                 KefuQQ = p.KefuQQ
             });
+        }
+        public async Task<ResponseBase> AgentGetView(AgentGetViewRequest request)
+        {
+            var agentBucket = await _sysAgentDAL.GetAgent(request.Id);
+            if (agentBucket == null)
+            {
+                return ResponseBase.CommonError("代理商不存在");
+            }
+            return ResponseBase.Success(await AgentGetViewInfo(agentBucket));
         }
 
         public async Task<ResponseBase> AgentEdit(AgentEditRequest request)

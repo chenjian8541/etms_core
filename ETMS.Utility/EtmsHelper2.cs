@@ -57,5 +57,26 @@ namespace ETMS.Utility
             var lastMonthDay = now.AddMonths(-1);
             return GetThisMonth(lastMonthDay);
         }
+
+        public static List<DateTime> GetStartStepToAnd(DateTime start, DateTime end)
+        {
+            start = start.Date;
+            end = end.Date;
+            if (start == end)
+            {
+                return new List<DateTime>() { start };
+            }
+            if (start > end)
+            {
+                return new List<DateTime>();
+            }
+            var result = new List<DateTime>();
+            while (start <= end)
+            {
+                result.Add(start);
+                start = start.AddDays(1);
+            }
+            return result;
+        }
     }
 }
