@@ -120,7 +120,8 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(p.TenantId)
                 {
                     StudentId = p.StudentId,
-                    CourseId = p.CourseId
+                    CourseId = p.CourseId,
+                    IsSendNoticeStudent = true
                 });
             }
             if (studentCourseConsumeLogs.Any())
@@ -188,12 +189,12 @@ namespace ETMS.Business
                 {
                     ClassTimesId = classRecord.ClassTimesId.Value
                 });
-                _eventPublisher.Publish(new NoticeStudentClassCheckSignRevokeEvent(classRecord.TenantId)
-                {
-                    ClassRecord = classRecord,
-                    ClassRecordStudent = classRecordStudents
-                });
             }
+            _eventPublisher.Publish(new NoticeStudentClassCheckSignRevokeEvent(classRecord.TenantId)
+            {
+                ClassRecord = classRecord,
+                ClassRecordStudent = classRecordStudents
+            });
 
             //统计信息
             _eventPublisher.Publish(new StatisticsClassRevokeEvent(request.TenantId)

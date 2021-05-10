@@ -264,6 +264,15 @@ namespace ETMS.Business
             }
             await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse);
 
+            if (request.IsSendNoticeStudent)
+            {
+                _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
+                {
+                    CourseId = request.CourseId,
+                    StudentId = request.StudentId
+                });
+            }
+
             var now = DateTime.Now;
             if (EtmsHelper.CheckIsDaytime(now))
             {
@@ -282,14 +291,6 @@ namespace ETMS.Business
                         });
                     }
                 }
-            }
-            if (request.IsSendNoticeStudent)
-            {
-                _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
-                {
-                    CourseId = request.CourseId,
-                    StudentId = request.StudentId
-                });
             }
         }
 

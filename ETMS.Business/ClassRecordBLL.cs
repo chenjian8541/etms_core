@@ -545,12 +545,12 @@ namespace ETMS.Business
                 OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeSum.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
             });
 
-            //发通知
-            _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
-            {
-                CourseId = p.CourseId,
-                StudentId = p.StudentId
-            });
+            //发通知  已在计算剩余课时之后 发送提醒
+            //_eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
+            //{
+            //    CourseId = p.CourseId,
+            //    StudentId = p.StudentId
+            //});
 
             await _userOperationLogDAL.AddUserLog(request, "修改点名记录", EmUserOperationType.ClassRecordManage, now);
             return ResponseBase.Success();
@@ -616,7 +616,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(p.TenantId)
             {
                 StudentId = p.StudentId,
-                CourseId = p.CourseId
+                CourseId = p.CourseId,
+                IsSendNoticeStudent = true
             });
 
             p.DeSum = deStudentClassTimesResult.DeSum;
