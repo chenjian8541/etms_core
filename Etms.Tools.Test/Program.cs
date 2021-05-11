@@ -56,8 +56,8 @@ namespace Etms.Tools.Test
             //var endTime = startTime.AddMonths(1).AddDays(-1);
             //Console.WriteLine(startTime);
             //Console.WriteLine(endTime);
-            var process = new EtmsProcess();
-            process.ProcessRole();
+            //var process = new EtmsProcess();
+            //process.ProcessRole();
             Console.Read();
         }
 

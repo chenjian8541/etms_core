@@ -25,7 +25,7 @@ namespace ETMS.DataAccess
         {
             var time = Convert.ToDateTime(keys[1]).Date;
             var logs = await _dbWrapper.FindList<EtStudentLeaveApplyLog>(p => p.TenantId == _tenantId
-            && (p.EndDate >= time || p.StartDate <= time) && p.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass && p.IsDeleted == EmIsDeleted.Normal);
+            && p.EndDate >= time && p.StartDate <= time && p.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass && p.IsDeleted == EmIsDeleted.Normal);
             if (logs == null || !logs.Any())
             {
                 return null;

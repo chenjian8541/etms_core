@@ -27,32 +27,38 @@ namespace ETMS.Business.Common
         {
             if (_studentLeaveApplyLogs != null && _studentLeaveApplyLogs.Count > 0)
             {
-                var myLeaveApplyLog = _studentLeaveApplyLogs.FirstOrDefault(p => p.StudentId == studentId);
-                if (myLeaveApplyLog != null)
+                var myLeaveApplyLogs = _studentLeaveApplyLogs.Where(p => p.StudentId == studentId);
+                if (myLeaveApplyLogs.Any())
                 {
-                    if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
+                    foreach (var myLeaveApplyLog in myLeaveApplyLogs)
                     {
-                        return true;
+                        if (myLeaveApplyLog.StartDate > classOt || myLeaveApplyLog.EndDate < classOt)
+                        {
+                            continue;
+                        }
+                        if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
+                        {
+                            return true;
+                        }
+                        var levelStartTime = myLeaveApplyLog.StartTime;
+                        var levelEndTime = myLeaveApplyLog.EndTime;
+                        if (myLeaveApplyLog.StartDate < classOt)
+                        {
+                            levelStartTime = 0;
+                        }
+                        if (myLeaveApplyLog.EndDate > classOt)
+                        {
+                            levelEndTime = 8888;
+                        }
+                        if (startTime > levelEndTime || endTime < levelStartTime)
+                        {
+                            LOG.Log.Info($"[IsCheckStudentIsLeave]判断是否为请假：startTime:{startTime},endTime:{endTime},levelStartTime:{levelStartTime},levelEndTime:{levelEndTime}", this.GetType());
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
-                    var levelStartTime = myLeaveApplyLog.StartTime;
-                    var levelEndTime = myLeaveApplyLog.EndTime;
-                    if (myLeaveApplyLog.StartDate < classOt)
-                    {
-                        levelStartTime = 0;
-                    }
-                    if (myLeaveApplyLog.EndDate > classOt)
-                    {
-                        levelEndTime = 8888;
-                    }
-                    if (startTime > levelEndTime || endTime < levelStartTime)
-                    {
-                        LOG.Log.Info($"[IsCheckStudentIsLeave]判断是否为请假：startTime:{startTime},endTime:{endTime},levelStartTime:{levelStartTime},levelEndTime:{levelEndTime}", this.GetType());
-                    }
-                    else
-                    {
-                        return true;
-                    }
-
                 }
             }
             return false;
@@ -75,31 +81,31 @@ namespace ETMS.Business.Common
                 {
                     foreach (var myLeaveApplyLog in myLeaveApplyLogs)
                     {
-                        if (myLeaveApplyLog != null)
+                        if (myLeaveApplyLog.StartDate > classOt || myLeaveApplyLog.EndDate < classOt)
                         {
-                            if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
-                            {
-                                return myLeaveApplyLog;
-                            }
-                            var levelStartTime = myLeaveApplyLog.StartTime;
-                            var levelEndTime = myLeaveApplyLog.EndTime;
-                            if (myLeaveApplyLog.StartDate < classOt)
-                            {
-                                levelStartTime = 0;
-                            }
-                            if (myLeaveApplyLog.EndDate > classOt)
-                            {
-                                levelEndTime = 8888;
-                            }
-                            if (startTime > levelEndTime || endTime < levelStartTime)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                return myLeaveApplyLog;
-                            }
-
+                            continue;
+                        }
+                        if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
+                        {
+                            return myLeaveApplyLog;
+                        }
+                        var levelStartTime = myLeaveApplyLog.StartTime;
+                        var levelEndTime = myLeaveApplyLog.EndTime;
+                        if (myLeaveApplyLog.StartDate < classOt)
+                        {
+                            levelStartTime = 0;
+                        }
+                        if (myLeaveApplyLog.EndDate > classOt)
+                        {
+                            levelEndTime = 8888;
+                        }
+                        if (startTime > levelEndTime || endTime < levelStartTime)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            return myLeaveApplyLog;
                         }
                     }
                 }
@@ -121,6 +127,10 @@ namespace ETMS.Business.Common
             {
                 foreach (var myLeaveApplyLog in _studentLeaveApplyLogs)
                 {
+                    if (myLeaveApplyLog.StartDate > classOt || myLeaveApplyLog.EndDate < classOt)
+                    {
+                        continue;
+                    }
                     if (myLeaveApplyLog.StartDate < classOt && myLeaveApplyLog.EndDate > classOt)
                     {
                         newCheckTimeLeaveApplyLog.Add(myLeaveApplyLog);
