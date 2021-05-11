@@ -33,6 +33,10 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 return "请假时间格式不正确";
             }
+            if ((EndDate - StartDate).TotalDays > 60)
+            {
+                return "请假时长不能超过60天";
+            }
             if (string.IsNullOrEmpty(LeaveContent))
             {
                 return "请输入请假事由";

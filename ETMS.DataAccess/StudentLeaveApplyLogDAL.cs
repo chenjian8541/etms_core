@@ -62,7 +62,7 @@ namespace ETMS.DataAccess
             {
                 foreach (var p in allDate)
                 {
-                    await UpdateCache(_tenantId, log.StartDate);
+                    await UpdateCache(_tenantId, p);
                 }
             }
         }
