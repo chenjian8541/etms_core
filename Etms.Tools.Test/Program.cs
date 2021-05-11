@@ -3,6 +3,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.View;
+using ETMS.IDataAccess.EtmsManage;
 using ETMS.Utility;
 using Newtonsoft.Json;
 using System;
@@ -55,10 +56,8 @@ namespace Etms.Tools.Test
             //var endTime = startTime.AddMonths(1).AddDays(-1);
             //Console.WriteLine(startTime);
             //Console.WriteLine(endTime);
-            var ss = EtmsHelper2.GetStartStepToAnd(DateTime.Now, DateTime.Now.AddDays(5));
-            var ss2 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(5));
-            var ss3 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-1));
-            var ss4 = EtmsHelper2.GetStartStepToAnd(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2));
+            var process = new EtmsProcess();
+            process.ProcessRole();
             Console.Read();
         }
 

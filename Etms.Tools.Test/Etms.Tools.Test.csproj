@@ -10,11 +10,35 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ETMS.AiFace\ETMS.AiFace.csproj" />
+    <ProjectReference Include="..\ETMS.Authority\ETMS.Authority.csproj" />
     <ProjectReference Include="..\ETMS.Business\ETMS.Business.csproj" />
+    <ProjectReference Include="..\ETMS.Cache.Redis\ETMS.Cache.Redis.csproj" />
     <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.Emgu\ETMS.Emgu.csproj" />
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Event.DataContract\ETMS.Event.DataContract.csproj" />
+    <ProjectReference Include="..\ETMS.EventConsumer\ETMS.EventConsumer.csproj" />
+    <ProjectReference Include="..\ETMS.ExternalService\ETMS.ExternalService.csproj" />
+    <ProjectReference Include="..\ETMS.IAiFace\ETMS.IAiFace.csproj" />
+    <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
+    <ProjectReference Include="..\ETMS.ICache\ETMS.ICache.csproj" />
+    <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
+    <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
+    <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.Manage.Entity\ETMS.Manage.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Manage.Jobs\ETMS.Manage.Jobs.csproj" />
     <ProjectReference Include="..\ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj" />
+    <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+    <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
