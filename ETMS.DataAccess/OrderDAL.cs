@@ -160,5 +160,12 @@ namespace ETMS.DataAccess
             }
             return true;
         }
+
+        public async Task<bool> ExistOrderProduct(byte productType, long productId)
+        {
+            var log = await _dbWrapper.Find<EtOrderDetail>(p => p.TenantId == _tenantId && p.ProductType == productType
+            && p.ProductId == productId && p.IsDeleted == EmIsDeleted.Normal);
+            return log != null;
+        }
     }
 }

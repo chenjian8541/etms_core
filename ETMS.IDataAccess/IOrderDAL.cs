@@ -50,5 +50,7 @@ namespace ETMS.IDataAccess
         Task<bool> SetOrderHasIsReturn(long orderId);
 
         Task<bool> SetOrderHasIsTransferCourse(List<long> orderIds);
+
+        Task<bool> ExistOrderProduct(byte productType, long productId);
     }
 }

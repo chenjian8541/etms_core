@@ -26,18 +26,21 @@ namespace ETMS.Business
 
         private readonly ISuitDAL _suitDAL;
 
+        private readonly IOrderDAL _orderDAL;
+
         public GoodsBLL(IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
-            ISuitDAL suitDAL)
+            ISuitDAL suitDAL, IOrderDAL orderDAL)
         {
             this._goodsDAL = goodsDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
             this._suitDAL = suitDAL;
+            this._orderDAL = orderDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _goodsDAL, _userOperationLogDAL, _suitDAL);
+            this.InitDataAccess(tenantId, _goodsDAL, _userOperationLogDAL, _suitDAL, _orderDAL);
         }
 
         public async Task<ResponseBase> GoodsAdd(GoodsAddRequest request)
@@ -188,7 +191,8 @@ namespace ETMS.Business
                 var usedSuit = string.Join(',', used.Select(p => p.Name));
                 return ResponseBase.CommonError($"想要删除此物品，请先删除套餐[{usedSuit}]内的此物品");
             }
-            if (goods.SaleQuantity > 0 || goods.InventoryQuantity > 0)
+            var isUsed = await _orderDAL.ExistOrderProduct(EmProductType.Goods, goods.Id);
+            if (isUsed)
             {
                 return ResponseBase.CommonError("物品已使用，无法删除");
             }

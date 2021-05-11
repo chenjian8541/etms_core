@@ -21,16 +21,20 @@ namespace ETMS.Business
 
         private readonly ISuitDAL _suitDAL;
 
-        public CostBLL(ICostDAL costDAL, IUserOperationLogDAL userOperationLogDAL, ISuitDAL suitDAL)
+        private readonly IOrderDAL _orderDAL;
+
+        public CostBLL(ICostDAL costDAL, IUserOperationLogDAL userOperationLogDAL, ISuitDAL suitDAL,
+            IOrderDAL orderDAL)
         {
             this._costDAL = costDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._suitDAL = suitDAL;
+            this._orderDAL = orderDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _costDAL, _userOperationLogDAL, _suitDAL);
+            this.InitDataAccess(tenantId, _costDAL, _userOperationLogDAL, _suitDAL, _orderDAL);
         }
 
         public async Task<ResponseBase> CostAdd(CostAddRequest request)
@@ -115,7 +119,8 @@ namespace ETMS.Business
                 var usedSuit = string.Join(',', used.Select(p => p.Name));
                 return ResponseBase.CommonError($"想要删除此费用，请先删除套餐[{usedSuit}]内的此费用");
             }
-            if (cost.SaleQuantity > 0)
+            var isUsed = await _orderDAL.ExistOrderProduct(EmProductType.Cost, cost.Id);
+            if (isUsed)
             {
                 return ResponseBase.CommonError("费用已使用，无法删除");
             }
