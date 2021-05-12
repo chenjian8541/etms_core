@@ -47,5 +47,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantWechartError> SysTenantWechartErrors { get; set; }
         public DbSet<SysAITenantAccount> SysAITenantAccounts { get; set; }
         public DbSet<SysAIFaceBiduAccount> SysAIFaceBiduAccounts { get; set; }
+        public DbSet<SysSmsLog> SysSmsLogs { get; set; }
     }
 }

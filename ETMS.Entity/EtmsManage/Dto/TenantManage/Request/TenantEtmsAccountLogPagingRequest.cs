@@ -62,6 +62,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             }
         }
 
+        public long? TenantId { get; set; }
+
+        public byte? ChangeType { get; set; }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet());
@@ -76,6 +80,14 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToDateString()}'");
+            }
+            if (TenantId != null)
+            {
+                condition.Append($" AND TenantId = {TenantId.Value}");
+            }
+            if (ChangeType != null)
+            {
+                condition.Append($" AND ChangeType = {ChangeType.Value}");
             }
             return condition.ToString();
         }

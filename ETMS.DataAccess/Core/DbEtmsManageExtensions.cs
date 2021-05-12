@@ -41,6 +41,17 @@ namespace ETMS.DataAccess.Core
             return result;
         }
 
+        internal static async Task<bool> InsertRange<T>(this IEtmsManage @this, List<T> entitys) where T : class
+        {
+            var result = false;
+            using (var content = new EtmsManageDbContext())
+            {
+                content.AddRange(entitys);
+                result = await content.SaveChangesAsync() > 0;
+            }
+            return result;
+        }
+
         internal static async Task<bool> Update<T>(this IEtmsManage @this, T entity) where T : class
         {
             var result = false;

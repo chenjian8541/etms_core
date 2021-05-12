@@ -46,10 +46,12 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
             IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -61,11 +63,12 @@ namespace ETMS.Business
             this._sysTenantDAL = sysTenantDAL;
             this._appAuthorityDAL = appAuthorityDAL;
             this._eventPublisher = eventPublisher;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _etUserDAL, _userOperationLogDAL, _roleDAL, _subjectDAL);
+            this.InitDataAccess(tenantId, _etUserDAL, _userOperationLogDAL, _roleDAL, _subjectDAL, _tenantConfigDAL);
         }
 
         public async Task<ResponseBase> GetLoginInfo(GetLoginInfoRequest request)
@@ -74,6 +77,7 @@ namespace ETMS.Business
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var myAllRouteConfigs = await _appAuthorityDAL.GetTenantRouteConfig(request.LoginTenantId);
+            var config = await _tenantConfigDAL.GetTenantConfig();
             return ResponseBase.Success(new GetLoginInfoOutput()
             {
                 Name = userInfo.Name,
@@ -83,7 +87,8 @@ namespace ETMS.Business
                 Phone = userInfo.Phone,
                 RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu, userInfo.IsAdmin),
                 OrgName = tenant.Name,
-                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin)
+                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
+                TenantConfig = config
             });
         }
 
@@ -92,6 +97,7 @@ namespace ETMS.Business
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var config = await _tenantConfigDAL.GetTenantConfig();
             return ResponseBase.Success(new GetLoginInfoH5Output()
             {
                 Name = userInfo.Name,
@@ -100,7 +106,8 @@ namespace ETMS.Business
                 Phone = userInfo.Phone,
                 OrgName = tenant.Name,
                 Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin),
-                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin)
+                RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
+                TenantConfig = config
             });
         }
 

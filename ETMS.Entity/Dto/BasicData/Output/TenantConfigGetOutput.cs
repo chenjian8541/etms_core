@@ -58,6 +58,11 @@ namespace ETMS.Entity.Dto.BasicData.Output
         /// 推荐有奖
         /// </summary>
         public StudentRecommendConfig StudentRecommendConfig { get; set; }
+
+        /// <summary>
+        /// 机构其它配置
+        /// </summary>
+        public TenantOtherConfig TenantOtherConfig { get; set; }
     }
 
     /// <summary>

@@ -161,6 +161,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -237,6 +241,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -313,6 +321,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -382,6 +394,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -450,6 +466,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -518,6 +538,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -586,6 +610,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var user in request.Users)
                 {
+                    if (!EtmsHelper.IsMobilePhone(user.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = user.Phone,
@@ -667,6 +695,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,
@@ -735,6 +767,10 @@ namespace ETMS.ExternalService.Implement
                 }
                 foreach (var student in request.Students)
                 {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
                     var sendSmsRequest = new SendSmsRequest()
                     {
                         mobile = student.Phone,

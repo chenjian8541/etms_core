@@ -23,6 +23,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> UserLoginBySmsH5(UserLoginBySmsH5Request request);
 
+        Task<ResponseBase> UserLoginByH5(UserLoginByH5Request request);
+
         Task<ResponseBase> CheckUserCanLogin(RequestBase request);
 
         Task<bool> GetUserDataLimit(RequestBase request);

@@ -10,5 +10,15 @@ namespace ETMS.Entity.Enum
         /// 上课通知
         /// </summary>
         public const int NoticeOfClassToday = 1;
+
+        public static string GetTypeDesc(int type)
+        {
+            switch (type)
+            {
+                case NoticeOfClassToday:
+                    return "上课通知";
+            }
+            return string.Empty;
+        }
     }
 }

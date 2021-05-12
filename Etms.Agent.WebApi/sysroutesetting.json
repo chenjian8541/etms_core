@@ -21,6 +21,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "tenant_detail/:cid",
+        "Name": "tenant_detail",
+        "Type": 1,
+        "Component": "@/components/TenantMgrView/detail",
+        "Meta": {
+          "Title": "机构详情",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 3,
         "Path": "tenantEtmsAccountLog",
         "Name": "tenantEtmsAccountLog",

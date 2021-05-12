@@ -13,6 +13,7 @@ using ETMS.IBusiness.SysOp;
 using ETMS.Entity.Dto.BasicData.Output;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Utility;
+using ETMS.Entity.Database.Manage;
 
 namespace ETMS.Business
 {
@@ -26,13 +27,16 @@ namespace ETMS.Business
 
         private readonly ISysVersionDAL _sysVersionDAL;
 
+        private readonly ISysSmsLogDAL _sysSmsLogDAL;
+
         public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
-            ISysVersionDAL sysVersionDAL)
+            ISysVersionDAL sysVersionDAL, ISysSmsLogDAL sysSmsLogDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsLogDAL = studentSmsLogDAL;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
             this._sysVersionDAL = sysVersionDAL;
+            this._sysSmsLogDAL = sysSmsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -87,6 +91,54 @@ namespace ETMS.Business
                 await _smsLogDAL.AddUserSmsLog(request.UserSmsLogs);
             }
             await _sysTenantDAL.TenantSmsDeduction(request.TenantId, totalDeCount);
+
+            //处理机构短信记录统计
+            var smsLogs = new List<SysSmsLog>();
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (request.StudentSmsLogs != null && request.StudentSmsLogs.Count > 0)
+            {
+                foreach (var p in request.StudentSmsLogs)
+                {
+                    smsLogs.Add(new SysSmsLog()
+                    {
+                        TenantId = p.TenantId,
+                        AgentId = myTenant.AgentId,
+                        DeCount = p.DeCount,
+                        IsDeleted = p.IsDeleted,
+                        Ot = p.Ot,
+                        Phone = p.Phone,
+                        Remark = string.Empty,
+                        RetType = EmPeopleType.Student,
+                        SmsContent = p.SmsContent,
+                        Status = p.Status,
+                        Type = p.Type
+                    });
+                }
+            }
+            if (request.UserSmsLogs != null && request.UserSmsLogs.Count > 0)
+            {
+                foreach (var p in request.UserSmsLogs)
+                {
+                    smsLogs.Add(new SysSmsLog()
+                    {
+                        TenantId = p.TenantId,
+                        AgentId = myTenant.AgentId,
+                        DeCount = p.DeCount,
+                        IsDeleted = p.IsDeleted,
+                        Ot = p.Ot,
+                        Phone = p.Phone,
+                        Remark = string.Empty,
+                        RetType = EmPeopleType.User,
+                        SmsContent = p.SmsContent,
+                        Status = p.Status,
+                        Type = p.Type
+                    });
+                }
+            }
+            if (smsLogs.Any())
+            {
+                await _sysSmsLogDAL.AddSysSmsLog(smsLogs);
+            }
         }
 
         public async Task<ResponseBase> SysSafeSmsSend(SysSafeSmsSendRequest request)

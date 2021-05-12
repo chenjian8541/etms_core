@@ -2,6 +2,7 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Dto.External.Request;
+using ETMS.Entity.Enum;
 using ETMS.IBusiness;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -17,7 +18,8 @@ namespace ETMS.WebApi.Controllers.External
         public async Task<ResponseBase> ProcessAction(IFormCollection collection,
             AppSettings appSettings,
             ImportCourseTimesRequest request,
-            IImportBLL importBLL)
+            IImportBLL importBLL,
+            TenantConfig tenantConfig)
         {
             if (collection.Files.Count == 0)
             {
@@ -35,7 +37,7 @@ namespace ETMS.WebApi.Controllers.External
             }
             using (var excelStream = file.OpenReadStream())
             {
-                var excelContent = ExcelLib.ReadImportCourseTimesExcelContent(excelStream, 0, 2);
+                var excelContent = ExcelLib.ReadImportCourseTimesExcelContent(excelStream, 0, 2, tenantConfig.TenantOtherConfig.ValidPhoneType == EmValidPhoneType.NotLimit);
                 if (!string.IsNullOrEmpty(excelContent.Item1))
                 {
                     return ResponseBase.CommonError(excelContent.Item1);

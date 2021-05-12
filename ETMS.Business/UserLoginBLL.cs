@@ -324,6 +324,32 @@ namespace ETMS.Business
             return res;
         }
 
+        public async Task<ResponseBase> UserLoginByH5(UserLoginByH5Request request)
+        {
+            var res = await UserLogin(new UserLoginRequest()
+            {
+                Code = request.Code,
+                IpAddress = request.IpAddress,
+                Phone = request.Phone,
+                Pwd = request.Pwd,
+                ClientType = EmUserOperationLogClientType.WeChat
+            });
+            if (res.IsResponseSuccess())
+            {
+                var result = (UserLoginOutput)res.resultData;
+                if (!string.IsNullOrEmpty(request.WechatCode))
+                {
+                    await SaveUserWechat(request.Phone, result.UId, result.TId, request.WechatCode);
+                }
+                return ResponseBase.Success(new UserLoginBySmsH5Output()
+                {
+                    ExpiresTime = result.ExpiresTime,
+                    Token = result.Token
+                });
+            }
+            return res;
+        }
+
         private async Task SaveUserWechat(string phone, long userId, int tenantId, string wechatCode)
         {
             try

@@ -273,6 +273,42 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> TenantGetView(TenantGetViewRequest request)
+        {
+            var p = await _sysTenantDAL.GetTenant(request.Id);
+            var version = await _sysVersionDAL.GetVersion(p.VersionId);
+            var agentBucket = await _sysAgentDAL.GetAgent(p.AgentId);
+            var agent = agentBucket?.SysAgent;
+            var output = new TenantGetPagingOutput()
+            {
+                VersionId = p.VersionId,
+                Id = p.Id,
+                AgentId = p.AgentId,
+                AgentName = agent?.Name,
+                AgentPhone = agent?.Phone,
+                ExDateDesc = p.ExDate.EtmsToDateString(),
+                Name = p.Name,
+                Ot = p.Ot,
+                Phone = p.Phone,
+                Remark = p.Remark,
+                SmsCount = p.SmsCount,
+                Status = EmSysTenantStatus.GetSysTenantStatus(p.Status, p.ExDate),
+                StatusDesc = EmSysTenantStatus.GetSysTenantStatusDesc(p.Status, p.ExDate),
+                TenantCode = p.TenantCode,
+                VersionDesc = version?.Name,
+                Address = p.Address,
+                IdCard = p.IdCard,
+                LinkMan = p.LinkMan,
+                BuyStatus = p.BuyStatus,
+                BuyStatusDesc = EmSysTenantBuyStatus.GetSysTenantBuyStatusDesc(p.BuyStatus),
+                AICloudType = p.AICloudType,
+                BaiduCloudId = p.BaiduCloudId,
+                MaxUserCount = p.MaxUserCount,
+                TencentCloudId = p.TencentCloudId
+            };
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> TenantEdit(TenantEditRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);

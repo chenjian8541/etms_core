@@ -204,6 +204,27 @@ namespace ETMS.WebApi.Controllers
         }
 
         /// <summary>
+        /// 登陆H5
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [ActionName("loginH5")]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ResponseBase> UserLoginByH5(UserLoginByH5Request request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserLoginByH5(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        /// <summary>
         /// 获取登陆信息
         /// </summary>
         /// <param name="request"></param>

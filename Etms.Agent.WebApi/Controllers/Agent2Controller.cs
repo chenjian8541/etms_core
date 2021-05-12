@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
+using ETMS.Entity.EtmsManage.Dto.DataLog.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
@@ -23,9 +24,12 @@ namespace Etms.Agent.WebApi.Controllers
     {
         private readonly ISysTenantBLL _sysTenantBLL;
 
-        public Agent2Controller(ISysTenantBLL sysTenantBLL)
+        private readonly IDataLogBLL _dataLogBLL;
+
+        public Agent2Controller(ISysTenantBLL sysTenantBLL, IDataLogBLL dataLogBLL)
         {
             this._sysTenantBLL = sysTenantBLL;
+            this._dataLogBLL = dataLogBLL;
         }
 
         public async Task<ResponseBase> TenantBindCloudSave(TenantBindCloudSaveRequest request)
@@ -189,6 +193,19 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysTenantBLL.ResetTenantAdminUserPwd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
+        {
+            try
+            {
+                return await _dataLogBLL.SysSmsLogPaging(request);
             }
             catch (Exception ex)
             {

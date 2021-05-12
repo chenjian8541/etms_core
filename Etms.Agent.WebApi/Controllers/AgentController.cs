@@ -456,6 +456,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantGetView(TenantGetViewRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantGetView(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TenantEdit(TenantEditRequest request)
         {
             try

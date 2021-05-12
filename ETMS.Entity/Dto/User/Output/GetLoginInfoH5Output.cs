@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Config;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -40,5 +41,8 @@ namespace ETMS.Entity.Dto.User.Output
         /// 角色设置权限
         /// </summary>
         public RoleNoticeSettingOutput RoleSetting { get; set; }
+
+
+        public TenantConfig TenantConfig { get; set; }
     }
 }

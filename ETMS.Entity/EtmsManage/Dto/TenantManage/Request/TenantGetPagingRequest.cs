@@ -107,13 +107,18 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             }
             if (Status != null)
             {
-                if (Status == EmSysTenantStatus.Expired)
+                switch (Status)
                 {
-                    condition.Append($" AND ExDate < '{DateTime.Now.Date}'");
-                }
-                else
-                {
-                    condition.Append($" AND [Status] = {Status.Value}");
+                    case EmSysTenantStatus.Normal:
+                        condition.Append($" AND [Status] = {Status.Value} AND ExDate >= '{DateTime.Now.Date}'");
+                        break;
+                    case EmSysTenantStatus.Expired:
+                        condition.Append($" AND ExDate < '{DateTime.Now.Date}'");
+                        break;
+                    case EmSysTenantStatus.IsLock:
+                    default:
+                        condition.Append($" AND [Status] = {Status.Value}");
+                        break;
                 }
             }
             if (VersionId != null)

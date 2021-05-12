@@ -191,7 +191,8 @@ namespace ETMS.Business.Common
             }
         }
 
-        public static Tuple<string, List<ImportStudentContentItem>> ReadImportStudentExcelContent(Stream excelStream, int sheetIndex, int validDataRowIndex)
+        public static Tuple<string, List<ImportStudentContentItem>> ReadImportStudentExcelContent(Stream excelStream,
+            int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
@@ -247,7 +248,7 @@ namespace ETMS.Business.Common
                 }
 
                 var phoneCellValue = GetCellValue(myRow.GetCell(++i));
-                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue))
+                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue, isJumpLimitValidPhone))
                 {
                     strError.Append($"第{readRowIndex + 1}行手机号码不正确</br>");
                 }
@@ -450,7 +451,8 @@ namespace ETMS.Business.Common
             }
         }
 
-        public static Tuple<string, List<ImportCourseTimesItem>> ReadImportCourseTimesExcelContent(Stream excelStream, int sheetIndex, int validDataRowIndex)
+        public static Tuple<string, List<ImportCourseTimesItem>> ReadImportCourseTimesExcelContent(
+            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
@@ -507,7 +509,7 @@ namespace ETMS.Business.Common
                 }
 
                 var phoneCellValue = GetCellValue(myRow.GetCell(++i));   //手机号码
-                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue))
+                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue, isJumpLimitValidPhone))
                 {
                     strError.Append($"第{readRowIndex + 1}行手机号码不正确</br>");
                 }
@@ -802,7 +804,8 @@ namespace ETMS.Business.Common
             }
         }
 
-        public static Tuple<string, List<ImportCourseDayItem>> ReadImportCourseDayExcelContent(Stream excelStream, int sheetIndex, int validDataRowIndex)
+        public static Tuple<string, List<ImportCourseDayItem>> ReadImportCourseDayExcelContent(
+            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
@@ -859,7 +862,7 @@ namespace ETMS.Business.Common
                 }
 
                 var phoneCellValue = GetCellValue(myRow.GetCell(++i));   //手机号码
-                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue))
+                if (string.IsNullOrEmpty(phoneCellValue) || !EtmsHelper.IsMobilePhone(phoneCellValue, isJumpLimitValidPhone))
                 {
                     strError.Append($"第{readRowIndex + 1}行手机号码不正确</br>");
                 }

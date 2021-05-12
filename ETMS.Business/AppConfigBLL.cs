@@ -48,6 +48,11 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _tenantConfigDAL, _userOperationLogDAL);
         }
 
+        public async Task<TenantConfig> TenantConfigGet(int tenantId)
+        {
+            return await _tenantConfigDAL.GetTenantConfig();
+        }
+
         public async Task<ResponseBase> TenantConfigGet(TenantConfigGetRequest request)
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
@@ -63,6 +68,7 @@ namespace ETMS.Business
                 TeacherSetConfig = config.TeacherSetConfig,
                 StudentCheckInConfig = config.StudentCheckInConfig,
                 StudentRecommendConfig = config.StudentRecommendConfig,
+                TenantOtherConfig = config.TenantOtherConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
@@ -365,6 +371,15 @@ namespace ETMS.Business
             config.StudentRecommendConfig.RecommendDesImg = request.RecommendDesImg;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "学员推荐有奖设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantOtherConfigSave(TenantOtherConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.TenantOtherConfig.ValidPhoneType = request.ValidPhoneType;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
     }

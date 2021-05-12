@@ -1,14 +1,18 @@
 ﻿using ETMS.Authority;
+using ETMS.Business.Common;
 using ETMS.DataAccess.EtmsManage.Lib;
 using ETMS.DataAccess.Lib;
 using ETMS.Entity.Config.Menu;
 using ETMS.Entity.Config.Router;
+using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Dto.User.Output;
+using ETMS.IDataAccess.EtmsManage;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ETMS.Business.EtmsManage.Common
 {
@@ -97,6 +101,25 @@ namespace ETMS.Business.EtmsManage.Common
                     output.Action.Add(p.ActionId);
                 }
             }
+        }
+
+        internal static async Task<SysAgent> GetAgent(AgentDataTempBox<SysAgent> tempBox, ISysAgentDAL sysAgentDAL, int agentId)
+        {
+            var agent = await tempBox.GetData(agentId, async () =>
+            {
+                var bucket = await sysAgentDAL.GetAgent(agentId);
+                return bucket?.SysAgent;
+            });
+            return agent;
+        }
+
+        internal static async Task<SysTenant> GetTenant(AgentDataTempBox<SysTenant> tempBox, ISysTenantDAL sysTenantDAL, int tenantId)
+        {
+            var tenant = await tempBox.GetData(tenantId, async () =>
+            {
+                return await sysTenantDAL.GetTenant(tenantId);
+            });
+            return tenant;
         }
     }
 }

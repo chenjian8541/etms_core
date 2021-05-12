@@ -25,10 +25,13 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
-        public ExternalController(IImportBLL importBLL, IAppConfigurtaionServices appConfigurtaionServices)
+        private readonly IAppConfigBLL _appConfigBLL;
+
+        public ExternalController(IImportBLL importBLL, IAppConfigurtaionServices appConfigurtaionServices, IAppConfigBLL appConfigBLL)
         {
             this._importBLL = importBLL;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._appConfigBLL = appConfigBLL;
         }
 
         public async Task<ResponseBase> ImportStudentTemplateGet(GetImportStudentExcelTemplateRequest request)
@@ -59,7 +62,9 @@ namespace ETMS.WebApi.Controllers
                     LoginUserId = userInfo.Item2
                 };
                 _importBLL.InitTenantId(request.LoginTenantId);
-                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL);
+                _appConfigBLL.InitTenantId(request.LoginTenantId);
+                var tenantConfig = await _appConfigBLL.TenantConfigGet(request.LoginTenantId);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL, tenantConfig);
             }
             catch (Exception ex)
             {
@@ -96,7 +101,9 @@ namespace ETMS.WebApi.Controllers
                     LoginUserId = userInfo.Item2
                 };
                 _importBLL.InitTenantId(request.LoginTenantId);
-                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL);
+                _appConfigBLL.InitTenantId(request.LoginTenantId);
+                var tenantConfig = await _appConfigBLL.TenantConfigGet(request.LoginTenantId);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL, tenantConfig);
             }
             catch (Exception ex)
             {
@@ -133,7 +140,9 @@ namespace ETMS.WebApi.Controllers
                     LoginUserId = userInfo.Item2
                 };
                 _importBLL.InitTenantId(request.LoginTenantId);
-                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL);
+                _appConfigBLL.InitTenantId(request.LoginTenantId);
+                var tenantConfig = await _appConfigBLL.TenantConfigGet(request.LoginTenantId);
+                return await action.ProcessAction(collection, _appConfigurtaionServices.AppSettings, request, _importBLL, tenantConfig);
             }
             catch (Exception ex)
             {

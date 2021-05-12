@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Dto.BasicData.Request;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace ETMS.IBusiness
 {
     public interface IAppConfigBLL : IBaseBLL
     {
+        Task<TenantConfig> TenantConfigGet(int tenantId);
+
         Task<ResponseBase> TenantConfigGet(TenantConfigGetRequest request);
 
         Task<ResponseBase> ClassCheckSignConfigSave(ClassCheckSignConfigSaveRequest request);
@@ -48,5 +51,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentRecommendConfigSave(StudentRecommendConfigSaveRequest request);
 
         Task<ResponseBase> StudentRecommendConfigSave2(StudentRecommendConfigSave2Request request);
+
+        Task<ResponseBase> TenantOtherConfigSave(TenantOtherConfigSaveRequest request);
     }
 }

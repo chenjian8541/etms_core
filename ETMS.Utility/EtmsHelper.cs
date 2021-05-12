@@ -169,8 +169,12 @@ namespace ETMS.Utility
             return JsonConvert.DeserializeObject(str, typeof(T)) as T;
         }
 
-        public static bool IsMobilePhone(string input)
+        public static bool IsMobilePhone(string input, bool isJumpLimit = false)
         {
+            if (isJumpLimit)
+            {
+                return !string.IsNullOrEmpty(input);
+            }
             var regex = new Regex("^1[3456789]\\d{9}$");
             return regex.IsMatch(input);
         }

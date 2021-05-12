@@ -22,6 +22,7 @@ namespace ETMS.Entity.Config
             TenantInfoConfig = new TenantInfoConfig();
             StudentCheckInConfig = new StudentCheckInConfig();
             StudentRecommendConfig = new StudentRecommendConfig();
+            TenantOtherConfig = new TenantOtherConfig();
         }
 
         /// <summary>
@@ -73,6 +74,19 @@ namespace ETMS.Entity.Config
         /// 推荐有奖
         /// </summary>
         public StudentRecommendConfig StudentRecommendConfig { get; set; }
+
+        /// <summary>
+        /// 机构其它配置
+        /// </summary>
+        public TenantOtherConfig TenantOtherConfig { get; set; }
+    }
+
+    public class TenantOtherConfig
+    {
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmValidPhoneType"/>
+        /// </summary>
+        public byte ValidPhoneType { get; set; }
     }
 
     /// <summary>
