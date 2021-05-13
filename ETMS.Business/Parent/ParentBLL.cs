@@ -169,6 +169,30 @@ namespace ETMS.Business
             return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, request.StudentWechartId);
         }
 
+        public async Task<ResponseBase> ParentLoginByPwd(ParentLoginByPwdRequest request)
+        {
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
+            {
+                return ResponseBase.CommonError(loginTenantResult.Item1);
+            }
+            var sysTenantInfo = loginTenantResult.Item2;
+
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+
+            var pwd = CryptogramHelper.Encrypt3DES(request.Pwd, SystemConfig.CryptogramConfig.Key);
+            _studentDAL.InitTenantId(sysTenantInfo.Id);
+            var student = await _studentDAL.GetStudentByPwd(request.Phone, pwd);
+            if (student == null)
+            {
+                return ResponseBase.CommonError("账号信息错误");
+            }
+            return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, request.StudentWechartId);
+        }
+
         private async Task<ResponseBase> GetParentLoginResult(int tenantId, string phone, string studentWechartId)
         {
             _parentStudentDAL.InitTenantId(tenantId);

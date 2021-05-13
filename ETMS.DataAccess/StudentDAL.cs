@@ -337,5 +337,19 @@ namespace ETMS.DataAccess
         {
             return await this._dbWrapper.FindList<EtStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
         }
+
+        public async Task<bool> ChangePwd(long studentId, string newPwd)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET [Password] = '{newPwd}' WHERE Id = {studentId}");
+            await base.UpdateCache(_tenantId, studentId);
+            return true;
+        }
+
+        public async Task<EtStudent> GetStudentByPwd(string phone, string pwd)
+        {
+            var sql = $"SELECT TOP 1 * from EtStudent WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND (Phone = '{phone}' or PhoneBak = '{phone}') AND Password = '{pwd}' ";
+            var obj = await _dbWrapper.ExecuteObject<EtStudent>(sql);
+            return obj.FirstOrDefault();
+        }
     }
 }

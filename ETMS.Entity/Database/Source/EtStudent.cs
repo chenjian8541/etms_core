@@ -177,6 +177,11 @@ namespace ETMS.Entity.Database.Source
         public DateTime LastJobProcessTime { get; set; }
 
         /// <summary>
+        /// 密码
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

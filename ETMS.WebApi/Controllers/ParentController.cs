@@ -77,6 +77,22 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [ActionName("parentLoginByPwd")]
+        [HttpPost]
+        public async Task<ResponseBase> ParentLoginByPwd(ParentLoginByPwdRequest request)
+        {
+            try
+            {
+                return await _parentBLL.ParentLoginByPwd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
 
         [AllowAnonymous]
         [ActionName("parentRefreshToken")]

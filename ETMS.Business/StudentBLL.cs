@@ -797,7 +797,8 @@ namespace ETMS.Business
                 handleUserDesc = user?.Name;
             }
             var student = studentBucket.Student;
-            return ResponseBase.Success(new StudentLeaveApplyLogPagingOutput() {
+            return ResponseBase.Success(new StudentLeaveApplyLogPagingOutput()
+            {
                 ApplyOt = applyLog.ApplyOt,
                 CId = applyLog.Id,
                 EndDateDesc = applyLog.EndDate.EtmsToDateString(),
@@ -1162,6 +1163,21 @@ namespace ETMS.Business
             });
 
             await _userOperationLogDAL.AddUserLog(request, $"积分调整-学员:{student.Name},手机号码:{student.Phone},{desc}{request.ChangePoints}积分", EmUserOperationType.StudentManage, now);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentChangePwd(StudentChangePwdRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.CId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
+            var newPwd = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
+            await _studentDAL.ChangePwd(student.Id, newPwd);
+
+            await _userOperationLogDAL.AddUserLog(request, $"修改家长端登录密码-学员:{student.Name},手机号码:{student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
     }

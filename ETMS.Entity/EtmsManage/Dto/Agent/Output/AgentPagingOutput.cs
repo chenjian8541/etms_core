@@ -36,6 +36,10 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 
         public string KefuPhone { get; set; }
 
+        public long Value { get; set; }
+
+        public string Label { get; set; }
+
         public List<MyEtmsAccountOutput> MyAccounts { get; set; }
     }
 

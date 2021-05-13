@@ -99,5 +99,9 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         /// 百度云账号ID 
         /// </summary>
         public int BaiduCloudId { get; set; }
+
+        public long Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

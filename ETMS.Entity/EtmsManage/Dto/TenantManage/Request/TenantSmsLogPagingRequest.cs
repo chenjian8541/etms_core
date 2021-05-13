@@ -66,6 +66,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public byte? ChangeType { get; set; }
 
+        public long? AgentId { get; set; }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet());
@@ -88,6 +90,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (ChangeType != null)
             {
                 condition.Append($" AND ChangeType = {ChangeType.Value}");
+            }
+            if (AgentId != null)
+            {
+                condition.Append($" AND AgentId = {AgentId.Value}");
             }
             return condition.ToString();
         }

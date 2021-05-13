@@ -222,7 +222,10 @@ namespace ETMS.Business
                 ExcelLib.GenerateImportCourseTimesExcelTemplate(new ImportCourseHeadDescTimesExcelTemplateRequest()
                 {
                     CheckResult = checkImportCourseTimesExcelTemplate,
-                    PayTypeAll = EmPayType.GetPayTypeAll()
+                    PayTypeAll = EmPayType.GetPayTypeAll(),
+                    GradeAll = await _gradeDAL.GetAllGrade(),
+                    StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
+                    StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseTimesExcelTemplate.UrlKey));
@@ -238,23 +241,55 @@ namespace ETMS.Business
             var now = DateTime.Now;
             var remark = $"{now.EtmsToMinuteString()}导入学员课程";
             var addStudentCount = 0;
+            var gradeAll = await _gradeDAL.GetAllGrade();
+            var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
+            var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
             foreach (var p in request.ImportCourseTimess)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
                 if (student == null)
                 {
+                    var phoneRelationship = 0L;
+                    if (!string.IsNullOrEmpty(p.PhoneRelationshipDesc))
+                    {
+                        var myPhoneRelationship = studentRelationshipAll.FirstOrDefault(j => j.Name == p.PhoneRelationshipDesc);
+                        if (myPhoneRelationship != null)
+                        {
+                            phoneRelationship = myPhoneRelationship.Id;
+                        }
+                    }
+
+                    byte? gender = null;
+                    if (!string.IsNullOrEmpty(p.GenderDesc))
+                    {
+                        gender = p.GenderDesc.Trim() == "男" ? EmGender.Man : EmGender.Woman;
+                    }
+
+                    long? gradeId = null;
+                    if (!string.IsNullOrEmpty(p.GradeDesc))
+                    {
+                        var myGenderDesc = gradeAll.FirstOrDefault(j => j.Name == p.GradeDesc);
+                        gradeId = myGenderDesc?.Id;
+                    }
+
+                    long? sourceId = null;
+                    if (!string.IsNullOrEmpty(p.SourceDesc))
+                    {
+                        var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
+                        sourceId = mySourceDesc?.Id;
+                    }
                     student = new EtStudent()
                     {
-                        Age = null,
+                        Age = p.Birthday.EtmsGetAge(),
                         Name = p.StudentName,
                         Avatar = string.Empty,
-                        Birthday = null,
+                        Birthday = p.Birthday,
                         CardNo = string.Empty,
                         CreateBy = request.LoginUserId,
                         EndClassOt = null,
-                        Gender = null,
-                        GradeId = null,
-                        HomeAddress = string.Empty,
+                        Gender = gender,
+                        GradeId = gradeId,
+                        HomeAddress = p.HomeAddress,
                         IntentionLevel = EmStudentIntentionLevel.Middle,
                         IsBindingWechat = EmIsBindingWechat.No,
                         IsDeleted = EmIsDeleted.Normal,
@@ -264,13 +299,13 @@ namespace ETMS.Business
                         NextTrackTime = null,
                         Ot = now.Date,
                         Phone = p.Phone,
-                        PhoneBak = string.Empty,
+                        PhoneBak = p.PhoneBak,
                         PhoneBakRelationship = null,
-                        PhoneRelationship = 0,
+                        PhoneRelationship = phoneRelationship,
                         Points = 0,
-                        Remark = remark,
-                        SchoolName = string.Empty,
-                        SourceId = null,
+                        Remark = string.IsNullOrEmpty(p.Remark) ? remark : p.Remark,
+                        SchoolName = p.SchoolName,
+                        SourceId = sourceId,
                         StudentType = EmStudentType.ReadingStudent,
                         Tags = string.Empty,
                         TenantId = request.LoginTenantId,
@@ -492,7 +527,10 @@ namespace ETMS.Business
                 ExcelLib.GenerateImportCourseDayExcelTemplate(new ImportCourseHeadDescDayExcelTemplateRequest()
                 {
                     CheckResult = checkImportCourseDayExcelTemplate,
-                    PayTypeAll = EmPayType.GetPayTypeAll()
+                    PayTypeAll = EmPayType.GetPayTypeAll(),
+                    GradeAll = await _gradeDAL.GetAllGrade(),
+                    StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
+                    StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseDayExcelTemplate.UrlKey));
@@ -508,23 +546,55 @@ namespace ETMS.Business
             var now = DateTime.Now;
             var remark = $"{now.EtmsToMinuteString()}导入学员课程";
             var addStudentCount = 0;
+            var gradeAll = await _gradeDAL.GetAllGrade();
+            var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
+            var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
             foreach (var p in request.ImportCourseDays)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
                 if (student == null)
                 {
+                    var phoneRelationship = 0L;
+                    if (!string.IsNullOrEmpty(p.PhoneRelationshipDesc))
+                    {
+                        var myPhoneRelationship = studentRelationshipAll.FirstOrDefault(j => j.Name == p.PhoneRelationshipDesc);
+                        if (myPhoneRelationship != null)
+                        {
+                            phoneRelationship = myPhoneRelationship.Id;
+                        }
+                    }
+
+                    byte? gender = null;
+                    if (!string.IsNullOrEmpty(p.GenderDesc))
+                    {
+                        gender = p.GenderDesc.Trim() == "男" ? EmGender.Man : EmGender.Woman;
+                    }
+
+                    long? gradeId = null;
+                    if (!string.IsNullOrEmpty(p.GradeDesc))
+                    {
+                        var myGenderDesc = gradeAll.FirstOrDefault(j => j.Name == p.GradeDesc);
+                        gradeId = myGenderDesc?.Id;
+                    }
+
+                    long? sourceId = null;
+                    if (!string.IsNullOrEmpty(p.SourceDesc))
+                    {
+                        var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
+                        sourceId = mySourceDesc?.Id;
+                    }
                     student = new EtStudent()
                     {
-                        Age = null,
+                        Age = p.Birthday.EtmsGetAge(),
                         Name = p.StudentName,
                         Avatar = string.Empty,
-                        Birthday = null,
+                        Birthday = p.Birthday,
                         CardNo = string.Empty,
                         CreateBy = request.LoginUserId,
                         EndClassOt = null,
-                        Gender = null,
-                        GradeId = null,
-                        HomeAddress = string.Empty,
+                        Gender = gender,
+                        GradeId = gradeId,
+                        HomeAddress = p.HomeAddress,
                         IntentionLevel = EmStudentIntentionLevel.Middle,
                         IsBindingWechat = EmIsBindingWechat.No,
                         IsDeleted = EmIsDeleted.Normal,
@@ -534,13 +604,13 @@ namespace ETMS.Business
                         NextTrackTime = null,
                         Ot = now.Date,
                         Phone = p.Phone,
-                        PhoneBak = string.Empty,
+                        PhoneBak = p.PhoneBak,
                         PhoneBakRelationship = null,
-                        PhoneRelationship = 0,
+                        PhoneRelationship = phoneRelationship,
                         Points = 0,
-                        Remark = remark,
-                        SchoolName = string.Empty,
-                        SourceId = null,
+                        Remark = string.IsNullOrEmpty(p.Remark) ? remark : p.Remark,
+                        SchoolName = p.SchoolName,
+                        SourceId = sourceId,
                         StudentType = EmStudentType.ReadingStudent,
                         Tags = string.Empty,
                         TenantId = request.LoginTenantId,

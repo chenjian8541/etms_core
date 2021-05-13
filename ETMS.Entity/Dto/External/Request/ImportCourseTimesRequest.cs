@@ -46,5 +46,23 @@ namespace ETMS.Entity.Dto.External.Request
         /// <see cref="ETMS.Entity.Enum.EmCourseType"/>
         /// </summary>
         public byte CourseType { get; set; }
+
+        public string PhoneRelationshipDesc { get; set; }
+
+        public string GenderDesc { get; set; }
+
+        public DateTime? Birthday { get; set; }
+
+        public string SchoolName { get; set; }
+
+        public string GradeDesc { get; set; }
+
+        public string SourceDesc { get; set; }
+
+        public string PhoneBak { get; set; }
+
+        public string HomeAddress { get; set; }
+
+        public string Remark { get; set; }
     }
 }

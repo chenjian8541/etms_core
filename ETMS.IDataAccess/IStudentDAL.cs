@@ -70,5 +70,9 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<StudentFaceView>> GetStudentFace();
 
         Task<List<EtStudent>> GetStudentsByPhone(string phone);
+
+        Task<bool> ChangePwd(long studentId, string newPwd);
+
+        Task<EtStudent> GetStudentByPwd(string phone, string pwd);
     }
 }

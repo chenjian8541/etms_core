@@ -323,6 +323,15 @@ namespace ETMS.Business.Common
             headList.Add("支付方式");
             headList.Add("经办日期");
             headList.Add("课程类型");
+            headList.Add("联系人角色");
+            headList.Add("性别");
+            headList.Add("出生日期");
+            headList.Add("就读学校");
+            headList.Add("就读年级");
+            headList.Add("学员来源");
+            headList.Add("备用号码");
+            headList.Add("家庭住址");
+            headList.Add("备注");
             return headList;
         }
 
@@ -332,7 +341,7 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按课时)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 20));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -345,9 +354,10 @@ namespace ETMS.Business.Common
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
             noteString.Append("5.课程类型默认是“一对多”，如果选择“一对一”则会自动创建该学员对应的一对一班级\n");
             noteString.Append("6.文档中日期信息请按yyyy-MM-dd格式填写\n");
+            noteString.Append("7.如果学员存在(学员姓名和手机号码相同则认为是同一个学员)，则只导入学员课程信息，否则系统会按学员信息创建一个新的学员\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 2500; ;
+            rowRemind.Height = 2900; ;
             var headTitleDesc = GetImportCourseHeadDescTimes();
 
             var rowHead = sheet1.CreateRow(1);
@@ -444,6 +454,72 @@ namespace ETMS.Business.Common
             var regions11 = new CellRangeAddressList(1, 65535, 11, 11);
             var dataValidate11 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "一对多", "一对一" }), regions11);
             sheet1.AddValidationData(dataValidate11);
+
+            var cellHead12 = rowHead.CreateCell(12);
+            cellHead12.CellStyle = styleHead;
+            cellHead12.SetCellValue(headTitleDesc[12]);
+
+            var regions12 = new CellRangeAddressList(1, 65535, 12, 12);
+            if (request.StudentRelationshipAll.Count > 0)
+            {
+                var dataValidate12 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentRelationshipAll.Select(p => p.Name).ToArray()), regions12);
+                sheet1.AddValidationData(dataValidate12);
+            }
+
+            var cellHead13 = rowHead.CreateCell(13);
+            cellHead13.CellStyle = styleHead;
+            cellHead13.SetCellValue(headTitleDesc[13]);
+
+            var regions13 = new CellRangeAddressList(1, 65535, 13, 13);
+            var dataValidate13 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "男", "女" }), regions13);
+            sheet1.AddValidationData(dataValidate13);
+
+            var cellHead14 = rowHead.CreateCell(14);
+            cellHead14.CellStyle = styleHead;
+            cellHead14.SetCellValue(headTitleDesc[14]);
+            var cellStyle14 = workMbrTemplate.CreateCellStyle();
+            var format14 = workMbrTemplate.CreateDataFormat();
+            cellStyle14.DataFormat = format14.GetFormat("yyyy-MM-dd");
+            sheet1.SetDefaultColumnStyle(14, cellStyle14);
+            sheet1.SetColumnWidth(14, sheet1.GetColumnWidth(4) * 2);
+
+            var cellHead15 = rowHead.CreateCell(15);
+            cellHead15.CellStyle = styleHead;
+            cellHead15.SetCellValue(headTitleDesc[15]);
+
+            var cellHead16 = rowHead.CreateCell(16);
+            cellHead16.CellStyle = styleHead;
+            cellHead16.SetCellValue(headTitleDesc[16]);
+
+            var regions16 = new CellRangeAddressList(1, 65535, 16, 16);
+            if (request.GradeAll.Count > 0)
+            {
+                var dataValidate16 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.GradeAll.Select(p => p.Name).ToArray()), regions16);
+                sheet1.AddValidationData(dataValidate16);
+            }
+
+            var cellHead17 = rowHead.CreateCell(17);
+            cellHead17.CellStyle = styleHead;
+            cellHead17.SetCellValue(headTitleDesc[17]);
+
+            var regions17 = new CellRangeAddressList(1, 65535, 17, 17);
+            if (request.StudentSourceAll.Count > 0)
+            {
+                var dataValidate17 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentSourceAll.Select(p => p.Name).ToArray()), regions17);
+                sheet1.AddValidationData(dataValidate17);
+            }
+
+            var cellHead18 = rowHead.CreateCell(18);
+            cellHead18.CellStyle = styleHead;
+            cellHead18.SetCellValue(headTitleDesc[18]);
+
+            var cellHead19 = rowHead.CreateCell(19);
+            cellHead19.CellStyle = styleHead;
+            cellHead19.SetCellValue(headTitleDesc[19]);
+
+            var cellHead20 = rowHead.CreateCell(20);
+            cellHead20.CellStyle = styleHead;
+            cellHead20.SetCellValue(headTitleDesc[20]);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -660,6 +736,35 @@ namespace ETMS.Business.Common
                     myStudentCourseItem.CourseType = EmCourseType.OneToOne;
                 }
 
+                myStudentCourseItem.PhoneRelationshipDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.GenderDesc = GetCellValue(myRow.GetCell(++i));
+
+                var birthdayCellValue = GetCellValue(myRow.GetCell(++i));
+                if (!string.IsNullOrEmpty(birthdayCellValue))
+                {
+                    if (DateTime.TryParse(birthdayCellValue, out DateTime tempTime) && tempTime.IsEffectiveDate())
+                    {
+                        myStudentCourseItem.Birthday = tempTime;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行出生日期格式不正确</br>");
+                    }
+                }
+
+                myStudentCourseItem.SchoolName = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.GradeDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.SourceDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.PhoneBak = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.HomeAddress = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.Remark = GetCellValue(myRow.GetCell(++i));
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
@@ -693,6 +798,15 @@ namespace ETMS.Business.Common
             headList.Add("支付方式");
             headList.Add("经办日期");
             headList.Add("课程类型");
+            headList.Add("联系人角色");
+            headList.Add("性别");
+            headList.Add("出生日期");
+            headList.Add("就读学校");
+            headList.Add("就读年级");
+            headList.Add("学员来源");
+            headList.Add("备用号码");
+            headList.Add("家庭住址");
+            headList.Add("备注");
             return headList;
         }
 
@@ -702,7 +816,7 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按时间)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 20));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -715,9 +829,10 @@ namespace ETMS.Business.Common
             noteString.Append("4.模板中部分列内容提供下拉列表选择，请勿填写其它内容\n");
             noteString.Append("5.课程类型默认是“一对多”，如果选择“一对一”则会自动创建该学员对应的一对一班级\n");
             noteString.Append("6.文档中日期信息请按yyyy-MM-dd格式填写\n");
+            noteString.Append("7.如果学员存在(学员姓名和手机号码相同则认为是同一个学员)，则只导入学员课程信息，否则系统会按学员信息创建一个新的学员\n");
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
-            rowRemind.Height = 2500; ;
+            rowRemind.Height = 2900;
             var headTitleDesc = GetImportCourseHeadDescDay();
 
             var rowHead = sheet1.CreateRow(1);
@@ -797,6 +912,73 @@ namespace ETMS.Business.Common
             var regions9 = new CellRangeAddressList(1, 65535, 9, 9);
             var dataValidate9 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "一对多", "一对一" }), regions9);
             sheet1.AddValidationData(dataValidate9);
+
+
+            var cellHead10 = rowHead.CreateCell(10);
+            cellHead10.CellStyle = styleHead;
+            cellHead10.SetCellValue(headTitleDesc[10]);
+
+            var regions10 = new CellRangeAddressList(1, 65535, 10, 10);
+            if (request.StudentRelationshipAll.Count > 0)
+            {
+                var dataValidate10 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentRelationshipAll.Select(p => p.Name).ToArray()), regions10);
+                sheet1.AddValidationData(dataValidate10);
+            }
+
+            var cellHead11 = rowHead.CreateCell(11);
+            cellHead11.CellStyle = styleHead;
+            cellHead11.SetCellValue(headTitleDesc[11]);
+
+            var regions11 = new CellRangeAddressList(1, 65535, 11, 11);
+            var dataValidate11 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(new string[] { "男", "女" }), regions11);
+            sheet1.AddValidationData(dataValidate11);
+
+            var cellHead12 = rowHead.CreateCell(12);
+            cellHead12.CellStyle = styleHead;
+            cellHead12.SetCellValue(headTitleDesc[12]);
+            var cellStyle12 = workMbrTemplate.CreateCellStyle();
+            var format12 = workMbrTemplate.CreateDataFormat();
+            cellStyle12.DataFormat = format12.GetFormat("yyyy-MM-dd");
+            sheet1.SetDefaultColumnStyle(12, cellStyle12);
+            sheet1.SetColumnWidth(12, sheet1.GetColumnWidth(4) * 2);
+
+            var cellHead13 = rowHead.CreateCell(13);
+            cellHead13.CellStyle = styleHead;
+            cellHead13.SetCellValue(headTitleDesc[13]);
+
+            var cellHead14 = rowHead.CreateCell(14);
+            cellHead14.CellStyle = styleHead;
+            cellHead14.SetCellValue(headTitleDesc[14]);
+
+            var regions14 = new CellRangeAddressList(1, 65535, 14, 14);
+            if (request.GradeAll.Count > 0)
+            {
+                var dataValidate14 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.GradeAll.Select(p => p.Name).ToArray()), regions14);
+                sheet1.AddValidationData(dataValidate14);
+            }
+
+            var cellHead15 = rowHead.CreateCell(15);
+            cellHead15.CellStyle = styleHead;
+            cellHead15.SetCellValue(headTitleDesc[15]);
+
+            var regions15 = new CellRangeAddressList(1, 65535, 15, 15);
+            if (request.StudentSourceAll.Count > 0)
+            {
+                var dataValidate15 = dvHelper.CreateValidation(dvHelper.CreateExplicitListConstraint(request.StudentSourceAll.Select(p => p.Name).ToArray()), regions15);
+                sheet1.AddValidationData(dataValidate15);
+            }
+
+            var cellHead16 = rowHead.CreateCell(16);
+            cellHead16.CellStyle = styleHead;
+            cellHead16.SetCellValue(headTitleDesc[16]);
+
+            var cellHead17 = rowHead.CreateCell(17);
+            cellHead17.CellStyle = styleHead;
+            cellHead17.SetCellValue(headTitleDesc[17]);
+
+            var cellHead18 = rowHead.CreateCell(18);
+            cellHead18.CellStyle = styleHead;
+            cellHead18.SetCellValue(headTitleDesc[18]);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -980,6 +1162,35 @@ namespace ETMS.Business.Common
                     myStudentCourseItem.CourseType = EmCourseType.OneToOne;
                 }
 
+                myStudentCourseItem.PhoneRelationshipDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.GenderDesc = GetCellValue(myRow.GetCell(++i));
+
+                var birthdayCellValue = GetCellValue(myRow.GetCell(++i));
+                if (!string.IsNullOrEmpty(birthdayCellValue))
+                {
+                    if (DateTime.TryParse(birthdayCellValue, out DateTime tempTime) && tempTime.IsEffectiveDate())
+                    {
+                        myStudentCourseItem.Birthday = tempTime;
+                    }
+                    else
+                    {
+                        strError.Append($"第{readRowIndex + 1}行出生日期格式不正确</br>");
+                    }
+                }
+
+                myStudentCourseItem.SchoolName = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.GradeDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.SourceDesc = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.PhoneBak = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.HomeAddress = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.Remark = GetCellValue(myRow.GetCell(++i));
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
@@ -1005,6 +1216,12 @@ namespace ETMS.Business.Common
         public CheckImportStudentTemplateFileResult CheckResult { get; set; }
 
         public string[] PayTypeAll { get; set; }
+
+        public List<EtStudentRelationship> StudentRelationshipAll { get; set; }
+
+        public List<EtGrade> GradeAll { get; set; }
+
+        public List<EtStudentSource> StudentSourceAll { get; set; }
     }
 
     public class ImportCourseHeadDescDayExcelTemplateRequest
@@ -1013,5 +1230,10 @@ namespace ETMS.Business.Common
 
         public string[] PayTypeAll { get; set; }
 
+        public List<EtStudentRelationship> StudentRelationshipAll { get; set; }
+
+        public List<EtGrade> GradeAll { get; set; }
+
+        public List<EtStudentSource> StudentSourceAll { get; set; }
     }
 }

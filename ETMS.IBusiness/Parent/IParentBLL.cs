@@ -16,17 +16,19 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request);
 
+        Task<ResponseBase> ParentLoginByPwd(ParentLoginByPwdRequest request);
+
         ResponseBase ParentRefreshToken(ParentRefreshTokenRequest request);
 
         Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request);
 
-       Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request);
+        Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request);
 
         Task<ResponseBase> ParentGetAuthorizeUrl2(ParentGetAuthorizeUrl2Request request);
 
         Task<ResponseBase> ParentBindingWeChat(ParentBindingWeChatRequest request);
 
-       Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request);
+        Task<ResponseBase> ParentInfoGet(ParentInfoGetRequest request);
 
         Task<ResponseBase> CheckParentCanLogin(ParentRequestBase request);
 

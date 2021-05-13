@@ -344,7 +344,9 @@ namespace ETMS.Business.EtmsManage
                         MyAccounts = myAccounts,
                         IsLockDesc = EmSysAgentIsLock.GetSysAgentIsLockDesc(p.IsLock),
                         KefuPhone = p.KefuPhone,
-                        KefuQQ = p.KefuQQ
+                        KefuQQ = p.KefuQQ,
+                        Label = p.Name,
+                        Value = p.Id
                     });
                 }
             }
