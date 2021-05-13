@@ -191,7 +191,7 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new SyncParentStudentsEvent(request.LoginTenantId)
                 {
                     Phones = phones.ToArray()
-                }); ;
+                }); 
                 await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
             return ResponseBase.Success(new ImportStudentOutput()
@@ -494,6 +494,12 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
+
+            var phones = request.ImportCourseTimess.Select(p => p.Phone).ToList();
+            _eventPublisher.Publish(new SyncParentStudentsEvent(request.LoginTenantId)
+            {
+                Phones = phones.ToArray()
+            });
 
             var allDate = request.ImportCourseTimess.Select(p => p.OrderOt).Distinct();
             foreach (var myDate in allDate)
@@ -823,6 +829,12 @@ namespace ETMS.Business
                 OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
+
+            var phones = request.ImportCourseDays.Select(p => p.Phone).ToList();
+            _eventPublisher.Publish(new SyncParentStudentsEvent(request.LoginTenantId)
+            {
+                Phones = phones.ToArray()
+            });
 
             var allDate = request.ImportCourseDays.Select(p => p.OrderOt).Distinct();
             foreach (var myDate in allDate)
