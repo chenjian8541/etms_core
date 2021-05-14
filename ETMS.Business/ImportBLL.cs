@@ -191,7 +191,7 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new SyncParentStudentsEvent(request.LoginTenantId)
                 {
                     Phones = phones.ToArray()
-                }); 
+                });
                 await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
             return ResponseBase.Success(new ImportStudentOutput()
@@ -448,7 +448,8 @@ namespace ETMS.Business
                 }
 
                 var useQuantity = p.BuyQuantity + p.GiveQuantity - p.SurplusQuantity;
-                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.ClassTimes, p.BuyQuantity + p.GiveQuantity, 0);
+                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.ClassTimes,
+                    p.BuyQuantity + p.GiveQuantity, 0, null, null);
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
                     BugUnit = EmCourseUnit.ClassTimes,
@@ -783,7 +784,8 @@ namespace ETMS.Business
                     surplusSmallQuantity = daySurplusQuantityDeff.Item2;
                 }
                 var buyTotalDays = (int)(p.EndTime.AddDays(1) - p.StartTime).TotalDays;
-                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.Day, 0, buyTotalDays);
+                var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.Day, 0, buyTotalDays,
+                    p.StartTime, p.EndTime);
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
                     BugUnit = EmCourseUnit.Month,

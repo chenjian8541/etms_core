@@ -97,7 +97,7 @@ namespace ETMS.Business.Common
                 EndCourseUser = null,
                 GiveQuantity = enrolmentCourse.GiveQuantity,
                 GiveUnit = enrolmentCourse.GiveUnit,
-                Price = GetOneClassDeSum(enrolmentCourse.ItemAptSum, deType, surplusQuantity, surplusSmallQuantity),
+                Price = GetOneClassDeSum(enrolmentCourse.ItemAptSum, deType, surplusQuantity, surplusSmallQuantity, startTime, endTime),
                 StartTime = startTime,
                 EndTime = endTime,
                 Status = EmStudentCourseStatus.Normal,
@@ -116,8 +116,11 @@ namespace ETMS.Business.Common
         /// <param name="deType"></param>
         /// <param name="surplusQuantity"></param>
         /// <param name="surplusSmallQuantity"></param>
+        /// <param name="startTime">按时间收费的起始时间</param>
+        /// <param name="endTime">按时间收费的结束时间</param>
         /// <returns></returns>
-        internal static decimal GetOneClassDeSum(decimal itemAptSum, byte deType, int surplusQuantity, int surplusSmallQuantity)
+        internal static decimal GetOneClassDeSum(decimal itemAptSum, byte deType, int surplusQuantity, int surplusSmallQuantity,
+            DateTime? startTime, DateTime? endTime)
         {
             var price = 0M;
             if (itemAptSum > 0)
@@ -125,7 +128,15 @@ namespace ETMS.Business.Common
                 var totalCount = 0;
                 if (deType == EmDeClassTimesType.Day)
                 {
-                    totalCount = surplusQuantity * SystemConfig.ComConfig.MonthToDay + surplusSmallQuantity;
+                    //如何课程设置了起止时间，则按照起止时间来计算总天数，否则按每个月30天来计算总天数。重新设置起止时间时，再改变此值
+                    if (startTime != null && endTime != null)
+                    {
+                        totalCount = (int)(endTime.Value - startTime.Value).TotalDays;
+                    }
+                    else
+                    {
+                        totalCount = surplusQuantity * SystemConfig.ComConfig.MonthToDay + surplusSmallQuantity;
+                    }
                 }
                 else
                 {
@@ -135,6 +146,17 @@ namespace ETMS.Business.Common
                 {
                     price = Math.Round(itemAptSum / totalCount, 2);
                 }
+            }
+            return price;
+        }
+
+        internal static decimal GetOneClassDeSumByDay(decimal itemAptSum, DateTime startTime, DateTime endTime)
+        {
+            var price = 0M;
+            var totalCount = (int)(endTime - startTime).TotalDays;
+            if (totalCount > 0)
+            {
+                price = Math.Round(itemAptSum / totalCount, 2);
             }
             return price;
         }
