@@ -47,6 +47,35 @@ namespace ETMS.ExternalService.Implement
             return Tuple.Create(key, pwd);
         }
 
+        public async Task<SmsOutput> AddSmsSign(AddSmsSignRequest request)
+        {
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                var sendSmsRequest = new AddSignRequest()
+                {
+                    username = _smsConfig.ZhuTong.UserName,
+                    password = tKeyAndPwd.Item2,
+                    tKey = tKeyAndPwd.Item1,
+                    sign = $"【{request.SmsSignature}】",
+                    remark = string.Empty
+                };
+                var res = await _httpClient.PostAsync<AddSignRequest, SendSmsTpRes>(_smsConfig.ZhuTong.SmsSign, sendSmsRequest);
+                if (!SendSmsTpRes.IsSuccess(res))
+                {
+                    Log.Fatal($"AddSmsSign新增短信签名,请求参数:{EtmsHelper.EtmsSerializeObject(request)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    return SmsOutput.Fail(res.msg);
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal($"AddSmsSign新增短信签名:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+        }
+
         public async Task<SmsOutput> UserLogin(SmsUserLoginRequest request)
         {
             try

@@ -7,6 +7,8 @@ using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Output;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
+using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.IDataAccess;
@@ -44,11 +46,13 @@ namespace ETMS.Business.EtmsManage
 
         private readonly IUserDAL _userDAL;
 
+        private readonly ISmsService _smsService;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
-            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL)
+            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -60,6 +64,7 @@ namespace ETMS.Business.EtmsManage
             this._sysAIFaceBiduAccountDAL = sysAIFaceBiduAccountDAL;
             this._sysAITenantAccountDAL = sysAITenantAccountDAL;
             this._userDAL = userDAL;
+            this._smsService = smsService;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -245,6 +250,14 @@ namespace ETMS.Business.EtmsManage
                 });
             }
 
+            if (!string.IsNullOrEmpty(request.SmsSignature))
+            {
+                await _smsService.AddSmsSign(new AddSmsSignRequest()
+                {
+                    SmsSignature = request.SmsSignature
+                });
+            }
+
             await _sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
 
             return ResponseBase.Success();
@@ -315,6 +328,8 @@ namespace ETMS.Business.EtmsManage
         public async Task<ResponseBase> TenantEdit(TenantEditRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            var oldSmsSignature = tenant.SmsSignature;
+
             tenant.Name = request.Name;
             tenant.Phone = request.Phone;
             tenant.Status = request.Status;
@@ -327,6 +342,15 @@ namespace ETMS.Business.EtmsManage
             await _sysTenantDAL.EditTenant(tenant);
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"编辑机构:名称:{request.Name};机构编码:{tenant.TenantCode};手机号码:{request.Phone}", EmSysAgentOpLogType.TenantMange);
+
+            if (!string.IsNullOrEmpty(request.SmsSignature) && request.SmsSignature != oldSmsSignature)
+            {
+                await _smsService.AddSmsSign(new AddSmsSignRequest()
+                {
+                    SmsSignature = request.SmsSignature
+                });
+            }
+
             return ResponseBase.Success();
         }
 

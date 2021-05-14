@@ -68,7 +68,8 @@ namespace Etms.Agent.WebApi
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            InitRabbitMq(builder);
+            var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            InitRabbitMq(builder, appSettings.RabbitMqConfig);
         }
 
         private void RegisterGlobalFilters(FilterCollection filters)
@@ -84,12 +85,11 @@ namespace Etms.Agent.WebApi
             services.AddSingleton<IHttpClient, StandardHttpClient>();
         }
 
-        private void InitRabbitMq(ContainerBuilder container)
+        private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
         {
-            //var config = Configuration.GetSection("AppSettings").Get<AppSettings>().RabbitMqConfig;
-            //var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
-            //var publisher = new EventPublisher(busControl);
-            //container.RegisterInstance(publisher).As<IEventPublisher>();
+            var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
+            var publisher = new EventPublisher(busControl);
+            container.RegisterInstance(publisher).As<IEventPublisher>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

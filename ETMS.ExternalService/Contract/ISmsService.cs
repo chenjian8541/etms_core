@@ -10,6 +10,8 @@ namespace ETMS.ExternalService.Contract
 {
     public interface ISmsService
     {
+        Task<SmsOutput> AddSmsSign(AddSmsSignRequest request);
+
         Task<SmsOutput> UserLogin(SmsUserLoginRequest request);
 
         Task<SmsOutput> ParentLogin(SmsParentLoginRequest request);

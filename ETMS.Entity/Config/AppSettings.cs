@@ -51,7 +51,8 @@ namespace ETMS.Entity.Config
         public CloudBaiduConfig CloudBaiduConfig { get; set; }
     }
 
-    public class CloudBaiduConfig {
+    public class CloudBaiduConfig
+    {
         public string Token { get; set; }
 
         public string FaceGroupAdd { get; set; }
@@ -282,7 +283,7 @@ namespace ETMS.Entity.Config
     public class SmsConfig
     {
         /// <summary>
-        /// 凌凯提供商
+        /// 助通供应商
         /// </summary>
         public ZhuTong ZhuTong { get; set; }
 
@@ -297,6 +298,8 @@ namespace ETMS.Entity.Config
         public string SendSmsTpUrl { get; set; }
 
         public string SendSms { get; set; }
+
+        public string SmsSign { get; set; }
 
         public string UserName { get; set; }
 
