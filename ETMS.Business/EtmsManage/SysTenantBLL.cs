@@ -48,11 +48,13 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISmsService _smsService;
 
+        private readonly ISysTenantStatisticsDAL _sysTenantStatisticsDAL;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
-            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService)
+            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -65,6 +67,7 @@ namespace ETMS.Business.EtmsManage
             this._sysAITenantAccountDAL = sysAITenantAccountDAL;
             this._userDAL = userDAL;
             this._smsService = smsService;
+            this._sysTenantStatisticsDAL = sysTenantStatisticsDAL;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -286,6 +289,31 @@ namespace ETMS.Business.EtmsManage
                 SmsSignature = tenant.SmsSignature,
                 BuyStatus = tenant.BuyStatus
             };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantUseStatisticsGet(TenantUseStatisticsGetRequest request)
+        {
+            var log = await _sysTenantStatisticsDAL.GetSysTenantStatistics(request.Id);
+            TenantUseStatisticsGetOutput output;
+            if (log != null)
+            {
+                output = new TenantUseStatisticsGetOutput()
+                {
+                    ClassCount1 = log.ClassCount1.ToString(),
+                    ClassCount2 = log.ClassCount2.ToString(),
+                    ClassRecordCount = log.ClassRecordCount.ToString(),
+                    OrderCount = log.OrderCount.ToString(),
+                    StudentCount1 = log.StudentCount1.ToString(),
+                    StudentCount2 = log.StudentCount2.ToString(),
+                    StudentCount3 = log.StudentCount3.ToString(),
+                    UserCount = log.UserCount.ToString()
+                };
+            }
+            else
+            {
+                output = new TenantUseStatisticsGetOutput();
+            }
             return ResponseBase.Success(output);
         }
 

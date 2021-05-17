@@ -10,5 +10,7 @@ namespace ETMS.IBusiness.EtmsManage
     public interface IDataLogBLL
     {
         Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request);
+
+        Task<ResponseBase> SysTenantOperationLogPaging(SysTenantOperationLogPagingRequest request);
     }
 }

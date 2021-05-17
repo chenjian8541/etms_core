@@ -26,6 +26,7 @@ namespace ETMS.Manage.Jobs
             {
                 _eventPublisher.Publish(new SysTenantUserAnalysisEvent(tenant.Id));
                 _eventPublisher.Publish(new SysTenantStudentAnalysisEvent(tenant.Id));
+                _eventPublisher.Publish(new TenantAgentStatisticsEvent(tenant.Id));
             }
         }
     }

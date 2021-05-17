@@ -58,7 +58,7 @@ namespace ETMS.ExternalService.Implement
                     username = _smsConfig.ZhuTong.UserName,
                     password = tKeyAndPwd.Item2,
                     tKey = tKeyAndPwd.Item1,
-                    sign = $"【{request.SmsSignature}】",
+                    sign = new List<string>() { $"【{request.SmsSignature}】" },
                     remark = string.Empty
                 };
                 var res = await _httpClient.PostAsync<AddSignRequest, SendSmsTpRes>(_smsConfig.ZhuTong.SmsSign, sendSmsRequest);

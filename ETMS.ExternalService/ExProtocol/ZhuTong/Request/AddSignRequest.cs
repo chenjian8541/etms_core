@@ -12,7 +12,7 @@ namespace ETMS.ExternalService.ExProtocol.ZhuTong.Request
 
         public string tKey { get; set; }
 
-        public string sign { get; set; }
+        public List<string> sign { get; set; }
 
         public string remark { get; set; }
     }

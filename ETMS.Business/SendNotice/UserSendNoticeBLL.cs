@@ -142,6 +142,11 @@ namespace ETMS.Business.SendNotice
                 return;
             }
             var classTimes = await _jobAnalyzeDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                Log.Warn($"[NoticeTeacherOfClassTodayClassTimesConsumerEvent]课次未找到,无需发送上课通知:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimesId}", this.GetType());
+                return;
+            }
             if (classTimes.Status == EmClassTimesStatus.BeRollcall)
             {
                 Log.Warn($"[NoticeTeacherOfClassTodayClassTimesConsumerEvent]已点名,无需发送上课通知:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimesId}", this.GetType());

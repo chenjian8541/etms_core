@@ -3,7 +3,9 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.View;
+using ETMS.Event.DataContract;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,16 +15,24 @@ namespace ETMS.DataAccess
 {
     public class UserOperationLogDAL : DataAccessBase, IUserOperationLogDAL
     {
-        public UserOperationLogDAL(IDbWrapper dbWrapper) : base(dbWrapper)
-        { }
+        private readonly IEventPublisher _eventPublisher;
+
+        public UserOperationLogDAL(IDbWrapper dbWrapper, IEventPublisher eventPublisher) : base(dbWrapper)
+        {
+            this._eventPublisher = eventPublisher;
+        }
 
         public async Task AddUserLog(EtUserOperationLog userLog)
         {
             await _dbWrapper.Insert(userLog);
+            _eventPublisher.Publish(new SysTenantOperationLogEvent(_tenantId)
+            {
+                UserOperationLog = userLog
+            });
         }
         public async Task AddUserLog(RequestBase request, string content, EmUserOperationType type, DateTime? time = null)
         {
-            await _dbWrapper.Insert(new EtUserOperationLog()
+            var userLog = new EtUserOperationLog()
             {
                 IpAddress = request.IpAddress,
                 IsDeleted = EmIsDeleted.Normal,
@@ -32,6 +42,11 @@ namespace ETMS.DataAccess
                 UserId = request.LoginUserId,
                 Type = (int)type,
                 ClientType = request.LoginClientType
+            };
+            await _dbWrapper.Insert(userLog);
+            _eventPublisher.Publish(new SysTenantOperationLogEvent(_tenantId)
+            {
+                UserOperationLog = userLog
             });
         }
 

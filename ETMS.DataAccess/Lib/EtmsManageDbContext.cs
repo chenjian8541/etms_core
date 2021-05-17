@@ -48,5 +48,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysAITenantAccount> SysAITenantAccounts { get; set; }
         public DbSet<SysAIFaceBiduAccount> SysAIFaceBiduAccounts { get; set; }
         public DbSet<SysSmsLog> SysSmsLogs { get; set; }
+        public DbSet<SysTenantOperationLog> SysTenantOperationLogs { get; set; }
+        public DbSet<SysTenantStatistics> SysTenantStatisticss { get; set; }
     }
 }
