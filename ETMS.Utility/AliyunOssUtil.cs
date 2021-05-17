@@ -148,6 +148,20 @@ namespace ETMS.Utility
         }
 
         /// <summary>
+        /// 删除文件
+        /// </summary>
+        /// <param name="medias"></param>
+        public static void DeleteObject2(string medias)
+        {
+            var myMedias = medias.Split('|');
+            if (myMedias.Length == 0)
+            {
+                return;
+            }
+            DeleteObject(myMedias);
+        }
+
+        /// <summary>
         /// 获取文件
         /// </summary>
         /// <param name="key"></param>

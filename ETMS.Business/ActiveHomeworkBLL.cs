@@ -360,6 +360,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("作业不存在");
             }
             await _activeHomeworkDAL.DelActiveHomework(request.CId);
+            AliyunOssUtil.DeleteObject2(p.WorkMedias);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除作业-{p.Title}", EmUserOperationType.ActiveHomeworkMgr);
             return ResponseBase.Success();
         }

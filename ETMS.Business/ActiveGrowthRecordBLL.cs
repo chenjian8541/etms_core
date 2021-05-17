@@ -404,6 +404,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("成长档案不存在");
             }
             await _activeGrowthRecordDAL.DelActiveGrowthRecord(request.CId);
+            AliyunOssUtil.DeleteObject2(activeGrowthRecordBucket.ActiveGrowthRecord.GrowthMedias);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除成长档案-{activeGrowthRecordBucket.ActiveGrowthRecord.GrowthContent}", EmUserOperationType.ActiveGrowthRecord);
             return ResponseBase.Success();

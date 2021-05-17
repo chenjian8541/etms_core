@@ -58,9 +58,9 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请填写作业要求";
             }
-            if (WorkMediasKeys != null && WorkMediasKeys.Count > 5)
+            if (WorkMediasKeys != null && WorkMediasKeys.Count > 15)
             {
-                return "最多保存5个媒体文件";
+                return "最多保存15个媒体文件";
             }
             return base.Validate();
         }
