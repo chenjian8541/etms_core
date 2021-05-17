@@ -15,9 +15,6 @@ namespace ETMS.Entity.Database.Manage
 
         public long UserId { get; set; }
 
-        /// <summary>
-        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmPeopleType"/>
-        /// </summary>
         public int Type { get; set; }
 
         public string IpAddress { get; set; }

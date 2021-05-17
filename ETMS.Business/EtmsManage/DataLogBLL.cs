@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Enum;
+using ETMS.Business.Common;
 
 namespace ETMS.Business.EtmsManage
 {
@@ -85,28 +86,30 @@ namespace ETMS.Business.EtmsManage
         {
             var output = new List<SysTenantOperationLogPagingOutput>();
             var pagingData = await _sysTenantOperationLogDAL.GetPaging(request);
-            var tempBoxAgent = new AgentDataTempBox<SysAgent>();
-            var tempBoxTenant = new AgentDataTempBox<SysTenant>();
+            //var tempBoxAgent = new AgentDataTempBox<SysAgent>();
+            //var tempBoxTenant = new AgentDataTempBox<SysTenant>();
             if (pagingData.Item1.Any())
             {
                 foreach (var p in pagingData.Item1)
                 {
-                    var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
-                    var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
+                    //var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
+                    //var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
                     output.Add(new SysTenantOperationLogPagingOutput()
                     {
-                        AgentId = p.AgentId,
-                        AgentName = agent?.Name,
-                        AgentPhone = agent?.Phone,
-                        TenantName = tenant?.Name,
-                        TenantPhone = tenant?.Phone,
+                        //AgentId = p.AgentId,
+                        //AgentName = agent?.Name,
+                        //AgentPhone = agent?.Phone,
+                        //TenantName = tenant?.Name,
+                        //TenantPhone = tenant?.Phone,
+                        //TenantId = p.TenantId,
                         ClientType = p.ClientType,
                         IpAddress = p.IpAddress,
                         OpContent = p.OpContent,
                         Ot = p.Ot,
-                        TenantId = p.TenantId,
                         Type = p.Type,
-                        UserId = p.UserId
+                        UserId = p.UserId,
+                        ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType),
+                        TypeDesc = EnumDataLib.GetUserOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label
                     });
                 }
             }

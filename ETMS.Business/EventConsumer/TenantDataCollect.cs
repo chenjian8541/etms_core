@@ -51,7 +51,7 @@ namespace ETMS.Business.EventConsumer
                 OpContent = p.OpContent,
                 Ot = p.Ot,
                 Remark = p.Remark,
-                Type = EmPeopleType.User,
+                Type = p.Type,
                 UserId = p.UserId
             };
             await _sysTenantOperationLogDAL.AddSysTenantOperationLog(sysTenantOperationLog);
