@@ -117,6 +117,57 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
         }
 
+        private async Task AddTenantExDateLog(int tenantId, int agentId, DateTime? myBeforeDate, DateTime afterDate, string remark,
+            string changeDesc = "")
+        {
+            var now = DateTime.Now;
+            DateTime beforeDate;
+            if (myBeforeDate == null)
+            {
+                beforeDate = now.Date;
+            }
+            else
+            {
+                beforeDate = myBeforeDate.Value;
+            }
+            var changeType = EmTenantExDateChangeType.Add;
+            if (afterDate < beforeDate)
+            {
+                changeType = EmTenantExDateChangeType.Deduction;
+            }
+            if (string.IsNullOrEmpty(changeDesc))
+            {
+                var diffTime = EtmsHelper.GetDffTime(beforeDate, afterDate);
+                if (diffTime.Item1 > 0)
+                {
+                    changeDesc = $"{diffTime.Item1}个月";
+                }
+                if (diffTime.Item2 > 0)
+                {
+                    if (changeDesc.Length > 0)
+                    {
+                        changeDesc = $"{changeDesc}&{diffTime.Item2 }天";
+                    }
+                    else
+                    {
+                        changeDesc = $"{diffTime.Item2 }天";
+                    }
+                }
+            }
+            await _sysTenantLogDAL.AddSysTenantExDateLog(new SysTenantExDateLog()
+            {
+                AfterDate = afterDate,
+                AgentId = agentId,
+                BeforeDate = myBeforeDate,
+                ChangeDesc = changeDesc,
+                ChangeType = changeType,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                Remark = remark,
+                TenantId = tenantId
+            });
+        }
+
         public async Task<ResponseBase> TenantAdd(TenantAddRequest request)
         {
             if (await this._sysTenantDAL.ExistTenantCode(request.TenantCode))
@@ -179,14 +230,17 @@ namespace ETMS.Business.EtmsManage
                 indexDb = myRandom % allDb.Count;
             }
             DateTime exDate;
+            var changeDesc = string.Empty;
             if (request.EtmsCount > 0)
             {
                 exDate = now.AddYears(request.EtmsCount).Date;
+                changeDesc = $"{request.EtmsCount}年";
             }
             else
             {
                 //15天试用
                 exDate = now.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
+                changeDesc = $"{SystemConfig.TenantDefaultConfig.TenantTestDay}天";
             }
             var buyStatus = request.EtmsCount > 0 ? EmSysTenantBuyStatus.Official : EmSysTenantBuyStatus.Test;
 
@@ -261,8 +315,9 @@ namespace ETMS.Business.EtmsManage
                 });
             }
 
-            await _sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
+            await AddTenantExDateLog(tenantId, request.LoginAgentId, null, exDate, remark, changeDesc);
 
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
 
@@ -388,6 +443,9 @@ namespace ETMS.Business.EtmsManage
             var oldDate = tenant.ExDate;
             tenant.ExDate = request.NewExDate.Value;
             await _sysTenantDAL.EditTenant(tenant);
+
+            await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, "设置过期时间");
+
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"设置机构到期时间:名称:{tenant.Name};机构编码:{tenant.TenantCode};手机号码:{tenant.Phone},原到期时间:{oldDate.EtmsToDateString()},新到期时间:{tenant.ExDate.EtmsToDateString()}", EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
@@ -620,6 +678,7 @@ namespace ETMS.Business.EtmsManage
         public async Task<ResponseBase> TenantChangeEtms(TenantChangeEtmsRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            var oldDate = tenant.ExDate;
             var agent = await _sysAgentDAL.GetAgent(request.LoginAgentId);
             var buyEtmsVersion = agent.SysAgentEtmsAccounts.FirstOrDefault(p => p.VersionId == tenant.VersionId);
             if (buyEtmsVersion == null || buyEtmsVersion.EtmsCount < request.AddChangeCount)
@@ -659,6 +718,8 @@ namespace ETMS.Business.EtmsManage
                 TenantId = request.Id,
                 VersionId = tenant.VersionId
             });
+
+            await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, remeak, $"{request.AddChangeCount}年");
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, remeak, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();

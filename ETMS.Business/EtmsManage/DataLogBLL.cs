@@ -13,6 +13,7 @@ using System.Linq;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Enum;
 using ETMS.Business.Common;
+using ETMS.Utility;
 
 namespace ETMS.Business.EtmsManage
 {
@@ -20,21 +21,22 @@ namespace ETMS.Business.EtmsManage
     {
         private readonly ISysAgentDAL _sysAgentDAL;
 
-
         private readonly ISysTenantDAL _sysTenantDAL;
-
 
         private readonly ISysSmsLogDAL sysSmsLogDAL;
 
         private readonly ISysTenantOperationLogDAL _sysTenantOperationLogDAL;
 
+        private readonly ISysTenantLogDAL _sysTenantLogDAL;
+
         public DataLogBLL(ISysAgentDAL sysAgentDAL, ISysTenantDAL sysTenantDAL, ISysSmsLogDAL sysSmsLogDAL,
-            ISysTenantOperationLogDAL sysTenantOperationLogDAL)
+            ISysTenantOperationLogDAL sysTenantOperationLogDAL, ISysTenantLogDAL sysTenantLogDAL)
         {
             this._sysAgentDAL = sysAgentDAL;
             this._sysTenantDAL = sysTenantDAL;
             this.sysSmsLogDAL = sysSmsLogDAL;
             this._sysTenantOperationLogDAL = sysTenantOperationLogDAL;
+            this._sysTenantLogDAL = sysTenantLogDAL;
         }
 
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
@@ -114,6 +116,30 @@ namespace ETMS.Business.EtmsManage
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SysTenantOperationLogPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> SysTenantExDateLogPaging(SysTenantExDateLogPagingRequest request)
+        {
+            var output = new List<SysTenantExDateLogPagingOutput>();
+            var pagingData = await _sysTenantLogDAL.GetSysTenantExDateLogPaging(request);
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new SysTenantExDateLogPagingOutput()
+                    {
+                        AfterDateDesc = p.AfterDate.EtmsToDateString(),
+                        AgentId = p.AgentId,
+                        BeforeDateDesc = p.BeforeDate.EtmsToDateString(),
+                        ChangeDesc = p.ChangeDesc,
+                        ChangeType = p.ChangeType,
+                        Ot = p.Ot,
+                        TenantId = p.TenantId,
+                        Remark = p.Remark
+                    }); ;
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<SysTenantExDateLogPagingOutput>(pagingData.Item2, output));
         }
     }
 }

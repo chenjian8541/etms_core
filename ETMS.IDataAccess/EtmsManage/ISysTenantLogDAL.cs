@@ -19,5 +19,9 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<Tuple<IEnumerable<SysTenantSmsLogVew>, int>> GetTenantSmsLogPaging(AgentPagingBase request);
 
         Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLog(int tenantId, int agentId, int versionId);
+
+        Task AddSysTenantExDateLog(SysTenantExDateLog entity);
+
+        Task<Tuple<IEnumerable<SysTenantExDateLog>, int>> GetSysTenantExDateLogPaging(AgentPagingBase request);
     }
 }

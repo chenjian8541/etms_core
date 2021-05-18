@@ -38,5 +38,15 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.FindList<SysTenantEtmsAccountLog>(p => p.TenantId == tenantId && p.AgentId == agentId
             && p.VersionId == versionId && p.IsDeleted == EmIsDeleted.Normal);
         }
+
+        public async Task AddSysTenantExDateLog(SysTenantExDateLog entity)
+        {
+            await this.Insert(entity);
+        }
+
+        public async Task<Tuple<IEnumerable<SysTenantExDateLog>, int>> GetSysTenantExDateLogPaging(AgentPagingBase request)
+        {
+            return await this.ExecutePage<SysTenantExDateLog>("SysTenantExDateLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
     }
 }

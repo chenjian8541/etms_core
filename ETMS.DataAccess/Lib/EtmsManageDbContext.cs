@@ -50,5 +50,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysSmsLog> SysSmsLogs { get; set; }
         public DbSet<SysTenantOperationLog> SysTenantOperationLogs { get; set; }
         public DbSet<SysTenantStatistics> SysTenantStatisticss { get; set; }
+        public DbSet<SysTenantExDateLog> SysTenantExDateLogs { get; set; }
     }
 }

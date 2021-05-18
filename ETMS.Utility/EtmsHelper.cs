@@ -140,6 +140,12 @@ namespace ETMS.Utility
             {
                 return Tuple.Create(0, 0);
             }
+            var myDiff = endTime.Date - startTime.Date;
+            if (myDiff.TotalDays > 0 && myDiff.TotalDays < 30)
+            {
+                return Tuple.Create(0, (int)myDiff.TotalDays);
+            }
+
             var dayDff = new DateDiff(startTime, endTime);
             var months = dayDff.Years * 12 + dayDff.Months;
             return Tuple.Create(months, dayDff.Days);

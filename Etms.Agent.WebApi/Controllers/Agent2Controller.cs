@@ -226,5 +226,18 @@ namespace Etms.Agent.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> SysTenantExDateLogPaging(SysTenantExDateLogPagingRequest request)
+        {
+            try
+            {
+                return await _dataLogBLL.SysTenantExDateLogPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

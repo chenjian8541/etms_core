@@ -12,5 +12,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request);
 
         Task<ResponseBase> SysTenantOperationLogPaging(SysTenantOperationLogPagingRequest request);
+
+        Task<ResponseBase> SysTenantExDateLogPaging(SysTenantExDateLogPagingRequest request);
     }
 }
