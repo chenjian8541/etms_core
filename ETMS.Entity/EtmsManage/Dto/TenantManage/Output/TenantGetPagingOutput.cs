@@ -103,5 +103,7 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public long Value { get; set; }
 
         public string Label { get; set; }
+
+        public string UserName { get; set; }
     }
 }

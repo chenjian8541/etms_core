@@ -86,6 +86,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public int? AgentId { get; set; }
 
+        public long? UserId { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -167,6 +169,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (AgentId != null)
             {
                 condition.Append($" AND AgentId = {AgentId.Value}");
+            }
+            if (UserId != null)
+            {
+                condition.Append($" AND UserId = {UserId.Value}");
             }
             return condition.ToString();
         }

@@ -9,6 +9,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
     {
         public string Key { get; set; }
 
+        public long? UserId { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -24,6 +26,10 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             if (!string.IsNullOrEmpty(Key))
             {
                 condition.Append($" AND (Name LIKE '{Key}%' OR Phone LIKE '{Key}%' )");
+            }
+            if (UserId != null)
+            {
+                condition.Append($" AND UserId = {UserId.Value}");
             }
             return condition.ToString();
         }

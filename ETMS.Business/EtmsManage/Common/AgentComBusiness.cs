@@ -119,6 +119,10 @@ namespace ETMS.Business.EtmsManage.Common
 
         internal static async Task<SysAgent> GetAgent(AgentDataTempBox<SysAgent> tempBox, ISysAgentDAL sysAgentDAL, int agentId)
         {
+            if (agentId == 0)
+            {
+                return null;
+            }
             var agent = await tempBox.GetData(agentId, async () =>
             {
                 var bucket = await sysAgentDAL.GetAgent(agentId);
@@ -129,6 +133,10 @@ namespace ETMS.Business.EtmsManage.Common
 
         internal static async Task<SysTenant> GetTenant(AgentDataTempBox<SysTenant> tempBox, ISysTenantDAL sysTenantDAL, int tenantId)
         {
+            if (tenantId == 0)
+            {
+                return null;
+            }
             var tenant = await tempBox.GetData(tenantId, async () =>
             {
                 return await sysTenantDAL.GetTenant(tenantId);
@@ -138,6 +146,10 @@ namespace ETMS.Business.EtmsManage.Common
 
         internal static async Task<SysUser> GetUser(AgentDataTempBox2<SysUser> tempBox, ISysUserDAL sysUserDAL, long userId)
         {
+            if (userId == 0)
+            {
+                return null;
+            }
             var user = await tempBox.GetData(userId, async () =>
             {
                 return await sysUserDAL.GetUser(userId);
@@ -147,6 +159,10 @@ namespace ETMS.Business.EtmsManage.Common
 
         internal static async Task<SysUserRole> GetUserRole(AgentDataTempBox<SysUserRole> tempBox, ISysUserRoleDAL sysUserRoleDAL, int roleId)
         {
+            if (roleId == 0)
+            {
+                return null;
+            }
             var role = await tempBox.GetData(roleId, async () =>
             {
                 return await sysUserRoleDAL.GetRole(roleId);

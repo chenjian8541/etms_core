@@ -107,5 +107,22 @@ namespace ETMS.DataAccess.EtmsManage
             await UpdateCache(id);
             return true;
         }
+
+        public async Task<bool> EditTenantUserId(List<int> tenantIds, long userId)
+        {
+            if (tenantIds.Count == 1)
+            {
+                await this.Execute($"UPDATE SysTenant SET UserId = {userId} WHERE Id = {tenantIds[0]} ");
+            }
+            else
+            {
+                await this.Execute($"UPDATE SysTenant SET UserId = {userId} WHERE Id IN ({string.Join(',', tenantIds)})");
+            }
+            foreach (var p in tenantIds)
+            {
+                await UpdateCache(p);
+            }
+            return true;
+        }
     }
 }

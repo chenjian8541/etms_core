@@ -50,11 +50,14 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysTenantStatisticsDAL _sysTenantStatisticsDAL;
 
+        private readonly ISysUserDAL _sysUserDAL;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
-            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL)
+            ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL,
+            ISysUserDAL sysUserDAL)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -68,6 +71,7 @@ namespace ETMS.Business.EtmsManage
             this._userDAL = userDAL;
             this._smsService = smsService;
             this._sysTenantStatisticsDAL = sysTenantStatisticsDAL;
+            this._sysUserDAL = sysUserDAL;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -81,9 +85,11 @@ namespace ETMS.Business.EtmsManage
             var tenantView = await _sysTenantDAL.GetPaging(request);
             var outList = new List<TenantGetPagingOutput>();
             var versions = await _sysVersionDAL.GetVersions();
+            var tempBoxUser = new AgentDataTempBox2<SysUser>();
             foreach (var p in tenantView.Item1)
             {
                 var version = versions.FirstOrDefault(j => j.Id == p.VersionId);
+                var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                 outList.Add(new TenantGetPagingOutput()
                 {
                     VersionId = p.VersionId,
@@ -111,7 +117,8 @@ namespace ETMS.Business.EtmsManage
                     MaxUserCount = p.MaxUserCount,
                     TencentCloudId = p.TencentCloudId,
                     Value = p.Id,
-                    Label = p.Name
+                    Label = p.Name,
+                    UserName = myUser?.Name
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -437,6 +444,14 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> TenantSetUser(TenantSetUserRequest request)
+        {
+            await _sysTenantDAL.EditTenantUserId(request.Ids, request.UserId);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, "绑定机构所属业务员", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> TenantSetExDate(TenantSetExDateRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
@@ -524,10 +539,12 @@ namespace ETMS.Business.EtmsManage
             {
                 var versions = await _sysVersionDAL.GetVersions();
                 var tempBoxAgent = new AgentDataTempBox<SysAgent>();
+                var tempBoxUser = new AgentDataTempBox2<SysUser>();
                 foreach (var p in pagingData.Item1)
                 {
                     var myVersion = versions.FirstOrDefault(j => j.Id == p.VersionId);
                     var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
+                    var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                     output.Add(new TenantEtmsAccountLogPagingOutput()
                     {
                         AgentId = p.AgentId,
@@ -544,7 +561,8 @@ namespace ETMS.Business.EtmsManage
                         TenantPhone = p.TenantPhone,
                         VersionId = p.VersionId,
                         VersionDesc = myVersion?.Name,
-                        AgentName = agent?.Name
+                        AgentName = agent?.Name,
+                        UserName = myUser?.Name
                     });
                 }
             }
@@ -556,9 +574,11 @@ namespace ETMS.Business.EtmsManage
             var pagingData = await _sysTenantLogDAL.GetTenantSmsLogPaging(request);
             var output = new List<TenantSmsLogPagingOutput>();
             var tempBoxAgent = new AgentDataTempBox<SysAgent>();
+            var tempBoxUser = new AgentDataTempBox2<SysUser>();
             foreach (var p in pagingData.Item1)
             {
                 var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
+                var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                 output.Add(new TenantSmsLogPagingOutput()
                 {
                     AgentId = p.AgentId,
@@ -573,7 +593,8 @@ namespace ETMS.Business.EtmsManage
                     TenantId = p.TenantId,
                     TenantName = p.TenantName,
                     TenantPhone = p.TenantPhone,
-                    AgentName = agent?.Name
+                    AgentName = agent?.Name,
+                    UserName = myUser?.Name
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantSmsLogPagingOutput>(pagingData.Item2, output));

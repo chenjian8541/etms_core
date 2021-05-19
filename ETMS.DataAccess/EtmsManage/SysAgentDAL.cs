@@ -165,5 +165,22 @@ namespace ETMS.DataAccess.EtmsManage
         {
             return await this.ExecutePage<SysAgent>("SysAgent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<bool> EditAgentUser(List<int> agentIds, long userId)
+        {
+            if (agentIds.Count == 1)
+            {
+                await this.Execute($"UPDATE SysAgent SET UserId = {userId} WHERE Id = {agentIds[0]} ");
+            }
+            else
+            {
+                await this.Execute($"UPDATE SysAgent SET UserId = {userId} WHERE Id IN ({string.Join(',', agentIds)})");
+            }
+            foreach (var p in agentIds)
+            {
+                await UpdateCache(p);
+            }
+            return true;
+        }
     }
 }

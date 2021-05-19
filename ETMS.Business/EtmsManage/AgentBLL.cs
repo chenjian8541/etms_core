@@ -349,6 +349,14 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> AgentSetUser(AgentSetUserRequest request)
+        {
+            await _sysAgentDAL.EditAgentUser(request.Ids, request.UserId);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, "绑定代理商所属业务员", EmSysAgentOpLogType.AgentMange);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> AgentDel(AgentDelRequest request)
         {
             var agentBucket = await _sysAgentDAL.GetAgent(request.Id);
@@ -373,6 +381,7 @@ namespace ETMS.Business.EtmsManage
             {
                 var allVersion = await _sysVersionDAL.GetVersions();
                 var allRole = await _sysRoleDAL.GetRoles();
+                var tempBoxUser = new AgentDataTempBox2<SysUser>();
                 foreach (var p in pagingData.Item1)
                 {
                     var agent = await _sysAgentDAL.GetAgent(p.Id);
@@ -386,6 +395,7 @@ namespace ETMS.Business.EtmsManage
                             VersionName = GetVersionName(allVersion, j.VersionId)
                         });
                     }
+                    var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                     output.Add(new AgentPagingOutput()
                     {
                         Id = p.Id,
@@ -406,7 +416,8 @@ namespace ETMS.Business.EtmsManage
                         KefuQQ = p.KefuQQ,
                         Label = p.Name,
                         Value = p.Id,
-                        Code = p.Code
+                        Code = p.Code,
+                        UserName = myUser?.Name
                     });
                 }
             }
@@ -556,8 +567,10 @@ namespace ETMS.Business.EtmsManage
         {
             var pagingData = await _sysAgentLogDAL.GetPagingOpLog(request);
             var output = new List<AgentOpLogPagingOutput>();
+            var tempBoxUser = new AgentDataTempBox2<SysUser>();
             foreach (var p in pagingData.Item1)
             {
+                var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                 output.Add(new AgentOpLogPagingOutput()
                 {
                     AgentId = p.AgentId,
@@ -568,7 +581,8 @@ namespace ETMS.Business.EtmsManage
                     OpContent = p.OpContent,
                     Ot = p.Ot,
                     Type = p.Type,
-                    TypeDesc = EmSysAgentOpLogType.GetSysAgentOpLogTypeDesc(p.Type)
+                    TypeDesc = EmSysAgentOpLogType.GetSysAgentOpLogTypeDesc(p.Type),
+                    UserName = myUser?.Name
                 }); ;
             }
             return ResponseBase.Success(new ResponsePagingDataBase<AgentOpLogPagingOutput>(pagingData.Item2, output));
@@ -581,9 +595,11 @@ namespace ETMS.Business.EtmsManage
             if (pagingData.Item1.Any())
             {
                 var allVersion = await _sysVersionDAL.GetVersions();
+                var tempBoxUser = new AgentDataTempBox2<SysUser>();
                 foreach (var p in pagingData.Item1)
                 {
                     var version = allVersion.FirstOrDefault(j => j.Id == p.VersionId);
+                    var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                     output.Add(new AgentEtmsAccountLogPagingOutput()
                     {
                         AgentId = p.AgentId,
@@ -599,7 +615,8 @@ namespace ETMS.Business.EtmsManage
                         Sum = p.Sum,
                         VersionId = p.VersionId,
                         VersionDesc = version?.Name,
-                        ChangeCountDesc = EmSysAgentEtmsAccountLogChangeType.GetChangeCountDesc(p.ChangeCount, p.ChangeType)
+                        ChangeCountDesc = EmSysAgentEtmsAccountLogChangeType.GetChangeCountDesc(p.ChangeCount, p.ChangeType),
+                        UserName = myUser?.Name
                     });
                 }
             }
@@ -612,8 +629,10 @@ namespace ETMS.Business.EtmsManage
             var output = new List<AgentSmsLogPagingOutput>();
             if (pagingData.Item1.Any())
             {
+                var tempBoxUser = new AgentDataTempBox2<SysUser>();
                 foreach (var p in pagingData.Item1)
                 {
+                    var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
                     output.Add(new AgentSmsLogPagingOutput()
                     {
                         AgentId = p.AgentId,
@@ -627,7 +646,8 @@ namespace ETMS.Business.EtmsManage
                         Ot = p.Ot,
                         Remark = p.Remark,
                         Sum = p.Sum,
-                        ChangeCountDesc = EmSysAgentSmsLogChangeType.GetChangeCountDesc(p.ChangeCount, p.ChangeType)
+                        ChangeCountDesc = EmSysAgentSmsLogChangeType.GetChangeCountDesc(p.ChangeCount, p.ChangeType),
+                        UserName = myUser?.Name
                     });
                 }
             }

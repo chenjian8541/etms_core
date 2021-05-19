@@ -22,6 +22,8 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> TenantEdit(TenantEditRequest request);
 
+        Task<ResponseBase> TenantSetUser(TenantSetUserRequest request);
+
         Task<ResponseBase> TenantSetExDate(TenantSetExDateRequest request);
 
         Task<ResponseBase> TenantDel(TenantDelRequest request);
@@ -52,7 +54,7 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> AIFaceTenantAccountGetGetPaging(AIFaceTenantAccountGetGetPagingRequest request);
 
-       Task<ResponseBase> AIFaceTenantAccountAdd(AIFaceTenantAccountAddRequest request);
+        Task<ResponseBase> AIFaceTenantAccountAdd(AIFaceTenantAccountAddRequest request);
 
         Task<ResponseBase> AIFaceTenantAccountEdit(AIFaceTenantAccountEditRequest request);
 

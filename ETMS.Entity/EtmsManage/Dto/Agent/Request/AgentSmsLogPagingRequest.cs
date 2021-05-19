@@ -68,6 +68,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 
         public byte? ChangeType { get; set; }
 
+        public long? UserId { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -103,6 +105,10 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             if (ChangeType != null)
             {
                 condition.Append($" AND [ChangeType] = {ChangeType.Value}");
+            }
+            if (UserId != null)
+            {
+                condition.Append($" AND UserId = {UserId.Value}");
             }
             return condition.ToString();
         }

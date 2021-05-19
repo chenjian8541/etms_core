@@ -45,5 +45,7 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public string AgentName { get; set; }
 
         public string AgentPhone { get; set; }
+
+        public string UserName { get; set; }
     }
 }

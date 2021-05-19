@@ -157,6 +157,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> AgentSetUser(AgentSetUserRequest request)
+        {
+            try
+            {
+                return await _agentBLL.AgentSetUser(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> AgentDel(AgentDelRequest request)
         {
             try
@@ -474,6 +487,19 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysTenantBLL.TenantEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantSetUser(TenantSetUserRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantSetUser(request);
             }
             catch (Exception ex)
             {

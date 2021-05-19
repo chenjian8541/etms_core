@@ -12,6 +12,11 @@ namespace ETMS.Entity.EtmsManage.Dto.User.Request
 
         public string Phone { get; set; }
 
+        /// <summary>
+        /// 是否只查看当前代理商下的员工
+        /// </summary>
+        public bool IsLmitAgent { get; set; }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet());
@@ -22,6 +27,10 @@ namespace ETMS.Entity.EtmsManage.Dto.User.Request
             if (!string.IsNullOrEmpty(Phone))
             {
                 condition.Append($" AND Phone LIKE '%{Phone}%'");
+            }
+            if (IsLmitAgent)
+            {
+                condition.Append($" AND AgentId = {LoginAgentId}");
             }
             return condition.ToString();
         }

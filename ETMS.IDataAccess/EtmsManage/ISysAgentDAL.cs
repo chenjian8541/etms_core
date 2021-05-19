@@ -10,13 +10,13 @@ namespace ETMS.IDataAccess.EtmsManage
 {
     public interface ISysAgentDAL
     {
-        Task<SysAgent> ExistSysAgentByPhone(string phone,int notId = 0);
+        Task<SysAgent> ExistSysAgentByPhone(string phone, int notId = 0);
 
         Task<SysAgent> ExistSysAgentByCode(string code, int notId = 0);
 
         Task<SysAgentBucket> GetAgent(int id);
 
-        Task<bool> AddAgent(SysAgent entity,long userId);
+        Task<bool> AddAgent(SysAgent entity, long userId);
 
         Task<bool> IsCanNotDelete(int agentId);
 
@@ -35,5 +35,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<bool> EtmsAccountDeduction(int agentId, int versionId, int count);
 
         Task<Tuple<IEnumerable<SysAgent>, int>> GetPaging(AgentPagingBase request);
+
+        Task<bool> EditAgentUser(List<int> agentIds, long userId);
     }
 }

@@ -29,6 +29,10 @@ namespace ETMS.Entity.EtmsManage.Dto.User.Output
 
         public string Remark { get; set; }
 
-        public string isLockDesc { get; set; }
+        public string IsLockDesc { get; set; }
+
+        public long Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

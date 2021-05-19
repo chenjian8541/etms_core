@@ -42,6 +42,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 
         public string Label { get; set; }
 
+        public string UserName { get; set; }
+
         public List<MyEtmsAccountOutput> MyAccounts { get; set; }
     }
 

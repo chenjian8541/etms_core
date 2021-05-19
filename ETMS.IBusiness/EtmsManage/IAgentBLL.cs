@@ -31,6 +31,8 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> AgentEdit(AgentEditRequest request);
 
+        Task<ResponseBase> AgentSetUser(AgentSetUserRequest request);
+
         Task<ResponseBase> AgentDel(AgentDelRequest request);
 
         Task<ResponseBase> AgentPaging(AgentPagingRequest request);
