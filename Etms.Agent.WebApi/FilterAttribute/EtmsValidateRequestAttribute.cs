@@ -37,8 +37,15 @@ namespace Etms.Agent.WebApi.FilterAttribute
                 if (context.ActionArguments.First().Value is AgentRequestBase)
                 {
                     var request = context.ActionArguments.First().Value as AgentRequestBase;
-                    var agentId = context.HttpContext.Request.GetTokenInfo();
-                    request.LoginAgentId = agentId;
+                    var tokenInfoResult = context.HttpContext.Request.GetTokenInfo();
+                    if (tokenInfoResult.Item1 == 0 || tokenInfoResult.Item2 == 0)
+                    {
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
+                        context.Result = new JsonResult(new { msg = "登录信息过期" });
+                        return;
+                    }
+                    request.LoginAgentId = tokenInfoResult.Item1;
+                    request.LoginUserId = tokenInfoResult.Item2;
                     var agentBLL = CustomServiceLocator.GetInstance<IAgentBLL>();
                     var checkAgentResult = agentBLL.CheckAgentLogin(request).Result;
                     if (!checkAgentResult.IsResponseSuccess())
@@ -48,7 +55,8 @@ namespace Etms.Agent.WebApi.FilterAttribute
                         return;
                     }
                     var output = (CheckAgentLoginOutput)checkAgentResult.resultData;
-                    request.LoginIsLimitData = output.IsLimitData;
+                    request.LoginAgentIsLimitData = output.IsRoleLimitData;
+                    request.LoginUserIsLimitData = output.IsUserLimitData;
                 }
             }
         }

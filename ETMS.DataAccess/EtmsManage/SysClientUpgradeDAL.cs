@@ -40,8 +40,9 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.Find<SysClientUpgrade>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
         }
 
-        public async Task SysClientUpgradeAdd(SysClientUpgrade entity)
+        public async Task SysClientUpgradeAdd(SysClientUpgrade entity, long userId)
         {
+            entity.UserId = userId;
             await this.Insert(entity);
             await UpdateCache(entity.ClientType);
         }

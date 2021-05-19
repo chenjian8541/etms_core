@@ -11,6 +11,8 @@ namespace ETMS.Entity.Database.Manage
     [Table("SysAgent")]
     public class SysAgent : EManageEntity<int>
     {
+        public string Code { get; set; }
+
         /// <summary>
         /// 角色ID
         /// </summary>
@@ -31,10 +33,10 @@ namespace ETMS.Entity.Database.Manage
         /// </summary>
         public string Phone { get; set; }
 
-        /// <summary>
-        /// 登录密码
-        /// </summary>
-        public string Password { get; set; }
+        ///// <summary>
+        ///// 登录密码
+        ///// </summary>
+        //public string Password { get; set; }
 
         /// <summary>
         ///身份证号码
@@ -81,5 +83,10 @@ namespace ETMS.Entity.Database.Manage
         /// 0表示没有
         /// </summary>
         public int CreatedAgentId { get; set; }
+
+        /// <summary>
+        /// 操作用户
+        /// </summary>
+        public long UserId { get; set; }
     }
 }

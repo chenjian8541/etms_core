@@ -170,19 +170,6 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> AgentSetPwd(AgentSetPwdRequest request)
-        {
-            try
-            {
-                return await _agentBLL.AgentSetPwd(request);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(request, ex, this.GetType());
-                return ResponseBase.UnKnownError();
-            }
-        }
-
         public async Task<ResponseBase> AgentPaging(AgentPagingRequest request)
         {
             try

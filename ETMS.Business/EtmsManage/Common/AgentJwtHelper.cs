@@ -17,9 +17,9 @@ namespace ETMS.Business.EtmsManage.Common
         /// <param name=""></param>
         /// <param name="expiresTime"></param>
         /// <returns></returns>
-        internal static string GenerateToken(int agentId, out DateTime expiresTime)
+        internal static string GenerateToken(int agentId, long userId, out DateTime expiresTime)
         {
-            var tokenValue = agentId.ToString();
+            var tokenValue = $"{agentId},{userId}";
             var claims = new[]
                {
                    new Claim(SystemConfig.AuthenticationConfig.ClaimType,tokenValue)

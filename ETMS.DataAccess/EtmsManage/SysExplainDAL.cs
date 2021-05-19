@@ -31,8 +31,9 @@ namespace ETMS.DataAccess.EtmsManage
             };
         }
 
-        public async Task<bool> AddSysExplain(SysExplain entity)
+        public async Task<bool> AddSysExplain(SysExplain entity, long userId)
         {
+            entity.UserId = userId;
             await this.Insert(entity);
             await UpdateCache(entity.Type);
             return true;

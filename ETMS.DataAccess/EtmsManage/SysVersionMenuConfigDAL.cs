@@ -39,64 +39,11 @@ namespace ETMS.DataAccess.EtmsManage
             var allMenuConfig = EtmsHelper.DeepCopy(PermissionData.MenuConfigs);
             return new SysVersionMenuConfigBucket()
             {
-                MenuConfigs = GetChildMenus(authorityCorePage, authorityCoreAction, allMenuConfig)
+                MenuConfigs = PermissionData.GetChildMenus(authorityCorePage, authorityCoreAction, allMenuConfig)
             };
         }
 
-        private List<MenuConfig> GetChildMenus(AuthorityCore authorityCorePage, AuthorityCore authorityCoreAction, List<MenuConfig> childMenus)
-        {
-            var myMenuConfigs = new List<MenuConfig>();
-            foreach (var p in childMenus)
-            {
-                if (p.Type == MenuType.Page)
-                {
-                    if (authorityCorePage.Validation(p.Id))
-                    {
-                        var myMenuConfig = new MenuConfig()
-                        {
-                            ActionId = p.ActionId,
-                            Id = p.Id,
-                            IsOwner = p.IsOwner,
-                            Name = p.Name,
-                            Type = p.Type
-                        };
-                        if (p.ChildrenPage != null && p.ChildrenPage.Count > 0)
-                        {
-                            myMenuConfig.ChildrenPage = GetChildMenus(authorityCorePage, authorityCoreAction, p.ChildrenPage);
-                        }
-                        if (p.ChildrenAction != null && p.ChildrenAction.Count > 0)
-                        {
-                            myMenuConfig.ChildrenAction = GetChildMenus(authorityCorePage, authorityCoreAction, p.ChildrenAction);
-                        }
-                        myMenuConfigs.Add(myMenuConfig);
-                    }
-                }
-                else
-                {
-                    if (authorityCoreAction.Validation(p.ActionId))
-                    {
-                        var myMenuConfig = new MenuConfig()
-                        {
-                            ActionId = p.ActionId,
-                            Id = p.Id,
-                            IsOwner = p.IsOwner,
-                            Name = p.Name,
-                            Type = p.Type
-                        };
-                        if (p.ChildrenPage != null && p.ChildrenPage.Count > 0)
-                        {
-                            myMenuConfig.ChildrenPage = GetChildMenus(authorityCorePage, authorityCoreAction, p.ChildrenPage);
-                        }
-                        if (p.ChildrenAction != null && p.ChildrenAction.Count > 0)
-                        {
-                            myMenuConfig.ChildrenAction = GetChildMenus(authorityCorePage, authorityCoreAction, p.ChildrenAction);
-                        }
-                        myMenuConfigs.Add(myMenuConfig);
-                    }
-                }
-            }
-            return myMenuConfigs;
-        }
+        
 
         public async Task<List<MenuConfig>> GetTenantMenuConfig(int versionId)
         {

@@ -183,6 +183,41 @@
         }
       },
       {
+        "Id": 21,
+        "Path": "userMgr",
+        "Name": "userMgr",
+        "Type": 1,
+        "Component": "@/views/sysMgr/userMgr",
+        "Meta": {
+          "Title": "员工管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "userRoleAdd",
+        "Name": "userRoleAdd",
+        "Type": 1,
+        "Component": "@/components/UserMgr/role/edit",
+        "Meta": {
+          "Title": "添加员工角色",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "userRoleEdit/:cid",
+        "Name": "userRoleEdit",
+        "Type": 1,
+        "Component": "@/components/UserMgr/role/edit",
+        "Meta": {
+          "Title": "编辑员工角色",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 13,
         "Path": "oplog",
         "Name": "oplog",

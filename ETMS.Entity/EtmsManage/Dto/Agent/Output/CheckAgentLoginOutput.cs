@@ -6,6 +6,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 {
     public class CheckAgentLoginOutput
     {
-        public bool IsLimitData { get; set; }
+        public bool IsRoleLimitData { get; set; }
+
+        public bool IsUserLimitData { get; set; }
     }
 }

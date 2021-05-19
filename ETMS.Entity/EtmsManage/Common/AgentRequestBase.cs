@@ -10,18 +10,28 @@ namespace ETMS.Entity.EtmsManage.Common
     {
         public int LoginAgentId { get; set; }
 
-        public bool LoginIsLimitData { get; set; }
+        public long LoginUserId { get; set; }
+
+        public bool LoginAgentIsLimitData { get; set; }
+
+        public bool LoginUserIsLimitData { get; set; }
 
         protected virtual string DataFilterWhereGet(string agentIdTag = "AgentId")
         {
-            if (LoginIsLimitData)
+            var sql = new StringBuilder();
+            if (LoginAgentIsLimitData)
             {
-                return $"{agentIdTag} = {LoginAgentId} AND IsDeleted = {EmIsDeleted.Normal}";
+                sql.Append($"{agentIdTag} = {LoginAgentId} AND IsDeleted = {EmIsDeleted.Normal}");
             }
             else
             {
-                return $"IsDeleted = {EmIsDeleted.Normal}";
+                sql.Append($"IsDeleted = {EmIsDeleted.Normal}");
             }
+            if (LoginUserIsLimitData && IsNeedLimitUserData())
+            {
+                sql.Append($" AND UserId = {LoginUserId} ");
+            }
+            return sql.ToString();
         }
 
         /// <summary>
@@ -31,6 +41,15 @@ namespace ETMS.Entity.EtmsManage.Common
         public virtual string Validate()
         {
             return string.Empty;
+        }
+
+        /// <summary>
+        /// 是否需要限制用户数据
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool IsNeedLimitUserData()
+        {
+            return false;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 {
     public class AgentLoginRequest : IValidate
     {
+        public string AgentCode { get; set; }
         public string Phone { get; set; }
 
         public string Pwd { get; set; }
@@ -17,6 +18,13 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
         /// <returns></returns>
         public virtual string Validate()
         {
+            AgentCode = AgentCode.Trim();
+            Phone = Phone.Trim();
+            Pwd = Pwd.Trim();
+            if (string.IsNullOrEmpty(AgentCode))
+            {
+                return "代理商编码不能为空";
+            }
             if (string.IsNullOrEmpty(Phone))
             {
                 return "手机号码不能为空";

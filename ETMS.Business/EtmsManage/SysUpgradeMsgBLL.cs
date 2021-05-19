@@ -41,7 +41,7 @@ namespace ETMS.Business.EtmsManage
                 VersionNo = request.VersionNo,
                 Status = EmSysUpgradeMsgStatus.Normal
             };
-            await _sysUpgradeMsgDAL.AddSysUpgradeMsg(entity);
+            await _sysUpgradeMsgDAL.AddSysUpgradeMsg(entity, request.LoginUserId);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
             {
@@ -52,7 +52,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.VersionUpgrade
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 
@@ -69,7 +69,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.VersionUpgrade
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 

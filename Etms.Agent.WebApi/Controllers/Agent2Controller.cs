@@ -5,6 +5,7 @@ using ETMS.Entity.EtmsManage.Dto.DataLog.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
+using ETMS.Entity.EtmsManage.Dto.User.Request;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
@@ -26,10 +27,13 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly IDataLogBLL _dataLogBLL;
 
-        public Agent2Controller(ISysTenantBLL sysTenantBLL, IDataLogBLL dataLogBLL)
+        private readonly ISysUserBLL _sysUserBLL;
+
+        public Agent2Controller(ISysTenantBLL sysTenantBLL, IDataLogBLL dataLogBLL, ISysUserBLL sysUserBLL)
         {
             this._sysTenantBLL = sysTenantBLL;
             this._dataLogBLL = dataLogBLL;
+            this._sysUserBLL = sysUserBLL;
         }
 
         public async Task<ResponseBase> TenantBindCloudSave(TenantBindCloudSaveRequest request)
@@ -232,6 +236,162 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _dataLogBLL.SysTenantExDateLogPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserGet(UserGetRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserAdd(UserAddRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserEdit(UserEditRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserDel(UserDelRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserGetPaging(UserGetPagingRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserMyRoleListGet(UserMyRoleListGetRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserMyRoleListGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleAdd(UserRoleAddRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleEdit(UserRoleEditRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleGet(UserRoleGetRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleDefaultGet(UserRoleDefaultGetRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleDefaultGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleDel(UserRoleDelRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> UserRoleGetPaging(UserRoleGetPagingRequest request)
+        {
+            try
+            {
+                return await _sysUserBLL.UserRoleGetPaging(request);
             }
             catch (Exception ex)
             {

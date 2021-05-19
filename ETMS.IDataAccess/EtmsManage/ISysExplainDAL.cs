@@ -9,7 +9,7 @@ namespace ETMS.IDataAccess.EtmsManage
 {
     public interface ISysExplainDAL
     {
-        Task<bool> AddSysExplain(SysExplain entity);
+        Task<bool> AddSysExplain(SysExplain entity, long userId);
 
         Task<bool> EditSysExplain(SysExplain entity);
 

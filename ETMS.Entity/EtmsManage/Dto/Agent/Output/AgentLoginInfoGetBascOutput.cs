@@ -20,6 +20,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 
         public int EtmsSmsCount { get; set; }
 
+        public string Code { get; set; }
+
         public List<AgentEtmsAccountOutput> AgentEtmsAccounts { get; set; }
     }
     public class AgentEtmsAccountOutput

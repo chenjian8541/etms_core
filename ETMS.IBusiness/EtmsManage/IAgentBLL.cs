@@ -33,8 +33,6 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> AgentDel(AgentDelRequest request);
 
-        Task<ResponseBase> AgentSetPwd(AgentSetPwdRequest request);
-
         Task<ResponseBase> AgentPaging(AgentPagingRequest request);
 
         Task<ResponseBase> AgentChangeSmsCount(AgentChangeSmsCountRequest request);

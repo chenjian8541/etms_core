@@ -36,7 +36,7 @@ namespace ETMS.Business.EtmsManage
                 Title = request.Title,
                 Type = request.Type,
                 AgentId = request.LoginAgentId
-            });
+            }, request.LoginUserId);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
             {
@@ -47,7 +47,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysExplainMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 
@@ -72,7 +72,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysExplainMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 
@@ -94,7 +94,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysExplainMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 

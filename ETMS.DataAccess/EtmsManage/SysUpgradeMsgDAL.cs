@@ -39,8 +39,9 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.ExecutePage<SysUpgradeMsg>("SysUpgradeMsg", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity)
+        public async Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity, long userId)
         {
+            entity.UserId = userId;
             await this.Execute($"UPDATE [SysUpgradeMsg] SET [Status] = {EmSysUpgradeMsgStatus.Invalid} ;DELETE SysUpgradeMsgRead ;");
             await this.Insert(entity);
             await UpdateCache();

@@ -10,6 +10,7 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
         public int RoleId { get; set; }
 
         //public string TagKey { get; set; }
+        public string Code { get; set; }
 
         public string Name { get; set; }
 
@@ -29,6 +30,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 
         public override string Validate()
         {
+            Code = Code.Trim();
+            Phone = Phone.Trim();
             if (RoleId <= 0)
             {
                 return "角色不能为空";
@@ -37,6 +40,10 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
             //{
             //    return "代理商标识不能为空";
             //}
+            if (string.IsNullOrEmpty(Code))
+            {
+                return "编码不能为空";
+            }
             if (string.IsNullOrEmpty(Name))
             {
                 return "名称不能为空";

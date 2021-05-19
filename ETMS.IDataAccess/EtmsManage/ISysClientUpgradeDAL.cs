@@ -11,7 +11,7 @@ namespace ETMS.IDataAccess.EtmsManage
     {
         Task<SysClientUpgrade> SysClientUpgradeGet(int id);
 
-        Task SysClientUpgradeAdd(SysClientUpgrade entity);
+        Task SysClientUpgradeAdd(SysClientUpgrade entity, long userId);
 
         Task SysClientUpgradeEdit(SysClientUpgrade entity);
 

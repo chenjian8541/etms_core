@@ -10,6 +10,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 
         public string Name { get; set; }
 
+        public string Code { get; set; }
+
         public int RoleId { get; set; }
 
         public string RoleName { get; set; }

@@ -44,13 +44,26 @@ namespace ETMS.DataAccess.EtmsManage
             }
         }
 
+        public async Task<SysAgent> ExistSysAgentByCode(string code, int notId = 0)
+        {
+            if (notId > 0)
+            {
+                return await this.Find<SysAgent>(p => p.Code == code && p.IsDeleted == EmIsDeleted.Normal && p.Id != notId);
+            }
+            else
+            {
+                return await this.Find<SysAgent>(p => p.Code == code && p.IsDeleted == EmIsDeleted.Normal);
+            }
+        }
+
         public async Task<SysAgentBucket> GetAgent(int id)
         {
             return await GetCache(id);
         }
 
-        public async Task<bool> AddAgent(SysAgent entity)
+        public async Task<bool> AddAgent(SysAgent entity, long userId)
         {
+            entity.UserId = userId;
             await this.Insert(entity);
             await UpdateCache(entity.Id);
             return true;
@@ -89,6 +102,8 @@ namespace ETMS.DataAccess.EtmsManage
             var sql = new StringBuilder();
             sql.Append($"update SysAgent set IsDeleted = {EmIsDeleted.Deleted} where Id = {id};");
             sql.Append($"update SysAgentEtmsAccount set IsDeleted = {EmIsDeleted.Deleted} where AgentId = {id};");
+            sql.Append($"update SysUser set IsDeleted = {EmIsDeleted.Deleted} where AgentId = {id};");
+            sql.Append($"update SysUserRole set IsDeleted = {EmIsDeleted.Deleted} where AgentId = {id};");
             await this.Execute(sql.ToString());
             this.RemoveCache(id);
             return true;

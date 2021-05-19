@@ -11,7 +11,7 @@ namespace ETMS.IDataAccess.EtmsManage
     {
         Task<Tuple<IEnumerable<SysUpgradeMsg>, int>> GetPaging(AgentPagingBase request);
 
-        Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity);
+        Task<bool> AddSysUpgradeMsg(SysUpgradeMsg entity, long userId);
 
         Task<bool> DelSysUpgradeMsg(int id);
 

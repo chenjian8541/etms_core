@@ -27,5 +27,7 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public string KefuQQ { get; set; }
 
         public string KefuPhone { get; set; }
+
+        public string Code { get; set; }
     }
 }

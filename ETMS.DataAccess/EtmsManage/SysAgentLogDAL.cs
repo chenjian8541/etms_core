@@ -14,8 +14,9 @@ namespace ETMS.DataAccess.EtmsManage
 {
     public class SysAgentLogDAL : ISysAgentLogDAL, IEtmsManage
     {
-        public async Task AddSysAgentOpLog(SysAgentOpLog sysAgentOpLog)
+        public async Task AddSysAgentOpLog(SysAgentOpLog sysAgentOpLog, long userId)
         {
+            sysAgentOpLog.UserId = userId;
             await this.Insert(sysAgentOpLog);
         }
 
@@ -29,17 +30,20 @@ namespace ETMS.DataAccess.EtmsManage
                 OpContent = opContent,
                 Ot = DateTime.Now,
                 Remark = string.Empty,
-                Type = type
-            });
+                Type = type,
+                UserId = request.LoginUserId
+            }, request.LoginUserId);
         }
 
-        public async Task AddSysAgentEtmsAccountLog(SysAgentEtmsAccountLog sysAgentEtmsAccountLog)
+        public async Task AddSysAgentEtmsAccountLog(SysAgentEtmsAccountLog sysAgentEtmsAccountLog, long userId)
         {
+            sysAgentEtmsAccountLog.UserId = userId;
             await this.Insert(sysAgentEtmsAccountLog);
         }
 
-        public async Task AddSysAgentSmsLog(SysAgentSmsLog sysAgentSmsLog)
+        public async Task AddSysAgentSmsLog(SysAgentSmsLog sysAgentSmsLog, long userId)
         {
+            sysAgentSmsLog.UserId = userId;
             await this.Insert(sysAgentSmsLog);
         }
 

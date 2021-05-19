@@ -14,6 +14,11 @@ namespace ETMS.Entity.Database.Manage
         public int AgentId { get; set; }
 
         /// <summary>
+        /// 操作用户
+        /// </summary>
+        public long UserId { get; set; }
+
+        /// <summary>
         /// 变动类型<see cref="ETMS.Entity.Enum.EtmsManage.EmSysAgentSmsLogChangeType"/>
         /// </summary>
         public int ChangeType { get; set; }

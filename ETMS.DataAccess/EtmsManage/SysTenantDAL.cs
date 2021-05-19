@@ -57,8 +57,9 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Status == EmSysTenantStatus.Normal && p.ExDate >= DateTime.Now.Date);
         }
 
-        public async Task<int> AddTenant(SysTenant sysTenant)
+        public async Task<int> AddTenant(SysTenant sysTenant, long userId)
         {
+            sysTenant.UserId = userId;
             await this.Insert(sysTenant);
             await UpdateCache(sysTenant.Id);
             await _tenantConfigWrapper.TenantConnectionUpdate();

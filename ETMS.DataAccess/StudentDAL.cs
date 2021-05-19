@@ -152,6 +152,35 @@ namespace ETMS.DataAccess
             LOG.Log.Info($"[DelStudentDepth]执行深度删除:{tempSql}", this.GetType());
             await _dbWrapper.Execute(tempSql);
             base.RemoveCache(_tenantId, studentId);
+            //删除此学员一对一班级
+            var myClassOneToOne = await _dbWrapper.ExecuteObject<EtClass>($"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Type] = {EmClassType.OneToOne} AND StudentIds = ',{studentId},'");
+            if (myClassOneToOne != null && myClassOneToOne.Any())
+            {
+                foreach (var p in myClassOneToOne)
+                {
+                    var classId = p.Id;
+                    var sql2 = new StringBuilder();
+                    sql2.Append($"UPDATE EtClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {classId}; ");
+                    sql2.Append($"DELETE EtClassStudent WHERE ClassId = {classId} and TenantId = {_tenantId} ; ");
+                    sql2.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecord SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordEvaluateTeacher SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordEvaluateStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordPointsApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordOperationLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtClassRecordAbsenceLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtTryCalssLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtTempStudentNeedCheckClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtActiveHomework SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtActiveHomeworkDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    sql2.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+                    var tempsql2 = sql2.ToString();
+                    await _dbWrapper.Execute(tempsql2);
+                }
+            }
             return true;
         }
 

@@ -470,6 +470,10 @@ namespace ETMS.Business
             }
             else
             {
+                if (request.Ot == null || request.Ot.Count != 2)
+                {
+                    return ResponseBase.CommonError("课程起止日期格式不正确");
+                }
                 studentCourseDetail.StartTime = Convert.ToDateTime(request.Ot[0]);
                 studentCourseDetail.EndTime = Convert.ToDateTime(request.Ot[1]);
                 var startTime = studentCourseDetail.StartTime.Value;

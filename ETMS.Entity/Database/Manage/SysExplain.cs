@@ -14,6 +14,11 @@ namespace ETMS.Entity.Database.Manage
         public int AgentId { get; set; }
 
         /// <summary>
+        /// 操作用户
+        /// </summary>
+        public long UserId { get; set; }
+
+        /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmSysExplainType"/>
         /// </summary>
         public int Type { get; set; }

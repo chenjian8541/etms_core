@@ -201,7 +201,7 @@ namespace ETMS.Business.EtmsManage
                     Ot = now,
                     Remark = remark,
                     Sum = request.Sum
-                });
+                }, request.LoginUserId);
             }
 
             if (request.EtmsCount > 0)
@@ -217,7 +217,7 @@ namespace ETMS.Business.EtmsManage
                     Ot = now,
                     Sum = request.Sum,
                     Remark = remark
-                });
+                }, request.LoginUserId);
             }
 
             //初始化账户
@@ -272,7 +272,7 @@ namespace ETMS.Business.EtmsManage
                 AICloudType = EmSysTenantAICloudType.BaiduCloud,
                 TencentCloudId = 0,
                 BaiduCloudId = biduCloudAccountId
-            });
+            }, request.LoginUserId);
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);
 
@@ -289,7 +289,7 @@ namespace ETMS.Business.EtmsManage
                     Remark = remark,
                     Sum = request.Sum,
                     TenantId = tenantId
-                });
+                }, request.LoginUserId);
             }
             if (request.EtmsCount > 0)
             {
@@ -304,7 +304,7 @@ namespace ETMS.Business.EtmsManage
                     IsDeleted = EmIsDeleted.Normal,
                     Ot = now,
                     VersionId = request.VersionId
-                });
+                }, request.LoginUserId);
             }
 
             if (!string.IsNullOrEmpty(request.SmsSignature))
@@ -483,7 +483,7 @@ namespace ETMS.Business.EtmsManage
                     Sum = 0,
                     IsDeleted = EmIsDeleted.Normal,
                     Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还短信数量"
-                });
+                }, request.LoginUserId);
             }
             if (isNewTenant) //如果为近期添加的机构，则将授权点数返还给代理商
             {
@@ -506,7 +506,7 @@ namespace ETMS.Business.EtmsManage
                             Sum = 0,
                             VersionId = tenant.VersionId,
                             Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还授权点数"
-                        });
+                        }, request.LoginUserId);
                     }
                 }
             }
@@ -612,7 +612,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
 
             //添加机构短信
             tenant.SmsCount += request.ChangeCount;
@@ -627,7 +627,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
 
             await this._sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
@@ -656,7 +656,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
 
             //扣除的短信返回给代理商
             await _sysAgentDAL.SmsCountAdd(request.LoginAgentId, request.ChangeCount);
@@ -669,7 +669,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
 
             await this._sysAgentLogDAL.AddSysAgentOpLog(request, remark, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
@@ -700,7 +700,7 @@ namespace ETMS.Business.EtmsManage
                 Remark = remeak,
                 Sum = request.Sum,
                 VersionId = tenant.VersionId
-            });
+            }, request.LoginUserId);
 
             //增加机构授权点数
             tenant.ExDate = tenant.ExDate.AddYears(request.AddChangeCount);
@@ -717,7 +717,7 @@ namespace ETMS.Business.EtmsManage
                 Sum = request.Sum,
                 TenantId = request.Id,
                 VersionId = tenant.VersionId
-            });
+            }, request.LoginUserId);
 
             await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, remeak, $"{request.AddChangeCount}年");
 

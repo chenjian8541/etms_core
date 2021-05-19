@@ -11,6 +11,11 @@ namespace ETMS.Entity.Database.Manage
     {
         public int AgentId { get; set; }
 
+        /// <summary>
+        /// 操作用户
+        /// </summary>
+        public long UserId { get; set; }
+
         public string VersionNo { get; set; }
 
         public string Title { get; set; }

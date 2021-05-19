@@ -17,10 +17,15 @@ namespace Etms.Agent.WebApi.Extensions
         /// </summary>
         /// <param name="this"></param>
         /// <returns></returns>
-        public static int GetTokenInfo(this HttpRequest @this)
+        public static Tuple<int, long> GetTokenInfo(this HttpRequest @this)
         {
             var tokenValue = @this.HttpContext.User?.Claims?.FirstOrDefault(p => p.Type.Equals(SystemConfig.AuthenticationConfig.ClaimType))?.Value;
-            return tokenValue.ToInt();
+            var values = tokenValue.Split(',');
+            if (values.Length != 2)
+            {
+                return Tuple.Create(0, 0L);
+            }
+            return Tuple.Create(values[0].ToInt(), values[1].ToLong());
         }
     }
 }

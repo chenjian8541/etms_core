@@ -36,5 +36,7 @@ namespace ETMS.Entity.EtmsManage.View
         public string TenantName { get; set; }
 
         public string TenantPhone { get; set; }
+
+        public long UserId { get; set; }
     }
 }

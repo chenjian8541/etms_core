@@ -9,6 +9,15 @@ namespace ETMS.Entity.EtmsManage.Dto.Explain.Request
     {
         public int? Type { get; set; }
 
+        /// <summary>
+        /// 是否需要限制用户数据
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsNeedLimitUserData()
+        {
+            return true;
+        }
+
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet("AgentId"));

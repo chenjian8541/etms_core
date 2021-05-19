@@ -13,13 +13,15 @@ namespace ETMS.DataAccess.EtmsManage
 {
     public class SysTenantLogDAL : ISysTenantLogDAL, IEtmsManage
     {
-        public async Task AddSysTenantEtmsAccountLog(SysTenantEtmsAccountLog entity)
+        public async Task AddSysTenantEtmsAccountLog(SysTenantEtmsAccountLog entity, long userId)
         {
+            entity.UserId = userId;
             await this.Insert(entity);
         }
 
-        public async Task AddSysTenantSmsLog(SysTenantSmsLog entity)
+        public async Task AddSysTenantSmsLog(SysTenantSmsLog entity, long userId)
         {
+            entity.UserId = userId;
             await this.Insert(entity);
         }
 

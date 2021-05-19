@@ -51,5 +51,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantOperationLog> SysTenantOperationLogs { get; set; }
         public DbSet<SysTenantStatistics> SysTenantStatisticss { get; set; }
         public DbSet<SysTenantExDateLog> SysTenantExDateLogs { get; set; }
+        public DbSet<SysUser> SysUsers { get; set; }
+        public DbSet<SysUserRole> SysUserRoles { get; set; }
     }
 }

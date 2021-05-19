@@ -17,6 +17,11 @@ namespace ETMS.Entity.Database.Manage
         public int AgentId { get; set; }
 
         /// <summary>
+        /// 操作用户
+        /// </summary>
+        public long UserId { get; set; }
+
+        /// <summary>
         /// etms系统版本
         /// </summary>
         public int VersionId { get; set; }

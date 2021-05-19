@@ -36,35 +36,54 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysVersionDAL _sysVersionDAL;
 
-        public AgentBLL(ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL, ISysRoleDAL sysRoleDAL, ISysVersionDAL sysVersionDAL)
+        private readonly ISysUserDAL _sysUserDAL;
+
+        private readonly ISysUserRoleDAL _sysUserRoleDAL;
+
+        public AgentBLL(ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL, ISysRoleDAL sysRoleDAL, ISysVersionDAL sysVersionDAL,
+            ISysUserDAL sysUserDAL, ISysUserRoleDAL sysUserRoleDAL)
         {
             this._sysAgentDAL = sysAgentDAL;
             this._sysAgentLogDAL = sysAgentLogDAL;
             this._sysRoleDAL = sysRoleDAL;
             this._sysVersionDAL = sysVersionDAL;
+            this._sysUserDAL = sysUserDAL;
+            this._sysUserRoleDAL = sysUserRoleDAL;
         }
 
         public async Task<ResponseBase> AgentLogin(AgentLoginRequest request)
         {
             var response = new ResponseBase().GetResponseBadRequest("账号信息错误");
-            var agentInfo = await _sysAgentDAL.ExistSysAgentByPhone(request.Phone);
+            var agentInfo = await _sysAgentDAL.ExistSysAgentByCode(request.AgentCode);
             if (agentInfo == null)
             {
-                return response;
-            }
-            var pwd = CryptogramHelper.Encrypt3DES(request.Pwd, SystemConfig.CryptogramConfig.Key);
-            if (!agentInfo.Password.Equals(pwd))
-            {
-                return response;
+                return ResponseBase.CommonError("代理商不存在");
             }
             if (agentInfo.IsLock == EmSysAgentIsLock.IsLock)
             {
                 return ResponseBase.CommonError("账号已锁定");
             }
 
-            var token = AgentJwtHelper.GenerateToken(agentInfo.Id, out var exTime);
+            var userInfo = await _sysUserDAL.ExistSysUserByPhone(agentInfo.Id, request.Phone);
+            if (userInfo == null)
+            {
+                return response;
+            }
+            var pwd = CryptogramHelper.Encrypt3DES(request.Pwd, SystemConfig.CryptogramConfig.Key);
+            if (!userInfo.Password.Equals(pwd))
+            {
+                return response;
+            }
+            if (userInfo.IsLock == EmSysAgentIsLock.IsLock)
+            {
+                return ResponseBase.CommonError("员工账号已锁定");
+            }
+
+            var token = AgentJwtHelper.GenerateToken(userInfo.AgentId, userInfo.Id, out var exTime);
             var time = DateTime.Now;
-            await _sysAgentDAL.UpdateAgentLastLoginTime(agentInfo.Id, time);
+            await _sysAgentDAL.UpdateAgentLastLoginTime(userInfo.AgentId, time);
+            await _sysUserDAL.UpdateUserLastLoginTime(userInfo.Id, time);
+
             await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
             {
                 IpAddress = string.Empty,
@@ -73,13 +92,21 @@ namespace ETMS.Business.EtmsManage
                 OpContent = $"代理商:{agentInfo.Name},手机号:{agentInfo.Phone}在{time.EtmsToString()}登录",
                 Type = (int)EmSysAgentOpLogType.Login,
                 IsDeleted = EmIsDeleted.Normal
-            });
+            }, userInfo.Id);
+
+            var userAuthorityValueMenu = string.Empty;
+            if (userInfo.IsAdmin == EmBool.False && userInfo.UserRoleId > 0)
+            {
+                var myUserRole = await _sysUserRoleDAL.GetRole(userInfo.UserRoleId);
+                userAuthorityValueMenu = myUserRole.AuthorityValueMenu;
+            }
+
             var role = await _sysRoleDAL.GetRole(agentInfo.RoleId);
             var output = new AgentLoginOutput()
             {
                 Token = token,
                 ExpiresTime = exTime,
-                Permission = AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu)
+                Permission = AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu, userAuthorityValueMenu)
             };
             return response.GetResponseSuccess(output);
         }
@@ -95,10 +122,26 @@ namespace ETMS.Business.EtmsManage
             {
                 return ResponseBase.CommonError("账号已锁定");
             }
+            var userInfo = await _sysUserDAL.GetUser(request.LoginUserId);
+            if (userInfo == null)
+            {
+                return ResponseBase.CommonError("员工不存在");
+            }
+            if (userInfo.IsLock == EmSysAgentIsLock.IsLock)
+            {
+                return ResponseBase.CommonError("员工账号已锁定");
+            }
+            var isUserLimitData = false;
+            if (userInfo.IsAdmin == EmBool.False && userInfo.UserRoleId > 0)
+            {
+                var myUserRole = await _sysUserRoleDAL.GetRole(userInfo.UserRoleId);
+                isUserLimitData = EmDataLimitType.GetIsDataLimit(myUserRole.AuthorityValueData);
+            }
             var role = await _sysRoleDAL.GetRole(agentBucket.SysAgent.RoleId);
             var output = new CheckAgentLoginOutput()
             {
-                IsLimitData = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData)
+                IsRoleLimitData = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
+                IsUserLimitData = isUserLimitData
             };
             return ResponseBase.Success(output);
         }
@@ -117,8 +160,16 @@ namespace ETMS.Business.EtmsManage
                 Name = agent.Name,
                 Phone = agent.Phone
             };
+            var userAuthorityValueMenu = string.Empty;
+            var userInfo = await _sysUserDAL.GetUser(request.LoginUserId);
+            if (userInfo.IsAdmin == EmBool.False && userInfo.UserRoleId > 0)
+            {
+                var myUserRole = await _sysUserRoleDAL.GetRole(userInfo.UserRoleId);
+                userAuthorityValueMenu = myUserRole.AuthorityValueMenu;
+            }
+
             var role = await _sysRoleDAL.GetRole(agent.RoleId);
-            output.RouteConfigs = AgentComBusiness.GetRouteConfigs(role.AuthorityValueMenu);
+            output.RouteConfigs = AgentComBusiness.GetRouteConfigs(role.AuthorityValueMenu, userAuthorityValueMenu);
             return ResponseBase.Success(output);
         }
 
@@ -134,6 +185,7 @@ namespace ETMS.Business.EtmsManage
                 Name = agent.Name,
                 Phone = agent.Phone,
                 TagKey = agent.TagKey,
+                Code = agent.Code,
                 AgentEtmsAccounts = new List<AgentEtmsAccountOutput>()
             };
             if (agentBucket.SysAgentEtmsAccounts != null && agentBucket.SysAgentEtmsAccounts.Count > 0)
@@ -167,20 +219,29 @@ namespace ETMS.Business.EtmsManage
         {
             var agent = (await _sysAgentDAL.GetAgent(request.LoginAgentId)).SysAgent;
             var role = await _sysRoleDAL.GetRole(agent.RoleId);
-            return ResponseBase.Success(AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu));
+
+            var userInfo = await _sysUserDAL.GetUser(request.LoginUserId);
+            var userAuthorityValueMenu = string.Empty;
+            if (userInfo.IsAdmin == EmBool.False && userInfo.UserRoleId > 0)
+            {
+                var myUserRole = await _sysUserRoleDAL.GetRole(userInfo.UserRoleId);
+                userAuthorityValueMenu = myUserRole.AuthorityValueMenu;
+            }
+
+            return ResponseBase.Success(AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu, userAuthorityValueMenu));
         }
 
         public async Task<ResponseBase> AgentChangPwd(AgentChangPwdRequest request)
         {
-            var agentBucket = await _sysAgentDAL.GetAgent(request.LoginAgentId);
-            if (agentBucket == null)
+            var userInfo = await _sysUserDAL.GetUser(request.LoginUserId);
+            if (userInfo == null)
             {
-                return ResponseBase.CommonError("代理商不存在");
+                return ResponseBase.CommonError("用户不存在");
             }
-            var agent = agentBucket.SysAgent;
-            agent.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
-            await _sysAgentDAL.EditAgent(agent);
-            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改密码:名称:{agent.Name},手机号码,{agent.Phone}", EmSysAgentOpLogType.AgentMange);
+
+            userInfo.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
+            await _sysUserDAL.EditUser(userInfo);
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改密码:名称:{userInfo.Name},手机号码,{userInfo.Phone}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
 
@@ -190,6 +251,11 @@ namespace ETMS.Business.EtmsManage
             if (existAgent != null)
             {
                 return ResponseBase.CommonError("手机号码已存在");
+            }
+            var existCode = await _sysAgentDAL.ExistSysAgentByCode(request.Code);
+            if (existCode != null)
+            {
+                return ResponseBase.CommonError("编码已存在");
             }
             var newAgent = new SysAgent()
             {
@@ -202,15 +268,15 @@ namespace ETMS.Business.EtmsManage
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Ot = DateTime.Now,
-                Password = CryptogramHelper.Encrypt3DES("88888888", SystemConfig.CryptogramConfig.Key),
                 Phone = request.Phone,
                 Remark = request.Remark,
                 RoleId = request.RoleId,
                 TagKey = string.Empty,
                 KefuPhone = request.KefuPhone,
-                KefuQQ = request.KefuQQ
+                KefuQQ = request.KefuQQ,
+                Code = request.Code
             };
-            await _sysAgentDAL.AddAgent(newAgent);
+            await _sysAgentDAL.AddAgent(newAgent, request.LoginUserId);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"新增代理商:名称:{newAgent.Name},手机号码,{newAgent.Phone}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
@@ -235,7 +301,8 @@ namespace ETMS.Business.EtmsManage
                 RoleId = p.RoleId,
                 TagKey = p.TagKey,
                 KefuPhone = p.KefuPhone,
-                KefuQQ = p.KefuQQ
+                KefuQQ = p.KefuQQ,
+                Code = p.Code
             });
         }
         public async Task<ResponseBase> AgentGetView(AgentGetViewRequest request)
@@ -261,6 +328,12 @@ namespace ETMS.Business.EtmsManage
             {
                 return ResponseBase.CommonError("手机号码已存在");
             }
+            var existCode = await _sysAgentDAL.ExistSysAgentByCode(request.Code, p.Id);
+            if (existCode != null)
+            {
+                return ResponseBase.CommonError("编码已存在");
+            }
+
             p.RoleId = request.RoleId;
             p.Name = request.Name;
             p.Phone = request.Phone;
@@ -270,6 +343,7 @@ namespace ETMS.Business.EtmsManage
             p.Remark = request.Remark;
             p.KefuQQ = request.KefuQQ;
             p.KefuPhone = request.KefuPhone;
+            p.Code = request.Code;
             await _sysAgentDAL.EditAgent(p);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑代理商:名称:{request.Name},手机号码,{request.Phone}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
@@ -291,23 +365,8 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> AgentSetPwd(AgentSetPwdRequest request)
-        {
-            var agentBucket = await _sysAgentDAL.GetAgent(request.Id);
-            if (agentBucket == null)
-            {
-                return ResponseBase.CommonError("代理商不存在");
-            }
-            var agent = agentBucket.SysAgent;
-            agent.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
-            await _sysAgentDAL.EditAgent(agent);
-            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改代理商密码:名称:{agent.Name},手机号码,{agent.Phone}", EmSysAgentOpLogType.AgentMange);
-            return ResponseBase.Success();
-        }
-
         public async Task<ResponseBase> AgentPaging(AgentPagingRequest request)
         {
-
             var pagingData = await _sysAgentDAL.GetPaging(request);
             var output = new List<AgentPagingOutput>();
             if (pagingData.Item1.Count() > 0)
@@ -346,7 +405,8 @@ namespace ETMS.Business.EtmsManage
                         KefuPhone = p.KefuPhone,
                         KefuQQ = p.KefuQQ,
                         Label = p.Name,
-                        Value = p.Id
+                        Value = p.Id,
+                        Code = p.Code
                     });
                 }
             }
@@ -396,7 +456,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = request.Remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"增加代理商短信条数:名称:{agent.Name},手机号码,{agent.Phone},增加条数:{request.ChangeCount}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
@@ -420,7 +480,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = now,
                 Remark = request.Remark,
                 Sum = request.Sum
-            });
+            }, request.LoginUserId);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"扣减代理商短信条数:名称:{agent.Name},手机号码,{agent.Phone},扣减条数:{request.ChangeCount}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
@@ -457,7 +517,7 @@ namespace ETMS.Business.EtmsManage
                 Remark = request.Remark,
                 Sum = request.Sum,
                 VersionId = request.VersionId
-            });
+            }, request.LoginUserId);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"增加代理商授权点数:名称:{agent.Name},手机号码,{agent.Phone},增加授权点数:{request.ChangeCount}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
@@ -487,7 +547,7 @@ namespace ETMS.Business.EtmsManage
                 Remark = request.Remark,
                 Sum = request.Sum,
                 VersionId = request.VersionId
-            });
+            }, request.LoginUserId);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"扣减代理商授权点数:名称:{agent.Name},手机号码,{agent.Phone},扣减授权点数:{request.ChangeCount}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
@@ -578,7 +638,7 @@ namespace ETMS.Business.EtmsManage
         {
             await _sysVersionDAL.AddVersion(new SysVersion()
             {
-                EtmsAuthorityValue = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
+                EtmsAuthorityValue = AgentComBusiness.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Remark = request.Remark,
@@ -587,27 +647,6 @@ namespace ETMS.Business.EtmsManage
             });
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"添加系统版本:{request.Name}", EmSysAgentOpLogType.VersionMange);
             return ResponseBase.Success();
-        }
-
-        private string GetAuthorityValueMenu(List<int> pageMenus, List<int> actionMenus, List<int> pageRouteIds)
-        {
-            return $"{GetAuthorityValue(pageMenus.ToArray())}|{GetAuthorityValue(actionMenus.ToArray())}|{GetAuthorityValue(pageRouteIds.ToArray())}";
-        }
-
-        /// <summary>
-        /// 通过选择的菜单ID，计算权值
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        private string GetAuthorityValue(int[] ids)
-        {
-            if (ids == null || !ids.Any())
-            {
-                return string.Empty;
-            }
-            var authorityCore = new AuthorityCore();
-            var weightSum = authorityCore.AuthoritySum(ids);
-            return weightSum.ToString();
         }
 
         public async Task<ResponseBase> VersionEdit(VersionEditRequest request)
@@ -620,7 +659,7 @@ namespace ETMS.Business.EtmsManage
             version.Name = request.Name;
             version.Remark = request.Remark;
             version.DetailInfo = request.DetailInfo;
-            version.EtmsAuthorityValue = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
+            version.EtmsAuthorityValue = AgentComBusiness.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             await _sysVersionDAL.EditVersion(version);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑系统版本:{request.Name}", EmSysAgentOpLogType.VersionMange);
             return ResponseBase.Success();
@@ -655,136 +694,19 @@ namespace ETMS.Business.EtmsManage
             var authorityCorePage = new AuthorityCore(pageWeight);
             var authorityCoreAction = new AuthorityCore(actionWeight);
             var myMenuConfigs = EtmsHelper.DeepCopy(PermissionData.MenuConfigs);
-            MenuConfigsHandle(myMenuConfigs, authorityCorePage, authorityCoreAction);
+            AgentComBusiness.MenuConfigsHandle(myMenuConfigs, authorityCorePage, authorityCoreAction);
             return ResponseBase.Success(new VersionGetOutput()
             {
                 Name = version.Name,
                 Remark = version.Remark,
                 DetailInfo = version.DetailInfo,
-                Menus = GetSysMenuViewOutputs(myMenuConfigs),
+                Menus = AgentComBusiness.GetSysMenuViewOutputs(myMenuConfigs),
             });
-        }
-
-        private List<SysMenuViewOutput> GetSysMenuViewOutputs(List<MenuConfig> menuConfigs)
-        {
-            var output = new List<SysMenuViewOutput>();
-            var index = 1;
-            foreach (var p in menuConfigs)
-            {
-                var item = new SysMenuViewOutput()
-                {
-                    ActionCheck = new List<int>(),
-                    ActionItems = new List<SysMenuItem>(),
-                    PageCheck = new List<int>(),
-                    PageItems = new List<SysMenuItem>(),
-                    Index = index
-                };
-                index++;
-                var thisPageItem = new SysMenuItem()
-                {
-                    Children = new List<SysMenuItem>(),
-                    Id = p.Id,
-                    Label = p.Name,
-                    Type = p.Type
-                };
-                item.PageItems.Add(thisPageItem);
-                if (p.IsOwner)
-                {
-                    item.PageCheck.Add(p.Id);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    AddChildrenPage(p.ChildrenPage, thisPageItem, item);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    AddChildrenCheck(p.ChildrenAction, item);
-                }
-                output.Add(item);
-            }
-            return output;
-        }
-
-        private void AddChildrenCheck(List<MenuConfig> ChildrenAction, SysMenuViewOutput itemOutput)
-        {
-            if (itemOutput.ActionItems.Count == 0)
-            {
-                itemOutput.ActionItems.Add(new SysMenuItem()
-                {
-                    Children = new List<SysMenuItem>(),
-                    Id = 0,
-                    Label = "全选",
-                    Type = MenuType.Action
-                });
-            }
-            foreach (var p in ChildrenAction)
-            {
-                itemOutput.ActionItems[0].Children.Add(new SysMenuItem()
-                {
-                    Id = p.ActionId,
-                    Label = p.Name,
-                    Type = p.Type
-                });
-                if (p.IsOwner)
-                {
-                    itemOutput.ActionCheck.Add(p.ActionId);
-                }
-            }
-        }
-
-        private void AddChildrenPage(List<MenuConfig> childrenPage, SysMenuItem item, SysMenuViewOutput itemOutput)
-        {
-            foreach (var p in childrenPage)
-            {
-                var thisRoleMenuItem = new SysMenuItem()
-                {
-                    Children = new List<SysMenuItem>(),
-                    Id = p.Id,
-                    Label = p.Name,
-                    Type = p.Type
-                };
-                item.Children.Add(thisRoleMenuItem);
-                if (p.IsOwner)
-                {
-                    itemOutput.PageCheck.Add(p.Id);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    AddChildrenPage(p.ChildrenPage, thisRoleMenuItem, itemOutput);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    AddChildrenCheck(p.ChildrenAction, itemOutput);
-                }
-            }
-        }
-
-        private void MenuConfigsHandle(List<MenuConfig> myMenuConfigs, AuthorityCore authorityCorePage, AuthorityCore authorityCoreAction)
-        {
-            foreach (var p in myMenuConfigs)
-            {
-                if (p.Type == MenuType.Page)
-                {
-                    p.IsOwner = authorityCorePage.Validation(p.Id);
-                }
-                else
-                {
-                    p.IsOwner = authorityCoreAction.Validation(p.ActionId);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    MenuConfigsHandle(p.ChildrenPage, authorityCorePage, authorityCoreAction);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    MenuConfigsHandle(p.ChildrenAction, authorityCorePage, authorityCoreAction);
-                }
-            }
         }
 
         public ResponseBase VersionDefaultGet(VersionDefaultGetRequest request)
         {
-            return ResponseBase.Success(GetSysMenuViewOutputs(PermissionData.MenuConfigs));
+            return ResponseBase.Success(AgentComBusiness.GetSysMenuViewOutputs(PermissionData.MenuConfigs));
         }
 
         public async Task<ResponseBase> VersionGetAll(VersionGetAllRequest request)
@@ -833,7 +755,7 @@ namespace ETMS.Business.EtmsManage
             await _sysRoleDAL.AddRole(new SysRole()
             {
                 AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit),
-                AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
+                AuthorityValueMenu = AgentComBusiness.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Remark = request.Remark
@@ -851,7 +773,7 @@ namespace ETMS.Business.EtmsManage
             }
             role.Name = request.Name;
             role.Remark = request.Remark;
-            role.AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
+            role.AuthorityValueMenu = AgentComBusiness.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
             await _sysRoleDAL.EditRole(role);
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"编辑角色:{request.Name}", EmSysAgentOpLogType.RoleMange);
@@ -871,19 +793,19 @@ namespace ETMS.Business.EtmsManage
             var authorityCorePage = new AuthorityCore(pageWeight);
             var authorityCoreAction = new AuthorityCore(actionWeight);
             var myMenuConfigs = EtmsHelper.DeepCopy(AgentPermissionData.MenuConfigs);
-            MenuConfigsHandle(myMenuConfigs, authorityCorePage, authorityCoreAction);
+            AgentComBusiness.MenuConfigsHandle(myMenuConfigs, authorityCorePage, authorityCoreAction);
             return ResponseBase.Success(new SysRoleGetOutput()
             {
                 Name = role.Name,
                 Remark = role.Remark,
-                Menus = GetSysMenuViewOutputs(myMenuConfigs),
+                Menus = AgentComBusiness.GetSysMenuViewOutputs(myMenuConfigs),
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData)
             });
         }
 
         public ResponseBase SysRoleDefaultGet(SysRoleDefaultGetRequest request)
         {
-            return ResponseBase.Success(GetSysMenuViewOutputs(AgentPermissionData.MenuConfigs));
+            return ResponseBase.Success(AgentComBusiness.GetSysMenuViewOutputs(AgentPermissionData.MenuConfigs));
         }
 
         public async Task<ResponseBase> SysRoleDel(SysRoleDelRequest request)

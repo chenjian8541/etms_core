@@ -38,7 +38,7 @@ namespace ETMS.Business.EtmsManage
                 Remark = string.Empty,
                 UpgradeContent = request.UpgradeContent,
                 UpgradeType = request.UpgradeType
-            });
+            }, request.LoginUserId);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
             {
@@ -49,7 +49,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysClientUpgradeMgr
-            });
+            },request.LoginUserId);
             return ResponseBase.Success();
         }
 
@@ -75,7 +75,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysClientUpgradeMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 
@@ -97,7 +97,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysClientUpgradeMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
 

@@ -60,7 +60,7 @@ namespace ETMS.Business.EtmsManage
                 Ot = DateTime.Now,
                 Remark = string.Empty,
                 Type = EmSysAgentOpLogType.SysExplainMgr
-            });
+            }, request.LoginUserId);
             return ResponseBase.Success();
         }
     }

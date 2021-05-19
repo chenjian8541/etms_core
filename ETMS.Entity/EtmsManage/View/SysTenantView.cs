@@ -105,5 +105,7 @@ namespace ETMS.Entity.EtmsManage.View
         /// 百度云账号ID 
         /// </summary>
         public int BaiduCloudId { get; set; }
+
+        public long UserId { get; set; }
     }
 }

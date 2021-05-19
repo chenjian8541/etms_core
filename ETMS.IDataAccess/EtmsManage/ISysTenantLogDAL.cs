@@ -10,9 +10,9 @@ namespace ETMS.IDataAccess.EtmsManage
 {
     public interface ISysTenantLogDAL
     {
-        Task AddSysTenantEtmsAccountLog(SysTenantEtmsAccountLog entity);
+        Task AddSysTenantEtmsAccountLog(SysTenantEtmsAccountLog entity, long userId);
 
-        Task AddSysTenantSmsLog(SysTenantSmsLog entity);
+        Task AddSysTenantSmsLog(SysTenantSmsLog entity, long userId);
 
         Task<Tuple<IEnumerable<SysTenantEtmsAccountLogView>, int>> GetTenantEtmsAccountLogPaging(AgentPagingBase request);
 

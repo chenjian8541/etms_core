@@ -12,9 +12,11 @@ namespace ETMS.IDataAccess.EtmsManage
     {
         Task<SysAgent> ExistSysAgentByPhone(string phone,int notId = 0);
 
+        Task<SysAgent> ExistSysAgentByCode(string code, int notId = 0);
+
         Task<SysAgentBucket> GetAgent(int id);
 
-        Task<bool> AddAgent(SysAgent entity);
+        Task<bool> AddAgent(SysAgent entity,long userId);
 
         Task<bool> IsCanNotDelete(int agentId);
 
