@@ -277,6 +277,24 @@ namespace ETMS.Business.EtmsManage
                 Code = request.Code
             };
             await _sysAgentDAL.AddAgent(newAgent, request.LoginUserId);
+
+            //添加代理商默认账号
+            await _sysUserDAL.AddUser(new SysUser()
+            {
+                IsAdmin = EmBool.True,
+                IsDeleted = EmIsDeleted.Normal,
+                IsLock = EmSysAgentIsLock.Normal,
+                LastLoginOt = null,
+                CreatedAgentId = request.LoginAgentId,
+                Name = request.Name,
+                Address = request.Address,
+                AgentId = newAgent.Id,
+                Ot = DateTime.Now,
+                Password = CryptogramHelper.Encrypt3DES("88888888", SystemConfig.CryptogramConfig.Key),
+                Phone = request.Phone,
+                Remark = request.Remark,
+                UserRoleId = 0
+            });
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"新增代理商:名称:{newAgent.Name},手机号码,{newAgent.Phone}", EmSysAgentOpLogType.AgentMange);
             return ResponseBase.Success();
         }
