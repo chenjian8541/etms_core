@@ -12,6 +12,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         /// </summary>
         public string Token { get; set; }
 
+        public bool IsAdmin { get; set; }
+
         public DateTime ExpiresTime { get; set; }
 
         public PermissionOutput Permission { get; set; }

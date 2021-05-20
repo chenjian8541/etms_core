@@ -585,7 +585,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var desc = new StringBuilder($"{student.Name}同学，您的课程{student.CourseName}剩余{student.SurplusQuantityDesc}，点击查看详情");
+                    var desc = new StringBuilder($"{student.Name}同学，您的课程[{student.CourseName}]剩余{student.SurplusQuantityDesc}，点击查看详情");
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
                         desc.Append($"，{student.ExTimeDesc}到期");

@@ -13,6 +13,8 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
 
         public string Phone { get; set; }
 
+        public bool IsAdmin { get; set; }
+
         public List<RouteConfig> RouteConfigs { get; set; }
     }
 }

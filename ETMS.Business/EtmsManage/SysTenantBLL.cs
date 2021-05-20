@@ -181,6 +181,14 @@ namespace ETMS.Business.EtmsManage
             {
                 return ResponseBase.CommonError("机构编码已存在");
             }
+            var user = await _sysUserDAL.GetUser(request.LoginUserId);
+            if (user.IsAdmin == EmBool.False) //非主账号 只能添加测试账号
+            {
+                if (request.SmsCount > 0 || request.EtmsCount > 0)
+                {
+                    return ResponseBase.CommonError("您无权添加正式账号和分配短信");
+                }
+            }
             var agentBucket = await _sysAgentDAL.GetAgent(request.LoginAgentId);
             var myAgent = agentBucket.SysAgent;
             var myAgentAccount = agentBucket.SysAgentEtmsAccounts;

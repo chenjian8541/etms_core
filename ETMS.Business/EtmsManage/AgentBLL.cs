@@ -106,7 +106,8 @@ namespace ETMS.Business.EtmsManage
             {
                 Token = token,
                 ExpiresTime = exTime,
-                Permission = AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu, userAuthorityValueMenu)
+                Permission = AgentComBusiness.GetPermissionOutput(role.AuthorityValueMenu, userAuthorityValueMenu),
+                IsAdmin = userInfo.IsAdmin == EmBool.True
             };
             return response.GetResponseSuccess(output);
         }
@@ -170,6 +171,7 @@ namespace ETMS.Business.EtmsManage
 
             var role = await _sysRoleDAL.GetRole(agent.RoleId);
             output.RouteConfigs = AgentComBusiness.GetRouteConfigs(role.AuthorityValueMenu, userAuthorityValueMenu);
+            output.IsAdmin = userInfo.IsAdmin == EmBool.True;
             return ResponseBase.Success(output);
         }
 
