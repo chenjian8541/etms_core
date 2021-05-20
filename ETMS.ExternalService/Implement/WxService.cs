@@ -248,6 +248,10 @@ namespace ETMS.ExternalService.Implement
                             break;
                     }
                     var desc = new StringBuilder($"{student.Name}同学，您的课程已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}");
+                    if (!string.IsNullOrEmpty(student.ExTimeDesc))
+                    {
+                        desc.Append($"，{student.ExTimeDesc}到期");
+                    }
                     if (student.RewardPoints > 0)
                     {
                         desc.Append($"，奖励{student.RewardPoints}积分，剩余{student.Points}积分");
@@ -581,9 +585,14 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
+                    var desc = new StringBuilder($"{student.Name}同学，您的课程{student.CourseName}剩余{student.SurplusQuantityDesc}，点击查看详情");
+                    if (!string.IsNullOrEmpty(student.ExTimeDesc))
+                    {
+                        desc.Append($"，{student.ExTimeDesc}到期");
+                    }
                     var data = new
                     {
-                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的课程{student.CourseName}剩余{student.SurplusQuantityDesc}，点击查看详情")),
+                        first = new TemplateDataItem(GetFirstDesc(request, desc.ToString())),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(student.Phone, DefaultColor),
                         keyword3 = new TemplateDataItem(student.SurplusQuantityDesc, LinkColor),

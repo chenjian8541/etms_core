@@ -51,5 +51,7 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public int RewardPoints { get; set; }
 
         public int Points { get; set; }
+
+        public string ExTimeDesc { get; set; }
     }
 }

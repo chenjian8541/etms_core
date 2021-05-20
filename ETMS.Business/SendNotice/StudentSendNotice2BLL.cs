@@ -483,6 +483,9 @@ namespace ETMS.Business.SendNotice
             var myCourseName = myCourse.Item1.Name;
             var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
 
+            var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
+            var expireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetail);
+
             var req = new StudentCourseSurplusRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 Students = new List<StudentCourseSurplusItem>()
@@ -501,7 +504,8 @@ namespace ETMS.Business.SendNotice
                 StudentId = student.Id,
                 Url = url,
                 CourseName = myCourseName,
-                SurplusQuantityDesc = mySurplusQuantityDesc
+                SurplusQuantityDesc = mySurplusQuantityDesc,
+                ExTimeDesc = expireDateDesc
             });
             if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
             {
@@ -513,7 +517,8 @@ namespace ETMS.Business.SendNotice
                     StudentId = student.Id,
                     Url = url,
                     CourseName = myCourseName,
-                    SurplusQuantityDesc = mySurplusQuantityDesc
+                    SurplusQuantityDesc = mySurplusQuantityDesc,
+                    ExTimeDesc = expireDateDesc
                 });
             }
 

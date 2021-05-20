@@ -118,6 +118,28 @@ namespace ETMS.Business.Common
             return courseSurplusDesc.ToString().TrimEnd();
         }
 
+        internal static string GetStudentCourseExpireDateDesc(List<EtStudentCourseDetail> studentCourseDetail)
+        {
+            if (studentCourseDetail != null && studentCourseDetail.Any())
+            {
+                var normalCourse = studentCourseDetail.Where(p => p.Status == EmStudentCourseStatus.Normal);
+                if (normalCourse.Any())
+                {
+                    var notExCourse = normalCourse.FirstOrDefault(p => (p.SurplusQuantity > 0 || p.SurplusSmallQuantity > 0) && p.EndTime == null);
+                    if (notExCourse != null)
+                    {
+                        return string.Empty;
+                    }
+                    var hasExCourse = normalCourse.Where(p => (p.SurplusQuantity > 0 || p.SurplusSmallQuantity > 0) && p.EndTime != null).OrderByDescending(p => p.EndTime.Value).FirstOrDefault();
+                    if (hasExCourse != null)
+                    {
+                        return hasExCourse.EndTime.Value.EtmsToDateString();
+                    }
+                }
+            }
+            return string.Empty;
+        }
+
         internal static async Task<EtCourse> GetCourse(DataTempBox<EtCourse> tempBox, ICourseDAL courseDAL, long courseId)
         {
             var course = await tempBox.GetData(courseId, async () =>

@@ -527,9 +527,11 @@ namespace ETMS.Business
                     continue;
                 }
                 var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
-                var mySurplusClassTimes = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
-                var surplusClassTimesDesc = ComBusiness.GetStudentCourseDesc(mySurplusClassTimes);
+                var myStudentCourse = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
+                var surplusClassTimesDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
 
+                var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(p.StudentId, p.CourseId);
+                var expireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetail);
                 //if (mySurplusClassTimes != null && mySurplusClassTimes.Any())
                 //{
                 //    var temp = new StringBuilder();
@@ -566,7 +568,8 @@ namespace ETMS.Business
                     OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
                     LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
                     RewardPoints = p.RewardPoints,
-                    Points = student.Points
+                    Points = student.Points,
+                    ExTimeDesc = expireDateDesc
                 });
                 if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                 {
@@ -583,7 +586,8 @@ namespace ETMS.Business
                         OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
                         LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
                         RewardPoints = p.RewardPoints,
-                        Points = student.Points
+                        Points = student.Points,
+                        ExTimeDesc = expireDateDesc
                     });
                 }
             }

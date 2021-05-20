@@ -35,5 +35,7 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public string Url { get; set; }
 
         public string SurplusQuantityDesc { get; set; }
+
+        public string ExTimeDesc { get; set; }
     }
 }
