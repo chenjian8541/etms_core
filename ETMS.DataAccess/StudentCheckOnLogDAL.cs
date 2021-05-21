@@ -96,5 +96,11 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"update [EtStudentCheckOnLog] set [Status] = {EmStudentCheckOnLogStatus.BeRollcall} where TenantId = {_tenantId} and ClassTimesId = {classTimesId} ");
             return true;
         }
+
+        public async Task<bool> RevokeCheckSign(long classTimesId)
+        {
+            await _dbWrapper.Execute($"UPDATE [EtStudentCheckOnLog] SET [Status] = {EmStudentCheckOnLogStatus.Revoke},ClassTimesId = null,ClassId = null,CourseId =null,ClassOtDesc='',DeType = {EmDeClassTimesType.NotDe},DeClassTimes = 0,DeSum = 0,ExceedClassTimes =0,DeStudentCourseDetailId = null,Remark='撤销点名' WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} ");
+            return true;
+        }
     }
 }

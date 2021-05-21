@@ -15,6 +15,11 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal ExceedTotalClassTimes { get; set; }
 
+        /// <summary>
+        /// 是否扣课时
+        /// </summary>
+        public bool IsDeMyCourse { get; set; }
+
         public override string Validate()
         {
             if (StudentId <= 0 || CourseId <= 0)

@@ -33,9 +33,11 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public ClassCheckSignRevokeBLL(IClassRecordDAL classRecordDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL,
-            IUserDAL userDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL)
+            IUserDAL userDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -45,12 +47,13 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._eventPublisher = eventPublisher;
             this._classTimesDAL = classTimesDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _studentCourseDAL, _studentDAL, _studentCourseConsumeLogDAL,
-                _studentPointsLogDAL, _userDAL, _classTimesDAL);
+                _studentPointsLogDAL, _userDAL, _classTimesDAL, _studentCheckOnLogDAL);
         }
 
         public async Task<ResponseBase> ClassCheckSignRevoke(ClassCheckSignRevokeRequest request)
@@ -185,6 +188,8 @@ namespace ETMS.Business
             if (classRecord.ClassTimesId != null)
             {
                 await _classTimesDAL.UpdateClassTimesClassCheckSignRevoke(classRecord.ClassTimesId.Value, EmClassTimesStatus.UnRollcall);
+                //撤销考勤记上课
+                await _studentCheckOnLogDAL.RevokeCheckSign(classRecord.ClassTimesId.Value);
                 _eventPublisher.Publish(new SyncClassTimesStudentEvent(classRecord.TenantId)
                 {
                     ClassTimesId = classRecord.ClassTimesId.Value

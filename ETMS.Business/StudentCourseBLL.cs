@@ -420,6 +420,18 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("不存在此学员");
             }
+            if (request.IsDeMyCourse)
+            {
+                var myCourse = await _studentCourseDAL.GetStudentCourseDb(request.StudentId, request.CourseId);
+                var myDeClassTimeCourse = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+                if (myDeClassTimeCourse == null || myDeClassTimeCourse.ExceedTotalClassTimes <= 0)
+                {
+                    return ResponseBase.CommonError("未查询到学员在此课程有超上课时");
+                }
+                request.ExceedTotalClassTimes = myDeClassTimeCourse.ExceedTotalClassTimes;
+
+            }
+
             await _studentCourseDAL.StudentCourseMarkExceedClassTimes(request.StudentId, request.CourseId);
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {

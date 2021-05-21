@@ -26,5 +26,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtStudentCheckOnLog>> GetStudentDeLog(List<long> classTimesIds, long studentId);
 
         Task<bool> UpdateStudentCheckOnIsBeRollcall(long classTimesId);
+
+        Task<bool> RevokeCheckSign(long classTimesId);
     }
 }

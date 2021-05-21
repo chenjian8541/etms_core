@@ -2,6 +2,7 @@
 using ETMS.Authority;
 using ETMS.Cache.Redis;
 using ETMS.Cache.Redis.Wrapper;
+using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
@@ -69,6 +70,30 @@ namespace Etms.Tools.Test
         }
 
         public void ProcessRole()
+        {
+            TestLock();
+        }
+
+        private void TestLock()
+        {
+            var _distributedLockDAL = CustomServiceLocator.GetInstance<IDistributedLockDAL>();
+            var _lockKey = new StudentEnrolmentToken(6);
+            while (true)
+            {
+                if (_distributedLockDAL.LockTake(_lockKey))
+                {
+                    Console.WriteLine($"{DateTime.Now.EtmsToString()}获得执行锁,正在执行....");
+                }
+                else
+                {
+                    Console.WriteLine($"{DateTime.Now.EtmsToString()}等待中...");
+                    System.Threading.Thread.Sleep(1000 * 2);
+                    _distributedLockDAL.LockRelease(_lockKey);
+                }
+            }
+        }
+
+        private void SetRole()
         {
             var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             var tenantList = _sysTenantDAL.GetTenantsNormal().Result;
