@@ -66,6 +66,16 @@ namespace ETMS.Entity.Dto.Student.Output
         public string StatusDesc { get; set; }
 
         public string EndCourseRemark { get; set; }
+
+        /// <summary>
+        /// 剩余数量（课时/月）
+        /// </summary>
+        public decimal SurplusQuantity { get; set; }
+
+        /// <summary>
+        /// 剩余数量(天)
+        /// </summary>
+        public decimal SurplusSmallQuantity { get; set; }
     }
 
     public class StudentClass

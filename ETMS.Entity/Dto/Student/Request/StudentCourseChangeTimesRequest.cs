@@ -15,6 +15,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public List<string> Ot { get; set; }
 
+        public string Remark { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

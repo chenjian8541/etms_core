@@ -6,6 +6,7 @@ using ETMS.Entity.Dto.Educational.Output;
 using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
@@ -271,7 +272,9 @@ namespace ETMS.Business
                             SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
                             UseQuantityDesc = ComBusiness.GetUseQuantityDesc(p.UseQuantity, p.DeType),
                             StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(p.Status),
-                            EndCourseRemark = p.EndCourseRemark
+                            EndCourseRemark = p.EndCourseRemark,
+                            SurplusQuantity = p.SurplusQuantity,
+                            SurplusSmallQuantity = p.SurplusSmallQuantity
                         });
                     }
                     if (opLogs != null && opLogs.Any())
@@ -420,6 +423,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("不存在此学员");
             }
+            var deTimesDesc = string.Empty;
             if (request.IsDeMyCourse)
             {
                 var myCourse = await _studentCourseDAL.GetStudentCourseDb(request.StudentId, request.CourseId);
@@ -428,8 +432,47 @@ namespace ETMS.Business
                 {
                     return ResponseBase.CommonError("未查询到学员在此课程有超上课时");
                 }
+                if (myDeClassTimeCourse.Status == EmStudentCourseStatus.EndOfClass)
+                {
+                    return ResponseBase.CommonError("课程已结课，无法扣除相应的课时");
+                }
+                if (myDeClassTimeCourse.Status == EmStudentCourseStatus.StopOfClass)
+                {
+                    return ResponseBase.CommonError("课程已停课，无法扣除相应的课时");
+                }
                 request.ExceedTotalClassTimes = myDeClassTimeCourse.ExceedTotalClassTimes;
-
+                if (myDeClassTimeCourse.SurplusQuantity < request.ExceedTotalClassTimes)
+                {
+                    return ResponseBase.CommonError("学员剩余课时不足，无法扣除相应的课时");
+                }
+                //扣减课时
+                var deOt = DateTime.Now.Date;
+                var deResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+                {
+                    ClassOt = deOt,
+                    CourseId = myDeClassTimeCourse.CourseId,
+                    StudentId = myDeClassTimeCourse.StudentId,
+                    TenantId = myDeClassTimeCourse.TenantId,
+                    DeClassTimes = request.ExceedTotalClassTimes
+                });
+                if (deResult.DeType != EmDeClassTimesType.NotDe)
+                {
+                    await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                    {
+                        CourseId = myDeClassTimeCourse.CourseId,
+                        DeClassTimes = deResult.DeClassTimes,
+                        DeType = deResult.DeType,
+                        IsDeleted = EmIsDeleted.Normal,
+                        OrderId = deResult.OrderId,
+                        OrderNo = deResult.OrderNo,
+                        Ot = deOt,
+                        SourceType = EmStudentCourseConsumeSourceType.MarkExceedClassTimes,
+                        StudentId = myDeClassTimeCourse.StudentId,
+                        TenantId = myDeClassTimeCourse.TenantId,
+                        DeClassTimesSmall = 0
+                    });
+                    deTimesDesc = $"扣减{deResult.DeClassTimes.EtmsToString()}课时";
+                }
             }
 
             await _studentCourseDAL.StudentCourseMarkExceedClassTimes(request.StudentId, request.CourseId);
@@ -449,7 +492,7 @@ namespace ETMS.Business
                 OpUser = request.LoginUserId,
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId,
-                OpContent = $"超上{request.ExceedTotalClassTimes.EtmsToString()}课时，标记已处理",
+                OpContent = $"超上{request.ExceedTotalClassTimes.EtmsToString()}课时，标记已处理，{deTimesDesc}",
                 Remark = string.Empty
             });
 
@@ -731,7 +774,7 @@ namespace ETMS.Business
                 StudentId = studentCourseDetail.StudentId,
                 TenantId = request.LoginTenantId,
                 OpContent = $"修正课时,原剩余课时:{beforSurplusDesc},修正后剩余课时:{endSurplusDesc}",
-                Remark = string.Empty
+                Remark = request.Remark
             });
             await _userOperationLogDAL.AddUserLog(request, $"修正课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
