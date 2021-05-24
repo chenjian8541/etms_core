@@ -57,5 +57,10 @@ namespace ETMS.Event.DataContract
         /// 客户端类型  <see cref="ETMS.Entity.Enum.EmUserOperationLogClientType"/>
         /// </summary>
         public int LoginClientType { get; set; }
+
+        /// <summary>
+        /// 失败后尝试的次数
+        /// </summary>
+        public int TryCount { get; set; }
     }
 }

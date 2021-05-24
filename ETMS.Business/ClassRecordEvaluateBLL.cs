@@ -253,7 +253,14 @@ namespace ETMS.Business
                 var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, evaluateStudent.ClassId);
                 var className = etClass.Name;
                 var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, evaluateStudent.Teachers);
-                var evaluateUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, evaluateStudent.TeacherId);
+                var evaluateUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, evaluateStudent.TeacherId);
+                var evaluateUserName = string.Empty;
+                var evaluateUserAvatar = string.Empty;
+                if (evaluateUser != null)
+                {
+                    evaluateUserName = evaluateUser.Name;
+                    evaluateUserAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, evaluateUser.Avatar);
+                }
                 var student = await ComBusiness.GetStudent(tempStudent, _studentDAL, evaluateStudent.StudentId);
                 if (student == null)
                 {
@@ -273,7 +280,8 @@ namespace ETMS.Business
                     IsRead = evaluateStudent.IsRead,
                     StudentName = student.Name,
                     StudentPhone = student.Phone,
-                    EvaluateMedias = ComBusiness3.GetMediasUrl(evaluateStudent.EvaluateImg)
+                    EvaluateMedias = ComBusiness3.GetMediasUrl(evaluateStudent.EvaluateImg),
+                    EvaluateUserAvatar = evaluateUserAvatar
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateLogGetPagingOutput>(pagingData.Item2, output));

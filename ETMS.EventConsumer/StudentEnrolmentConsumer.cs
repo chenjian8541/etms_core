@@ -2,6 +2,7 @@
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.IOC;
 using ETMS.LOG;
 using Newtonsoft.Json;
@@ -18,10 +19,11 @@ namespace ETMS.EventConsumer
 
         private StudentEnrolmentToken _lockKey;
 
-        private int tryTimes = 1;
+        private IEventPublisher _eventPublisher;
 
         protected override async Task Receive(StudentEnrolmentEvent eEvent)
         {
+            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
             _distributedLockDAL = CustomServiceLocator.GetInstance<IDistributedLockDAL>();
             _lockKey = new StudentEnrolmentToken(eEvent.TenantId);
             _studentContractsBll = CustomServiceLocator.GetInstance<IStudentContractsBLL>();
@@ -44,14 +46,15 @@ namespace ETMS.EventConsumer
             }
             else
             {
-                tryTimes++;
-                if (tryTimes > 50)
+                eEvent.TryCount++;
+                Log.Warn($"【StudentEnrolmentConsumer】第{eEvent.TryCount}失败尝试，仍未获得执行锁,参数:{JsonConvert.SerializeObject(eEvent)}", this.GetType());
+                if (eEvent.TryCount > 100)
                 {
-                    Log.Error($"【StudentEnrolmentConsumer】学员报名消费者，尝试了50次仍未获得执行锁,参数:{JsonConvert.SerializeObject(eEvent)}", this.GetType());
-                    return;
+                    Log.Error($"【StudentEnrolmentConsumer】学员报名消费者，尝试了100次仍未获得执行锁,参数:{JsonConvert.SerializeObject(eEvent)}", this.GetType());
+                    _distributedLockDAL.LockRelease(_lockKey);
                 }
                 System.Threading.Thread.Sleep(3000);  //等待三秒再执行
-                await Process(eEvent);
+                _eventPublisher.Publish(eEvent);
             }
         }
     }

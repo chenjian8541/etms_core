@@ -26,5 +26,10 @@ namespace ETMS.Event.DataContract
         /// 发送事件的服务器名
         /// </summary>
         string FromApplicationMachine { get; }
+
+        /// <summary>
+        /// 失败后尝试的次数
+        /// </summary>
+        int TryCount { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Config;
 using ETMS.Event.DataContract;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using ETMS.IOC;
 using ETMS.LOG;
 using Newtonsoft.Json;
@@ -19,23 +20,24 @@ namespace ETMS.EventConsumer.Lib
     {
         private IDistributedLockDAL _distributedLockDAL;
 
-        private int tryTimes = 1;
-
-        private readonly T _lockKey;
+        private T _lockKey;
 
         private Func<Task> _process;
 
-        private IEvent _request;
+        private ETMS.Event.DataContract.Event _request;
 
-        private readonly string _processName;
+        private string _processName;
 
-        public LockTakeHandler(T lockKey, IEvent request, string processName, Func<Task> process)
+        private IEventPublisher _eventPublisher;
+
+        public LockTakeHandler(T lockKey, ETMS.Event.DataContract.Event request, string processName, Func<Task> process)
         {
             this._lockKey = lockKey;
             this._process = process;
             this._request = request;
             this._processName = processName;
             _distributedLockDAL = CustomServiceLocator.GetInstance<IDistributedLockDAL>();
+            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
         }
 
         public async Task Process()
@@ -58,14 +60,15 @@ namespace ETMS.EventConsumer.Lib
             }
             else
             {
-                tryTimes++;
-                if (tryTimes > 50)
+                _request.TryCount++;
+                Log.Warn($"【{_processName}】第{_request.TryCount}失败尝试，仍未获得执行锁,参数:{JsonConvert.SerializeObject(_request)}", this.GetType());
+                if (_request.TryCount > 100)
                 {
-                    Log.Error($"【{_processName}】尝试了50次仍未获得执行锁,参数:{JsonConvert.SerializeObject(_request)}", this.GetType());
-                    return;
+                    Log.Error($"【{_processName}】尝试了100次仍未获得执行锁,参数:{JsonConvert.SerializeObject(_request)}", this.GetType());
+                    _distributedLockDAL.LockRelease(_lockKey);
                 }
                 System.Threading.Thread.Sleep(3000);  //等待三秒再执行
-                await Run();
+                _eventPublisher.Publish(_request);
             }
         }
     }

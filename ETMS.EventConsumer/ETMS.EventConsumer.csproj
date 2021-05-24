@@ -13,6 +13,7 @@
     <ProjectReference Include="..\ETMS.Event.DataContract\ETMS.Event.DataContract.csproj" />
     <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
     <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
     <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
     <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
   </ItemGroup>

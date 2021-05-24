@@ -18,6 +18,8 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// </summary>
         public string EvaluateUserName { get; set; }
 
+        public string EvaluateUserAvatar { get; set; }
+
         /// <summary>
         /// 班级名称
         /// </summary>
