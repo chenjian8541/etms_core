@@ -96,5 +96,6 @@ namespace ETMS.Entity.Dto.Educational.Output
         public List<MultiSelectValueRequest> TeacherIds { get; set; }
 
         public List<long> ClassRoomIds { get; set; }
+
     }
 }

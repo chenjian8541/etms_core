@@ -36,6 +36,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public bool IsNotComeCharge { get; set; }
 
+        public List<MultiSelectValueRequest> CourseIds { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)
@@ -45,6 +47,14 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (string.IsNullOrEmpty(Name))
             {
                 return "请输入班级名称";
+            }
+            if (CourseIds == null || !CourseIds.Any())
+            {
+                return "请选择关联课程";
+            }
+            if (CourseIds.Count > 10)
+            {
+                return "最多设置10门关联的课程";
             }
             if (LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
             {
