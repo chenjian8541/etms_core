@@ -14,14 +14,14 @@ namespace ETMS.Entity.CacheBucket
             get
             {
                 var r = new Random();
-                return r.Next(7, 15);
+                return r.Next(2, 5);
             }
         }
 
         /// <summary>
         /// 机构数据超时时间
         /// </summary>
-        public const int TenantDataTimeOutDay = 30;
+        public const int TenantDataTimeOutDay = 15;
 
         /// <summary>
         /// 家长保留学员信息 (家长端登陆)
