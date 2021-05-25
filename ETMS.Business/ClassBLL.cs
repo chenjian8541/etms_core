@@ -144,7 +144,10 @@ namespace ETMS.Business
             etClass.Remark = request.Remark;
             etClass.IsLeaveCharge = request.IsLeaveCharge;
             etClass.IsNotComeCharge = request.IsNotComeCharge;
-            etClass.CourseList = GetMuIds(request.CourseIds);
+            if (etClass.Type == EmClassType.OneToMany)
+            {
+                etClass.CourseList = GetMuIds(request.CourseIds);
+            }
             await _classDAL.EditClass(etClass);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.CId));
             await _userOperationLogDAL.AddUserLog(request, $"编辑班级-{request.Name}", EmUserOperationType.ClassManage);

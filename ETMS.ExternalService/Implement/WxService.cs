@@ -585,11 +585,12 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var desc = new StringBuilder($"{student.Name}同学，您的课程[{student.CourseName}]剩余{student.SurplusQuantityDesc}，点击查看详情");
+                    var desc = new StringBuilder($"{student.Name}同学，您的课程[{student.CourseName}]剩余{student.SurplusQuantityDesc}");
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
                         desc.Append($"，{student.ExTimeDesc}到期");
                     }
+                    desc.Append("，点击查看详情");
                     var data = new
                     {
                         first = new TemplateDataItem(GetFirstDesc(request, desc.ToString())),
@@ -691,7 +692,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         continue;
                     }
-                    var title = GetFirstDesc(request, $"{student.StudentName}同学，您的课程{request.CourseName}剩余不足{request.NotEnoughDesc}，为了不影响您正常上课，请及时续费！");
+                    var title = GetFirstDesc(request, $"{student.StudentName}同学，您的课程[{request.CourseName}]剩余不足{request.NotEnoughDesc}，为了不影响您正常上课，请及时续费！");
                     object data = null;
                     if (request.DeType == EmDeClassTimesType.ClassTimes)
                     {
