@@ -274,7 +274,8 @@ namespace ETMS.Business
                             StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(p.Status),
                             EndCourseRemark = p.EndCourseRemark,
                             SurplusQuantity = p.SurplusQuantity,
-                            SurplusSmallQuantity = p.SurplusSmallQuantity
+                            SurplusSmallQuantity = p.SurplusSmallQuantity,
+                            EndTime = p.EndTime.EtmsToDateString()
                         });
                     }
                     if (opLogs != null && opLogs.Any())

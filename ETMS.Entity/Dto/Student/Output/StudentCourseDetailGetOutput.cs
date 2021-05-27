@@ -76,6 +76,11 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 剩余数量(天)
         /// </summary>
         public decimal SurplusSmallQuantity { get; set; }
+
+        /// <summary>
+        /// 截至时间
+        /// </summary>
+        public string EndTime { get; set; }
     }
 
     public class StudentClass

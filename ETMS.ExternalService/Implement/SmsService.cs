@@ -360,6 +360,10 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
+                    if (!string.IsNullOrEmpty(student.ExTimeDesc))
+                    {
+                        student.ExTimeDesc = $"{student.ExTimeDesc}到期";
+                    }
                     var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.ClassTimeDesc },
@@ -983,6 +987,10 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
+                    if (!string.IsNullOrEmpty(student.ExTimeDesc))
+                    {
+                        student.ExTimeDesc = $"{student.ExTimeDesc}到期";
+                    }
                     var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = student.CourseName  },
