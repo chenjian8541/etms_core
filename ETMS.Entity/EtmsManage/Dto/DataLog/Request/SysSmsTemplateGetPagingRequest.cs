@@ -17,6 +17,7 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhereGet("AgentId"));
+            condition.Append(" AND TenantId > 0");
             if (AgentId != null)
             {
                 condition.Append($" AND AgentId = {AgentId.Value}");

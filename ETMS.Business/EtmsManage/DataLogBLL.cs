@@ -88,22 +88,21 @@ namespace ETMS.Business.EtmsManage
         {
             var output = new List<SysTenantOperationLogPagingOutput>();
             var pagingData = await _sysTenantOperationLogDAL.GetPaging(request);
-            //var tempBoxAgent = new AgentDataTempBox<SysAgent>();
-            //var tempBoxTenant = new AgentDataTempBox<SysTenant>();
             if (pagingData.Item1.Any())
             {
+                AgentDataTempBox<SysAgent> tempBoxAgent = null;
+                AgentDataTempBox<SysTenant> tempBoxTenant = null;
+                if (request.IsQueryRich)
+                {
+                    tempBoxAgent = new AgentDataTempBox<SysAgent>();
+                    tempBoxTenant = new AgentDataTempBox<SysTenant>();
+                }
                 foreach (var p in pagingData.Item1)
                 {
-                    //var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
-                    //var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
-                    output.Add(new SysTenantOperationLogPagingOutput()
+                    var tempOutput = new SysTenantOperationLogPagingOutput()
                     {
-                        //AgentId = p.AgentId,
-                        //AgentName = agent?.Name,
-                        //AgentPhone = agent?.Phone,
-                        //TenantName = tenant?.Name,
-                        //TenantPhone = tenant?.Phone,
-                        //TenantId = p.TenantId,
+                        AgentId = p.AgentId,
+                        TenantId = p.TenantId,
                         ClientType = p.ClientType,
                         IpAddress = p.IpAddress,
                         OpContent = p.OpContent,
@@ -112,7 +111,23 @@ namespace ETMS.Business.EtmsManage
                         UserId = p.UserId,
                         ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType),
                         TypeDesc = EnumDataLib.GetUserOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label
-                    });
+                    };
+                    if (request.IsQueryRich)
+                    {
+                        var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
+                        if (agent != null)
+                        {
+                            tempOutput.AgentName = agent.Name;
+                            tempOutput.AgentPhone = agent.Phone;
+                        }
+                        var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
+                        if (tenant != null)
+                        {
+                            tempOutput.TenantName = tenant.Name;
+                            tempOutput.TenantPhone = tenant.Phone;
+                        }
+                    }
+                    output.Add(tempOutput);
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SysTenantOperationLogPagingOutput>(pagingData.Item2, output));
@@ -124,9 +139,16 @@ namespace ETMS.Business.EtmsManage
             var pagingData = await _sysTenantLogDAL.GetSysTenantExDateLogPaging(request);
             if (pagingData.Item1.Any())
             {
+                AgentDataTempBox<SysAgent> tempBoxAgent = null;
+                AgentDataTempBox<SysTenant> tempBoxTenant = null;
+                if (request.IsQueryRich)
+                {
+                    tempBoxAgent = new AgentDataTempBox<SysAgent>();
+                    tempBoxTenant = new AgentDataTempBox<SysTenant>();
+                }
                 foreach (var p in pagingData.Item1)
                 {
-                    output.Add(new SysTenantExDateLogPagingOutput()
+                    var tempOutput = new SysTenantExDateLogPagingOutput()
                     {
                         AfterDateDesc = p.AfterDate.EtmsToDateString(),
                         AgentId = p.AgentId,
@@ -136,7 +158,23 @@ namespace ETMS.Business.EtmsManage
                         Ot = p.Ot,
                         TenantId = p.TenantId,
                         Remark = p.Remark
-                    }); ;
+                    };
+                    if (request.IsQueryRich)
+                    {
+                        var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
+                        if (agent != null)
+                        {
+                            tempOutput.AgentName = agent.Name;
+                            tempOutput.AgentPhone = agent.Phone;
+                        }
+                        var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
+                        if (tenant != null)
+                        {
+                            tempOutput.TenantName = tenant.Name;
+                            tempOutput.TenantPhone = tenant.Phone;
+                        }
+                    }
+                    output.Add(tempOutput); ;
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SysTenantExDateLogPagingOutput>(pagingData.Item2, output));

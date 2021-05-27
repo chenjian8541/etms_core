@@ -11,6 +11,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public DateTime? NewExDate { get; set; }
 
+        public string Remark { get; set; }
+
         public override string Validate()
         {
             if (Id <= 0)

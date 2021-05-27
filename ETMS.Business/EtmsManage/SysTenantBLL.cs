@@ -467,7 +467,7 @@ namespace ETMS.Business.EtmsManage
             tenant.ExDate = request.NewExDate.Value;
             await _sysTenantDAL.EditTenant(tenant);
 
-            await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, "设置过期时间");
+            await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, $"设置过期时间：{request.Remark}");
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"设置机构到期时间:名称:{tenant.Name};机构编码:{tenant.TenantCode};手机号码:{tenant.Phone},原到期时间:{oldDate.EtmsToDateString()},新到期时间:{tenant.ExDate.EtmsToDateString()}", EmSysAgentOpLogType.TenantMange);

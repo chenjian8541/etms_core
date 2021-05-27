@@ -53,6 +53,28 @@
           "Title": "短信变动记录",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 24,
+        "Path": "tenantExDateLog",
+        "Name": "tenantExDateLog",
+        "Type": 1,
+        "Component": "@/components/TenantMgrView/TenantExDateLog",
+        "Meta": {
+          "Title": "到期变动记录",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 25,
+        "Path": "tenantOperationLog",
+        "Name": "tenantOperationLog",
+        "Type": 1,
+        "Component": "@/components/TenantMgrView/TenantOperationLog",
+        "Meta": {
+          "Title": "机构操作日志",
+          "Icon": "item"
+        }
       }
     ]
   },

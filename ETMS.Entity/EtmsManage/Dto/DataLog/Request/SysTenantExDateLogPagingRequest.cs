@@ -8,6 +8,8 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Request
 {
     public class SysTenantExDateLogPagingRequest : AgentPagingBase
     {
+        public bool IsQueryRich { get; set; }
+
         public int? AgentId { get; set; }
 
         public int? TenantId { get; set; }
