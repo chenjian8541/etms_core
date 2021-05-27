@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.ExternalService.Implement
 {
@@ -188,6 +189,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.NoticeStudentsOfClassBeforeDay).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -202,15 +204,12 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Empty;
-                    if (string.IsNullOrEmpty(request.ClassRoom))
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassBeforeDay.NoRoom, student.StudentName, request.ClassTimeDesc, student.CourseName);
-                    }
-                    else
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassBeforeDay.HasRoom, student.StudentName, request.ClassTimeDesc, student.CourseName, request.ClassRoom);
-                    }
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                     new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.StudentName  },
+                     new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value =  request.ClassTimeDesc  },
+                     new SmsReplaceWord(){  Wildcard =mySmsTemplateWildcard[2],Value =student.CourseName },
+                     new SmsReplaceWord(){  Wildcard =mySmsTemplateWildcard[3],Value =request.ClassRoom },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -268,6 +267,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.NoticeStudentsOfClassToday).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -282,15 +282,12 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Empty;
-                    if (string.IsNullOrEmpty(request.ClassRoom))
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassToday.NoRoom, student.StudentName, student.CourseName, request.ClassTimeDesc);
-                    }
-                    else
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeStudentsOfClassToday.HasRoom, student.StudentName, student.CourseName, request.ClassTimeDesc, request.ClassRoom);
-                    }
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>(){
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.StudentName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value =  request.ClassTimeDesc  },
+                        new SmsReplaceWord(){  Wildcard =mySmsTemplateWildcard[2],Value =student.CourseName },
+                        new SmsReplaceWord(){  Wildcard =mySmsTemplateWildcard[3],Value =request.ClassRoom },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -348,6 +345,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.ClassCheckSign).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -362,8 +360,15 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.ClassCheckSign.Com, student.Name, request.ClassTimeDesc, student.CourseName, student.StudentCheckStatusDesc,
-                        student.DeClassTimesDesc, student.SurplusClassTimesDesc);
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.ClassTimeDesc },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = student.CourseName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[3], Value = student.StudentCheckStatusDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[4], Value = student.DeClassTimesDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[5], Value = student.SurplusClassTimesDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[6], Value = student.ExTimeDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -421,6 +426,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentLeaveApply).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -435,7 +441,12 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.StudentLeaveApply.Com, student.Name, request.TimeDesc, student.HandleStatusDesc);
+
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.TimeDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = student.HandleStatusDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -493,6 +504,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentContracts).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -507,7 +519,14 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.StudentContracts.Com, student.Name, request.TimeDedc, request.BuyDesc, request.AptSumDesc, request.PaySumDesc);
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>()
+                    {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.TimeDedc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = request.BuyDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[3], Value = request.AptSumDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[4], Value = request.PaySumDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -565,6 +584,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentCourseNotEnough).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -579,7 +599,12 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.StudentCourseNotEnough.Com, student.StudentName, request.CourseName, request.NotEnoughDesc);
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>()
+                    {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.StudentName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.CourseName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = request.NotEnoughDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -637,6 +662,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.NoticeUserOfClassToday).Wildcards;
                 foreach (var user in request.Users)
                 {
                     if (!EtmsHelper.IsMobilePhone(user.Phone))
@@ -651,15 +677,12 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Empty;
-                    if (string.IsNullOrEmpty(request.ClassRoom))
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeUserOfClassToday.NoRoom, user.UserName, user.CourseName, request.ClassTimeDesc);
-                    }
-                    else
-                    {
-                        content = string.Format(_smsConfig.ZhuTong.NoticeUserOfClassToday.HasRoom, user.UserName, user.CourseName, request.ClassTimeDesc, request.ClassRoom);
-                    }
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = user.UserName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = user.CourseName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = request.ClassTimeDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[3], Value = request.ClassRoom  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -722,6 +745,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     deClassTimesDesc = $"{request.DeClassTimesDesc}，";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentCheckOnLogCheckIn).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -736,7 +760,11 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.StudentCheckOnLog.CheckIn, student.Name, request.CheckOtDesc, deClassTimesDesc);
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value =  request.CheckOtDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = deClassTimesDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -794,6 +822,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentCheckOnLogCheckOut).Wildcards;
                 foreach (var student in request.Students)
                 {
                     if (!EtmsHelper.IsMobilePhone(student.Phone))
@@ -808,7 +837,10 @@ namespace ETMS.ExternalService.Implement
                         time = string.Empty,
                         username = _smsConfig.ZhuTong.UserName
                     };
-                    var content = string.Format(_smsConfig.ZhuTong.StudentCheckOnLog.CheckOut, student.Name, request.CheckOtDesc);
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.CheckOtDesc  },
+                    });
                     content = $"{smsSignature}{content}";
                     sendSmsRequest.content = content;
                     var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -866,6 +898,7 @@ namespace ETMS.ExternalService.Implement
                 {
                     smsSignature = $"【{myTenant.SmsSignature}】";
                 }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentAccountRechargeChanged).Wildcards;
                 var student = request.Students.First();
                 var sendSmsRequest = new SendSmsRequest()
                 {
@@ -875,7 +908,10 @@ namespace ETMS.ExternalService.Implement
                     time = string.Empty,
                     username = _smsConfig.ZhuTong.UserName
                 };
-                var content = string.Format(_smsConfig.ZhuTong.StudentAccountRechargeChanged.Com, student.Name, request.BalanceDesc);
+                var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                    new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value = student.Name  },
+                    new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = request.BalanceDesc  },
+                });
                 content = $"{smsSignature}{content}";
                 sendSmsRequest.content = content;
                 var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
@@ -916,7 +952,80 @@ namespace ETMS.ExternalService.Implement
 
         public async Task<SmsOutput> StudentCourseSurplus(StudentCourseSurplusRequest request)
         {
-            return SmsOutput.Success();
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Students.Count)
+            {
+                Log.Warn($"[StudentCourseSurplus]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
+                var mySmsTemplateWildcard = SmsTemplateAnalyze.SmsTemplate.First(p => p.Type == EmSysSmsTemplateType.StudentCourseSurplus).Wildcards;
+                foreach (var student in request.Students)
+                {
+                    if (!EtmsHelper.IsMobilePhone(student.Phone))
+                    {
+                        continue;
+                    }
+                    var sendSmsRequest = new SendSmsRequest()
+                    {
+                        mobile = student.Phone,
+                        password = tKeyAndPwd.Item2,
+                        tKey = tKeyAndPwd.Item1,
+                        time = string.Empty,
+                        username = _smsConfig.ZhuTong.UserName
+                    };
+                    var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[1], Value = student.CourseName  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[2], Value = student.SurplusQuantityDesc  },
+                        new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[3], Value = student.ExTimeDesc  },
+                    });
+                    content = $"{smsSignature}{content}";
+                    sendSmsRequest.content = content;
+                    var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
+                    if (!SendSmsRes.IsSuccess(res))
+                    {
+                        Log.Info($"[StudentCourseSurplus]学员剩余课程,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = student.Phone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = student.StudentId,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.StudentCheckOnLog
+                        });
+                    }
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[StudentCourseSurplus]学员剩余课程:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { StudentSmsLogs = smsLog });
+                }
+            }
         }
     }
 }

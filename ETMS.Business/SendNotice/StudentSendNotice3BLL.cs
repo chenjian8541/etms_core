@@ -18,6 +18,7 @@ using ETMS.Business.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.IBusiness;
 using ETMS.Entity.Temp.Request;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.Business.SendNotice
 {
@@ -49,10 +50,12 @@ namespace ETMS.Business.SendNotice
 
         private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
 
+        private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
+
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
             IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
-            IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL)
+            IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -68,10 +71,12 @@ namespace ETMS.Business.SendNotice
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._userSendNoticeBLL = userSendNoticeBLL;
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
+            this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this._userSendNoticeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
@@ -304,6 +309,7 @@ namespace ETMS.Business.SendNotice
             {
                 if (tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentAccountRechargeChanged);
                     await _smsService.NoticeStudentAccountRechargeChanged(req);
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentAccountRechargeChangedWeChat)

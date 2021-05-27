@@ -2,10 +2,12 @@
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
+using ETMS.IBusiness;
 using ETMS.IBusiness.SendNotice;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
@@ -50,11 +52,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
+
         public UserSendNoticeBLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IJobAnalyzeDAL jobAnalyzeDAL, ITempUserClassNoticeDAL tempUserClassNoticeDAL, IClassRoomDAL classRoomDAL,
             IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
             IUserDAL userDAL, ISmsService smsService, IWxService wxService, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-            IStudentDAL studentDAL)
+            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
             : base(userWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._eventPublisher = eventPublisher;
@@ -70,10 +74,12 @@ namespace ETMS.Business.SendNotice
             this._wxService = wxService;
             this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
             this._studentDAL = studentDAL;
+            this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _courseDAL, _classDAL, _jobAnalyzeDAL, _tempUserClassNoticeDAL, _classRoomDAL,
                 _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL);
         }
@@ -202,6 +208,7 @@ namespace ETMS.Business.SendNotice
             {
                 if (request.IsSendSms)
                 {
+                    smsReq.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.NoticeUserOfClassToday);
                     await _smsService.NoticeUserOfClassToday(smsReq);
                 }
                 if (request.IsSendWeChat)

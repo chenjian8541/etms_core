@@ -18,6 +18,7 @@ using ETMS.Entity.Config;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IBusiness.Wechart;
 using ETMS.Business.WxCore;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.Business
 {
@@ -55,12 +56,15 @@ namespace ETMS.Business
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
+
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
-            IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
+            ISysSmsTemplate2BLL sysSmsTemplate2BLL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
@@ -79,10 +83,12 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
                 _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL);
@@ -240,6 +246,7 @@ namespace ETMS.Business
             {
                 if (request.IsSendSms)
                 {
+                    smsReq.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.NoticeStudentsOfClassBeforeDay);
                     await _smsService.NoticeStudentsOfClassBeforeDay(smsReq);
                 }
                 if (request.IsSendWeChat)
@@ -450,6 +457,7 @@ namespace ETMS.Business
             {
                 if (request.IsSendSms)
                 {
+                    smsReq.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.NoticeStudentsOfClassToday);
                     await _smsService.NoticeStudentsOfClassToday(smsReq);
                 }
                 if (request.IsSendWeChat)
@@ -595,6 +603,7 @@ namespace ETMS.Business
             {
                 if (tenantConfig.StudentNoticeConfig.ClassCheckSignSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.ClassCheckSign);
                     await _smsService.NoticeClassCheckSign(req);
                 }
                 if (tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat)
@@ -663,6 +672,7 @@ namespace ETMS.Business
             {
                 if (tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentLeaveApply);
                     await _smsService.NoticeStudentLeaveApply(req);
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentAskForLeaveCheckWeChat)
@@ -769,6 +779,7 @@ namespace ETMS.Business
             {
                 if (tenantConfig.StudentNoticeConfig.OrderBySms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentContracts);
                     await _smsService.NoticeStudentContracts(req);
                 }
                 if (tenantConfig.StudentNoticeConfig.OrderByWeChat)

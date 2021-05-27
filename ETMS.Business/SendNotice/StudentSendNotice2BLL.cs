@@ -20,6 +20,7 @@ using ETMS.IBusiness.Wechart;
 using ETMS.Business.WxCore;
 using ETMS.IBusiness.SendNotice;
 using Newtonsoft.Json;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.Business.SendNotice
 {
@@ -53,11 +54,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
+
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
             IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
-            IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
         {
             this._wxService = wxService;
@@ -74,10 +77,12 @@ namespace ETMS.Business.SendNotice
             this._classTimesDAL = classTimesDAL;
             this._smsService = smsService;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
                 _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL,
                 _studentCheckOnLogDAL);
@@ -526,6 +531,11 @@ namespace ETMS.Business.SendNotice
 
             if (req.Students.Count > 0)
             {
+                if (tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedSms)
+                {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentCourseSurplus);
+                    await _smsService.StudentCourseSurplus(req);
+                }
                 if (tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat)
                 {
                     _wxService.StudentCourseSurplus(req);
@@ -727,6 +737,7 @@ namespace ETMS.Business.SendNotice
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentCourseNotEnough);
                     await _smsService.NoticeStudentCourseNotEnough(req);
                 }
             }
@@ -842,6 +853,7 @@ namespace ETMS.Business.SendNotice
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(request.TenantId, EmSysSmsTemplateType.StudentCourseNotEnough);
                     await _smsService.NoticeStudentCourseNotEnough(req);
                 }
             }
@@ -948,6 +960,7 @@ namespace ETMS.Business.SendNotice
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentCheckOnSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(tenantId, EmSysSmsTemplateType.StudentCheckOnLogCheckIn);
                     await _smsService.NoticeStudentCheckIn(req);
                 }
             }
@@ -999,6 +1012,7 @@ namespace ETMS.Business.SendNotice
                 }
                 if (tenantConfig.StudentNoticeConfig.StudentCheckOnSms)
                 {
+                    req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(tenantId, EmSysSmsTemplateType.StudentCheckOnLogCheckOut);
                     await _smsService.NoticeStudentCheckOut(req);
                 }
             }

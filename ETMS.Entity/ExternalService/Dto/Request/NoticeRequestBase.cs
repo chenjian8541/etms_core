@@ -39,5 +39,7 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public string TenantSmsSignature { get; set; }
 
         public bool WechartTemplateMessageLimit { get; set; }
+
+        public string SmsTemplate { get; set; }
     }
 }

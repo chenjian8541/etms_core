@@ -13,6 +13,7 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Enum;
 using ETMS.Business.Common;
+using ETMS.Utility;
 
 namespace ETMS.Business
 {
@@ -38,10 +39,14 @@ namespace ETMS.Business
 
         public async Task<string> GetSmsTemplate(int tenantId, int type)
         {
-            var hisData = await _sysSmsTemplateDAL.GetSysSmsTemplateByTypeDb(tenantId, type);
-            if (hisData != null && hisData.HandleStatus == EmSysSmsTemplateHandleStatus.Pass)
+            var myAllSysSmsTemplates = await _sysSmsTemplateDAL.GetSysSmsTemplates(tenantId);
+            if (myAllSysSmsTemplates != null && myAllSysSmsTemplates.Count > 0)
             {
-                return hisData.SmsContent;
+                var hisData = myAllSysSmsTemplates.FirstOrDefault(p => p.Type == type);
+                if (hisData != null)
+                {
+                    return hisData.SmsContent;
+                }
             }
             var sysDefaultSysSmsTemplate = await _sysSmsTemplateDAL.GetSysSmsTemplates(0);
             var myData = sysDefaultSysSmsTemplate.FirstOrDefault(p => p.Type == type);
