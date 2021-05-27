@@ -56,13 +56,22 @@ namespace Etms.Tools.Test
             //var endTime = startTime.AddMonths(1).AddDays(-1);
             //Console.WriteLine(startTime);
             //Console.WriteLine(endTime);
-            var process = new EtmsProcess();
+            //var process = new EtmsProcess();
             //var a = 1;
             //while (a < 100)
             //{
-                process.ProcessRole();
-           // }
+            // process.ProcessRole();
+            // }
             Console.Read();
+        }
+
+        private static void GetPwd()
+        {
+            while (true)
+            {
+                var s = Console.ReadLine();
+                Console.WriteLine(DbDecrypt3DES(s));
+            }
         }
 
         private static string SerializeObjectDynamicData(dynamic postData)

@@ -60,12 +60,12 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// <summary>
         /// 学员请假审核结果通知(短信)
         /// </summary>
-        public bool StudentAskForLeaveCheckSms { get; set; } = false;
+        public bool StudentAskForLeaveCheckSms { get; set; }
 
         /// <summary>
         /// 学员请假审核结果通知(微信)
         /// </summary>
-        public bool StudentAskForLeaveCheckWeChat { get; set; } = true;
+        public bool StudentAskForLeaveCheckWeChat { get; set; }
 
         public bool ClassRecordStudentChangeWeChat { get; set; }
 
@@ -97,11 +97,21 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// <summary>
         /// 充值账户变动提醒
         /// </summary>
-        public bool StudentAccountRechargeChangedWeChat { get; set; } = true;
+        public bool StudentAccountRechargeChangedWeChat { get; set; }
 
         /// <summary>
         /// 充值账户变动提醒
         /// </summary>
-        public bool StudentAccountRechargeChangedSms { get; set; } = true;
+        public bool StudentAccountRechargeChangedSms { get; set; }
+
+        /// <summary>
+        /// 学员课时变动提醒
+        /// </summary>
+        public bool StudentCourseSurplusChangedWeChat { get; set; }
+
+        /// <summary>
+        /// 学员课时变动提醒
+        /// </summary>
+        public bool StudentCourseSurplusChangedSms { get; set; }
     }
 }

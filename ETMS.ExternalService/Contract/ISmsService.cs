@@ -37,5 +37,7 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> NoticeStudentCheckOut(NoticeStudentCheckOutRequest request);
 
         Task<SmsOutput> NoticeStudentAccountRechargeChanged(NoticeStudentAccountRechargeChangedRequest request);
+
+        Task<SmsOutput> StudentCourseSurplus(StudentCourseSurplusRequest request);
     }
 }

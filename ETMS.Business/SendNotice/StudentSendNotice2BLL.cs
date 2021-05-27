@@ -451,7 +451,8 @@ namespace ETMS.Business.SendNotice
         public async Task NoticeStudentCourseSurplusConsumerEvent(NoticeStudentCourseSurplusEvent request)
         {
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            if (!tenantConfig.StudentNoticeConfig.ClassRecordStudentChangeWeChat)
+            if (!tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat &&
+                !tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedSms)
             {
                 return;
             }
@@ -486,7 +487,8 @@ namespace ETMS.Business.SendNotice
             var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var expireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetail);
 
-            var req = new StudentCourseSurplusRequest(await GetNoticeRequestBase(request.TenantId))
+            var req = new StudentCourseSurplusRequest(await GetNoticeRequestBase(request.TenantId,
+                tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat))
             {
                 Students = new List<StudentCourseSurplusItem>()
             };
@@ -499,7 +501,7 @@ namespace ETMS.Business.SendNotice
             req.Students.Add(new StudentCourseSurplusItem()
             {
                 Name = student.Name,
-                OpendId = await GetOpenId(true, student.Phone),
+                OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat, student.Phone),
                 Phone = student.Phone,
                 StudentId = student.Id,
                 Url = url,
@@ -512,7 +514,7 @@ namespace ETMS.Business.SendNotice
                 req.Students.Add(new StudentCourseSurplusItem()
                 {
                     Name = student.Name,
-                    OpendId = await GetOpenId(true, student.PhoneBak),
+                    OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat, student.PhoneBak),
                     Phone = student.PhoneBak,
                     StudentId = student.Id,
                     Url = url,
@@ -524,7 +526,10 @@ namespace ETMS.Business.SendNotice
 
             if (req.Students.Count > 0)
             {
-                _wxService.StudentCourseSurplus(req);
+                if (tenantConfig.StudentNoticeConfig.StudentCourseSurplusChangedWeChat)
+                {
+                    _wxService.StudentCourseSurplus(req);
+                }
             }
         }
 

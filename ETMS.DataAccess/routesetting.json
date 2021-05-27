@@ -905,6 +905,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "sms_template_set",
+        "Name": "sms_template_set",
+        "Type": 1,
+        "Component": "@/components/SystemSet/SmsTemplateSet",
+        "Meta": {
+          "Title": "短信模板设置",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 81,
         "Path": "tenantSet",
         "Name": "tenantSet",

@@ -155,6 +155,9 @@ namespace ETMS.Entity.Enum
         ClassTimesMgr = 78,
 
         [Description("套餐管理")]
-        SuitMgr = 79
+        SuitMgr = 79,
+
+        [Description("短信模板设置")]
+        SmsSmsTemplate = 80
     }
 }

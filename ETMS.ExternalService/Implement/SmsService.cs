@@ -913,5 +913,10 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public async Task<SmsOutput> StudentCourseSurplus(StudentCourseSurplusRequest request)
+        {
+            return SmsOutput.Success();
+        }
     }
 }

@@ -44,6 +44,10 @@ namespace Etms.Agent.WebApi.Lib.Json
         /// <param name="value"></param>
         public void SetValue(object target, object value)
         {
+            if (value is string && value != null)
+            {
+                value = value.ToString().Trim();
+            }
             _memberInfo.SetValue(target, value);
         }
     }

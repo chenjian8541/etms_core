@@ -435,6 +435,16 @@ namespace ETMS.Entity.Config
         /// 充值账户变动提醒
         /// </summary>
         public bool StudentAccountRechargeChangedSms { get; set; } = true;
+
+        /// <summary>
+        /// 学员课时变动提醒
+        /// </summary>
+        public bool StudentCourseSurplusChangedWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 学员课时变动提醒
+        /// </summary>
+        public bool StudentCourseSurplusChangedSms { get; set; } = true;
     }
 
     public class ClassCheckSignConfig
