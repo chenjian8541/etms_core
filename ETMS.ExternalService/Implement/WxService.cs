@@ -250,7 +250,7 @@ namespace ETMS.ExternalService.Implement
                     var desc = new StringBuilder($"{student.Name}同学，您的课程已完成点名，本次课您已{student.StudentCheckStatusDesc}，消耗{student.DeClassTimesDesc}课时，剩余{student.SurplusClassTimesDesc}");
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
-                        desc.Append($"，{student.ExTimeDesc}到期");
+                        desc.Append($"，课程{student.ExTimeDesc}到期");
                     }
                     if (student.RewardPoints > 0)
                     {
@@ -588,7 +588,7 @@ namespace ETMS.ExternalService.Implement
                     var desc = new StringBuilder($"{student.Name}同学，您的课程[{student.CourseName}]剩余{student.SurplusQuantityDesc}");
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
-                        desc.Append($"，{student.ExTimeDesc}到期");
+                        desc.Append($"，课程{student.ExTimeDesc}到期");
                     }
                     desc.Append("，点击查看详情");
                     var data = new

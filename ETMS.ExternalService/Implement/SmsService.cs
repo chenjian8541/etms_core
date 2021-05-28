@@ -362,7 +362,7 @@ namespace ETMS.ExternalService.Implement
                     };
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
-                        student.ExTimeDesc = $"{student.ExTimeDesc}到期";
+                        student.ExTimeDesc = $"课程{student.ExTimeDesc}到期";
                     }
                     var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
@@ -989,7 +989,7 @@ namespace ETMS.ExternalService.Implement
                     };
                     if (!string.IsNullOrEmpty(student.ExTimeDesc))
                     {
-                        student.ExTimeDesc = $"{student.ExTimeDesc}到期";
+                        student.ExTimeDesc = $"课程{student.ExTimeDesc}到期";
                     }
                     var content = SmsTemplateAnalyze.GetSmsContent(request.SmsTemplate, new List<SmsReplaceWord>() {
                         new SmsReplaceWord(){ Wildcard =mySmsTemplateWildcard[0], Value =  student.Name  },
