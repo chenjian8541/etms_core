@@ -791,6 +791,10 @@ namespace ETMS.Business
 
         public async Task NoticeStudentsOfWxMessageConsumerEvent(NoticeStudentsOfWxMessageEvent request)
         {
+            if (request.StudentIds == null || request.StudentIds.Count == 0)
+            {
+                return;
+            }
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var wxMessageDetailIdViews = await _activeWxMessageDAL.GetWxMessageDetailIdView(request.WxMessageAddId, request.StudentIds);

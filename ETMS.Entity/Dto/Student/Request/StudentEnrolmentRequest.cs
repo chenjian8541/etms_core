@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ETMS.Utility;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
@@ -102,9 +103,9 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string Validate()
         {
-            if (Ot == default(DateTime))
+            if (Ot.IsEffectiveDate())
             {
-                return "请选择经办日期";
+                return "请选择有效的经办日期";
             }
             return string.Empty;
         }

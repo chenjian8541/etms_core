@@ -4,6 +4,10 @@ using ETMS.IEventProvider;
 using ETMS.Manage.Entity.Config;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using ETMS.Entity.Database.Manage;
+using System.Linq;
+using ETMS.Utility;
 
 namespace ETMS.Manage.Jobs
 {
@@ -13,6 +17,8 @@ namespace ETMS.Manage.Jobs
 
         private readonly IEventPublisher _eventPublisher;
 
+        private const int _pageSize = 100;
+
         public SysTenantPeopleAnalysisJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
         {
             this._sysTenantDAL = sysTenantDAL;
@@ -21,7 +27,29 @@ namespace ETMS.Manage.Jobs
 
         public override async Task Process(JobExecutionContext context)
         {
-            var tenantList = await _sysTenantDAL.GetTenantsNormal();
+            var pageCurrent = 1;
+            var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
+            if (getTenantsEffectiveResult.Item2 == 0)
+            {
+                return;
+            }
+            HandleTenantList(getTenantsEffectiveResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
+            pageCurrent++;
+            while (pageCurrent <= totalPage)
+            {
+                getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
+                HandleTenantList(getTenantsEffectiveResult.Item1);
+                pageCurrent++;
+            }
+        }
+
+        private void HandleTenantList(IEnumerable<SysTenant> tenantList)
+        {
+            if (tenantList == null || !tenantList.Any())
+            {
+                return;
+            }
             foreach (var tenant in tenantList)
             {
                 _eventPublisher.Publish(new SysTenantUserAnalysisEvent(tenant.Id));

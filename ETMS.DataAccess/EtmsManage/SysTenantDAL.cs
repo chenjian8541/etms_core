@@ -47,14 +47,10 @@ namespace ETMS.DataAccess.EtmsManage
             return bucket?.SysTenant;
         }
 
-        public async Task<List<SysTenant>> GetTenants()
+        public async Task<Tuple<IEnumerable<SysTenant>, int>> GetTenantsEffective(int pageSize, int pageCurrent)
         {
-            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal);
-        }
-
-        public async Task<List<SysTenant>> GetTenantsNormal()
-        {
-            return await this.FindList<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Status == EmSysTenantStatus.Normal && p.ExDate >= DateTime.Now.Date);
+            var minDate = DateTime.Now.AddDays(-30).Date; //分析包含过期一个月以内的机构
+            return await this.ExecutePage<SysTenant>("SysTenant", "*", pageSize, pageCurrent, "Id DESC", $" IsDeleted = {EmIsDeleted.Normal} AND ExDate >= '{minDate.EtmsToDateString()}' ");
         }
 
         public async Task<int> AddTenant(SysTenant sysTenant, long userId)

@@ -95,42 +95,42 @@ namespace Etms.Tools.Test
 
         private void SetRole()
         {
-            var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
-            var tenantList = _sysTenantDAL.GetTenantsNormal().Result;
-            var _roleBll = CustomServiceLocator.GetInstance<IRoleDAL>();
-            foreach (var myTenant in tenantList)
-            {
-                try
-                {
-                    _roleBll.ResetTenantId(myTenant.Id);
-                    var allRole = _roleBll.GetRole().Result;
-                    if (allRole.Count > 0)
-                    {
-                        foreach (var myRole in allRole)
-                        {
-                            var roleAuthorityValueMenu = myRole.AuthorityValueMenu;
-                            var arrayRoleAuthorityValueMenu = roleAuthorityValueMenu.Split('|');
-                            var pageWeight = arrayRoleAuthorityValueMenu[2].ToBigInteger();
-                            var authorityCorePage = new AuthorityCore(pageWeight);
-                            if (authorityCorePage.Validation(26) && !authorityCorePage.Validation(90))
-                            {
-                                authorityCorePage.RegisterAuthority(90);
-                                authorityCorePage.RegisterAuthority(91);
-                                var s = authorityCorePage.GetWeigth().ToString();
-                                arrayRoleAuthorityValueMenu[2] = s;
-                                myRole.AuthorityValueMenu = string.Join('|', arrayRoleAuthorityValueMenu);
-                                //myRole.Name = $"{myRole.Name}_自动处理";
-                                _roleBll.EditRole(myRole).Wait();
-                                Console.WriteLine($"处理完成:{myRole.Name}  {myRole.AuthorityValueMenu}");
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"执行出错:{myTenant.Name}  {ex.Message}");
-                }
-            }
+            //var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            //var tenantList = _sysTenantDAL.GetTenantsNormal().Result;
+            //var _roleBll = CustomServiceLocator.GetInstance<IRoleDAL>();
+            //foreach (var myTenant in tenantList)
+            //{
+            //    try
+            //    {
+            //        _roleBll.ResetTenantId(myTenant.Id);
+            //        var allRole = _roleBll.GetRole().Result;
+            //        if (allRole.Count > 0)
+            //        {
+            //            foreach (var myRole in allRole)
+            //            {
+            //                var roleAuthorityValueMenu = myRole.AuthorityValueMenu;
+            //                var arrayRoleAuthorityValueMenu = roleAuthorityValueMenu.Split('|');
+            //                var pageWeight = arrayRoleAuthorityValueMenu[2].ToBigInteger();
+            //                var authorityCorePage = new AuthorityCore(pageWeight);
+            //                if (authorityCorePage.Validation(26) && !authorityCorePage.Validation(90))
+            //                {
+            //                    authorityCorePage.RegisterAuthority(90);
+            //                    authorityCorePage.RegisterAuthority(91);
+            //                    var s = authorityCorePage.GetWeigth().ToString();
+            //                    arrayRoleAuthorityValueMenu[2] = s;
+            //                    myRole.AuthorityValueMenu = string.Join('|', arrayRoleAuthorityValueMenu);
+            //                    //myRole.Name = $"{myRole.Name}_自动处理";
+            //                    _roleBll.EditRole(myRole).Wait();
+            //                    Console.WriteLine($"处理完成:{myRole.Name}  {myRole.AuthorityValueMenu}");
+            //                }
+            //            }
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"执行出错:{myTenant.Name}  {ex.Message}");
+            //    }
+            //}
         }
     }
 }
