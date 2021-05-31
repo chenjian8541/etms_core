@@ -60,12 +60,14 @@ namespace ETMS.Business
 
         private readonly IStudentPointsLogDAL _studentPointsLogDAL;
 
+        private IDistributedLockDAL _distributedLockDAL;
+
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL,
-            IStudentPointsLogDAL studentPointsLogDAL)
+            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -85,6 +87,7 @@ namespace ETMS.Business
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
             this._studentPointsLogDAL = studentPointsLogDAL;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -313,7 +316,8 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(student.Avatar, student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
+            _distributedLockDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -342,7 +346,8 @@ namespace ETMS.Business
                 MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
+            _distributedLockDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -383,7 +388,8 @@ namespace ETMS.Business
                 RequestBase = request,
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL);
+            _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
+            _distributedLockDAL);
             return await studentCheckProcess.Process();
         }
 

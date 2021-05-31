@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket.RedisLock;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Enum;
@@ -48,11 +49,13 @@ namespace ETMS.Business.Common
 
         private readonly IStudentPointsLogDAL _studentPointsLogDAL;
 
+        private IDistributedLockDAL _distributedLockDAL;
+
         public StudentCheckProcess(StudentCheckProcessRequest request, IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL,
             IEventPublisher eventPublisher, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IUserOperationLogDAL userOperationLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
             ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentDAL studentDAL,
-            IStudentPointsLogDAL studentPointsLogDAL)
+            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL)
         {
             this._request = request;
             this._eventPublisher = eventPublisher;
@@ -69,6 +72,7 @@ namespace ETMS.Business.Common
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         private async Task<long> AddNotDeStudentCheckOnLog(byte checkType, string remark = "")
@@ -194,6 +198,23 @@ namespace ETMS.Business.Common
         }
 
         public async Task<ResponseBase> Process()
+        {
+            var lockKey = new StudentCheckToken(_request.LoginTenantId, _request.Student.Id);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await this.CheckStudentInvoke();
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("请勿重复考勤");
+        }
+
+        public async Task<ResponseBase> CheckStudentInvoke()
         {
             var studentCheckLastTime = _tempDataCacheDAL.GetStudentCheckLastTimeBucket(_request.LoginTenantId, _request.Student.Id);
             if (studentCheckLastTime != null)
