@@ -205,6 +205,32 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantOtherInfoGet(TenantOtherInfoGetRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantOtherInfoGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantOtherInfoSave(TenantOtherInfoSaveRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantOtherInfoSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
         {
             try

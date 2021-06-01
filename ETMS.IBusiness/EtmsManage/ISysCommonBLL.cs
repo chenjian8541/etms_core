@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> EtmsGlobalConfigGet(EtmsGlobalConfigGetRequest request);
 
         Task<ResponseBase> EtmsGlobalConfigSave(EtmsGlobalConfigSaveRequest request);
+
+        ResponseBase UploadConfigGet(AgentRequestBase request);
     }
 }

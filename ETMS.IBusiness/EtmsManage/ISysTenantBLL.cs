@@ -63,5 +63,9 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> AIFaceAllAccountGet(AgentRequestBase request);
 
         Task<ResponseBase> ResetTenantAdminUserPwd(ResetTenantAdminUserPwdRequest request);
+
+        Task<ResponseBase> TenantOtherInfoGet(TenantOtherInfoGetRequest request);
+
+        Task<ResponseBase> TenantOtherInfoSave(TenantOtherInfoSaveRequest request);
     }
 }

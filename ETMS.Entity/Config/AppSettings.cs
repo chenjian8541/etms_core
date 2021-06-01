@@ -49,6 +49,13 @@ namespace ETMS.Entity.Config
         public MailConfig MailConfig { get; set; }
 
         public CloudBaiduConfig CloudBaiduConfig { get; set; }
+
+        public SysAddressConfig SysAddressConfig { get; set; }
+    }
+
+    public class SysAddressConfig
+    {
+        public string MainLoginParms { get; set; }
     }
 
     public class CloudBaiduConfig

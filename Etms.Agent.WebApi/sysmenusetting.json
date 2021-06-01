@@ -75,6 +75,11 @@
         "ActionId": 20,
         "Name": "绑定机构业务员",
         "Type": 1
+      },
+      {
+        "ActionId": 22,
+        "Name": "品牌定制",
+        "Type": 1
       }
     ]
   },

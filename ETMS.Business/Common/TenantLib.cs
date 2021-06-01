@@ -7,6 +7,12 @@ namespace ETMS.Business.Common
 {
     public class TenantLib
     {
+        public static string GetTenantLoginUrl(int tenantId, string mainLoginParms)
+        {
+            var enStr = GetTenantEncrypt(tenantId);
+            return string.Format(mainLoginParms, enStr);
+        }
+
         /// <summary>
         /// 加密tenantId
         /// </summary>

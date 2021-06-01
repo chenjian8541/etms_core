@@ -33,6 +33,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "tenant_oem/:cid",
+        "Name": "tenant_oem",
+        "Type": 1,
+        "Component": "@/components/TenantMgrView/TenantListView/SetOem",
+        "Meta": {
+          "Title": "品牌定制",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 3,
         "Path": "tenantEtmsAccountLog",
         "Name": "tenantEtmsAccountLog",

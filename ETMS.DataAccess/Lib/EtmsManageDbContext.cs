@@ -54,5 +54,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysUser> SysUsers { get; set; }
         public DbSet<SysUserRole> SysUserRoles { get; set; }
         public DbSet<SysSmsTemplate> SysSmsTemplates { get; set; }
+        public DbSet<SysTenantOtherInfo> SysTenantOtherInfos { get; set; }
     }
 }

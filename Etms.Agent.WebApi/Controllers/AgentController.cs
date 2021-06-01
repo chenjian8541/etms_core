@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
@@ -708,6 +709,19 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysCommonBLL.EtmsGlobalConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public ResponseBase UploadConfigGet(AgentRequestBase request)
+        {
+            try
+            {
+                return _sysCommonBLL.UploadConfigGet(request);
             }
             catch (Exception ex)
             {

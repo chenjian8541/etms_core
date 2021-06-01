@@ -1,11 +1,14 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Dto.SysCom.Output;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Output;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -62,6 +65,22 @@ namespace ETMS.Business.EtmsManage
                 Type = EmSysAgentOpLogType.SysExplainMgr
             }, request.LoginUserId);
             return ResponseBase.Success();
+        }
+
+        public ResponseBase UploadConfigGet(AgentRequestBase request)
+        {
+            var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(0);
+            return ResponseBase.Success(new UploadConfigGetOutput()
+            {
+                AccessKeyId = aliyunOssSTS.Credentials.AccessKeyId,
+                AccessKeySecret = aliyunOssSTS.Credentials.AccessKeySecret,
+                Bucket = AliyunOssUtil.BucketName,
+                Region = AliyunOssSTSUtil.STSRegion,
+                Basckey = AliyunOssUtil.GetBascKeyPrefix(0, AliyunOssFileTypeEnum.STS),
+                ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
+                BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
+                SecurityToken = aliyunOssSTS.Credentials.SecurityToken
+            });
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ETMS.Business.EtmsManage.Common;
+﻿using ETMS.Business.Common;
+using ETMS.Business.EtmsManage.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
@@ -52,12 +53,16 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysUserDAL _sysUserDAL;
 
+        private readonly ISysTenantOtherInfoDAL _sysTenantOtherInfoDAL;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
             ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL,
-            ISysUserDAL sysUserDAL)
+            ISysUserDAL sysUserDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -72,6 +77,8 @@ namespace ETMS.Business.EtmsManage
             this._smsService = smsService;
             this._sysTenantStatisticsDAL = sysTenantStatisticsDAL;
             this._sysUserDAL = sysUserDAL;
+            this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -1018,6 +1025,52 @@ namespace ETMS.Business.EtmsManage
             var userInfo = await _userDAL.GetAdminUser();
             userInfo.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
             await _userDAL.EditUser(userInfo);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantOtherInfoGet(TenantOtherInfoGetRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            var output = new TenantOtherInfoGetOutput()
+            {
+                TenantId = tenant.Id,
+                AgentId = request.LoginAgentId,
+                TenantName = tenant.Name,
+                TenantCode = tenant.TenantCode,
+                TenantPhone = tenant.Phone,
+                TenantMyLink = TenantLib.GetTenantLoginUrl(tenant.Id, _appConfigurtaionServices.AppSettings.SysAddressConfig.MainLoginParms)
+            };
+            var tenantOtherInfo = await _sysTenantOtherInfoDAL.GetSysTenantOtherInfo(request.TenantId);
+            if (tenantOtherInfo == null)
+            {
+                return ResponseBase.Success(output);
+            }
+            output.HomeLogo1 = tenantOtherInfo.HomeLogo1;
+            output.HomeLogo2 = tenantOtherInfo.HomeLogo2;
+            output.LoginBg = tenantOtherInfo.LoginBg;
+            output.LoginLogo1 = tenantOtherInfo.LoginLogo1;
+            output.HomeLogo1Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.HomeLogo1);
+            output.HomeLogo2Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.HomeLogo2);
+            output.LoginBgUrl = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginBg);
+            output.LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginLogo1);
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantOtherInfoSave(TenantOtherInfoSaveRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            var entity = new SysTenantOtherInfo()
+            {
+                LoginLogo1 = request.LoginLogo1,
+                LoginBg = request.LoginBg,
+                HomeLogo2 = request.HomeLogo2,
+                HomeLogo1 = request.HomeLogo1,
+                AgentId = tenant.AgentId,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                TenantId = request.TenantId
+            };
+            await _sysTenantOtherInfoDAL.SaveTenantOtherInfo(entity);
             return ResponseBase.Success();
         }
     }

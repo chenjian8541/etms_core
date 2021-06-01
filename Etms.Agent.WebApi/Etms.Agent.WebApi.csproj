@@ -34,6 +34,7 @@
     <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
     <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
     <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj" />
     <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
   </ItemGroup>
