@@ -21,6 +21,7 @@ using ETMS.Entity.Config.Menu;
 using ETMS.Entity.Config.Router;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
+using ETMS.Entity.Database.Manage;
 
 namespace ETMS.Business
 {
@@ -48,10 +49,12 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
+        private readonly ISysTenantOtherInfoDAL _sysTenantOtherInfoDAL;
+
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
             IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
-            IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL)
+            IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -64,11 +67,44 @@ namespace ETMS.Business
             this._appAuthorityDAL = appAuthorityDAL;
             this._eventPublisher = eventPublisher;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _etUserDAL, _userOperationLogDAL, _roleDAL, _subjectDAL, _tenantConfigDAL);
+        }
+
+        private async Task<TenantOEMInfoOutput> GetTenantOEMInfoOutput(int tenantId)
+        {
+            TenantOEMInfoOutput output = null;
+            var otherInfo = await _sysTenantOtherInfoDAL.GetSysTenantOtherInfo(tenantId);
+            if (otherInfo != null)
+            {
+                output = new TenantOEMInfoOutput()
+                {
+                    HomeLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.HomeLogo1),
+                    HomeLogo2Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.HomeLogo2),
+                    LoginBgUrl = AliyunOssUtil.GetAccessUrlHttps(otherInfo.LoginBg),
+                    LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.LoginLogo1)
+                };
+            }
+            return output;
+        }
+
+        public async Task<ResponseBase> GetOemLogin(GetOemLoginRequest request)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            if (tenantId == 0)
+            {
+                return ResponseBase.CommonError("机构编码错误");
+            }
+            return ResponseBase.Success(await GetTenantOEMInfoOutput(tenantId));
+        }
+
+        public async Task<ResponseBase> GetOemLogin2(RequestBase request)
+        {
+            return ResponseBase.Success(await GetTenantOEMInfoOutput(request.LoginTenantId));
         }
 
         public async Task<ResponseBase> GetLoginInfo(GetLoginInfoRequest request)
@@ -88,7 +124,8 @@ namespace ETMS.Business
                 RouteConfigs = ComBusiness.GetRouteConfigs(myAllRouteConfigs, role.AuthorityValueMenu, userInfo.IsAdmin),
                 OrgName = tenant.Name,
                 RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
-                TenantConfig = config
+                TenantConfig = config,
+                TenantOEMInfo = await GetTenantOEMInfoOutput(request.LoginTenantId)
             });
         }
 

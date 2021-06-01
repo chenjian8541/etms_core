@@ -10,6 +10,10 @@ namespace ETMS.IBusiness
 {
     public interface IUserBLL : IBaseBLL
     {
+        Task<ResponseBase> GetOemLogin(GetOemLoginRequest request);
+
+        Task<ResponseBase> GetOemLogin2(RequestBase request);
+
         Task<ResponseBase> GetLoginInfo(GetLoginInfoRequest request);
 
         Task<ResponseBase> GetLoginPermission(GetLoginPermissionRequest request);

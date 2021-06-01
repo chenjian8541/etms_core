@@ -224,6 +224,33 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public async Task<ResponseBase> GetOemLogin(GetOemLoginRequest request)
+        {
+            try
+            {
+                return await _userBLL.GetOemLogin(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetOemLogin2(RequestBase request)
+        {
+            try
+            {
+                return await _userBLL.GetOemLogin2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 获取登陆信息
         /// </summary>
