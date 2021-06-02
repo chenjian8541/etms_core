@@ -54,6 +54,7 @@ namespace ETMS.DataAccess.EtmsManage
                 log.HomeLogo2 = entity.HomeLogo2;
                 log.LoginLogo1 = entity.LoginLogo1;
                 log.LoginBg = entity.LoginBg;
+                log.IsHideKeFu = entity.IsHideKeFu;
                 await this.Update(log);
             }
             await UpdateCache(entity.TenantId);

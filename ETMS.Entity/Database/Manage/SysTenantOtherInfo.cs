@@ -20,5 +20,10 @@ namespace ETMS.Entity.Database.Manage
         public string LoginLogo1 { get; set; }
 
         public string LoginBg { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsHideKeFu { get; set; }
     }
 }

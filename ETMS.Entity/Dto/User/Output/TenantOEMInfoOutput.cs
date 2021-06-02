@@ -13,5 +13,10 @@ namespace ETMS.Entity.Dto.User.Output
         public string LoginLogo1Url { get; set; }
 
         public string LoginBgUrl { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public bool IsHideKeFu { get; set; }
     }
 }

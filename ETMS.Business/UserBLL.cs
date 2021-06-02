@@ -86,7 +86,8 @@ namespace ETMS.Business
                     HomeLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.HomeLogo1),
                     HomeLogo2Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.HomeLogo2),
                     LoginBgUrl = AliyunOssUtil.GetAccessUrlHttps(otherInfo.LoginBg),
-                    LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.LoginLogo1)
+                    LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.LoginLogo1),
+                    IsHideKeFu = otherInfo.IsHideKeFu == EmBool.True
                 };
             }
             return output;

@@ -18,6 +18,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public string LoginBg { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public bool IsHideKeFu { get; set; }
+
         public override string Validate()
         {
             if (TenantId <= 0)

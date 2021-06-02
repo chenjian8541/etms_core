@@ -42,5 +42,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string LoginBgUrl { get; set; }
 
         public string TenantMyLink { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public bool IsHideKeFu { get; set; }
     }
 }

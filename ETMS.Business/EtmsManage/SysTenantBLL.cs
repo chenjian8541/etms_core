@@ -1053,6 +1053,7 @@ namespace ETMS.Business.EtmsManage
             output.HomeLogo2Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.HomeLogo2);
             output.LoginBgUrl = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginBg);
             output.LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginLogo1);
+            output.IsHideKeFu = tenantOtherInfo.IsHideKeFu == EmBool.True;
             return ResponseBase.Success(output);
         }
 
@@ -1068,7 +1069,8 @@ namespace ETMS.Business.EtmsManage
                 AgentId = tenant.AgentId,
                 IsDeleted = EmIsDeleted.Normal,
                 Remark = string.Empty,
-                TenantId = request.TenantId
+                TenantId = request.TenantId,
+                IsHideKeFu = request.IsHideKeFu ? EmBool.True : EmBool.False
             };
             await _sysTenantOtherInfoDAL.SaveTenantOtherInfo(entity);
             return ResponseBase.Success();
