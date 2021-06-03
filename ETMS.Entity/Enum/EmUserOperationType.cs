@@ -158,6 +158,9 @@ namespace ETMS.Entity.Enum
         SuitMgr = 79,
 
         [Description("短信模板设置")]
-        SmsSmsTemplate = 80
+        SmsSmsTemplate = 80,
+
+        [Description("微官网")]
+        MicroWebManage = 81
     }
 }

@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Etms.Tools.Test
 {
@@ -62,6 +63,17 @@ namespace Etms.Tools.Test
             //{
             // process.ProcessRole();
             // }
+
+            var mystudents = new List<MyStudent>();
+            mystudents.Add(new MyStudent() { Id = 1, Name = "1" });
+            mystudents.Add(new MyStudent() { Id = 2, Name = "2" });
+            mystudents.Add(new MyStudent() { Id = 3, Name = "3" });
+            mystudents.Add(new MyStudent() { Id = 4, Name = "4" });
+
+            var this3 = mystudents.FirstOrDefault(p => p.Id == 3);
+            this3.Name = "李小白";
+
+            Console.WriteLine(mystudents.First(p => p.Id == 3).Name);
             Console.Read();
         }
 
@@ -275,5 +287,12 @@ namespace Etms.Tools.Test
     public class Test
     {
         public decimal Money { get; set; }
+    }
+
+    public class MyStudent
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
     }
 }

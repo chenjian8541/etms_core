@@ -129,5 +129,11 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtSuit> EtSuits { get; set; }
 
         public DbSet<EtSuitDetail> EtSuitDetails { get; set; }
+
+        public DbSet<EtMicroWebConfig> EtMicroWebConfigs { get; set; }
+
+        public DbSet<EtMicroWebColumn> EtMicroWebColumns { get; set; }
+
+        public DbSet<EtMicroWebColumnArticle> EtMicroWebColumnArticles { get; set; }
     }
 }

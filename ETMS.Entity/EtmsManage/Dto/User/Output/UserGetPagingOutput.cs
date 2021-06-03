@@ -34,5 +34,10 @@ namespace ETMS.Entity.EtmsManage.Dto.User.Output
         public long Value { get; set; }
 
         public string Label { get; set; }
+
+        /// <summary>
+        /// 是否为管理员  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsAdmin { get; set; }
     }
 }

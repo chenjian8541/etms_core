@@ -167,7 +167,8 @@ namespace ETMS.Business.EtmsManage
                         UserRoleName = role,
                         IsLockDesc = EmSysAgentIsLock.GetSysAgentIsLockDesc(p.IsLock),
                         Label = p.Name,
-                        Value = p.Id
+                        Value = p.Id,
+                        IsAdmin = p.IsAdmin
                     });
                 }
             }

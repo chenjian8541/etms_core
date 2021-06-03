@@ -15,5 +15,10 @@ namespace ETMS.Entity.Enum
         /// True
         /// </summary>
         public const byte True = 1;
+
+        public static string GetBoolDesc(byte t)
+        {
+            return t == True ? "是" : "否";
+        }
     }
 }

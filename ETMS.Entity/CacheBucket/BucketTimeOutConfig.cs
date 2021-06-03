@@ -62,5 +62,10 @@ namespace ETMS.Entity.CacheBucket
         /// 用户、学员对应的机构
         /// </summary>
         public const int SysTenantPeopleOutHour = 1;
+
+        /// <summary>
+        /// 一天的数据
+        /// </summary>
+        public const int TempOneDay = 1;
     }
 }
