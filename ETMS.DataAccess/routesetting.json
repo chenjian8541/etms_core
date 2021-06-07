@@ -517,6 +517,65 @@
           "Title": "礼品",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 86,
+        "Path": "microWebMgr",
+        "Name": "microWebMgr",
+        "Type": 1,
+        "Component": "@/views/marketingMgr/microWebMgr",
+        "Meta": {
+          "Title": "微官网",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnEdit/:tid",
+        "Name": "webColumnEdit",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnEdit",
+        "Meta": {
+          "Title": "编辑栏目",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnAdd",
+        "Name": "webColumnAdd",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnEdit",
+        "Meta": {
+          "Title": "添加栏目",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnArticleEdit/:cid/:tid",
+        "Name": "webColumnArticleEdit",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnArticleEdit",
+        "Meta": {
+          "Title": "编辑内容",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnArticleAdd/:tid",
+        "Name": "webColumnArticleAdd",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnArticleEdit",
+        "Meta": {
+          "Title": "添加内容",
+          "Icon": "item"
+        }
       }
     ]
   },

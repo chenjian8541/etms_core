@@ -15,5 +15,10 @@ namespace ETMS.Entity.Enum
         /// 禁用
         /// </summary>
         public const byte Disable = 1;
+
+        public static string GetMicroWebStatusDesc(byte t)
+        {
+            return t == Enable ? "启用" : "禁用";
+        }
     }
 }

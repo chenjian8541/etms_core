@@ -6,6 +6,7 @@ using System.Text;
 
 namespace ETMS.Entity.Database.Source
 {
+    [Serializable]
     [Table("EtMicroWebColumn")]
     public class EtMicroWebColumn: Entity<long>
     {

@@ -8,6 +8,7 @@ namespace ETMS.Entity.Database.Source
     /// 主数据库共有字段
     /// </summary>
     /// <typeparam name="TPrimaryKey"></typeparam>
+    [Serializable]
     public abstract class Entity<TPrimaryKey>
     {
         /// <summary>

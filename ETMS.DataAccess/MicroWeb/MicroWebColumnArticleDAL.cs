@@ -56,7 +56,7 @@ namespace ETMS.DataAccess.MicroWeb
 
         public async Task<bool> DelMicroWebColumnArticle(long id)
         {
-            await _dbWrapper.Execute($"DELETE EtMicroWebColumnArticle WHERE Id = {id} AND TenantId = {_tenantId}");
+            await _dbWrapper.Execute($"UPDATE EtMicroWebColumnArticle SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {id} AND TenantId = {_tenantId}");
             RemoveCache(_tenantId, id);
             return true;
         }

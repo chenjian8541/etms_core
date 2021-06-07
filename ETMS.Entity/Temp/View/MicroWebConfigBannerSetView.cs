@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Temp.View
 {
+    [Serializable]
     public class MicroWebConfigBannerSetView
     {
         public bool IsShowInHome { get; set; }

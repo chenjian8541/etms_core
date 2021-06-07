@@ -105,7 +105,8 @@ namespace ETMS.Business.MicroWeb
                     ShowInMenuIconUrl = AliyunOssUtil.GetAccessUrlHttps(p.ShowInMenuIcon),
                     ShowStyle = p.ShowStyle,
                     Status = p.Status,
-                    Type = p.Type
+                    Type = p.Type,
+                    StatusDesc = EmMicroWebStatus.GetMicroWebStatusDesc(p.Status)
                 });
             }
             return ResponseBase.Success(output);
@@ -137,6 +138,10 @@ namespace ETMS.Business.MicroWeb
             if (allColumn != null && allColumn.Count >= 5)
             {
                 return ResponseBase.CommonError("最多添加5个栏目");
+            }
+            if (request.Type == EmMicroWebColumnType.SinglePage)
+            {
+                request.ShowStyle = EmMicroWebStyle.Style1;
             }
             await _microWebColumnDAL.AddMicroWebColumn(new EtMicroWebColumn()
             {

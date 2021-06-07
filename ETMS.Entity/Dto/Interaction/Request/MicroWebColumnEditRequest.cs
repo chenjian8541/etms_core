@@ -39,10 +39,6 @@ namespace ETMS.Entity.Dto.Interaction.Request
 
         public override string Validate()
         {
-            if (Id <= 0)
-            {
-                return "请求数据格式错误";
-            }
             if (string.IsNullOrEmpty(Name))
             {
                 return "名称不能为空";
