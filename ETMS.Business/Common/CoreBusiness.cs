@@ -83,7 +83,7 @@ namespace ETMS.Business.Common
             }
 
             var timesCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes && (p.EndTime == null || classDate <= p.EndTime)
-            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal).OrderBy(p => p.Id).ToList();
+            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal).OrderBy(p => p.Id).ToList().OrderBy(p=>p.Id).ToList();
             if (timesCourseDetail.Count == 0)
             {
                 //无剩余课时 记录超上课时

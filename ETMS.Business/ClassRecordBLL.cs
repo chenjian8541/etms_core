@@ -505,6 +505,7 @@ namespace ETMS.Business
             }
 
             var oldDeSum = p.DeSum;
+            var oldDeClassTimes = p.DeClassTimes;
             var oldCheckStatus = p.StudentCheckStatus;
             var oldRemark = p.Remark;
             var oldPoints = p.RewardPoints;
@@ -542,7 +543,7 @@ namespace ETMS.Business
                 Status = p.Status,
                 TenantId = p.TenantId,
                 UserId = request.LoginUserId,
-                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeSum.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
+                OpContent = $"修改学员[{studentBuck.Student.Name}]点名信息，状态从：{EmClassStudentCheckStatus.GetClassStudentCheckStatus(oldCheckStatus)}改成{EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus)}，扣减课时从：{oldDeClassTimes.EtmsToString()}改成{p.DeClassTimes.EtmsToString()}，原备注：{oldRemark}"
             });
 
             //发通知  已在计算剩余课时之后 发送提醒
