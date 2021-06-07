@@ -15,5 +15,10 @@ namespace ETMS.Entity.Enum
         /// 单页
         /// </summary>
         public const byte SinglePage = 1;
+
+        public static string GetMicroWebColumnTypeDesc(byte t)
+        {
+            return t == ListPage ? "列表" : "单页";
+        }
     }
 }

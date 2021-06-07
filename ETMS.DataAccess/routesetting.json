@@ -556,7 +556,31 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "webColumnArticleEdit/:cid/:tid",
+        "Path": "webColumnArticleMgr/:tid",
+        "Name": "webColumnArticleMgr",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnArticleMgr",
+        "Meta": {
+          "Title": "栏目内容管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnArticleSingle/:sid",
+        "Name": "webColumnArticleSingle",
+        "Type": 1,
+        "Component": "@/components/microWebMgr/webColumnArticleEdit",
+        "Meta": {
+          "Title": "编辑栏目内容",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "webColumnArticleEdit/:tid/:cid",
         "Name": "webColumnArticleEdit",
         "Type": 1,
         "Component": "@/components/microWebMgr/webColumnArticleEdit",

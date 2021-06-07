@@ -30,5 +30,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// <see cref="ETMS.Entity.Enum.EmMicroWebStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        public string StatusDesc { get; set; }
     }
 }

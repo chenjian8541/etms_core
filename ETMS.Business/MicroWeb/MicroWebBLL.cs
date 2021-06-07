@@ -74,7 +74,8 @@ namespace ETMS.Business.MicroWeb
                 ShowInMenuIconUrl = AliyunOssUtil.GetAccessUrlHttps(p.ShowInMenuIcon),
                 ShowStyle = p.ShowStyle,
                 Status = p.Status,
-                Type = p.Type
+                Type = p.Type,
+                TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type)
             });
         }
 
@@ -106,7 +107,8 @@ namespace ETMS.Business.MicroWeb
                     ShowStyle = p.ShowStyle,
                     Status = p.Status,
                     Type = p.Type,
-                    StatusDesc = EmMicroWebStatus.GetMicroWebStatusDesc(p.Status)
+                    StatusDesc = EmMicroWebStatus.GetMicroWebStatusDesc(p.Status),
+                    TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type)
                 });
             }
             return ResponseBase.Success(output);
@@ -281,7 +283,8 @@ namespace ETMS.Business.MicroWeb
                         OrderIndex = p.OrderIndex,
                         ReadCount = p.ReadCount,
                         Status = p.Status,
-                        UpdateTime = p.UpdateTime
+                        UpdateTime = p.UpdateTime,
+                        StatusDesc = EmMicroWebStatus.GetMicroWebStatusDesc(p.Status)
                     });
                 }
             }

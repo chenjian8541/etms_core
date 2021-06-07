@@ -17,6 +17,8 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// </summary>
         public byte Type { get; set; }
 
+        public string TypeDesc { get; set; }
+
         /// <summary>
         /// 样式
         ///  <see cref="ETMS.Entity.Enum.EmMicroWebStyle"/>

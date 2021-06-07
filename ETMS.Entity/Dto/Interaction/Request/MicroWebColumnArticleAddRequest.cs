@@ -19,10 +19,6 @@ namespace ETMS.Entity.Dto.Interaction.Request
 
         public override string Validate()
         {
-            if (ColumnId <= 0)
-            {
-                return "请求数据格式错误";
-            }
             if (string.IsNullOrEmpty(ArTitile))
             {
                 return "请输入标题";
