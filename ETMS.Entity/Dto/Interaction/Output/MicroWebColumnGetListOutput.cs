@@ -44,6 +44,8 @@ namespace ETMS.Entity.Dto.Interaction.Output
 
         public string IsShowInHomeDesc { get; set; }
 
+        public int ShowInHomeTopIndex { get; set; }
+
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>

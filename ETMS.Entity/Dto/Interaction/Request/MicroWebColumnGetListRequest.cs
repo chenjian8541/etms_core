@@ -7,5 +7,6 @@ namespace ETMS.Entity.Dto.Interaction.Request
 {
     public class MicroWebColumnGetListRequest : RequestBase
     {
+        public bool IsOnlyEnable { get; set; }
     }
 }

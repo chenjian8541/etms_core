@@ -96,5 +96,11 @@ namespace ETMS.DataAccess.MicroWeb
             }
             return true;
         }
+
+        public async Task<IEnumerable<EtMicroWebColumnArticle>> GetMicroWebColumnArticleTopLimit(long columnId, int limitTop)
+        {
+            var sql = $"SELECT TOP {limitTop} * FROM EtMicroWebColumnArticle WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND ColumnId = {columnId} AND [Status] = {EmMicroWebStatus.Enable} ORDER BY UpdateTime DESC";
+            return await this._dbWrapper.ExecuteObject<EtMicroWebColumnArticle>(sql);
+        }
     }
 }

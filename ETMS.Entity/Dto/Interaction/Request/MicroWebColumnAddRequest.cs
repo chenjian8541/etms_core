@@ -35,6 +35,8 @@ namespace ETMS.Entity.Dto.Interaction.Request
         /// </summary>
         public byte IsShowInHome { get; set; }
 
+        public int ShowInHomeTopIndex { get; set; }
+
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>

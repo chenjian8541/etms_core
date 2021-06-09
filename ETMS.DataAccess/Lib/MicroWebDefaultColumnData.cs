@@ -33,6 +33,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/1.png",
                 ShowStyle = EmMicroWebStyle.Style1,
                 Type = EmMicroWebColumnType.SinglePage,
+                ShowInHomeTopIndex = 1,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -48,6 +49,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/2.png",
                 ShowStyle = EmMicroWebStyle.Style2,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -63,6 +65,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/3.png",
                 ShowStyle = EmMicroWebStyle.Style3,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -78,6 +81,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/4.png",
                 ShowStyle = EmMicroWebStyle.Style4,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -93,6 +97,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/5.png",
                 ShowStyle = EmMicroWebStyle.Style1,
                 Type = EmMicroWebColumnType.SinglePage,
+                ShowInHomeTopIndex = 1,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -108,6 +113,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/6.png",
                 ShowStyle = EmMicroWebStyle.Style2,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -123,6 +129,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/7.png",
                 ShowStyle = EmMicroWebStyle.Style2,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });
@@ -138,6 +145,7 @@ namespace ETMS.DataAccess.Lib
                 ShowInMenuIcon = "system/material/microweb/img/8.png",
                 ShowStyle = EmMicroWebStyle.Style5,
                 Type = EmMicroWebColumnType.ListPage,
+                ShowInHomeTopIndex = 2,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = 0
             });

@@ -41,7 +41,7 @@ namespace ETMS.Business.MicroWeb
             this.InitDataAccess(tenantId, _microWebConfigDAL, _userOperationLogDAL);
         }
 
-        public async Task<ResponseBase> MicroWebBannerGet(RequestBase request)
+        public async Task<MicroWebBannerGetOutput> MicroWebBannerGet(int tenantId)
         {
             var log = await _microWebConfigDAL.GetMicroWebConfig(EmMicroWebConfigType.BannerSet);
             var output = new MicroWebBannerGetOutput()
@@ -51,7 +51,7 @@ namespace ETMS.Business.MicroWeb
             };
             if (log == null || string.IsNullOrEmpty(log.ConfigValue))
             {
-                return ResponseBase.Success(output);
+                return output;
             }
             var setValue = JsonConvert.DeserializeObject<MicroWebConfigBannerSetView>(log.ConfigValue);
             output.IsShowInHome = setValue.IsShowInHome;
@@ -66,7 +66,12 @@ namespace ETMS.Business.MicroWeb
                     });
                 }
             }
-            return ResponseBase.Success(output);
+            return output;
+        }
+
+        public async Task<ResponseBase> MicroWebBannerGet(RequestBase request)
+        {
+            return ResponseBase.Success(await MicroWebBannerGet(request.LoginTenantId));
         }
 
         public async Task<ResponseBase> MicroWebBannerSave(MicroWebBannerSaveRequest request)
@@ -155,20 +160,21 @@ namespace ETMS.Business.MicroWeb
             thisData.ShowInMenuIcon = request.ShowInMenuIcon;
             thisData.IsShowInHome = request.IsShowInHome;
             thisData.IsShowYuYue = request.IsShowYuYue;
+            thisData.ShowInHomeTopIndex = request.ShowInHomeTopIndex;
 
             await SaveMicroWebDefaultColumn(request.LoginTenantId, myData);
             return true;
         }
 
-        public async Task<ResponseBase> MicroWebTenantAddressGet(RequestBase request)
+        public async Task<MicroWebTenantAddressGetOutput> MicroWebTenantAddressGet(int tenantId)
         {
             var log = await _microWebConfigDAL.GetMicroWebConfig(EmMicroWebConfigType.TenantAddressSet);
             if (log == null || string.IsNullOrEmpty(log.ConfigValue))
             {
-                return ResponseBase.Success(new MicroWebTenantAddressGetOutput());
+                return new MicroWebTenantAddressGetOutput();
             }
             var setValue = JsonConvert.DeserializeObject<MicroWebTenantAddressView>(log.ConfigValue);
-            return ResponseBase.Success(new MicroWebTenantAddressGetOutput()
+            return new MicroWebTenantAddressGetOutput()
             {
                 Address = setValue.Address,
                 CoverIcon = setValue.CoverIcon,
@@ -177,8 +183,13 @@ namespace ETMS.Business.MicroWeb
                 Longitude = setValue.Longitude,
                 Name = setValue.Name,
                 CoverIconUrl = AliyunOssUtil.GetAccessUrlHttps(setValue.CoverIcon),
-                MicroWebHomeUrl = string.Format(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, TenantLib.GetTenantEncrypt(request.LoginTenantId))
-            });
+                MicroWebHomeUrl = string.Format(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, TenantLib.GetTenantEncrypt(tenantId))
+            };
+        }
+
+        public async Task<ResponseBase> MicroWebTenantAddressGet(RequestBase request)
+        {
+            return ResponseBase.Success(await MicroWebTenantAddressGet(request.LoginTenantId));
         }
 
         public async Task<ResponseBase> MicroWebTenantAddressSave(MicroWebTenantAddressSaveRequest request)

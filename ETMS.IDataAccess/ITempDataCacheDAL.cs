@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.MicroWeb;
 using ETMS.Entity.CacheBucket.Other;
 using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.Entity.Database.Source;
@@ -38,5 +39,11 @@ namespace ETMS.IDataAccess
         BaiduCloudAccessTokenBucket GetBaiduCloudAccessTokenBucket(string appid);
 
         void SetBaiduCloudAccessTokenBucket(BaiduCloudAccessTokenBucket bucket);
+
+        MicroWebHomeBucket GetMicroWebHomeBucket(int tenantId);
+
+        void SetMicroWebHomeBucket(int tenantId, MicroWebHomeBucket bucket);
+
+        void RemoveMicroWebHomeBucket(int tenantId);
     }
 }

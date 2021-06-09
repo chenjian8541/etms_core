@@ -36,5 +36,7 @@ namespace ETMS.IBusiness.MicroWeb
         Task<ResponseBase> MicroWebColumnArticleDel(MicroWebColumnArticleDelRequest request);
 
         Task<ResponseBase> MicroWebColumnArticleChangeStatus(MicroWebColumnArticleChangeStatusRequest request);
+
+        Task<ResponseBase> MicroWebHomeGet(RequestBase request);
     }
 }

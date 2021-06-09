@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MicroWeb\**" />
+    <EmbeddedResource Remove="MicroWeb\**" />
+    <None Remove="MicroWeb\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
   </ItemGroup>
 

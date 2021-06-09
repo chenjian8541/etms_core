@@ -37,6 +37,8 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public byte IsShowInHome { get; set; }
 
+        public int ShowInHomeTopIndex { get; set; }
+
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>

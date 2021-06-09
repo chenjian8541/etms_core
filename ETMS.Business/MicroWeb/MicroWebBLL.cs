@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.CacheBucket.MicroWeb;
 
 namespace ETMS.Business.MicroWeb
 {
@@ -28,13 +29,16 @@ namespace ETMS.Business.MicroWeb
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
         public MicroWebBLL(IMicroWebConfigBLL microWebConfigBLL, IMicroWebColumnDAL microWebColumnDAL,
-            IMicroWebColumnArticleDAL microWebColumnArticleDAL, IUserOperationLogDAL userOperationLogDAL)
+            IMicroWebColumnArticleDAL microWebColumnArticleDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL)
         {
             this._microWebConfigBLL = microWebConfigBLL;
             this._microWebColumnDAL = microWebColumnDAL;
             this._microWebColumnArticleDAL = microWebColumnArticleDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -75,11 +79,12 @@ namespace ETMS.Business.MicroWeb
                 ShowStyle = p.ShowStyle,
                 Status = p.Status,
                 Type = p.Type,
-                TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type)
+                TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type),
+                ShowInHomeTopIndex = p.ShowInHomeTopIndex
             });
         }
 
-        public async Task<ResponseBase> MicroWebColumnGetList(MicroWebColumnGetListRequest request)
+        private async Task<List<MicroWebColumnGetListOutput>> MicroWebColumnGetList(bool isOnlyEnable)
         {
             var output = new List<MicroWebColumnGetListOutput>();
             var defaultColumn = await _microWebConfigBLL.MicroWebDefaultColumnGet();
@@ -87,6 +92,10 @@ namespace ETMS.Business.MicroWeb
             if (customColumn != null && customColumn.Count > 0)
             {
                 defaultColumn.AddRange(customColumn);
+            }
+            if (isOnlyEnable)
+            {
+                defaultColumn = defaultColumn.Where(p => p.Status == EmMicroWebStatus.Enable).ToList();
             }
             var allColumn = defaultColumn.OrderBy(p => p.OrderIndex);
             foreach (var p in allColumn)
@@ -108,10 +117,16 @@ namespace ETMS.Business.MicroWeb
                     Status = p.Status,
                     Type = p.Type,
                     StatusDesc = EmMicroWebStatus.GetMicroWebStatusDesc(p.Status),
-                    TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type)
+                    TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type),
+                    ShowInHomeTopIndex = p.ShowInHomeTopIndex
                 });
             }
-            return ResponseBase.Success(output);
+            return output;
+        }
+
+        public async Task<ResponseBase> MicroWebColumnGetList(MicroWebColumnGetListRequest request)
+        {
+            return ResponseBase.Success(await MicroWebColumnGetList(request.IsOnlyEnable));
         }
 
         public async Task<ResponseBase> MicroWebColumnChangeStatus(MicroWebColumnChangeStatusRequest request)
@@ -131,6 +146,7 @@ namespace ETMS.Business.MicroWeb
             }
             var desc = request.NewStatus == EmMicroWebStatus.Enable ? "启用" : "禁用";
             await _userOperationLogDAL.AddUserLog(request, $"{desc}栏目-{p.Name}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -157,10 +173,12 @@ namespace ETMS.Business.MicroWeb
                 ShowStyle = request.ShowStyle,
                 Status = EmMicroWebStatus.Enable,
                 TenantId = request.LoginTenantId,
-                Type = request.Type
+                Type = request.Type,
+                ShowInHomeTopIndex = request.ShowInHomeTopIndex
             });
 
             await _userOperationLogDAL.AddUserLog(request, $"添加栏目-{request.Name}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -183,6 +201,7 @@ namespace ETMS.Business.MicroWeb
                 thisData.ShowInMenuIcon = request.ShowInMenuIcon;
                 thisData.IsShowInHome = request.IsShowInHome;
                 thisData.IsShowYuYue = request.IsShowYuYue;
+                thisData.ShowInHomeTopIndex = request.ShowInHomeTopIndex;
                 await _microWebColumnDAL.EditMicroWebColumn(thisData);
             }
             else
@@ -191,6 +210,7 @@ namespace ETMS.Business.MicroWeb
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑栏目-{request.Name}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -208,6 +228,7 @@ namespace ETMS.Business.MicroWeb
             await _microWebColumnDAL.DelMicroWebColumn(request.Id);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除栏目-{thisData.Name}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -260,6 +281,7 @@ namespace ETMS.Business.MicroWeb
             await _microWebColumnArticleDAL.SaveMicroWebColumnSinglePageArticle(myData);
 
             await _userOperationLogDAL.AddUserLog(request, $"修改栏目内容-{myData.ArTitile}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -332,6 +354,7 @@ namespace ETMS.Business.MicroWeb
             });
 
             await _userOperationLogDAL.AddUserLog(request, $"添加栏目内容-{request.ArTitile}", EmUserOperationType.MicroWebManage, now);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -350,6 +373,7 @@ namespace ETMS.Business.MicroWeb
             await _microWebColumnArticleDAL.EditMicroWebColumnArticle(myData);
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑栏目内容-{request.ArTitile}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -363,6 +387,7 @@ namespace ETMS.Business.MicroWeb
             await _microWebColumnArticleDAL.DelMicroWebColumnArticle(request.Id);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除栏目内容-{myData.ArTitile}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -377,7 +402,136 @@ namespace ETMS.Business.MicroWeb
 
             var desc = request.NewStatus == EmMicroWebStatus.Enable ? "启用" : "禁用";
             await _userOperationLogDAL.AddUserLog(request, $"{desc}栏目内容-{myData.ArTitile}", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> MicroWebHomeGet(RequestBase request)
+        {
+            return ResponseBase.Success(await GetMicroWebHomeBucket(request.LoginTenantId));
+        }
+
+        private void RemoveMicroWebHomeBucket(int tenantId)
+        {
+            _tempDataCacheDAL.RemoveMicroWebHomeBucket(tenantId);
+        }
+
+        private async Task<MicroWebHomeBucket> GetMicroWebHomeBucket(int tenantId)
+        {
+            var bucket = _tempDataCacheDAL.GetMicroWebHomeBucket(tenantId);
+            if (bucket == null)
+            {
+                return await UpdateMicroWebHomeBucket(tenantId);
+            }
+            return bucket;
+        }
+
+        private async Task<MicroWebHomeBucket> UpdateMicroWebHomeBucket(int tenantId)
+        {
+            var bucket = await GetMicroWebHomeBucketDb(tenantId);
+            _tempDataCacheDAL.SetMicroWebHomeBucket(tenantId, bucket);
+            return bucket;
+        }
+
+        private async Task<MicroWebHomeBucket> GetMicroWebHomeBucketDb(int tenantId)
+        {
+            var result = new MicroWebHomeView()
+            {
+                Banners = new List<MicroWebHomeBanner>(),
+                Columns = new List<MicroWebHomeColumn>(),
+                Menus = new List<MicroWebHomeMenus>()
+            };
+            var microWebBanner = await _microWebConfigBLL.MicroWebBannerGet(tenantId);
+            if (microWebBanner != null && microWebBanner.Images != null && microWebBanner.Images.Count > 0)
+            {
+                foreach (var p in microWebBanner.Images)
+                {
+                    result.Banners.Add(new MicroWebHomeBanner() { ImgUrl = p.ImgUrl });
+                }
+            }
+
+            var allEnableColumnGetList = await MicroWebColumnGetList(true);
+            var microMenus = allEnableColumnGetList.Where(p => p.IsShowInMenu == EmBool.True);
+            if (microMenus.Any())
+            {
+                foreach (var p in microMenus)
+                {
+                    result.Menus.Add(new MicroWebHomeMenus()
+                    {
+                        Id = p.Id,
+                        ShowInMenuIconUrl = p.ShowInMenuIconUrl,
+                        Type = p.Type
+                    });
+                }
+            }
+
+            var microWebAddress = await _microWebConfigBLL.MicroWebTenantAddressGet(tenantId);
+            if (microWebAddress != null && !string.IsNullOrEmpty(microWebAddress.Name))
+            {
+                result.Address = new MicroWebHomeAddress()
+                {
+                    Address = microWebAddress.Address,
+                    Name = microWebAddress.Name,
+                    CoverIconUrl = microWebAddress.CoverIconUrl,
+                    Latitude = microWebAddress.Latitude,
+                    Longitude = microWebAddress.Longitude
+                };
+            }
+
+            var microHome = allEnableColumnGetList.Where(p => p.IsShowInHome == EmBool.True);
+            if (microHome.Any())
+            {
+                foreach (var p in microHome)
+                {
+                    var myColumn = new MicroWebHomeColumn()
+                    {
+                        Articles = new List<MicroWebHomeArticle>(),
+                        Id = p.Id,
+                        IsShowYuYue = p.IsShowYuYue,
+                        Name = p.Name,
+                        ShowStyle = p.ShowStyle,
+                        Type = p.Type
+                    };
+                    IEnumerable<EtMicroWebColumnArticle> articles;
+                    if (myColumn.Type == EmMicroWebColumnType.SinglePage)
+                    {
+                        articles = await _microWebColumnArticleDAL.GetMicroWebColumnArticleTopLimit(p.Id, 1);
+                    }
+                    else
+                    {
+                        var topLimit = p.ShowInHomeTopIndex;
+                        if (topLimit <= 0)
+                        {
+                            topLimit = 2;
+                        }
+                        if (topLimit > 10)
+                        {
+                            topLimit = 10;
+                        }
+                        articles = await _microWebColumnArticleDAL.GetMicroWebColumnArticleTopLimit(p.Id, topLimit);
+                    }
+                    if (articles != null && articles.Any())
+                    {
+                        foreach (var myContent in articles)
+                        {
+                            myColumn.Articles.Add(new MicroWebHomeArticle()
+                            {
+                                ArCoverImgUrl = AliyunOssUtil.GetAccessUrlHttps(myContent.ArCoverImg),
+                                ArSummary = myContent.ArSummary,
+                                ArTitile = myContent.ArTitile,
+                                ColumnId = myContent.ColumnId,
+                                Id = myContent.Id
+                            });
+                        }
+                    }
+                    result.Columns.Add(myColumn);
+                }
+            }
+
+            return new MicroWebHomeBucket()
+            {
+                MicroWebHomeView = result
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.CacheBucket.MicroWeb;
 using ETMS.Entity.CacheBucket.Other;
 using ETMS.Entity.CacheBucket.TempShortTime;
 using ETMS.ICache;
@@ -116,6 +117,22 @@ namespace ETMS.DataAccess
         {
             var key = bucket.GetKeyFormat(bucket.Appid);
             _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
+
+        public MicroWebHomeBucket GetMicroWebHomeBucket(int tenantId)
+        {
+            return _cacheProvider.Get<MicroWebHomeBucket>(tenantId, new MicroWebHomeBucket().GetKeyFormat(tenantId));
+        }
+
+        public void SetMicroWebHomeBucket(int tenantId, MicroWebHomeBucket bucket)
+        {
+            var key = bucket.GetKeyFormat(tenantId);
+            _cacheProvider.Set(tenantId, key, bucket, bucket.TimeOut);
+        }
+
+        public void RemoveMicroWebHomeBucket(int tenantId)
+        {
+            _cacheProvider.Remove(tenantId, new MicroWebHomeBucket().GetKeyFormat(tenantId));
         }
     }
 }

@@ -26,5 +26,7 @@ namespace ETMS.IDataAccess.MicroWeb
         Task<EtMicroWebColumnArticle> GetMicroWebColumnSinglePageArticle(long columnId);
 
         Task<bool> SaveMicroWebColumnSinglePageArticle(EtMicroWebColumnArticle entity);
+
+        Task<IEnumerable<EtMicroWebColumnArticle>> GetMicroWebColumnArticleTopLimit(long columnId, int limitTop);
     }
 }
