@@ -47,7 +47,7 @@ namespace ETMS.Business.MicroWeb
             this.InitDataAccess(tenantId, _microWebColumnDAL, _microWebColumnArticleDAL, _userOperationLogDAL);
         }
 
-        private async Task<EtMicroWebColumn> GetMicroWebColumn(long id)
+        public async Task<EtMicroWebColumn> GetMicroWebColumn(long id)
         {
             if (id > 0)
             {
@@ -408,7 +408,7 @@ namespace ETMS.Business.MicroWeb
 
         public async Task<ResponseBase> MicroWebHomeGet(RequestBase request)
         {
-            return ResponseBase.Success(await GetMicroWebHomeBucket(request.LoginTenantId));
+            return ResponseBase.Success(await GetMicroWebHome(request.LoginTenantId));
         }
 
         private void RemoveMicroWebHomeBucket(int tenantId)
@@ -416,14 +416,14 @@ namespace ETMS.Business.MicroWeb
             _tempDataCacheDAL.RemoveMicroWebHomeBucket(tenantId);
         }
 
-        private async Task<MicroWebHomeBucket> GetMicroWebHomeBucket(int tenantId)
+        public async Task<MicroWebHomeView> GetMicroWebHome(int tenantId)
         {
             var bucket = _tempDataCacheDAL.GetMicroWebHomeBucket(tenantId);
             if (bucket == null)
             {
-                return await UpdateMicroWebHomeBucket(tenantId);
+                bucket = await UpdateMicroWebHomeBucket(tenantId);
             }
-            return bucket;
+            return bucket.MicroWebHomeView;
         }
 
         private async Task<MicroWebHomeBucket> UpdateMicroWebHomeBucket(int tenantId)
@@ -523,8 +523,8 @@ namespace ETMS.Business.MicroWeb
                                 Id = myContent.Id
                             });
                         }
+                        result.Columns.Add(myColumn);
                     }
-                    result.Columns.Add(myColumn);
                 }
             }
 

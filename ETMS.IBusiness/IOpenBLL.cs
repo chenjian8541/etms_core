@@ -1,0 +1,22 @@
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Dto.Open2.Request;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ETMS.IBusiness
+{
+    public interface IOpenBLL : IBaseBLL
+    {
+        Task<ResponseBase> TenantInfoGet(Open2Base request);
+
+        Task<ResponseBase> MicroWebHomeGet(Open2Base request);
+
+        Task<ResponseBase> MicroWebColumnSingleArticleGet(MicroWebColumnSingleArticleGetRequest request);
+
+        Task<ResponseBase> MicroWebArticleGet(MicroWebArticleGetRequest request);
+
+        Task<ResponseBase> MicroWebArticleGetPaging(MicroWebArticleGetPagingRequest request);
+    }
+}

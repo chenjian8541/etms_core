@@ -74,7 +74,7 @@ namespace ETMS.DataAccess.MicroWeb
             return true;
         }
 
-        public async Task<Tuple<IEnumerable<EtMicroWebColumnArticle>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtMicroWebColumnArticle>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtMicroWebColumnArticle>("EtMicroWebColumnArticle", "*", request.PageSize, request.PageCurrent, "[Status] ASC,[UpdateTime] DESC", request.ToString());
         }

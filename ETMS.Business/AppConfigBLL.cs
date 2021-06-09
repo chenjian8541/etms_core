@@ -294,7 +294,7 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private async Task<ResponseBase> GetTenantInfoH5(int tenantId)
+        public async Task<ResponseBase> GetTenantInfoH5(int tenantId)
         {
             var myTenant = await _sysTenantDAL.GetTenant(tenantId);
             _tenantConfigDAL.InitTenantId(tenantId);

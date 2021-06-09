@@ -35,5 +35,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 是否展示 "推荐有礼"
         /// </summary>
         public bool IsShowStudentRecommend { get; set; }
+
+        public string TenantNo { get; set; }
     }
 }

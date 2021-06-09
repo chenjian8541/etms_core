@@ -21,7 +21,7 @@ namespace ETMS.IDataAccess.MicroWeb
 
         Task<bool> AddMicroWebColumnArticleReadCount(long id, int addCount);
 
-        Task<Tuple<IEnumerable<EtMicroWebColumnArticle>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtMicroWebColumnArticle>, int>> GetPaging(IPagingRequest request);
 
         Task<EtMicroWebColumnArticle> GetMicroWebColumnSinglePageArticle(long columnId);
 

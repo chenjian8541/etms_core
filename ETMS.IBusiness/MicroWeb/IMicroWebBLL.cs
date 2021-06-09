@@ -1,5 +1,8 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket.MicroWeb;
+using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Interaction.Request;
+using ETMS.Entity.Temp.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +12,8 @@ namespace ETMS.IBusiness.MicroWeb
 {
     public interface IMicroWebBLL : IBaseBLL
     {
+        Task<EtMicroWebColumn> GetMicroWebColumn(long id);
+
         Task<ResponseBase> MicroWebColumnGet(MicroWebColumnGetRequest request);
 
         Task<ResponseBase> MicroWebColumnGetList(MicroWebColumnGetListRequest request);
@@ -38,5 +43,7 @@ namespace ETMS.IBusiness.MicroWeb
         Task<ResponseBase> MicroWebColumnArticleChangeStatus(MicroWebColumnArticleChangeStatusRequest request);
 
         Task<ResponseBase> MicroWebHomeGet(RequestBase request);
+
+        Task<MicroWebHomeView> GetMicroWebHome(int tenantId);
     }
 }

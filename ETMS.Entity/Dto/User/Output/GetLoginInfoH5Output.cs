@@ -42,7 +42,8 @@ namespace ETMS.Entity.Dto.User.Output
         /// </summary>
         public RoleNoticeSettingOutput RoleSetting { get; set; }
 
-
         public TenantConfig TenantConfig { get; set; }
+
+        public string TenantNo { get; set; }
     }
 }

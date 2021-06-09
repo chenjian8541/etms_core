@@ -440,7 +440,7 @@ namespace ETMS.Business
                     output.IsShowStudentRecommend = true;
                 }
             }
-
+            output.TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
             return ResponseBase.Success(output);
         }
 

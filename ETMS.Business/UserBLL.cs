@@ -126,7 +126,8 @@ namespace ETMS.Business
                 OrgName = tenant.Name,
                 RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
                 TenantConfig = config,
-                TenantOEMInfo = await GetTenantOEMInfoOutput(request.LoginTenantId)
+                TenantOEMInfo = await GetTenantOEMInfoOutput(request.LoginTenantId),
+                TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId)
             });
         }
 
@@ -145,7 +146,8 @@ namespace ETMS.Business
                 OrgName = tenant.Name,
                 Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin),
                 RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
-                TenantConfig = config
+                TenantConfig = config,
+                TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId)
             });
         }
 

@@ -278,5 +278,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> MicroWebHomeGet(RequestBase request)
+        {
+            try
+            {
+                _microWebBLL.InitTenantId(request.LoginTenantId);
+                return await _microWebBLL.MicroWebHomeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
