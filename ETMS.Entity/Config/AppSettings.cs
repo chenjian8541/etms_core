@@ -56,6 +56,8 @@ namespace ETMS.Entity.Config
     public class SysAddressConfig
     {
         public string MainLoginParms { get; set; }
+
+        public string MicroWebHomeUrl { get; set; }
     }
 
     public class CloudBaiduConfig

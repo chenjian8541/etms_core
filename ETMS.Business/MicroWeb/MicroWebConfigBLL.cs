@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.Config;
+using ETMS.Business.Common;
 
 namespace ETMS.Business.MicroWeb
 {
@@ -23,10 +25,15 @@ namespace ETMS.Business.MicroWeb
         private readonly IMicroWebConfigDAL _microWebConfigDAL;
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
-        public MicroWebConfigBLL(IMicroWebConfigDAL microWebConfigDAL, IUserOperationLogDAL userOperationLogDAL)
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
+        public MicroWebConfigBLL(IMicroWebConfigDAL microWebConfigDAL, IUserOperationLogDAL userOperationLogDAL,
+            IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._microWebConfigDAL = microWebConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -169,7 +176,8 @@ namespace ETMS.Business.MicroWeb
                 Latitude = setValue.Latitude,
                 Longitude = setValue.Longitude,
                 Name = setValue.Name,
-                CoverIconUrl = AliyunOssUtil.GetAccessUrlHttps(setValue.CoverIcon)
+                CoverIconUrl = AliyunOssUtil.GetAccessUrlHttps(setValue.CoverIcon),
+                MicroWebHomeUrl = string.Format(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, TenantLib.GetTenantEncrypt(request.LoginTenantId))
             });
         }
 

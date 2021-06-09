@@ -19,5 +19,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public string Latitude { get; set; }
 
         public bool IsShowInHome { get; set; }
+
+        public string MicroWebHomeUrl { get; set; }
     }
 }
