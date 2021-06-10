@@ -327,28 +327,28 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> StudentDel(StudentDelRequest request)
+        private async Task<ResponseBase> StudentDel(RequestBase request, long studentId, bool isIgnoreCheck, bool isAddLog = true)
         {
-            var studentBucket = await _studentDAL.GetStudent(request.CId);
+            var studentBucket = await _studentDAL.GetStudent(studentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
                 return ResponseBase.CommonError("学员不存在");
             }
             var etStudent = studentBucket.Student;
-            if (!request.IsIgnoreCheck)
+            if (!isIgnoreCheck)
             {
-                if (await _studentDAL.CheckStudentHasOrder(request.CId))
+                if (await _studentDAL.CheckStudentHasOrder(studentId))
                 {
                     return ResponseBase.Success(new DelOutput(false, true));
                 }
             }
-            if (request.IsIgnoreCheck)
+            if (isIgnoreCheck)
             {
-                await _studentDAL.DelStudentDepth(request.CId);
+                await _studentDAL.DelStudentDepth(studentId);
             }
             else
             {
-                await _studentDAL.DelStudent(request.CId);
+                await _studentDAL.DelStudent(studentId);
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
@@ -363,10 +363,36 @@ namespace ETMS.Business
             SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
             _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
             {
-                StudentId = request.CId
+                StudentId = studentId
             });
-            await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
+
+            if (isAddLog)
+            {
+                await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);
+            }
             return ResponseBase.Success(new DelOutput(true));
+        }
+
+        public async Task<ResponseBase> StudentDel(StudentDelRequest request)
+        {
+            return await StudentDel(request, request.CId, request.IsIgnoreCheck);
+        }
+
+        public async Task<ResponseBase> StudentDelList(StudentDelListRequest request)
+        {
+            foreach (var studentId in request.CIds)
+            {
+                if (await _studentDAL.CheckStudentHasOrder(studentId))
+                {
+                    await StudentDel(request, studentId, true, false);
+                }
+                else
+                {
+                    await StudentDel(request, studentId, false, false);
+                }
+            }
+            await _userOperationLogDAL.AddUserLog(request, $"批量删除{request.CIds.Count}个学员", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> StudentGet(StudentGetRequest request)

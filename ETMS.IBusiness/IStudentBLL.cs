@@ -17,6 +17,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentDel(StudentDelRequest request);
 
+        Task<ResponseBase> StudentDelList(StudentDelListRequest request);
+
         Task<ResponseBase> StudentGet(StudentGetRequest request);
 
         Task<ResponseBase> StudentGetForEdit(StudentGetForEditReuqest request);
