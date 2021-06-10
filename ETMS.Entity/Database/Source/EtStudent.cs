@@ -67,6 +67,16 @@ namespace ETMS.Entity.Database.Source
         public DateTime? Birthday { get; set; }
 
         /// <summary>
+        /// 生日月份
+        /// </summary>
+        public int? BirthdayMonth { get; set; }
+
+        /// <summary>
+        /// 生日天
+        /// </summary>
+        public int? BirthdayDay { get; set; }
+
+        /// <summary>
         /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
         /// </summary>
         public byte? Gender { get; set; }

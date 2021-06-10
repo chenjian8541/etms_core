@@ -33,6 +33,10 @@ namespace ETMS.Entity.Dto.Interaction.Request
         /// </summary>
         public byte IsNeedConfirm { get; set; }
 
+        /// <summary>
+        /// 学员类型   <see cref="ETMS.Entity.Enum.EmStudentType"/>
+        /// </summary>
+        public byte? StudentType { get; set; }
 
         public override string Validate()
         {
@@ -46,9 +50,9 @@ namespace ETMS.Entity.Dto.Interaction.Request
                 {
                     return "一次性最多选择5个班级";
                 }
-                if (Type == EmActiveWxMessageType.Student && RelatedIds.Count > 50)
+                if (Type == EmActiveWxMessageType.Student && RelatedIds.Count > 100)
                 {
-                    return "一次性最多选择50名学员";
+                    return "一次性最多选择100名学员";
                 }
             }
             if (string.IsNullOrEmpty(Title))

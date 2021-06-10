@@ -136,8 +136,17 @@ namespace ETMS.Business
             {
                 trackUser = request.LoginUserId;
             }
+            int? birthdayMonth = null;
+            int? birthdayDay = null;
+            if (request.Birthday != null)
+            {
+                birthdayMonth = request.Birthday.Value.Month;
+                birthdayDay = request.Birthday.Value.Day;
+            }
             var etStudent = new EtStudent()
             {
+                BirthdayMonth = birthdayMonth,
+                BirthdayDay = birthdayDay,
                 Age = request.Birthday.EtmsGetAge(),
                 Name = request.Name,
                 Avatar = request.AvatarKey,
@@ -253,12 +262,22 @@ namespace ETMS.Business
             {
                 tags = $",{string.Join(',', request.Tags)},";
             }
+            int? birthdayMonth = null;
+            int? birthdayDay = null;
+            if (request.Birthday != null)
+            {
+                birthdayMonth = request.Birthday.Value.Month;
+                birthdayDay = request.Birthday.Value.Day;
+            }
+
             var etStudent = studentBucket.Student;
             var oldAvatar = etStudent.Avatar;
             var oldPhone = etStudent.Phone;
             var oldPhoneBak = etStudent.PhoneBak;
             var isChangeStudentSource = request.SourceId != etStudent.SourceId;
 
+            etStudent.BirthdayMonth = birthdayMonth;
+            etStudent.BirthdayDay = birthdayDay;
             etStudent.Name = request.Name;
             etStudent.Avatar = request.AvatarKey;
             etStudent.Birthday = request.Birthday;

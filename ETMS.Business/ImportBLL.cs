@@ -142,9 +142,17 @@ namespace ETMS.Business
                     var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
                     sourceId = mySourceDesc?.Id;
                 }
-
+                int? birthdayMonth = null;
+                int? birthdayDay = null;
+                if (p.Birthday != null)
+                {
+                    birthdayMonth = p.Birthday.Value.Month;
+                    birthdayDay = p.Birthday.Value.Day;
+                }
                 studentList.Add(new EtStudent()
                 {
+                    BirthdayMonth = birthdayMonth,
+                    BirthdayDay = birthdayDay,
                     Age = p.Birthday.EtmsGetAge(),
                     Name = p.StudentName,
                     Avatar = string.Empty,
@@ -278,8 +286,17 @@ namespace ETMS.Business
                         var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
                         sourceId = mySourceDesc?.Id;
                     }
+                    int? birthdayMonth = null;
+                    int? birthdayDay = null;
+                    if (p.Birthday != null)
+                    {
+                        birthdayMonth = p.Birthday.Value.Month;
+                        birthdayDay = p.Birthday.Value.Day;
+                    }
                     student = new EtStudent()
                     {
+                        BirthdayMonth = birthdayMonth,
+                        BirthdayDay = birthdayDay,
                         Age = p.Birthday.EtmsGetAge(),
                         Name = p.StudentName,
                         Avatar = string.Empty,
@@ -590,8 +607,17 @@ namespace ETMS.Business
                         var mySourceDesc = studentSourceAll.FirstOrDefault(j => j.Name == p.SourceDesc);
                         sourceId = mySourceDesc?.Id;
                     }
+                    int? birthdayMonth = null;
+                    int? birthdayDay = null;
+                    if (p.Birthday != null)
+                    {
+                        birthdayMonth = p.Birthday.Value.Month;
+                        birthdayDay = p.Birthday.Value.Day;
+                    }
                     student = new EtStudent()
                     {
+                        BirthdayMonth = birthdayMonth,
+                        BirthdayDay = birthdayDay,
                         Age = p.Birthday.EtmsGetAge(),
                         Name = p.StudentName,
                         Avatar = string.Empty,

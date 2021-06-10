@@ -136,6 +136,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string Remark { get; set; }
 
+        public int? BirthdayMonth { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -244,6 +246,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsDataLimit && SceneType == 0)
             {
                 condition.Append(GetDataLimitFilterWhere());
+            }
+            if (BirthdayMonth != null)
+            {
+                condition.Append($" AND BirthdayMonth = {BirthdayMonth}");
             }
             return condition.ToString();
         }

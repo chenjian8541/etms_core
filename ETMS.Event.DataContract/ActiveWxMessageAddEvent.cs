@@ -10,5 +10,10 @@ namespace ETMS.Event.DataContract
         { }
 
         public long WxMessageAddId { get; set; }
+
+        /// <summary>
+        /// 学员类型   <see cref="ETMS.Entity.Enum.EmStudentType"/>
+        /// </summary>
+        public byte? StudentType { get; set; }
     }
 }

@@ -79,7 +79,8 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ActiveWxMessageAddEvent(request.LoginTenantId)
             {
                 WxMessageAddId = entity.Id,
-                CreateTime = now
+                CreateTime = now,
+                StudentType = request.StudentType
             });
 
             var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
@@ -100,7 +101,7 @@ namespace ETMS.Business
             switch (wxMessage.Type)
             {
                 case EmActiveWxMessageType.AllStudent:
-                    await ActiveWxMessageAddConsumerEventAllStudent(wxMessage);
+                    await ActiveWxMessageAddConsumerEventAllStudent(wxMessage, request.StudentType);
                     break;
                 case EmActiveWxMessageType.Class:
                     await ActiveWxMessageAddConsumerEventClass(wxMessage);
@@ -111,14 +112,15 @@ namespace ETMS.Business
             }
         }
 
-        private async Task ActiveWxMessageAddConsumerEventAllStudent(EtActiveWxMessage wxMessage)
+        private async Task ActiveWxMessageAddConsumerEventAllStudent(EtActiveWxMessage wxMessage, byte? studentType)
         {
             var request = new GetAllStudentPagingRequest()
             {
                 LoginTenantId = wxMessage.TenantId,
                 LoginUserId = wxMessage.CreateUserId,
                 PageCurrent = 1,
-                PageSize = 100
+                PageSize = 100,
+                StudentType = studentType
             };
             var studentPagingData = await _studentDAL.GetAllStudentPaging(request);
             if (studentPagingData.Item2 == 0)
@@ -151,7 +153,7 @@ namespace ETMS.Business
                     ConfirmOt = null,
                     CreateUserId = wxMessage.CreateUserId,
                     IsConfirm = EmBool.False,
-                    IsRead = EmBool.False, 
+                    IsRead = EmBool.False,
                     IsDeleted = EmIsDeleted.Normal,
                     IsNeedConfirm = wxMessage.IsNeedConfirm,
                     Ot = wxMessage.Ot,
@@ -211,7 +213,7 @@ namespace ETMS.Business
                         {
                             ConfirmOt = null,
                             CreateUserId = wxMessage.CreateUserId,
-                            IsConfirm = EmBool.False, 
+                            IsConfirm = EmBool.False,
                             IsRead = EmBool.False,
                             IsDeleted = EmIsDeleted.Normal,
                             IsNeedConfirm = wxMessage.IsNeedConfirm,
@@ -264,7 +266,7 @@ namespace ETMS.Business
                     ConfirmOt = null,
                     CreateUserId = wxMessage.CreateUserId,
                     IsConfirm = EmBool.False,
-                    IsRead = EmBool.False,   
+                    IsRead = EmBool.False,
                     IsDeleted = EmIsDeleted.Normal,
                     IsNeedConfirm = wxMessage.IsNeedConfirm,
                     Ot = wxMessage.Ot,
