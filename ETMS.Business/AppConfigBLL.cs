@@ -379,6 +379,8 @@ namespace ETMS.Business
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
             config.TenantOtherConfig.ValidPhoneType = request.ValidPhoneType;
+            config.TenantOtherConfig.ParentIsShowEndOfClass = request.ParentIsShowEndOfClass;
+            config.TenantOtherConfig.AutoMarkGraduation = request.AutoMarkGraduation;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

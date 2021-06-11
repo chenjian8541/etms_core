@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using ETMS.IEventProvider;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -28,9 +30,16 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly IStudentCourseDAL _studentCourseDAL;
+
+        private readonly IClassDAL _classDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
-            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
+            IEventPublisher eventPublisher)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -39,13 +48,16 @@ namespace ETMS.Business.EventConsumer
             this._appConfigDAL = appConfigDAL;
             this._tenantConfigDAL = tenantConfigDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._studentCourseDAL = studentCourseDAL;
+            this._classDAL = classDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
-               _appConfigDAL, _tenantConfigDAL);
+               _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -200,6 +212,34 @@ namespace ETMS.Business.EventConsumer
                     UserId = request.UserId,
                     Type = EmStudentAccountRechargeLogType.RecommendStudentBuy
                 });
+            }
+        }
+
+        public async Task StudentAutoMarkGraduationConsumerEvent(StudentAutoMarkGraduationEvent request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!config.TenantOtherConfig.AutoMarkGraduation)
+            {
+                return;
+            }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket.Student.StudentType == EmStudentType.HistoryStudent)
+            {
+                return;
+            }
+            var myCourseDetails = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId);
+            if (myCourseDetails.Count > 0)
+            {
+                var notEndClass = myCourseDetails.FirstOrDefault(p => p.Status != EmStudentCourseStatus.EndOfClass);
+                if (notEndClass == null) //没有未结课的课程
+                {
+                    await _studentDAL.EditStudentType(request.StudentId, EmStudentType.HistoryStudent, DateTime.Now);
+                    await _classDAL.RemoveStudent(request.StudentId);
+                    _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId)
+                    {
+                        OpType = EmStatisticsStudentType.StudentType
+                    });
+                }
             }
         }
     }

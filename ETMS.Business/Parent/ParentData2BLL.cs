@@ -60,12 +60,14 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeDAL _studentAccountRechargeDAL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
         public ParentData2BLL(IClassRecordDAL classRecordDAL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IStudentCourseDAL studentCourseDAL, ICourseDAL courseDAL, IParentStudentDAL parentStudentDAL, IOrderDAL orderDAL,
             ICouponsDAL couponsDAL, ICostDAL costDAL, IGoodsDAL goodsDAL, IIncomeLogDAL incomeLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentRelationshipDAL studentRelationshipDAL,
             IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL, IStudentOperationLogDAL studentOperationLogDAL,
-            IStudentAccountRechargeDAL studentAccountRechargeDAL)
+            IStudentAccountRechargeDAL studentAccountRechargeDAL, ITenantConfigDAL tenantConfigDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classDAL = classDAL;
@@ -87,13 +89,15 @@ namespace ETMS.Business
             this._classRecordEvaluateDAL = classRecordEvaluateDAL;
             this._studentOperationLogDAL = studentOperationLogDAL;
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _classDAL, _userDAL, _studentDAL, _studentCourseDAL,
                 _courseDAL, _parentStudentDAL, _orderDAL, _couponsDAL, _costDAL, _goodsDAL, _incomeLogDAL, _studentPointsLogDAL,
-                _studentRelationshipDAL, _classRoomDAL, _classRecordEvaluateDAL, _studentOperationLogDAL, _studentAccountRechargeDAL);
+                _studentRelationshipDAL, _classRoomDAL, _classRecordEvaluateDAL, _studentOperationLogDAL, _studentAccountRechargeDAL,
+                _tenantConfigDAL);
         }
 
         private async Task<OrderStudentView> OrderStudentGet(EtOrder order)
@@ -249,6 +253,8 @@ namespace ETMS.Business
             var output = new List<StudentCourseGetOutput>();
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var allStudent = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, request.LoginPhone);
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            var parentIsShowEndOfClass = config.TenantOtherConfig.ParentIsShowEndOfClass;
             foreach (var studentInfo in allStudent)
             {
                 var studentId = studentInfo.Id;
@@ -274,6 +280,13 @@ namespace ETMS.Business
                             Type = course.Type
                         };
                         var myCourse = studentCourse.Where(p => p.CourseId == courseId);
+                        if (!parentIsShowEndOfClass)
+                        {
+                            if (myCourse.First().Status == EmStudentCourseStatus.EndOfClass)
+                            {
+                                continue;
+                            }
+                        }
                         foreach (var theCourse in myCourse)
                         {
                             myStudentCourseDetail.Status = theCourse.Status;

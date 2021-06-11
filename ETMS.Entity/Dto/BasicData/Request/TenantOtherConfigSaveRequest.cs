@@ -11,5 +11,15 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// <see cref="ETMS.Entity.Enum.EmValidPhoneType"/>
         /// </summary>
         public byte ValidPhoneType { get; set; }
+
+        /// <summary>
+        /// 家长端是否展示已结课的课程
+        /// </summary>
+        public bool ParentIsShowEndOfClass { get; set; }
+
+        /// <summary>
+        /// 自动结课
+        /// </summary>
+        public bool AutoMarkGraduation { get; set; }
     }
 }

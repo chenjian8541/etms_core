@@ -9,5 +9,7 @@ namespace ETMS.IBusiness.EventConsumer
     public interface IEvStudentBLL : IBaseBLL
     {
         Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request);
+
+        Task StudentAutoMarkGraduationConsumerEvent(StudentAutoMarkGraduationEvent request);
     }
 }

@@ -222,9 +222,11 @@ namespace ETMS.Business
             newCourseDetail.AddRange(myStudentCourseDetailClassTimes);
             newCourseDetail.AddRange(myStudentCourseDetailDay);
 
+            var isClassOver = false;
             if (!newCourseDetail.Where(p => p.Status != EmStudentCourseStatus.EndOfClass).Any()) //所有课程已结课
             {
                 courseClassTimes.Status = courseDay.Status = EmStudentCourseStatus.EndOfClass;
+                isClassOver = true;
                 if (request.IsClassOfOneAutoOver)
                 {
                     _eventPublisher.Publish(new ClassOfOneAutoOverEvent(request.TenantId)
@@ -269,6 +271,14 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
                 {
                     CourseId = request.CourseId,
+                    StudentId = request.StudentId
+                });
+            }
+
+            if (isClassOver)
+            {
+                _eventPublisher.Publish(new StudentAutoMarkGraduationEvent(request.TenantId)
+                {
                     StudentId = request.StudentId
                 });
             }
