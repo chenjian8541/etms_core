@@ -71,9 +71,17 @@ namespace ETMS.DataAccess
 
         private async Task<bool> TempStudentNeedCheckDelOldHis()
         {
-            var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
-            await _dbWrapper.Execute($"DELETE EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
-            return true;
+            try
+            {
+                var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
+                await _dbWrapper.Execute($"DELETE EtTempStudentNeedCheck WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Error("TempStudentNeedCheckDelOldHis", ex, this.GetType());
+                return true;
+            }
         }
 
         public async Task<bool> TempStudentNeedCheckSetIsCheckIn(long studentId, DateTime ot)
@@ -132,9 +140,17 @@ namespace ETMS.DataAccess
 
         private async Task<bool> TempStudentNeedCheckClassDelOldHis()
         {
-            var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
-            await _dbWrapper.Execute($"DELETE EtTempStudentNeedCheckClass WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
-            return true;
+            try
+            {
+                var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
+                await _dbWrapper.Execute($"DELETE EtTempStudentNeedCheckClass WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Error("TempStudentNeedCheckClassDelOldHis", ex, this.GetType());
+                return true;
+            }
         }
 
         public async Task<bool> TempStudentNeedCheckClassSetIsAttendClass(long classTimesId)
