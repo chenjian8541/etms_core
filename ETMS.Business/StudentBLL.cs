@@ -61,12 +61,17 @@ namespace ETMS.Business
 
         private readonly IStudentPointsLogDAL _studentPointsLogDAL;
 
+        private readonly IOrderDAL _orderDAL;
+
+        private readonly IIncomeLogDAL _incomeLogDAL;
+
         public StudentBLL(IStudentDAL studentDAL, IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentTagDAL studentTagDAL, IStudentRelationshipDAL studentRelationshipDAL, IStudentSourceDAL studentSourceDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, IGradeDAL gradeDAL,
             IStudentTrackLogDAL studentTrackLogDAL, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, INoticeBLL noticeBLL, IEventPublisher eventPublisher,
-            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface, IStudentPointsLogDAL studentPointsLogDAL)
+            IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface, IStudentPointsLogDAL studentPointsLogDAL,
+            IOrderDAL orderDAL, IIncomeLogDAL incomeLogDAL)
         {
             this._studentDAL = studentDAL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
@@ -87,6 +92,8 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._aiface = aiface;
             this._studentPointsLogDAL = studentPointsLogDAL;
+            this._orderDAL = orderDAL;
+            this._incomeLogDAL = incomeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -95,7 +102,7 @@ namespace ETMS.Business
             this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentExtendFieldDAL, _studentTagDAL,
                 _userOperationLogDAL, _studentRelationshipDAL, _studentSourceDAL, _userDAL, _gradeDAL, _studentTrackLogDAL, _studentOperationLogDAL,
-                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL);
+                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL, _orderDAL, _incomeLogDAL);
         }
 
         public async Task<ResponseBase> StudentDuplicateCheck(StudentDuplicateCheckRequest request)
@@ -344,7 +351,39 @@ namespace ETMS.Business
             }
             if (isIgnoreCheck)
             {
+                //删除此学员购买课程对应的支付信息
+                var myUserOrder = await _orderDAL.GetOrderStudentOt(studentId);
+                var ot = new List<DateTime>();
+                if (myUserOrder.Any())
+                {
+                    var ids = new List<long>();
+                    foreach (var p in myUserOrder)
+                    {
+                        ids.Add(p.Id);
+                        ot.Add(p.Ot);
+                    }
+                    await _incomeLogDAL.DelIncomeLog(ids);
+                }
                 await _studentDAL.DelStudentDepth(studentId);
+                if (ot.Any())
+                {
+                    var myot = ot.Distinct();
+                    foreach (var item in myot)
+                    {
+                        _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
+                        {
+                            StatisticsDate = item
+                        });
+                        _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+                        {
+                            StatisticsDate = item
+                        });
+                        _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
+                        {
+                            StatisticsDate = item
+                        });
+                    }
+                }
             }
             else
             {

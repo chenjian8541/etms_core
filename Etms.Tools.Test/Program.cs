@@ -85,11 +85,12 @@ namespace Etms.Tools.Test
             //var year = 2021;
             //var startTime = new DateTime(year, 1, 1);
             //var endTime = startTime.AddYears(1).AddDays(-1);
-            var time = DateTime.Now;
-            var startTimeDesc = time.Date.EtmsToDateString();
-            var endTimeDesc = time.AddDays(1).Date.EtmsToDateString();
-            Console.WriteLine(startTimeDesc);
-            Console.WriteLine(endTimeDesc);
+            //var time = DateTime.Now;
+            //var startTimeDesc = time.Date.EtmsToDateString();
+            //var endTimeDesc = time.AddDays(1).Date.EtmsToDateString();
+            //Console.WriteLine(startTimeDesc);
+            //Console.WriteLine(endTimeDesc);
+            new EtmsProcess().ProcessT();
             Console.Read();
         }
 

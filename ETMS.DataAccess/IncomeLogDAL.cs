@@ -45,5 +45,22 @@ namespace ETMS.DataAccess
             await _dbWrapper.Update(log);
             return true;
         }
+
+        public async Task<bool> DelIncomeLog(List<long> orderIds)
+        {
+            if (orderIds == null || orderIds.Count == 0)
+            {
+                return false;
+            }
+            if (orderIds.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtIncomeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND OrderId = {orderIds[0]} ");
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtIncomeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND OrderId IN ({string.Join(',', orderIds)}) ");
+            }
+            return true;
+        }
     }
 }

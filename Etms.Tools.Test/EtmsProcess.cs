@@ -29,6 +29,7 @@ using Senparc.Weixin;
 using Senparc.Weixin.Cache.CsRedis;
 using Senparc.Weixin.Open;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -43,10 +44,18 @@ namespace Etms.Tools.Test
             Bootstrapper.Bootstrap(p =>
             {
                 appSettings = InitCustomIoc(p);
+                InitRabbitMq(p, appSettings.RabbitMqConfig);
             });
             SubscriptionAdapt.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]处理服务业务成功...");
+        }
+
+        private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
+        {
+            var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
+            var publisher = new EventPublisher(busControl);
+            container.RegisterInstance(publisher).As<IEventPublisher>();
         }
 
         /// <summary>
@@ -89,6 +98,49 @@ namespace Etms.Tools.Test
                     Console.WriteLine($"{DateTime.Now.EtmsToString()}等待中...");
                     System.Threading.Thread.Sleep(1000 * 2);
                     _distributedLockDAL.LockRelease(_lockKey);
+                }
+            }
+        }
+
+        private const int _pageSize = 100;
+
+        public void ProcessT()
+        {
+            var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            var eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            var pageCurrent = 1;
+            var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+            if (getTenantsEffectiveResult.Item2 == 0)
+            {
+                return;
+            }
+            HandleTenantList(getTenantsEffectiveResult.Item1, eventPublisher);
+            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
+            pageCurrent++;
+            while (pageCurrent <= totalPage)
+            {
+                getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+                HandleTenantList(getTenantsEffectiveResult.Item1, eventPublisher);
+                pageCurrent++;
+            }
+        }
+
+        private void HandleTenantList(IEnumerable<SysTenant> tenantList, IEventPublisher eventPublisher)
+        {
+            if (tenantList == null || !tenantList.Any())
+            {
+                return;
+            }
+            foreach (var tenant in tenantList)
+            {
+                var now = new DateTime(2020, 01, 01);
+                while (now < DateTime.Now)
+                {
+                    eventPublisher.Publish(new StatisticsStudentCountEvent(tenant.Id)
+                    {
+                        Time = now
+                    });
+                    now = now.AddMonths(1);
                 }
             }
         }

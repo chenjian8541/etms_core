@@ -103,7 +103,7 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string Validate()
         {
-            if (Ot.IsEffectiveDate())
+            if (!Ot.IsEffectiveDate())
             {
                 return "请选择有效的经办日期";
             }

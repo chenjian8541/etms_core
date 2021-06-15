@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.Temp;
 
 namespace ETMS.DataAccess
 {
@@ -166,6 +167,12 @@ namespace ETMS.DataAccess
             var log = await _dbWrapper.Find<EtOrderDetail>(p => p.TenantId == _tenantId && p.ProductType == productType
             && p.ProductId == productId && p.IsDeleted == EmIsDeleted.Normal);
             return log != null;
+        }
+
+        public async Task<IEnumerable<OrderStudentOt>> GetOrderStudentOt(long studentId)
+        {
+            var sql = $"SELECT TOP 50 Id,Ot FROM EtOrder WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}";
+            return await _dbWrapper.ExecuteObject<OrderStudentOt>(sql);
         }
     }
 }

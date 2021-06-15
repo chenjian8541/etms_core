@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess
         Task<EtIncomeLog> GetIncomeLog(long id);
 
         Task<bool> EditIncomeLog(EtIncomeLog log);
+
+        Task<bool> DelIncomeLog(List<long> orderIds);
     }
 }

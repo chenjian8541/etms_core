@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -52,5 +53,7 @@ namespace ETMS.IDataAccess
         Task<bool> SetOrderHasIsTransferCourse(List<long> orderIds);
 
         Task<bool> ExistOrderProduct(byte productType, long productId);
+
+        Task<IEnumerable<OrderStudentOt>> GetOrderStudentOt(long studentId);
     }
 }
