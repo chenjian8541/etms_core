@@ -21,7 +21,7 @@ namespace ETMS.Entity.CacheBucket.RedisLock
 
         public string GetKey()
         {
-            return $"StatisticsStudentCountToken_{TenantId}_{StatisticsDate.ToString("yyyyMMdd")}";
+            return $"StatisticsStudentCountToken_{TenantId}_{StatisticsDate.ToString("yyyyMM")}";
         }
     }
 }

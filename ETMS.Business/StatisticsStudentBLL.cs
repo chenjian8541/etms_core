@@ -44,14 +44,8 @@ namespace ETMS.Business
 
         public async Task StatisticsStudentCountConsumeEvent(StatisticsStudentCountEvent request)
         {
-            if (request.OpType == StatisticsStudentOpType.Add)
-            {
-                await _statisticsStudentCountDAL.AddStudentCount(request.Time.Date, request.ChangeCount);
-            }
-            else
-            {
-                await _statisticsStudentCountDAL.DeductionStudentCount(request.Time.Date, request.ChangeCount);
-            }
+            await _statisticsStudentCountDAL.UpdateStatisticsStudentCountDay(request.Time.Date);
+            await _statisticsStudentCountDAL.UpdateStatisticsStudentCountMonth(request.Time.Date);
         }
 
         public async Task StatisticsStudentTrackCountConsumeEvent(StatisticsStudentTrackCountEvent request)
@@ -188,6 +182,66 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(echartsPieStudentType);
+        }
+
+        public async Task<ResponseBase> GetStatisticsStudentCountPaging(GetStatisticsStudentCountPagingRequest request)
+        {
+            var pagingData = await _statisticsStudentCountDAL.GetStatisticsStudentCountPaging(request);
+            var output = new List<GetStatisticsStudentCountPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new GetStatisticsStudentCountPagingOutput()
+                {
+                    AddStudentCount = p.AddStudentCount,
+                    Id = p.Id,
+                    Ot = p.Ot
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<GetStatisticsStudentCountPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> GetStatisticsStudentCountMonthPaging(GetStatisticsStudentCountMonthPagingRequest request)
+        {
+            var pagingData = await _statisticsStudentCountDAL.GetStatisticsStudentCountMonthPaging(request);
+            var output = new List<GetStatisticsStudentCountMonthPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new GetStatisticsStudentCountMonthPagingOutput()
+                {
+                    Id = p.Id,
+                    AddStudentCount = p.AddStudentCount,
+                    Month = p.Month,
+                    Year = p.Year
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<GetStatisticsStudentCountMonthPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> GetStatisticsStudentCountMonth(GetStatisticsStudentCountMonthRequest request)
+        {
+            DateTime startTime;
+            DateTime endTime;
+            if (request.Year != null)
+            {
+                startTime = new DateTime(request.Year.Value, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            else
+            {
+                startTime = new DateTime(DateTime.Now.Year, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            var statisticsStudentCountMonth = await _statisticsStudentCountDAL.GetStatisticsStudentCountMonth(startTime, endTime);
+            var echartsBar = new EchartsBar<int>();
+            var index = 1;
+            while (index <= 12)
+            {
+                var myStatisticsStudentCount = statisticsStudentCountMonth.FirstOrDefault(p => p.Month == index);
+                echartsBar.XData.Add($"{index}月");
+                echartsBar.MyData.Add(myStatisticsStudentCount == null ? 0 : myStatisticsStudentCount.AddStudentCount);
+                index++;
+            }
+            return ResponseBase.Success(echartsBar);
         }
     }
 }

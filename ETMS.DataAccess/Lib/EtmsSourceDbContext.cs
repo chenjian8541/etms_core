@@ -135,5 +135,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtMicroWebColumn> EtMicroWebColumns { get; set; }
 
         public DbSet<EtMicroWebColumnArticle> EtMicroWebColumnArticles { get; set; }
+
+        public DbSet<EtStatisticsStudentCountMonth> EtStatisticsStudentCountMonths { get; set; }
     }
 }

@@ -23,5 +23,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetStatisticsStudentSource(GetStatisticsStudentRequest request);
 
         Task<ResponseBase> GetStatisticsStudentType(GetStatisticsStudentRequest request);
+
+        Task<ResponseBase> GetStatisticsStudentCountPaging(GetStatisticsStudentCountPagingRequest request);
+
+        Task<ResponseBase> GetStatisticsStudentCountMonthPaging(GetStatisticsStudentCountMonthPagingRequest request);
+
+        Task<ResponseBase> GetStatisticsStudentCountMonth(GetStatisticsStudentCountMonthRequest request);
     }
 }

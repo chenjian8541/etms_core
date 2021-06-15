@@ -64,16 +64,32 @@ namespace Etms.Tools.Test
             // process.ProcessRole();
             // }
 
-            var mystudents = new List<MyStudent>();
-            mystudents.Add(new MyStudent() { Id = 1, Name = "1" });
-            mystudents.Add(new MyStudent() { Id = 2, Name = "2" });
-            mystudents.Add(new MyStudent() { Id = 3, Name = "3" });
-            mystudents.Add(new MyStudent() { Id = 4, Name = "4" });
+            //var mystudents = new List<MyStudent>();
+            //mystudents.Add(new MyStudent() { Id = 1, Name = "1" });
+            //mystudents.Add(new MyStudent() { Id = 2, Name = "2" });
+            //mystudents.Add(new MyStudent() { Id = 3, Name = "3" });
+            //mystudents.Add(new MyStudent() { Id = 4, Name = "4" });
 
-            var this3 = mystudents.FirstOrDefault(p => p.Id == 3);
-            this3.Name = "李小白";
+            //var this3 = mystudents.FirstOrDefault(p => p.Id == 3);
+            //this3.Name = "李小白";
 
-            Console.WriteLine(mystudents.First(p => p.Id == 3).Name);
+            //Console.WriteLine(mystudents.First(p => p.Id == 3).Name);
+
+            //var time = DateTime.Now;
+            //var firstDate = new DateTime(time.Year, time.Month, 1);
+            //var startTimeDesc = firstDate.EtmsToDateString();
+            //var endTimeDesc = firstDate.AddMonths(1).EtmsToDateString();
+            //Console.WriteLine(startTimeDesc);
+            //Console.WriteLine(endTimeDesc);
+
+            //var year = 2021;
+            //var startTime = new DateTime(year, 1, 1);
+            //var endTime = startTime.AddYears(1).AddDays(-1);
+            var time = DateTime.Now;
+            var startTimeDesc = time.Date.EtmsToDateString();
+            var endTimeDesc = time.AddDays(1).Date.EtmsToDateString();
+            Console.WriteLine(startTimeDesc);
+            Console.WriteLine(endTimeDesc);
             Console.Read();
         }
 

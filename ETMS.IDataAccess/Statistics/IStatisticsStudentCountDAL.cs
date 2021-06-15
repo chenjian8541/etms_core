@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,10 +9,16 @@ namespace ETMS.IDataAccess
 {
     public interface IStatisticsStudentCountDAL : IBaseDAL
     {
-        Task AddStudentCount(DateTime time, int addCount);
-
-        Task DeductionStudentCount(DateTime time, int deductionCount);
+        Task UpdateStatisticsStudentCountDay(DateTime time);
 
         Task<List<EtStatisticsStudentCount>> GetStatisticsStudentCount(DateTime startTime, DateTime endTime);
+
+        Task<Tuple<IEnumerable<EtStatisticsStudentCount>, int>> GetStatisticsStudentCountPaging(RequestPagingBase request);
+
+        Task UpdateStatisticsStudentCountMonth(DateTime time);
+
+        Task<List<EtStatisticsStudentCountMonth>> GetStatisticsStudentCountMonth(DateTime startTime, DateTime endTime);
+
+        Task<Tuple<IEnumerable<EtStatisticsStudentCountMonth>, int>> GetStatisticsStudentCountMonthPaging(RequestPagingBase request);
     }
 }

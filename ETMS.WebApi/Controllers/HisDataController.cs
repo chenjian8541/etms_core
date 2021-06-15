@@ -360,6 +360,48 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> GetStatisticsStudentCountPaging(GetStatisticsStudentCountPagingRequest request)
+        {
+            try
+            {
+                _statisticsStudentBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsStudentBLL.GetStatisticsStudentCountPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetStatisticsStudentCountMonthPaging(GetStatisticsStudentCountMonthPagingRequest request)
+        {
+            try
+            {
+                _statisticsStudentBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsStudentBLL.GetStatisticsStudentCountMonthPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetStatisticsStudentCountMonth(GetStatisticsStudentCountMonthRequest request)
+        {
+            try
+            {
+                _statisticsStudentBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsStudentBLL.GetStatisticsStudentCountMonth(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> GetStatisticsSalesProduct(GetStatisticsSalesProductRequest request)
         {
             try
