@@ -321,5 +321,11 @@ namespace ETMS.DataAccess
             }
             await _dbWrapper.Execute(sql);
         }
+
+        public async Task CancelStudentCourseNotEnoughRemind(long studentId, long courseId)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtStudentCourse SET NotEnoughRemindCount = -1 WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId}");
+            await UpdateCache(_tenantId, studentId);
+        }
     }
 }

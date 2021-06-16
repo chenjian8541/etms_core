@@ -300,6 +300,10 @@ namespace ETMS.Business.Common
                 return false;
             }
             var notEnoughRemindCount = myStudentCourses[0].NotEnoughRemindCount;
+            if (notEnoughRemindCount == -1) // -1 表示忽略提醒
+            {
+                return false;
+            }
             if (notEnoughRemindCount >= studentCourseNotEnoughCount)
             {
                 return false;

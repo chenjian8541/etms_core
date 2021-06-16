@@ -53,6 +53,8 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public bool IsLoadRich { get; set; }
 
+        public bool IsIgnoreNotEnoughRemind { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -94,6 +96,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (StudentType != null)
             {
                 condition.Append($" AND StudentType = {StudentType.Value}");
+            }
+            if (IsIgnoreNotEnoughRemind)
+            {
+                condition.Append(" AND NotEnoughRemindCount <> -1 ");
             }
             return condition.ToString();
         }

@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,12 @@ namespace ETMS.IDataAccess
     {
         Task UpdateStatisticsSales(DateTime date);
 
+        Task UpdateStatisticsSalesProductMonth(DateTime date);
+
         Task<List<EtStatisticsSalesProduct>> GetStatisticsSalesProduct(DateTime startTime, DateTime endTime);
+
+        Task<List<EtStatisticsSalesProductMonth>> GetEtStatisticsSalesProductMonth(DateTime startTime, DateTime endTime);
+
+        Task<Tuple<IEnumerable<EtStatisticsSalesProductMonth>, int>> GetEtStatisticsSalesProductMonthPaging(RequestPagingBase request);
     }
 }

@@ -140,7 +140,12 @@ namespace Etms.Tools.Test
                     {
                         Time = now
                     });
+                    eventPublisher.Publish(new StatisticsSalesProductEvent(tenant.Id)
+                    {
+                        StatisticsDate = now
+                    });
                     now = now.AddMonths(1);
+                    Console.WriteLine("处理完中");
                 }
             }
         }

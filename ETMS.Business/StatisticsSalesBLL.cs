@@ -43,6 +43,7 @@ namespace ETMS.Business
         public async Task StatisticsSalesProductConsumeEvent(StatisticsSalesProductEvent request)
         {
             await _statisticsSalesProductDAL.UpdateStatisticsSales(request.StatisticsDate.Date);
+            await _statisticsSalesProductDAL.UpdateStatisticsSalesProductMonth(request.StatisticsDate.Date);
         }
 
         public async Task<ResponseBase> GetStatisticsSalesProduct(GetStatisticsSalesProductRequest request)
@@ -89,6 +90,53 @@ namespace ETMS.Business
             echartsStatisticsSalesProduct.LegendData.Add("费用");
             echartsStatisticsSalesProduct.MyData.Add(new EchartsPieData<decimal>() { Name = "费用", Value = myCostSum });
             return ResponseBase.Success(echartsStatisticsSalesProduct);
+        }
+
+        public async Task<ResponseBase> GetStatisticsSalesProductMonth(GetStatisticsSalesProductMonthRequest request)
+        {
+            DateTime startTime;
+            DateTime endTime;
+            if (request.Year != null)
+            {
+                startTime = new DateTime(request.Year.Value, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            else
+            {
+                startTime = new DateTime(DateTime.Now.Year, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            var statisticsSalesMonth = await _statisticsSalesProductDAL.GetEtStatisticsSalesProductMonth(startTime, endTime);
+            var echartsBar = new EchartsBar<decimal>();
+            var index = 1;
+            while (index <= 12)
+            {
+                var myStatisticsSalesMonth = statisticsSalesMonth.FirstOrDefault(p => p.Month == index);
+                echartsBar.XData.Add($"{index}月");
+                echartsBar.MyData.Add(myStatisticsSalesMonth == null ? 0 : myStatisticsSalesMonth.SalesTotalSum);
+                index++;
+            }
+            return ResponseBase.Success(echartsBar);
+        }
+
+        public async Task<ResponseBase> GetStatisticsSalesProductMonthPaging(GetStatisticsSalesProductMonthPagingRequest request)
+        {
+            var pagingData = await _statisticsSalesProductDAL.GetEtStatisticsSalesProductMonthPaging(request);
+            var output = new List<GetStatisticsSalesProductMonthPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new GetStatisticsSalesProductMonthPagingOutput()
+                {
+                    Id = p.Id,
+                    Month = p.Month,
+                    Year = p.Year,
+                    SalesTotalSum = p.SalesTotalSum,
+                    CostSum = p.CostSum,
+                    CourseSum = p.CourseSum,
+                    GoodsSum = p.GoodsSum
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<GetStatisticsSalesProductMonthPagingOutput>(pagingData.Item2, output));
         }
 
         public async Task StatisticsSalesOrderConsumerEvent(StatisticsSalesOrderEvent request)

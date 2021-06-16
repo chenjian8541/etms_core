@@ -1008,5 +1008,13 @@ namespace ETMS.Business
             }); ;
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> StudentCourseNotEnoughRemindCancel(StudentCourseNotEnoughRemindCancelRequest request)
+        {
+            await _studentCourseDAL.CancelStudentCourseNotEnoughRemind(request.StudentId, request.CourseId);
+
+            await _userOperationLogDAL.AddUserLog(request, "取消学员课程不足续费预警", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
     }
 }
