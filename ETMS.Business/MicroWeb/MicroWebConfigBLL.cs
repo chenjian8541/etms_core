@@ -28,12 +28,15 @@ namespace ETMS.Business.MicroWeb
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
         public MicroWebConfigBLL(IMicroWebConfigDAL microWebConfigDAL, IUserOperationLogDAL userOperationLogDAL,
-            IAppConfigurtaionServices appConfigurtaionServices)
+            IAppConfigurtaionServices appConfigurtaionServices, ITempDataCacheDAL tempDataCacheDAL)
         {
             this._microWebConfigDAL = microWebConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -98,6 +101,7 @@ namespace ETMS.Business.MicroWeb
             await _microWebConfigDAL.SaveMicroWebConfig(entity);
 
             await _userOperationLogDAL.AddUserLog(request, "设置banner", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -117,6 +121,8 @@ namespace ETMS.Business.MicroWeb
                 TenantId = tenantId,
                 Type = EmMicroWebConfigType.MicroWebDefaultColumnSet
             });
+
+            RemoveMicroWebHomeBucket(tenantId);
             return true;
         }
 
@@ -213,7 +219,13 @@ namespace ETMS.Business.MicroWeb
             await _microWebConfigDAL.SaveMicroWebConfig(entity);
 
             await _userOperationLogDAL.AddUserLog(request, "设置地址", EmUserOperationType.MicroWebManage);
+            RemoveMicroWebHomeBucket(request.LoginTenantId);
             return ResponseBase.Success();
+        }
+
+        private void RemoveMicroWebHomeBucket(int tenantId)
+        {
+            _tempDataCacheDAL.RemoveMicroWebHomeBucket(tenantId);
         }
     }
 }

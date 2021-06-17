@@ -33,5 +33,15 @@ namespace ETMS.Business.Common
         {
             return EtmsHelper2.GetTenantDecrypt(strEncrypt);
         }
+
+        public static string GetPhoneEncrypt(string phone)
+        {
+            return EtmsHelper2.GetPhoneEncrypt(phone);
+        }
+
+        public static string GetPhoneDecrypt(string strEncrypt)
+        {
+            return EtmsHelper2.GetPhoneDecrypt(strEncrypt);
+        }
     }
 }

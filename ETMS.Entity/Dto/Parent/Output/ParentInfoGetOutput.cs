@@ -37,5 +37,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public bool IsShowStudentRecommend { get; set; }
 
         public string TenantNo { get; set; }
+
+        public string StuNo { get; set; }
     }
 }

@@ -18,5 +18,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> MicroWebArticleGet(MicroWebArticleGetRequest request);
 
         Task<ResponseBase> MicroWebArticleGetPaging(MicroWebArticleGetPagingRequest request);
+
+        Task<ResponseBase> GetJsSdkUiPackage(GetJsSdkUiPackageRequest request);
+
+        Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request);
+
+        Task<ResponseBase> TryCalssApplySupplement(TryCalssApplySupplementRequest request);
     }
 }

@@ -30,6 +30,8 @@ namespace ETMS.Entity.Temp.View
         ///  <see cref="ETMS.Entity.Enum.EmMicroWebColumnType"/>
         /// </summary>
         public byte Type { get; set; }
+
+        public string Name { get; set; }
     }
 
     public class MicroWebHomeAddress

@@ -19,6 +19,12 @@ using ETMS.Entity.CacheBucket.MicroWeb;
 using ETMS.IBusiness;
 using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Open2.Output;
+using ETMS.IBusiness.Wechart;
+using ETMS.LOG;
+using Senparc.Weixin.MP.Helpers;
+using ETMS.IEventProvider;
+using ETMS.Business.Common;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -30,18 +36,32 @@ namespace ETMS.Business
 
         private readonly IMicroWebColumnArticleDAL _microWebColumnArticleDAL;
 
-        public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL)
+        private readonly IComponentAccessBLL _componentAccessBLL;
+
+        private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IParentStudentDAL _parentStudentDAL;
+
+        public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
+            IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
+            IParentStudentDAL parentStudentDAL)
         {
             this._microWebBLL = microWebBLL;
             this._appConfigBLL = appConfigBLL;
             this._microWebColumnArticleDAL = microWebColumnArticleDAL;
+            this._componentAccessBLL = componentAccessBLL;
+            this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
+            this._eventPublisher = eventPublisher;
+            this._parentStudentDAL = parentStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._microWebBLL.InitTenantId(tenantId);
             this._appConfigBLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _microWebColumnArticleDAL);
+            this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL);
         }
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
@@ -132,6 +152,93 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<MicroWebArticleGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> GetJsSdkUiPackage(GetJsSdkUiPackageRequest request)
+        {
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[OpenBLL]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
+            var sysWechartAuthorizerToken = await _componentAccessBLL.GetSysWechartAuthorizerToken(tenantWechartAuth.AuthorizerAppid);
+            if (sysWechartAuthorizerToken == null)
+            {
+                Log.Error($"[OpenBLL]未获取到token信息,tenantId:{request.LoginTenantId}", this.GetType());
+                return ResponseBase.CommonError("未获取到token信息");
+            }
+            var ticketResult = Senparc.Weixin.Open.ComponentAPIs.ComponentApi.GetJsApiTicket(sysWechartAuthorizerToken.AuthorizerAccessToken);
+            var noncestr = JSSDKHelper.GetNoncestr();
+            var timestamp = JSSDKHelper.GetTimestamp();
+            var signature = JSSDKHelper.GetSignature(ticketResult.ticket, noncestr, timestamp, request.Url);
+            return ResponseBase.Success(new GetJsSdkUiPackageOutput()
+            {
+                AppId = tenantWechartAuth.AuthorizerAppid,
+                NonceStr = noncestr,
+                Timestamp = timestamp,
+                Signature = signature
+            });
+        }
+
+        public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)
+        {
+            long? recommandStudentId = null;
+            if (!string.IsNullOrEmpty(request.StuNo))
+            {
+                var phone = TenantLib.GetPhoneDecrypt(request.StuNo);
+                var students = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, phone);
+                if (students != null && students.Any())
+                {
+                    recommandStudentId = students.First().Id;
+                }
+            }
+            var applyLog = new EtTryCalssApplyLog()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                Phone = request.Phone,
+                RecommandStudentId = recommandStudentId,
+                SourceType = EmTryCalssSourceType.WeChat,
+                StudentId = null,
+                TenantId = request.LoginTenantId,
+                TouristName = string.Empty,
+                ClassTime = string.Empty,
+                ClassOt = null,
+                CourseDesc = string.Empty,
+                ApplyOt = DateTime.Now,
+                CourseId = null,
+                HandleOt = null,
+                HandleRemark = null,
+                HandleStatus = EmTryCalssApplyHandleStatus.Unreviewed,
+                HandleUser = null,
+                TouristRemark = string.Empty
+            };
+            await _tryCalssApplyLogDAL.AddTryCalssApplyLog(applyLog);
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            _eventPublisher.Publish(new NoticeUserTryCalssApplyEvent(request.LoginTenantId)
+            {
+                TryCalssApplyLog = applyLog
+            });
+
+            return ResponseBase.Success(new TryCalssApplyOutput()
+            {
+                TryClassId = applyLog.Id
+            });
+        }
+
+        public async Task<ResponseBase> TryCalssApplySupplement(TryCalssApplySupplementRequest request)
+        {
+            var log = await _tryCalssApplyLogDAL.GetTryCalssApplyLog(request.TryClassId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("试听记录不存在");
+            }
+            log.TouristName = request.Name;
+            log.CourseDesc = request.TryCourse;
+            await _tryCalssApplyLogDAL.EditTryCalssApplyLog(log);
+
+            return ResponseBase.Success();
         }
     }
 }

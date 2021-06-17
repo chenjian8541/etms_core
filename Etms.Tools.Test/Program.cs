@@ -90,8 +90,28 @@ namespace Etms.Tools.Test
             //var endTimeDesc = time.AddDays(1).Date.EtmsToDateString();
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
-            new EtmsProcess().ProcessT();
+
+            //new EtmsProcess().ProcessT();
+
+            var aa = GetPhoneEncrypt("13410271814");
+            Console.WriteLine(aa);
+            Console.WriteLine(GetPhoneDecrypt(aa));
             Console.Read();
+        }
+
+        public static string GetPhoneEncrypt(string phone)
+        {
+            var strEncrypt = $"8104{phone}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static string GetPhoneDecrypt(string strEncrypt)
+        {
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode;
         }
 
         private static void GetPwd()

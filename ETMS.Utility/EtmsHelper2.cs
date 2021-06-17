@@ -79,6 +79,21 @@ namespace ETMS.Utility
             return result;
         }
 
+        public static string GetPhoneEncrypt(string phone)
+        {
+            var strEncrypt = $"8104{phone}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static string GetPhoneDecrypt(string strEncrypt)
+        {
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode;
+        }
+
         /// <summary>
         /// 加密tenantId
         /// </summary>

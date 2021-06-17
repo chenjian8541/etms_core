@@ -441,6 +441,8 @@ namespace ETMS.Business
                 }
             }
             output.TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
+            output.StuNo = TenantLib.GetPhoneEncrypt(request.LoginPhone);
+
             return ResponseBase.Success(output);
         }
 

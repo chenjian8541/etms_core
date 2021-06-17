@@ -460,7 +460,8 @@ namespace ETMS.Business.MicroWeb
                     {
                         Id = p.Id,
                         ShowInMenuIconUrl = p.ShowInMenuIconUrl,
-                        Type = p.Type
+                        Type = p.Type,
+                        Name = p.Name
                     });
                 }
             }
