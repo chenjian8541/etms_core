@@ -96,5 +96,12 @@
     "Title": "定时同步机构人员信息",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "StatisticsTenantDataJob",
+    "Cron": "0 0 6 * * ?", //每天凌晨6点执行
+    "Title": "定时统计机构数据",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

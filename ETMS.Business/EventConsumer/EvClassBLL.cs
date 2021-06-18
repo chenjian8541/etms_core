@@ -9,6 +9,8 @@ using System.Linq;
 using ETMS.Entity.Enum;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using ETMS.IDataAccess.Statistics;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -20,16 +22,19 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IEventPublisher _eventPublisher;
 
-        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL)
+        private readonly IStatisticsEducationDAL _statisticsEducationDAL;
+
+        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IStatisticsEducationDAL statisticsEducationDAL)
         {
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
             this._classTimesDAL = classTimesDAL;
+            this._statisticsEducationDAL = statisticsEducationDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL);
+            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
@@ -108,6 +113,11 @@ namespace ETMS.Business.EventConsumer
             classTimes.StudentCount = studentCount;
             classTimes.StudentTempCount = studentTempCount;
             await _classTimesDAL.EditClassTimes(classTimes);
+        }
+
+        public async Task StatisticsEducationConsumerEvent(StatisticsEducationEvent request)
+        {
+            await _statisticsEducationDAL.StatisticsEducationUpdate(request.Time);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)
+        public async Task<ResponseBase> TryClassApply(TryCalssApplyRequest request)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> TryCalssApplySupplement(TryCalssApplySupplementRequest request)
+        public async Task<ResponseBase> TryClassApplySupplement(TryCalssApplySupplementRequest request)
         {
             try
             {

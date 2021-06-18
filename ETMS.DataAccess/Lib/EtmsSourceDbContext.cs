@@ -139,5 +139,15 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsStudentCountMonth> EtStatisticsStudentCountMonths { get; set; }
 
         public DbSet<EtStatisticsSalesProductMonth> EtStatisticsSalesProductMonths { get; set; }
-    }
+
+        public DbSet<EtStatisticsEducationMonth> EtStatisticsEducationMonths { get; set; }
+
+        public DbSet<EtStatisticsEducationClassMonth> EtStatisticsEducationClassMonths { get; set; }
+
+        public DbSet<EtStatisticsEducationTeacherMonth> EtStatisticsEducationTeacherMonths { get; set; }
+
+        public DbSet<EtStatisticsEducationCourseMonth> EtStatisticsEducationCourseMonths { get; set; }
+
+        public DbSet<EtStatisticsEducationStudentMonth> EtStatisticsEducationStudentMonths { get; set; }
+    } 
 }

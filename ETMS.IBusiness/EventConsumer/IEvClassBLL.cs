@@ -1,4 +1,5 @@
 ﻿using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task ClassRemoveStudentConsumerEvent(ClassRemoveStudentEvent request);
 
         Task SyncClassTimesStudentConsumerEvent(SyncClassTimesStudentEvent request);
+
+        Task StatisticsEducationConsumerEvent(StatisticsEducationEvent request);
     }
 }
