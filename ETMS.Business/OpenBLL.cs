@@ -273,5 +273,11 @@ namespace ETMS.Business
                 ShowInHomeTopIndex = p.ShowInHomeTopIndex
             });
         }
+
+        public async Task<ResponseBase> MicroWebArticleReading(MicroWebArticleReadingRequest request)
+        {
+            await _microWebColumnArticleDAL.AddReadCount(request.ArticleId);
+            return ResponseBase.Success();
+        }
     }
 }

@@ -12,6 +12,7 @@ using ETMS.Event.DataContract;
 using ETMS.Entity.Database.Source;
 using ETMS.Utility;
 using ETMS.IEventProvider;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -206,6 +207,19 @@ namespace ETMS.Business
             {
                 ClassRecord = classRecord
             });
+
+            _eventPublisher.Publish(new StatisticsClassFinishCountEvent(request.TenantId)
+            {
+                ClassId = classRecord.ClassId
+            });
+
+            if (!EtmsHelper2.IsThisMonth(classRecord.ClassOt))
+            {
+                _eventPublisher.Publish(new StatisticsEducationEvent(request.TenantId)
+                {
+                    Time = classRecord.ClassOt
+                });
+            }
         }
     }
 }

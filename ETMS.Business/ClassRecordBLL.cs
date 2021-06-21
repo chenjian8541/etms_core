@@ -7,6 +7,7 @@ using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
@@ -552,6 +553,14 @@ namespace ETMS.Business
             //    CourseId = p.CourseId,
             //    StudentId = p.StudentId
             //});
+
+            if (!EtmsHelper2.IsThisMonth(classRecord.ClassOt))
+            {
+                _eventPublisher.Publish(new StatisticsEducationEvent(request.LoginTenantId)
+                {
+                    Time = classRecord.ClassOt
+                });
+            }
 
             await _userOperationLogDAL.AddUserLog(request, "修改点名记录", EmUserOperationType.ClassRecordManage, now);
             return ResponseBase.Success();

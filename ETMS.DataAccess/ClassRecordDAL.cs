@@ -2,12 +2,14 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp.View;
 using ETMS.Entity.View;
 using ETMS.IDataAccess;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -155,6 +157,12 @@ namespace ETMS.DataAccess
         public async Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId, long studentId)
         {
             return await _dbWrapper.Find<EtClassRecordPointsApplyLog>(p => p.TenantId == _tenantId && p.ClassRecordId == classRecordId && p.StudentId == studentId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<ClassRecordStatistics> GetClassRecordStatistics(long classId)
+        {
+            var log = await this._dbWrapper.ExecuteObject<ClassRecordStatistics>($"SELECT ISNULL(SUM(ClassTimes),0) AS TotalFinishClassTimes,COUNT(Id) AS TotalFinishCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND ClassId = {classId} ");
+            return log.FirstOrDefault();
         }
     }
 }

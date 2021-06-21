@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp.View;
 using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
@@ -57,5 +58,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtClassRecordOperationLog>, int>> GetClassRecordOperationLogPaging(RequestPagingBase request);
 
         Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId, long studentId);
+
+        Task<ClassRecordStatistics> GetClassRecordStatistics(long classId);
     }
 }

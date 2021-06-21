@@ -16,5 +16,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncClassTimesStudentConsumerEvent(SyncClassTimesStudentEvent request);
 
         Task StatisticsEducationConsumerEvent(StatisticsEducationEvent request);
+
+        Task StatisticsClassFinishCountConsumerEvent(StatisticsClassFinishCountEvent request);
     }
 }

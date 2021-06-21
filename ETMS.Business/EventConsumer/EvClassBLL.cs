@@ -11,6 +11,7 @@ using ETMS.IEventProvider;
 using ETMS.Utility;
 using ETMS.IDataAccess.Statistics;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.Entity.Temp.View;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -24,17 +25,21 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IStatisticsEducationDAL _statisticsEducationDAL;
 
-        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IStatisticsEducationDAL statisticsEducationDAL)
+        private readonly IClassRecordDAL _classRecordDAL;
+
+        public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL,
+            IStatisticsEducationDAL statisticsEducationDAL, IClassRecordDAL classRecordDAL)
         {
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
             this._classTimesDAL = classTimesDAL;
             this._statisticsEducationDAL = statisticsEducationDAL;
+            this._classRecordDAL = classRecordDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL);
+            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL, _classRecordDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
@@ -118,6 +123,20 @@ namespace ETMS.Business.EventConsumer
         public async Task StatisticsEducationConsumerEvent(StatisticsEducationEvent request)
         {
             await _statisticsEducationDAL.StatisticsEducationUpdate(request.Time);
+        }
+
+        public async Task StatisticsClassFinishCountConsumerEvent(StatisticsClassFinishCountEvent request)
+        {
+            var classRecordStatistics = await _classRecordDAL.GetClassRecordStatistics(request.ClassId);
+            if (classRecordStatistics == null)
+            {
+                classRecordStatistics = new ClassRecordStatistics()
+                {
+                    TotalFinishClassTimes = 0,
+                    TotalFinishCount = 0
+                };
+            }
+            await _classDAL.UpdateClassFinishInfo(request.ClassId, classRecordStatistics.TotalFinishCount, classRecordStatistics.TotalFinishClassTimes);
         }
     }
 }

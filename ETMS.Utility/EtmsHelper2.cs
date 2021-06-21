@@ -136,5 +136,11 @@ namespace ETMS.Utility
                 return 0;
             }
         }
+
+        public static bool IsThisMonth(DateTime time)
+        {
+            var now = DateTime.Now;
+            return time.Year == now.Year && time.Month == now.Month;
+        }
     }
 }

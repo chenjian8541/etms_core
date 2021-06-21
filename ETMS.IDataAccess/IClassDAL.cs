@@ -83,5 +83,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<OnlyClassId>> GetStudentCourseInClass(long studentId, long courseId);
 
         Task<IEnumerable<EtClassStudent>> GetStudentCourseInClass(long studentId);
+
+        Task<bool> UpdateClassFinishInfo(long classId, int finishCount, decimal finishClassTimes);
     }
 }

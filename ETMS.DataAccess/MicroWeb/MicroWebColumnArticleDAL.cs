@@ -102,5 +102,11 @@ namespace ETMS.DataAccess.MicroWeb
             var sql = $"SELECT TOP {limitTop} * FROM EtMicroWebColumnArticle WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND ColumnId = {columnId} AND [Status] = {EmMicroWebStatus.Enable} ORDER BY UpdateTime DESC";
             return await this._dbWrapper.ExecuteObject<EtMicroWebColumnArticle>(sql);
         }
+
+        public async Task<bool> AddReadCount(long id)
+        {
+            await _dbWrapper.Execute($"UPDATE EtMicroWebColumnArticle SET ReadCount = ReadCount + 1 WHERE Id = {id} ");
+            return true;
+        }
     }
 }

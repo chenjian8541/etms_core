@@ -28,5 +28,7 @@ namespace ETMS.IDataAccess.MicroWeb
         Task<bool> SaveMicroWebColumnSinglePageArticle(EtMicroWebColumnArticle entity);
 
         Task<IEnumerable<EtMicroWebColumnArticle>> GetMicroWebColumnArticleTopLimit(long columnId, int limitTop);
+
+        Task<bool> AddReadCount(long id);
     }
 }

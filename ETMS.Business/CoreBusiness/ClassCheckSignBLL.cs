@@ -17,6 +17,7 @@ using ETMS.Entity.Temp;
 using ETMS.Entity.Temp.Request;
 using Newtonsoft.Json;
 using ETMS.Business.Common;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -500,6 +501,10 @@ namespace ETMS.Business
                 ClassRecordId = recordId
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
+            _eventPublisher.Publish(new StatisticsClassFinishCountEvent(request.TenantId)
+            {
+                ClassId = request.ClassRecord.ClassId
+            });
 
             await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
             {
@@ -522,6 +527,14 @@ namespace ETMS.Business
                     ClassRecordNotArrivedStudents = notArrivedStudents,
                     ClassName = request.ClassName,
                     ClassRecord = request.ClassRecord
+                });
+            }
+
+            if (!EtmsHelper2.IsThisMonth(request.ClassRecord.ClassOt))
+            {
+                _eventPublisher.Publish(new StatisticsEducationEvent(request.TenantId)
+                {
+                    Time = request.ClassRecord.ClassOt
                 });
             }
         }
