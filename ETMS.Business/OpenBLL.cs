@@ -66,7 +66,13 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
         {
-            return await _appConfigBLL.GetTenantInfoH5(request.LoginTenantId);
+            var tenantInfo = await _appConfigBLL.GetTenantInfoH52(request.LoginTenantId);
+            var addressConfig = await _microWebBLL.MicroWebTenantAddressGet(request.LoginTenantId);
+            return ResponseBase.Success(new TenantInfoGetOutput()
+            {
+                TenantAddressInfo = addressConfig,
+                TenantInfo = tenantInfo
+            });
         }
 
         public async Task<ResponseBase> MicroWebHomeGet(Open2Base request)
@@ -98,7 +104,8 @@ namespace ETMS.Business
                 ArTitile = myData.ArTitile,
                 Id = myData.Id,
                 IsShowYuYue = myColumnInfo.IsShowYuYue,
-                ShowStyle = myColumnInfo.ShowStyle
+                ShowStyle = myColumnInfo.ShowStyle,
+                ColumnName = myColumnInfo.Name
             });
         }
 
@@ -123,7 +130,8 @@ namespace ETMS.Business
                 ArTitile = myData.ArTitile,
                 Id = myData.Id,
                 IsShowYuYue = myColumnInfo.IsShowYuYue,
-                ShowStyle = myColumnInfo.ShowStyle
+                ShowStyle = myColumnInfo.ShowStyle,
+                ColumnName = myColumnInfo.Name
             });
         }
 
@@ -239,6 +247,31 @@ namespace ETMS.Business
             await _tryCalssApplyLogDAL.EditTryCalssApplyLog(log);
 
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> MicroWebColumnGet(ETMS.Entity.Dto.Open2.Request.MicroWebColumnGetRequest request)
+        {
+            var p = await _microWebBLL.GetMicroWebColumn(request.ColumnId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("栏目不存在");
+            }
+            return ResponseBase.Success(new ETMS.Entity.Dto.Open2.Output.MicroWebColumnGetOutput()
+            {
+                Id = p.Id,
+                IsShowInHome = p.IsShowInHome,
+                IsShowInMenu = p.IsShowInMenu,
+                IsShowYuYue = p.IsShowYuYue,
+                Name = p.Name,
+                OrderIndex = p.OrderIndex,
+                ShowInMenuIcon = p.ShowInMenuIcon,
+                ShowInMenuIconUrl = AliyunOssUtil.GetAccessUrlHttps(p.ShowInMenuIcon),
+                ShowStyle = p.ShowStyle,
+                Status = p.Status,
+                Type = p.Type,
+                TypeDesc = EmMicroWebColumnType.GetMicroWebColumnTypeDesc(p.Type),
+                ShowInHomeTopIndex = p.ShowInHomeTopIndex
+            });
         }
     }
 }

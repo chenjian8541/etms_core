@@ -534,5 +534,10 @@ namespace ETMS.Business.MicroWeb
                 MicroWebHomeView = result
             };
         }
+
+        public async Task<MicroWebTenantAddressGetOutput> MicroWebTenantAddressGet(int tenantId)
+        {
+            return await _microWebConfigBLL.MicroWebTenantAddressGet(tenantId);
+        }
     }
 }

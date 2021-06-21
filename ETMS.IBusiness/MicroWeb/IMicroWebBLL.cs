@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket.MicroWeb;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Interaction.Output;
 using ETMS.Entity.Dto.Interaction.Request;
 using ETMS.Entity.Temp.View;
 using System;
@@ -45,5 +46,7 @@ namespace ETMS.IBusiness.MicroWeb
         Task<ResponseBase> MicroWebHomeGet(RequestBase request);
 
         Task<MicroWebHomeView> GetMicroWebHome(int tenantId);
+
+        Task<MicroWebTenantAddressGetOutput> MicroWebTenantAddressGet(int tenantId);
     }
 }

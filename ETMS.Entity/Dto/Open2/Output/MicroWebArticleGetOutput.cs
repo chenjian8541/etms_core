@@ -28,5 +28,7 @@ namespace ETMS.Entity.Dto.Open2.Output
         ///  <see cref="ETMS.Entity.Enum.EmMicroWebStyle"/>
         /// </summary>
         public int ShowStyle { get; set; }
+
+        public string ColumnName { get; set; }
     }
 }

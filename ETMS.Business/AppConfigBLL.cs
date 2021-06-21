@@ -296,6 +296,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetTenantInfoH5(int tenantId)
         {
+            return ResponseBase.Success(await GetTenantInfoH52(tenantId));
+        }
+
+        public async Task<GetTenantInfoH5Output> GetTenantInfoH52(int tenantId)
+        {
             var myTenant = await _sysTenantDAL.GetTenant(tenantId);
             _tenantConfigDAL.InitTenantId(tenantId);
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
@@ -304,7 +309,7 @@ namespace ETMS.Business
             {
                 teacherLoginImage = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, tenantConfig.TeacherSetConfig.LoginImage);
             }
-            return ResponseBase.Success(new GetTenantInfoH5Output()
+            return new GetTenantInfoH5Output()
             {
                 TenantAddress = tenantConfig.TenantInfoConfig.Address,
                 TenantDescribe = tenantConfig.TenantInfoConfig.Describe,
@@ -314,7 +319,7 @@ namespace ETMS.Business
                 TenantNickName = myTenant.SmsSignature,
                 TeacherHtmlTitle = tenantConfig.TeacherSetConfig.Title,
                 TeacherLoginImage = teacherLoginImage
-            });
+            };
         }
 
         public async Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request)

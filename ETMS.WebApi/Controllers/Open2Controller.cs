@@ -140,5 +140,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> MicroWebColumnGet(MicroWebColumnGetRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.MicroWebColumnGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

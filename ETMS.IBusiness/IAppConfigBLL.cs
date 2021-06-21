@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Config;
+using ETMS.Entity.Dto.BasicData.Output;
 using ETMS.Entity.Dto.BasicData.Request;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,8 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetTenantInfoH5ByNo(GetTenantInfoH5ByNoRequest request);
 
         Task<ResponseBase> GetTenantInfoH5(int tenantId);
+
+        Task<GetTenantInfoH5Output> GetTenantInfoH52(int tenantId);
 
         Task<ResponseBase> GetTenantInfoH5(GetTenantInfoH5Request request);
 

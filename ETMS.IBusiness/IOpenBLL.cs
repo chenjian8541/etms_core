@@ -24,5 +24,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request);
 
         Task<ResponseBase> TryCalssApplySupplement(TryCalssApplySupplementRequest request);
+
+        Task<ResponseBase> MicroWebColumnGet(MicroWebColumnGetRequest request);
     }
 }
