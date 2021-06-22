@@ -710,6 +710,76 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StatisticsEducationMonthGet(StatisticsEducationMonthGetRequest request)
+        {
+            try
+            {
+                _statisticsClassBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsClassBLL.StatisticsEducationMonthGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsEducationTeacherMonthGetPaging(StatisticsEducationTeacherMonthGetPagingRequest request)
+        {
+            try
+            {
+                _statisticsClassBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsClassBLL.StatisticsEducationTeacherMonthGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsEducationClassMonthGetPaging(StatisticsEducationClassMonthGetPagingRequest request)
+        {
+            try
+            {
+                _statisticsClassBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsClassBLL.StatisticsEducationClassMonthGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsEducationCourseMonthGetPaging(StatisticsEducationCourseMonthGetPagingRequest request)
+        {
+            try
+            {
+                _statisticsClassBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsClassBLL.StatisticsEducationCourseMonthGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsEducationStudentMonthGetPaging(StatisticsEducationStudentMonthGetPagingRequest request)
+        {
+            try
+            {
+                _statisticsClassBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsClassBLL.StatisticsEducationStudentMonthGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StatisticsTenantGet(StatisticsTenantGetRequest request)
         {
             try

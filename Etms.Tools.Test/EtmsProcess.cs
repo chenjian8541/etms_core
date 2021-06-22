@@ -7,6 +7,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.EventConsumer;
 using ETMS.IBusiness.Wechart;
 using ETMS.ICache;
@@ -143,6 +144,10 @@ namespace Etms.Tools.Test
                     eventPublisher.Publish(new StatisticsSalesProductEvent(tenant.Id)
                     {
                         StatisticsDate = now
+                    });
+                    eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
+                    {
+                        Time = now
                     });
                     now = now.AddMonths(1);
                     Console.WriteLine("处理完中");

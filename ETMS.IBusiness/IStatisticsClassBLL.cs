@@ -23,5 +23,15 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StatisticsClassTeacherGet(StatisticsClassTeacherGetRequest request);
 
         Task<ResponseBase> StatisticsClassAttendanceTagGet(StatisticsClassAttendanceTagGetRequest request);
+
+        Task<ResponseBase> StatisticsEducationMonthGet(StatisticsEducationMonthGetRequest request);
+
+        Task<ResponseBase> StatisticsEducationTeacherMonthGetPaging(StatisticsEducationTeacherMonthGetPagingRequest request);
+
+        Task<ResponseBase> StatisticsEducationClassMonthGetPaging(StatisticsEducationClassMonthGetPagingRequest request);
+
+        Task<ResponseBase> StatisticsEducationCourseMonthGetPaging(StatisticsEducationCourseMonthGetPagingRequest request);
+
+        Task<ResponseBase> StatisticsEducationStudentMonthGetPaging(StatisticsEducationStudentMonthGetPagingRequest request);
     }
 }

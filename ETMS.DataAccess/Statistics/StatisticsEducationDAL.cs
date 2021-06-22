@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IDataAccess.Statistics;
 using ETMS.Entity.Temp.View;
+using ETMS.Entity.Common;
 
 namespace ETMS.DataAccess.Statistics
 {
@@ -237,6 +238,31 @@ namespace ETMS.DataAccess.Statistics
                     this._dbWrapper.InsertRange(statisticsEducationStudentMonths);
                 }
             }
+        }
+
+        public async Task<EtStatisticsEducationMonth> GetStatisticsEducationMonth(DateTime firstDate)
+        {
+            return await _dbWrapper.Find<EtStatisticsEducationMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == firstDate);
+        }
+
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationTeacherMonth>, int>> GetEtStatisticsEducationTeacherMonthPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtStatisticsEducationTeacherMonth>("EtStatisticsEducationTeacherMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationClassMonth>, int>> GetEtStatisticsEducationClassMonthPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtStatisticsEducationClassMonth>("EtStatisticsEducationClassMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationCourseMonth>, int>> GetEtStatisticsEducationCourseMonthPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtStatisticsEducationCourseMonth>("EtStatisticsEducationCourseMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationStudentMonth>, int>> GetEtStatisticsEducationStudentMonthPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtStatisticsEducationStudentMonth>("EtStatisticsEducationStudentMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
         }
     }
 }
