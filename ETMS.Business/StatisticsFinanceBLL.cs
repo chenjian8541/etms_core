@@ -180,9 +180,9 @@ namespace ETMS.Business
             var index = 1;
             while (index <= 12)
             {
-                var myStatisticsMonth = statisticsMonth.FirstOrDefault(p => p.Month == index);
+                var myStatisticsMonth = statisticsMonth.Where(p => p.Month == index).Sum(p => p.TotalSum);
                 echartsBar.XData.Add($"{index}月");
-                echartsBar.MyData.Add(myStatisticsMonth == null ? 0 : myStatisticsMonth.TotalSum);
+                echartsBar.MyData.Add(myStatisticsMonth);
                 index++;
             }
             return ResponseBase.Success(echartsBar);

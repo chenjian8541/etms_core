@@ -7,7 +7,7 @@
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_PublishTargetUrl>E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Release\netcoreapp3.1\publish\</_PublishTargetUrl>
-    <History>True|2021-06-23T08:27:01.5148434Z;True|2021-06-23T14:09:53.6548032+08:00;True|2021-06-23T13:58:33.6449335+08:00;True|2021-06-23T13:29:06.1001877+08:00;True|2021-06-23T12:10:07.5154819+08:00;True|2021-06-23T12:09:38.7484809+08:00;</History>
+    <History>True|2021-06-23T09:48:29.4359827Z;True|2021-06-23T16:27:01.5148434+08:00;True|2021-06-23T14:09:53.6548032+08:00;True|2021-06-23T13:58:33.6449335+08:00;True|2021-06-23T13:29:06.1001877+08:00;True|2021-06-23T12:10:07.5154819+08:00;True|2021-06-23T12:09:38.7484809+08:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="appsettings.Development.json">
