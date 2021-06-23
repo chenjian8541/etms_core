@@ -23,5 +23,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetStatisticsFinanceOutProjectType(GetStatisticsFinanceOutProjectTypeRequest request);
 
         Task<ResponseBase> GetStatisticsFinanceOutPayType(GetStatisticsFinanceOutPayTypeRequest request);
+
+        Task<ResponseBase> GetStatisticsFinanceIncomeMonth(GetStatisticsFinanceIncomeMonthRequest request);
+
+        Task<ResponseBase> GetStatisticsFinanceIncomeMonthPaging(GetStatisticsFinanceIncomeMonthPagingRequest request);
     }
 }

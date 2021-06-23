@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Temp.View;
+using ETMS.Entity.Common;
 
 namespace ETMS.DataAccess
 {
@@ -78,6 +79,17 @@ namespace ETMS.DataAccess
         public async Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime, byte type)
         {
             return await _dbWrapper.FindList<EtStatisticsFinanceIncome>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime && p.Type == type);
+        }
+
+        public async Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type)
+        {
+            return await _dbWrapper.FindList<EtStatisticsFinanceIncomeMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.Ot >= startTime && p.Ot <= endTime && p.Type == type);
+        }
+
+        public async Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtStatisticsFinanceIncomeMonth>("EtStatisticsFinanceIncomeMonth", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
         }
     }
 }

@@ -160,5 +160,58 @@ namespace ETMS.Business
             }
             return echartsPiePayType;
         }
+
+        public async Task<ResponseBase> GetStatisticsFinanceIncomeMonth(GetStatisticsFinanceIncomeMonthRequest request)
+        {
+            DateTime startTime;
+            DateTime endTime;
+            if (request.Year != null && request.Year > 0)
+            {
+                startTime = new DateTime(request.Year.Value, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            else
+            {
+                startTime = new DateTime(DateTime.Now.Year, 1, 1);
+                endTime = startTime.AddYears(1).AddDays(-1);
+            }
+            var statisticsMonth = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncomeMonth(startTime, endTime, request.Type);
+            var echartsBar = new EchartsBar<decimal>();
+            var index = 1;
+            while (index <= 12)
+            {
+                var myStatisticsMonth = statisticsMonth.FirstOrDefault(p => p.Month == index);
+                echartsBar.XData.Add($"{index}月");
+                echartsBar.MyData.Add(myStatisticsMonth == null ? 0 : myStatisticsMonth.TotalSum);
+                index++;
+            }
+            return ResponseBase.Success(echartsBar);
+        }
+
+        public async Task<ResponseBase> GetStatisticsFinanceIncomeMonthPaging(GetStatisticsFinanceIncomeMonthPagingRequest request)
+        {
+            var pagingData = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncomeMonthPaging(request);
+            var output = new List<GetStatisticsFinanceIncomeMonthPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var allProjectType = await _incomeProjectTypeDAL.GetAllIncomeProjectType();
+                foreach (var p in pagingData.Item1)
+                {
+                    var projectTypeDesc = EmIncomeLogProjectType.GetIncomeLogProjectType(allProjectType, p.ProjectType);
+                    output.Add(new GetStatisticsFinanceIncomeMonthPagingOutput()
+                    {
+                        ProjectType = p.ProjectType,
+                        ProjectTypeDesc = projectTypeDesc,
+                        Month = p.Month,
+                        Ot = p.Ot,
+                        TotalCount = p.TotalCount,
+                        TotalSum = p.TotalSum,
+                        Type = p.Type,
+                        Year = p.Year
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<GetStatisticsFinanceIncomeMonthPagingOutput>(pagingData.Item2, output));
+        }
     }
 }

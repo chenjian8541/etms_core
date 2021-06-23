@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,9 @@ namespace ETMS.IDataAccess
         Task UpdateStatisticsFinanceIncomeMonth(DateTime date);
 
         Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime, byte type);
+
+        Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type);
+
+        Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request);
     }
 }
