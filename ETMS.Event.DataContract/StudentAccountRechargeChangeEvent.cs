@@ -18,7 +18,5 @@ namespace ETMS.Event.DataContract
         public decimal AddRechargeGiveSum { get; set; }
 
         public long StudentAccountRechargeId { get; set; }
-
-        public int TryCount { get; set; }
     }
 }

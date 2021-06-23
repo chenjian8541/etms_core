@@ -92,19 +92,11 @@ namespace Etms.Tools.Test
             //Console.WriteLine(endTimeDesc);
 
             //new EtmsProcess().ProcessT();
-
             var aa = GetPhoneEncrypt("13410271814");
-            Console.WriteLine(MidStrEx_New("https://d-cap.kamopos.com/#/index?sn=kamoMjAzNjAwMDJBQUE=&lg=zh-Hans", "sn=", "&lg="));
             Console.WriteLine(GetPhoneDecrypt(aa));
             Console.Read();
         }
 
-
-        public static string MidStrEx_New(string sourse, string startstr, string endstr)
-        {
-            Regex rg = new Regex("(?<=(" + startstr + "))[.\\s\\S]*?(?=(" + endstr + "))", RegexOptions.Multiline | RegexOptions.Singleline);
-            return rg.Match(sourse).Value;
-        }
 
         public static string GetPhoneEncrypt(string phone)
         {

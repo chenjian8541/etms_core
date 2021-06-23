@@ -479,7 +479,7 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, $"账户充值-账户:{accountLog.Phone},实充金额:{request.RechargeReal},赠送金额:{request.RechargeGive}", EmUserOperationType.StudentAccountRechargeManage);
         }
 
-        private EtIncomeLog GetStudentAccountRechargeIncomeLog(byte payType, decimal payValue, DateTime createTime,
+        private static EtIncomeLog GetStudentAccountRechargeIncomeLog(byte payType, decimal payValue, DateTime createTime,
             DateTime ot, string no, StudentAccountRechargeRequest request)
         {
             return new EtIncomeLog()

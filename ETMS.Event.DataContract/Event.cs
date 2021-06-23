@@ -19,6 +19,10 @@ namespace ETMS.Event.DataContract
         /// </summary>
         public static readonly string DefaultMachineName = Environment.MachineName;
 
+        public Event()
+        {
+        }
+
         /// <summary>
         /// 构造函数
         /// 初始化事件默认信息

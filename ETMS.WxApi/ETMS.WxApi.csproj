@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Senparc.CO2NET.AspNet" Version="0.3.200" />
-    <PackageReference Include="Senparc.CO2NET.Cache.CsRedis" Version="0.3.200" />
-    <PackageReference Include="Senparc.Weixin" Version="6.7.600" />
-    <PackageReference Include="Senparc.Weixin.Cache.CsRedis" Version="0.1.600" />
-    <PackageReference Include="Senparc.Weixin.MP" Version="16.10.601" />
-    <PackageReference Include="Senparc.Weixin.Open" Version="4.7.600" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Senparc.CO2NET.AspNet" Version="0.4.400" />
+    <PackageReference Include="Senparc.CO2NET.Cache.CsRedis" Version="0.4.400" />
+    <PackageReference Include="Senparc.Weixin" Version="6.9.501" />
+    <PackageReference Include="Senparc.Weixin.Cache.CsRedis" Version="0.3.501" />
+    <PackageReference Include="Senparc.Weixin.MP" Version="16.12.501.1" />
+    <PackageReference Include="Senparc.Weixin.Open" Version="4.9.501" />
   </ItemGroup>
 
   <ItemGroup>

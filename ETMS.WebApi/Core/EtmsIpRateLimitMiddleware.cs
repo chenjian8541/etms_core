@@ -11,8 +11,8 @@ namespace ETMS.WebApi.Core
 {
     public class EtmsIpRateLimitMiddleware : IpRateLimitMiddleware
     {
-        public EtmsIpRateLimitMiddleware(RequestDelegate next, IOptions<IpRateLimitOptions> options, IRateLimitCounterStore counterStore, IIpPolicyStore policyStore, IRateLimitConfiguration config, ILogger<IpRateLimitMiddleware> logger)
-            : base(next, options, counterStore, policyStore, config, logger)
+        public EtmsIpRateLimitMiddleware(RequestDelegate next, IProcessingStrategy processingStrategy, IOptions<IpRateLimitOptions> options, IRateLimitCounterStore counterStore, IIpPolicyStore policyStore, IRateLimitConfiguration config, ILogger<IpRateLimitMiddleware> logger)
+            : base(next, processingStrategy, options, counterStore, policyStore, config, logger)
         {
         }
 

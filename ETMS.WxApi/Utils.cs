@@ -370,7 +370,7 @@ namespace WxApi
             }
             catch (Exception)
             {
-                return default(T);
+                return default;
             }
         }
 

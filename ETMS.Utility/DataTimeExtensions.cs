@@ -119,10 +119,6 @@ namespace ETMS.Utility
         /// <returns></returns>
         public static bool IsEffectiveDate(this DateTime @this)
         {
-            if (@this == null)
-            {
-                return false;
-            }
             var minDate = new DateTime(1949, 1, 1);
             var maxDate = new DateTime(3000, 1, 1);
             if (@this < minDate)

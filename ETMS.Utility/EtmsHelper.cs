@@ -151,15 +151,15 @@ namespace ETMS.Utility
             return Tuple.Create(months, dayDff.Days);
         }
 
-        public static T DeepCopy<T>(T obj)
+        public static T DeepCopy<T>(T obj) where T : class
         {
             object retval;
             using (var ms = new MemoryStream())
             {
-                var bf = new BinaryFormatter();
-                bf.Serialize(ms, obj);
+                var ser = new System.Runtime.Serialization.DataContractSerializer(typeof(T));
+                ser.WriteObject(ms, obj);
                 ms.Seek(0, SeekOrigin.Begin);
-                retval = bf.Deserialize(ms);
+                retval = ser.ReadObject(ms);
                 ms.Close();
             }
             return (T)retval;

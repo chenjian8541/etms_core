@@ -24,5 +24,18 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// <see cref="ETMS.Entity.Enum.EmMicroWebStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        /// <summary>
+        /// 样式
+        ///  <see cref="ETMS.Entity.Enum.EmMicroWebStyle"/>
+        /// </summary>
+        public int ShowStyle { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsShowYuYue { get; set; }
+
+        public string ColumnName { get; set; }
     }
 }

@@ -55,7 +55,6 @@ namespace ETMS.WebApi
             services.AddMemoryCache();
             var appSettings = appSettingsSection.Get<AppSettings>();
             services.AddRedis(appSettings.RedisConfig);
-            InitRateLimit(services, appSettings.RedisConfig);
             services.AddMvc(op =>
             {
                 RegisterGlobalFilters(op.Filters);
@@ -75,6 +74,7 @@ namespace ETMS.WebApi
             Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             services.AddSenparcWeixinServices(Configuration);
             InitCustomIoc(services);
+            InitRateLimit(services, appSettings.RedisConfig);
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
@@ -96,6 +96,7 @@ namespace ETMS.WebApi
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IHttpClient, StandardHttpClient>();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
         }
 
         private void InitRateLimit(IServiceCollection services, RedisConfig redisConfig)

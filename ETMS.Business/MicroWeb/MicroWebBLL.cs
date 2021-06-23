@@ -234,6 +234,11 @@ namespace ETMS.Business.MicroWeb
 
         public async Task<ResponseBase> MicroWebColumnSinglePageArticleGet(MicroWebColumnSinglePageGetRequest request)
         {
+            var p = await GetMicroWebColumn(request.ColumnId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("栏目不存在");
+            }
             var myData = await _microWebColumnArticleDAL.GetMicroWebColumnSinglePageArticle(request.ColumnId);
             if (myData == null)
             {
@@ -251,7 +256,10 @@ namespace ETMS.Business.MicroWeb
                 ArSummary = myData.ArSummary,
                 ArTitile = myData.ArTitile,
                 Id = myData.Id,
-                Status = myData.Status
+                Status = myData.Status,
+                IsShowYuYue = p.IsShowYuYue,
+                ShowStyle = p.ShowStyle,
+                ColumnName = p.Name
             });
         }
 
@@ -320,6 +328,11 @@ namespace ETMS.Business.MicroWeb
             {
                 return ResponseBase.CommonError("内容记录不存在");
             }
+            var p = await GetMicroWebColumn(myData.ColumnId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("栏目不存在");
+            }
             return ResponseBase.Success(new MicroWebColumnArticleGetOutput()
             {
                 ColumnId = myData.ColumnId,
@@ -329,7 +342,10 @@ namespace ETMS.Business.MicroWeb
                 ArSummary = myData.ArSummary,
                 ArTitile = myData.ArTitile,
                 Id = myData.Id,
-                Status = myData.Status
+                Status = myData.Status,
+                IsShowYuYue = p.IsShowYuYue,
+                ShowStyle = p.ShowStyle,
+                ColumnName = p.Name
             });
         }
 

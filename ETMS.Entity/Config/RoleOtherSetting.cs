@@ -27,13 +27,23 @@ namespace ETMS.Entity.Config
         public const int ReceiveInteractiveStudent = 4;
 
         /// <summary>
+        /// 允许查看机构统计信息
+        /// </summary>
+        public const int AllowLookStatistics = 6;
+
+        /// <summary>
         /// 允许使用APP登录(人脸考勤)
         /// </summary>
         public const int AllowAppLogin = 5;
 
         /// <summary>
-        /// 允许查看机构统计信息
+        /// 允许在PC端登录
         /// </summary>
-        public const int AllowLookStatistics = 6;
+        public const int AllowPCLogin = 6;
+
+        /// <summary>
+        /// 允许在微信公众号登录
+        /// </summary>
+        public const int AllowWebchatLogin = 7;
     }
 }
