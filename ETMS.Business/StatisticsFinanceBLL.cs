@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Utility;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -19,10 +22,14 @@ namespace ETMS.Business
 
         private readonly IIncomeProjectTypeDAL _incomeProjectTypeDAL;
 
-        public StatisticsFinanceBLL(IStatisticsFinanceIncomeDAL statisticsFinanceIncomeDAL, IIncomeProjectTypeDAL incomeProjectTypeDAL)
+        private readonly IEventPublisher _eventPublisher;
+
+        public StatisticsFinanceBLL(IStatisticsFinanceIncomeDAL statisticsFinanceIncomeDAL, IIncomeProjectTypeDAL incomeProjectTypeDAL,
+            IEventPublisher eventPublisher)
         {
             this._statisticsFinanceIncomeDAL = statisticsFinanceIncomeDAL;
             this._incomeProjectTypeDAL = incomeProjectTypeDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -33,6 +40,13 @@ namespace ETMS.Business
         public async Task StatisticsFinanceIncomeConsumeEvent(StatisticsFinanceIncomeEvent request)
         {
             await _statisticsFinanceIncomeDAL.UpdateStatisticsFinanceIncome(request.StatisticsDate.Date);
+            if (!EtmsHelper2.IsThisMonth(request.StatisticsDate.Date))
+            {
+                _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(request.TenantId)
+                {
+                    Time = request.StatisticsDate.Date
+                });
+            }
         }
 
         public async Task<ResponseBase> GetStatisticsFinanceIn(GetStatisticsFinanceInRequest request)

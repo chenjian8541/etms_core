@@ -91,7 +91,7 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            //new EtmsProcess().ProcessT();
+            new EtmsProcess().ProcessT();
             var aa = GetPhoneEncrypt("13410271814");
             Console.WriteLine(GetPhoneDecrypt(aa));
             Console.Read();

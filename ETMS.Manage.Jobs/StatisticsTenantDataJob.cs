@@ -62,6 +62,10 @@ namespace ETMS.Manage.Jobs
                 {
                     Time = _now
                 });
+                _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
+                {
+                    Time = _now
+                });
             }
         }
     }

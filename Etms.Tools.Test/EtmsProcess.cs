@@ -149,6 +149,10 @@ namespace Etms.Tools.Test
                     {
                         Time = now
                     });
+                    eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
+                    {
+                        Time = now
+                    });
                     now = now.AddMonths(1);
                     Console.WriteLine("处理完中");
                 }

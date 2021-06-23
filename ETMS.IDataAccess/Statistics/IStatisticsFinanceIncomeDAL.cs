@@ -10,6 +10,8 @@ namespace ETMS.IDataAccess
     {
         Task UpdateStatisticsFinanceIncome(DateTime date);
 
+        Task UpdateStatisticsFinanceIncomeMonth(DateTime date);
+
         Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime, byte type);
     }
 }

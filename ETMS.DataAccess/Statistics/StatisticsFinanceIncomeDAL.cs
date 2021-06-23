@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.Temp.View;
 
 namespace ETMS.DataAccess
 {
@@ -41,6 +42,36 @@ namespace ETMS.DataAccess
             if (newEtStatisticsFinanceIncome.Any())
             {
                 await _dbWrapper.InsertRangeAsync(newEtStatisticsFinanceIncome);
+            }
+        }
+
+        public async Task UpdateStatisticsFinanceIncomeMonth(DateTime time)
+        {
+            var firstDate = new DateTime(time.Year, time.Month, 1);
+            var startTimeDesc = firstDate.EtmsToDateString();
+            var endTimeDesc = firstDate.AddMonths(1).EtmsToDateString();
+            var statisticsSql = $"SELECT [Type],[ProjectType],SUM([Sum]) AS TotalSum,COUNT(Id) AS TotalCount FROM EtIncomeLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmIncomeLogStatus.Normal} AND Ot >= '{startTimeDesc}' AND Ot < '{endTimeDesc}'  GROUP BY [Type],[ProjectType]";
+            var myStatistics = await _dbWrapper.ExecuteObject<StatisticsFinanceIncomeMonthView>(statisticsSql);
+            await _dbWrapper.Execute($"DELETE EtStatisticsFinanceIncomeMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+            if (myStatistics.Any())
+            {
+                var statisticsFinanceIncomeMonths = new List<EtStatisticsFinanceIncomeMonth>();
+                foreach (var p in myStatistics)
+                {
+                    statisticsFinanceIncomeMonths.Add(new EtStatisticsFinanceIncomeMonth()
+                    {
+                        IsDeleted = EmIsDeleted.Normal,
+                        Month = firstDate.Month,
+                        Ot = firstDate,
+                        Year = firstDate.Year,
+                        TenantId = _tenantId,
+                        Type = p.Type,
+                        ProjectType = p.ProjectType,
+                        TotalCount = p.TotalCount,
+                        TotalSum = p.TotalSum
+                    });
+                }
+                _dbWrapper.InsertRange(statisticsFinanceIncomeMonths);
             }
         }
 
