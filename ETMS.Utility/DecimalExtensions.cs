@@ -17,5 +17,18 @@ namespace ETMS.Utility
                 return @this.ToString("F1");
             }
         }
+
+        public static string EtmsPercentage(this decimal @this)
+        {
+            if (@this <= 0)
+            {
+                return "0";
+            }
+            if (@this > 1)
+            {
+                return "100%";
+            }
+            return @this.ToString("P0");
+        }
     }
 }

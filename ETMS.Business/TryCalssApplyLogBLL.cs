@@ -79,7 +79,7 @@ namespace ETMS.Business
                 var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RecommandStudentId.Value);
                 if (myStudent != null)
                 {
-                    recommandStudentDesc = $"学员：{myStudent.Name},{myStudent.Phone}";
+                    recommandStudentDesc = $"{myStudent.Name} ({myStudent.Phone})";
                 }
             }
             return ResponseBase.Success(new TryCalssApplyLogPagingOutput()
@@ -134,7 +134,7 @@ namespace ETMS.Business
                     var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RecommandStudentId.Value);
                     if (myStudent != null)
                     {
-                        recommandStudentDesc = $"学员：{myStudent.Name},{myStudent.Phone}";
+                        recommandStudentDesc = $"{myStudent.Name} ({myStudent.Phone})";
                     }
                 }
                 output.Add(new TryCalssApplyLogPagingOutput()

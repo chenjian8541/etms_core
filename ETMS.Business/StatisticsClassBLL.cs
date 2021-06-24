@@ -105,7 +105,7 @@ namespace ETMS.Business
                 TenantId = classRecord.TenantId,
                 Day = ot.Day,
                 StartTime = classRecord.StartTime,
-                Attendance = attendance
+                Attendance = Math.Round(attendance, 2)
             });
         }
 
@@ -156,7 +156,7 @@ namespace ETMS.Business
             {
                 var tempData = new List<decimal>();
                 tempData.Add(Convert.ToDecimal($"{p.Day}.{p.StartTime}"));
-                tempData.Add(p.Attendance);
+                tempData.Add(Math.Round(p.Attendance, 2));
                 outputScatter.MyData.Add(tempData);
             }
             outputScatter.MyData.Add(new List<decimal>() { 31 });
@@ -268,8 +268,8 @@ namespace ETMS.Business
                 TeacherTotalClassCount = log.TeacherTotalClassCount,
                 NeedAttendNumber = log.NeedAttendNumber,
                 AttendNumber = log.AttendNumber,
-                Attendance = attendance
-            });
+                Attendance = attendance.EtmsPercentage()
+            }); ;
         }
 
         public async Task<ResponseBase> StatisticsEducationTeacherMonthGetPaging(StatisticsEducationTeacherMonthGetPagingRequest request)
@@ -302,7 +302,7 @@ namespace ETMS.Business
                     output.Add(new StatisticsEducationTeacherMonthGetPagingOutput()
                     {
                         TeacherId = p.TeacherId,
-                        Attendance = attendance,
+                        Attendance = attendance.EtmsPercentage(),
                         AttendNumber = p.AttendNumber,
                         ClassId = p.ClassId,
                         ClassName = className,
@@ -340,7 +340,7 @@ namespace ETMS.Business
                     output.Add(new StatisticsEducationClassMonthGetPagingOutput()
                     {
                         TotalDeSum = p.TotalDeSum,
-                        Attendance = attendance,
+                        Attendance = attendance.EtmsPercentage(),
                         AttendNumber = p.AttendNumber,
                         ClassId = p.ClassId,
                         ClassName = className,
@@ -376,7 +376,7 @@ namespace ETMS.Business
                     output.Add(new StatisticsEducationCourseMonthGetPagingOutput()
                     {
                         CourseId = p.CourseId,
-                        Attendance = attendance,
+                        Attendance = attendance.EtmsPercentage(),
                         AttendNumber = p.AttendNumber,
                         CourseName = courseName,
                         NeedAttendNumber = p.NeedAttendNumber,

@@ -20,6 +20,6 @@ namespace ETMS.Entity.Dto.HisData.Output
 
         public int NeedAttendNumber { get; set; }
 
-        public decimal Attendance { get; set; }
+        public string Attendance { get; set; }
     }
 }
