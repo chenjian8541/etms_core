@@ -50,5 +50,7 @@ namespace ETMS.Entity.Dto.User.Output
         public TenantOEMInfoOutput TenantOEMInfo { get; set; }
 
         public string TenantNo { get; set; }
+
+        public string TenantName { get; set; }
     }
 }

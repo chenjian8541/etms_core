@@ -38,6 +38,8 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string TenantNo { get; set; }
 
+        public string TenantName { get; set; }
+
         public string StuNo { get; set; }
     }
 }

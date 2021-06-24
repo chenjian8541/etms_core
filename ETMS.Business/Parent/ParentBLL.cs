@@ -440,8 +440,11 @@ namespace ETMS.Business
                     output.IsShowStudentRecommend = true;
                 }
             }
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+
             output.TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
             output.StuNo = TenantLib.GetPhoneEncrypt(request.LoginPhone);
+            output.TenantName = myTenant.Name;
 
             return ResponseBase.Success(output);
         }
