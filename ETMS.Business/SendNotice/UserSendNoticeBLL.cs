@@ -510,18 +510,16 @@ namespace ETMS.Business.SendNotice
             smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
             smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
 
-            var studentName = tryCalssApplyLog.TouristName;
             var phone = tryCalssApplyLog.Phone;
             if (tryCalssApplyLog.StudentId != null)
             {
                 var studentBucket = await _studentDAL.GetStudent(tryCalssApplyLog.StudentId.Value);
                 if (studentBucket != null && studentBucket.Student != null)
                 {
-                    studentName = studentBucket.Student.Name;
                     phone = studentBucket.Student.Phone;
                 }
             }
-            smsReq.Content = $"[{studentName}_{phone}]申请试听课程，申请备注_{tryCalssApplyLog.TouristRemark}";
+            smsReq.Content = $"手机号[{phone}]申请试听课程";
 
             var url = string.Format(wxConfig.TemplateNoticeConfig.UserTryCalssApplyDetailUrl, tryCalssApplyLog.Id);
             foreach (var user in noticeUser)
