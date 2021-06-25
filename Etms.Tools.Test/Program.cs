@@ -91,11 +91,9 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            //new EtmsProcess().ProcessT();
+            new EtmsProcess().ProcessT();
 
-            var n = 0.50;
-
-            Console.WriteLine(n.ToString("P0"));
+            Console.WriteLine("完成");
             Console.Read();
         }
 

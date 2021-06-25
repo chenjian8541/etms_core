@@ -5,6 +5,8 @@ using ETMS.Cache.Redis.Wrapper;
 using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Enum;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
@@ -105,28 +107,34 @@ namespace Etms.Tools.Test
 
         private const int _pageSize = 100;
 
+        private IClassDAL _classDAL;
+        private ISysTenantDAL _sysTenantDAL;
+        private IEventPublisher _eventPublisher;
+        private IRoleDAL _roleDAL;
         public void ProcessT()
         {
-            var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
-            var eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
+            _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
             var pageCurrent = 1;
             var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
             if (getTenantsEffectiveResult.Item2 == 0)
             {
                 return;
             }
-            HandleTenantList(getTenantsEffectiveResult.Item1, eventPublisher);
+            HandleTenantList(getTenantsEffectiveResult.Item1);
             var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
             pageCurrent++;
             while (pageCurrent <= totalPage)
             {
                 getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
-                HandleTenantList(getTenantsEffectiveResult.Item1, eventPublisher);
+                HandleTenantList(getTenantsEffectiveResult.Item1);
                 pageCurrent++;
             }
         }
 
-        private void HandleTenantList(IEnumerable<SysTenant> tenantList, IEventPublisher eventPublisher)
+        private void HandleTenantList(IEnumerable<SysTenant> tenantList)
         {
             if (tenantList == null || !tenantList.Any())
             {
@@ -134,69 +142,83 @@ namespace Etms.Tools.Test
             }
             foreach (var tenant in tenantList)
             {
-                var now = new DateTime(2020, 01, 01);
-                while (now < DateTime.Now)
+                _classDAL.ResetTenantId(tenant.Id);
+                _roleDAL.ResetTenantId(tenant.Id);
+                try
                 {
-                    eventPublisher.Publish(new StatisticsStudentCountEvent(tenant.Id)
-                    {
-                        Time = now
-                    });
-                    eventPublisher.Publish(new StatisticsSalesProductEvent(tenant.Id)
-                    {
-                        StatisticsDate = now
-                    });
-                    eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
-                    {
-                        Time = now
-                    });
-                    eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
-                    {
-                        Time = now
-                    });
-                    now = now.AddMonths(1);
-                    Console.WriteLine("处理完中");
+                    ProcessClass(tenant.Id);
+                    SetRole(tenant.Id);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
         }
 
-        private void SetRole()
+        private void ProcessClass(int tenantId)
         {
-            //var _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
-            //var tenantList = _sysTenantDAL.GetTenantsNormal().Result;
-            //var _roleBll = CustomServiceLocator.GetInstance<IRoleDAL>();
-            //foreach (var myTenant in tenantList)
-            //{
-            //    try
-            //    {
-            //        _roleBll.ResetTenantId(myTenant.Id);
-            //        var allRole = _roleBll.GetRole().Result;
-            //        if (allRole.Count > 0)
-            //        {
-            //            foreach (var myRole in allRole)
-            //            {
-            //                var roleAuthorityValueMenu = myRole.AuthorityValueMenu;
-            //                var arrayRoleAuthorityValueMenu = roleAuthorityValueMenu.Split('|');
-            //                var pageWeight = arrayRoleAuthorityValueMenu[2].ToBigInteger();
-            //                var authorityCorePage = new AuthorityCore(pageWeight);
-            //                if (authorityCorePage.Validation(26) && !authorityCorePage.Validation(90))
-            //                {
-            //                    authorityCorePage.RegisterAuthority(90);
-            //                    authorityCorePage.RegisterAuthority(91);
-            //                    var s = authorityCorePage.GetWeigth().ToString();
-            //                    arrayRoleAuthorityValueMenu[2] = s;
-            //                    myRole.AuthorityValueMenu = string.Join('|', arrayRoleAuthorityValueMenu);
-            //                    //myRole.Name = $"{myRole.Name}_自动处理";
-            //                    _roleBll.EditRole(myRole).Wait();
-            //                    Console.WriteLine($"处理完成:{myRole.Name}  {myRole.AuthorityValueMenu}");
-            //                }
-            //            }
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine($"执行出错:{myTenant.Name}  {ex.Message}");
-            //    }
-            //}
+            var query = new ClassGetPagingRequest()
+            {
+                LoginTenantId = tenantId,
+                PageCurrent = 1,
+                PageSize = 200
+            };
+            var pagingData = _classDAL.GetPaging(query).Result;
+            if (pagingData.Item2 == 0)
+            {
+                return;
+            }
+            HandleClass(pagingData.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+            query.PageCurrent++;
+            while (query.PageCurrent <= totalPage)
+            {
+                pagingData = _classDAL.GetPaging(query).Result;
+                HandleClass(pagingData.Item1);
+                query.PageCurrent++;
+            }
+        }
+
+        private void HandleClass(IEnumerable<EtClass> classList)
+        {
+            if (classList == null || !classList.Any())
+            {
+                return;
+            }
+            foreach (var p in classList)
+            {
+                _eventPublisher.Publish(new StatisticsClassFinishCountEvent(p.TenantId)
+                {
+                    ClassId = p.Id
+                });
+                Console.WriteLine($"处理完成:{p.Name} ");
+            }
+        }
+
+
+        private void SetRole(int tenantId)
+        {
+            try
+            {
+                var allRole = _roleDAL.GetRole().Result;
+                if (allRole.Count > 0)
+                {
+                    foreach (var myRole in allRole)
+                    {
+                        if (!string.IsNullOrEmpty(myRole.NoticeSetting))
+                        {
+                            myRole.NoticeSetting = $"{myRole.NoticeSetting}7,8,";
+                            _roleDAL.EditRole(myRole).Wait();
+                            Console.WriteLine($"处理完成:{myRole.Name} ");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+            }
         }
     }
 }
