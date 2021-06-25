@@ -223,6 +223,10 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return;
+            }
             if (studentBucket.Student.StudentType == EmStudentType.HistoryStudent)
             {
                 return;
