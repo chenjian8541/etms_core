@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -402,6 +403,41 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActiveWxMessageGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActiveWxMessageDetailGetPaging(ActiveWxMessageDetailGetPagingRequest request)
+        {
+            var pagingData = await _activeWxMessageDAL.GetDetailPaging(request);
+            var output = new List<ActiveWxMessageDetailGetPagingOutput>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    var studentName = string.Empty;
+                    var studentPhone = string.Empty;
+                    var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (student != null)
+                    {
+                        studentName = student.Name;
+                        studentPhone = student.Phone;
+                    }
+                    output.Add(new ActiveWxMessageDetailGetPagingOutput()
+                    {
+                        StudentId = p.StudentId,
+                        ConfirmOt = p.ConfirmOt,
+                        IsConfirm = p.IsConfirm,
+                        IsNeedConfirm = p.IsNeedConfirm,
+                        IsRead = p.IsRead,
+                        StudentName = studentName,
+                        StudentPhone = studentPhone,
+                        WxMessageId = p.WxMessageId,
+                        IsReadDesc = EmBool.GetBoolDesc(p.IsRead),
+                        IsConfirmDesc = EmBool.GetBoolDesc(p.IsConfirm)
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActiveWxMessageDetailGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

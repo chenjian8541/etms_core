@@ -371,6 +371,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveWxMessageDetailGetPaging(ActiveWxMessageDetailGetPagingRequest request)
+        {
+            try
+            {
+                _activeWxMessageBLL.InitTenantId(request.LoginTenantId);
+                return await _activeWxMessageBLL.ActiveWxMessageDetailGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentSmsLogGetPaging(StudentSmsLogGetPagingRequest request)
         {
             try

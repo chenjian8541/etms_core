@@ -463,6 +463,30 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "wxnoticeRead/:id",
+        "Name": "wxnoticeRead",
+        "Type": 1,
+        "Component": "@/components/notice/wxnotice/wxnoticeRead",
+        "Meta": {
+          "Title": "通知已读详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "wxnoticeConfirm/:id",
+        "Name": "wxnoticeConfirm",
+        "Type": 1,
+        "Component": "@/components/notice/wxnotice/wxnoticeConfirm",
+        "Meta": {
+          "Title": "通知确定详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "addnotice",
         "Name": "addnotice",
         "Type": 1,

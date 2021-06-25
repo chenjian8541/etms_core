@@ -21,5 +21,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ActiveWxMessageGet(ActiveWxMessageGetRequest request);
 
         Task<ResponseBase> ActiveWxMessageGetPaging(ActiveWxMessageGetPagingRequest request);
+
+        Task<ResponseBase> ActiveWxMessageDetailGetPaging(ActiveWxMessageDetailGetPagingRequest request);
     }
 }
