@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ETMS.Utility;
 
 namespace ETMS.Entity.Dto.Educational.Request
 {
@@ -35,7 +36,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请求数据格式错误";
             }
-            if (ClassOt == null)
+            if (!ClassOt.IsEffectiveDate())
             {
                 return "请选择上课日期";
             }

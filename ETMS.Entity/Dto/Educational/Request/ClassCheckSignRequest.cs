@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,7 +70,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "无效的班级";
             }
-            if (ClassOt == null)
+            if (!ClassOt.IsEffectiveDate())
             {
                 return "请选择上课日期";
             }

@@ -35,5 +35,15 @@ namespace ETMS.Entity.Dto.User.Request
         /// 允许查看机构统计信息
         /// </summary>
         public bool IsAllowLookStatistics { get; set; }
+
+        /// <summary>
+        /// 允许在PC端登录
+        /// </summary>
+        public bool IsAllowPCLogin { get; set; }
+
+        /// <summary>
+        /// 允许在微信公众号登录
+        /// </summary>
+        public bool IsAllowWebchatLogin { get; set; }
     }
 }

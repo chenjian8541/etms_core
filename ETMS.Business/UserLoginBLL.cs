@@ -187,13 +187,29 @@ namespace ETMS.Business
         private bool CheckRoleCanLogin(RoleNoticeSettingOutput roleSetting, int clientType, out string msg)
         {
             msg = string.Empty;
-            if (clientType == EmUserOperationLogClientType.Android)
+            switch (clientType)
             {
-                if (!roleSetting.IsAllowAppLogin)
-                {
-                    msg = "您无权限登录，请联系管理员";
-                    return false;
-                }
+                case EmUserOperationLogClientType.PC:
+                    if (!roleSetting.IsAllowPCLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.WeChat:
+                    if (!roleSetting.IsAllowWebchatLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.Android:
+                    if (!roleSetting.IsAllowAppLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
             }
             return true;
         }

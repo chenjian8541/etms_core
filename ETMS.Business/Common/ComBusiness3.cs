@@ -201,7 +201,9 @@ namespace ETMS.Business.Common
                     IsReceiveInteractiveStudent = true,
                     IsStudentContractsNotArrived = true,
                     IsStudentLeaveApply = true,
-                    IsTryCalssApply = true
+                    IsTryCalssApply = true,
+                    IsAllowPCLogin = true,
+                    IsAllowWebchatLogin = true
                 };
             }
             var output = new RoleNoticeSettingOutput();
@@ -236,6 +238,12 @@ namespace ETMS.Business.Common
                         break;
                     case RoleOtherSetting.AllowLookStatistics:
                         output.IsAllowLookStatistics = true;
+                        break;
+                    case RoleOtherSetting.AllowPCLogin:
+                        output.IsAllowPCLogin = true;
+                        break;
+                    case RoleOtherSetting.AllowWebchatLogin:
+                        output.IsAllowWebchatLogin = true;
                         break;
                 }
             }

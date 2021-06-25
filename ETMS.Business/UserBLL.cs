@@ -270,6 +270,14 @@ namespace ETMS.Business
             {
                 mySetting.Add(RoleOtherSetting.AllowLookStatistics);
             }
+            if (request.IsAllowPCLogin)
+            {
+                mySetting.Add(RoleOtherSetting.AllowPCLogin);
+            }
+            if (request.IsAllowWebchatLogin)
+            {
+                mySetting.Add(RoleOtherSetting.AllowWebchatLogin);
+            }
             return EtmsHelper.GetMuIds(mySetting);
         }
 
