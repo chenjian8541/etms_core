@@ -91,12 +91,25 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            new EtmsProcess().ProcessT();
+            //new EtmsProcess().ProcessT();
 
+            var myt = GetTenantEncryptOpenApi99(1);
+            Console.WriteLine(myt);
+            var t = GetTenantDecryptOpenApi99(myt);
+            Console.WriteLine(t);
             Console.WriteLine("完成");
             Console.Read();
         }
 
+        public static string GetTenantEncryptOpenApi99(int t)
+        {
+            return EtmsHelper2.GetTenantEncryptOpenApi99(t);
+        }
+
+        public static int GetTenantDecryptOpenApi99(string strNo)
+        {
+            return EtmsHelper2.GetTenantDecryptOpenApi99(strNo);
+        }
 
         public static string GetPhoneEncrypt(string phone)
         {

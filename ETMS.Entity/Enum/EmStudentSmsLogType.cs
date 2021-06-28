@@ -46,6 +46,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int StudentAccountRechargeChanged = 7;
 
+        /// <summary>
+        /// 机构开放接口 短信通知
+        /// </summary>
+        public const int TenantOpenApi99SendSms = 99;
+
         public static string GetStudentSmsLogTypeDesc(int t)
         {
             switch (t)
@@ -66,6 +71,8 @@ namespace ETMS.Entity.Enum
                     return "学员考勤";
                 case StudentAccountRechargeChanged:
                     return "充值帐户变动提醒";
+                case TenantOpenApi99SendSms:
+                    return "短信通知";
             }
             return string.Empty;
         }

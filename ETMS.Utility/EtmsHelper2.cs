@@ -142,5 +142,44 @@ namespace ETMS.Utility
             var now = DateTime.Now;
             return time.Year == now.Year && time.Month == now.Month;
         }
+
+        private const string OpenApi99Encrypt3DESKey = "etms_openapi_999";
+
+        public static string GetEncryptOpenApi99(string str)
+        {
+            return CryptogramHelper.Encrypt3DES(str, OpenApi99Encrypt3DESKey);
+        }
+
+        public static string GetDecryptOpenApi99(string strNo)
+        {
+            return CryptogramHelper.Decrypt3DES(strNo, OpenApi99Encrypt3DESKey);
+        }
+
+        /// <summary>
+        /// 加密
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+        public static string GetTenantEncryptOpenApi99(int tenantId)
+        {
+            var strEncrypt = $"8104{tenantId}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            var baseStr = Convert.ToBase64String(bytes);
+            return GetEncryptOpenApi99(baseStr);
+        }
+
+        /// <summary>
+        /// 解密
+        /// </summary>
+        /// <param name="strNo"></param>
+        /// <returns></returns>
+        public static int GetTenantDecryptOpenApi99(string strNo)
+        {
+            var strEncrypt = GetDecryptOpenApi99(strNo);
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode.ToInt();
+        }
     }
 }

@@ -1035,5 +1035,76 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public async Task<SmsOutput> TenantOpenApi99SendSms(TenantOpenApi99SendSmsRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant.SmsCount < request.Phones.Count)
+            {
+                Log.Warn($"[TenantOpenApi99SendSms]机构短信剩余数量不足，无法发送短信,TenantId:{request.LoginTenantId}", this.GetType());
+                return SmsOutput.Fail();
+            }
+            var smsLog = new List<EtStudentSmsLog>();
+            var now = DateTime.Now;
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                if (!string.IsNullOrEmpty(myTenant.SmsSignature))
+                {
+                    smsSignature = $"【{myTenant.SmsSignature}】";
+                }
+                foreach (var myPhone in request.Phones)
+                {
+                    if (!EtmsHelper.IsMobilePhone(myPhone))
+                    {
+                        continue;
+                    }
+                    var sendSmsRequest = new SendSmsRequest()
+                    {
+                        mobile = myPhone,
+                        password = tKeyAndPwd.Item2,
+                        tKey = tKeyAndPwd.Item1,
+                        time = string.Empty,
+                        username = _smsConfig.ZhuTong.UserName
+                    };
+                    var content = $"{smsSignature}{request.SmsContent}";
+                    sendSmsRequest.content = content;
+                    var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
+                    if (!SendSmsRes.IsSuccess(res))
+                    {
+                        Log.Info($"[TenantOpenApi99SendSms]开放接口发送短信,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    }
+                    else
+                    {
+                        smsLog.Add(new EtStudentSmsLog()
+                        {
+                            DeCount = res.contNum,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            Phone = myPhone,
+                            SmsContent = content,
+                            Status = EmSmsLogStatus.Finish,
+                            StudentId = null,
+                            TenantId = request.LoginTenantId,
+                            Type = EmStudentSmsLogType.TenantOpenApi99SendSms
+                        });
+                    }
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[TenantOpenApi99SendSms]开放接口发送短信:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+            finally
+            {
+                if (smsLog.Count > 0)
+                {
+                    _eventPublisher.Publish(new TenantSmsDeductionEvent(request.LoginTenantId) { StudentSmsLogs = smsLog });
+                }
+            }
+        }
     }
 }
