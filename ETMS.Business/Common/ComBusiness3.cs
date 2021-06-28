@@ -206,7 +206,11 @@ namespace ETMS.Business.Common
                     IsAllowWebchatLogin = true
                 };
             }
-            var output = new RoleNoticeSettingOutput();
+            var output = new RoleNoticeSettingOutput()
+            {
+                IsAllowPCLogin = true,
+                IsAllowWebchatLogin = true
+            };
             if (string.IsNullOrEmpty(noticeSetting))
             {
                 return output;

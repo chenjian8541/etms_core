@@ -164,29 +164,43 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetJsSdkUiPackage(GetJsSdkUiPackageRequest request)
         {
-            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
-            if (tenantWechartAuth == null)
+            var output = new GetJsSdkUiPackageOutput()
             {
-                Log.Error($"[OpenBLL]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
-                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+                IsSuccess = false
+            };
+            try
+            {
+                var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
+                if (tenantWechartAuth == null)
+                {
+                    Log.Fatal($"[OpenBLL]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
+                    return ResponseBase.Success(output);
+                }
+                var sysWechartAuthorizerToken = await _componentAccessBLL.GetSysWechartAuthorizerToken(tenantWechartAuth.AuthorizerAppid);
+                if (sysWechartAuthorizerToken == null)
+                {
+                    Log.Fatal($"[OpenBLL]未获取到token信息,tenantId:{request.LoginTenantId}", this.GetType());
+                    return ResponseBase.Success(output);
+                }
+                var ticketResult = Senparc.Weixin.Open.ComponentAPIs.ComponentApi.GetJsApiTicket(sysWechartAuthorizerToken.AuthorizerAccessToken);
+                var noncestr = JSSDKHelper.GetNoncestr();
+                var timestamp = JSSDKHelper.GetTimestamp();
+                var signature = JSSDKHelper.GetSignature(ticketResult.ticket, noncestr, timestamp, request.Url);
+                output.IsSuccess = true;
+                output.MyData = new GetJsSdkUiPackageData()
+                {
+                    AppId = tenantWechartAuth.AuthorizerAppid,
+                    NonceStr = noncestr,
+                    Timestamp = timestamp,
+                    Signature = signature
+                };
+                return ResponseBase.Success(output);
             }
-            var sysWechartAuthorizerToken = await _componentAccessBLL.GetSysWechartAuthorizerToken(tenantWechartAuth.AuthorizerAppid);
-            if (sysWechartAuthorizerToken == null)
+            catch (Exception ex)
             {
-                Log.Error($"[OpenBLL]未获取到token信息,tenantId:{request.LoginTenantId}", this.GetType());
-                return ResponseBase.CommonError("未获取到token信息");
+                Log.Fatal($"[OpenBLL]{ex.Message},tenantId:{request.LoginTenantId}", ex, this.GetType());
+                return ResponseBase.Success(output);
             }
-            var ticketResult = Senparc.Weixin.Open.ComponentAPIs.ComponentApi.GetJsApiTicket(sysWechartAuthorizerToken.AuthorizerAccessToken);
-            var noncestr = JSSDKHelper.GetNoncestr();
-            var timestamp = JSSDKHelper.GetTimestamp();
-            var signature = JSSDKHelper.GetSignature(ticketResult.ticket, noncestr, timestamp, request.Url);
-            return ResponseBase.Success(new GetJsSdkUiPackageOutput()
-            {
-                AppId = tenantWechartAuth.AuthorizerAppid,
-                NonceStr = noncestr,
-                Timestamp = timestamp,
-                Signature = signature
-            });
         }
 
         public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)
