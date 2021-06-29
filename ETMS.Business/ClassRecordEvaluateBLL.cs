@@ -165,7 +165,6 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TeacherClassRecordEvaluateStudentDetail(TeacherClassRecordEvaluateStudentDetailRequest request)
         {
-
             var log = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.ClassRecordStudentId);
             var output = new List<TeacherClassRecordEvaluateStudentDetailOutput>();
             if (log.Count > 0)
@@ -181,7 +180,8 @@ namespace ETMS.Business
                         EvaluateOt = p.Ot,
                         EvaluateUserAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                         EvaluateUserName = userInfo.Name,
-                        EvaluateMedias = ComBusiness3.GetMediasUrl(p.EvaluateImg)
+                        EvaluateMedias = ComBusiness3.GetMediasUrl(p.EvaluateImg),
+                        Id = p.Id
                     });
                 }
             }
@@ -320,6 +320,21 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentEvaluateLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> TeacherClassRecordEvaluateDel(TeacherClassRecordEvaluateDelRequest request)
+        {
+            var log = await _classRecordEvaluateDAL.ClassRecordEvaluateStudentGet(request.Id);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("点评记录不存在");
+            }
+
+            await _classRecordEvaluateDAL.ClassRecordEvaluateStudentDel(request.Id);
+            await _classRecordDAL.ClassRecordStudentDeEvaluateCount(log.ClassRecordStudentId, 1);
+
+            await _userOperationLogDAL.AddUserLog(request, "删除课后点评", EmUserOperationType.ClassEvaluate);
+            return ResponseBase.Success();
         }
     }
 }

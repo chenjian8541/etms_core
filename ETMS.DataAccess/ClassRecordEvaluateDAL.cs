@@ -56,5 +56,16 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }
+
+        public async Task<bool> ClassRecordEvaluateStudentDel(long id)
+        {
+            await _dbWrapper.Execute($"update EtClassRecordEvaluateStudent set IsDeleted = {EmIsDeleted.Deleted} where Id = {id} and TenantId = {_tenantId} ;");
+            return true;
+        }
+
+        public async Task<EtClassRecordEvaluateStudent> ClassRecordEvaluateStudentGet(long id)
+        {
+            return await _dbWrapper.Find<EtClassRecordEvaluateStudent>(p => p.Id == id);
+        }
     }
 }

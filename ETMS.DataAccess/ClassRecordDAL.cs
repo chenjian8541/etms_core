@@ -164,5 +164,11 @@ namespace ETMS.DataAccess
             var log = await this._dbWrapper.ExecuteObject<ClassRecordStatistics>($"SELECT ISNULL(SUM(ClassTimes),0) AS TotalFinishClassTimes,COUNT(Id) AS TotalFinishCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND ClassId = {classId} ");
             return log.FirstOrDefault();
         }
+
+        public async Task<bool> ClassRecordStudentDeEvaluateCount(long classRecordStudentId, int deCount)
+        {
+            await this._dbWrapper.Execute($"UPDATE EtClassRecordStudent SET EvaluateCount = EvaluateCount - {deCount} WHERE Id = {classRecordStudentId}");
+            return true;
+        }
     }
 }

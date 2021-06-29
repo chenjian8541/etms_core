@@ -60,5 +60,7 @@ namespace ETMS.IDataAccess
         Task<EtClassRecordPointsApplyLog> GetClassRecordPointsApplyLogByClassRecordId(long classRecordId, long studentId);
 
         Task<ClassRecordStatistics> GetClassRecordStatistics(long classId);
+
+        Task<bool> ClassRecordStudentDeEvaluateCount(long classRecordStudentId,int deCount);
     }
 }

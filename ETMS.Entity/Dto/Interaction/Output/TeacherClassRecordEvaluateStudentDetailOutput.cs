@@ -20,5 +20,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// 是否已读
         /// </summary>
         public bool EvaluateIsRead { get; set; }
+
+        public long Id { get; set; }
     }
 }
