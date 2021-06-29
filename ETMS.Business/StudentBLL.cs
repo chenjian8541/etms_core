@@ -733,7 +733,8 @@ namespace ETMS.Business
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId,
                 TrackUserId = request.LoginUserId,
-                TrackContent = request.TrackContent
+                TrackContent = request.TrackContent,
+                TrackImg = request.TrackImgKey
             };
             await _studentTrackLogDAL.AddStudentTrackLog(trackLog);
             var student = studentBucket.Student;
@@ -773,7 +774,9 @@ namespace ETMS.Business
                 TrackTimeDesc = lastTrackLog.TrackTime.EtmsToMinuteString(),
                 NextTrackTimeDesc = lastTrackLog.NextTrackTime.EtmsToMinuteString(),
                 TrackContent = lastTrackLog.TrackContent,
-                TrackUserName = trackUser?.Name
+                TrackUserName = trackUser?.Name,
+                TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(lastTrackLog.TrackImg),
+                TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, trackUser?.Avatar),
             });
         }
 
@@ -796,7 +799,8 @@ namespace ETMS.Business
                     NextTrackTimeDesc = log.NextTrackTime.EtmsToDateString(),
                     TrackContent = log.TrackContent,
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, user?.Avatar),
-                    TrackUserName = user?.Name
+                    TrackUserName = user?.Name,
+                    TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(log.TrackImg)
                 });
             }
             return ResponseBase.Success(logOutput);
@@ -827,7 +831,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var p in gtudentTrackLogGetPagingInfo.Item1)
             {
-                var userName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.TrackUserId);
+                var myUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.TrackUserId);
                 trackLog.Add(new StudentTrackLogGetPagingOutput()
                 {
                     CId = p.Id,
@@ -836,7 +840,9 @@ namespace ETMS.Business
                     NextTrackTimeDesc = p.NextTrackTime.EtmsToDateString(),
                     TrackContent = p.TrackContent,
                     StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, p.StudentPhone),
-                    TrackUserName = userName
+                    TrackUserName = myUser?.Name,
+                    TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(p.TrackImg),
+                    TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myUser?.Avatar),
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentTrackLogGetPagingOutput>(gtudentTrackLogGetPagingInfo.Item2, trackLog));

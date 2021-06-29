@@ -47,6 +47,11 @@ namespace ETMS.Entity.View
         public string TrackContent { get; set; }
 
         /// <summary>
+        /// 跟进图片
+        /// </summary>
+        public string TrackImg { get; set; }
+
+        /// <summary>
         /// 内容类型  <see cref="ETMS.Entity.Enum.EmStudentTrackContentType"/>
         /// </summary>
         public byte ContentType { get; set; }

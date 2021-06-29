@@ -24,5 +24,9 @@ namespace ETMS.Entity.Dto.Student.Output
         public string TrackContent { get; set; }
 
         public string TrackUserName { get; set; }
+
+        public string TrackImgUrl { get; set; }
+
+        public string TrackUserAvatarUrl { get; set; }
     }
 }

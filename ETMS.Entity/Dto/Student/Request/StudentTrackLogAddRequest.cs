@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string TrackContent { get; set; }
 
+        public string TrackImgKey { get; set; }
+
         public DateTime? NextTrackTime { get; set; }
 
         public override string Validate()
