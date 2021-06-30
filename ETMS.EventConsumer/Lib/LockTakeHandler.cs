@@ -30,12 +30,17 @@ namespace ETMS.EventConsumer.Lib
 
         private IEventPublisher _eventPublisher;
 
-        public LockTakeHandler(T lockKey, ETMS.Event.DataContract.Event request, string processName, Func<Task> process)
+        private bool _isErrCanTryManyTime;
+
+        private const int MaxErrTryCount = 10;
+
+        public LockTakeHandler(T lockKey, ETMS.Event.DataContract.Event request, string processName, Func<Task> process, bool isErrCanTryManyTime = true)
         {
             this._lockKey = lockKey;
             this._process = process;
             this._request = request;
             this._processName = processName;
+            this._isErrCanTryManyTime = isErrCanTryManyTime;
             _distributedLockDAL = CustomServiceLocator.GetInstance<IDistributedLockDAL>();
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
         }
@@ -52,6 +57,20 @@ namespace ETMS.EventConsumer.Lib
                 try
                 {
                     await this._process.Invoke();
+                }
+                catch
+                {
+                    if (_isErrCanTryManyTime)
+                    {
+                        //执行失败后 是否可以再次尝试执行 等待5秒再执行
+                        if (_request.ErrTryCount < MaxErrTryCount)
+                        {
+                            System.Threading.Thread.Sleep(5000);
+                            _request.ErrTryCount++;
+                            _eventPublisher.Publish(_request);
+                        }
+                    }
+                    throw;
                 }
                 finally
                 {

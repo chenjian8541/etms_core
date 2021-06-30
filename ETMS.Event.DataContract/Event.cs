@@ -66,5 +66,10 @@ namespace ETMS.Event.DataContract
         /// 失败后尝试的次数
         /// </summary>
         public int TryCount { get; set; }
+
+        /// <summary>
+        /// 错误情况下 尝试的次数
+        /// </summary>
+        public int ErrTryCount { get; set; }
     }
 }

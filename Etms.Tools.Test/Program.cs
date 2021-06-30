@@ -93,12 +93,29 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var myt = GetTenantEncryptOpenApi99(1);
+            var myt = GetTenantEncryptOpenApi99(4065);
             Console.WriteLine(myt);
             var t = GetTenantDecryptOpenApi99(myt);
             Console.WriteLine(t);
+            try
+            {
+                Go();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("捕获了异常");
+            }
+            finally
+            {
+                Console.WriteLine("go 完成");
+            }
             Console.WriteLine("完成");
             Console.Read();
+        }
+
+        public static void Go()
+        {
+            throw new Exception("发送错误了");
         }
 
         public static string GetTenantEncryptOpenApi99(int t)
