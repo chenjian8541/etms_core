@@ -18,7 +18,7 @@ namespace ETMS.EventConsumer
             var _lockKey = new StatisticsFinanceIncomeToken(eEvent.TenantId);
             var statisticsFinanceBLL = CustomServiceLocator.GetInstance<IStatisticsFinanceBLL>();
             statisticsFinanceBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<StatisticsFinanceIncomeToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<StatisticsFinanceIncomeToken, StatisticsFinanceIncomeEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                 await statisticsFinanceBLL.StatisticsFinanceIncomeConsumeEvent(eEvent)
                 );

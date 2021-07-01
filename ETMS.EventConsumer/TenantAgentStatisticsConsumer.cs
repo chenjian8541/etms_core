@@ -18,7 +18,7 @@ namespace ETMS.EventConsumer
             var _lockKey = new TenantAgentStatisticsToken(@event.TenantId);
             var tenantDataCollectBLL = CustomServiceLocator.GetInstance<ITenantDataCollect>();
             tenantDataCollectBLL.InitTenantId(@event.TenantId);
-            var lockTakeHandler = new LockTakeHandler<TenantAgentStatisticsToken>(_lockKey, @event, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<TenantAgentStatisticsToken, TenantAgentStatisticsEvent>(_lockKey, @event, this.ClassName,
                 async () =>
                 await tenantDataCollectBLL.TenantAgentStatisticsConsumerEvent(@event)
                 );

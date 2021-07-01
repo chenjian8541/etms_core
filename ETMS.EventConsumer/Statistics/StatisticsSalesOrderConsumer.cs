@@ -21,7 +21,7 @@ namespace ETMS.EventConsumer
             var _lockKey = new StatisticsSalesOrderConsumerToken(eEvent.TenantId);
             var _statisticsSalesBLL = CustomServiceLocator.GetInstance<IStatisticsSalesBLL>();
             _statisticsSalesBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<StatisticsSalesOrderConsumerToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<StatisticsSalesOrderConsumerToken, StatisticsSalesOrderEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                     await _statisticsSalesBLL.StatisticsSalesOrderConsumerEvent(eEvent)
                 );

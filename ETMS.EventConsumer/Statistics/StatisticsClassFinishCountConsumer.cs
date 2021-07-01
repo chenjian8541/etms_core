@@ -19,7 +19,7 @@ namespace ETMS.EventConsumer.Statistics
             var _lockKey = new StatisticsClassFinishCountToken(eEvent.TenantId);
             var evClassBLL = CustomServiceLocator.GetInstance<IEvClassBLL>();
             evClassBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<StatisticsClassFinishCountToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<StatisticsClassFinishCountToken, StatisticsClassFinishCountEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                 await evClassBLL.StatisticsClassFinishCountConsumerEvent(eEvent)
                 );

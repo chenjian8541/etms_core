@@ -16,7 +16,7 @@ namespace ETMS.EventConsumer.Lib
     /// 分布式事务锁_执行程序
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class LockTakeHandler<T> where T : class, IRedisToken
+    public class LockTakeHandler<T, U> where T : class, IRedisToken where U : ETMS.Event.DataContract.Event
     {
         private IDistributedLockDAL _distributedLockDAL;
 
@@ -24,7 +24,7 @@ namespace ETMS.EventConsumer.Lib
 
         private Func<Task> _process;
 
-        private ETMS.Event.DataContract.Event _request;
+        private U _request;
 
         private string _processName;
 
@@ -34,7 +34,7 @@ namespace ETMS.EventConsumer.Lib
 
         private const int MaxErrTryCount = 10;
 
-        public LockTakeHandler(T lockKey, ETMS.Event.DataContract.Event request, string processName, Func<Task> process, bool isErrCanTryManyTime = true)
+        public LockTakeHandler(T lockKey, U request, string processName, Func<Task> process, bool isErrCanTryManyTime = true)
         {
             this._lockKey = lockKey;
             this._process = process;

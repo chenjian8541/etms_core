@@ -18,7 +18,7 @@ namespace ETMS.EventConsumer
             var _lockKey = new SyncClassInfoConsumerToken(eEvent.TenantId, eEvent.ClassId);
             var classBLL = CustomServiceLocator.GetInstance<IClassBLL>();
             classBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<SyncClassInfoConsumerToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<SyncClassInfoConsumerToken, SyncClassInfoEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                 await classBLL.SyncClassInfoProcessEvent(eEvent)
                 );

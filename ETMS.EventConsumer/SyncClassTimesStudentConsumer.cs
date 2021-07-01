@@ -18,7 +18,7 @@ namespace ETMS.EventConsumer
             var _lockKey = new SyncClassTimesStudentConsumerToken(eEvent.TenantId, eEvent.ClassTimesId);
             var evClassBLL = CustomServiceLocator.GetInstance<IEvClassBLL>();
             evClassBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<SyncClassTimesStudentConsumerToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<SyncClassTimesStudentConsumerToken, SyncClassTimesStudentEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                 await evClassBLL.SyncClassTimesStudentConsumerEvent(eEvent)
                 );

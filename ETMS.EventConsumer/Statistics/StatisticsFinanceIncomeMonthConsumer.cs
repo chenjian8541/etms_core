@@ -20,7 +20,7 @@ namespace ETMS.EventConsumer.Statistics
             var _lockKey = new StatisticsFinanceIncomeMonthToken(eEvent.TenantId);
             var financeIncomeBLL = CustomServiceLocator.GetInstance<IFinanceIncomeBLL>();
             financeIncomeBLL.InitTenantId(eEvent.TenantId);
-            var lockTakeHandler = new LockTakeHandler<StatisticsFinanceIncomeMonthToken>(_lockKey, eEvent, this.ClassName,
+            var lockTakeHandler = new LockTakeHandler<StatisticsFinanceIncomeMonthToken, StatisticsFinanceIncomeMonthEvent>(_lockKey, eEvent, this.ClassName,
                 async () =>
                 await financeIncomeBLL.StatisticsFinanceIncomeMonthConsumerEvent(eEvent)
                 );
