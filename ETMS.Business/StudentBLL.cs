@@ -734,7 +734,7 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 TrackUserId = request.LoginUserId,
                 TrackContent = request.TrackContent,
-                TrackImg = request.TrackImgKey
+                TrackImg = EtmsHelper2.GetImgKeys(request.TrackImgKey)
             };
             await _studentTrackLogDAL.AddStudentTrackLog(trackLog);
             var student = studentBucket.Student;
@@ -775,7 +775,7 @@ namespace ETMS.Business
                 NextTrackTimeDesc = lastTrackLog.NextTrackTime.EtmsToMinuteString(),
                 TrackContent = lastTrackLog.TrackContent,
                 TrackUserName = trackUser?.Name,
-                TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(lastTrackLog.TrackImg),
+                TrackImgUrl = EtmsHelper2.GetImgUrl(lastTrackLog.TrackImg),
                 TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, trackUser?.Avatar),
             });
         }
@@ -800,7 +800,7 @@ namespace ETMS.Business
                     TrackContent = log.TrackContent,
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, user?.Avatar),
                     TrackUserName = user?.Name,
-                    TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(log.TrackImg)
+                    TrackImgUrl = EtmsHelper2.GetImgUrl(log.TrackImg)
                 });
             }
             return ResponseBase.Success(logOutput);
@@ -841,7 +841,7 @@ namespace ETMS.Business
                     TrackContent = p.TrackContent,
                     StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, p.StudentPhone),
                     TrackUserName = myUser?.Name,
-                    TrackImgUrl = AliyunOssUtil.GetAccessUrlHttps(p.TrackImg),
+                    TrackImgUrl = EtmsHelper2.GetImgUrl(p.TrackImg),
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myUser?.Avatar),
                 });
             }

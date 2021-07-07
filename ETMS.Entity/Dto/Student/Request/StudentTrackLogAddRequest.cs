@@ -11,7 +11,7 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string TrackContent { get; set; }
 
-        public string TrackImgKey { get; set; }
+        public List<string> TrackImgKey { get; set; }
 
         public DateTime? NextTrackTime { get; set; }
 
@@ -24,6 +24,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (string.IsNullOrEmpty(TrackContent))
             {
                 return "请输入跟进内容";
+            }
+            if (TrackImgKey != null && TrackImgKey.Count > 10)
+            {
+                return "最多上传10张图片";
             }
             return base.Validate();
         }

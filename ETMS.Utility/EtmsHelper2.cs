@@ -181,5 +181,32 @@ namespace ETMS.Utility
             strCode = strCode.Substring(4);
             return strCode.ToInt();
         }
+
+        public static string GetImgKeys(List<string> keys)
+        {
+            if (keys == null || keys.Count == 0)
+            {
+                return string.Empty;
+            }
+            return string.Join('|', keys);
+        }
+
+        public static List<string> GetImgUrl(string keys)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(keys))
+            {
+                return result;
+            }
+            var myMedias = keys.Split('|');
+            foreach (var p in myMedias)
+            {
+                if (!string.IsNullOrEmpty(p))
+                {
+                    result.Add(AliyunOssUtil.GetAccessUrlHttps(p));
+                }
+            }
+            return result;
+        }
     }
 }

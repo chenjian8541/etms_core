@@ -29,7 +29,7 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string StudentDesc { get; set; }
 
-        public string TrackImgUrl { get; set; }
+        public List<string> TrackImgUrl { get; set; }
 
         public string TrackUserAvatarUrl { get; set; }
     }
