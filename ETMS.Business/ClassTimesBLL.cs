@@ -1116,7 +1116,9 @@ namespace ETMS.Business
                         ClassTimesDesc = classTimesDesc,
                         DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                         ReservationType = classTimes.ReservationType,
-                        IsTry = etClass.DataType == EmClassDataType.Temp
+                        IsTry = etClass.DataType == EmClassDataType.Temp,
+                        Type = etClass.Type,
+                        LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                     };
                     output.Add(temp);
                 }
@@ -1200,7 +1202,9 @@ namespace ETMS.Business
                         ClassTimesDesc = classTimesDesc,
                         DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                         ReservationType = classTimes.ReservationType,
-                        IsTry = etClass.DataType == EmClassDataType.Temp
+                        IsTry = etClass.DataType == EmClassDataType.Temp,
+                        Type = etClass.Type,
+                        LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                     };
                     switch (classTimes.ClassOt.DayOfWeek)
                     {
@@ -1328,7 +1332,9 @@ namespace ETMS.Business
                             DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
-                            IsTry = etClass.DataType == EmClassDataType.Temp
+                            IsTry = etClass.DataType == EmClassDataType.Temp,
+                            Type = etClass.Type,
+                            LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);
                     }
@@ -1458,7 +1464,9 @@ namespace ETMS.Business
                             DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
-                            IsTry = etClass.DataType == EmClassDataType.Temp
+                            IsTry = etClass.DataType == EmClassDataType.Temp,
+                            Type = etClass.Type,
+                            LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);
                     }
@@ -1576,7 +1584,9 @@ namespace ETMS.Business
                             DefaultClassTimes = etClass.DefaultClassTimes.EtmsToString(),
                             Color = courseStyleColor,
                             ReservationType = classTimes.ReservationType,
-                            IsTry = etClass.DataType == EmClassDataType.Temp
+                            IsTry = etClass.DataType == EmClassDataType.Temp,
+                            Type = etClass.Type,
+                            LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);
                     }

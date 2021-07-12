@@ -13,6 +13,7 @@ using ETMS.Entity.Dto.Product.Output;
 using ETMS.Utility;
 using ETMS.Business.Common;
 using ETMS.Entity.Dto.Common.Output;
+using ETMS.Entity.View;
 
 namespace ETMS.Business
 {
@@ -365,6 +366,21 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CourseGetPagingOutput>(pagingData.Item2, courseGetPagingOutput));
+        }
+
+        public async Task<ResponseBase> CourseGetPagingSimple(CourseGetPagingRequest request)
+        {
+            var pagingData = await _courseDAL.GetPaging(request);
+            var courseGetPagingOutput = new List<SimpleDataView>();
+            foreach (var p in pagingData.Item1)
+            {
+                courseGetPagingOutput.Add(new SimpleDataView()
+                {
+                    Key = p.Id,
+                    Label = p.Name
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<SimpleDataView>(pagingData.Item2, courseGetPagingOutput));
         }
 
         public async Task<ResponseBase> CourseViewGet(CourseViewGetRequest request)

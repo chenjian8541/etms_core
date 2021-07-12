@@ -124,5 +124,12 @@ namespace ETMS.Entity.Dto.Educational.Output
         public byte ReservationType { get; set; }
 
         public bool IsTry { get; set; }
+
+        public string LimitStudentNumsDesc { get; set; }
+
+        /// <summary>
+        /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
+        /// </summary>
+        public byte Type { get; set; }
     }
 }

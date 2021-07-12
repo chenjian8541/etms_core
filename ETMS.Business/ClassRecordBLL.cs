@@ -132,6 +132,10 @@ namespace ETMS.Business
         {
             var classRecord = await _classRecordDAL.GetClassRecord(request.ClassRecordId);
             var etClass = await _classDAL.GetClassBucket(classRecord.ClassId);
+            if (etClass == null || etClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
             var classRoomIdsDesc = string.Empty;

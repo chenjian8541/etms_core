@@ -28,5 +28,18 @@ namespace ETMS.Entity.Enum
             }
             return $"{studentNums}/{limitStudentNums.Value}";
         }
+
+        public static string GetLimitStudentNumsDesc2(int studentNums, int? limitStudentNums, byte b)
+        {
+            if (limitStudentNums == null)
+            {
+                return $"{studentNums}/-";
+            }
+            if (b == CanOverflow)
+            {
+                return $"{studentNums}/{limitStudentNums.Value}";
+            }
+            return $"{studentNums}/{limitStudentNums.Value}";
+        }
     }
 }

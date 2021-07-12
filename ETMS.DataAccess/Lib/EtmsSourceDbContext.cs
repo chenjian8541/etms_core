@@ -151,5 +151,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsEducationStudentMonth> EtStatisticsEducationStudentMonths { get; set; }
 
         public DbSet<EtStatisticsFinanceIncomeMonth> EtStatisticsFinanceIncomeMonths { get; set; }
+
+        public DbSet<EtNoticeConfig> EtNoticeConfigs { get; set; }
     }
 }

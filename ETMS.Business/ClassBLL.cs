@@ -21,6 +21,7 @@ using ETMS.Business.Common;
 using ETMS.Entity.Dto.Common.Request;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Dto.Common.Output;
+using ETMS.Entity.View;
 
 namespace ETMS.Business
 {
@@ -486,6 +487,21 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassViewOutput>(pagingData.Item2, classViewList));
+        }
+
+        public async Task<ResponseBase> ClassGetPagingSimple(ClassGetPagingRequest request)
+        {
+            var pagingData = await _classDAL.GetPaging(request);
+            var classViewList = new List<SimpleDataView>();
+            foreach (var p in pagingData.Item1)
+            {
+                classViewList.Add(new SimpleDataView()
+                {
+                    Key = p.Id,
+                    Label = p.Name
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<SimpleDataView>(pagingData.Item2, classViewList));
         }
 
         public async Task<ResponseBase> ClassStudentAdd(ClassStudentAddRequest request)

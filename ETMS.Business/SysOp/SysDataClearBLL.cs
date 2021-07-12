@@ -156,6 +156,10 @@ namespace ETMS.Business.SysOp
             {
                 await this.ClearHolidaySetting();
             }
+            if (request.IsClearOtherSetting)
+            {
+                await this.ClearOtherSetting();
+            }
             if (request.IsClearGiftExchange)
             {
                 await this.ClearGiftExchange();
@@ -454,6 +458,12 @@ namespace ETMS.Business.SysOp
         public async Task<bool> ClearHolidaySetting()
         {
             await _sysDataClearDAL.ClearHolidaySetting();
+            return true;
+        }
+
+        public async Task<bool> ClearOtherSetting()
+        {
+            await _sysDataClearDAL.ClearOtherSetting();
             return true;
         }
 

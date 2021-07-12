@@ -57,6 +57,8 @@ namespace ETMS.IDataAccess.SysOp
 
         Task<bool> ClearStudentTrackLog();
 
+        Task<bool> ClearOtherSetting();
+
         #endregion
 
         #region 基础数据

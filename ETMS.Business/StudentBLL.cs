@@ -18,6 +18,7 @@ using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.IncrementLib;
 using ETMS.Entity.Dto.Common.Output;
+using ETMS.Entity.View;
 
 namespace ETMS.Business
 {
@@ -631,6 +632,16 @@ namespace ETMS.Business
                 IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
                 IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
+            })));
+        }
+
+        public async Task<ResponseBase> StudentGetPagingSimple(StudentGetPagingRequest request)
+        {
+            var studentPagingInfo = await _studentDAL.GetStudentPaging(request);
+            return ResponseBase.Success(new ResponsePagingDataBase<SimpleDataView>(studentPagingInfo.Item2, studentPagingInfo.Item1.Select(student => new SimpleDataView()
+            {
+                Key = student.Id,
+                Label = student.Name
             })));
         }
 

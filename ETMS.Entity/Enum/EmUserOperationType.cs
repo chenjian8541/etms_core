@@ -115,7 +115,7 @@ namespace ETMS.Entity.Enum
         [Description("发放优惠券")]
         CouponsStudentSend = 65,
 
-        [Description("修改系统设置")]
+        [Description("系统设置")]
         SystemConfigModify = 66,
 
         [Description("收支项目设置")]

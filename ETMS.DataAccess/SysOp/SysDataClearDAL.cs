@@ -206,6 +206,15 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
+        public async Task<bool> ClearOtherSetting()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtNoticeConfig SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            _cacheProvider.Remove(_tenantId, new NoticeConfigBucket().GetKeyFormat(_tenantId));
+            return true;
+        }
+
         #endregion
 
         #region 基础数据

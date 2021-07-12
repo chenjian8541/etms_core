@@ -129,6 +129,11 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// </summary>
         public bool IsClearHolidaySetting { get; set; }
 
+        /// <summary>
+        /// 其他设置
+        /// </summary>
+        public bool IsClearOtherSetting { get; set; }
+
         #endregion 
 
         #region 营销中心

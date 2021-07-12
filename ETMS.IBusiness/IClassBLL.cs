@@ -27,6 +27,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassGetPaging(ClassGetPagingRequest request);
 
+        Task<ResponseBase> ClassGetPagingSimple(ClassGetPagingRequest request);
+
         Task<ResponseBase> ClassStudentAdd(ClassStudentAddRequest request);
 
         Task<ResponseBase> ClassStudentRemove(ClassStudentRemoveRequest request);

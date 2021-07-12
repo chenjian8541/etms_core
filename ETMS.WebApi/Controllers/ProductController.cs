@@ -321,6 +321,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> CourseGetPagingSimple(CourseGetPagingRequest request)
+        {
+            try
+            {
+                _courseBLL.InitTenantId(request.LoginTenantId);
+                return await _courseBLL.CourseGetPagingSimple(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> CourseViewGet(CourseViewGetRequest request)
         {
             try

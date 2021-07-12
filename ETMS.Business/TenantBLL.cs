@@ -14,6 +14,8 @@ using ETMS.Entity.Dto.BasicData.Output;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Utility;
 using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Enum;
+using ETMS.Entity.Database.Source;
 
 namespace ETMS.Business
 {
@@ -29,19 +31,35 @@ namespace ETMS.Business
 
         private readonly ISysSmsLogDAL _sysSmsLogDAL;
 
+        private readonly IStudentDAL _studentDAL;
+
+        private readonly ICourseDAL _courseDAL;
+
+        private readonly IClassDAL _classDAL;
+
+        private readonly INoticeConfigDAL _noticeConfigDAL;
+
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
         public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
-            ISysVersionDAL sysVersionDAL, ISysSmsLogDAL sysSmsLogDAL)
+            ISysVersionDAL sysVersionDAL, ISysSmsLogDAL sysSmsLogDAL, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL,
+            INoticeConfigDAL noticeConfigDAL, IUserOperationLogDAL userOperationLogDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsLogDAL = studentSmsLogDAL;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
             this._sysVersionDAL = sysVersionDAL;
             this._sysSmsLogDAL = sysSmsLogDAL;
+            this._studentDAL = studentDAL;
+            this._courseDAL = courseDAL;
+            this._classDAL = classDAL;
+            this._noticeConfigDAL = noticeConfigDAL;
+            this._userOperationLogDAL = userOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _smsLogDAL);
+            this.InitDataAccess(tenantId, _smsLogDAL, _studentDAL, _courseDAL, _classDAL, _noticeConfigDAL, _userOperationLogDAL);
         }
 
         public async Task<ResponseBase> TenantGet(TenantGetRequest request)
@@ -145,6 +163,91 @@ namespace ETMS.Business
         {
             var sysTenantInfo = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             return await _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeSend(request.LoginTenantId, sysTenantInfo.Phone);
+        }
+
+        public async Task<ResponseBase> NoticeConfigGet(NoticeConfigGetRequest request)
+        {
+            var log = await _noticeConfigDAL.GetNoticeConfig(EmNoticeConfigType.NoticePeopleLimit, request.PeopleType, request.ScenesType);
+            if (log == null)
+            {
+                return ResponseBase.Success(null);
+            }
+            var output = new NoticeConfigGetOutput()
+            {
+                ExType = log.ExType,
+                MyItems = new List<NoticeConfigGetItem>()
+            };
+            var ids = EtmsHelper.AnalyzeMuIds(log.ConfigValue);
+            if (ids.Any())
+            {
+                switch (log.ExType)
+                {
+                    case EmNoticeConfigExType.Course:
+                        foreach (var p in ids)
+                        {
+                            var myCourse = await _courseDAL.GetCourse(p);
+                            if (myCourse == null || myCourse.Item1 == null)
+                            {
+                                continue;
+                            }
+                            output.MyItems.Add(new NoticeConfigGetItem()
+                            {
+                                Key = p,
+                                Label = myCourse.Item1.Name
+                            });
+                        }
+                        break;
+                    case EmNoticeConfigExType.Class:
+                        foreach (var p in ids)
+                        {
+                            var myClass = await _classDAL.GetClassBucket(p);
+                            if (myClass == null || myClass.EtClass == null)
+                            {
+                                continue;
+                            }
+                            output.MyItems.Add(new NoticeConfigGetItem()
+                            {
+                                Key = p,
+                                Label = myClass.EtClass.Name
+                            });
+                        }
+                        break;
+                    case EmNoticeConfigExType.People:
+                        foreach (var p in ids)
+                        {
+                            var myStudent = await _studentDAL.GetStudent(p);
+                            if (myStudent == null || myStudent.Student == null)
+                            {
+                                continue;
+                            }
+                            output.MyItems.Add(new NoticeConfigGetItem()
+                            {
+                                Key = p,
+                                Label = myStudent.Student.Name
+                            });
+                        }
+                        break;
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> NoticeConfigSave(NoticeConfigSaveRequest request)
+        {
+            var entity = new EtNoticeConfig()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                PeopleType = request.PeopleType,
+                ScenesType = request.ScenesType,
+                ExType = request.ExType,
+                TenantId = request.LoginTenantId,
+                Type = EmNoticeConfigType.NoticePeopleLimit,
+                ConfigValue = EtmsHelper.GetMuIds(request.ConfigValues)
+            };
+            await _noticeConfigDAL.SaveNoticeConfig(entity);
+
+            await _userOperationLogDAL.AddUserLog(request, "通知推送名单设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
         }
     }
 }

@@ -159,6 +159,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentGetPagingSimple(StudentGetPagingRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentGetPagingSimple(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [ActionName("studentSetTrackUser")]
         [HttpPost]
         public async Task<ResponseBase> StudentSetTrackUser(StudentSetTrackUserRequest request)
