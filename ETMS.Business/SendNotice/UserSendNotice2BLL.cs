@@ -6,6 +6,7 @@ using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Entity.Temp.Compare;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
+using ETMS.IBusiness.EventConsumer;
 using ETMS.IBusiness.SendNotice;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
@@ -38,8 +39,8 @@ namespace ETMS.Business.SendNotice
 
         public UserSendNotice2BLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, IComponentAccessBLL componentAccessBLL,
                IUserWechatDAL userWechatDAL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
-               IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL)
-             : base(userWechatDAL, componentAccessBLL, sysTenantDAL)
+               IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL, ITenantLibBLL tenantLibBLL)
+             : base(userWechatDAL, componentAccessBLL, sysTenantDAL,tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -52,6 +53,7 @@ namespace ETMS.Business.SendNotice
 
         public void InitTenantId(int tenantId)
         {
+            this._tenantLibBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _userWechatDAL, _activeGrowthRecordDAL, _userDAL, _classDAL);
         }
 

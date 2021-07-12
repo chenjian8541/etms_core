@@ -21,6 +21,7 @@ using ETMS.Business.WxCore;
 using ETMS.IBusiness.SendNotice;
 using Newtonsoft.Json;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.IBusiness.EventConsumer;
 
 namespace ETMS.Business.SendNotice
 {
@@ -60,8 +61,9 @@ namespace ETMS.Business.SendNotice
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
             IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
-            IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
-            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
+            IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL
+            , ITenantLibBLL tenantLibBLL)
+            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._wxService = wxService;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -82,6 +84,7 @@ namespace ETMS.Business.SendNotice
 
         public void InitTenantId(int tenantId)
         {
+            this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
                 _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL,
@@ -100,6 +103,7 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
+
             var exDateDesc = string.Empty;
             if (homeworkDetails[0].ExDate != null)
             {
@@ -117,8 +121,17 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentHomework);
             foreach (var myHomeWorkDetail in homeworkDetails)
             {
+                if (this.CheckLimitNoticeClass(myHomeWorkDetail.ClassId))
+                {
+                    continue;
+                }
+                if (this.CheckLimitNoticeStudent(myHomeWorkDetail.StudentId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(myHomeWorkDetail.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
@@ -185,6 +198,15 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentHomeworkComment);
+            if (this.CheckLimitNoticeClass(homeworkDetail.ClassId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeStudent(homeworkDetail.StudentId))
+            {
+                return;
+            }
 
             var user = await _userDAL.GetUser(request.AddUserId);
             var req = new HomeworkCommentRequest(await GetNoticeRequestBase(request.TenantId))
@@ -245,12 +267,18 @@ namespace ETMS.Business.SendNotice
             }
 
             var className = string.Empty;
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentGrowUpRecord);
             if (activeGrowthRecord.Type == EmActiveGrowthRecordType.Class)
             {
                 var strClass = activeGrowthRecord.RelatedIds.Trim(',').Split(',');
                 if (!string.IsNullOrEmpty(strClass[0]))
                 {
-                    var myClass = await _classDAL.GetClassBucket(strClass[0].ToLong());
+                    var classId = strClass[0].ToLong();
+                    if (this.CheckLimitNoticeClass(classId))
+                    {
+                        return;
+                    }
+                    var myClass = await _classDAL.GetClassBucket(classId);
                     className = myClass?.EtClass.Name;
                 }
             }
@@ -272,6 +300,10 @@ namespace ETMS.Business.SendNotice
 
             foreach (var myGrowthRecordDetail in growthRecordDetails)
             {
+                if (this.CheckLimitNoticeStudent(myGrowthRecordDetail.StudentId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(myGrowthRecordDetail.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
@@ -328,6 +360,20 @@ namespace ETMS.Business.SendNotice
             if (studentBucket == null || studentBucket.Student == null)
             {
                 Log.Error($"[NoticeStudentsOfStudentEvaluateConsumeEvent]未找到学员信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.TeacherClassEvaluate);
+            if (this.CheckLimitNoticeClass(classRecordStudentLog.ClassId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeStudent(classRecordStudentLog.StudentId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeCourse(classRecordStudentLog.CourseId))
+            {
                 return;
             }
 
@@ -397,9 +443,18 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentHomework);
             var tempBoxClass = new DataTempBox<EtClass>();
             foreach (var myHomeWorkDetail in homeworkDetailTomorrowExDate)
             {
+                if (this.CheckLimitNoticeClass(myHomeWorkDetail.ClassId))
+                {
+                    continue;
+                }
+                if (this.CheckLimitNoticeStudent(myHomeWorkDetail.StudentId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(myHomeWorkDetail.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
@@ -469,6 +524,16 @@ namespace ETMS.Business.SendNotice
             }
             var student = studentBucket.Student;
             if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentCourseSurplusChanged);
+            if (this.CheckLimitNoticeStudent(request.StudentId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeCourse(request.CourseId))
             {
                 return;
             }
@@ -576,6 +641,20 @@ namespace ETMS.Business.SendNotice
                 return;
             }
 
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StartClass);
+            if (this.CheckLimitNoticeClass(classTimes.ClassId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeCourse(request.CourseId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeStudent(request.StudentId))
+            {
+                return;
+            }
+
             var tempBoxUser = new DataTempBox<EtUser>();
             var req = new StudentMakeupRequest(await GetNoticeRequestBase(request.TenantId))
             {
@@ -650,6 +729,19 @@ namespace ETMS.Business.SendNotice
             if (myCourse == null || myCourse.Item1 == null)
             {
                 Log.Error($"[NoticeStudentCourseNotEnoughConsumerEvent1]未找到课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentCourseNotEnough);
+            if (this.CheckLimitNoticeStudent(request.StudentId))
+            {
+                return;
+            }
+            if (this.CheckLimitNoticeCourse(request.CourseId))
+            {
+                return;
+            }
+            if (await this.CheckLimitNoticeClassOfStudent(request.StudentId))
+            {
                 return;
             }
 
@@ -884,6 +976,16 @@ namespace ETMS.Business.SendNotice
             }
             var student = studentBucket.Student;
             if (string.IsNullOrEmpty(student.Phone))
+            {
+                return;
+            }
+
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentCheckOn);
+            if (this.CheckLimitNoticeStudent(student.Id))
+            {
+                return;
+            }
+            if (await this.CheckLimitNoticeClassOfStudent(student.Id))
             {
                 return;
             }

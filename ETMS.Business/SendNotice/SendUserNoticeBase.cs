@@ -6,6 +6,7 @@ using ETMS.IDataAccess;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess.EtmsManage;
 using System.Threading.Tasks;
+using ETMS.IBusiness.EventConsumer;
 
 namespace ETMS.Business
 {
@@ -13,8 +14,8 @@ namespace ETMS.Business
     {
         protected readonly IUserWechatDAL _userWechatDAL;
 
-        public SendUserNoticeBase(IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL)
-            : base(componentAccessBLL, sysTenantDAL)
+        public SendUserNoticeBase(IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, ITenantLibBLL tenantLibBLL)
+            : base(componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._userWechatDAL = userWechatDAL;
         }

@@ -8,6 +8,7 @@ using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
+using ETMS.IBusiness.EventConsumer;
 using ETMS.IBusiness.SendNotice;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
@@ -58,8 +59,8 @@ namespace ETMS.Business.SendNotice
             IJobAnalyzeDAL jobAnalyzeDAL, ITempUserClassNoticeDAL tempUserClassNoticeDAL, IClassRoomDAL classRoomDAL,
             IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
             IUserDAL userDAL, ISmsService smsService, IWxService wxService, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
-            : base(userWechatDAL, componentAccessBLL, sysTenantDAL)
+            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL)
+            : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
             this._tenantConfigDAL = tenantConfigDAL;
@@ -79,6 +80,7 @@ namespace ETMS.Business.SendNotice
 
         public void InitTenantId(int tenantId)
         {
+            this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _courseDAL, _classDAL, _jobAnalyzeDAL, _tempUserClassNoticeDAL, _classRoomDAL,
                 _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL);

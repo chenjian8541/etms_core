@@ -19,6 +19,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.IBusiness;
 using ETMS.Entity.Temp.Request;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.IBusiness.EventConsumer;
 
 namespace ETMS.Business.SendNotice
 {
@@ -55,8 +56,8 @@ namespace ETMS.Business.SendNotice
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
             IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
-            IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL)
-            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
+            IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL)
+            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._wxService = wxService;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -76,6 +77,7 @@ namespace ETMS.Business.SendNotice
 
         public void InitTenantId(int tenantId)
         {
+            this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this._userSendNoticeBLL.InitTenantId(tenantId);
@@ -114,8 +116,13 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             var url = wxConfig.TemplateNoticeConfig.CouponsUrl;
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentCoupons);
             foreach (var p in couponsStudentGetList)
             {
+                if (this.CheckLimitNoticeStudent(p.StudentId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
@@ -180,8 +187,13 @@ namespace ETMS.Business.SendNotice
             var remindStudents = new List<long>();
             var url = wxConfig.TemplateNoticeConfig.CouponsUrl;
             var title = "您有一张优惠券即将到期！请尽快使用~ ";
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentCoupons);
             foreach (var p in myToExpire)
             {
+                if (this.CheckLimitNoticeStudent(p.StudentId))
+                {
+                    continue;
+                }
                 var isRemindStudent = remindStudents.FirstOrDefault(j => j == p.StudentId);
                 if (isRemindStudent > 0)
                 {
@@ -272,8 +284,13 @@ namespace ETMS.Business.SendNotice
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
 
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentAccountRechargeChanged);
             foreach (var s in binderStudents)
             {
+                if (this.CheckLimitNoticeStudent(s.StudentId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(s.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {
@@ -412,6 +429,11 @@ namespace ETMS.Business.SendNotice
                 Log.Warn($"[NoticeStudentClassCheckSignRevokeConsumerEvent]未找到上课班级,ClassRecordId:{classRecord.Id}", this.GetType());
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.ClassRecordStudentChange);
+            if (this.CheckLimitNoticeClass(classRecord.ClassId))
+            {
+                return;
+            }
 
             var req = new NoticeStudentCustomizeMsgRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
             {
@@ -427,6 +449,14 @@ namespace ETMS.Business.SendNotice
 
             foreach (var p in classRecordStudent)
             {
+                if (this.CheckLimitNoticeStudent(p.StudentId))
+                {
+                    continue;
+                }
+                if (this.CheckLimitNoticeCourse(p.CourseId))
+                {
+                    continue;
+                }
                 var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                 if (studentBucket == null || studentBucket.Student == null)
                 {

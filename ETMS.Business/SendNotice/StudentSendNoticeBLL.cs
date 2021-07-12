@@ -19,6 +19,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IBusiness.Wechart;
 using ETMS.Business.WxCore;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.IBusiness.EventConsumer;
 
 namespace ETMS.Business
 {
@@ -64,8 +65,8 @@ namespace ETMS.Business
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
             IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
-            ISysSmsTemplate2BLL sysSmsTemplate2BLL)
-            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL)
+            ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL)
+            : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
@@ -88,6 +89,7 @@ namespace ETMS.Business
 
         public void InitTenantId(int tenantId)
         {
+            this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
@@ -150,6 +152,12 @@ namespace ETMS.Business
                 Log.Info($"[NoticeStudentsOfClassBeforeDayClassTimes]未查询到要提醒的学生:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimes.Id}", this.GetType());
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StartClass);
+            if (this.CheckLimitNoticeClass(request.ClassTimes.ClassId))
+            {
+                return;
+            }
+
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var stringClassRoom = string.Empty;
             if (!string.IsNullOrEmpty(request.ClassTimes.ClassRoomIds))
@@ -174,6 +182,14 @@ namespace ETMS.Business
             {
                 foreach (var p in classTimesStudents)
                 {
+                    if (this.CheckLimitNoticeCourse(p.CourseId))
+                    {
+                        continue;
+                    }
+                    if (this.CheckLimitNoticeStudent(p.StudentId))
+                    {
+                        continue;
+                    }
                     var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                     if (studentBucket == null || studentBucket.Student == null)
                     {
@@ -210,6 +226,14 @@ namespace ETMS.Business
             {
                 foreach (var p in classStudent)
                 {
+                    if (this.CheckLimitNoticeCourse(p.CourseId))
+                    {
+                        continue;
+                    }
+                    if (this.CheckLimitNoticeStudent(p.StudentId))
+                    {
+                        continue;
+                    }
                     var studentBucket = await _studentDAL.GetStudent(p.StudentId);
                     if (studentBucket == null || studentBucket.Student == null)
                     {
@@ -343,6 +367,12 @@ namespace ETMS.Business
                 Log.Info($"[NoticeStudentsOfClassTodayClassTimes]未查询到要提醒的学生:TenantId:{request.TenantId},ClassTimesId:{classTimes.Id}", this.GetType());
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StartClass);
+            if (this.CheckLimitNoticeClass(classTimes.ClassId))
+            {
+                return;
+            }
+
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var stringClassRoom = string.Empty;
             if (!string.IsNullOrEmpty(classTimes.ClassRoomIds))
@@ -369,6 +399,14 @@ namespace ETMS.Business
             {
                 foreach (var p in classTimesStudents)
                 {
+                    if (this.CheckLimitNoticeCourse(p.CourseId))
+                    {
+                        continue;
+                    }
+                    if (this.CheckLimitNoticeStudent(p.StudentId))
+                    {
+                        continue;
+                    }
                     if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
                     {
                         var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
@@ -413,6 +451,14 @@ namespace ETMS.Business
             {
                 foreach (var p in classStudent)
                 {
+                    if (this.CheckLimitNoticeCourse(p.CourseId))
+                    {
+                        continue;
+                    }
+                    if (this.CheckLimitNoticeStudent(p.StudentId))
+                    {
+                        continue;
+                    }
                     if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
                     {
                         var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
@@ -499,6 +545,12 @@ namespace ETMS.Business
                 checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(classRecord.ClassTimesId.Value);
             }
 
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.ClassCheckSign);
+            if (this.CheckLimitNoticeClass(classRecord.ClassId))
+            {
+                return;
+            }
+
             var tempBox = new DataTempBox<EtUser>();
             var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
             {
@@ -516,6 +568,14 @@ namespace ETMS.Business
             var tempBoxCourse = new DataTempBox<EtCourse>();
             foreach (var p in classRecordStudent)
             {
+                if (this.CheckLimitNoticeCourse(p.CourseId))
+                {
+                    continue;
+                }
+                if (this.CheckLimitNoticeStudent(p.StudentId))
+                {
+                    continue;
+                }
                 if (checkInLog != null && checkInLog.Count > 0) //判断已记考勤
                 {
                     var myCheckLog = checkInLog.FirstOrDefault(j => j.StudentId == p.StudentId);
@@ -626,6 +686,16 @@ namespace ETMS.Business
                 Log.Warn($"[NoticeStudentLeaveApply]未找到学员信息,StudentLeaveApplyLogId:{request.StudentLeaveApplyLog.Id}", this.GetType());
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentAskForLeaveCheck);
+            if (this.CheckLimitNoticeStudent(request.StudentLeaveApplyLog.StudentId))
+            {
+                return;
+            }
+            if (await this.CheckLimitNoticeClassOfStudent(request.StudentLeaveApplyLog.StudentId))
+            {
+                return;
+            }
+
             var student = studentBucket.Student;
             if (string.IsNullOrEmpty(student.Phone))
             {
@@ -695,6 +765,12 @@ namespace ETMS.Business
                 Log.Warn($"[NoticeStudentContracts]未找到学员信息,OrderId:{request.Order.Id}", this.GetType());
                 return;
             }
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.OrderBuy);
+            if (this.CheckLimitNoticeStudent(request.Order.StudentId))
+            {
+                return;
+            }
+
             var student = studentBucket.Student;
             if (string.IsNullOrEmpty(student.Phone))
             {

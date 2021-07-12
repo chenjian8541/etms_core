@@ -1,5 +1,7 @@
 ﻿using ETMS.Business.WxCore;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.IBusiness.EventConsumer;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
@@ -16,10 +18,13 @@ namespace ETMS.Business.SendNotice
 
         protected readonly ISysTenantDAL _sysTenantDAL;
 
-        public SendNoticeBase(IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL)
+        protected readonly ITenantLibBLL _tenantLibBLL;
+
+        public SendNoticeBase(IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, ITenantLibBLL tenantLibBLL)
         {
             this._componentAccessBLL = componentAccessBLL;
             this._sysTenantDAL = sysTenantDAL;
+            this._tenantLibBLL = tenantLibBLL;
         }
 
         protected async Task<NoticeRequestBase> GetNoticeRequestBase(int tenantId, bool isWxNotice = true)
