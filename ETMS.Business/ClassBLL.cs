@@ -661,12 +661,13 @@ namespace ETMS.Business
                     IsJumpHoliday = request.IsJumpHoliday,
                     LoginTenantId = request.LoginTenantId,
                     LoginUserId = request.LoginUserId,
-                    StartDate = request.StartDate,
+                    StartDate = request.StartDate.Value,
                     StartTime = request.StartTime,
                     TeacherIds = request.TeacherIds,
                     Weeks = request.Weeks,
                     CourseIds = request.CourseIds,
-                    ReservationType = request.ReservationType
+                    ReservationType = request.ReservationType,
+                    IsJumpTeacherLimit = request.IsJumpTeacherLimit
                 });
             }
             return await ProcessClassTimesRuleAddOfLimitCount(request);
@@ -838,10 +839,10 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("按此规则未生成任何课次，请重新设置");
             }
             //验证是否有时间重叠
+            var startDate = request.StartDate.Date;
             var sameTimeRule = await _classDAL.GetClassTimesRule(request.ClassId, request.StartTime, request.EndTime, weekDays);
             if (sameTimeRule.Any())
             {
-                var startDate = request.StartDate.Date;
                 var errMsg = "存在有重叠的排课时间，请重新设置";
                 foreach (var ruleLog in sameTimeRule)
                 {
@@ -882,6 +883,37 @@ namespace ETMS.Business
                             {
                                 return ResponseBase.CommonError(errMsg);
                             }
+                        }
+                    }
+                }
+            }
+
+            //判断老师上课时间是否有重叠
+            if (!request.IsJumpTeacherLimit)
+            {
+                var teacherIds = new List<long>();
+                if (request.TeacherIds != null && request.TeacherIds.Count > 0)
+                {
+                    teacherIds = request.TeacherIds;
+                }
+                else
+                {
+                    teacherIds = EtmsHelper.AnalyzeMuIds(etClass.Teachers);
+                }
+                if (teacherIds.Count > 0)
+                {
+                    foreach (var myTeacherId in teacherIds)
+                    {
+                        var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 1);
+                        if (teacherLimit != null && teacherLimit.Any())
+                        {
+                            var teacher = await _userDAL.GetUser(myTeacherId);
+                            return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                            {
+                                IsLimit = true,
+                                LimitTeacherName = teacher?.Name
+                            });
                         }
                     }
                 }
@@ -947,7 +979,7 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
         }
 
         private async Task<ResponseBase> ProcessClassTimesRuleAddOfLimitCount(ClassTimesRuleAdd1Request request)
@@ -974,7 +1006,7 @@ namespace ETMS.Business
             });
             var classTimes = new List<EtClassTimes>();
             var weekDays = new List<byte>();
-            var currentDate = request.StartDate.Date;
+            var currentDate = request.StartDate.Value.Date;
             var limitCount = request.EndValue.ToInt();
             var limitWeeks = request.Weeks;
             var indexCount = 1;
@@ -1045,11 +1077,11 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("按此规则未生成任何课次，请重新设置");
             }
             var endDate = currentDate.AddDays(-1);
+            var startDate = request.StartDate.Value.Date;
             //验证是否有时间重叠
             var sameTimeRule = await _classDAL.GetClassTimesRule(request.ClassId, request.StartTime, request.EndTime, weekDays);
             if (sameTimeRule.Any())
             {
-                var startDate = request.StartDate.Date;
                 var errMsg = "存在有重叠的排课时间，请重新设置";
                 foreach (var ruleLog in sameTimeRule)
                 {
@@ -1095,6 +1127,37 @@ namespace ETMS.Business
                 }
             }
 
+            //判断老师上课时间是否有重叠
+            if (!request.IsJumpTeacherLimit)
+            {
+                var teacherIds = new List<long>();
+                if (request.TeacherIds != null && request.TeacherIds.Count > 0)
+                {
+                    teacherIds = request.TeacherIds;
+                }
+                else
+                {
+                    teacherIds = EtmsHelper.AnalyzeMuIds(etClass.Teachers);
+                }
+                if (teacherIds.Count > 0)
+                {
+                    foreach (var myTeacherId in teacherIds)
+                    {
+                        var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 1);
+                        if (teacherLimit != null && teacherLimit.Any())
+                        {
+                            var teacher = await _userDAL.GetUser(myTeacherId);
+                            return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                            {
+                                IsLimit = true,
+                                LimitTeacherName = teacher?.Name
+                            });
+                        }
+                    }
+                }
+            }
+
             //插入排课规则
             foreach (var week in weekDays)
             {
@@ -1118,7 +1181,7 @@ namespace ETMS.Business
                     IsNeedLoop = false,
                     ClassId = request.ClassId,
                     ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds),
-                    StartDate = request.StartDate,
+                    StartDate = request.StartDate.Value,
                     EndDate = endDate,
                     Week = week,
                     StartTime = request.StartTime,
@@ -1148,7 +1211,7 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
         }
 
         private async Task<ResponseBase> ProcessClassTimesRuleAddOfDixedDate(ClassTimesRuleAdd2Request request)
@@ -1180,9 +1243,11 @@ namespace ETMS.Business
             {
                 holidaySettings = await _holidaySettingDAL.GetAllHolidaySetting();
             }
+            var myDateList = new List<DateTime>();
             foreach (var strDate in request.ClassDate)
             {
                 var currentDate = Convert.ToDateTime(strDate).Date;
+                myDateList.Add(currentDate);
                 if (request.IsJumpHoliday && holidaySettings != null && holidaySettings.Any())  //节假日 限制
                 {
                     var isHday = holidaySettings.Where(p => currentDate >= p.StartTime && currentDate <= p.EndTime);
@@ -1254,6 +1319,45 @@ namespace ETMS.Business
                 }
             }
 
+            //判断老师上课时间是否有重叠
+            if (!request.IsJumpTeacherLimit)
+            {
+                var teacherIds = new List<long>();
+                if (request.TeacherIds != null && request.TeacherIds.Count > 0)
+                {
+                    teacherIds = request.TeacherIds;
+                }
+                else
+                {
+                    teacherIds = EtmsHelper.AnalyzeMuIds(etClass.Teachers);
+                }
+                if (teacherIds.Count > 0)
+                {
+                    var endDate = myDateList.Max();
+                    var startDate = myDateList.Min();
+                    foreach (var myTeacherId in teacherIds)
+                    {
+                        var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 100);
+                        if (teacherLimit != null && teacherLimit.Any())
+                        {
+                            foreach (var p in teacherLimit)
+                            {
+                                if (myDateList.Exists(j => j == p.ClassOt))
+                                {
+                                    var teacher = await _userDAL.GetUser(myTeacherId);
+                                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                                    {
+                                        IsLimit = true,
+                                        LimitTeacherName = teacher?.Name
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             //插入排课规则
             foreach (var myTime in classTimes)
             {
@@ -1292,7 +1396,7 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
         }
 
         public async Task<ResponseBase> ClassTimesRuleDel(ClassTimesRuleDelRequest request)
@@ -1562,6 +1666,28 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("排课信息未找到");
             }
+            //判断老师上课时间是否有重叠
+            if (!request.IsJumpTeacherLimit)
+            {
+                if (request.TeacherIds != null && request.TeacherIds.Count > 0)
+                {
+                    foreach (var myTeacherId in request.TeacherIds)
+                    {
+                        var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
+                            request.EndTime, new List<byte>() { classRule.Week }, classRule.StartDate, classRule.EndDate, 1, request.ClassRuleId);
+                        if (teacherLimit != null && teacherLimit.Any())
+                        {
+                            var teacher = await _userDAL.GetUser(myTeacherId);
+                            return ResponseBase.Success(new ClassTimesRuleEditOutput()
+                            {
+                                IsLimit = true,
+                                LimitTeacherName = teacher?.Name
+                            });
+                        }
+                    }
+                }
+            }
+
             classRule.IsJumpHoliday = request.IsJumpHoliday;
             classRule.StartTime = request.StartTime;
             classRule.EndTime = request.EndTime;
@@ -1575,7 +1701,7 @@ namespace ETMS.Business
             await _classTimesDAL.SyncClassTimesOfClassTimesRule(classRule);
 
             await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
-            return ResponseBase.Success();
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
     }
 }

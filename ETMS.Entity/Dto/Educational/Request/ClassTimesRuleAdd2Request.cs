@@ -31,6 +31,8 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// </summary>
         public byte ReservationType { get; set; }
 
+        public bool IsJumpTeacherLimit { get; set; }
+
         public override string Validate()
         {
             if (ClassId <= 0)

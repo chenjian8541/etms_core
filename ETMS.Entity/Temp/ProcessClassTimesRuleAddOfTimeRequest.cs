@@ -36,5 +36,7 @@ namespace ETMS.Entity.Temp
         /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte ReservationType { get; set; }
+
+        public bool IsJumpTeacherLimit { get; set; }
     }
 }

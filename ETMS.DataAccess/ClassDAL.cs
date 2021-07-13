@@ -206,7 +206,31 @@ namespace ETMS.DataAccess
                 weekWhere = $" [Week] = {weekDay[0]}";
             }
             return await _dbWrapper.ExecuteObject<EtClassTimesRule>(
-                $"SELECT * FROM EtClassTimesRule WHERE ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal} AND {weekWhere} AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
+                $"SELECT TOP 100 * FROM EtClassTimesRule WHERE ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal} AND {weekWhere} AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
+        }
+
+        public async Task<IEnumerable<EtClassTimes>> GetClassTimesRuleTeacher(long teacherId, int startTime,
+            int endTime, List<byte> weekDay, DateTime startDate, DateTime? endDate, int topCount, long excRuleId = 0)
+        {
+            var weekWhere = new StringBuilder();
+            if (weekDay.Count > 1)
+            {
+                weekWhere.Append($" [Week] IN ({string.Join(',', weekDay)})");
+            }
+            else
+            {
+                weekWhere.Append($" [Week] = {weekDay[0]}");
+            }
+            if (endDate != null)
+            {
+                weekWhere.Append($" AND ClassOt <= '{endDate.EtmsToDateString()}'");
+            }
+            if (excRuleId > 0)
+            {
+                weekWhere.Append($" AND RuleId <> {excRuleId}");
+            }
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT TOP {topCount} * FROM EtClassTimes WHERE [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} AND Teachers LIKE '%,{teacherId},%' AND ClassOt >= '{startDate.EtmsToDateString()}' AND {weekWhere} AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
         }
 
         public async Task<List<EtClassTimesRule>> GetClassTimesRule(long classId)

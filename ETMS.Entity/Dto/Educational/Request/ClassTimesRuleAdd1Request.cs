@@ -10,7 +10,7 @@ namespace ETMS.Entity.Dto.Educational.Request
     {
         public long ClassId { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         /// <summary>
         /// <see cref="ClassTimesRuleEndType"/>
@@ -42,6 +42,8 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte ReservationType { get; set; }
+
+        public bool IsJumpTeacherLimit { get; set; }
 
         public override string Validate()
         {

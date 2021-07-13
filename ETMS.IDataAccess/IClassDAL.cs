@@ -53,6 +53,9 @@ namespace ETMS.IDataAccess
 
         Task<IEnumerable<EtClassTimesRule>> GetClassTimesRule(long classId, int startTime, int endTime, List<byte> weekDay);
 
+        Task<IEnumerable<EtClassTimes>> GetClassTimesRuleTeacher(long teacherId, int startTime,
+           int endTime, List<byte> weekDay, DateTime startDate, DateTime? endDate, int topCount, long excRuleId = 0);
+
         Task<List<EtClassTimesRule>> GetClassTimesRule(long classId);
 
         Task<bool> UpdateClassPlanTimes(long classId, byte newScheduleStatus);
