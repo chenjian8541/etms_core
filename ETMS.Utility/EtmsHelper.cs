@@ -88,11 +88,18 @@ namespace ETMS.Utility
             var s = times.Hours + times.Minutes / 60.0;
             return s.ToString("F2");
         }
-        public static string GetMuIds(IEnumerable<long> ids)
+        public static string GetMuIds(IEnumerable<long> ids, int limitTotalCount = 100)
         {
             if (ids == null || !ids.Any())
             {
                 return string.Empty;
+            }
+            if (limitTotalCount > 0)
+            {
+                if (ids.Count() > limitTotalCount)
+                {
+                    ids = ids.Take(100);
+                }
             }
             return $",{string.Join(',', ids)},";
         }
