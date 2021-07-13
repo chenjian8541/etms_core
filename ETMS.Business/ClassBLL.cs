@@ -902,6 +902,7 @@ namespace ETMS.Business
                 }
                 if (teacherIds.Count > 0)
                 {
+                    var limitTeachers = new List<string>();
                     foreach (var myTeacherId in teacherIds)
                     {
                         var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
@@ -909,12 +910,19 @@ namespace ETMS.Business
                         if (teacherLimit != null && teacherLimit.Any())
                         {
                             var teacher = await _userDAL.GetUser(myTeacherId);
-                            return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                            if (teacher != null)
                             {
-                                IsLimit = true,
-                                LimitTeacherName = teacher?.Name
-                            });
+                                limitTeachers.Add(teacher.Name);
+                            }
                         }
+                    }
+                    if (limitTeachers.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimit = true,
+                            LimitTeacherName = string.Join(',', limitTeachers)
+                        });
                     }
                 }
             }
@@ -1141,6 +1149,7 @@ namespace ETMS.Business
                 }
                 if (teacherIds.Count > 0)
                 {
+                    var limitTeachers = new List<string>();
                     foreach (var myTeacherId in teacherIds)
                     {
                         var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
@@ -1148,12 +1157,19 @@ namespace ETMS.Business
                         if (teacherLimit != null && teacherLimit.Any())
                         {
                             var teacher = await _userDAL.GetUser(myTeacherId);
-                            return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                            if (teacher != null)
                             {
-                                IsLimit = true,
-                                LimitTeacherName = teacher?.Name
-                            });
+                                limitTeachers.Add(teacher.Name);
+                            }
                         }
+                    }
+                    if (limitTeachers.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimit = true,
+                            LimitTeacherName = string.Join(',', limitTeachers)
+                        });
                     }
                 }
             }
@@ -1335,6 +1351,7 @@ namespace ETMS.Business
                 {
                     var endDate = myDateList.Max();
                     var startDate = myDateList.Min();
+                    var limitTeachers = new List<string>();
                     foreach (var myTeacherId in teacherIds)
                     {
                         var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
@@ -1346,14 +1363,21 @@ namespace ETMS.Business
                                 if (myDateList.Exists(j => j == p.ClassOt))
                                 {
                                     var teacher = await _userDAL.GetUser(myTeacherId);
-                                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                                    if (teacher != null)
                                     {
-                                        IsLimit = true,
-                                        LimitTeacherName = teacher?.Name
-                                    });
+                                        limitTeachers.Add(teacher.Name);
+                                    }
                                 }
                             }
                         }
+                    }
+                    if (limitTeachers.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimit = true,
+                            LimitTeacherName = string.Join(',', limitTeachers)
+                        });
                     }
                 }
             }
@@ -1671,6 +1695,7 @@ namespace ETMS.Business
             {
                 if (request.TeacherIds != null && request.TeacherIds.Count > 0)
                 {
+                    var limitTeachers = new List<string>();
                     foreach (var myTeacherId in request.TeacherIds)
                     {
                         var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
@@ -1678,12 +1703,19 @@ namespace ETMS.Business
                         if (teacherLimit != null && teacherLimit.Any())
                         {
                             var teacher = await _userDAL.GetUser(myTeacherId);
-                            return ResponseBase.Success(new ClassTimesRuleEditOutput()
+                            if (teacher != null)
                             {
-                                IsLimit = true,
-                                LimitTeacherName = teacher?.Name
-                            });
+                                limitTeachers.Add(teacher.Name);
+                            }
                         }
+                    }
+                    if (limitTeachers.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleEditOutput()
+                        {
+                            IsLimit = true,
+                            LimitTeacherName = string.Join(',', limitTeachers)
+                        });
                     }
                 }
             }
