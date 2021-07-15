@@ -61,13 +61,13 @@ namespace ETMS.Manage.Jobs
             {
                 var pageCurrent = 1;
                 this._jobAnalyzeBLL.ResetTenantId(tenant.Id);
-                var hasCourseStudentResult = await _jobAnalyzeBLL.GetStudent(_pageSize, pageCurrent);
-                if (hasCourseStudentResult.Item2 == 0)
+                var myStudentResult = await _jobAnalyzeBLL.GetStudent(_pageSize, pageCurrent);
+                if (myStudentResult.Item2 == 0)
                 {
                     continue;
                 }
-                HandleStudent(tenant.Id, hasCourseStudentResult.Item1);
-                var totalPage = EtmsHelper.GetTotalPage(hasCourseStudentResult.Item2, _pageSize);
+                HandleStudent(tenant.Id, myStudentResult.Item1);
+                var totalPage = EtmsHelper.GetTotalPage(myStudentResult.Item2, _pageSize);
                 pageCurrent++;
                 while (pageCurrent <= totalPage)
                 {
