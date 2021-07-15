@@ -176,6 +176,16 @@ namespace ETMS.Entity.Dto.Student.Output
         public bool IsBindingFaceKey { get; set; }
 
         /// <summary>
+        /// 是否排课 <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsClassSchedule { get; set; }
+
+        /// <summary>
+        /// 是否加入班级  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsJoinClass { get; set; }
+
+        /// <summary>
         /// 人脸图片
         /// </summary>
         public string FaceKeyUrl { get; set; }

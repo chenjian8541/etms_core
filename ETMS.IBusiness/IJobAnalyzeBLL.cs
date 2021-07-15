@@ -26,5 +26,6 @@ namespace ETMS.IBusiness
         Task SyncParentStudentsConsumerEvent(SyncParentStudentsEvent request);
 
         Task SyncStudentAccountRechargeLogPhoneConsumerEvent(SyncStudentAccountRechargeLogPhoneEvent request);
+        Task<Tuple<IEnumerable<OnlyId>, int>> GetStudent(int pageSize, int pageCurrent);
     }
 }

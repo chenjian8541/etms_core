@@ -380,5 +380,22 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteObject<EtStudent>(sql);
             return obj.FirstOrDefault();
         }
+
+        public async Task UpdateStudentClassInfo(long studentId)
+        {
+            var objClassSchedule = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND StudentIdsClass LIKE '%,{studentId},%'");
+            var objJoinClass = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0  FROM EtClassStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId}");
+            var isClassSchedule = EmBool.False;
+            var isJoinClass = EmBool.False;
+            if (objClassSchedule != null)
+            {
+                isClassSchedule = EmBool.True;
+            }
+            if (objJoinClass != null)
+            {
+                isJoinClass = EmBool.True;
+            }
+            await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {isClassSchedule} , IsJoinClass = {isJoinClass} WHERE Id = {studentId}");
+        }
     }
 }

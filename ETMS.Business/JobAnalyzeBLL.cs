@@ -291,5 +291,10 @@ namespace ETMS.Business
         {
             await _studentAccountRechargeLogDAL.UpdateStudentAccountRechargeLogPhone(request.StudentAccountRechargeId, request.NewPhone);
         }
+
+        public async Task<Tuple<IEnumerable<OnlyId>, int>> GetStudent(int pageSize, int pageCurrent)
+        {
+            return await _jobAnalyzeDAL.GetStudent(pageSize, pageCurrent);
+        }
     }
 }

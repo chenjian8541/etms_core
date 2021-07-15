@@ -85,7 +85,10 @@ namespace ETMS.Business
                         }
                         else
                         {
-                            log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                            if (log.ClassDesc.Length <= 500)
+                            {
+                                log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                            }
                         }
                         tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
                         {
@@ -129,7 +132,10 @@ namespace ETMS.Business
                         }
                         else
                         {
-                            log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                            if (log.ClassDesc.Length <= 500)
+                            {
+                                log.ClassDesc = $"{log.ClassDesc},{classDesc}";
+                            }
                         }
                         tempTempStudentNeedCheckClassList.Add(new EtTempStudentNeedCheckClass()
                         {

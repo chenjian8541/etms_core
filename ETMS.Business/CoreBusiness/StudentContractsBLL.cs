@@ -601,6 +601,10 @@ namespace ETMS.Business
                             StudentId = student.StudentId,
                             TenantId = request.TenantId
                         });
+                        _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.TenantId)
+                        {
+                            StudentId = student.StudentId
+                        });
                     }
                 }
             }

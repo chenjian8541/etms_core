@@ -382,6 +382,7 @@ namespace ETMS.Business
             {
                 await _classDAL.DelClass(request.CId);
             }
+            this.AnalyzeClassStudent(etClassBucket);
             await _userOperationLogDAL.AddUserLog(request, $"删除班级-{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new DelOutput(true));
         }
@@ -536,6 +537,10 @@ namespace ETMS.Business
                     StudentId = studenInfo.Value,
                     TenantId = request.LoginTenantId
                 });
+                _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+                {
+                    StudentId = studenInfo.Value
+                });
             }
             if (classStudents.Count == 0)
             {
@@ -556,6 +561,10 @@ namespace ETMS.Business
             }
             await _classDAL.DelClassStudent(request.ClassId, request.CId);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
+            _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+            {
+                StudentId = request.CId
+            });
             await _userOperationLogDAL.AddUserLog(request, $"班级移出学员-班级[{etClassBucket.EtClass.Name}]移出班级学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -638,6 +647,21 @@ namespace ETMS.Business
             else
             {
                 return ResponseBase.BusyError();
+            }
+        }
+
+        private void AnalyzeClassStudent(ClassBucket classBucket)
+        {
+            if (classBucket == null || classBucket.EtClassStudents == null || classBucket.EtClassStudents.Count == 0)
+            {
+                return;
+            }
+            foreach (var myStudent in classBucket.EtClassStudents)
+            {
+                _eventPublisher.Publish(new SyncStudentClassInfoEvent(myStudent.TenantId)
+                {
+                    StudentId = myStudent.StudentId
+                });
             }
         }
 
@@ -985,6 +1009,7 @@ namespace ETMS.Business
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            this.AnalyzeClassStudent(etClassBucket);
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
@@ -1225,6 +1250,7 @@ namespace ETMS.Business
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            this.AnalyzeClassStudent(etClassBucket);
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
@@ -1418,6 +1444,7 @@ namespace ETMS.Business
             //更新班级&日志
             await _classDAL.UpdateClassPlanTimes(request.ClassId, EmClassScheduleStatus.Scheduled);
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            this.AnalyzeClassStudent(etClassBucket);
 
             await _userOperationLogDAL.AddUserLog(request, $"快速排课-班级[{etClassBucket.EtClass.Name}]排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleAddOutput() { IsLimit = false });
@@ -1431,6 +1458,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             await _classDAL.DelClassTimesRule(request.ClassId, request.RuleId);
+            this.AnalyzeClassStudent(etClassBucket);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除排课-删除班级[{etClassBucket.EtClass.Name}]的排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
@@ -1596,6 +1625,10 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId
             });
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.NewClassId));
+            _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+            {
+                StudentId = request.StudentId
+            });
 
             await _userOperationLogDAL.AddUserLog(request, $"调至其他班-将学员[{studentBucket.Student.Name}]从班级[{oldClass.EtClass.Name}]调至[{newClass.EtClass.Name}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
@@ -1654,6 +1687,10 @@ namespace ETMS.Business
                 }
                 _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, placementInfo.ClassId));
             }
+            _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+            {
+                StudentId = request.StudentId
+            });
 
             await _userOperationLogDAL.AddUserLog(request, $"选班调班-学员名称[{studentBucket.Student.Name}],手机号码[{studentBucket.Student.Phone}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();

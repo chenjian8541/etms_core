@@ -103,5 +103,12 @@
     "Title": "定时统计机构数据",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "AnalyzeStudentJob",
+    "Cron": "0 0 4 * * ?", //每天凌晨4点执行
+    "Title": "定时分析学员信息",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

@@ -246,5 +246,10 @@ namespace ETMS.Business.EventConsumer
                 }
             }
         }
+
+        public async Task SyncStudentClassInfoConsumerEvent(SyncStudentClassInfoEvent request)
+        {
+            await _studentDAL.UpdateStudentClassInfo(request.StudentId);
+        }
     }
 }

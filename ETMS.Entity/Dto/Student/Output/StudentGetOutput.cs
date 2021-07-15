@@ -180,6 +180,16 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public string FaceKeyUrl { get; set; }
 
+        /// <summary>
+        /// 是否排课 <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsClassSchedule { get; set; }
+
+        /// <summary>
+        /// 是否加入班级  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsJoinClass { get; set; }
+
         public List<StudentExtendItemOutput> StudentExtendItems { get; set; }
     }
 }

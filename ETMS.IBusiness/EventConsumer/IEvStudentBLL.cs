@@ -11,5 +11,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request);
 
         Task StudentAutoMarkGraduationConsumerEvent(StudentAutoMarkGraduationEvent request);
+
+        Task SyncStudentClassInfoConsumerEvent(SyncStudentClassInfoEvent request);
     }
 }

@@ -88,7 +88,7 @@ namespace ETMS.Utility
             var s = times.Hours + times.Minutes / 60.0;
             return s.ToString("F2");
         }
-        public static string GetMuIds(IEnumerable<long> ids, int limitTotalCount = 100)
+        public static string GetMuIds(IEnumerable<long> ids, int limitTotalCount = 200)
         {
             if (ids == null || !ids.Any())
             {
@@ -98,7 +98,7 @@ namespace ETMS.Utility
             {
                 if (ids.Count() > limitTotalCount)
                 {
-                    ids = ids.Take(100);
+                    ids = ids.Take(200);
                 }
             }
             return $",{string.Join(',', ids)},";

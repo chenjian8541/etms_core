@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
@@ -138,6 +139,21 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public int? BirthdayMonth { get; set; }
 
+        /// <summary>
+        /// 是否排课 <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte? IsClassSchedule { get; set; }
+
+        /// <summary>
+        /// 是否加入班级  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte? IsJoinClass { get; set; }
+
+        /// <summary>
+        /// 是否采集人脸
+        /// </summary>
+        public byte? IsHasFaceKey { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -250,6 +266,25 @@ namespace ETMS.Entity.Dto.Student.Request
             if (BirthdayMonth != null)
             {
                 condition.Append($" AND BirthdayMonth = {BirthdayMonth}");
+            }
+            if (IsClassSchedule != null)
+            {
+                condition.Append($" AND IsClassSchedule = {IsClassSchedule.Value}");
+            }
+            if (IsJoinClass != null)
+            {
+                condition.Append($" AND IsJoinClass = {IsJoinClass.Value}");
+            }
+            if (IsHasFaceKey != null)
+            {
+                if (IsHasFaceKey.Value == EmBool.True)
+                {
+                    condition.Append(" AND FaceKey <> ''");
+                }
+                else
+                {
+                    condition.Append(" AND (FaceKey = '' OR FaceKey IS NULL)");
+                }
             }
             return condition.ToString();
         }

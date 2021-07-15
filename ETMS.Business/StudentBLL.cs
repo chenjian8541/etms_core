@@ -501,6 +501,8 @@ namespace ETMS.Business
                 OtDesc = student.Ot.EtmsToDateString(),
                 IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
                 IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                IsClassSchedule = student.IsClassSchedule,
+                IsJoinClass = student.IsJoinClass,
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
@@ -631,6 +633,8 @@ namespace ETMS.Business
                 Value = student.Id,
                 IsBindingCard = !string.IsNullOrEmpty(student.CardNo),
                 IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
+                IsClassSchedule = student.IsClassSchedule,
+                IsJoinClass = student.IsJoinClass,
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
             })));
         }

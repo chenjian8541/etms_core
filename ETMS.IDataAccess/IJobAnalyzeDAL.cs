@@ -36,5 +36,7 @@ namespace ETMS.IDataAccess
         Task<EtClassRecord> GetClassRecord(long id);
 
         Task<List<EtClassRecordStudent>> GetClassRecordStudent(long classRecordId);
+
+        Task<Tuple<IEnumerable<OnlyId>, int>> GetStudent(int pageSize, int pageCurrent);
     }
 }
