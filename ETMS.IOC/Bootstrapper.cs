@@ -18,10 +18,28 @@ namespace ETMS.IOC
         {
             var builder = new ContainerBuilder();
             builder.Initialize();
+            contractProcess?.Invoke(builder);
             var container = builder.Build();
             var provider = new AutofacServiceProvider(container);
             CustomServiceLocator.InitCustomServiceLocator(provider);
-            contractProcess?.Invoke(builder);
+            return provider;
+        }
+
+        /// <summary>
+        /// 依赖注入程序入口
+        /// </summary>
+        /// <param name="befalutProcess"></param>
+        /// <param name="afterProcess"></param>
+        /// <returns></returns>
+        public static IServiceProvider Bootstrap2(Action<ContainerBuilder> befalutProcess, Action<ContainerBuilder> afterProcess)
+        {
+            var builder = new ContainerBuilder();
+            builder.Initialize();
+            befalutProcess.Invoke(builder);
+            var container = builder.Build();
+            var provider = new AutofacServiceProvider(container);
+            CustomServiceLocator.InitCustomServiceLocator(provider);
+            afterProcess.Invoke(builder);
             return provider;
         }
 

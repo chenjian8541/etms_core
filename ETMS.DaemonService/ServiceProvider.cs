@@ -42,9 +42,11 @@ namespace ETMS.DaemonService
         public static void Process()
         {
             AppSettings appSettings = null;
-            Bootstrapper.Bootstrap(p =>
+            Bootstrapper.Bootstrap2(p =>
             {
                 appSettings = InitCustomIoc(p);
+            }, p =>
+            {
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitSenparcWeixin(appSettings);
             });
