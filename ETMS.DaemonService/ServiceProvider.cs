@@ -98,6 +98,8 @@ namespace ETMS.DaemonService
                     var consumerType = consumerSuperClass.GetGenericArguments().Single();
                     var methodInfo = typeof(SubscriptionAdapt2).GetMethod("MassTransitReceiveEndpoint").MakeGenericMethod(new Type[] { consumerType });
                     methodInfo.Invoke(subscriptionAdapt, new object[] { consumerQueue });
+                    Log.Info($"[服务]RabbitMq订阅消息{consumerQueue}...", typeof(ServiceProvider));
+                    Console.WriteLine($"[服务]RabbitMq订阅消息{consumerQueue}...");
                 }
             }
             subscriptionAdapt.MassTransitStart();

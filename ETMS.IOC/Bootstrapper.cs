@@ -18,10 +18,10 @@ namespace ETMS.IOC
         {
             var builder = new ContainerBuilder();
             builder.Initialize();
-            contractProcess?.Invoke(builder);
             var container = builder.Build();
             var provider = new AutofacServiceProvider(container);
             CustomServiceLocator.InitCustomServiceLocator(provider);
+            contractProcess?.Invoke(builder);
             return provider;
         }
 

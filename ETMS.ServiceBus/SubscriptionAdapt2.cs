@@ -12,7 +12,7 @@ namespace ETMS.ServiceBus
     public class SubscriptionAdapt2
     {
         /// <summary>
-        /// 系统组建是否加载完毕
+        /// 系统组建是否加载完毕    [已废弃此逻辑]
         /// 用于处理rabbitmq消费跑在了autofac注入前面，导致报错
         /// rabbitmq消费时判断系统初始化是否完毕，如果未完毕则等待1分钟执行消费
         /// </summary>
@@ -58,10 +58,10 @@ namespace ETMS.ServiceBus
             {
                 x.Handler<T>(msgBag =>
                 {
-                    if (!IsSystemLoadingFinish)
-                    {
-                        System.Threading.Thread.Sleep(60 * 1000);
-                    }
+                    //if (!IsSystemLoadingFinish)
+                    //{
+                    //    System.Threading.Thread.Sleep(600 * 1000);
+                    //}
                     return CustomServiceLocator.GetInstance<IEventConsumer<T>>().Consume(msgBag.Message);
                 });
             });

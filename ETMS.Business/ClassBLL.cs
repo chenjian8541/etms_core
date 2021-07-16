@@ -565,10 +565,19 @@ namespace ETMS.Business
             }
             await _classDAL.DelClassStudent(request.ClassId, request.CId);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
-            _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+
+            if (etClassBucket.EtClassStudents != null && etClassBucket.EtClassStudents.Any())
             {
-                StudentId = request.CId
-            });
+                var myStudentLog = etClassBucket.EtClassStudents.FirstOrDefault(p => p.Id == request.CId);
+                if (myStudentLog != null)
+                {
+                    _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
+                    {
+                        StudentId = myStudentLog.StudentId
+                    });
+                }
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"班级移出学员-班级[{etClassBucket.EtClass.Name}]移出班级学员", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
