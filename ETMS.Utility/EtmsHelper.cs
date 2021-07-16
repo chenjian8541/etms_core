@@ -98,7 +98,7 @@ namespace ETMS.Utility
             {
                 if (ids.Count() > limitTotalCount)
                 {
-                    ids = ids.Take(200);
+                    ids = ids.Take(limitTotalCount);
                 }
             }
             return $",{string.Join(',', ids)},";

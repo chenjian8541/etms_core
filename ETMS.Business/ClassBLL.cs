@@ -512,6 +512,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("班级不存在");
             }
+            if (etClassBucket.EtClassStudents != null && (etClassBucket.EtClassStudents.Count + request.StudentIds.Count) > 200)
+            {
+                return ResponseBase.CommonError("一个班级学员的数量不能超过200人");
+            }
             if (etClassBucket.EtClass.CourseList.Split(',').FirstOrDefault(p => p == request.CourseId.ToString()) == null)
             {
                 return ResponseBase.CommonError("请选择班级所关联的课程");

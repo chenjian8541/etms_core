@@ -48,7 +48,7 @@ namespace ETMS.ServiceBus
                     h.Password(password);
                 });
                 sbc.PrefetchCount = prefetchCount;
-                sbc.ConcurrentMessageLimit = 5;
+                //sbc.ConcurrentMessageLimit = 5; 
             });
         }
 
