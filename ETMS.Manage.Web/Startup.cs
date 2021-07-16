@@ -60,8 +60,8 @@ namespace ETMS.Manage.Web
         private void InitRabbitMq(ContainerBuilder container)
         {
             var config = Configuration.GetSection("AppSettings").Get<AppSettings>().RabbitMqConfig;
-            var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
-            var publisher = new EventPublisher(busControl);
+            new SubscriptionAdapt2().MassTransitInitAndStart(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
+            var publisher = new EventPublisher();
             container.RegisterInstance(publisher).As<IEventPublisher>();
         }
 

@@ -48,7 +48,7 @@ namespace ETMS.DaemonService
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitSenparcWeixin(appSettings);
             });
-            SubscriptionAdapt.IsSystemLoadingFinish = true;
+            SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]处理服务业务成功...");
         }
@@ -80,7 +80,8 @@ namespace ETMS.DaemonService
         /// <param name="config"></param>
         private static void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
         {
-            var subscriptionAdapt = new SubscriptionAdapt();
+            var subscriptionAdapt = new SubscriptionAdapt2();
+            subscriptionAdapt.MassTransitInit(config.Host, config.UserName, config.Password, config.Vhost, config.PrefetchCount);
             var consumers = Assembly.Load("ETMS.EventConsumer").GetTypes();
             foreach (var consumer in consumers)
             {
@@ -95,12 +96,13 @@ namespace ETMS.DaemonService
                     }
                     container.RegisterType(consumer).As(consumerSuperClass);
                     var consumerType = consumerSuperClass.GetGenericArguments().Single();
-                    var methodInfo = typeof(SubscriptionAdapt).GetMethod("SubscribeAt").MakeGenericMethod(new Type[] { consumerType });
-                    var busControl = (IBusControl)methodInfo.Invoke(subscriptionAdapt, new object[] { config.Host, consumerQueue, config.UserName, config.Password, config.Vhost, config.PrefetchCount });
-                    var publisher = new EventPublisher(busControl);
-                    container.RegisterInstance(publisher).As<IEventPublisher>();
+                    var methodInfo = typeof(SubscriptionAdapt2).GetMethod("MassTransitReceiveEndpoint").MakeGenericMethod(new Type[] { consumerType });
+                    methodInfo.Invoke(subscriptionAdapt, new object[] { consumerQueue });
                 }
             }
+            subscriptionAdapt.MassTransitStart();
+            var publisher = new EventPublisher();
+            container.RegisterInstance(publisher).As<IEventPublisher>();
             Log.Info("[服务]RabbitMq订阅成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]RabbitMq订阅成功");
         }

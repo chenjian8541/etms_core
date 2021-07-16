@@ -88,8 +88,8 @@ namespace Etms.Agent.WebApi
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
         {
-            var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
-            var publisher = new EventPublisher(busControl);
+            new SubscriptionAdapt2().MassTransitInitAndStart(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
+            var publisher = new EventPublisher();
             container.RegisterInstance(publisher).As<IEventPublisher>();
         }
 

@@ -49,15 +49,15 @@ namespace Etms.Tools.Test
                 appSettings = InitCustomIoc(p);
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
             });
-            SubscriptionAdapt.IsSystemLoadingFinish = true;
+            SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]处理服务业务成功...");
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
         {
-            var busControl = new SubscriptionAdapt().PublishAt(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
-            var publisher = new EventPublisher(busControl);
+            new SubscriptionAdapt2().MassTransitInitAndStart(config.Host, "EtmsConsumerQueue", config.UserName, config.Password, config.Vhost, config.PrefetchCount);
+            var publisher = new EventPublisher();
             container.RegisterInstance(publisher).As<IEventPublisher>();
         }
 
