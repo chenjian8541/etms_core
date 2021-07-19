@@ -80,5 +80,15 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public string TeacherLoginImageUrl { get; set; }
 
         public string RecommendDesImgUrl { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(开始时间)
+        /// </summary>
+        public string StudentCheckInLimitTimeStart { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(结束时间)
+        /// </summary>
+        public string StudentCheckInLimitTimeEnd { get; set; }
     }
 }

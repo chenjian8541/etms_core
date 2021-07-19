@@ -167,19 +167,19 @@ namespace ETMS.Business.Common
                 switch (cell.CellType)
                 {
                     case CellType.String:
-                        return cell.StringCellValue;
+                        return cell.StringCellValue.Trim();
                     case CellType.Numeric:
                         short format = cell.CellStyle.DataFormat;
                         if (format != 0)
                         {
-                            return cell.DateCellValue.ToString();
+                            return cell.DateCellValue.ToString().Trim();
                         }
                         else
                         {
-                            return cell.NumericCellValue.ToString();
+                            return cell.NumericCellValue.ToString().Trim();
                         }
                     case CellType.Boolean:
-                        return cell.BooleanCellValue.ToString();
+                        return cell.BooleanCellValue.ToString().Trim();
                     default:
                         return string.Empty;
                 }

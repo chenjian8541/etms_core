@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ETMS.Entity.Enum;
 
 namespace ETMS.Entity.Dto.BasicData.Request
 {
@@ -51,6 +52,42 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 是否展示快捷刷卡
         /// </summary>
         public byte IsShowQuickCardCheck { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制  <see cref="EmStudentCheckInLimitTimeType"/>
+        /// </summary>
+        public byte StudentCheckInLimitTimeType { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(开始时间)
+        /// </summary>
+        public int StudentCheckInLimitTimeStart { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(结束时间)
+        /// </summary>
+        public int StudentCheckInLimitTimeEnd { get; set; }
+
+        /// <summary>
+        /// 记上课类型 <see cref="EmAttendanceRelationClassTimesType"/>
+        /// </summary>
+        public byte RelationClassTimesCardType { get; set; }
+
+        /// <summary>
+        /// 每天限制记上课次数
+        /// </summary>
+        public byte RelationClassTimesCardType1DayLimitValue { get; set; }
+
+        /// <summary>
+        /// 记上课类型 <see cref="EmAttendanceRelationClassTimesType"/>
+        /// </summary>
+        public byte RelationClassTimesFaceType { get; set; }
+
+        /// <summary>
+        /// 每天限制记上课次数
+        /// </summary>
+        public byte RelationClassTimesFaceType1DayLimitValue { get; set; }
+
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)

@@ -84,6 +84,8 @@ namespace ETMS.Business
             {
                 output.OtherOutput.RecommendDesImgUrl = UrlHelper.GetUrl(config.StudentRecommendConfig.RecommendDesImg);
             }
+            output.OtherOutput.StudentCheckInLimitTimeStart = EtmsHelper.GetTimeDesc(config.StudentCheckInConfig.StudentCheckInLimitTimeStart);
+            output.OtherOutput.StudentCheckInLimitTimeEnd = EtmsHelper.GetTimeDesc(config.StudentCheckInConfig.StudentCheckInLimitTimeEnd);
             return ResponseBase.Success(output);
         }
 
@@ -350,6 +352,24 @@ namespace ETMS.Business
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsMustCheckOutFace = request.IsMustCheckOutFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsRelationClassTimesFace = request.IsRelationClassTimesFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesLimitMinuteFace = request.RelationClassTimesLimitMinuteFace;
+
+            config.StudentCheckInConfig.StudentCheckInLimitTimeType = request.StudentCheckInLimitTimeType;
+            if (request.StudentCheckInLimitTimeType == EmStudentCheckInLimitTimeType.Time)
+            {
+                config.StudentCheckInConfig.StudentCheckInLimitTimeStart = request.StudentCheckInLimitTimeStart;
+                config.StudentCheckInConfig.StudentCheckInLimitTimeEnd = request.StudentCheckInLimitTimeEnd;
+            }
+
+            if (request.IsRelationClassTimesCard == EmBool.True)
+            {
+                config.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType = request.RelationClassTimesCardType;
+                config.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType1DayLimitValue = request.RelationClassTimesCardType1DayLimitValue;
+            }
+            if (request.IsRelationClassTimesFace == EmBool.True)
+            {
+                config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType = request.RelationClassTimesFaceType;
+                config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType1DayLimitValue = request.RelationClassTimesFaceType1DayLimitValue;
+            }
 
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "考勤设置", EmUserOperationType.SystemConfigModify);

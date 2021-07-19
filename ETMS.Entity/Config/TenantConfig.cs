@@ -153,6 +153,21 @@ namespace ETMS.Entity.Config
             StudentUseFaceCheckIn = new StudentUseFaceCheckIn();
         }
 
+        /// <summary>
+        /// 考勤时间限制  <see cref="EmStudentCheckInLimitTimeType"/>
+        /// </summary>
+        public byte StudentCheckInLimitTimeType { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(开始时间)
+        /// </summary>
+        public int StudentCheckInLimitTimeStart { get; set; }
+
+        /// <summary>
+        /// 考勤时间限制(结束时间)
+        /// </summary>
+        public int StudentCheckInLimitTimeEnd { get; set; }
+
         public StudentUseCardCheckIn StudentUseCardCheckIn { get; set; }
 
         public StudentUseFaceCheckIn StudentUseFaceCheckIn { get; set; }
@@ -182,6 +197,16 @@ namespace ETMS.Entity.Config
         public int RelationClassTimesLimitMinuteCard { get; set; } = 10;
 
         /// <summary>
+        /// 记上课类型 <see cref="EmAttendanceRelationClassTimesType"/>
+        /// </summary>
+        public byte RelationClassTimesCardType { get; set; }
+
+        /// <summary>
+        /// 每天限制记上课次数
+        /// </summary>
+        public byte RelationClassTimesCardType1DayLimitValue { get; set; }
+
+        /// <summary>
         /// 是否展示快捷刷卡
         /// </summary>
         public byte IsShowQuickCardCheck { get; set; }
@@ -208,6 +233,16 @@ namespace ETMS.Entity.Config
         /// 关联的上课课次时间不超过的分钟数
         /// </summary>
         public int RelationClassTimesLimitMinuteFace { get; set; } = 10;
+
+        /// <summary>
+        /// 记上课类型 <see cref="EmAttendanceRelationClassTimesType"/>
+        /// </summary>
+        public byte RelationClassTimesFaceType { get; set; }
+
+        /// <summary>
+        /// 每天限制记上课次数
+        /// </summary>
+        public byte RelationClassTimesFaceType1DayLimitValue { get; set; }
     }
 
     public class UserNoticeConfig
