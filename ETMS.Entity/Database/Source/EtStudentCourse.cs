@@ -100,5 +100,10 @@ namespace ETMS.Entity.Database.Source
         /// 学员课时不足续费提醒（最后提醒时间）
         /// </summary>
         public DateTime? NotEnoughRemindLastTime { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte StudentCheckDefault { get; set; }
     }
 }

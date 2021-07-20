@@ -410,5 +410,11 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> TenantConfigGetSimple(RequestBase request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            return ResponseBase.Success(ComBusiness3.GetTenantConfigGetSimple(config));
+        }
     }
 }

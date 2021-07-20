@@ -21,6 +21,11 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public string CheckPoints { get; set; }
 
+        /// <summary>
+        /// 考勤扣的课时
+        /// </summary>
+        public decimal StudentCheckDeClassTimes { get; set; }
+
         public CoursePriceRule CoursePriceRules { get; set; }
 
         public override string Validate()

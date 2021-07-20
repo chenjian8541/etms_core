@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using ETMS.Entity.Dto.Product.Output;
 using ETMS.Entity.Dto.User.Output;
 using ETMS.Entity.Config;
+using ETMS.Entity.Dto.BasicData.Output;
 
 namespace ETMS.Business.Common
 {
@@ -250,6 +251,28 @@ namespace ETMS.Business.Common
                         output.IsAllowWebchatLogin = true;
                         break;
                 }
+            }
+            return output;
+        }
+
+        internal static TenantConfigGetSimpleOutput GetTenantConfigGetSimple(TenantConfig config)
+        {
+            var output = new TenantConfigGetSimpleOutput()
+            {
+                IsCanDeDecimal = config.ClassCheckSignConfig.IsCanDeDecimal,
+                IsEnableStudentCheckDeClassTimes = false
+            };
+            var cardCheckIn = config.StudentCheckInConfig.StudentUseCardCheckIn;
+            var faceCheckIn = config.StudentCheckInConfig.StudentUseFaceCheckIn;
+            if (cardCheckIn.IsRelationClassTimesCard == EmBool.True
+                && cardCheckIn.RelationClassTimesCardType == EmAttendanceRelationClassTimesType.GoDeStudentCourse)
+            {
+                output.IsEnableStudentCheckDeClassTimes = true;
+            }
+            if (faceCheckIn.IsRelationClassTimesFace == EmBool.True
+                && faceCheckIn.RelationClassTimesFaceType == EmAttendanceRelationClassTimesType.GoDeStudentCourse)
+            {
+                output.IsEnableStudentCheckDeClassTimes = true;
             }
             return output;
         }

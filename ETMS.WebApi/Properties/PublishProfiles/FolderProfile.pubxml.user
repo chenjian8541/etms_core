@@ -5,6 +5,6 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>E:\培训班\ETMS\etms_core\ETMS.WebApi\bin\Release\net5.0\publish\</_PublishTargetUrl>
-    <History>True|2021-07-16T09:27:19.1509291Z;True|2021-07-16T15:41:41.0122961+08:00;True|2021-07-16T14:50:40.4439444+08:00;True|2021-07-16T14:50:15.9729458+08:00;True|2021-07-16T13:45:58.6582123+08:00;True|2021-07-16T10:39:42.2922739+08:00;True|2021-07-16T10:37:39.4642754+08:00;</History>
+    <History>True|2021-07-19T06:58:41.4047909Z;True|2021-07-16T17:27:19.1509291+08:00;True|2021-07-16T15:41:41.0122961+08:00;True|2021-07-16T14:50:40.4439444+08:00;True|2021-07-16T14:50:15.9729458+08:00;True|2021-07-16T13:45:58.6582123+08:00;True|2021-07-16T10:39:42.2922739+08:00;True|2021-07-16T10:37:39.4642754+08:00;</History>
   </PropertyGroup>
 </Project>

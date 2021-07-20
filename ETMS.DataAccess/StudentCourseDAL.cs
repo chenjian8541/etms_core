@@ -327,5 +327,11 @@ namespace ETMS.DataAccess
             await this._dbWrapper.Execute($"UPDATE EtStudentCourse SET NotEnoughRemindCount = -1 WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId}");
             await UpdateCache(_tenantId, studentId);
         }
+
+        public async Task StudentCourseSetCheckDefault(long studentId, long courseId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudentCourse SET StudentCheckDefault = {EmBool.False} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND CourseId <> {courseId} ;");
+            await _dbWrapper.Execute($"UPDATE EtStudentCourse SET StudentCheckDefault = {EmBool.True} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND CourseId = {courseId} ;");
+        }
     }
 }

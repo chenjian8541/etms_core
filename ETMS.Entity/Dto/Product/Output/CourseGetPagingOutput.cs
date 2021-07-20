@@ -33,6 +33,11 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public string Label { get; set; }
 
+        /// <summary>
+        /// 考勤扣的课时
+        /// </summary>
+        public decimal StudentCheckDeClassTimes { get; set; }
+
         public int CheckPoints { get; set; }
     }
 

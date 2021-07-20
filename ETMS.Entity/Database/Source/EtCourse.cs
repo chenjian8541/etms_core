@@ -60,5 +60,10 @@ namespace ETMS.Entity.Database.Source
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        /// <summary>
+        /// 考勤扣课时
+        /// </summary>
+        public decimal StudentCheckDeClassTimes { get; set; } = 1;
     }
 }

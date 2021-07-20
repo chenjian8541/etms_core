@@ -16,6 +16,11 @@ namespace ETMS.Entity.Dto.Product.Output
         /// </summary>
         public byte Type { get; set; }
 
+        /// <summary>
+        /// 考勤扣的课时
+        /// </summary>
+        public decimal StudentCheckDeClassTimes { get; set; }
+
         public string StyleColor { get; set; }
 
         public string Remark { get; set; }

@@ -1016,5 +1016,13 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "取消学员课程不足续费预警", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> StudentCourseSetCheckDefault(StudentCourseSetCheckDefaultRequest request)
+        {
+            await _studentCourseDAL.StudentCourseSetCheckDefault(request.StudentId, request.CourseId);
+
+            await _userOperationLogDAL.AddUserLog(request, "设置学员考勤记上课课程", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
     }
 }

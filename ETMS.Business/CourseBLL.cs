@@ -27,17 +27,28 @@ namespace ETMS.Business
 
         private readonly ISuitDAL _suitDAL;
 
-        public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL, ISuitDAL suitDAL)
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
+        public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL, ISuitDAL suitDAL,
+            ITenantConfigDAL tenantConfigDAL)
         {
             this._courseDAL = courseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._orderDAL = orderDAL;
             this._suitDAL = suitDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _courseDAL, _userOperationLogDAL, _orderDAL, _suitDAL);
+            this.InitDataAccess(tenantId, _courseDAL, _userOperationLogDAL, _orderDAL, _suitDAL, _tenantConfigDAL);
+        }
+
+        private async Task<bool> IsEnableStudentCheckDeClassTimes()
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            var tenantConfigGetSimple = ComBusiness3.GetTenantConfigGetSimple(config);
+            return tenantConfigGetSimple.IsEnableStudentCheckDeClassTimes;
         }
 
         public async Task<ResponseBase> CourseAdd(CourseAddRequest request)
@@ -46,6 +57,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("已存在相同名称的课程");
             }
+            var isEnableStudentCheckDeClassTimes = await IsEnableStudentCheckDeClassTimes();
+            if (isEnableStudentCheckDeClassTimes && request.StudentCheckDeClassTimes <= 0)
+            {
+                return ResponseBase.CommonError("考勤扣课时必须大于0");
+            }
+
             var coursePriceRuleInfo = GetCoursePriceRule(request.CoursePriceRules, 0, request.LoginTenantId);
             var course = new EtCourse()
             {
@@ -62,6 +79,10 @@ namespace ETMS.Business
                 CheckPoints = request.CheckPoints.EtmsToPoints(),
                 PriceTypeDesc = coursePriceRuleInfo.Item3
             };
+            if (isEnableStudentCheckDeClassTimes)
+            {
+                course.StudentCheckDeClassTimes = request.StudentCheckDeClassTimes;
+            }
             await _courseDAL.AddCourse(course, coursePriceRuleInfo.Item1);
             await _userOperationLogDAL.AddUserLog(request, $"添加课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
@@ -156,12 +177,21 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("已存在相同名称的课程");
             }
+            var isEnableStudentCheckDeClassTimes = await IsEnableStudentCheckDeClassTimes();
+            if (isEnableStudentCheckDeClassTimes && request.StudentCheckDeClassTimes <= 0)
+            {
+                return ResponseBase.CommonError("考勤扣课时必须大于0");
+            }
+
             var course = courseInfo.Item1;
             course.Name = request.Name;
             course.Remark = request.Remark;
             course.StyleColor = request.StyleColor;
             course.CheckPoints = request.CheckPoints.EtmsToPoints();
-            //course.Type = request.Type;
+            if (isEnableStudentCheckDeClassTimes)
+            {
+                course.StudentCheckDeClassTimes = request.StudentCheckDeClassTimes;
+            }
             var coursePriceRuleInfo = GetCoursePriceRule(request.CoursePriceRules, course.Id, course.TenantId);
             course.PriceType = coursePriceRuleInfo.Item2;
             course.PriceTypeDesc = coursePriceRuleInfo.Item3;
@@ -187,6 +217,7 @@ namespace ETMS.Business
                 StyleColor = course.StyleColor,
                 Type = course.Type,
                 Status = course.Status,
+                StudentCheckDeClassTimes = course.StudentCheckDeClassTimes,
                 CheckPoints = course.CheckPoints,
                 CoursePriceRules = new CoursePriceRuleOutput()
                 {
@@ -362,7 +393,8 @@ namespace ETMS.Business
                     PriceRuleDescs = ComBusiness3.GetPriceRuleDescs(priceRules),
                     Label = p.Name,
                     Value = p.Id,
-                    CheckPoints = p.CheckPoints
+                    CheckPoints = p.CheckPoints,
+                    StudentCheckDeClassTimes = p.StudentCheckDeClassTimes
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CourseGetPagingOutput>(pagingData.Item2, courseGetPagingOutput));
@@ -406,7 +438,8 @@ namespace ETMS.Business
                 PriceRuleDescs = ComBusiness3.GetPriceRuleDescs(priceRules),
                 Label = p.Name,
                 Value = p.Id,
-                CheckPoints = p.CheckPoints
+                CheckPoints = p.CheckPoints,
+                StudentCheckDeClassTimes = p.StudentCheckDeClassTimes
             });
         }
     }

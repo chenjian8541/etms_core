@@ -55,5 +55,7 @@ namespace ETMS.IBusiness
         ResponseBase StudentCourseNotEnoughRemind(StudentCourseNotEnoughRemindRequest request);
 
         Task<ResponseBase> StudentCourseNotEnoughRemindCancel(StudentCourseNotEnoughRemindCancelRequest request);
+
+        Task<ResponseBase> StudentCourseSetCheckDefault(StudentCourseSetCheckDefaultRequest request);
     }
 }
