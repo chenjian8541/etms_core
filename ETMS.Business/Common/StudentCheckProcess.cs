@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Enum;
@@ -92,6 +93,16 @@ namespace ETMS.Business.Common
             });
         }
 
+        /// <summary>
+        /// 考勤记上课(需要排课)
+        /// </summary>
+        /// <param name="checkType"></param>
+        /// <param name="deStudentClassTimesResult"></param>
+        /// <param name="p"></param>
+        /// <param name="deCourseId"></param>
+        /// <param name="points"></param>
+        /// <param name="remark"></param>
+        /// <returns></returns>
         private async Task<long> AddDeStudentCheckOnLog(byte checkType, DeStudentClassTimesResult deStudentClassTimesResult,
             EtClassTimes p, long deCourseId, int points, string remark = "")
         {
@@ -122,6 +133,226 @@ namespace ETMS.Business.Common
                 DeSum = deStudentClassTimesResult.DeSum,
                 Points = points
             });
+        }
+
+        /// <summary>
+        /// 考勤直接扣课时
+        /// </summary>
+        /// <param name="checkType"></param>
+        /// <param name="deStudentClassTimesResult"></param>
+        /// <param name="deCourseId"></param>
+        /// <param name="points"></param>
+        /// <param name="remark"></param>
+        /// <returns></returns>
+        private async Task<long> AddDeStudentCheckOnLog(byte checkType, DeStudentClassTimesResult deStudentClassTimesResult,
+            long deCourseId, int points, string remark = "")
+        {
+            var deClassTimes = 0M;
+            if (deStudentClassTimesResult.DeType == EmDeClassTimesType.ClassTimes)
+            {
+                deClassTimes = deStudentClassTimesResult.DeClassTimes;
+            }
+            return await _studentCheckOnLogDAL.AddStudentCheckOnLog(new EtStudentCheckOnLog()
+            {
+                StudentId = _request.Student.Id,
+                CheckForm = _request.CheckForm,
+                CheckOt = _request.CheckOt,
+                CheckType = checkType,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = remark,
+                Status = EmStudentCheckOnLogStatus.NormalAttendClass,
+                TenantId = _request.Student.TenantId,
+                CheckMedium = _request.CheckMedium,
+                DeType = deStudentClassTimesResult.DeType,
+                ClassOtDesc = "",
+                ClassId = null,
+                ClassTimesId = null,
+                CourseId = deCourseId,
+                DeClassTimes = deClassTimes,
+                DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId,
+                ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes,
+                DeSum = deStudentClassTimesResult.DeSum,
+                Points = points
+            });
+        }
+
+        /// <summary>
+        /// 关联记上课
+        /// </summary>
+        /// <returns></returns>
+        private async Task<StudentBeginClassRelationClassTimesOutput> StudentBeginClassRelationClassTimes(byte checkType)
+        {
+            var output = new StudentBeginClassRelationClassTimesOutput();
+            var myClassTimesList = await _classTimesDAL.GetStudentCheckOnAttendClass(_request.CheckOt, _request.Student.Id, _request.RelationClassTimesLimitMinute);
+            var myClassTimesCount = myClassTimesList.Count();
+            if (myClassTimesCount > 0)
+            {
+                //排除已记上课的课次
+                var myDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimesList.Select(p => p.Id).ToList(), _request.Student.Id);
+                if (myDeLog.Any())
+                {
+                    var myDeLogIds = myDeLog.Select(j => j.ClassTimesId).ToList();
+                    myClassTimesList = myClassTimesList.Where(p => !myDeLogIds.Exists(j => j == p.Id)).ToList();
+                    myClassTimesCount = myClassTimesList.Count();
+                }
+            }
+            if (myClassTimesCount == 0)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到匹配的课次");
+            }
+            else
+            {
+
+                if (myClassTimesCount > 1)
+                {
+                    //返回课次给前端，选择上课的课次
+                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "查询到多个匹配的课次");
+                    var tempBoxClass = new DataTempBox<EtClass>();
+                    var tempBoxUser = new DataTempBox<EtUser>();
+                    var tempBoxCourse = new DataTempBox<EtCourse>();
+                    output.NeedDeClassTimes = new List<StudentNeedDeClassTimes>();
+                    foreach (var p in myClassTimesList)
+                    {
+                        var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                        output.NeedDeClassTimes.Add(new StudentNeedDeClassTimes()
+                        {
+                            ClassName = myClass?.Name,
+                            ClassOtDesc = $"{p.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(p.StartTime)}~{EtmsHelper.GetTimeDesc(p.EndTime)}",
+                            ClassTimesId = p.Id,
+                            CourseName = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, p.CourseList),
+                            TeacherDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers)
+                        });
+                    }
+                }
+                else
+                {
+                    //扣课时
+                    var deResult = await CheckInAndDeClassTimes(myClassTimesList.First(), checkType);
+                    output.StudentCheckOnLogId = deResult.Item1;
+                    output.DeClassTimesDesc = deResult.Item2;
+                }
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// 直接扣课时
+        /// </summary>
+        /// <returns></returns>
+        private async Task<StudentBeginClassGoDeStudentCourseOutput> StudentBeginClassGoDeStudentCourse(byte checkType, int dayLimitValueDeStudentCourse)
+        {
+            if (dayLimitValueDeStudentCourse == 0)
+            {
+                dayLimitValueDeStudentCourse = 1;
+            }
+            var output = new StudentBeginClassGoDeStudentCourseOutput();
+            var attendClassCount = await _studentCheckOnLogDAL.GetStudentOneDayAttendClassCount(_request.Student.Id, _request.CheckOt);
+            if (attendClassCount >= dayLimitValueDeStudentCourse)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, $"已超过每天最多记{dayLimitValueDeStudentCourse}次上课限制");
+                return output;
+            }
+            var myStudentCourse = await _studentCourseDAL.GetStudentCourse(_request.Student.Id);
+            if (myStudentCourse == null || myStudentCourse.Count == 0)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员未购买课程");
+                return output;
+            }
+            var myValidCourse = myStudentCourse.Where(p => p.Status != EmStudentCourseStatus.EndOfClass); //是否存在未结课的课程
+            if (myValidCourse.Count() == 0)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到学员“未结课”的课程");
+                return output;
+            }
+            var courseIds = myValidCourse.Select(p => p.CourseId).Distinct(); //是否有多门课程
+            var deCourseId = 0L;
+            if (courseIds.Count() > 1)
+            {
+                var studentCheckDefaultCourse = myValidCourse.FirstOrDefault(p => p.StudentCheckDefault == EmBool.True);
+                if (studentCheckDefaultCourse != null)
+                {
+                    deCourseId = studentCheckDefaultCourse.CourseId;
+                }
+                else
+                {
+                    var normalCourse = myValidCourse.Where(p => p.Status == EmStudentCourseStatus.Normal); //判断正常的课程
+                    var myNormalCourseIds = normalCourse.Select(p => p.CourseId).Distinct();
+                    if (myNormalCourseIds.Count() == 1)
+                    {
+                        deCourseId = myNormalCourseIds.First();
+                    }
+                }
+            }
+            else
+            {
+                deCourseId = courseIds.First();
+            }
+            if (deCourseId == 0)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未设置学员“考勤记上课课程”");
+                return output;
+            }
+            var myDeCourse = await _courseDAL.GetCourse(deCourseId);
+            if (myDeCourse == null || myDeCourse.Item1 == null)
+            {
+                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员报读课程不存在");
+                return output;
+            }
+            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+            {
+                ClassOt = _request.CheckOt,
+                TenantId = _request.LoginTenantId,
+                StudentId = _request.Student.Id,
+                DeClassTimes = myDeCourse.Item1.StudentCheckDeClassTimes,
+                CourseId = deCourseId
+            });
+            if (myDeCourse.Item1.CheckPoints > 0)
+            {
+                await _studentDAL.AddPoint(_request.Student.Id, myDeCourse.Item1.CheckPoints);
+                await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                {
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = string.Empty,
+                    Ot = _request.CheckOt,
+                    Points = myDeCourse.Item1.CheckPoints,
+                    Remark = string.Empty,
+                    StudentId = _request.Student.Id,
+                    TenantId = _request.LoginTenantId,
+                    Type = EmStudentPointsLogType.StudentCheckOn
+                });
+            }
+            output.StudentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult,
+                       deStudentClassTimesResult.DeCourseId, myDeCourse.Item1.CheckPoints);
+            await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassByStudentId(_request.Student.Id, _request.CheckOt);
+            output.DeClassTimesDesc = "已记上课";
+            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+            {
+                await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                    DeType = deStudentClassTimesResult.DeType,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = deStudentClassTimesResult.OrderId,
+                    OrderNo = deStudentClassTimesResult.OrderNo,
+                    Ot = _request.CheckOt,
+                    SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
+                    StudentId = _request.Student.Id,
+                    TenantId = _request.LoginTenantId,
+                    DeClassTimesSmall = 0
+                });
+                //_eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                //{
+                //    StudentId = _request.Student.Id,
+                //    CourseId = deStudentClassTimesResult.DeCourseId
+                //});
+                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                {
+                    StudentId = _request.Student.Id,
+                    CourseId = deStudentClassTimesResult.DeCourseId
+                });
+            }
+            return output;
         }
 
         private async Task<Tuple<long, string>> CheckInAndDeClassTimes(EtClassTimes myClassTimes, byte checkType)
@@ -214,8 +445,29 @@ namespace ETMS.Business.Common
             return ResponseBase.CommonError("请勿重复考勤");
         }
 
+        private bool StudentCheckInLimit()
+        {
+            if (_request.StudentCheckInConfig.StudentCheckInLimitTimeType == EmStudentCheckInLimitTimeType.Time)
+            {
+                var nowTime = EtmsHelper.GetTimeHourAndMinuteDesc(_request.CheckOt);
+                if (_request.StudentCheckInConfig.StudentCheckInLimitTimeStart > 0 && nowTime < _request.StudentCheckInConfig.StudentCheckInLimitTimeStart)
+                {
+                    return false;
+                }
+                if (_request.StudentCheckInConfig.StudentCheckInLimitTimeEnd > 0 && nowTime > _request.StudentCheckInConfig.StudentCheckInLimitTimeEnd)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public async Task<ResponseBase> CheckStudentInvoke()
         {
+            if (!StudentCheckInLimit())
+            {
+                return ResponseBase.CommonError("此时间段无法考勤");
+            }
             var studentCheckLastTime = _tempDataCacheDAL.GetStudentCheckLastTimeBucket(_request.LoginTenantId, _request.Student.Id);
             if (studentCheckLastTime != null)
             {
@@ -274,54 +526,31 @@ namespace ETMS.Business.Common
             }
             else
             {
-                var myClassTimesList = await _classTimesDAL.GetStudentCheckOnAttendClass(_request.CheckOt, _request.Student.Id, _request.RelationClassTimesLimitMinute);
-                var myClassTimesCount = myClassTimesList.Count();
-                if (myClassTimesCount > 0)
+                var dayLimitValueDeStudentCourse = 1;
+                var relationClassTimesType = EmAttendanceRelationClassTimesType.RelationClassTimes;
+                if (_request.CheckForm == EmStudentCheckOnLogCheckForm.Face)
                 {
-                    //排除已记上课的课次
-                    var myDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimesList.Select(p => p.Id).ToList(), _request.Student.Id);
-                    if (myDeLog.Any())
-                    {
-                        var myDeLogIds = myDeLog.Select(j => j.ClassTimesId).ToList();
-                        myClassTimesList = myClassTimesList.Where(p => !myDeLogIds.Exists(j => j == p.Id)).ToList();
-                        myClassTimesCount = myClassTimesList.Count();
-                    }
-                }
-                if (myClassTimesCount == 0)
-                {
-                    studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到匹配的课次");
+                    dayLimitValueDeStudentCourse = _request.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType1DayLimitValue;
+                    relationClassTimesType = _request.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType;
                 }
                 else
                 {
-
-                    if (myClassTimesCount > 1)
-                    {
-                        //返回课次给前端，选择上课的课次
-                        studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "查询到多个匹配的课次");
-                        var tempBoxClass = new DataTempBox<EtClass>();
-                        var tempBoxUser = new DataTempBox<EtUser>();
-                        var tempBoxCourse = new DataTempBox<EtCourse>();
-                        output.NeedDeClassTimes = new List<StudentNeedDeClassTimes>();
-                        foreach (var p in myClassTimesList)
-                        {
-                            var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
-                            output.NeedDeClassTimes.Add(new StudentNeedDeClassTimes()
-                            {
-                                ClassName = myClass?.Name,
-                                ClassOtDesc = $"{p.ClassOt.EtmsToDateString()} {EtmsHelper.GetTimeDesc(p.StartTime)}~{EtmsHelper.GetTimeDesc(p.EndTime)}",
-                                ClassTimesId = p.Id,
-                                CourseName = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, p.CourseList),
-                                TeacherDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers)
-                            });
-                        }
-                    }
-                    else
-                    {
-                        //扣课时
-                        var deResult = await CheckInAndDeClassTimes(myClassTimesList.First(), checkType);
-                        studentCheckOnLogId = deResult.Item1;
-                        deClassTimesDesc = deResult.Item2;
-                    }
+                    //刷卡、忘记带卡老师手动补签
+                    dayLimitValueDeStudentCourse = _request.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType1DayLimitValue;
+                    relationClassTimesType = _request.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType;
+                }
+                if (relationClassTimesType == EmAttendanceRelationClassTimesType.RelationClassTimes)
+                {
+                    var resultRelationClassTimes = await StudentBeginClassRelationClassTimes(checkType);
+                    studentCheckOnLogId = resultRelationClassTimes.StudentCheckOnLogId;
+                    deClassTimesDesc = resultRelationClassTimes.DeClassTimesDesc;
+                    output.NeedDeClassTimes = resultRelationClassTimes.NeedDeClassTimes;
+                }
+                else
+                {
+                    var resultGoDeStudentCourse = await StudentBeginClassGoDeStudentCourse(checkType, dayLimitValueDeStudentCourse);
+                    studentCheckOnLogId = resultGoDeStudentCourse.StudentCheckOnLogId;
+                    deClassTimesDesc = resultGoDeStudentCourse.DeClassTimesDesc;
                 }
             }
             _eventPublisher.Publish(new NoticeStudentsCheckOnEvent(_request.LoginTenantId)
@@ -358,6 +587,11 @@ namespace ETMS.Business.Common
 
     public class StudentCheckProcessRequest
     {
+        public StudentCheckProcessRequest(StudentCheckInConfig config)
+        {
+            this.StudentCheckInConfig = config;
+        }
+
         public RequestBase RequestBase { get; set; }
 
         /// 补课是否扣课时
@@ -416,5 +650,33 @@ namespace ETMS.Business.Common
         /// 白名单
         /// </summary>
         public FaceInfo FaceWhite { get; set; }
+
+        public StudentCheckInConfig StudentCheckInConfig { get; set; }
+    }
+
+    public class StudentBeginClassRelationClassTimesOutput
+    {
+
+        public long StudentCheckOnLogId { get; set; }
+
+        /// <summary>
+        /// 扣减课时
+        /// </summary>
+        public string DeClassTimesDesc { get; set; }
+
+        /// <summary>
+        /// 需要记上课的课次
+        /// </summary>
+        public List<StudentNeedDeClassTimes> NeedDeClassTimes { get; set; }
+    }
+
+    public class StudentBeginClassGoDeStudentCourseOutput
+    {
+        public long StudentCheckOnLogId { get; set; }
+
+        /// <summary>
+        /// 扣减课时
+        /// </summary>
+        public string DeClassTimesDesc { get; set; }
     }
 }

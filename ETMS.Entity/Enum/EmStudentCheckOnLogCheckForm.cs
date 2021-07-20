@@ -17,7 +17,7 @@ namespace ETMS.Entity.Enum
         public const byte Face = 1;
 
         /// <summary>
-        /// 手动考勤
+        /// 手动考勤 （规则按刷卡考勤来）
         /// </summary>
         public const byte ManualCheck = 2;
 

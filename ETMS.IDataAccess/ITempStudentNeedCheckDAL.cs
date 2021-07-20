@@ -30,6 +30,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> TempStudentNeedCheckClassSetIsAttendClass(long classTimesId);
 
+        Task<bool> TempStudentNeedCheckClassSetIsAttendClassByStudentId(long studentId, DateTime date);
+
         Task<bool> TempStudentNeedCheckClassSetIsAttendClass(long classTimesId, long studentId);
 
         Task<bool> TempStudentNeedCheckClassSetIsAttendClassById(long id);

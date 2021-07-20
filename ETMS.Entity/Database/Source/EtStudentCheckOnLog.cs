@@ -38,6 +38,11 @@ namespace ETMS.Entity.Database.Source
         public DateTime CheckOt { get; set; }
 
         /// <summary>
+        /// 考勤日期
+        /// </summary>
+        public DateTime? CheckOtDate { get; set; }
+
+        /// <summary>
         /// 上课课次
         /// </summary>
         public long? ClassTimesId { get; set; }

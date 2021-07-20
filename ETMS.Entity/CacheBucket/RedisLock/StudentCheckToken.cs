@@ -17,7 +17,7 @@ namespace ETMS.Entity.CacheBucket.RedisLock
 
         public long StudentId { get; set; }
 
-        public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(10);
+        public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(30);
 
         public string GetKey()
         {

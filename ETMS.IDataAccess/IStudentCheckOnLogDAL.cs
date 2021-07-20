@@ -28,5 +28,7 @@ namespace ETMS.IDataAccess
         Task<bool> UpdateStudentCheckOnIsBeRollcall(long classTimesId);
 
         Task<bool> RevokeCheckSign(long classTimesId);
+
+        Task<int> GetStudentOneDayAttendClassCount(long studentId, DateTime date);
     }
 }

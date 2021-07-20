@@ -43,6 +43,7 @@ namespace ETMS.DataAccess
 
         public async Task<long> AddStudentCheckOnLog(EtStudentCheckOnLog entity)
         {
+            entity.CheckOtDate = entity.CheckOt.Date;
             await _dbWrapper.Insert(entity);
             await UpdateCache(_tenantId, entity.StudentId);
             return entity.Id;
@@ -101,6 +102,13 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE [EtStudentCheckOnLog] SET [Status] = {EmStudentCheckOnLogStatus.Revoke},ClassTimesId = null,ClassId = null,CourseId =null,ClassOtDesc='',DeType = {EmDeClassTimesType.NotDe},DeClassTimes = 0,DeSum = 0,ExceedClassTimes =0,DeStudentCourseDetailId = null,Remark='撤销点名' WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} ");
             return true;
+        }
+
+        public async Task<int> GetStudentOneDayAttendClassCount(long studentId, DateTime date)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT COUNT(0) FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND [Status] IN ({EmStudentCheckOnLogStatus.NormalAttendClass},{EmStudentCheckOnLogStatus.BeRollcall}) AND CheckOtDate = '{date.EtmsToDateString()}'");
+            return obj.ToInt();
         }
     }
 }

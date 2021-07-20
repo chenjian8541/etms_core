@@ -160,6 +160,13 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<bool> TempStudentNeedCheckClassSetIsAttendClassByStudentId(long studentId, DateTime date)
+        {
+            await _dbWrapper.Execute($"UPDATE EtTempStudentNeedCheckClass SET [Status] = {EmTempStudentNeedCheckClassStatus.IsAttendClass} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND ClassOt = '{date.EtmsToDateString()}'");
+            await UpdateCache(_tenantId, DateTime.Now);
+            return true;
+        }
+
         public async Task<bool> TempStudentNeedCheckClassSetIsAttendClass(long classTimesId, long studentId)
         {
             await _dbWrapper.Execute($"UPDATE EtTempStudentNeedCheckClass SET [Status] = {EmTempStudentNeedCheckClassStatus.IsAttendClass} WHERE TenantId = {_tenantId} AND ClassTimesId = {classTimesId} AND StudentId = {studentId} ");
