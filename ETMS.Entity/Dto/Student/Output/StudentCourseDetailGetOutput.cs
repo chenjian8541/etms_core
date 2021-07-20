@@ -36,6 +36,8 @@ namespace ETMS.Entity.Dto.Student.Output
         public List<StudentCourseDetail> StudentCourseDetail { get; set; }
 
         public List<OpLog> OpLogs { get; set; }
+
+        public byte StudentCheckDefault { get; set; }
     }
 
     public class StudentCourseDetail

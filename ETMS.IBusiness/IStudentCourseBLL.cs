@@ -15,6 +15,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseDetailGet(StudentCourseDetailGetRequest request);
 
+        Task<ResponseBase> StudentCourseDetailGet2(StudentCourseDetailGetRequest request);
+
         Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request);
 
         Task<ResponseBase> StudentCourseRestoreTime(StudentCourseRestoreTimeRequest request);

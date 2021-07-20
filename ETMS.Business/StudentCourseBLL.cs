@@ -186,18 +186,12 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseOwnerGetPagingOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> StudentCourseDetailGet(StudentCourseDetailGetRequest request)
+        private async Task<Tuple<List<StudentCourseDetailGetOutput>, bool>> GetStudentCourseDetail(EtStudent myStudent)
         {
-            var studentBucket = await _studentDAL.GetStudent(request.SId);
-            if (studentBucket == null || studentBucket.Student == null)
-            {
-                return ResponseBase.CommonError("学员不存在");
-            }
-            var myStudent = studentBucket.Student;
-            var studentCourse = await _studentCourseDAL.GetStudentCourse(request.SId);
-            var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.SId);
-            var studentClass = await _classDAL.GetStudentClass(request.SId);
-            var opLogs = await _studentCourseOpLogDAL.GetStudentCourseOpLogs(request.SId);
+            var studentCourse = await _studentCourseDAL.GetStudentCourse(myStudent.Id);
+            var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(myStudent.Id);
+            var studentClass = await _classDAL.GetStudentClass(myStudent.Id);
+            var opLogs = await _studentCourseOpLogDAL.GetStudentCourseOpLogs(myStudent.Id);
             var outputNormal = new List<StudentCourseDetailGetOutput>();
             var outputOver = new List<StudentCourseDetailGetOutput>();
             if (studentCourse != null && studentCourse.Any())
@@ -223,16 +217,27 @@ namespace ETMS.Business
                     };
                     var myCourse = studentCourse.Where(p => p.CourseId == courseId).ToList();
                     myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse);
-                    foreach (var theCourse in myCourse)
+
+                    var myFirstCourseLog = myCourse[0];
+                    myStudentCourseDetail.Status = myFirstCourseLog.Status;
+                    myStudentCourseDetail.StopTimeDesc = myFirstCourseLog.StopTime.EtmsToDateString();
+                    myStudentCourseDetail.RestoreTimeDesc = myFirstCourseLog.RestoreTime.EtmsToDateString();
+                    var myClassTimesCourseLog = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+                    if (myClassTimesCourseLog != null)
                     {
-                        myStudentCourseDetail.Status = theCourse.Status;
-                        myStudentCourseDetail.StopTimeDesc = theCourse.StopTime.EtmsToDateString();
-                        myStudentCourseDetail.RestoreTimeDesc = theCourse.RestoreTime.EtmsToDateString();
-                        if (theCourse.DeType == EmDeClassTimesType.ClassTimes)
-                        {
-                            myStudentCourseDetail.ExceedTotalClassTimes = theCourse.ExceedTotalClassTimes.EtmsToString();
-                        }
+                        myStudentCourseDetail.ExceedTotalClassTimes = myClassTimesCourseLog.ExceedTotalClassTimes.EtmsToString();
                     }
+
+                    //foreach (var theCourse in myCourse)
+                    //{
+                    //    myStudentCourseDetail.Status = theCourse.Status;
+                    //    myStudentCourseDetail.StopTimeDesc = theCourse.StopTime.EtmsToDateString();
+                    //    myStudentCourseDetail.RestoreTimeDesc = theCourse.RestoreTime.EtmsToDateString();
+                    //    if (theCourse.DeType == EmDeClassTimesType.ClassTimes)
+                    //    {
+                    //        myStudentCourseDetail.ExceedTotalClassTimes = theCourse.ExceedTotalClassTimes.EtmsToString();
+                    //    }
+                    //}
                     var myClass = studentClass.Where(p => p.CourseList.IndexOf($",{courseId},") != -1);
                     if (myClass.Any())
                     {
@@ -308,15 +313,58 @@ namespace ETMS.Business
                     }
                     else
                     {
+                        myStudentCourseDetail.StudentCheckDefault = myFirstCourseLog.StudentCheckDefault;
                         outputNormal.Add(myStudentCourseDetail);
                     }
                 }
             }
+            var isShowSetStudentCheckDefault = outputNormal.Count > 1;
             if (outputOver.Count > 0)
             {
                 outputNormal.AddRange(outputOver);
             }
-            return ResponseBase.Success(outputNormal);
+            return Tuple.Create(outputNormal, isShowSetStudentCheckDefault);
+        }
+
+        public async Task<ResponseBase> StudentCourseDetailGet(StudentCourseDetailGetRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.SId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var myStudent = studentBucket.Student;
+            var result = await GetStudentCourseDetail(myStudent);
+            return ResponseBase.Success(result.Item1);
+        }
+
+        /// <summary>
+        /// 与StudentCourseDetailGet相比 返回值多了IsShowSetStudentCheckDefault
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseBase> StudentCourseDetailGet2(StudentCourseDetailGetRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.SId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var myStudent = studentBucket.Student;
+            var result = await GetStudentCourseDetail(myStudent);
+            var isShowSetStudentCheckDefault = result.Item2;
+            if (isShowSetStudentCheckDefault)
+            {
+                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                var configResult = ComBusiness3.GetTenantConfigGetSimple(tenantConfig);
+                isShowSetStudentCheckDefault = configResult.IsEnableStudentCheckDeClassTimes;
+            }
+            var output = new StudentCourseDetailGet2Output()
+            {
+                CourseItems = result.Item1,
+                IsShowSetStudentCheckDefault = isShowSetStudentCheckDefault
+            };
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request)
