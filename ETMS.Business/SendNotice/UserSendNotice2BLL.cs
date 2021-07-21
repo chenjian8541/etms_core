@@ -12,7 +12,9 @@ using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
+using ETMS.LOG;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +39,16 @@ namespace ETMS.Business.SendNotice
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
+        private readonly IClassTimesDAL _classTimesDAL;
+
+        private readonly IStudentDAL _studentDAL;
+
         public UserSendNotice2BLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, IComponentAccessBLL componentAccessBLL,
                IUserWechatDAL userWechatDAL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
-               IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL, ITenantLibBLL tenantLibBLL)
+               IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL, ITenantLibBLL tenantLibBLL,
+               IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassTimesDAL classTimesDAL, IStudentDAL studentDAL)
              : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
@@ -49,12 +58,16 @@ namespace ETMS.Business.SendNotice
             this._userDAL = userDAL;
             this._wxService = wxService;
             this._classDAL = classDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._classTimesDAL = classTimesDAL;
+            this._studentDAL = studentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._tenantLibBLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _tenantConfigDAL, _userWechatDAL, _activeGrowthRecordDAL, _userDAL, _classDAL);
+            this.InitDataAccess(tenantId, _tenantConfigDAL, _userWechatDAL, _activeGrowthRecordDAL, _userDAL, _classDAL,
+                _studentCheckOnLogDAL, _classTimesDAL, _studentDAL);
         }
 
         public async Task NoticeUserActiveGrowthCommentConsumerEvent(NoticeUserActiveGrowthCommentEvent request)
@@ -146,6 +159,108 @@ namespace ETMS.Business.SendNotice
         }
 
         public async Task NoticeUserAboutStudentCheckOnConsumerEvent(NoticeUserAboutStudentCheckOnEvent request)
-        { }
+        {
+            var log = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (log == null)
+            {
+                Log.Error($"[NoticeUserAboutStudentCheckOnConsumerEvent]未找到考勤记录:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var studentBucket = await _studentDAL.GetStudent(log.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                Log.Error($"[NoticeUserAboutStudentCheckOnConsumerEvent]未找到考勤的学员:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var myNoticeUsers = new List<EtUser>();
+            if (tenantConfig.UserNoticeConfig.StudentCheckOnWeChat)
+            {
+                if (log.ClassTimesId != null)
+                {
+                    var myClassTimes = await _classTimesDAL.GetClassTimes(log.ClassTimesId.Value);
+                    if (myClassTimes != null)
+                    {
+                        var myTeachers = string.Empty;
+                        if (!string.IsNullOrEmpty(myClassTimes.Teachers))
+                        {
+                            myTeachers = myClassTimes.Teachers;
+                        }
+                        else
+                        {
+                            var myClass = await _classDAL.GetClassBucket(myClassTimes.ClassId);
+                            myTeachers = myClass.EtClass.Teachers;
+                        }
+                        var teacherIds = EtmsHelper.AnalyzeMuIds(myTeachers);
+                        if (teacherIds.Any())
+                        {
+                            foreach (var p in teacherIds)
+                            {
+                                var user = await _userDAL.GetUser(p);
+                                if (user != null)
+                                {
+                                    myNoticeUsers.Add(user);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentCheckOnWeChat);
+            if (noticeUser == null || noticeUser.Count == 0)
+            {
+                if (myNoticeUsers.Count == 0)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                myNoticeUsers.AddRange(noticeUser);
+            }
+
+            myNoticeUsers = myNoticeUsers.Distinct(new ComparerEtUser()).ToList();
+
+            var title = "学员考勤提醒—签到成功";
+            if (log.CheckType == EmStudentCheckOnLogCheckType.CheckOut)
+            {
+                title = "学员考勤提醒—签退成功";
+            }
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>(),
+                Title = title,
+                OtDesc = log.CheckOt.EtmsToMinuteString(),
+                Content = studentBucket.Student.Name
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            var url = string.Empty;
+            if (log.CheckForm == EmStudentCheckOnLogCheckForm.Face)
+            {
+                url = string.Format(wxConfig.TemplateNoticeConfig.TeacherStudentCheckLogUrl, log.Id);
+            }
+            foreach (var user in myNoticeUsers)
+            {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
+                    Url = url
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
     }
 }
