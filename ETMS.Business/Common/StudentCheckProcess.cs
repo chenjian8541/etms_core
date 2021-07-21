@@ -321,8 +321,7 @@ namespace ETMS.Business.Common
                     Type = EmStudentPointsLogType.StudentCheckOn
                 });
             }
-            output.StudentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult,
-                       deStudentClassTimesResult.DeCourseId, myDeCourse.Item1.CheckPoints);
+            output.StudentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult, deCourseId, myDeCourse.Item1.CheckPoints);
             await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassByStudentId(_request.Student.Id, _request.CheckOt);
             output.DeClassTimesDesc = "已记上课";
             if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)

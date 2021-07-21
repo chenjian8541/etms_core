@@ -105,7 +105,25 @@ namespace ETMS.DataAccess
 
         public async Task<bool> DelStudent(long studentId)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {studentId};DELETE EtStudentExtendInfo WHERE StudentId = {studentId}");
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {studentId} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentExtendInfo SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND StudentId = {studentId} ;");
+            sql.Append($"UPDATE EtStudentWechat SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTryCalssApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTryCalssLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentPointsLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtActiveHomeworkDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtActiveGrowthRecordDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtActiveWxMessageDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtGiftExchangeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtGiftExchangeLogDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtStudentPointsLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            var tempSql = sql.ToString();
+            LOG.Log.Info($"[DelStudent]执行删除:{tempSql}", this.GetType());
+            await _dbWrapper.Execute(tempSql);
             base.RemoveCache(_tenantId, studentId);
             return true;
         }

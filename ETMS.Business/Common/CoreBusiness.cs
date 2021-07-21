@@ -63,7 +63,8 @@ namespace ETMS.Business.Common
                     DeType = EmDeClassTimesType.NotDe,
                     ExceedClassTimes = classRecordStudent.DeClassTimes,
                     OrderId = null,
-                    OrderNo = string.Empty
+                    OrderNo = string.Empty,
+                    DeCourseId = classRecordStudent.CourseId
                 };
             }
 
@@ -78,12 +79,13 @@ namespace ETMS.Business.Common
                     DeType = EmDeClassTimesType.Day,
                     ExceedClassTimes = 0,
                     OrderId = dayCourseDetail.OrderId,
-                    OrderNo = dayCourseDetail.OrderNo
+                    OrderNo = dayCourseDetail.OrderNo,
+                    DeCourseId = classRecordStudent.CourseId
                 };
             }
 
             var timesCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes && (p.EndTime == null || classDate <= p.EndTime)
-            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal).OrderBy(p => p.Id).ToList().OrderBy(p=>p.Id).ToList();
+            && p.SurplusQuantity > 0 && p.Status == EmStudentCourseStatus.Normal).OrderBy(p => p.Id).ToList().OrderBy(p => p.Id).ToList();
             if (timesCourseDetail.Count == 0)
             {
                 //无剩余课时 记录超上课时
@@ -94,7 +96,8 @@ namespace ETMS.Business.Common
                     DeType = EmDeClassTimesType.NotDe,
                     ExceedClassTimes = classRecordStudent.DeClassTimes,
                     OrderId = null,
-                    OrderNo = string.Empty
+                    OrderNo = string.Empty,
+                    DeCourseId = classRecordStudent.CourseId
                 };
             }
 
@@ -133,7 +136,8 @@ namespace ETMS.Business.Common
                 OrderId = lastDeStudentCourseDetail.OrderId,
                 OrderNo = lastDeStudentCourseDetail.OrderNo,
                 DeStudentCourseDetailId = lastDeStudentCourseDetail.Id,
-                DeClassTimes = thisDeClassTimes
+                DeClassTimes = thisDeClassTimes,
+                DeCourseId = classRecordStudent.CourseId
             };
 
             //var enoughTimesCourseDetail = timesCourseDetail.FirstOrDefault(p => p.SurplusQuantity >= classRecordStudent.DeClassTimes);

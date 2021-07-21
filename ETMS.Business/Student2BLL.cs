@@ -250,9 +250,18 @@ namespace ETMS.Business
                             break;
                         case EmStudentCheckOnLogStatus.NormalAttendClass:
                         case EmStudentCheckOnLogStatus.BeRollcall:
-                            var ckClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId.Value);
-                            var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
-                            explain = $"签到成功 - 记上课：班级:{ckClass?.Name},上课时间:{p.ClassOtDesc},消耗课程:{ckCourse},扣课时:{ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)}";
+                            if (p.ClassTimesId == null)
+                            {
+                                //直接扣减课时
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                explain = $"签到成功 - 记上课：消耗课程({ckCourse})，扣课时({ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)})";
+                            }
+                            else
+                            {
+                                var ckClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId.Value);
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                explain = $"签到成功 - 记上课：班级({ckClass?.Name})，上课时间({p.ClassOtDesc})，消耗课程({ckCourse})，扣课时({ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)})";
+                            }
                             break;
                         case EmStudentCheckOnLogStatus.Revoke:
                             explain = "签到成功 - 已撤销记上课";
