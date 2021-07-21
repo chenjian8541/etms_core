@@ -371,6 +371,7 @@ namespace ETMS.Business
                 config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType = request.RelationClassTimesFaceType;
                 config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType1DayLimitValue = request.RelationClassTimesFaceType1DayLimitValue;
             }
+            config.StudentCheckInConfig.IsRelationClassTimesAutoGenerateClassRecord = request.IsRelationClassTimesAutoGenerateClassRecord;
 
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "考勤设置", EmUserOperationType.SystemConfigModify);

@@ -88,6 +88,11 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public byte RelationClassTimesFaceType1DayLimitValue { get; set; }
 
+        /// <summary>
+        /// 考勤记上课(关联课次)  是否自动确认 <see cref="EmBool"/>
+        /// </summary>
+        public byte IsRelationClassTimesAutoGenerateClassRecord { get; set; }
+
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)

@@ -168,6 +168,11 @@ namespace ETMS.Entity.Config
         /// </summary>
         public int StudentCheckInLimitTimeEnd { get; set; }
 
+        /// <summary>
+        /// 考勤记上课(关联课次)  是否自动确认 <see cref="EmBool"/>
+        /// </summary>
+        public byte IsRelationClassTimesAutoGenerateClassRecord { get; set; }
+
         public StudentUseCardCheckIn StudentUseCardCheckIn { get; set; }
 
         public StudentUseFaceCheckIn StudentUseFaceCheckIn { get; set; }
