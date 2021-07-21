@@ -49,10 +49,12 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly ICommonHandlerBLL _commonHandlerBLL;
+
         public ClassRecordBLL(IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, ICommonHandlerBLL commonHandlerBLL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classRoomDAL = classRoomDAL;
@@ -67,10 +69,12 @@ namespace ETMS.Business
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._commonHandlerBLL = commonHandlerBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classRecordDAL, this._classRoomDAL, this._courseDAL, _studentDAL, _classDAL, _userDAL, _userOperationLogDAL,
                 _studentPointsLogDAL, _studentCourseDAL, _studentCourseConsumeLogDAL);
         }
@@ -608,6 +612,8 @@ namespace ETMS.Business
                         StudentId = p.StudentId,
                         TenantId = p.TenantId
                     });
+
+                    await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);
                 }
             }
             if (p.ExceedClassTimes > 0)

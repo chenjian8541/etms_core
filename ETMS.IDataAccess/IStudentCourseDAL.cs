@@ -78,5 +78,7 @@ namespace ETMS.IDataAccess
         Task CancelStudentCourseNotEnoughRemind(long studentId, long courseId);
 
         Task StudentCourseSetCheckDefault(long studentId, long courseId);
+
+        Task SetStudentCourseDetailNewStatus(long id, long studentId, byte newStatus);
     }
 }

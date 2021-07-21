@@ -62,12 +62,14 @@ namespace ETMS.Business
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private ICommonHandlerBLL _commonHandlerBLL;
+
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL,
-            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL)
+            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL, ICommonHandlerBLL commonHandlerBLL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -88,12 +90,14 @@ namespace ETMS.Business
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._distributedLockDAL = distributedLockDAL;
+            this._commonHandlerBLL = commonHandlerBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._aiface.InitTenantId(tenantId);
             this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
+            this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _studentCheckOnLogDAL, _classDAL,
                 _courseDAL, _tenantConfigDAL, _classTimesDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
                 _tempStudentNeedCheckDAL, _studentPointsLogDAL);
@@ -582,6 +586,8 @@ namespace ETMS.Business
                             StudentId = p.StudentId,
                             TenantId = p.TenantId
                         });
+
+                        await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);
                     }
                 }
                 if (p.ExceedClassTimes > 0)

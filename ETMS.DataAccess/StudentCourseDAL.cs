@@ -334,5 +334,11 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtStudentCourse SET StudentCheckDefault = {EmBool.True} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND CourseId = {courseId} ;");
             await UpdateCache(_tenantId, studentId);
         }
+
+        public async Task SetStudentCourseDetailNewStatus(long id, long studentId, byte newStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudentCourseDetail SET [Status] = {newStatus} WHERE Id = {id} AND TenantId = {_tenantId} ");
+            await UpdateCache(_tenantId, studentId);
+        }
     }
 }

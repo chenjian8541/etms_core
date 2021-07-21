@@ -36,9 +36,12 @@ namespace ETMS.Business
 
         private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
 
+        private readonly ICommonHandlerBLL _commonHandlerBLL;
+
         public ClassCheckSignRevokeBLL(IClassRecordDAL classRecordDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL,
-            IUserDAL userDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL)
+            IUserDAL userDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
+            ICommonHandlerBLL commonHandlerBLL)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -49,10 +52,12 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._classTimesDAL = classTimesDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._commonHandlerBLL = commonHandlerBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classRecordDAL, _studentCourseDAL, _studentDAL, _studentCourseConsumeLogDAL,
                 _studentPointsLogDAL, _userDAL, _classTimesDAL, _studentCheckOnLogDAL);
         }
@@ -115,6 +120,8 @@ namespace ETMS.Business
                         StudentId = p.StudentId,
                         TenantId = p.TenantId
                     });
+
+                    await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);
                 }
                 //超上课时
                 if (p.ExceedClassTimes > 0)
