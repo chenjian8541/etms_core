@@ -40,7 +40,7 @@ namespace ETMS.Business.SendNotice
         public UserSendNotice2BLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, IComponentAccessBLL componentAccessBLL,
                IUserWechatDAL userWechatDAL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
                IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL, ITenantLibBLL tenantLibBLL)
-             : base(userWechatDAL, componentAccessBLL, sysTenantDAL,tenantLibBLL)
+             : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -144,5 +144,8 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeUserMessage(smsReq);
             }
         }
+
+        public async Task NoticeUserAboutStudentCheckOnConsumerEvent(NoticeUserAboutStudentCheckOnEvent request)
+        { }
     }
 }

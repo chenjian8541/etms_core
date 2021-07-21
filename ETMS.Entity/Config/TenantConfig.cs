@@ -253,6 +253,11 @@ namespace ETMS.Entity.Config
 
         public bool StudentHomeworkSubmitWeChat { get; set; } = true;
 
+        /// <summary>
+        /// 学员考勤通知（微信）
+        /// </summary>
+        public bool StudentCheckOnWeChat { get; set; } = true;
+
         public int StartClassBeforeMinuteValue { get; set; } = 30;
 
         /// <summary>

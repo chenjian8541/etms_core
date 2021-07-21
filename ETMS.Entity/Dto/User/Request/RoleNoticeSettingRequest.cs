@@ -45,5 +45,10 @@ namespace ETMS.Entity.Dto.User.Request
         /// 允许在微信公众号登录
         /// </summary>
         public bool IsAllowWebchatLogin { get; set; }
+
+        /// <summary>
+        /// 是否接收学员考勤通知
+        /// </summary>
+        public bool IsStudentCheckOnWeChat { get; set; }
     }
 }

@@ -45,5 +45,10 @@ namespace ETMS.Entity.Config
         /// 允许在微信公众号登录
         /// </summary>
         public const int AllowWebchatLogin = 8;
+
+        /// <summary>
+        /// 接收学员考勤通知
+        /// </summary>
+        public const int StudentCheckOnWeChat = 9;
     }
 }

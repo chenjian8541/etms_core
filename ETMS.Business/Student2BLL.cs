@@ -289,7 +289,8 @@ namespace ETMS.Business
                     StudentName = student.Name,
                     StudentPhone = student.Phone,
                     Explain = explain,
-                    CheckMedium = GetCheckMedium(p.CheckForm, p.CheckMedium)
+                    CheckMedium = GetCheckMedium(p.CheckForm, p.CheckMedium),
+                    Remark = p.Remark
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));

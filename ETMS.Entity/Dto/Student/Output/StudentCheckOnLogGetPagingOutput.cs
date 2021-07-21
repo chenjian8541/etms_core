@@ -47,5 +47,10 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte Status { get; set; }
 
         public string CheckMedium { get; set; }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remark { get; set; }
     }
 }

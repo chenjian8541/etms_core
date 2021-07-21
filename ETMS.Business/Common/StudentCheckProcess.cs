@@ -556,6 +556,10 @@ namespace ETMS.Business.Common
             {
                 StudentCheckOnLogId = studentCheckOnLogId
             });
+            _eventPublisher.Publish(new NoticeUserAboutStudentCheckOnEvent(_request.LoginTenantId)
+            {
+                StudentCheckOnLogId = studentCheckOnLogId
+            });
             if (checkType == EmStudentCheckOnLogCheckType.CheckIn)
             {
                 await _tempStudentNeedCheckDAL.TempStudentNeedCheckSetIsCheckIn(_request.Student.Id, _request.CheckOt);

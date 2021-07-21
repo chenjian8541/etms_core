@@ -9,5 +9,7 @@ namespace ETMS.IBusiness.SendNotice
     public interface IUserSendNotice2BLL : IBaseBLL
     {
         Task NoticeUserActiveGrowthCommentConsumerEvent(NoticeUserActiveGrowthCommentEvent request);
+
+        Task NoticeUserAboutStudentCheckOnConsumerEvent(NoticeUserAboutStudentCheckOnEvent request);
     }
 }

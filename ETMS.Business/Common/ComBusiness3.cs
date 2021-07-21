@@ -250,6 +250,9 @@ namespace ETMS.Business.Common
                     case RoleOtherSetting.AllowWebchatLogin:
                         output.IsAllowWebchatLogin = true;
                         break;
+                    case RoleOtherSetting.StudentCheckOnWeChat:
+                        output.IsStudentCheckOnWeChat = true;
+                        break;
                 }
             }
             return output;

@@ -1,5 +1,6 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Business.EtmsManage.Common;
+using ETMS.Entity.CacheBucket.EtmsManage.RedisLock;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
@@ -17,6 +18,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,12 +59,15 @@ namespace ETMS.Business.EtmsManage
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private IDistributedLockDAL _distributedLockDAL;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
             ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL,
-            ISysUserDAL sysUserDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL, IAppConfigurtaionServices appConfigurtaionServices)
+            ISysUserDAL sysUserDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL, IAppConfigurtaionServices appConfigurtaionServices,
+            IDistributedLockDAL distributedLockDAL)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -79,6 +84,7 @@ namespace ETMS.Business.EtmsManage
             this._sysUserDAL = sysUserDAL;
             this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -183,6 +189,28 @@ namespace ETMS.Business.EtmsManage
         }
 
         public async Task<ResponseBase> TenantAdd(TenantAddRequest request)
+        {
+            var lockKey = new TenantAddToken(request.LoginAgentId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await TenantAddProcess(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【紧急处理】初始化机构发生异常:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("系统正在初始化机构，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> TenantAddProcess(TenantAddRequest request)
         {
             if (await this._sysTenantDAL.ExistTenantCode(request.TenantCode))
             {
@@ -712,6 +740,28 @@ namespace ETMS.Business.EtmsManage
         }
 
         public async Task<ResponseBase> TenantChangeEtms(TenantChangeEtmsRequest request)
+        {
+            var lockKey = new TenantChangeEtmsToken(request.LoginAgentId, request.Id);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await TenantChangeEtmsProcess(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【紧急处理】给机构充值授权点数发生异常:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("操作过于频繁，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> TenantChangeEtmsProcess(TenantChangeEtmsRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
             var oldDate = tenant.ExDate;

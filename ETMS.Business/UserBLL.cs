@@ -278,6 +278,10 @@ namespace ETMS.Business
             {
                 mySetting.Add(RoleOtherSetting.AllowWebchatLogin);
             }
+            if (request.IsStudentCheckOnWeChat)
+            {
+                mySetting.Add(RoleOtherSetting.StudentCheckOnWeChat);
+            }
             return EtmsHelper.GetMuIds(mySetting);
         }
 
