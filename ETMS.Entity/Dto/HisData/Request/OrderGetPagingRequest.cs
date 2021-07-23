@@ -19,7 +19,15 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public long? CommissionUser { get; set; }
 
+        /// <summary>
+        /// 支付状态
+        /// </summary>
         public byte? Status { get; set; }
+
+        /// <summary>
+        /// 订单状态  0:正常  否则代表已作废
+        /// </summary>
+        public byte? OrderStatus { get; set; }
 
         public byte? OrderType { get; set; }
 
@@ -114,6 +122,17 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (Status != null)
             {
                 condition.Append($" AND [Status] = {Status.Value}");
+            }
+            if (OrderStatus != null)
+            {
+                if (OrderStatus == 0)
+                {
+                    condition.Append($" AND [Status] <> {EmOrderStatus.Repeal}");
+                }
+                else
+                {
+                    condition.Append($" AND [Status] = {EmOrderStatus.Repeal}");
+                }
             }
             if (OrderType != null)
             {
