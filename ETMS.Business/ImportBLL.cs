@@ -157,7 +157,7 @@ namespace ETMS.Business
                     Name = p.StudentName,
                     Avatar = string.Empty,
                     Birthday = p.Birthday,
-                    CardNo = string.Empty,
+                    CardNo = p.CardNo,
                     CreateBy = request.LoginUserId,
                     EndClassOt = null,
                     Gender = gender,
@@ -301,7 +301,7 @@ namespace ETMS.Business
                         Name = p.StudentName,
                         Avatar = string.Empty,
                         Birthday = p.Birthday,
-                        CardNo = string.Empty,
+                        CardNo = p.CardNo,
                         CreateBy = request.LoginUserId,
                         EndClassOt = null,
                         Gender = gender,
@@ -622,7 +622,7 @@ namespace ETMS.Business
                         Name = p.StudentName,
                         Avatar = string.Empty,
                         Birthday = p.Birthday,
-                        CardNo = string.Empty,
+                        CardNo = p.CardNo,
                         CreateBy = request.LoginUserId,
                         EndClassOt = null,
                         Gender = gender,
@@ -660,16 +660,21 @@ namespace ETMS.Business
 
                 var course = await _courseDAL.GetCourse(p.CourseName, p.CourseType);
                 var dayDeff = EtmsHelper.GetDffTime(p.StartTime, p.EndTime.AddDays(1));
-                var myMonths = dayDeff.Item1;
-                if (myMonths == 0)
+                var buyUnit = EmCourseUnit.Month;
+                var priceUnit = EmCoursePriceType.Month;
+                var priceTypeDesc = "按月";
+                var buyQuantity = dayDeff.Item1;
+                if (dayDeff.Item1 == 0)
                 {
-                    myMonths = 1;
+                    buyUnit = EmCourseUnit.Day;
+                    priceUnit = EmCoursePriceType.Day;
+                    priceTypeDesc = "按天";
+                    buyQuantity = dayDeff.Item2;
                 }
-                var myDays = dayDeff.Item2;
                 decimal price = 0;
-                if (myMonths > 0)
+                if (buyQuantity > 0)
                 {
-                    price = Math.Round(p.AptSum / myMonths, 2);
+                    price = Math.Round(p.AptSum / buyQuantity, 2);
                 }
                 if (course == null)
                 {
@@ -679,8 +684,8 @@ namespace ETMS.Business
                         IsDeleted = EmIsDeleted.Normal,
                         Name = "导入时自动生成的价格规则",
                         Price = price,
-                        PriceType = EmCoursePriceType.Month,
-                        PriceUnit = EmCourseUnit.Month,
+                        PriceType = priceUnit,
+                        PriceUnit = buyUnit,
                         Quantity = 1,
                         TotalPrice = price,
                         TenantId = request.LoginTenantId
@@ -695,7 +700,8 @@ namespace ETMS.Business
                         TenantId = request.LoginTenantId,
                         Type = p.CourseType,
                         UserId = request.LoginUserId,
-                        PriceType = EmCoursePriceType.Month,
+                        PriceType = priceUnit,
+                        PriceTypeDesc = priceTypeDesc,
                         Status = EmProductStatus.Enabled
                     };
                     await _courseDAL.AddCourse(course, new List<EtCoursePriceRule>() { priceRule });
@@ -739,11 +745,11 @@ namespace ETMS.Business
 
                 var orderDetail = new EtOrderDetail()
                 {
-                    BugUnit = EmCourseUnit.Month,
+                    BugUnit = buyUnit,
                     OrderNo = no,
                     Ot = p.OrderOt,
                     Price = price,
-                    BuyQuantity = myMonths,
+                    BuyQuantity = buyQuantity,
                     DiscountType = EmDiscountType.Nothing,
                     DiscountValue = 0,
                     GiveQuantity = 0,
@@ -814,8 +820,8 @@ namespace ETMS.Business
                     p.StartTime, p.EndTime);
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
-                    BugUnit = EmCourseUnit.Month,
-                    BuyQuantity = myMonths,
+                    BugUnit = buyUnit,
+                    BuyQuantity = buyQuantity,
                     CourseId = course.Id,
                     StudentId = student.Id,
                     TenantId = request.LoginTenantId,

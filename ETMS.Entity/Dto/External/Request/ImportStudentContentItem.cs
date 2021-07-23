@@ -27,5 +27,7 @@ namespace ETMS.Entity.Dto.External.Request
         public string HomeAddress { get; set; }
 
         public string Remark { get; set; }
+
+        public string CardNo { get; set; }
     }
 }

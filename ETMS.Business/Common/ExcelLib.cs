@@ -39,6 +39,7 @@ namespace ETMS.Business.Common
             headList.Add("备用号码");
             headList.Add("家庭住址");
             headList.Add("备注");
+            headList.Add("卡号");
             return headList;
         }
 
@@ -48,7 +49,7 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员信息");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 13));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -149,6 +150,10 @@ namespace ETMS.Business.Common
             var cellHead10 = rowHead.CreateCell(10);
             cellHead10.CellStyle = styleHead;
             cellHead10.SetCellValue(headTitleDesc[10]);
+
+            var cellHead11 = rowHead.CreateCell(11);
+            cellHead11.CellStyle = styleHead;
+            cellHead11.SetCellValue(headTitleDesc[11]);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -286,6 +291,8 @@ namespace ETMS.Business.Common
 
                 myStudentItem.Remark = GetCellValue(myRow.GetCell(++i));
 
+                myStudentItem.CardNo = GetCellValue(myRow.GetCell(++i));
+
                 outStudentContent.Add(myStudentItem);
                 readRowIndex++;
             }
@@ -332,6 +339,7 @@ namespace ETMS.Business.Common
             headList.Add("备用号码");
             headList.Add("家庭住址");
             headList.Add("备注");
+            headList.Add("卡号");
             return headList;
         }
 
@@ -341,7 +349,7 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按课时)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 20));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 21));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -520,6 +528,10 @@ namespace ETMS.Business.Common
             var cellHead20 = rowHead.CreateCell(20);
             cellHead20.CellStyle = styleHead;
             cellHead20.SetCellValue(headTitleDesc[20]);
+
+            var cellHead21 = rowHead.CreateCell(21);
+            cellHead21.CellStyle = styleHead;
+            cellHead21.SetCellValue(headTitleDesc[21]);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -765,6 +777,8 @@ namespace ETMS.Business.Common
 
                 myStudentCourseItem.Remark = GetCellValue(myRow.GetCell(++i));
 
+                myStudentCourseItem.CardNo = GetCellValue(myRow.GetCell(++i));
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
@@ -807,6 +821,7 @@ namespace ETMS.Business.Common
             headList.Add("备用号码");
             headList.Add("家庭住址");
             headList.Add("备注");
+            headList.Add("卡号");
             return headList;
         }
 
@@ -816,7 +831,7 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按时间)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 20));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 21));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -979,6 +994,10 @@ namespace ETMS.Business.Common
             var cellHead18 = rowHead.CreateCell(18);
             cellHead18.CellStyle = styleHead;
             cellHead18.SetCellValue(headTitleDesc[18]);
+
+            var cellHead19 = rowHead.CreateCell(19);
+            cellHead19.CellStyle = styleHead;
+            cellHead19.SetCellValue(headTitleDesc[19]);
 
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
@@ -1190,6 +1209,8 @@ namespace ETMS.Business.Common
                 myStudentCourseItem.HomeAddress = GetCellValue(myRow.GetCell(++i));
 
                 myStudentCourseItem.Remark = GetCellValue(myRow.GetCell(++i));
+
+                myStudentCourseItem.CardNo = GetCellValue(myRow.GetCell(++i));
 
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
