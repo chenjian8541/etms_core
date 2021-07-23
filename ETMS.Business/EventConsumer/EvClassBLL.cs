@@ -78,7 +78,7 @@ namespace ETMS.Business.EventConsumer
         {
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL,
                 _classRecordDAL, _tenantConfigDAL, _studentCheckOnLogDAL, _courseDAL, _userDAL, _studentCourseDAL,
-                _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _studentTrackLogDAL);
+                _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _studentTrackLogDAL, _tryCalssLogDAL, _studentDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
