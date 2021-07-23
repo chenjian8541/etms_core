@@ -157,7 +157,15 @@ namespace ETMS.Business.EtmsManage
             }
             if (string.IsNullOrEmpty(changeDesc))
             {
-                var diffTime = EtmsHelper.GetDffTime(beforeDate, afterDate);
+                Tuple<int, int> diffTime;
+                if (beforeDate > afterDate)
+                {
+                    diffTime = EtmsHelper.GetDffTime(afterDate, beforeDate);
+                }
+                else
+                {
+                    diffTime = EtmsHelper.GetDffTime(beforeDate, afterDate);
+                }
                 if (diffTime.Item1 > 0)
                 {
                     changeDesc = $"{diffTime.Item1}个月";

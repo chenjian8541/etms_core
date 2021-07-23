@@ -93,23 +93,11 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var myt = GetTenantEncryptOpenApi99(4065);
-            Console.WriteLine(myt);
-            var t = GetTenantDecryptOpenApi99(myt);
-            Console.WriteLine(t);
-            try
-            {
-                Go();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("捕获了异常");
-            }
-            finally
-            {
-                Console.WriteLine("go 完成");
-            }
-            Console.WriteLine("完成");
+            var day1 = Convert.ToDateTime("2021-06-23");
+            var day2 = Convert.ToDateTime("2021-07-24");
+            var re= EtmsHelper.GetDffTime(day1, day2);
+
+            Console.WriteLine(re);
             Console.Read();
         }
 

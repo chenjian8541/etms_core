@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,5 +31,7 @@ namespace ETMS.IDataAccess
         Task<bool> RevokeCheckSign(long classTimesId);
 
         Task<int> GetStudentOneDayAttendClassCount(long studentId, DateTime date);
+
+        Task<IEnumerable<OnlyId>> GetOneDayStudentCheckInAllClassTimes(DateTime date);
     }
 }

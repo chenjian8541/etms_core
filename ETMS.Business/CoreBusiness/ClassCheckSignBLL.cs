@@ -438,7 +438,7 @@ namespace ETMS.Business
                     }
                 }
                 //缺勤记录
-                ClassRecordAbsenceProcess(classRecordAbsenceLogs, student, recordId);
+                ComBusiness3.ClassRecordAbsenceProcess(classRecordAbsenceLogs, student, recordId);
 
                 if (student.RewardPoints > 0)
                 {
@@ -449,7 +449,8 @@ namespace ETMS.Business
                 if (student.StudentType == EmClassStudentType.TryCalssStudent && student.StudentTryCalssLogId != null)
                 {
                     //试听处理
-                    await TryCalssStudentProcess(studentTrackLogs, request.ClassRecord, student, recordId, tenantConfig.ClassCheckSignConfig.TryCalssNoticeTrackUser);
+                    await ComBusiness3.TryCalssStudentProcess(_tryCalssLogDAL, _studentDAL, _eventPublisher, studentTrackLogs,
+                        request.ClassRecord, student, recordId, tenantConfig.ClassCheckSignConfig.TryCalssNoticeTrackUser);
                 }
 
                 //学员课程详情
@@ -559,50 +560,6 @@ namespace ETMS.Business
             });
         }
 
-        private void ClassRecordAbsenceProcess(List<EtClassRecordAbsenceLog> classRecordAbsenceLogs, EtClassRecordStudent student, long recordId)
-        {
-            if (student.StudentType == EmClassStudentType.TryCalssStudent || student.StudentType == EmClassStudentType.MakeUpStudent)
-            {
-                return;
-            }
-            if (student.StudentCheckStatus == EmClassStudentCheckStatus.NotArrived || student.StudentCheckStatus == EmClassStudentCheckStatus.Leave)
-            {
-                classRecordAbsenceLogs.Add(new EtClassRecordAbsenceLog()
-                {
-                    Remark = student.Remark,
-                    IsDeleted = EmIsDeleted.Normal,
-                    CheckOt = student.CheckOt,
-                    CheckUserId = student.CheckUserId,
-                    ClassContent = student.ClassContent,
-                    ClassId = student.ClassId,
-                    ClassOt = student.ClassOt,
-                    ClassRecordId = recordId,
-                    ClassRecordStudentId = student.Id,
-                    Week = student.Week,
-                    StartTime = student.StartTime,
-                    Status = EmClassRecordStatus.Normal,
-                    HandleStatus = EmClassRecordAbsenceHandleStatus.Unprocessed,
-                    ClassRoomIds = student.ClassRoomIds,
-                    CourseId = student.CourseId,
-                    DeClassTimes = student.DeClassTimes,
-                    DeSum = student.DeSum,
-                    DeType = student.DeType,
-                    EndTime = student.EndTime,
-                    ExceedClassTimes = student.ExceedClassTimes,
-                    HandleContent = string.Empty,
-                    HandleOt = null,
-                    HandleUser = null,
-                    StudentCheckStatus = student.StudentCheckStatus,
-                    StudentId = student.StudentId,
-                    StudentTryCalssLogId = student.StudentTryCalssLogId,
-                    StudentType = student.StudentType,
-                    TeacherNum = student.TeacherNum,
-                    Teachers = student.Teachers,
-                    TenantId = student.TenantId
-                });
-            }
-        }
-
         private async Task RewardPointsProcess(List<EtClassRecordPointsApplyLog> classRecordPointsApplyLog,
             List<EtStudentPointsLog> studentPointsLogs,
             EtClassRecordStudent student, long recordId, bool rewardPointsMustApply)
@@ -655,57 +612,6 @@ namespace ETMS.Business
                     Type = EmStudentPointsLogType.ClassReward
                 });
                 await _studentDAL.AddPoint(student.StudentId, student.RewardPoints);
-            }
-        }
-
-        private async Task TryCalssStudentProcess(List<EtStudentTrackLog> studentTrackLogs, EtClassRecord classRecord, EtClassRecordStudent student, long recordId, bool tryCalssNoticeTrackUser)
-        {
-            //更新试听记录
-            if (student.StudentCheckStatus == EmClassStudentCheckStatus.Arrived || student.StudentCheckStatus == EmClassStudentCheckStatus.BeLate)
-            {
-                await _tryCalssLogDAL.UpdateStatus(student.StudentTryCalssLogId.Value, EmTryCalssLogStatus.IsTry);
-            }
-            else
-            {
-                await _tryCalssLogDAL.UpdateStatus(student.StudentTryCalssLogId.Value, EmTryCalssLogStatus.IsExpired);
-            }
-
-            //通知此学员的跟进人
-            if (tryCalssNoticeTrackUser)
-            {
-                _eventPublisher.Publish(new NoticeUserOfStudentTryClassFinishEvent(classRecord.TenantId)
-                {
-                    StudentId = student.StudentId,
-                    CourseId = student.CourseId,
-                    ClassRecord = classRecord
-                });
-            }
-
-            //生成跟进记录
-            var myStudent = await _studentDAL.GetStudent(student.StudentId);
-            if (myStudent.Student.TrackUser != null)
-            {
-                byte tryLogContentType = 0;
-                if (student.StudentCheckStatus == EmClassStudentCheckStatus.Arrived || student.StudentCheckStatus == EmClassStudentCheckStatus.BeLate)
-                {
-                    tryLogContentType = EmStudentTrackContentType.IsTryClassFinish;
-                }
-                else
-                {
-                    tryLogContentType = EmStudentTrackContentType.IsTryClassInvalid;
-                }
-                studentTrackLogs.Add(new EtStudentTrackLog()
-                {
-                    IsDeleted = EmIsDeleted.Normal,
-                    NextTrackTime = null,
-                    RelatedInfo = recordId,
-                    StudentId = student.StudentId,
-                    TenantId = student.TenantId,
-                    TrackTime = student.ClassOt,
-                    TrackUserId = myStudent.Student.TrackUser.Value,
-                    ContentType = tryLogContentType,
-                    TrackContent = $"预约试听的课程已结束，学员到课状态({EmClassStudentCheckStatus.GetClassStudentCheckStatus(student.StudentCheckStatus)})"
-                });
             }
         }
 

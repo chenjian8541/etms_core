@@ -12,6 +12,10 @@ using ETMS.Utility;
 using ETMS.IDataAccess.Statistics;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.Entity.Temp.View;
+using Newtonsoft.Json;
+using ETMS.Entity.Database.Source;
+using ETMS.Business.Common;
+using ETMS.Entity.Temp;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -27,19 +31,54 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IClassRecordDAL _classRecordDAL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
+        private readonly ICourseDAL _courseDAL;
+
+        private readonly IUserDAL _userDAL;
+
+        private readonly IStudentCourseDAL _studentCourseDAL;
+
+        private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
+        private readonly ITempStudentNeedCheckDAL _tempStudentNeedCheckDAL;
+
+        private readonly IStudentTrackLogDAL _studentTrackLogDAL;
+
+        private readonly IStudentDAL _studentDAL;
+
+        private readonly ITryCalssLogDAL _tryCalssLogDAL;
+
         public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL,
-            IStatisticsEducationDAL statisticsEducationDAL, IClassRecordDAL classRecordDAL)
+            IStatisticsEducationDAL statisticsEducationDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
+            IStudentCheckOnLogDAL studentCheckOnLogDAL, ICourseDAL courseDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
+            IStudentTrackLogDAL studentTrackLogDAL, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL)
         {
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
             this._classTimesDAL = classTimesDAL;
             this._statisticsEducationDAL = statisticsEducationDAL;
             this._classRecordDAL = classRecordDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
+            this._courseDAL = courseDAL;
+            this._userDAL = userDAL;
+            this._studentCourseDAL = studentCourseDAL;
+            this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
+            this._studentTrackLogDAL = studentTrackLogDAL;
+            this._studentDAL = studentDAL;
+            this._tryCalssLogDAL = tryCalssLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL, _classRecordDAL);
+            this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL,
+                _classRecordDAL, _tenantConfigDAL, _studentCheckOnLogDAL, _courseDAL, _userDAL, _studentCourseDAL,
+                _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _studentTrackLogDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
@@ -137,6 +176,54 @@ namespace ETMS.Business.EventConsumer
                 };
             }
             await _classDAL.UpdateClassFinishInfo(request.ClassId, classRecordStatistics.TotalFinishCount, classRecordStatistics.TotalFinishClassTimes);
+        }
+
+        private DataTempBox<EtCourse> _tempBoxCourse;
+
+        public async Task StudentCheckOnAutoGenerateClassRecordConsumerEvent(StudentCheckOnAutoGenerateClassRecordEvent request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            var checkInConfig = config.StudentCheckInConfig;
+            if (checkInConfig.IsRelationClassTimesAutoGenerateClassRecord == EmBool.False)
+            {
+                LOG.Log.Info($"[StudentCheckOnAutoGenerateClassRecordConsumerEvent]未开启考勤自动生成点名记录-{request.TenantId}", this.GetType());
+                return;
+            }
+            var studentUseCardCheckIn = checkInConfig.StudentUseCardCheckIn;
+            var studentUseFaceCheckIn = checkInConfig.StudentUseFaceCheckIn;
+            if (!((studentUseCardCheckIn.IsRelationClassTimesCard == EmBool.True &&
+                studentUseCardCheckIn.RelationClassTimesCardType == EmAttendanceRelationClassTimesType.RelationClassTimes) ||
+                (studentUseFaceCheckIn.IsRelationClassTimesFace == EmBool.True &&
+                studentUseFaceCheckIn.RelationClassTimesFaceType == EmAttendanceRelationClassTimesType.RelationClassTimes)))
+            {
+                LOG.Log.Info($"[StudentCheckOnAutoGenerateClassRecordConsumerEvent]未开启考勤自动生成点名记录-{request.TenantId}", this.GetType());
+                return;
+            }
+
+            var checkOnClassTimesIds = await _studentCheckOnLogDAL.GetOneDayStudentCheckInAllClassTimes(request.AnalyzeDate);
+            if (checkOnClassTimesIds == null || !checkOnClassTimesIds.Any())
+            {
+                LOG.Log.Warn($"[StudentCheckOnAutoGenerateClassRecordConsumerEvent]未查询到考勤课次-{request.TenantId}", this.GetType());
+                return;
+            }
+            var adminUser = await _userDAL.GetAdminUser();
+            this._tempBoxCourse = new DataTempBox<EtCourse>();
+            var handler = new StudentCheckOnGenerateClassRecordHandler(_classDAL, _classTimesDAL, _courseDAL, _studentCourseDAL,
+                _studentCheckOnLogDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _tryCalssLogDAL,
+                _eventPublisher, _studentDAL, _studentTrackLogDAL, _userDAL);
+            foreach (var p in checkOnClassTimesIds)
+            {
+                try
+                {
+                    await handler.Process(request.TenantId, p.Id, request.AnalyzeDate, adminUser.Id, config.ClassCheckSignConfig.MakeupIsDeClassTimes,
+                        config.ClassCheckSignConfig.TryCalssNoticeTrackUser);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[StudentCheckOnAutoGenerateClassRecordConsumerEvent]处理考勤自动生成点名记录失败-{request.TenantId}-{p.Id}", ex, this.GetType());
+                    continue;
+                }
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Common;
+using ETMS.Entity.Temp;
 
 namespace ETMS.DataAccess
 {
@@ -109,6 +110,12 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(
                 $"SELECT COUNT(0) FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND [Status] IN ({EmStudentCheckOnLogStatus.NormalAttendClass},{EmStudentCheckOnLogStatus.BeRollcall}) AND CheckOtDate = '{date.EtmsToDateString()}'");
             return obj.ToInt();
+        }
+
+        public async Task<IEnumerable<OnlyId>> GetOneDayStudentCheckInAllClassTimes(DateTime date)
+        {
+            var sql = $"SELECT ClassTimesId AS Id FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND [Status] = {EmStudentCheckOnLogStatus.NormalAttendClass} AND [IsDeleted] = {EmIsDeleted.Normal} AND ClassTimesId IS NOT NULL AND CheckOtDate = '{date.EtmsToDateString()}' GROUP BY ClassTimesId";
+            return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
     }
 }
