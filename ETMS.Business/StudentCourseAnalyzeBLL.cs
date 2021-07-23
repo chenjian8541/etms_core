@@ -122,6 +122,7 @@ namespace ETMS.Business
             else
             {
                 courseClassTimes.BuyQuantity = 0;
+                courseClassTimes.BuySmallQuantity = 0;
                 courseClassTimes.GiveQuantity = 0;
                 courseClassTimes.GiveSmallQuantity = 0;
                 courseClassTimes.SurplusQuantity = 0;
@@ -136,6 +137,7 @@ namespace ETMS.Business
             else
             {
                 courseDay.BuyQuantity = 0;
+                courseDay.BuySmallQuantity = 0;
                 courseDay.GiveQuantity = 0;
                 courseDay.GiveSmallQuantity = 0;
                 courseDay.SurplusQuantity = 0;
@@ -188,7 +190,15 @@ namespace ETMS.Business
             var myStudentCourseDetailDay = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.Day);
             foreach (var myDetailDay in myStudentCourseDetailDay)
             {
-                courseDay.BuyQuantity += myDetailDay.BuyQuantity;  //只会按月购买
+                if (myDetailDay.BugUnit == EmCourseUnit.Month)
+                {
+                    courseDay.BuyQuantity += myDetailDay.BuyQuantity;
+                }
+                else
+                {
+                    courseDay.BuySmallQuantity += myDetailDay.BuyQuantity;
+                }
+
                 courseDay.UseQuantity += myDetailDay.UseQuantity;  //使用按天
                 if (myDetailDay.GiveUnit == EmCourseUnit.Month)  //赠送可能按月和天
                 {
@@ -248,7 +258,7 @@ namespace ETMS.Business
                 newCourse.Add(courseClassTimes);
             }
 
-            if (courseDay.BuyQuantity > 0)
+            if (courseDay.BuyQuantity > 0 || courseDay.BuySmallQuantity > 0)
             {
                 newCourse.Add(courseDay);
             }

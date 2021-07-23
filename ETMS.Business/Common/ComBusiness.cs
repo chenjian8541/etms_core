@@ -644,9 +644,17 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
-        internal static string GetBuyQuantityDesc(int buyQuantity, byte bugUnit, byte productType)
+        /// <summary>
+        /// 此方法为了兼容 EtStudentCourse，单位永远是按月，则通过判断"buySmallQuantity"属性来判断具体是按月 还是按天 
+        /// </summary>
+        /// <param name="buyQuantity"></param>
+        /// <param name="buySmallQuantity"></param>
+        /// <param name="bugUnit"></param>
+        /// <param name="productType"></param>
+        /// <returns></returns>
+        internal static string GetBuyQuantityDesc(int buyQuantity, int buySmallQuantity, byte bugUnit, byte productType)
         {
-            if (buyQuantity == 0)
+            if (buyQuantity == 0 && buySmallQuantity == 0)
             {
                 return string.Empty;
             }
@@ -658,16 +666,39 @@ namespace ETMS.Business.Common
             {
                 return $"{buyQuantity}笔";
             }
-            switch (bugUnit)
+            if (bugUnit == EmCourseUnit.ClassTimes)
             {
-                case EmCourseUnit.ClassTimes:
-                    return $"{buyQuantity}课时";
-                case EmCourseUnit.Day:
-                    return $"{buyQuantity}天";
-                case EmCourseUnit.Month:
-                    return $"{buyQuantity}个月";
+                return $"{buyQuantity}课时";
             }
-            return string.Empty;
+            else
+            {
+                if (buySmallQuantity == 0)
+                {
+                    switch (bugUnit)
+                    {
+                        case EmCourseUnit.ClassTimes:
+                            return $"{buyQuantity}课时";
+                        case EmCourseUnit.Day:
+                            return $"{buyQuantity}天";
+                        case EmCourseUnit.Month:
+                            return $"{buyQuantity}个月";
+                    }
+                    return string.Empty;
+                }
+                else
+                {
+                    var str = new StringBuilder();
+                    if (buyQuantity > 0)
+                    {
+                        str.Append($"{buyQuantity}个月");
+                    }
+                    if (buySmallQuantity > 0)
+                    {
+                        str.Append($"{buySmallQuantity}天");
+                    }
+                    return str.ToString();
+                }
+            }
         }
 
         internal static string GetOutQuantityDesc(decimal outQuantity, byte bugUnit, byte productType)

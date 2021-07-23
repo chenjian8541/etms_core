@@ -318,7 +318,7 @@ namespace ETMS.Business
                 {
                     BugUnit = myItem.BugUnit,
                     BuyQuantity = myItem.BuyQuantity,
-                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, 0, myItem.BugUnit, myItem.ProductType),
                     DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
                     ItemAptSum = Math.Abs(myItem.ItemAptSum),
@@ -501,7 +501,7 @@ namespace ETMS.Business
                 {
                     BugUnit = myItem.BugUnit,
                     BuyQuantity = myItem.BuyQuantity,
-                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, myItem.BugUnit, myItem.ProductType),
+                    BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myItem.BuyQuantity, 0, myItem.BugUnit, myItem.ProductType),
                     DiscountDesc = ComBusiness.GetDiscountDesc(myItem.DiscountValue, myItem.DiscountType),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(myItem.GiveQuantity, myItem.GiveUnit),
                     ItemAptSum = Math.Abs(myItem.ItemAptSum),
@@ -711,7 +711,7 @@ namespace ETMS.Business
                             DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
                             BugUnit = p.BugUnit,
                             BuyQuantity = p.BuyQuantity,
-                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, 0, p.BugUnit, p.ProductType),
                             GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveUnit),
                             GiveQuantity = p.GiveQuantity,
                             ItemAptSum = p.ItemAptSum,
@@ -735,7 +735,7 @@ namespace ETMS.Business
                         output.OrderGoods.Add(new OrderGetProductInfoGoodsItem()
                         {
                             BuyQuantity = p.BuyQuantity,
-                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, 0, p.BugUnit, p.ProductType),
                             DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
                             OrderDetailId = p.Id,
                             Price = tempGoodsPrice,
@@ -761,7 +761,7 @@ namespace ETMS.Business
                         output.OrderCosts.Add(new OrderGetProductInfoCostItem()
                         {
                             BuyQuantity = p.BuyQuantity,
-                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BugUnit, p.ProductType),
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity,0, p.BugUnit, p.ProductType),
                             DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
                             OrderDetailId = p.Id,
                             PriceRule = p.PriceRule,

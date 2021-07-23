@@ -32,6 +32,11 @@ namespace ETMS.Entity.Database.Source
         public int BuyQuantity { get; set; }
 
         /// <summary>
+        /// 购买数量(小单位)
+        /// </summary>
+        public int BuySmallQuantity { get; set; }
+
+        /// <summary>
         /// 购买单位   <see cref="ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
         public byte BugUnit { get; set; }

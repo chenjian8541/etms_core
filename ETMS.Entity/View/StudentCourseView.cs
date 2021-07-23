@@ -42,6 +42,11 @@ namespace ETMS.Entity.View
         public int BuyQuantity { get; set; }
 
         /// <summary>
+        /// 购买数量(小单位)
+        /// </summary>
+        public int BuySmallQuantity { get; set; }
+
+        /// <summary>
         /// 购买单位   <see cref="ETMS.Entity.Enum.EmCourseUnit"/>
         /// </summary>
         public byte BugUnit { get; set; }
@@ -115,5 +120,10 @@ namespace ETMS.Entity.View
         public byte StudentType { get; set; }
 
         public string Avatar { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte StudentCheckDefault { get; set; }
     }
 }
