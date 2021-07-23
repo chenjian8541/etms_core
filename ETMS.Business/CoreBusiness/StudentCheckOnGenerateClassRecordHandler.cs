@@ -64,6 +64,8 @@ namespace ETMS.Business
 
         private bool _tryCalssNoticeTrackUser;
 
+        private DateTime _checkOt;
+
         private EtClassTimes _myClassTimes;
 
         private List<EtStudentCheckOnLog> _checkInLog;
@@ -99,7 +101,7 @@ namespace ETMS.Business
             {
                 ClassContent = myClassTimes.ClassContent,
                 Remark = string.Empty,
-                CheckOt = myClassTimes.ClassOt,
+                CheckOt = _checkOt,
                 ClassOt = myClassTimes.ClassOt,
                 CheckUserId = checkUserId,
                 StartTime = myClassTimes.StartTime,
@@ -188,7 +190,7 @@ namespace ETMS.Business
                         IsDeleted = EmIsDeleted.Normal,
                         OrderId = deStudentClassTimesResult.OrderId,
                         OrderNo = deStudentClassTimesResult.OrderNo,
-                        Ot = myClassRecordStudent.CheckOt,
+                        Ot = _checkOt,
                         SourceType = EmStudentCourseConsumeSourceType.ClassCheckSign,
                         StudentId = myClassRecordStudent.StudentId,
                         TenantId = myClassRecordStudent.TenantId,
@@ -238,6 +240,7 @@ namespace ETMS.Business
             this._classTimesId = classTimesId;
             this._makeupIsDeClassTimes = makeupIsDeClassTimes;
             this._tryCalssNoticeTrackUser = tryCalssNoticeTrackUser;
+            this._checkOt = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
 
             _myClassTimes = await _classTimesDAL.GetClassTimes(_classTimesId);
             if (_myClassTimes == null)
@@ -342,7 +345,7 @@ namespace ETMS.Business
             var classRecord = new EtClassRecord()
             {
                 AttendNumber = attendStudent.Count(),
-                CheckOt = _myClassTimes.ClassOt,
+                CheckOt = _checkOt,
                 CheckUserId = _checkUserId,
                 ClassContent = _myClassTimes.ClassContent,
                 ClassId = _myClassTimes.ClassId,

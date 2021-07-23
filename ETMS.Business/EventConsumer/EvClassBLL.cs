@@ -178,8 +178,6 @@ namespace ETMS.Business.EventConsumer
             await _classDAL.UpdateClassFinishInfo(request.ClassId, classRecordStatistics.TotalFinishCount, classRecordStatistics.TotalFinishClassTimes);
         }
 
-        private DataTempBox<EtCourse> _tempBoxCourse;
-
         public async Task StudentCheckOnAutoGenerateClassRecordConsumerEvent(StudentCheckOnAutoGenerateClassRecordEvent request)
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
@@ -207,7 +205,6 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             var adminUser = await _userDAL.GetAdminUser();
-            this._tempBoxCourse = new DataTempBox<EtCourse>();
             var handler = new StudentCheckOnGenerateClassRecordHandler(_classDAL, _classTimesDAL, _courseDAL, _studentCourseDAL,
                 _studentCheckOnLogDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _tryCalssLogDAL,
                 _eventPublisher, _studentDAL, _studentTrackLogDAL, _userDAL);
