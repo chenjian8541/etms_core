@@ -34,6 +34,11 @@ namespace ETMS.Entity.Dto.Student.Output
         public int? Age { get; set; }
 
         /// <summary>
+        /// 年龄
+        /// </summary>
+        public int? AgeMonth { get; set; }
+
+        /// <summary>
         /// 生日
         /// </summary>
         public string BirthdayDesc { get; set; }

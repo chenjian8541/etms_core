@@ -93,11 +93,14 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var day1 = Convert.ToDateTime("2021-06-23");
-            var day2 = Convert.ToDateTime("2021-07-24");
-            var re= EtmsHelper.GetDffTime(day1, day2);
+            var day1 = Convert.ToDateTime("1991-09-13").EtmsGetAge();
+            var day2 = Convert.ToDateTime("1991-5-26").EtmsGetAge();
+            var day3 = Convert.ToDateTime("1991-7-23").EtmsGetAge();
+            var day4 = Convert.ToDateTime("1991-7-26").EtmsGetAge();
+            var day5 = Convert.ToDateTime("1991-7-20").EtmsGetAge();
 
-            Console.WriteLine(re);
+
+            Console.WriteLine("");
             Console.Read();
         }
 

@@ -151,11 +151,13 @@ namespace ETMS.Business
                 birthdayMonth = request.Birthday.Value.Month;
                 birthdayDay = request.Birthday.Value.Day;
             }
+            var myAgeResult = request.Birthday.EtmsGetAge();
             var etStudent = new EtStudent()
             {
                 BirthdayMonth = birthdayMonth,
                 BirthdayDay = birthdayDay,
-                Age = request.Birthday.EtmsGetAge(),
+                Age = myAgeResult.Item1,
+                AgeMonth = myAgeResult.Item2,
                 Name = request.Name,
                 Avatar = request.AvatarKey,
                 Birthday = request.Birthday,
@@ -305,7 +307,10 @@ namespace ETMS.Business
             etStudent.TrackUser = request.TrackUser;
             etStudent.RecommendStudentId = request.RecommendStudentId;
             etStudent.NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower();
-            etStudent.Age = request.Birthday.EtmsGetAge();
+
+            var myAgeResult = request.Birthday.EtmsGetAge();
+            etStudent.Age = myAgeResult.Item1;
+            etStudent.AgeMonth = myAgeResult.Item2;
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
             {
@@ -483,6 +488,7 @@ namespace ETMS.Business
                 PhoneBakRelationship = student.PhoneBakRelationship,
                 BirthdayDesc = student.Birthday.EtmsToDateString(),
                 Age = student.Age,
+                AgeMonth = student.AgeMonth,
                 EndClassOtDesc = student.EndClassOt == null ? string.Empty : student.EndClassOt.EtmsToDateString(),
                 GenderDesc = EmGender.GetGenderDesc(student.Gender),
                 IntentionLevelDesc = EmStudentIntentionLevel.GetIntentionLevelDesc(student.IntentionLevel),
@@ -614,6 +620,7 @@ namespace ETMS.Business
                 PhoneBakRelationship = student.PhoneBakRelationship,
                 BirthdayDesc = student.Birthday.EtmsToDateString(),
                 Age = student.Age,
+                AgeMonth = student.AgeMonth,
                 EndClassOtDesc = student.EndClassOt == null ? string.Empty : student.EndClassOt.EtmsToDateString(),
                 GenderDesc = EmGender.GetGenderDesc(student.Gender),
                 IntentionLevelDesc = EmStudentIntentionLevel.GetIntentionLevelDesc(student.IntentionLevel),

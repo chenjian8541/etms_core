@@ -76,5 +76,7 @@ namespace ETMS.IDataAccess
         Task<EtStudent> GetStudentByPwd(string phone, string pwd);
 
         Task UpdateStudentClassInfo(long studentId);
+
+        Task UpdateStudentAgeInfo(long studentId, int? age, int? ageMonth);
     }
 }

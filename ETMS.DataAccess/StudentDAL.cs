@@ -415,5 +415,20 @@ namespace ETMS.DataAccess
             }
             await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {isClassSchedule} , IsJoinClass = {isJoinClass} WHERE Id = {studentId}");
         }
+
+        public async Task UpdateStudentAgeInfo(long studentId, int? age, int? ageMonth)
+        {
+            var sql = string.Empty;
+            if (age == null || ageMonth == null)
+            {
+                sql = $"UPDATE EtStudent SET Age = NULL,AgeMonth = NULL WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
+            }
+            else
+            {
+                sql = $"UPDATE EtStudent SET Age = {age.Value},AgeMonth = {ageMonth.Value} WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
+            }
+            await _dbWrapper.Execute(sql);
+            await base.UpdateCache(_tenantId, studentId);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
@@ -79,13 +80,18 @@ namespace ETMS.Manage.Jobs
 
         }
 
-        private void HandleStudent(int tenantId, IEnumerable<OnlyId> students)
+        private void HandleStudent(int tenantId, IEnumerable<EtStudent> students)
         {
             foreach (var p in students)
             {
                 _eventPublisher.Publish(new SyncStudentClassInfoEvent(tenantId)
                 {
                     StudentId = p.Id
+                });
+
+                _eventPublisher.Publish(new UpdateStudentInfoEvent(tenantId)
+                {
+                    MyStudent = p
                 });
             }
         }

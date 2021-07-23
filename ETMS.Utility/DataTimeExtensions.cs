@@ -76,24 +76,47 @@ namespace ETMS.Utility
             return @this.Value.ToString("yyyy.MM.dd");
         }
 
-        public static int? EtmsGetAge(this DateTime? @this)
+        public static Tuple<int, int> EtmsGetAge(this DateTime? @this)
         {
             if (@this == null)
             {
                 return null;
             }
-            var birthday = @this.Value;
+            return @this.Value.EtmsGetAge();
+        }
+
+        public static Tuple<int, int> EtmsGetAge(this DateTime @this)
+        {
+            var birthday = @this;
             var now = DateTime.Now;
-            var age = now.Year - birthday.Year;
+            var ageYear = now.Year - birthday.Year;
             if (now.Month < birthday.Month)
             {
-                age--;
+                ageYear--;
             }
             else if (now.Month == birthday.Month && now.Day < birthday.Day)
             {
-                age--;
+                ageYear--;
             }
-            return age;
+
+            var ageMonth = 0;
+            if (now.Month > birthday.Month)
+            {
+                ageMonth = now.Month - birthday.Month;
+            }
+            else if (now.Month < birthday.Month)
+            {
+                ageMonth = 12 - birthday.Month + now.Month;
+            }
+            else if (now.Month == birthday.Month)
+            {
+                if (now.Day < birthday.Day)
+                {
+                    ageMonth = 11;
+                }
+            }
+
+            return Tuple.Create(ageYear, ageMonth);
         }
 
         public static long EtmsGetTimestamp(this DateTime @this)

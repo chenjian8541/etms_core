@@ -91,9 +91,9 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtClassRecordStudent>(p => p.ClassRecordId == classRecordId && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
-        public async Task<Tuple<IEnumerable<OnlyId>, int>> GetStudent(int pageSize, int pageCurrent)
+        public async Task<Tuple<IEnumerable<EtStudent>, int>> GetStudent(int pageSize, int pageCurrent)
         {
-            return await _dbWrapper.ExecutePage<OnlyId>("EtStudent", "Id", pageSize, pageCurrent, "Id DESC",
+            return await _dbWrapper.ExecutePage<EtStudent>("EtStudent", "*", pageSize, pageCurrent, "Id DESC",
                 $" TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} ");
         }
     }

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IEventProvider;
+using ETMS.Utility;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -250,6 +251,17 @@ namespace ETMS.Business.EventConsumer
         public async Task SyncStudentClassInfoConsumerEvent(SyncStudentClassInfoEvent request)
         {
             await _studentDAL.UpdateStudentClassInfo(request.StudentId);
+        }
+
+        public async Task UpdateStudentInfoConsumerEvent(UpdateStudentInfoEvent request)
+        {
+            var student = request.MyStudent;
+            var myAgeResut = student.Birthday.EtmsGetAge();
+            if (myAgeResut.Item1 == student.Age && myAgeResut.Item2 == student.AgeMonth)
+            {
+                return;
+            }
+            await _studentDAL.UpdateStudentAgeInfo(student.Id, myAgeResut.Item1, myAgeResut.Item2);
         }
     }
 }

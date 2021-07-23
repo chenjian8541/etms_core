@@ -62,6 +62,11 @@ namespace ETMS.Entity.Database.Source
         public int? Age { get; set; }
 
         /// <summary>
+        /// 年龄(零几个月)
+        /// </summary>
+        public int? AgeMonth { get; set; }
+
+        /// <summary>
         /// 生日
         /// </summary>
         public DateTime? Birthday { get; set; }

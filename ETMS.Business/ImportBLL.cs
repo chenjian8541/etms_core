@@ -149,11 +149,13 @@ namespace ETMS.Business
                     birthdayMonth = p.Birthday.Value.Month;
                     birthdayDay = p.Birthday.Value.Day;
                 }
+                var myAgeResult = p.Birthday.EtmsGetAge();
                 studentList.Add(new EtStudent()
                 {
                     BirthdayMonth = birthdayMonth,
                     BirthdayDay = birthdayDay,
-                    Age = p.Birthday.EtmsGetAge(),
+                    Age = myAgeResult?.Item1,
+                    AgeMonth = myAgeResult?.Item2,
                     Name = p.StudentName,
                     Avatar = string.Empty,
                     Birthday = p.Birthday,
@@ -293,11 +295,13 @@ namespace ETMS.Business
                         birthdayMonth = p.Birthday.Value.Month;
                         birthdayDay = p.Birthday.Value.Day;
                     }
+                    var myAgeResult = p.Birthday.EtmsGetAge();
                     student = new EtStudent()
                     {
                         BirthdayMonth = birthdayMonth,
                         BirthdayDay = birthdayDay,
-                        Age = p.Birthday.EtmsGetAge(),
+                        Age = myAgeResult?.Item1,
+                        AgeMonth = myAgeResult?.Item2,
                         Name = p.StudentName,
                         Avatar = string.Empty,
                         Birthday = p.Birthday,
@@ -614,11 +618,13 @@ namespace ETMS.Business
                         birthdayMonth = p.Birthday.Value.Month;
                         birthdayDay = p.Birthday.Value.Day;
                     }
+                    var myAgeResult = p.Birthday.EtmsGetAge();
                     student = new EtStudent()
                     {
                         BirthdayMonth = birthdayMonth,
                         BirthdayDay = birthdayDay,
-                        Age = p.Birthday.EtmsGetAge(),
+                        Age = myAgeResult?.Item1,
+                        AgeMonth = myAgeResult?.Item2,
                         Name = p.StudentName,
                         Avatar = string.Empty,
                         Birthday = p.Birthday,
