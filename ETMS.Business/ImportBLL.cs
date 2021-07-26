@@ -50,10 +50,12 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
         public ImportBLL(IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentSourceDAL studentSourceDAL, IStudentRelationshipDAL studentRelationshipDAL, IGradeDAL gradeDAL, ISysTenantDAL sysTenantDAL,
             IStudentDAL studentDAL, IEventPublisher eventPublisher, IUserOperationLogDAL userOperationLogDAL, ICourseDAL courseDAL, IOrderDAL orderDAL,
-            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL)
+            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -69,12 +71,14 @@ namespace ETMS.Business
             this._incomeLogDAL = incomeLogDAL;
             this._studentCourseDAL = studentCourseDAL;
             this._classDAL = classDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentSourceDAL, _studentRelationshipDAL,
-                _gradeDAL, _studentDAL, _userOperationLogDAL, _courseDAL, _orderDAL, _incomeLogDAL, _studentCourseDAL, _classDAL);
+                _gradeDAL, _studentDAL, _userOperationLogDAL, _courseDAL, _orderDAL, _incomeLogDAL, _studentCourseDAL, _classDAL,
+                _tenantConfigDAL);
         }
 
         public async Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request)
@@ -106,6 +110,12 @@ namespace ETMS.Business
             var gradeAll = await _gradeDAL.GetAllGrade();
             var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
             var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
             foreach (var p in request.ImportStudents)
             {
                 if (await _studentDAL.ExistStudent(p.StudentName, p.Phone))
@@ -185,7 +195,8 @@ namespace ETMS.Business
                     Tags = string.Empty,
                     TenantId = request.LoginTenantId,
                     TrackStatus = EmStudentTrackStatus.NotTrack,
-                    TrackUser = null
+                    TrackUser = null,
+                    Password = pwd
                 });
             }
             if (studentList.Count > 0)
@@ -254,6 +265,12 @@ namespace ETMS.Business
             var gradeAll = await _gradeDAL.GetAllGrade();
             var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
             var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
             foreach (var p in request.ImportCourseTimess)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
@@ -331,7 +348,8 @@ namespace ETMS.Business
                         Tags = string.Empty,
                         TenantId = request.LoginTenantId,
                         TrackStatus = EmStudentTrackStatus.NotTrack,
-                        TrackUser = null
+                        TrackUser = null,
+                        Password = pwd
                     };
                     await _studentDAL.AddStudent(student, null);
                     addStudentCount++;
@@ -577,6 +595,12 @@ namespace ETMS.Business
             var gradeAll = await _gradeDAL.GetAllGrade();
             var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
             var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
             foreach (var p in request.ImportCourseDays)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
@@ -654,7 +678,8 @@ namespace ETMS.Business
                         Tags = string.Empty,
                         TenantId = request.LoginTenantId,
                         TrackStatus = EmStudentTrackStatus.NotTrack,
-                        TrackUser = null
+                        TrackUser = null,
+                        Password = pwd
                     };
                     await _studentDAL.AddStudent(student, null);
                     addStudentCount++;

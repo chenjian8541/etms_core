@@ -261,7 +261,7 @@ namespace ETMS.Business.EventConsumer
             {
                 return;
             }
-            await _studentDAL.UpdateStudentAgeInfo(student.Id, myAgeResut.Item1, myAgeResut.Item2);
+            await _studentDAL.UpdateStudentAgeInfo(student.Id, myAgeResut?.Item1, myAgeResut?.Item2);
         }
     }
 }

@@ -60,5 +60,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantOtherConfigSave(TenantOtherConfigSaveRequest request);
 
         Task<ResponseBase> TenantConfigGetSimple(RequestBase request);
+
+        Task<ResponseBase> StudentConfigSave(StudentConfigSaveRequest request);
     }
 }

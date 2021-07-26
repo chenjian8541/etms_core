@@ -69,6 +69,7 @@ namespace ETMS.Business
                 StudentCheckInConfig = config.StudentCheckInConfig,
                 StudentRecommendConfig = config.StudentRecommendConfig,
                 TenantOtherConfig = config.TenantOtherConfig,
+                StudentConfig = config.StudentConfig,
                 OtherOutput = new OtherOutput()
             };
             output.OtherOutput.StartClassDayBeforeTimeValueDesc = EtmsHelper.GetTimeDesc(output.StudentNoticeConfig.StartClassDayBeforeTimeValue);
@@ -417,6 +418,15 @@ namespace ETMS.Business
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
             return ResponseBase.Success(ComBusiness3.GetTenantConfigGetSimple(config));
+        }
+
+        public async Task<ResponseBase> StudentConfigSave(StudentConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.StudentConfig.InitialPassword = request.InitialPassword;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "学员信息设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
         }
     }
 }

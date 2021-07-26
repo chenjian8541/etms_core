@@ -12,6 +12,7 @@ namespace ETMS.Entity.Config
     {
         public TenantConfig()
         {
+            StudentConfig = new StudentConfig();
             ClassCheckSignConfig = new ClassCheckSignConfig();
             StudentNoticeConfig = new StudentNoticeConfig();
             StudentCourseRenewalConfig = new StudentCourseRenewalConfig();
@@ -24,6 +25,11 @@ namespace ETMS.Entity.Config
             StudentRecommendConfig = new StudentRecommendConfig();
             TenantOtherConfig = new TenantOtherConfig();
         }
+
+        /// <summary>
+        /// 学员设置
+        /// </summary>
+        public StudentConfig StudentConfig { get; set; }
 
         /// <summary>
         /// 点名设置
@@ -79,6 +85,17 @@ namespace ETMS.Entity.Config
         /// 机构其它配置
         /// </summary>
         public TenantOtherConfig TenantOtherConfig { get; set; }
+    }
+
+    /// <summary>
+    /// 学员设置
+    /// </summary>
+    public class StudentConfig
+    {
+        /// <summary>
+        /// 初始密码
+        /// </summary>
+        public string InitialPassword { get; set; }
     }
 
     public class TenantOtherConfig

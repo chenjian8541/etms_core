@@ -8,6 +8,11 @@ namespace ETMS.Entity.Dto.BasicData.Output
     public class TenantConfigGetOutput
     {
         /// <summary>
+        /// 学员设置
+        /// </summary>
+        public StudentConfig StudentConfig { get; set; }
+
+        /// <summary>
         /// 点名设置
         /// </summary>
         public ClassCheckSignConfig ClassCheckSignConfig { get; set; }

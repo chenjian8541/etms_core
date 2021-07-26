@@ -66,13 +66,15 @@ namespace ETMS.Business
 
         private readonly IIncomeLogDAL _incomeLogDAL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
         public StudentBLL(IStudentDAL studentDAL, IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentTagDAL studentTagDAL, IStudentRelationshipDAL studentRelationshipDAL, IStudentSourceDAL studentSourceDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, IGradeDAL gradeDAL,
             IStudentTrackLogDAL studentTrackLogDAL, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, INoticeBLL noticeBLL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface, IStudentPointsLogDAL studentPointsLogDAL,
-            IOrderDAL orderDAL, IIncomeLogDAL incomeLogDAL)
+            IOrderDAL orderDAL, IIncomeLogDAL incomeLogDAL, ITenantConfigDAL tenantConfigDAL)
         {
             this._studentDAL = studentDAL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
@@ -95,6 +97,7 @@ namespace ETMS.Business
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._orderDAL = orderDAL;
             this._incomeLogDAL = incomeLogDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -103,7 +106,7 @@ namespace ETMS.Business
             this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentExtendFieldDAL, _studentTagDAL,
                 _userOperationLogDAL, _studentRelationshipDAL, _studentSourceDAL, _userDAL, _gradeDAL, _studentTrackLogDAL, _studentOperationLogDAL,
-                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL, _orderDAL, _incomeLogDAL);
+                _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL, _orderDAL, _incomeLogDAL, _tenantConfigDAL);
         }
 
         public async Task<ResponseBase> StudentDuplicateCheck(StudentDuplicateCheckRequest request)
@@ -151,13 +154,19 @@ namespace ETMS.Business
                 birthdayMonth = request.Birthday.Value.Month;
                 birthdayDay = request.Birthday.Value.Day;
             }
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
             var myAgeResult = request.Birthday.EtmsGetAge();
             var etStudent = new EtStudent()
             {
                 BirthdayMonth = birthdayMonth,
                 BirthdayDay = birthdayDay,
-                Age = myAgeResult.Item1,
-                AgeMonth = myAgeResult.Item2,
+                Age = myAgeResult?.Item1,
+                AgeMonth = myAgeResult?.Item2,
                 Name = request.Name,
                 Avatar = request.AvatarKey,
                 Birthday = request.Birthday,
@@ -189,7 +198,8 @@ namespace ETMS.Business
                 TrackStatus = EmStudentTrackStatus.NotTrack,
                 TrackUser = trackUser,
                 NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
-                RecommendStudentId = request.RecommendStudentId
+                RecommendStudentId = request.RecommendStudentId,
+                Password = pwd
             };
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
@@ -309,8 +319,8 @@ namespace ETMS.Business
             etStudent.NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower();
 
             var myAgeResult = request.Birthday.EtmsGetAge();
-            etStudent.Age = myAgeResult.Item1;
-            etStudent.AgeMonth = myAgeResult.Item2;
+            etStudent.Age = myAgeResult?.Item1;
+            etStudent.AgeMonth = myAgeResult?.Item2;
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
             {
