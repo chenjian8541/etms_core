@@ -200,6 +200,11 @@ namespace ETMS.Business
                     {
                         continue;
                     }
+                    var myStudentCourse = await _studentCourseDAL.GetStudentCourse(student.Id, p.CourseId);
+                    if (ComBusiness3.IsStopOfClass(myStudentCourse))
+                    {
+                        continue;
+                    }
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassBeforeDayStudent()
                     {
@@ -241,6 +246,11 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    var myStudentCourse = await _studentCourseDAL.GetStudentCourse(student.Id, p.CourseId);
+                    if (ComBusiness3.IsStopOfClass(myStudentCourse))
                     {
                         continue;
                     }
@@ -425,6 +435,11 @@ namespace ETMS.Business
                     {
                         continue;
                     }
+                    var myStudentCourse = await _studentCourseDAL.GetStudentCourse(student.Id, p.CourseId);
+                    if (ComBusiness3.IsStopOfClass(myStudentCourse))
+                    {
+                        continue;
+                    }
                     var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                     smsReq.Students.Add(new NoticeStudentsOfClassTodayStudent()
                     {
@@ -474,6 +489,11 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    var myStudentCourse = await _studentCourseDAL.GetStudentCourse(student.Id, p.CourseId);
+                    if (ComBusiness3.IsStopOfClass(myStudentCourse))
                     {
                         continue;
                     }

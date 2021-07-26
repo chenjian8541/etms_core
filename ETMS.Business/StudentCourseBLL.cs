@@ -375,7 +375,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("不存在此学员");
             }
             var stopTime = DateTime.Now.Date;
-            await _studentCourseDAL.StudentCourseStop(request.StudentId, request.CourseId, stopTime);
+            await _studentCourseDAL.StudentCourseStop(request.StudentId, request.CourseId, stopTime, request.RestoreTime);
             //await _studentCourseStopLogDAL.AddStudentCourseStopLog(new EtStudentCourseStopLog()
             //{
             //    CourseId = request.CourseId,
@@ -396,6 +396,12 @@ namespace ETMS.Business
                 StudentId = request.StudentId
             });
 
+            var str = new StringBuilder();
+            str.Append($"课程停课，停课日期({stopTime.EtmsToDateString()})");
+            if (request.RestoreTime != null)
+            {
+                str.Append($"，复课日期({stopTime.EtmsToDateString()})");
+            }
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
             {
                 CourseId = request.CourseId,
@@ -405,7 +411,7 @@ namespace ETMS.Business
                 OpUser = request.LoginUserId,
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId,
-                OpContent = "课程停课",
+                OpContent = str.ToString(),
                 Remark = request.Remark
             });
 
@@ -421,26 +427,9 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("不存在此学员");
             }
 
-            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId, request.CourseId);
-            var stopTime = myCourse.First().StopTime.Value.Date;
-            var now = DateTime.Now.Date;
-            //处理过期时间
-            var stopCourseDetail = await _studentCourseDAL.GetStudentCourseDetailStop(request.StudentId, request.CourseId);
-            if (stopCourseDetail.Any())
-            {
-                foreach (var p in stopCourseDetail)
-                {
-                    if (p.EndTime != null && p.EndTime.Value > stopTime)
-                    {
-                        var diff = (p.EndTime.Value - stopTime).TotalDays; //计算停课那天 还剩余多久的课程
-                        p.EndTime = now.AddDays(diff);
-                    }
-                }
-                await _studentCourseDAL.UpdateStudentCourseDetail(stopCourseDetail);
-            }
+            await ComBusiness3.RestoreStudentCourse(_studentCourseDAL, request.LoginTenantId, request.StudentId, request.CourseId,
+                DateTime.Now.Date);
 
-            await _studentCourseDAL.StudentCourseRestoreTime(request.StudentId, request.CourseId);
-            //await _studentCourseStopLogDAL.StudentCourseRestore(request.StudentId, request.CourseId, DateTime.Now);
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
             {
                 CourseId = request.CourseId,

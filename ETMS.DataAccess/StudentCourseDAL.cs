@@ -220,10 +220,19 @@ namespace ETMS.DataAccess
         /// <param name="studentId"></param>
         /// <param name="courseId"></param>
         /// <param name="stopTime"></param>
+        /// <param name="restoreTime"></param>
         /// <returns></returns>
-        public async Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime)
+        public async Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime, DateTime? restoreTime)
         {
-            var sql = new StringBuilder($"UPDATE EtStudentCourse SET [Status] = {EmStudentCourseStatus.StopOfClass} ,StopTime = '{stopTime.EtmsToDateString()}',RestoreTime = NULL WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} ;");
+            var sql = new StringBuilder();
+            if (restoreTime == null)
+            {
+                sql.Append($"UPDATE EtStudentCourse SET [Status] = {EmStudentCourseStatus.StopOfClass} ,StopTime = '{stopTime.EtmsToDateString()}',RestoreTime = NULL WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} ;");
+            }
+            else
+            {
+                sql.Append($"UPDATE EtStudentCourse SET [Status] = {EmStudentCourseStatus.StopOfClass} ,StopTime = '{stopTime.EtmsToDateString()}',RestoreTime = '{restoreTime.EtmsToDateString()}' WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} ;");
+            }
             sql.Append($"UPDATE EtStudentCourseDetail SET [Status] = {EmStudentCourseStatus.StopOfClass} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} ;");
             var count = await _dbWrapper.Execute(sql.ToString());
             await UpdateCache(_tenantId, studentId);

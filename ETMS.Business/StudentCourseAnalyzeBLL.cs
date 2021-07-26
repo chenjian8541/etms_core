@@ -103,7 +103,7 @@ namespace ETMS.Business
         /// 3.停课/复课状态；
         /// 4.停课时要讲所有课程详情的截止时间置空，复课后需要重新设置起止时间和课程有效期；
         /// 
-        /// 购买单位（课时/月）
+        /// 购买单位（课时/月/天）
         /// 赠送单位（课时/月/天）
         /// 剩余单位（课时/月/天）
         /// 消耗单位（课时/天）
@@ -150,10 +150,20 @@ namespace ETMS.Business
             if (myCourse.Any())
             {
                 var firstCourseLog = myCourse.First();
-                if (firstCourseLog.Status == EmStudentCourseStatus.StopOfClass
-                    && (firstCourseLog.RestoreTime == null || firstCourseLog.RestoreTime.Value > DateTime.Now.Date))
+                if (firstCourseLog.Status == EmStudentCourseStatus.StopOfClass)
                 {
-                    studentCourseStatus = EmStudentCourseStatus.StopOfClass;
+                    if (firstCourseLog.RestoreTime == null || firstCourseLog.RestoreTime.Value > DateTime.Now.Date)
+                    {
+                        studentCourseStatus = EmStudentCourseStatus.StopOfClass;
+                    }
+                    if (firstCourseLog.RestoreTime != null && firstCourseLog.RestoreTime.Value <= DateTime.Now.Date)
+                    {
+                        //自动复课
+                        await ComBusiness3.RestoreStudentCourse(_studentCourseDAL, request.TenantId, request.StudentId, request.CourseId,
+                           firstCourseLog.RestoreTime.Value);
+                        _eventPublisher.Publish(request);
+                        return;
+                    }
                 }
                 courseClassTimes.StopTime = courseDay.StopTime = firstCourseLog.StopTime;
                 courseClassTimes.RestoreTime = courseDay.RestoreTime = firstCourseLog.RestoreTime;

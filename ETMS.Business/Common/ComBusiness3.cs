@@ -378,5 +378,60 @@ namespace ETMS.Business.Common
                 });
             }
         }
+
+        internal static bool IsStopOfClass(List<EtStudentCourse> myStudentCourses)
+        {
+            if (myStudentCourses == null || myStudentCourses.Count == 0)
+            {
+                return false;
+            }
+            return myStudentCourses.First().Status == EmStudentCourseStatus.EndOfClass;
+        }
+
+        /// <summary>
+        /// 学员课程复课
+        /// </summary>
+        /// <param name="studentCourseDAL"></param>
+        /// <param name="tenantId"></param>
+        /// <param name="studentId"></param>
+        /// <param name="courseId"></param>
+        internal static async Task RestoreStudentCourse(IStudentCourseDAL studentCourseDAL, long tenantId, long studentId,
+            long courseId, DateTime restoreTime)
+        {
+            var myCourse = await studentCourseDAL.GetStudentCourseDb(studentId, courseId);
+            if (myCourse == null || myCourse.Count == 0)
+            {
+                LOG.Log.Error($"[RestoreStudentCourse]未找到复课的课程,{tenantId},{studentId},{courseId}", typeof(ComBusiness3));
+                return;
+            }
+            var firstStopLog = myCourse.First();
+            if (firstStopLog.Status != EmStudentCourseStatus.EndOfClass)
+            {
+                LOG.Log.Error($"[RestoreStudentCourse]课程不需要复课,{tenantId},{studentId},{courseId}", typeof(ComBusiness3));
+                return;
+            }
+            var stopTime = firstStopLog.StopTime.Value.Date;
+
+            //复课后，自动处理课程的有效期
+            var stopCourseDetail = await studentCourseDAL.GetStudentCourseDetailStop(studentId, courseId);
+            if (stopCourseDetail.Any())
+            {
+                bool isChanged = false;
+                foreach (var p in stopCourseDetail)
+                {
+                    if (p.EndTime != null && p.EndTime.Value > stopTime)
+                    {
+                        var diff = (p.EndTime.Value - stopTime).TotalDays; //计算停课那天 还剩余多久的课程
+                        p.EndTime = restoreTime.AddDays(diff);
+                        isChanged = true;
+                    }
+                }
+                if (isChanged)
+                {
+                    await studentCourseDAL.UpdateStudentCourseDetail(stopCourseDetail);
+                }
+            }
+            await studentCourseDAL.StudentCourseRestoreTime(studentId, courseId);
+        }
     }
 }

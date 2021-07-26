@@ -49,7 +49,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal addClassTimes);
 
-        Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime);
+        Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime,DateTime? restoreTime);
 
         Task<bool> StudentCourseRestoreTime(long studentId, long courseId);
 
