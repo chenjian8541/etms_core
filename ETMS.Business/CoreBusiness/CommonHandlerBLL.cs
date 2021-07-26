@@ -29,6 +29,12 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, this._studentCourseDAL);
         }
 
+        /// <summary>
+        /// 撤销点名/修改点名时  
+        /// 如果课程是"已结课"，判断学员的课程是否应该从"已结课"改成"正常"
+        /// </summary>
+        /// <param name="deStudentCourseDetailId"></param>
+        /// <returns></returns>
         public async Task AnalyzeStudentCourseDetailRestoreNormalStatus(long deStudentCourseDetailId)
         {
             var studentCourseDetail = await _studentCourseDAL.GetEtStudentCourseDetailById(deStudentCourseDetailId);

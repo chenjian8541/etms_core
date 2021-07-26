@@ -254,6 +254,10 @@ namespace ETMS.Business
                 return null;
             }
             var studentCourse = await _studentCourseDAL.GetStudentCourse(studentId, courseId);
+            if (ComBusiness3.IsStopOfClass(studentCourse))
+            {
+                return null;
+            }
             if (studentType == EmClassStudentType.TryCalssStudent)
             {
                 defaultClassTimes = "0";
