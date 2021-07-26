@@ -71,6 +71,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public string Remark { get; set; }
 
+        public byte? Status { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND UserId = {LoginUserId}";
@@ -118,6 +120,10 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (!string.IsNullOrEmpty(Remark))
             {
                 condition.Append($" AND Remark LIKE '%{Remark}%'");
+            }
+            if (Status != null)
+            {
+                condition.Append($" AND [Status] = {Status.Value}");
             }
             if (IsDataLimit)
             {
