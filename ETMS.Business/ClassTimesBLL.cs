@@ -182,7 +182,7 @@ namespace ETMS.Business
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null,
                         etClass.EtClass.DefaultClassTimes.EtmsToString(),
-                        EmBool.False);
+                        EmBool.False, classOt);
                     if (classTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
@@ -212,7 +212,7 @@ namespace ETMS.Business
                 {
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
-                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, classOt);
                     if (tempTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
@@ -241,7 +241,7 @@ namespace ETMS.Business
 
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
             long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, string defaultClassTimes,
-            byte isReservation)
+            byte isReservation, DateTime? classOt = null)
         {
             var myStudent = await _studentDAL.GetStudent(studentId);
             if (myStudent == null)
@@ -254,14 +254,11 @@ namespace ETMS.Business
                 return null;
             }
             var studentCourse = await _studentCourseDAL.GetStudentCourse(studentId, courseId);
-            if (ComBusiness3.IsStopOfClass(studentCourse))
-            {
-                return null;
-            }
             if (studentType == EmClassStudentType.TryCalssStudent)
             {
                 defaultClassTimes = "0";
             }
+            var stopCourseResult = ComBusiness3.IsStopOfClass2(studentCourse, classOt);
             return new ClassTimesStudentGetOutput()
             {
                 CourseId = courseId,
@@ -281,6 +278,8 @@ namespace ETMS.Business
                 DefaultClassTimes = defaultClassTimes,
                 Points = myCourse.Item1.CheckPoints,
                 IsReservation = isReservation,
+                IsStopCoure = stopCourseResult.Item1,
+                StopCoureDesc = stopCourseResult.Item2,
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Student.Avatar),
             };
         }

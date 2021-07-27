@@ -84,5 +84,15 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte IsReservation { get; set; }
+
+        /// <summary>
+        /// 停课
+        /// </summary>
+        public bool IsStopCoure { get; set; }
+
+        /// <summary>
+        /// 停课描述
+        /// </summary>
+        public string StopCoureDesc { get; set; }
     }
 }

@@ -379,13 +379,53 @@ namespace ETMS.Business.Common
             }
         }
 
-        internal static bool IsStopOfClass(List<EtStudentCourse> myStudentCourses)
+        internal static Tuple<bool, string> IsStopOfClass2(List<EtStudentCourse> myStudentCourses, DateTime? verifyDate = null)
+        {
+            var isStopCourse = IsStopOfClass(myStudentCourses, verifyDate);
+            if (isStopCourse)
+            {
+                var myFirstCourse = myStudentCourses.First();
+                if (myFirstCourse.RestoreTime == null)
+                {
+                    return Tuple.Create(true, $"停课开始时间：{myFirstCourse.StopTime.EtmsToDateString()}");
+                }
+                else
+                {
+                    return Tuple.Create(true, $"停课时间：{myFirstCourse.StopTime.EtmsToDateString()}到{myFirstCourse.RestoreTime.EtmsToDateString()}");
+                }
+            }
+            return Tuple.Create(false, string.Empty);
+        }
+
+        internal static bool IsStopOfClass(List<EtStudentCourse> myStudentCourses, DateTime? verifyDate = null)
         {
             if (myStudentCourses == null || myStudentCourses.Count == 0)
             {
                 return false;
             }
-            return myStudentCourses.First().Status == EmStudentCourseStatus.EndOfClass;
+            var myFirstCourse = myStudentCourses.First();
+            if (verifyDate == null)
+            {
+                return myFirstCourse.Status == EmStudentCourseStatus.StopOfClass;
+            }
+            else
+            {
+                if (myFirstCourse.Status == EmStudentCourseStatus.StopOfClass)
+                {
+                    if (myFirstCourse.RestoreTime == null)
+                    {
+                        return verifyDate.Value >= myFirstCourse.StopTime.Value;
+                    }
+                    else
+                    {
+                        return verifyDate.Value >= myFirstCourse.StopTime.Value && verifyDate.Value < myFirstCourse.RestoreTime.Value;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         /// <summary>
