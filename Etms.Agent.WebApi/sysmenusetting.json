@@ -149,6 +149,11 @@
             "Id": 26,
             "Name": "短信模板审核",
             "Type": 0
+          },
+          {
+            "Id": 27,
+            "Name": "意见反馈",
+            "Type": 0
           }
         ],
         "ChildrenAction": [

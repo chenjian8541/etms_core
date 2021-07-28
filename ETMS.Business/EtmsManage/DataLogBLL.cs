@@ -29,14 +29,18 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysTenantLogDAL _sysTenantLogDAL;
 
+        private readonly ISysTenantUserFeedbackDAL _sysTenantUserFeedbackDAL;
+
         public DataLogBLL(ISysAgentDAL sysAgentDAL, ISysTenantDAL sysTenantDAL, ISysSmsLogDAL sysSmsLogDAL,
-            ISysTenantOperationLogDAL sysTenantOperationLogDAL, ISysTenantLogDAL sysTenantLogDAL)
+            ISysTenantOperationLogDAL sysTenantOperationLogDAL, ISysTenantLogDAL sysTenantLogDAL,
+            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL)
         {
             this._sysAgentDAL = sysAgentDAL;
             this._sysTenantDAL = sysTenantDAL;
             this.sysSmsLogDAL = sysSmsLogDAL;
             this._sysTenantOperationLogDAL = sysTenantOperationLogDAL;
             this._sysTenantLogDAL = sysTenantLogDAL;
+            this._sysTenantUserFeedbackDAL = sysTenantUserFeedbackDAL;
         }
 
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
@@ -178,6 +182,42 @@ namespace ETMS.Business.EtmsManage
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SysTenantExDateLogPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> UserFeedbackPaging(UserFeedbackPagingRequest request)
+        {
+            var output = new List<UserFeedbackPagingOutput>();
+            var pagingData = await _sysTenantUserFeedbackDAL.GetPaging(request);
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxTenant = new AgentDataTempBox<SysTenant>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var tenant = await AgentComBusiness.GetTenant(tempBoxTenant, _sysTenantDAL, p.TenantId);
+                    var tenantName = string.Empty;
+                    var tenantPhone = string.Empty;
+                    if (tenant != null)
+                    {
+                        tenantName = tenant.Name;
+                        tenantPhone = tenant.Phone;
+                    }
+                    output.Add(new UserFeedbackPagingOutput()
+                    {
+                        AgentId = p.AgentId,
+                        LinkPhone = p.LinkPhone,
+                        Ot = p.Ot,
+                        ProblemContent = p.ProblemContent,
+                        ProblemLevel = p.ProblemLevel,
+                        ProblemTheme = p.ProblemTheme,
+                        ProblemType = p.ProblemType,
+                        TenantId = p.TenantId,
+                        TenantName = tenantName,
+                        TenantPhone = tenantPhone,
+                        UserId = p.UserId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<UserFeedbackPagingOutput>(pagingData.Item2, output));
         }
     }
 }

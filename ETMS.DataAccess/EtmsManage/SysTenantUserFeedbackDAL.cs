@@ -17,5 +17,10 @@ namespace ETMS.DataAccess.EtmsManage
         {
             await this.Insert(entity);
         }
+
+        public async Task<Tuple<IEnumerable<SysTenantUserFeedback>, int>> GetPaging(AgentPagingBase request)
+        {
+            return await this.ExecutePage<SysTenantUserFeedback>("SysTenantUserFeedback", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
     }
 }

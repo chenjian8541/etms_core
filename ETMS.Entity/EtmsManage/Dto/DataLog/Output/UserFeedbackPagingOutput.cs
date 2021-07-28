@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
-using ETMS.Entity.Enum.EtmsManage;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Manage
+namespace ETMS.Entity.EtmsManage.Dto.DataLog.Output
 {
-    [Table("SysTenantUserFeedback")]
-    public class SysTenantUserFeedback : EManageEntity<long>
+    public class UserFeedbackPagingOutput
     {
         public int AgentId { get; set; }
 
         public int TenantId { get; set; }
+
+        public string TenantName { get; set; }
+
+        public string TenantPhone { get; set; }
 
         public long UserId { get; set; }
 

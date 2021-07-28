@@ -270,6 +270,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserFeedbackPaging(UserFeedbackPagingRequest request)
+        {
+            try
+            {
+                return await _dataLogBLL.UserFeedbackPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> UserGet(UserGetRequest request)
         {
             try
