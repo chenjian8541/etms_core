@@ -405,7 +405,7 @@ namespace ETMS.Business.Common
                 return;
             }
             var firstStopLog = myCourse.First();
-            if (firstStopLog.Status != EmStudentCourseStatus.EndOfClass)
+            if (firstStopLog.Status != EmStudentCourseStatus.StopOfClass)
             {
                 LOG.Log.Error($"[RestoreStudentCourse]课程不需要复课,{tenantId},{studentId},{courseId}", typeof(ComBusiness3));
                 return;
