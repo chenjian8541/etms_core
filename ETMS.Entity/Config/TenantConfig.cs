@@ -323,6 +323,7 @@ namespace ETMS.Entity.Config
         public ParentSetConfig()
         {
             this.ParentBanners = new List<ParentBanner>();
+            this.ParentMenus = new List<ParentMenuInfo>();
         }
 
         public List<ParentBanner> ParentBanners { get; set; }
@@ -330,6 +331,31 @@ namespace ETMS.Entity.Config
         public string Title { get; set; }
 
         public string LoginImage { get; set; }
+
+        public List<ParentMenuInfo> ParentMenus { get; set; }
+    }
+
+    public class ParentMenuInfo
+    {
+        public ParentMenuInfo() { }
+
+        public ParentMenuInfo(int id, string title, int orderIndex)
+        {
+            this.Id = id;
+            this.Title = title;
+            this.OrderIndex = orderIndex;
+            this.IcoKey = $"system/material/parent/menus/{id}.png";
+        }
+
+        public int Id { get; set; }
+
+        public string Title { get; set; }
+
+        public string IcoKey { get; set; }
+
+        public bool IsShow { get; set; }
+
+        public int OrderIndex { get; set; }
     }
 
     public class ParentBanner

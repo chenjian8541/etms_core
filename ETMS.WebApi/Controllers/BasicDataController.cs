@@ -1092,5 +1092,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ParentMenuConfigGet(RequestBase request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.ParentMenuConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ParentMenuConfigSave(ParentMenuConfigSaveRequest request)
+        {
+            try
+            {
+                this._appConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _appConfigBLL.ParentMenuConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

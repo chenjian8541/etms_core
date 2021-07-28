@@ -32,8 +32,10 @@ namespace ETMS.Business
 
         private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
 
+        private readonly IParentMenusConfigDAL _parentMenusConfigDAL;
+
         public AppConfigBLL(ITenantConfigDAL tenantConfigDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL, IHttpContextAccessor httpContextAccessor,
-            IAppConfigurtaionServices appConfigurtaionServices, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
+            IAppConfigurtaionServices appConfigurtaionServices, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL, IParentMenusConfigDAL parentMenusConfigDAL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -41,11 +43,12 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
+            this._parentMenusConfigDAL = parentMenusConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _tenantConfigDAL, _userOperationLogDAL);
+            this.InitDataAccess(tenantId, _tenantConfigDAL, _userOperationLogDAL, _parentMenusConfigDAL);
         }
 
         public async Task<TenantConfig> TenantConfigGet(int tenantId)
@@ -426,6 +429,44 @@ namespace ETMS.Business
             config.StudentConfig.InitialPassword = request.InitialPassword;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "学员信息设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ParentMenuConfigGet(RequestBase request)
+        {
+            var allMenus = await _parentMenusConfigDAL.GetParentMenuConfig();
+            var output = new ParentMenuConfigGetOutput()
+            {
+                Home = allMenus.Where(p => p.Id < 20).ToList(),
+                Me = allMenus.Where(p => p.Id >= 20).ToList()
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ParentMenuConfigSave(ParentMenuConfigSaveRequest request)
+        {
+            var chekSmsResult = _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeCheck(request.LoginTenantId, request.SmsCode);
+            if (!chekSmsResult.IsResponseSuccess())
+            {
+                return chekSmsResult;
+            }
+            var menus = new List<ParentMenuInfo>();
+            foreach (var p in request.Menus)
+            {
+                menus.Add(new ParentMenuInfo()
+                {
+                    IcoKey = p.IcoKey,
+                    Id = p.Id,
+                    IsShow = p.IsShow,
+                    OrderIndex = 0,
+                    Title = p.Title
+                });
+            }
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.ParentSetConfig.ParentMenus = menus;
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _parentMenusConfigDAL.UpdateParentMenuConfig();
+            await _userOperationLogDAL.AddUserLog(request, "家长端菜单设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
     }

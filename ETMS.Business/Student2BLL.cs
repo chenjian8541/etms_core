@@ -1059,5 +1059,21 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(output);
         }
+
+        public async Task<ResponseBase> CheckOnLogGet(CheckOnLogGet2Request request)
+        {
+            var log = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("考勤记录不存在");
+            }
+            return ResponseBase.Success(new CheckOnLog2Get()
+            {
+                CheckOt = log.CheckOt,
+                CheckMediumUrl = AliyunOssUtil.GetAccessUrlHttps(log.CheckMedium),
+                CheckType = log.CheckType,
+                CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(log.CheckType)
+            });
+        }
     }
 }

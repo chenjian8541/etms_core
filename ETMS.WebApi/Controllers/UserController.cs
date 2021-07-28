@@ -652,5 +652,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> UserFeedback(UserFeedbackRequest request)
+        {
+            try
+            {
+                _userBLL.InitTenantId(request.LoginTenantId);
+                return await _userBLL.UserFeedback(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

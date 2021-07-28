@@ -59,11 +59,12 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly IParentMenusConfigDAL _parentMenusConfigDAL;
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
-            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -79,6 +80,7 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._sysTenantStudentDAL = sysTenantStudentDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._parentMenusConfigDAL = parentMenusConfigDAL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -446,6 +448,9 @@ namespace ETMS.Business
             output.StuNo = TenantLib.GetPhoneEncrypt(request.LoginPhone);
             output.TenantName = myTenant.Name;
 
+            _parentMenusConfigDAL.InitTenantId(request.LoginTenantId);
+            var menus = await _parentMenusConfigDAL.GetParentMenuConfig();
+            output.Menus = menus;
             return ResponseBase.Success(output);
         }
 

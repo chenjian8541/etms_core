@@ -62,5 +62,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantConfigGetSimple(RequestBase request);
 
         Task<ResponseBase> StudentConfigSave(StudentConfigSaveRequest request);
+
+        Task<ResponseBase> ParentMenuConfigGet(RequestBase request);
+
+        Task<ResponseBase> ParentMenuConfigSave(ParentMenuConfigSaveRequest request);
     }
 }

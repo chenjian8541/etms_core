@@ -61,5 +61,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> UserGet(UserGetRequest request);
 
         Task<ResponseBase> TeacherClassTimesGetPaging(TeacherClassTimesGetPagingRequest request);
+
+        Task<ResponseBase> UserFeedback(UserFeedbackRequest request);
     }
 }

@@ -93,14 +93,10 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var day1 = Convert.ToDateTime("1991-09-13").EtmsGetAge();
-            var day2 = Convert.ToDateTime("1991-5-26").EtmsGetAge();
-            var day3 = Convert.ToDateTime("1991-7-23").EtmsGetAge();
-            var day4 = Convert.ToDateTime("1991-7-26").EtmsGetAge();
-            var day5 = Convert.ToDateTime("1991-7-20").EtmsGetAge();
+            var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
 
-            Console.WriteLine("");
+            Console.WriteLine(s);
             Console.Read();
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Config;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -41,5 +42,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string TenantName { get; set; }
 
         public string StuNo { get; set; }
+
+        public List<ParentMenuConfigOutput> Menus { get; set; }
     }
 }

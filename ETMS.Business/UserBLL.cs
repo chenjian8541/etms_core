@@ -51,10 +51,13 @@ namespace ETMS.Business
 
         private readonly ISysTenantOtherInfoDAL _sysTenantOtherInfoDAL;
 
+        private readonly ISysTenantUserFeedbackDAL _sysTenantUserFeedbackDAL;
+
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
             IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
-            IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL)
+            IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL,
+            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -68,6 +71,7 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._tenantConfigDAL = tenantConfigDAL;
             this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
+            this._sysTenantUserFeedbackDAL = sysTenantUserFeedbackDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -741,6 +745,25 @@ namespace ETMS.Business
                 ClassTimes = p.ClassTimes.EtmsToString(),
                 DateDesc = p.FirstTime.ToString("yyyy年MM月")
             })));
+        }
+
+        public async Task<ResponseBase> UserFeedback(UserFeedbackRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            await _sysTenantUserFeedbackDAL.AddSysTenantUserFeedback(new SysTenantUserFeedback()
+            {
+                AgentId = myTenant.AgentId,
+                IsDeleted = EmIsDeleted.Normal,
+                LinkPhone = request.LinkPhone,
+                Ot = DateTime.Now,
+                ProblemContent = request.ProblemContent,
+                ProblemLevel = request.ProblemLevel,
+                ProblemTheme = request.ProblemTheme,
+                ProblemType = request.ProblemType,
+                Remark = string.Empty,
+                TenantId = request.LoginTenantId
+            });
+            return ResponseBase.Success();
         }
     }
 }
