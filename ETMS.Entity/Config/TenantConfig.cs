@@ -190,6 +190,12 @@ namespace ETMS.Entity.Config
         /// </summary>
         public byte IsRelationClassTimesAutoGenerateClassRecord { get; set; }
 
+        /// <summary>
+        /// 考勤记上课直接扣课时，学员存在多门课程时的处理方式
+        /// <see cref="EmRelationClassTimesGoDeStudentCourseMulCourseType"/>
+        /// </summary>
+        public byte RelationClassTimesGoDeStudentCourseMulCourseType { get; set; }
+
         public StudentUseCardCheckIn StudentUseCardCheckIn { get; set; }
 
         public StudentUseFaceCheckIn StudentUseFaceCheckIn { get; set; }

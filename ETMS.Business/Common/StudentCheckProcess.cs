@@ -268,18 +268,50 @@ namespace ETMS.Business.Common
             var deCourseId = 0L;
             if (courseIds.Count() > 1)
             {
-                var studentCheckDefaultCourse = myValidCourse.FirstOrDefault(p => p.StudentCheckDefault == EmBool.True);
-                if (studentCheckDefaultCourse != null)
+                if (_request.StudentCheckInConfig.RelationClassTimesGoDeStudentCourseMulCourseType ==
+                    EmRelationClassTimesGoDeStudentCourseMulCourseType.PopupsChooseStudentCouese)
                 {
-                    deCourseId = studentCheckDefaultCourse.CourseId;
+                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员有多门有效课程，请选择需要记上课课程");
+                    var popupsChooseStudentCoueses = new List<PopupsChooseStudentCouese>();
+                    foreach (var myItemCourseId in courseIds)
+                    {
+                        var myEtCourse = await _courseDAL.GetCourse(myItemCourseId);
+                        if (myEtCourse != null && myEtCourse.Item1 != null)
+                        {
+                            var myItemCourseDetails = myValidCourse.Where(p => p.CourseId == myItemCourseId).ToList();
+                            popupsChooseStudentCoueses.Add(new PopupsChooseStudentCouese()
+                            {
+                                CourseId = myItemCourseId,
+                                CourseName = myEtCourse.Item1.Name,
+                                SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myItemCourseDetails)
+                            });
+                        }
+                    }
+                    if (popupsChooseStudentCoueses.Count == 1)
+                    {
+                        deCourseId = popupsChooseStudentCoueses.First().CourseId;
+                    }
+                    else
+                    {
+                        output.PopupsChooseStudentCoueses = popupsChooseStudentCoueses;
+                        return output;
+                    }
                 }
                 else
                 {
-                    var normalCourse = myValidCourse.Where(p => p.Status == EmStudentCourseStatus.Normal); //判断正常的课程
-                    var myNormalCourseIds = normalCourse.Select(p => p.CourseId).Distinct();
-                    if (myNormalCourseIds.Count() == 1)
+                    var studentCheckDefaultCourse = myValidCourse.FirstOrDefault(p => p.StudentCheckDefault == EmBool.True);
+                    if (studentCheckDefaultCourse != null)
                     {
-                        deCourseId = myNormalCourseIds.First();
+                        deCourseId = studentCheckDefaultCourse.CourseId;
+                    }
+                    else
+                    {
+                        var normalCourse = myValidCourse.Where(p => p.Status == EmStudentCourseStatus.Normal); //判断正常的课程
+                        var myNormalCourseIds = normalCourse.Select(p => p.CourseId).Distinct();
+                        if (myNormalCourseIds.Count() == 1)
+                        {
+                            deCourseId = myNormalCourseIds.First();
+                        }
                     }
                 }
             }
@@ -550,6 +582,7 @@ namespace ETMS.Business.Common
                     var resultGoDeStudentCourse = await StudentBeginClassGoDeStudentCourse(checkType, dayLimitValueDeStudentCourse);
                     studentCheckOnLogId = resultGoDeStudentCourse.StudentCheckOnLogId;
                     deClassTimesDesc = resultGoDeStudentCourse.DeClassTimesDesc;
+                    output.PopupsChooseStudentCoueses = resultGoDeStudentCourse.PopupsChooseStudentCoueses;
                 }
             }
             _eventPublisher.Publish(new NoticeStudentsCheckOnEvent(_request.LoginTenantId)
@@ -681,5 +714,7 @@ namespace ETMS.Business.Common
         /// 扣减课时
         /// </summary>
         public string DeClassTimesDesc { get; set; }
+
+        public List<PopupsChooseStudentCouese> PopupsChooseStudentCoueses { get; set; }
     }
 }

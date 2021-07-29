@@ -52,5 +52,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentCourseRelationClass(StudentCourseRelationClassRequest request);
 
         Task<ResponseBase> CheckOnLogGet(CheckOnLogGet2Request request);
+
+        Task<ResponseBase> StudentCheckChoiceStudentCourse(StudentCheckChoiceStudentCourseRequest request);
     }
 }

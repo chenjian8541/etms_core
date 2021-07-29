@@ -1075,5 +1075,86 @@ namespace ETMS.Business
                 CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(log.CheckType)
             });
         }
+
+        public async Task<ResponseBase> StudentCheckChoiceStudentCourse(StudentCheckChoiceStudentCourseRequest request)
+        {
+            var studentCheckOnLog = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
+            if (studentCheckOnLog == null)
+            {
+                return ResponseBase.CommonError("考勤记录不存在");
+            }
+            if (studentCheckOnLog.Status != EmStudentCheckOnLogStatus.NormalNotClass)
+            {
+                return ResponseBase.CommonError("考勤记录已记上课");
+            }
+            var myDeCourse = await _courseDAL.GetCourse(request.CourseId);
+            if (myDeCourse == null || myDeCourse.Item1 == null)
+            {
+                return ResponseBase.CommonError("学员报读课程不存在");
+            }
+            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+            {
+                ClassOt = studentCheckOnLog.CheckOt,
+                TenantId = request.LoginTenantId,
+                StudentId = studentCheckOnLog.StudentId,
+                DeClassTimes = myDeCourse.Item1.StudentCheckDeClassTimes,
+                CourseId = request.CourseId
+            });
+            if (myDeCourse.Item1.CheckPoints > 0)
+            {
+                await _studentDAL.AddPoint(studentCheckOnLog.StudentId, myDeCourse.Item1.CheckPoints);
+                await _studentPointsLogDAL.AddStudentPointsLog(new EtStudentPointsLog()
+                {
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = string.Empty,
+                    Ot = studentCheckOnLog.CheckOt,
+                    Points = myDeCourse.Item1.CheckPoints,
+                    Remark = string.Empty,
+                    StudentId = studentCheckOnLog.StudentId,
+                    TenantId = studentCheckOnLog.TenantId,
+                    Type = EmStudentPointsLogType.StudentCheckOn
+                });
+            }
+            await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassByStudentId(studentCheckOnLog.StudentId, studentCheckOnLog.CheckOt);
+            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+            {
+                await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                    DeType = deStudentClassTimesResult.DeType,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = deStudentClassTimesResult.OrderId,
+                    OrderNo = deStudentClassTimesResult.OrderNo,
+                    Ot = studentCheckOnLog.CheckOt,
+                    SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
+                    StudentId = studentCheckOnLog.StudentId,
+                    TenantId = studentCheckOnLog.TenantId,
+                    DeClassTimesSmall = 0
+                });
+                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(studentCheckOnLog.TenantId)
+                {
+                    StudentId = studentCheckOnLog.StudentId,
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    IsSendNoticeStudent = true
+                });
+            }
+
+            studentCheckOnLog.Points = myDeCourse.Item1.CheckPoints;
+            studentCheckOnLog.ClassTimesId =null;
+            studentCheckOnLog.ClassId = null;
+            studentCheckOnLog.CourseId = deStudentClassTimesResult.DeCourseId;
+            studentCheckOnLog.ClassOtDesc = "";
+            studentCheckOnLog.DeType = deStudentClassTimesResult.DeType;
+            studentCheckOnLog.DeClassTimes = deStudentClassTimesResult.DeClassTimes;
+            studentCheckOnLog.DeSum = deStudentClassTimesResult.DeSum;
+            studentCheckOnLog.ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes;
+            studentCheckOnLog.DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId;
+            studentCheckOnLog.Remark = deStudentClassTimesResult.Remrak;
+            studentCheckOnLog.Status = EmStudentCheckOnLogStatus.NormalAttendClass;
+            await _studentCheckOnLogDAL.EditStudentCheckOnLog(studentCheckOnLog);
+
+            return ResponseBase.Success();
+        }
     }
 }

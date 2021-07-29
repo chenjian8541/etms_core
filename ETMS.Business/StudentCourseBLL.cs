@@ -357,7 +357,8 @@ namespace ETMS.Business
             {
                 var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
                 var configResult = ComBusiness3.GetTenantConfigGetSimple(tenantConfig);
-                isShowSetStudentCheckDefault = configResult.IsEnableStudentCheckDeClassTimes;
+                isShowSetStudentCheckDefault = configResult.IsEnableStudentCheckDeClassTimes
+                    && tenantConfig.StudentCheckInConfig.RelationClassTimesGoDeStudentCourseMulCourseType == EmRelationClassTimesGoDeStudentCourseMulCourseType.NeedSetStudentCoueseCheckDefault;
             }
             var output = new StudentCourseDetailGet2Output()
             {

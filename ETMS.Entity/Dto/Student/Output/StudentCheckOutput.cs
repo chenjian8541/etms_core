@@ -16,7 +16,8 @@ namespace ETMS.Entity.Dto.Student.Output
                 FaceBlack = null,
                 FaceWhite = faceWhite,
                 NeedDeClassTimes = null,
-                IsSpeakErrMsg = isSpeakErrMsg
+                IsSpeakErrMsg = isSpeakErrMsg,
+                PopupsChooseStudentCoueses = null
             };
         }
 
@@ -39,6 +40,8 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public List<StudentNeedDeClassTimes> NeedDeClassTimes { get; set; }
 
+        public List<PopupsChooseStudentCouese> PopupsChooseStudentCoueses { get; set; }
+
         /// <summary>
         /// 白名单
         /// </summary>
@@ -48,6 +51,15 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 黑名单
         /// </summary>
         public FaceInfo FaceBlack { get; set; }
+    }
+
+    public class PopupsChooseStudentCouese
+    {
+        public long CourseId { get; set; }
+
+        public string CourseName { get; set; }
+
+        public string SurplusQuantityDesc { get; set; }
     }
 
     public class StudentNeedDeClassTimes

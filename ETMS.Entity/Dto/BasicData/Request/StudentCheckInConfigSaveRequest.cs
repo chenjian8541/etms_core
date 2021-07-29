@@ -93,6 +93,12 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public byte IsRelationClassTimesAutoGenerateClassRecord { get; set; }
 
+        /// <summary>
+        /// 考勤记上课直接扣课时，学员存在多门课程时的处理方式
+        /// <see cref="EmRelationClassTimesGoDeStudentCourseMulCourseType"/>
+        /// </summary>
+        public byte RelationClassTimesGoDeStudentCourseMulCourseType { get; set; }
+
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)
