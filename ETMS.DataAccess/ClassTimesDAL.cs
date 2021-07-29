@@ -116,11 +116,26 @@ namespace ETMS.DataAccess
 
         public async Task<bool> UpdateClassTimesIsClassCheckSign(long classTimesId, long classRecordId, byte newStatus, EtClassRecord record)
         {
-            var sql = new StringBuilder();
+            var myEtClassTimes = await _dbWrapper.Find<EtClassTimes>(p => p.Id == classTimesId);
+            if (myEtClassTimes != null)
+            {
+                myEtClassTimes.Status = newStatus;
+                myEtClassTimes.ClassRecordId = classRecordId;
+                myEtClassTimes.ClassOt = record.ClassOt;
+                myEtClassTimes.Week = record.Week;
+                myEtClassTimes.StartTime = record.StartTime;
+                myEtClassTimes.EndTime = record.EndTime;
+                myEtClassTimes.ClassContent = record.ClassContent;
+                myEtClassTimes.CourseList = record.CourseList;
+                myEtClassTimes.Teachers = record.Teachers;
+                myEtClassTimes.TeacherNum = record.TeacherNum;
+                myEtClassTimes.ClassRoomIds = record.ClassRoomIds;
+                myEtClassTimes.StudentIdsTemp = "";
+                myEtClassTimes.StudentIdsClass = record.StudentIds;
+                await _dbWrapper.Update(myEtClassTimes);
+            }
             var classOt = record.ClassOt.EtmsToString();
-            sql.Append($"UPDATE EtClassTimes SET [Status] = {newStatus} ,ClassRecordId = {classRecordId},ClassOt='{classOt}',Week={record.Week},StartTime={record.StartTime},EndTime={record.EndTime},ClassContent='{record.ClassContent}',CourseList='{record.CourseList}',Teachers='{record.Teachers}',TeacherNum='{record.TeacherNum}',ClassRoomIds='{record.ClassRoomIds}',StudentIdsTemp='',StudentIdsClass='{record.StudentIds}' WHERE Id = {classTimesId} ;");
-            sql.Append($"UPDATE EtClassTimesStudent SET [Status] = {newStatus},ClassOt='{classOt}' WHERE ClassTimesId = {classTimesId} ;");
-            await _dbWrapper.Execute(sql.ToString());
+            await _dbWrapper.Execute($"UPDATE EtClassTimesStudent SET [Status] = {newStatus},ClassOt='{classOt}' WHERE ClassTimesId = {classTimesId} ;");
             return true;
         }
 

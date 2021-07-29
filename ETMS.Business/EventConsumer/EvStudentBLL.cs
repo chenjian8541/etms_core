@@ -257,11 +257,13 @@ namespace ETMS.Business.EventConsumer
         {
             var student = request.MyStudent;
             var myAgeResut = student.Birthday.EtmsGetAge();
-            if (myAgeResut.Item1 == student.Age && myAgeResut.Item2 == student.AgeMonth)
+            var newAge = myAgeResut?.Item1;
+            var newAgeMonth = myAgeResut?.Item2;
+            if (newAge == student.Age && newAgeMonth == student.AgeMonth)
             {
                 return;
             }
-            await _studentDAL.UpdateStudentAgeInfo(student.Id, myAgeResut?.Item1, myAgeResut?.Item2);
+            await _studentDAL.UpdateStudentAgeInfo(student.Id, newAge, newAgeMonth);
         }
     }
 }
