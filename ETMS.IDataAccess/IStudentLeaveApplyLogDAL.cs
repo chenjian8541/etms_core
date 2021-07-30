@@ -19,5 +19,7 @@ namespace ETMS.IDataAccess
         Task<EtStudentLeaveApplyLog> GetStudentLeaveApplyLog(long id);
 
         Task<List<EtStudentLeaveApplyLog>> GetStudentLeaveApplyPassLog(DateTime time);
+
+        Task<int> GetStudentLeaveApplyCount(long studentId,DateTime startTime, DateTime endTime);
     }
 }

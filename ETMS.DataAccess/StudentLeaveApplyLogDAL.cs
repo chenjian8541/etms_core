@@ -77,5 +77,14 @@ namespace ETMS.DataAccess
             var bucket = await GetCache(_tenantId, time);
             return bucket?.logs;
         }
+
+        public async Task<int> GetStudentLeaveApplyCount(long studentId, DateTime startTime, DateTime endTime)
+        {
+            var strStart = startTime.EtmsToDateString();
+            var strEnd = endTime.EtmsToDateString();
+            var sql = $"SELECT COUNT(0) FROM EtStudentLeaveApplyLog WHERE TenantId = {_tenantId} AND StudentId = {studentId}  AND  IsDeleted = {EmIsDeleted.Normal} AND HandleStatus IN ({EmStudentLeaveApplyHandleStatus.Unreviewed},{EmStudentLeaveApplyHandleStatus.Pass}) AND (StartDate BETWEEN '{strStart}' AND '{strEnd}' OR EndDate  BETWEEN '{strStart}' AND '{strEnd}') ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
     }
 }

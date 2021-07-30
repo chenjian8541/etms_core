@@ -58,6 +58,13 @@ namespace ETMS.Utility
             return GetThisMonth(lastMonthDay);
         }
 
+        public static Tuple<DateTime, DateTime> GetThisYear(DateTime now)
+        {
+            var firstDate = new DateTime(now.Year, 1, 1);
+            var endDate = new DateTime(now.Year, 12, 31);
+            return Tuple.Create(firstDate, endDate);
+        }
+
         public static List<DateTime> GetStartStepToAnd(DateTime start, DateTime end)
         {
             start = start.Date;

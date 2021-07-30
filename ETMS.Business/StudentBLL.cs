@@ -996,6 +996,39 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request)
         {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount > 0)
+            {
+                DateTime? startTime = null;
+                DateTime? endTime = null;
+                switch (config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)
+                {
+                    case EmStudentLeaveApplyMonthLimitType.Week:
+                        var re1 = EtmsHelper2.GetThisWeek(request.StartDate);
+                        startTime = re1.Item1;
+                        endTime = re1.Item2;
+                        break;
+                    case EmStudentLeaveApplyMonthLimitType.Month:
+                        var re2 = EtmsHelper2.GetThisMonth(request.StartDate);
+                        startTime = re2.Item1;
+                        endTime = re2.Item2;
+                        break;
+                    case EmStudentLeaveApplyMonthLimitType.Year:
+                        var re3 = EtmsHelper2.GetThisYear(request.StartDate);
+                        startTime = re3.Item1;
+                        endTime = re3.Item2;
+                        break;
+                }
+                if (startTime != null && endTime != null)
+                {
+                    var totalCount = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyCount(request.StudentId, startTime.Value, endTime.Value);
+                    if (totalCount >= config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount)
+                    {
+                        return ResponseBase.CommonError(
+                            $"已超过每{EmStudentLeaveApplyMonthLimitType.GetLimitTypeDesc(config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)}最多请假{config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount}次限制");
+                    }
+                }
+            }
             var log = new EtStudentLeaveApplyLog()
             {
                 ApplyOt = DateTime.Now,

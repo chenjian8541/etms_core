@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,5 +22,17 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 自动结课
         /// </summary>
         public bool AutoMarkGraduation { get; set; }
+
+        /// <summary>
+        /// 学员请假次数限制类型
+        /// <see cref=" ETMS.Entity.Enum.EmStudentLeaveApplyMonthLimitType"/>
+        /// </summary>
+        public byte StudentLeaveApplyMonthLimitType { get; set; }
+
+        /// <summary>
+        /// 学员请假次数限制
+        /// </summary>
+        public int StudentLeaveApplyMonthLimitCount { get; set; }
+
     }
 }

@@ -114,6 +114,17 @@ namespace ETMS.Entity.Config
         /// 自动结课
         /// </summary>
         public bool AutoMarkGraduation { get; set; }
+
+        /// <summary>
+        /// 学员请假次数限制类型
+        /// <see cref=" ETMS.Entity.Enum.EmStudentLeaveApplyMonthLimitType"/>
+        /// </summary>
+        public byte StudentLeaveApplyMonthLimitType { get; set; } = EmStudentLeaveApplyMonthLimitType.Month;
+
+        /// <summary>
+        /// 学员请假次数限制
+        /// </summary>
+        public int StudentLeaveApplyMonthLimitCount { get; set; }
     }
 
     /// <summary>
