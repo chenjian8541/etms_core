@@ -569,6 +569,11 @@ namespace ETMS.Business
                     Time = classRecord.ClassOt
                 });
             }
+            _eventPublisher.Publish(new StatisticsClassRecordStudentChangeEvent(request.LoginTenantId)
+            {
+                ClassRecord = classRecord,
+                ClassRecordStudent = p
+            });
 
             await _userOperationLogDAL.AddUserLog(request, "修改点名记录", EmUserOperationType.ClassRecordManage, now);
             return ResponseBase.Success();

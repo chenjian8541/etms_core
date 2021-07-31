@@ -60,9 +60,9 @@ namespace ETMS.Entity.Config
     public class TenantDefaultConfig
     {
         /// <summary>
-        /// 机构试用15天
+        /// 机构试用30天
         /// </summary>
-        public int TenantTestDay = 15;
+        public int TenantTestDay = 30;
 
         /// <summary>
         /// 默认限制机构用户数量100个

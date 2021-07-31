@@ -57,7 +57,7 @@ namespace ETMS.Business
             request.ClassRecord.Id = request.RecordId;
             var ot = request.ClassRecord.ClassOt.Date;
             await StatisticsClassAttendanceHandle(ot, request.ClassRecord);
-            await StatisticsClassTimesHandle(ot, request.ClassRecord.ClassTimes, request.ClassRecord.DeSum);
+            await StatisticsClassTimesHandle(ot);
             await StatisticsClassCourseHandle(ot, request.ClassRecord.ClassTimes, request.ClassRecord.CourseList);
             await StatisticsClassTeacherHandle(ot, request.ClassRecord.ClassTimes, request.ClassRecord.Teachers);
             await StatisticsClassAttendanceTag(ot);
@@ -66,7 +66,7 @@ namespace ETMS.Business
         public async Task StatisticsClassRevokeConsumeEvent(StatisticsClassRevokeEvent request)
         {
             await _statisticsClassDAL.StatisticsClassAttendanceDel(request.ClassRecord.Id);
-            await _statisticsClassDAL.StatisticsClassTimesDeduction(request.ClassRecord.ClassOt, request.ClassRecord.ClassTimes, request.ClassRecord.DeSum);
+            await StatisticsClassTimesHandle(request.ClassRecord.ClassOt);
             var myCourses = request.ClassRecord.CourseList.Split(',');
             foreach (var p in myCourses)
             {
@@ -88,6 +88,14 @@ namespace ETMS.Business
             await this._statisticsClassAttendanceTagDAL.UpdateStatisticsClassAttendanceTag(request.ClassRecord.ClassOt);
         }
 
+        public async Task StatisticsClassRecordStudentChangeConsumeEvent(StatisticsClassRecordStudentChangeEvent request)
+        {
+            var ot = request.ClassRecord.ClassOt.Date;
+            await StatisticsClassAttendanceTag(ot);
+            await StatisticsClassAttendanceHandle(ot, request.ClassRecord);
+            await StatisticsClassTimesHandle(ot);
+        }
+
         private async Task StatisticsClassAttendanceHandle(DateTime ot, EtClassRecord classRecord)
         {
             decimal attendance = 0;
@@ -95,7 +103,7 @@ namespace ETMS.Business
             {
                 attendance = classRecord.AttendNumber / (decimal)classRecord.NeedAttendNumber;
             }
-            await _statisticsClassDAL.StatisticsClassAttendanceAdd(new EtStatisticsClassAttendance()
+            await _statisticsClassDAL.StatisticsClassAttendanceSave(new EtStatisticsClassAttendance()
             {
                 ClassRecordId = classRecord.Id,
                 AttendNumber = classRecord.AttendNumber,
@@ -109,9 +117,9 @@ namespace ETMS.Business
             });
         }
 
-        private async Task StatisticsClassTimesHandle(DateTime ot, decimal addClassTimes, decimal addDeSum)
+        private async Task StatisticsClassTimesHandle(DateTime ot)
         {
-            await _statisticsClassDAL.StatisticsClassTimesSave(ot, addClassTimes, addDeSum);
+            await _statisticsClassDAL.StatisticsClassTimesSave(ot);
         }
 
         private async Task StatisticsClassCourseHandle(DateTime ot, decimal classTimes, string classRecordCourses)

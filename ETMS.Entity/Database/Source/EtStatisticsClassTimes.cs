@@ -15,7 +15,6 @@ namespace ETMS.Entity.Database.Source
 
         public decimal ClassTimes { get; set; }
 
-        [Obsolete("未使用")]
         public decimal DeSum { get; set; }
     }
 }

@@ -14,6 +14,8 @@ namespace ETMS.IBusiness
 
         Task StatisticsClassRevokeConsumeEvent(StatisticsClassRevokeEvent request);
 
+        Task StatisticsClassRecordStudentChangeConsumeEvent(StatisticsClassRecordStudentChangeEvent request);
+
         Task<ResponseBase> StatisticsClassAttendanceGet(StatisticsClassAttendanceRequest request);
 
         Task<ResponseBase> StatisticsClassTimesGet(StatisticsClassTimesGetRequest request);

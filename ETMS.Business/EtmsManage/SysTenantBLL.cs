@@ -520,7 +520,7 @@ namespace ETMS.Business.EtmsManage
         public async Task<ResponseBase> TenantDel(TenantDelRequest request)
         {
             var tenant = await _sysTenantDAL.GetTenant(request.Id);
-            var exDate = tenant.ExDate.AddDays(-SystemConfig.TenantDefaultConfig.TenantTestDay); //允许删除15天以内过期的机构
+            var exDate = tenant.ExDate.AddDays(-SystemConfig.TenantDefaultConfig.TenantTestDay); //允许删除30天以内过期的机构
 
             var isNewTenant = false;
             var addDateLimit = tenant.Ot.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
