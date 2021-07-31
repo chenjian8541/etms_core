@@ -15,6 +15,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime, byte type);
 
+        Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime);
+
         Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type);
 
         Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request);

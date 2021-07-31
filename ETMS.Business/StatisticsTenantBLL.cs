@@ -52,9 +52,9 @@ namespace ETMS.Business
             var now = DateTime.Now.Date;
             var startTime = new DateTime(now.Year, now.Month, 1);
             var endTime = startTime.AddMonths(1).AddDays(-1);
-            var accountIn = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncome(startTime, endTime, EmIncomeLogType.AccountIn);
+            var accountTotal = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncome(startTime, endTime);
             var studentCount = await _statisticsStudentCountDAL.GetStatisticsStudentCount(startTime, endTime);
-            var classTimes = await _statisticsClassDAL.StatisticsClassTimesGet(startTime, endTime);
+            var statisticsClassTimes = await _statisticsClassDAL.StatisticsClassTimesGet(startTime, endTime);
             var classAttendanceTag = await _statisticsClassAttendanceTagDAL.GetStatisticsClassAttendanceTag(now, now);
             var classActuallyCountToday = 0;
             var classLeaveCountToday = 0;
@@ -80,14 +80,42 @@ namespace ETMS.Business
                     }
                 }
             }
+            var classTimesThisMonth = 0M;
+            var deSumThisMonth = 0M;
+            if (statisticsClassTimes.Any())
+            {
+                foreach (var p in statisticsClassTimes)
+                {
+                    classTimesThisMonth += p.ClassTimes;
+                    deSumThisMonth += p.DeSum;
+                }
+            }
+            var incomeThisMonth = 0M;
+            var incomeOutThisMonth = 0M;
+            if (accountTotal.Any())
+            {
+                foreach (var p in accountTotal)
+                {
+                    if (p.Type == EmIncomeLogType.AccountIn)
+                    {
+                        incomeThisMonth += p.TotalSum;
+                    }
+                    else
+                    {
+                        incomeOutThisMonth += p.TotalSum;
+                    }
+                }
+            }
             var output = new StatisticsTenantGetOutput()
             {
-                IncomeThisMonth = accountIn.Sum(p => p.TotalSum),
+                IncomeThisMonth = incomeThisMonth,
+                IncomeOutThisMonth = incomeOutThisMonth,
                 AddStudentThisMonth = studentCount.Sum(p => p.AddStudentCount),
                 ClassActuallyCountToday = classActuallyCountToday,
                 ClassLeaveCountToday = classLeaveCountToday,
                 ClassNotArrivedToday = classNotArrivedToday,
-                ClassTimesThisMonth = classTimes.Sum(p => p.ClassTimes).EtmsToString(),
+                ClassTimesThisMonth = classTimesThisMonth.EtmsToString(),
+                DeSumThisMonth = deSumThisMonth,
                 IsDataLimit = request.IsDataLimit
             };
             return ResponseBase.Success(output);

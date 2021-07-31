@@ -12,6 +12,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal IncomeThisMonth { get; set; }
 
         /// <summary>
+        /// 本月支出
+        /// </summary>
+        public decimal IncomeOutThisMonth { get; set; }
+
+        /// <summary>
         /// 本月新增学员
         /// </summary>
         public int AddStudentThisMonth { get; set; }
@@ -20,6 +25,11 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 本月授课课时
         /// </summary>
         public string ClassTimesThisMonth { get; set; }
+
+        /// <summary>
+        /// 本月课消金额
+        /// </summary>
+        public decimal DeSumThisMonth { get; set; }
 
         /// <summary>
         /// 今日实到人次

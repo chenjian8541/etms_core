@@ -81,6 +81,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsFinanceIncome>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime && p.Type == type);
         }
 
+        public async Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime)
+        {
+            return await _dbWrapper.FindList<EtStatisticsFinanceIncome>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
+        }
+
         public async Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type)
         {
             return await _dbWrapper.FindList<EtStatisticsFinanceIncomeMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal

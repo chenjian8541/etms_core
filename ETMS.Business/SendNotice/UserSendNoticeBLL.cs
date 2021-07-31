@@ -5,6 +5,7 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.ExternalService.Dto.Request.User;
+using ETMS.Entity.Temp.Compare;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
@@ -377,11 +378,6 @@ namespace ETMS.Business.SendNotice
 
         public async Task NoticeUserStudentLeaveApplyConsumerEvent(NoticeUserStudentLeaveApplyEvent request)
         {
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentLeaveApply);
-            if (noticeUser == null || noticeUser.Count == 0)
-            {
-                return;
-            }
             var studentLeaveApplyLog = request.StudentLeaveApplyLog;
             var studentBucket = await _studentDAL.GetStudent(studentLeaveApplyLog.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
@@ -389,12 +385,49 @@ namespace ETMS.Business.SendNotice
                 Log.Error("[NoticeUserStudentLeaveApplyConsumerEvent]未找到学员", request, this.GetType());
                 return;
             }
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var noticeUser = new List<EtUser>();
+            if (tenantConfig.UserNoticeConfig.StudentLeaveApplyWeChat)
+            {
+                var myClass = await _classDAL.GetStudentClass(studentLeaveApplyLog.StudentId);
+                if (myClass != null && myClass.Any())
+                {
+                    var strUserIds = new StringBuilder();
+                    foreach (var p in myClass)
+                    {
+                        strUserIds.Append(p.Teachers);
+                    }
+                    var myUserIds = EtmsHelper.AnalyzeMuIds(strUserIds.ToString());
+                    if (myUserIds.Count > 0)
+                    {
+                        var tempUser = new DataTempBox<EtUser>();
+                        var myUserIds2 = myUserIds.Distinct();
+                        foreach (var myId in myUserIds2)
+                        {
+                            var myTempUser = await ComBusiness.GetUser(tempUser, _userDAL, myId);
+                            if (myTempUser != null)
+                            {
+                                noticeUser.Add(myTempUser);
+                            }
+                        }
+                    }
+                }
+            }
+            var myUser2 = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentLeaveApply);
+            if (myUser2 != null && myUser2.Count > 0)
+            {
+                noticeUser.AddRange(myUser2);
+            }
+            if (noticeUser.Count == 0)
+            {
+                return;
+            }
+            noticeUser = noticeUser.Distinct(new ComparerEtUser()).ToList();
 
             var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 Users = new List<NoticeUserMessageUser>()
             };
-            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
             smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;

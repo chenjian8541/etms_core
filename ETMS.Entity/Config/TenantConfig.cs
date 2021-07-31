@@ -303,6 +303,11 @@ namespace ETMS.Entity.Config
         /// 微信推送后缀
         /// </summary>
         public string WeChatNoticeRemark { get; set; }
+
+        /// <summary>
+        /// 学员请假申请通知(微信)
+        /// </summary>
+        public bool StudentLeaveApplyWeChat { get; set; } = true;
     }
 
     public class TenantInfoConfig
