@@ -140,86 +140,107 @@ namespace Etms.Tools.Test
             {
                 return;
             }
+            var dateList = new List<DateTime>();
+            dateList.Add(new DateTime(2021, 01, 01));
+            dateList.Add(new DateTime(2021, 02, 01));
+            dateList.Add(new DateTime(2021, 03, 01));
+            dateList.Add(new DateTime(2021, 04, 01));
+            dateList.Add(new DateTime(2021, 05, 01));
+            dateList.Add(new DateTime(2021, 06, 01));
+            dateList.Add(new DateTime(2021, 07, 01));
+            dateList.Add(new DateTime(2021, 08, 01));
             foreach (var tenant in tenantList)
             {
-                _classDAL.ResetTenantId(tenant.Id);
-                _roleDAL.ResetTenantId(tenant.Id);
-                try
+                foreach (var mydate in dateList)
                 {
-                    ProcessClass(tenant.Id);
-                    SetRole(tenant.Id);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-        }
-
-        private void ProcessClass(int tenantId)
-        {
-            var query = new ClassGetPagingRequest()
-            {
-                LoginTenantId = tenantId,
-                PageCurrent = 1,
-                PageSize = 200
-            };
-            var pagingData = _classDAL.GetPaging(query).Result;
-            if (pagingData.Item2 == 0)
-            {
-                return;
-            }
-            HandleClass(pagingData.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
-            query.PageCurrent++;
-            while (query.PageCurrent <= totalPage)
-            {
-                pagingData = _classDAL.GetPaging(query).Result;
-                HandleClass(pagingData.Item1);
-                query.PageCurrent++;
-            }
-        }
-
-        private void HandleClass(IEnumerable<EtClass> classList)
-        {
-            if (classList == null || !classList.Any())
-            {
-                return;
-            }
-            foreach (var p in classList)
-            {
-                _eventPublisher.Publish(new StatisticsClassFinishCountEvent(p.TenantId)
-                {
-                    ClassId = p.Id
-                });
-                Console.WriteLine($"处理完成:{p.Name} ");
-            }
-        }
-
-
-        private void SetRole(int tenantId)
-        {
-            try
-            {
-                var allRole = _roleDAL.GetRole().Result;
-                if (allRole.Count > 0)
-                {
-                    foreach (var myRole in allRole)
+                    Console.WriteLine($"{tenant.Name}-处理中...");
+                    _eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
                     {
-                        if (!string.IsNullOrEmpty(myRole.NoticeSetting))
-                        {
-                            myRole.NoticeSetting = $"{myRole.NoticeSetting}7,8,";
-                            _roleDAL.EditRole(myRole).Wait();
-                            Console.WriteLine($"处理完成:{myRole.Name} ");
-                        }
-                    }
+                        Time = mydate
+                    });
+                    _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
+                    {
+                        Time = mydate
+                    });
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}");
+                //_classDAL.ResetTenantId(tenant.Id);
+                //_roleDAL.ResetTenantId(tenant.Id);
+                //try
+                //{
+                //    ProcessClass(tenant.Id);
+                //    SetRole(tenant.Id);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex.Message);
+                //}
             }
         }
+
+        //private void ProcessClass(int tenantId)
+        //{
+        //    var query = new ClassGetPagingRequest()
+        //    {
+        //        LoginTenantId = tenantId,
+        //        PageCurrent = 1,
+        //        PageSize = 200
+        //    };
+        //    var pagingData = _classDAL.GetPaging(query).Result;
+        //    if (pagingData.Item2 == 0)
+        //    {
+        //        return;
+        //    }
+        //    HandleClass(pagingData.Item1);
+        //    var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+        //    query.PageCurrent++;
+        //    while (query.PageCurrent <= totalPage)
+        //    {
+        //        pagingData = _classDAL.GetPaging(query).Result;
+        //        HandleClass(pagingData.Item1);
+        //        query.PageCurrent++;
+        //    }
+        //}
+
+        //private void HandleClass(IEnumerable<EtClass> classList)
+        //{
+        //    if (classList == null || !classList.Any())
+        //    {
+        //        return;
+        //    }
+        //    foreach (var p in classList)
+        //    {
+        //        _eventPublisher.Publish(new StatisticsClassFinishCountEvent(p.TenantId)
+        //        {
+        //            ClassId = p.Id
+        //        });
+        //        Console.WriteLine($"处理完成:{p.Name} ");
+        //    }
+        //}
+
+
+        //private void SetRole(int tenantId)
+        //{
+        //    try
+        //    {
+        //        var allRole = _roleDAL.GetRole().Result;
+        //        if (allRole.Count > 0)
+        //        {
+        //            foreach (var myRole in allRole)
+        //            {
+        //                if (!string.IsNullOrEmpty(myRole.NoticeSetting))
+        //                {
+        //                    myRole.NoticeSetting = $"{myRole.NoticeSetting}7,8,";
+        //                    _roleDAL.EditRole(myRole).Wait();
+        //                    Console.WriteLine($"处理完成:{myRole.Name} ");
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"{ex.Message}");
+        //    }
+        //}
 
         public void EventPublish()
         {
