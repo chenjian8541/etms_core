@@ -113,8 +113,8 @@ namespace Etms.Tools.Test
         private IRoleDAL _roleDAL;
         public void ProcessT()
         {
-            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
             _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
             var pageCurrent = 1;
@@ -219,6 +219,15 @@ namespace Etms.Tools.Test
             {
                 Console.WriteLine($"{ex.Message}");
             }
+        }
+
+        public void EventPublish()
+        {
+            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            _eventPublisher.Publish(new StatisticsEducationEvent(5412)
+            {
+                Time = new DateTime(2021, 7, 30)
+            });
         }
     }
 }

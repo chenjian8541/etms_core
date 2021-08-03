@@ -31,7 +31,7 @@ namespace ETMS.Manage.Jobs
 
         public override async Task Process(JobExecutionContext context)
         {
-            _now = DateTime.Now.Date;
+            _now = DateTime.Now.AddDays(-1).Date;
 
             var pageCurrent = 1;
             var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);

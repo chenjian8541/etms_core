@@ -91,12 +91,12 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            //new EtmsProcess().ProcessT();
+            new EtmsProcess().EventPublish();
 
-            var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
+            //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
 
-            Console.WriteLine(s);
+            Console.WriteLine("已完成");
             Console.Read();
         }
 
