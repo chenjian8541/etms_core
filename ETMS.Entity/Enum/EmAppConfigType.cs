@@ -23,5 +23,15 @@ namespace ETMS.Entity.Enum
         /// 约课规则设置
         /// </summary>
         public const byte ClassReservationSetting = 2;
+
+        /// <summary>
+        /// [老师工资]工资条项目(默认)
+        /// </summary>
+        public const byte TeacherSalaryDefaultFundsItems = 3;
+
+        /// <summary>
+        /// [老师工资]绩效工资统计规则
+        /// </summary>
+        public const byte TeacherSalaryPerformanceRuleSetting = 4;
     }
 }

@@ -73,5 +73,53 @@ namespace ETMS.Business
             };
             await this._appConfigDAL.SaveAppConfig(config);
         }
+
+        public async Task<List<TeacherSalaryDefaultFundsItemsView>> GetTeacherSalaryDefaultFundsItems()
+        {
+            var log = await _appConfigDAL.GetAppConfig(EmAppConfigType.TeacherSalaryDefaultFundsItems);
+            if (log == null || string.IsNullOrEmpty(log.ConfigValue))
+            {
+                return TeacherSalaryDefaultFundsItemsView.GetDefaultFundsItems();
+            }
+            return JsonConvert.DeserializeObject<List<TeacherSalaryDefaultFundsItemsView>>(log.ConfigValue);
+        }
+
+        public async Task SaveTeacherSalaryDefaultFundsItems(int tenantId, List<TeacherSalaryDefaultFundsItemsView> entitys)
+        {
+            await _appConfigDAL.SaveAppConfig(new EtAppConfig()
+            {
+                ConfigValue = JsonConvert.SerializeObject(entitys),
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                TenantId = tenantId,
+                Type = EmAppConfigType.TeacherSalaryDefaultFundsItems
+            });
+        }
+
+        public async Task<TeacherSalaryPerformanceRuleView> GetTeacherSalaryPerformanceRule()
+        {
+            var log = await _appConfigDAL.GetAppConfig(EmAppConfigType.TeacherSalaryPerformanceRuleSetting);
+            if (log == null || string.IsNullOrEmpty(log.ConfigValue))
+            {
+                return new TeacherSalaryPerformanceRuleView()
+                {
+                    StatisticalRuleType = EmTeacherSalaryStatisticalRuleType.TotalClassTimesFirst,
+                    GradientCalculateType = EmTeacherSalaryGradientCalculateType.None
+                };
+            }
+            return JsonConvert.DeserializeObject<TeacherSalaryPerformanceRuleView>(log.ConfigValue);
+        }
+
+        public async Task SaveTeacherSalaryPerformanceRule(int tenantId, TeacherSalaryPerformanceRuleView entity)
+        {
+            await _appConfigDAL.SaveAppConfig(new EtAppConfig()
+            {
+                ConfigValue = JsonConvert.SerializeObject(entity),
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                TenantId = tenantId,
+                Type = EmAppConfigType.TeacherSalaryPerformanceRuleSetting
+            });
+        }
     }
 }

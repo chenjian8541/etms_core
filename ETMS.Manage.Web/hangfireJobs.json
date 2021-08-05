@@ -99,7 +99,7 @@
   },
   {
     "Name": "StatisticsTenantDataJob",
-    "Cron": "0 0 6 * * ?", //每天凌晨6点执行
+    "Cron": "0 0 6 * * ?", //每天凌晨6点执行, 尽量在其他job执行完  再执行
     "Title": "定时统计机构数据",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false

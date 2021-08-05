@@ -212,5 +212,10 @@ namespace ETMS.Entity.Config
         /// 课程默认颜色
         /// </summary>
         public string CourseDefaultStyleColor = "#78BFFA";
+
+        /// <summary>
+        /// 老师工资 绩效工资默认Id
+        /// </summary>
+        public long TeacherSalaryPerformanceDefaultId = -10;
     }
 }

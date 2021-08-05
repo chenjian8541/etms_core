@@ -538,6 +538,15 @@ namespace ETMS.Business
                     Time = request.ClassRecord.ClassOt
                 });
             }
+
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(request.TenantId)
+            {
+                ClassRecordId = recordId
+            });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(request.TenantId)
+            {
+                Time = request.ClassRecord.ClassOt
+            });
         }
 
         private async Task<DeStudentClassTimesResult> DeStudentClassTimes(EtClassRecordStudent classRecordStudent, bool isLeaveCharge, bool isNotComeCharge)

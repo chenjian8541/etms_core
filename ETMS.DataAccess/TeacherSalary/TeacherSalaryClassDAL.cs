@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ETMS.Utility;
+using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 
 namespace ETMS.DataAccess.TeacherSalary
 {
@@ -53,6 +55,29 @@ namespace ETMS.DataAccess.TeacherSalary
                 _dbWrapper.InsertRange(entitys);
             }
             return true;
+        }
+
+        public async Task<IEnumerable<EtTeacherSalaryClassTimes>> GetTeacherSalaryClassTimes(List<long> teacherIds, DateTime startOt, DateTime endOt)
+        {
+            if (teacherIds == null || teacherIds.Count == 0)
+            {
+                return null;
+            }
+            var str = new StringBuilder($"SELECT * FROM EtTeacherSalaryClassTimes WHERE TenantId = {_tenantId} AND  IsDeleted = {EmIsDeleted.Normal} AND Ot >= '{startOt.EtmsToDateString()}' AND Ot <= '{endOt.EtmsToDateString()}'");
+            if (teacherIds.Count == 1)
+            {
+                str.Append($" AND TeacherId = {teacherIds[0]}");
+            }
+            else
+            {
+                str.Append($" AND TeacherId IN ({string.Join(',', teacherIds)})");
+            }
+            return await _dbWrapper.ExecuteObject<EtTeacherSalaryClassTimes>(str.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtTeacherSalaryClassDay>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtTeacherSalaryClassDay>("EtTeacherSalaryClassDay", "*", request.PageSize, request.PageCurrent, "TeacherId,Id DESC", request.ToString());
         }
     }
 }

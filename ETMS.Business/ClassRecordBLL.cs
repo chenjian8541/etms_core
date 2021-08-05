@@ -575,6 +575,15 @@ namespace ETMS.Business
                 ClassRecordStudent = p
             });
 
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(request.LoginTenantId)
+            {
+                ClassRecordId = classRecord.Id
+            });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(request.LoginTenantId)
+            {
+                Time = classRecord.ClassOt
+            });
+
             await _userOperationLogDAL.AddUserLog(request, "修改点名记录", EmUserOperationType.ClassRecordManage, now);
             return ResponseBase.Success();
         }

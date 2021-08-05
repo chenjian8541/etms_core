@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness
 {
-    public interface IAppConfig2BLL: IBaseBLL
+    public interface IAppConfig2BLL : IBaseBLL
     {
         Task<StudentAccountRechargeRuleView> GetStudentAccountRechargeRule();
 
@@ -15,5 +15,13 @@ namespace ETMS.IBusiness
         Task<ClassReservationSettingView> GetClassReservationSetting();
 
         Task SaveClassReservationSetting(int tenantId, ClassReservationSettingView configModel);
+
+        Task<List<TeacherSalaryDefaultFundsItemsView>> GetTeacherSalaryDefaultFundsItems();
+
+        Task SaveTeacherSalaryDefaultFundsItems(int tenantId, List<TeacherSalaryDefaultFundsItemsView> entitys);
+
+        Task<TeacherSalaryPerformanceRuleView> GetTeacherSalaryPerformanceRule();
+
+        Task SaveTeacherSalaryPerformanceRule(int tenantId, TeacherSalaryPerformanceRuleView entity);
     }
 }

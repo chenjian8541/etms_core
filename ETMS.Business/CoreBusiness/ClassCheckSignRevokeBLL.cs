@@ -227,6 +227,15 @@ namespace ETMS.Business
                     Time = classRecord.ClassOt
                 });
             }
+
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(request.TenantId)
+            {
+                ClassRecordId = request.ClassRecordId
+            });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(request.TenantId)
+            {
+                Time = classRecord.ClassOt
+            });
         }
     }
 }

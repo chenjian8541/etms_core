@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,9 @@ namespace ETMS.IDataAccess.TeacherSalary
         Task<bool> DelTeacherSalaryClassDay(DateTime ot);
 
         Task<bool> SaveTeacherSalaryClassDay(DateTime ot, List<EtTeacherSalaryClassDay> entitys);
+
+        Task<IEnumerable<EtTeacherSalaryClassTimes>> GetTeacherSalaryClassTimes(List<long> teacherIds, DateTime startOt, DateTime endOt);
+
+        Task<Tuple<IEnumerable<EtTeacherSalaryClassDay>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request);
     }
 }

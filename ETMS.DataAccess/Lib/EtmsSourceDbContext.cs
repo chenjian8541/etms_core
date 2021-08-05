@@ -157,5 +157,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtTeacherSalaryClassDay> EtTeacherSalaryClassDays { get; set; }
 
         public DbSet<EtTeacherSalaryClassTimes> EtTeacherSalaryClassTimess { get; set; }
+
+        public DbSet<EtTeacherSalaryFundsItems> EtTeacherSalaryFundsItemss { get; set; }
     }
 }

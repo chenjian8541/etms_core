@@ -161,6 +161,9 @@ namespace ETMS.Entity.Enum
         SmsSmsTemplate = 80,
 
         [Description("微官网")]
-        MicroWebManage = 81
+        MicroWebManage = 81,
+
+        [Description("老师工资")]
+        TeacherSalary = 82
     }
 }
