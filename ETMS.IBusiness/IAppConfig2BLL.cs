@@ -20,8 +20,8 @@ namespace ETMS.IBusiness
 
         Task SaveTeacherSalaryDefaultFundsItems(int tenantId, List<TeacherSalaryDefaultFundsItemsView> entitys);
 
-        Task<TeacherSalaryPerformanceRuleView> GetTeacherSalaryPerformanceRule();
+        Task<TeacherSalaryGlobalRuleView> GetTeacherSalaryGlobalRule();
 
-        Task SaveTeacherSalaryPerformanceRule(int tenantId, TeacherSalaryPerformanceRuleView entity);
+        Task SaveTeacherSalaryGlobalRule(int tenantId, TeacherSalaryGlobalRuleView entity);
     }
 }

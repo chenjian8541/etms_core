@@ -96,21 +96,23 @@ namespace ETMS.Business
             });
         }
 
-        public async Task<TeacherSalaryPerformanceRuleView> GetTeacherSalaryPerformanceRule()
+        public async Task<TeacherSalaryGlobalRuleView> GetTeacherSalaryGlobalRule()
         {
-            var log = await _appConfigDAL.GetAppConfig(EmAppConfigType.TeacherSalaryPerformanceRuleSetting);
+            var log = await _appConfigDAL.GetAppConfig(EmAppConfigType.TeacherSalaryGlobalRuleSetting);
             if (log == null || string.IsNullOrEmpty(log.ConfigValue))
             {
-                return new TeacherSalaryPerformanceRuleView()
+                return new TeacherSalaryGlobalRuleView()
                 {
                     StatisticalRuleType = EmTeacherSalaryStatisticalRuleType.TotalClassTimesFirst,
-                    GradientCalculateType = EmTeacherSalaryGradientCalculateType.None
+                    GradientCalculateType = EmTeacherSalaryGradientCalculateType.None,
+                    IncludeArrivedMakeUpStudent = EmBool.True,
+                    IncludeArrivedTryCalssStudent = EmBool.False
                 };
             }
-            return JsonConvert.DeserializeObject<TeacherSalaryPerformanceRuleView>(log.ConfigValue);
+            return JsonConvert.DeserializeObject<TeacherSalaryGlobalRuleView>(log.ConfigValue);
         }
 
-        public async Task SaveTeacherSalaryPerformanceRule(int tenantId, TeacherSalaryPerformanceRuleView entity)
+        public async Task SaveTeacherSalaryGlobalRule(int tenantId, TeacherSalaryGlobalRuleView entity)
         {
             await _appConfigDAL.SaveAppConfig(new EtAppConfig()
             {
@@ -118,7 +120,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Remark = string.Empty,
                 TenantId = tenantId,
-                Type = EmAppConfigType.TeacherSalaryPerformanceRuleSetting
+                Type = EmAppConfigType.TeacherSalaryGlobalRuleSetting
             });
         }
     }

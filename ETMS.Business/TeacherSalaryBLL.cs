@@ -177,25 +177,37 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherSalaryClassDayGetPagingOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> TeacherSalaryPerformanceRuleGet(TeacherSalaryPerformanceRuleGetRequest request)
+        public async Task<ResponseBase> TeacherSalaryGlobalRuleGet(TeacherSalaryGlobalRuleGetRequest request)
         {
-            var log = await _appConfig2BLL.GetTeacherSalaryPerformanceRule();
-            return ResponseBase.Success(new TeacherSalaryPerformanceRuleGetOutput()
+            var log = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
+            return ResponseBase.Success(new TeacherSalaryGlobaleRuleGetOutput()
             {
                 GradientCalculateType = log.GradientCalculateType,
-                StatisticalRuleType = log.StatisticalRuleType
+                StatisticalRuleType = log.StatisticalRuleType,
+                IncludeArrivedMakeUpStudent = log.IncludeArrivedMakeUpStudent,
+                IncludeArrivedTryCalssStudent = log.IncludeArrivedTryCalssStudent
             });
         }
 
         public async Task<ResponseBase> TeacherSalaryPerformanceRuleSave(TeacherSalaryPerformanceRuleSaveRequest request)
         {
-            await _appConfig2BLL.SaveTeacherSalaryPerformanceRule(request.LoginTenantId, new TeacherSalaryPerformanceRuleView()
-            {
-                GradientCalculateType = request.GradientCalculateType,
-                StatisticalRuleType = request.StatisticalRuleType
-            });
+            var log = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
+            log.GradientCalculateType = request.GradientCalculateType;
+            log.StatisticalRuleType = request.StatisticalRuleType;
+            await _appConfig2BLL.SaveTeacherSalaryGlobalRule(request.LoginTenantId, log);
 
             await _userOperationLogDAL.AddUserLog(request, "设置绩效工资统计规则", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TeacherSalaryIncludeArrivedRuleSave(TeacherSalaryIncludeArrivedRuleSaveRequest request)
+        {
+            var log = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
+            log.IncludeArrivedMakeUpStudent = request.IncludeArrivedMakeUpStudent;
+            log.IncludeArrivedTryCalssStudent = request.IncludeArrivedTryCalssStudent;
+            await _appConfig2BLL.SaveTeacherSalaryGlobalRule(request.LoginTenantId, log);
+
+            await _userOperationLogDAL.AddUserLog(request, "到课人次计算规则", EmUserOperationType.TeacherSalary);
             return ResponseBase.Success();
         }
     }

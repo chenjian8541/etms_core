@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Entity.View
+namespace ETMS.Entity.Dto.Teacher.Output
 {
-    public class TeacherSalaryPerformanceRuleView
+    public class TeacherSalaryGlobaleRuleGetOutput
     {
         /// <summary>
         /// 统计规则
@@ -19,5 +19,17 @@ namespace ETMS.Entity.View
         /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryGradientCalculateType"/>
         /// </summary>
         public byte GradientCalculateType { get; set; }
+
+        /// <summary>
+        /// 补课计入到课人次
+        /// <see cref="EmBool"/>
+        /// </summary>
+        public byte IncludeArrivedMakeUpStudent { get; set; }
+
+        /// <summary>
+        /// 试听计入到课人次
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IncludeArrivedTryCalssStudent { get; set; }
     }
 }

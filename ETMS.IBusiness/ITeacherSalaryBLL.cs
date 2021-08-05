@@ -20,8 +20,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> TeacherSalaryClassDayGetPaging(TeacherSalaryClassDayGetPagingRequest request);
 
-        Task<ResponseBase> TeacherSalaryPerformanceRuleGet(TeacherSalaryPerformanceRuleGetRequest request);
+        Task<ResponseBase> TeacherSalaryGlobalRuleGet(TeacherSalaryGlobalRuleGetRequest request);
 
         Task<ResponseBase> TeacherSalaryPerformanceRuleSave(TeacherSalaryPerformanceRuleSaveRequest request);
+
+        Task<ResponseBase> TeacherSalaryIncludeArrivedRuleSave(TeacherSalaryIncludeArrivedRuleSaveRequest request);
     }
 }

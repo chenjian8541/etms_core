@@ -95,12 +95,12 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> TeacherSalaryPerformanceRuleGet(TeacherSalaryPerformanceRuleGetRequest request)
+        public async Task<ResponseBase> TeacherSalaryGlobalRuleGet(TeacherSalaryGlobalRuleGetRequest request)
         {
             try
             {
                 _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
-                return await _teacherSalaryBLL.TeacherSalaryPerformanceRuleGet(request);
+                return await _teacherSalaryBLL.TeacherSalaryGlobalRuleGet(request);
             }
             catch (Exception ex)
             {
@@ -115,6 +115,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
                 return await _teacherSalaryBLL.TeacherSalaryPerformanceRuleSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryIncludeArrivedRuleSave(TeacherSalaryIncludeArrivedRuleSaveRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryIncludeArrivedRuleSave(request);
             }
             catch (Exception ex)
             {

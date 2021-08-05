@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Teacher.Request
 {
-    public class TeacherSalaryPerformanceRuleGetRequest : RequestBase
+    public class TeacherSalaryGlobalRuleGetRequest : RequestBase
     {
     }
 }
