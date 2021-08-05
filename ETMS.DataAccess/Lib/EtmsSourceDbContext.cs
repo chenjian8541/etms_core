@@ -153,5 +153,9 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsFinanceIncomeMonth> EtStatisticsFinanceIncomeMonths { get; set; }
 
         public DbSet<EtNoticeConfig> EtNoticeConfigs { get; set; }
+
+        public DbSet<EtTeacherSalaryClassDay> EtTeacherSalaryClassDays { get; set; }
+
+        public DbSet<EtTeacherSalaryClassTimes> EtTeacherSalaryClassTimess { get; set; }
     }
 }

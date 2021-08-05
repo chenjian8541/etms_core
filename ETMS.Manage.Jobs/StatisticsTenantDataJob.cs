@@ -66,6 +66,11 @@ namespace ETMS.Manage.Jobs
                 {
                     Time = _now
                 });
+                _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenant.Id)
+                {
+                    Time = _now,
+                    IsJobRequest = true
+                });
             }
         }
     }

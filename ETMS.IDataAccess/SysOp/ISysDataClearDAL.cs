@@ -110,5 +110,7 @@ namespace ETMS.IDataAccess.SysOp
         Task<bool> ClearStudentCheckLog();
 
         Task<bool> ClearStudentAccountRecharge();
+
+        Task<bool> ClearTeacherSalary();
     }
 }

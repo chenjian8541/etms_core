@@ -91,12 +91,21 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            new EtmsProcess().ProcessT();
+            //new EtmsProcess().ProcessT();
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
+            var students = new List<MyStudent>();
+            students.Add(new MyStudent() { Id = 1, Name = "张三1" });
+            students.Add(new MyStudent() { Id = 2, Name = "张三2" });
+            students.Add(new MyStudent() { Id = 3, Name = "张三3" });
+            students.Add(new MyStudent() { Id = 4, Name = "张三4" });
+            students.Add(new MyStudent() { Id = 5, Name = "张三5" });
 
-            Console.WriteLine("已完成");
+            var log = students.FirstOrDefault(p => p.Id == 4);
+            log.Name = "chenjian ";
+
+            Console.WriteLine(students[3].Name);
             Console.Read();
         }
 

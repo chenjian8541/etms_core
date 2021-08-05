@@ -62,5 +62,7 @@ namespace ETMS.IDataAccess
         Task<ClassRecordStatistics> GetClassRecordStatistics(long classId);
 
         Task<bool> ClassRecordStudentDeEvaluateCount(long classRecordStudentId,int deCount);
+
+        Task<List<EtClassRecord>> GetClassRecord(DateTime classOt);
     }
 }

@@ -170,5 +170,11 @@ namespace ETMS.DataAccess
             await this._dbWrapper.Execute($"UPDATE EtClassRecordStudent SET EvaluateCount = EvaluateCount - {deCount} WHERE Id = {classRecordStudentId}");
             return true;
         }
+
+        public async Task<List<EtClassRecord>> GetClassRecord(DateTime classOt)
+        {
+            return await this._dbWrapper.FindList<EtClassRecord>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.ClassOt == classOt && p.Status == EmClassRecordStatus.Normal);
+        }
     }
 }

@@ -159,5 +159,11 @@ namespace ETMS.Utility
         {
             return System.TimeZoneInfo.ConvertTimeFromUtc(@this, TimeZoneInfo.Local);
         }
+
+        public static bool IsToday(this DateTime @this)
+        {
+            var now = DateTime.Now;
+            return @this.Date == now.Date;
+        }
     }
 }

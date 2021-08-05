@@ -797,7 +797,12 @@ namespace ETMS.Business.EtmsManage
             }, request.LoginUserId);
 
             //增加机构授权点数
-            tenant.ExDate = tenant.ExDate.AddYears(request.AddChangeCount);
+            var startDate = tenant.ExDate;
+            if (tenant.ExDate < DateTime.Now.Date)
+            {
+                startDate = DateTime.Now.Date;
+            }
+            tenant.ExDate = startDate.AddYears(request.AddChangeCount);
             tenant.BuyStatus = EmSysTenantBuyStatus.Official;
             await _sysTenantDAL.EditTenant(tenant);
             await _sysTenantLogDAL.AddSysTenantEtmsAccountLog(new SysTenantEtmsAccountLog()

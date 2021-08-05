@@ -216,6 +216,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearStatisticsClass();
             await _sysDataClearDAL.ClearStatisticsSales();
             await _sysDataClearDAL.ClearStudentLeaveApplyLog();
+            await _sysDataClearDAL.ClearTeacherSalary();
             return true;
         }
 
@@ -238,6 +239,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearClassTimes();
             await _sysDataClearDAL.ClearStatisticsClass();
             await _sysDataClearDAL.ClearStatisticsSales();
+            await _sysDataClearDAL.ClearTeacherSalary();
             return true;
         }
 
@@ -259,6 +261,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearGiftExchange();
             await _sysDataClearDAL.ClearCoupons();
             await _sysDataClearDAL.ClearGift();
+            await _sysDataClearDAL.ClearTeacherSalary();
 
             await _sysDataClearDAL.ClearStatisticsStudent();
             await _sysDataClearDAL.ClearStatisticsSales();
@@ -286,6 +289,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearUser();
             await _sysDataClearDAL.ClearUserOperationLog();
             await _sysDataClearDAL.ClearUserLog();
+            await _sysDataClearDAL.ClearTeacherSalary();
             return true;
         }
 
@@ -316,6 +320,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearStudentLeaveApplyLog();
             await _sysDataClearDAL.ClearStatisticsSales();
             await _sysDataClearDAL.ClearStatisticsClass();
+            await _sysDataClearDAL.ClearTeacherSalary();
             return true;
         }
 
@@ -337,6 +342,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearStudentLeaveApplyLog();
             await _sysDataClearDAL.ClearStatisticsClass();
             await _sysDataClearDAL.ClearClassRecordEvaluate();
+            await _sysDataClearDAL.ClearTeacherSalary();
             return true;
         }
 

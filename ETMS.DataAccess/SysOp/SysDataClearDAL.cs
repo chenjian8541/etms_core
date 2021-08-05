@@ -498,6 +498,15 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
+        public async Task<bool> ClearTeacherSalary()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtTeacherSalaryClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTeacherSalaryClassDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
         #endregion
     }
 }
