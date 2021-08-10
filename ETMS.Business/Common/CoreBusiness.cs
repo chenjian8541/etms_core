@@ -80,7 +80,8 @@ namespace ETMS.Business.Common
                     ExceedClassTimes = 0,
                     OrderId = dayCourseDetail.OrderId,
                     OrderNo = dayCourseDetail.OrderNo,
-                    DeCourseId = classRecordStudent.CourseId
+                    DeCourseId = classRecordStudent.CourseId,
+                    DeStudentCourseDetailId = dayCourseDetail.Id
                 };
             }
 

@@ -22,5 +22,19 @@ namespace ETMS.Entity.Enum
         /// 全额累计
         /// </summary>
         public const byte AllValue = 2;
+
+        public static string GetTeacherSalaryGradientCalculateTypeDesc(byte t)
+        {
+            switch (t)
+            {
+                case None:
+                    return "无梯度";
+                case MoreThanValue:
+                    return "超额累计";
+                case AllValue:
+                    return "全额累计";
+            }
+            return string.Empty;
+        }
     }
 }

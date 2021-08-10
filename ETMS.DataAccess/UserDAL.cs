@@ -92,6 +92,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecutePage<UserView>("UserView", "*", request.PageSize, request.PageCurrent, "jobtype asc,Id DESC", request.ToString());
         }
 
+        public async Task<Tuple<IEnumerable<UserSimpleView>, int>> GetUserSimplePaging(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<UserSimpleView>("EtUser", "Id,Name,Phone,IsTeacher", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
         public async Task<bool> UpdateTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes + {addClassTimes} , TotalClassCount = TotalClassCount + {addClassCount} WHERE Id = {teacherId}");

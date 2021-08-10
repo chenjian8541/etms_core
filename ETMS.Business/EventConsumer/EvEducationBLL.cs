@@ -47,6 +47,8 @@ namespace ETMS.Business.EventConsumer
             var notArrivedCount = 0;
             var tryCalssStudentCount = 0;
             var makeUpStudentCount = 0;
+            var tryCalssEffectiveCount = 0;
+            var makeUpEffectiveCount = 0;
             foreach (var p in classRecordStudent)
             {
                 studentClassTimes += p.DeClassTimes;
@@ -71,10 +73,18 @@ namespace ETMS.Business.EventConsumer
                 if (p.StudentType == EmClassStudentType.TryCalssStudent)
                 {
                     tryCalssStudentCount++;
+                    if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+                    {
+                        tryCalssEffectiveCount++;
+                    }
                 }
                 if (p.StudentType == EmClassStudentType.MakeUpStudent)
                 {
                     makeUpStudentCount++;
+                    if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+                    {
+                        makeUpEffectiveCount++;
+                    }
                 }
             }
             var entitys = new List<EtTeacherSalaryClassTimes>();
@@ -102,7 +112,9 @@ namespace ETMS.Business.EventConsumer
                     StudentClassTimes = studentClassTimes,
                     TeacherClassTimes = classRecord.ClassTimes,
                     TenantId = classRecord.TenantId,
-                    TryCalssStudentCount = tryCalssStudentCount
+                    TryCalssStudentCount = tryCalssStudentCount,
+                    TryCalssEffectiveCount = tryCalssEffectiveCount,
+                    MakeUpEffectiveCount = makeUpEffectiveCount
                 });
             }
             else
@@ -129,7 +141,9 @@ namespace ETMS.Business.EventConsumer
                             StudentClassTimes = studentClassTimes,
                             TeacherClassTimes = classRecord.ClassTimes,
                             TenantId = classRecord.TenantId,
-                            TryCalssStudentCount = tryCalssStudentCount
+                            TryCalssStudentCount = tryCalssStudentCount,
+                            TryCalssEffectiveCount = tryCalssEffectiveCount,
+                            MakeUpEffectiveCount = makeUpEffectiveCount
                         });
                     }
                 }
@@ -165,6 +179,8 @@ namespace ETMS.Business.EventConsumer
             int tryCalssStudentCount;
             int makeUpStudentCount;
             decimal teacherClassTimes;
+            int tryCalssEffectiveCount;
+            int makeUpEffectiveCount;
             foreach (var myClassRecord in thisDayClassRecord)
             {
                 studentClassTimes = 0M;
@@ -176,6 +192,8 @@ namespace ETMS.Business.EventConsumer
                 notArrivedCount = 0;
                 tryCalssStudentCount = 0;
                 makeUpStudentCount = 0;
+                tryCalssEffectiveCount = 0;
+                makeUpEffectiveCount = 0;
                 teacherClassTimes = myClassRecord.ClassTimes;
                 var myClassRecordStudent = await _classRecordDAL.GetClassRecordStudents(myClassRecord.Id);
                 foreach (var p in myClassRecordStudent)
@@ -202,10 +220,18 @@ namespace ETMS.Business.EventConsumer
                     if (p.StudentType == EmClassStudentType.TryCalssStudent)
                     {
                         tryCalssStudentCount++;
+                        if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+                        {
+                            tryCalssEffectiveCount++;
+                        }
                     }
                     if (p.StudentType == EmClassStudentType.MakeUpStudent)
                     {
                         makeUpStudentCount++;
+                        if (EmClassStudentCheckStatus.CheckIsAttend(p.StudentCheckStatus))
+                        {
+                            makeUpEffectiveCount++;
+                        }
                     }
                 }
                 var teacherIds = EtmsHelper.AnalyzeMuIds(myClassRecord.Teachers);
@@ -230,7 +256,9 @@ namespace ETMS.Business.EventConsumer
                             NotArrivedCount = notArrivedCount,
                             StudentClassTimes = studentClassTimes,
                             TeacherClassTimes = teacherClassTimes,
-                            TryCalssStudentCount = tryCalssStudentCount
+                            TryCalssStudentCount = tryCalssStudentCount,
+                            TryCalssEffectiveCount = tryCalssEffectiveCount,
+                            MakeUpEffectiveCount = makeUpEffectiveCount
                         });
                     }
                     else
@@ -245,6 +273,8 @@ namespace ETMS.Business.EventConsumer
                         log.StudentClassTimes += studentClassTimes;
                         log.TeacherClassTimes += teacherClassTimes;
                         log.TryCalssStudentCount += tryCalssStudentCount;
+                        log.TryCalssEffectiveCount += tryCalssEffectiveCount;
+                        log.MakeUpEffectiveCount += makeUpEffectiveCount;
                     }
                 }
                 else
@@ -270,7 +300,9 @@ namespace ETMS.Business.EventConsumer
                                 NotArrivedCount = notArrivedCount,
                                 StudentClassTimes = studentClassTimes,
                                 TeacherClassTimes = teacherClassTimes,
-                                TryCalssStudentCount = tryCalssStudentCount
+                                TryCalssStudentCount = tryCalssStudentCount,
+                                TryCalssEffectiveCount = tryCalssEffectiveCount,
+                                MakeUpEffectiveCount = makeUpEffectiveCount
                             });
                         }
                         else
@@ -285,6 +317,8 @@ namespace ETMS.Business.EventConsumer
                             log.StudentClassTimes += studentClassTimes;
                             log.TeacherClassTimes += teacherClassTimes;
                             log.TryCalssStudentCount += tryCalssStudentCount;
+                            log.TryCalssEffectiveCount += tryCalssEffectiveCount;
+                            log.MakeUpEffectiveCount += makeUpEffectiveCount;
                         }
                     }
                 }

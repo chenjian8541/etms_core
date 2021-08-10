@@ -8,7 +8,7 @@ namespace ETMS.Entity.Dto.Teacher.Output
 {
     public class TeacherSalaryFundsItemsGetOutput
     {
-        public bool IsOpenClassPerformance { get; set; }
+        public bool IsOpenContractPerformance { get; set; }
 
         public List<TeacherSalaryFundsItemOutput> DefaultItems { get; set; }
 

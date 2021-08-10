@@ -30,5 +30,10 @@ namespace ETMS.Utility
             }
             return @this.ToString("P0");
         }
+
+        public static string EtmsToString2(this decimal @this)
+        {
+            return @this.ToString("F2");
+        }
     }
 }

@@ -136,5 +136,61 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> TeacherSalaryContractGetPaging(TeacherSalaryContractGetPagingRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryContractGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractGetDetail(TeacherSalaryContractGetDetailRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryContractGetDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractChangeComputeType(TeacherSalaryContractChangeComputeTypeRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryContractChangeComputeType(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryContractSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

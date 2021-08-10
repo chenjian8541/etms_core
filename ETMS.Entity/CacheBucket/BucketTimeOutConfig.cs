@@ -14,7 +14,7 @@ namespace ETMS.Entity.CacheBucket
             get
             {
                 var r = new Random();
-                return r.Next(2, 5);
+                return r.Next(2, 7);
             }
         }
 

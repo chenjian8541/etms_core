@@ -470,7 +470,7 @@ namespace ETMS.Business
             var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, studentCheckOnLog.StudentId);
             if (myStudentDeLog != null) //已存在扣课时记录,繁殖重复扣
             {
-                return ResponseBase.CommonError("已存在扣课次记录");
+                return ResponseBase.CommonError("已记上课，请勿重复操作");
             }
             else
             {
@@ -551,7 +551,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("考勤记录不存在");
             }
-            if (p.DeStudentCourseDetailId == null)
+            if (p.Status == EmStudentCheckOnLogStatus.NormalNotClass || p.Status == EmStudentCheckOnLogStatus.Revoke)
             {
                 return ResponseBase.CommonError("该考勤未记上课");
             }
@@ -1141,7 +1141,7 @@ namespace ETMS.Business
             }
 
             studentCheckOnLog.Points = myDeCourse.Item1.CheckPoints;
-            studentCheckOnLog.ClassTimesId =null;
+            studentCheckOnLog.ClassTimesId = null;
             studentCheckOnLog.ClassId = null;
             studentCheckOnLog.CourseId = deStudentClassTimesResult.DeCourseId;
             studentCheckOnLog.ClassOtDesc = "";

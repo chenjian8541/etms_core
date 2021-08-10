@@ -25,5 +25,13 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TeacherSalaryPerformanceRuleSave(TeacherSalaryPerformanceRuleSaveRequest request);
 
         Task<ResponseBase> TeacherSalaryIncludeArrivedRuleSave(TeacherSalaryIncludeArrivedRuleSaveRequest request);
+
+        Task<ResponseBase> TeacherSalaryContractGetPaging(TeacherSalaryContractGetPagingRequest request);
+
+        Task<ResponseBase> TeacherSalaryContractGetDetail(TeacherSalaryContractGetDetailRequest request);
+
+        Task<ResponseBase> TeacherSalaryContractChangeComputeType(TeacherSalaryContractChangeComputeTypeRequest request);
+
+        Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request);
     }
 }

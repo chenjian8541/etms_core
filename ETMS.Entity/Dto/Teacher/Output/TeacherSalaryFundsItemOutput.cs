@@ -26,5 +26,6 @@ namespace ETMS.Entity.Dto.Teacher.Output
         /// 启用状态
         /// </summary>
         public byte Status { get; set; }
+
     }
 }

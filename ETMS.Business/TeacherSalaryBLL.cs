@@ -9,12 +9,14 @@ using ETMS.Entity.View;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.TeacherSalary;
+using ETMS.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ETMS.Entity.Extensions;
 
 namespace ETMS.Business
 {
@@ -32,8 +34,13 @@ namespace ETMS.Business
 
         private readonly IClassDAL _classDAL;
 
+        private readonly ITeacherSalaryContractDAL _teacherSalaryContractDAL;
+
+        private readonly ICourseDAL _courseDAL;
+
         public TeacherSalaryBLL(IAppConfig2BLL appConfig2BLL, ITeacherSalaryFundsItemsDAL teacherSalaryFundsItemsDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
-            IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IClassDAL classDAL)
+            IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IClassDAL classDAL, ITeacherSalaryContractDAL teacherSalaryContractDAL,
+            ICourseDAL courseDAL)
         {
             this._appConfig2BLL = appConfig2BLL;
             this._teacherSalaryFundsItemsDAL = teacherSalaryFundsItemsDAL;
@@ -41,16 +48,18 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._userDAL = userDAL;
             this._classDAL = classDAL;
+            this._teacherSalaryContractDAL = teacherSalaryContractDAL;
+            this._courseDAL = courseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _teacherSalaryFundsItemsDAL, _teacherSalaryClassDAL,
-                _userOperationLogDAL, _userDAL, _classDAL);
+                _userOperationLogDAL, _userDAL, _classDAL, _teacherSalaryContractDAL, _courseDAL);
         }
 
-        public async Task<ResponseBase> TeacherSalaryFundsItemsGet(TeacherSalaryFundsItemsGetRequest request)
+        private async Task<TeacherSalaryFundsItemsGetOutput> GetTeacherSalaryFundsItems(bool isGetDisable)
         {
             var output = new TeacherSalaryFundsItemsGetOutput()
             {
@@ -59,11 +68,11 @@ namespace ETMS.Business
             };
             var fundsItemsDefault = await _appConfig2BLL.GetTeacherSalaryDefaultFundsItems();
             var performanceDefaultItem = fundsItemsDefault.First(p => p.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId);
-            output.IsOpenClassPerformance = performanceDefaultItem.Status == EmBool.True;
+            output.IsOpenContractPerformance = performanceDefaultItem.Status == EmBool.True;
             var orderIndex = 1;
             foreach (var p in fundsItemsDefault)
             {
-                if (!request.IsGetDisable && p.Status == EmBool.False) //不展示禁用的项目
+                if (!isGetDisable && p.Status == EmBool.False) //不展示禁用的项目
                 {
                     continue;
                 }
@@ -94,7 +103,12 @@ namespace ETMS.Business
                 orderIndex++;
             }
 
-            return ResponseBase.Success(output);
+            return output;
+        }
+
+        public async Task<ResponseBase> TeacherSalaryFundsItemsGet(TeacherSalaryFundsItemsGetRequest request)
+        {
+            return ResponseBase.Success(await GetTeacherSalaryFundsItems(request.IsGetDisable));
         }
 
         public async Task<ResponseBase> TeacherSalaryFundsItemsAdd(TeacherSalaryFundsItemsAddRequest request)
@@ -208,6 +222,492 @@ namespace ETMS.Business
             await _appConfig2BLL.SaveTeacherSalaryGlobalRule(request.LoginTenantId, log);
 
             await _userOperationLogDAL.AddUserLog(request, "到课人次计算规则", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractGetPaging(TeacherSalaryContractGetPagingRequest request)
+        {
+            var config = await GetTeacherSalaryFundsItems(false);
+            var outputTableHeadInfo = new List<TeacherSalaryContractGetPagingTableHeadOutput>();
+            var allTeacherSalaryFundsItemOutput = new List<TeacherSalaryFundsItemOutput>();
+            if (config.DefaultItems != null && config.DefaultItems.Count > 0)
+            {
+                allTeacherSalaryFundsItemOutput.AddRange(config.DefaultItems);
+            }
+            if (config.CustomItems != null && config.CustomItems.Count > 0)
+            {
+                allTeacherSalaryFundsItemOutput.AddRange(config.CustomItems);
+            }
+            if (allTeacherSalaryFundsItemOutput.Count > 0)
+            {
+                var index = 0;
+                foreach (var p in allTeacherSalaryFundsItemOutput)
+                {
+                    outputTableHeadInfo.Add(new TeacherSalaryContractGetPagingTableHeadOutput()
+                    {
+                        Index = index,
+                        Label = p.Name,
+                        Type = p.Type,
+                        Id = p.Id,
+                        Property = $"SalaryContract{index}",
+                    });
+                    index++;
+                }
+            }
+
+            var pagingData = await _userDAL.GetUserSimplePaging(request);
+            var outputItem = new List<TeacherSalaryContractGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                int index;
+                foreach (var p in pagingData.Item1)
+                {
+                    var item = new TeacherSalaryContractGetPagingOutput()
+                    {
+                        Id = p.Id,
+                        IsTeacher = p.IsTeacher,
+                        IsTeacherDesc = p.IsTeacher ? "是" : "否",
+                        Name = p.Name,
+                        Phone = p.Phone,
+                        SalaryContractStatus = EmBool.False
+                    };
+                    var teacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(p.Id);
+                    if (teacherSalaryContractSetBucket == null || teacherSalaryContractSetBucket.TeacherSalaryContractFixeds == null)
+                    {
+                        continue;
+                    }
+                    index = 0;
+                    foreach (var myFundsItem in allTeacherSalaryFundsItemOutput)
+                    {
+                        if (myFundsItem.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId) //绩效工资
+                        {
+                            if (teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null)
+                            {
+                                item.SetSalaryContract(index, teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet.ComputeDesc);
+                            }
+                        }
+                        else
+                        {
+                            var thisContractFixed = teacherSalaryContractSetBucket.TeacherSalaryContractFixeds.FirstOrDefault(j => j.FundsItemsId == myFundsItem.Id);
+                            if (thisContractFixed != null)
+                            {
+                                item.SetSalaryContract(index, thisContractFixed.AmountValue.EtmsToString2());
+                            }
+                        }
+                        index++;
+                    }
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase2<TeacherSalaryContractGetPagingOutput,
+                List<TeacherSalaryContractGetPagingTableHeadOutput>>(pagingData.Item2, outputItem, outputTableHeadInfo));
+        }
+
+        private async Task<List<TeacherSalaryContractPerformanceSet>> GetTeacherSalaryContractPerformanceSet(long teacherId,
+            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails, byte computeType, byte gradientCalculateType)
+        {
+            var output = new List<TeacherSalaryContractPerformanceSet>();
+            //绩效工资
+            var teacherAllClass = await _classDAL.GetClassOfTeacher(teacherId);
+            switch (computeType)
+            {
+                case EmTeacherSalaryComputeType.Class:
+                    if (teacherAllClass.Any())
+                    {
+                        foreach (var myClass in teacherAllClass)
+                        {
+                            var performanceSetClass = new TeacherSalaryContractPerformanceSet()
+                            {
+                                ComputeMode = EmTeacherSalaryComputeMode.TeacherClassTimes,
+                                RelationExtend = new List<string>(),
+                                RelationId = myClass.Id,
+                                RelationName = myClass.Name,
+                                SetDetails = new List<TeacherSalaryContractPerformanceSetDetail>()
+                            };
+                            if (myTeacherSalaryContractPerformanceSetDetails != null)
+                            {
+                                var myClassSetDetailList = myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClass.Id).OrderBy(p => p.MinLimit);
+                                if (myClassSetDetailList.Any())
+                                {
+                                    var myTempSetDetailsClassFirst = myClassSetDetailList.First();
+                                    performanceSetClass.ComputeMode = myTempSetDetailsClassFirst.ComputeMode;
+                                    if (gradientCalculateType == EmTeacherSalaryGradientCalculateType.None)
+                                    {
+                                        performanceSetClass.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                        {
+                                            MinLimit = myTempSetDetailsClassFirst.MinLimit,
+                                            MaxLimit = myTempSetDetailsClassFirst.MaxLimit,
+                                            ComputeValue = myTempSetDetailsClassFirst.ComputeValue
+                                        });
+                                    }
+                                    else
+                                    {
+                                        foreach (var myClassSetDetail in myClassSetDetailList)
+                                        {
+                                            performanceSetClass.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                            {
+                                                MinLimit = myClassSetDetail.MinLimit,
+                                                MaxLimit = myClassSetDetail.MaxLimit,
+                                                ComputeValue = myClassSetDetail.ComputeValue
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            output.Add(performanceSetClass);
+                        }
+                    }
+                    break;
+                case EmTeacherSalaryComputeType.Course:
+                    if (teacherAllClass.Any())
+                    {
+                        var allCourse = string.Join(',', teacherAllClass.Select(p => p.CourseList));
+                        var allCourseId = EtmsHelper.AnalyzeMuIds(allCourse).Distinct();
+                        foreach (var id in allCourseId)
+                        {
+                            var myCourse = await _courseDAL.GetCourse(id);
+                            if (myCourse == null || myCourse.Item1 == null)
+                            {
+                                continue;
+                            }
+                            var performanceSetCourse = new TeacherSalaryContractPerformanceSet()
+                            {
+                                ComputeMode = EmTeacherSalaryComputeMode.TeacherClassTimes,
+                                RelationExtend = new List<string>(),
+                                RelationId = id,
+                                RelationName = myCourse.Item1.Name,
+                                SetDetails = new List<TeacherSalaryContractPerformanceSetDetail>()
+                            };
+                            var myCourseClass = teacherAllClass.Where(p => p.CourseList.IndexOf($",{id},") != -1);
+                            if (myCourseClass.Any())
+                            {
+                                foreach (var myCourseClassItem in myCourseClass)
+                                {
+                                    performanceSetCourse.RelationExtend.Add(myCourseClassItem.Name);
+                                }
+                            }
+                            if (myTeacherSalaryContractPerformanceSetDetails != null)
+                            {
+                                var myCourseSetDetailList = myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == id).OrderBy(p => p.MinLimit);
+                                if (myCourseSetDetailList.Any())
+                                {
+                                    var myTempSetDetailsCourseFirst = myCourseSetDetailList.First();
+                                    performanceSetCourse.ComputeMode = myTempSetDetailsCourseFirst.ComputeMode;
+                                    if (gradientCalculateType == EmTeacherSalaryGradientCalculateType.None)
+                                    {
+                                        performanceSetCourse.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                        {
+                                            MinLimit = myTempSetDetailsCourseFirst.MinLimit,
+                                            MaxLimit = myTempSetDetailsCourseFirst.MaxLimit,
+                                            ComputeValue = myTempSetDetailsCourseFirst.ComputeValue
+                                        });
+                                    }
+                                    else
+                                    {
+                                        foreach (var myCourseSetDetail in myCourseSetDetailList)
+                                        {
+                                            performanceSetCourse.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                            {
+                                                MinLimit = myCourseSetDetail.MinLimit,
+                                                MaxLimit = myCourseSetDetail.MaxLimit,
+                                                ComputeValue = myCourseSetDetail.ComputeValue
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            output.Add(performanceSetCourse);
+                        }
+                    }
+                    break;
+                case EmTeacherSalaryComputeType.Global:
+                    var computeModeGlobal = EmTeacherSalaryComputeMode.TeacherClassTimes;
+                    var setDetailsGlobal = new List<TeacherSalaryContractPerformanceSetDetail>();
+                    if (myTeacherSalaryContractPerformanceSetDetails != null)
+                    {
+                        var myTempSetDetailsGlobalFirst = myTeacherSalaryContractPerformanceSetDetails.First();
+                        computeModeGlobal = myTempSetDetailsGlobalFirst.ComputeMode;
+                        if (gradientCalculateType == EmTeacherSalaryGradientCalculateType.None)
+                        {
+                            setDetailsGlobal.Add(new TeacherSalaryContractPerformanceSetDetail()
+                            {
+                                MinLimit = myTempSetDetailsGlobalFirst.MinLimit,
+                                MaxLimit = myTempSetDetailsGlobalFirst.MaxLimit,
+                                ComputeValue = myTempSetDetailsGlobalFirst.ComputeValue
+                            });
+                        }
+                        else
+                        {
+                            var performanceSetDetailsOrder = myTeacherSalaryContractPerformanceSetDetails.OrderBy(p => p.MinLimit);
+                            foreach (var myGlobalSetDetail in performanceSetDetailsOrder)
+                            {
+                                setDetailsGlobal.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    MinLimit = myGlobalSetDetail.MinLimit,
+                                    MaxLimit = myGlobalSetDetail.MaxLimit,
+                                    ComputeValue = myGlobalSetDetail.ComputeValue
+                                });
+                            }
+                        }
+                    }
+                    output = new List<TeacherSalaryContractPerformanceSet>() {
+                        new TeacherSalaryContractPerformanceSet(){
+                            ComputeMode =computeModeGlobal,
+                            RelationExtend = new List<string>(),
+                            RelationId = 0,
+                            RelationName ="统一设置",
+                            SetDetails =setDetailsGlobal
+                        }};
+                    break;
+            }
+
+            return output;
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractGetDetail(TeacherSalaryContractGetDetailRequest request)
+        {
+            var config = await GetTeacherSalaryFundsItems(false);
+            var globalConfig = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
+            var output = new TeacherSalaryContractGetDetailOutput()
+            {
+                ComputeType = EmTeacherSalaryComputeType.Class,
+                IsOpenClassPerformance = config.IsOpenContractPerformance,
+                GradientCalculateType = globalConfig.GradientCalculateType,
+                FixedItems = new List<TeacherSalaryContractFixedItem>(),
+                PerformanceSetItems = new List<TeacherSalaryContractPerformanceSet>()
+            };
+            List<EtTeacherSalaryContractFixed> myTeacherSalaryContractFixeds = null;
+            EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;
+            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails = null;
+            var myTeacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(request.TeacherId);
+            if (myTeacherSalaryContractSetBucket != null)
+            {
+                if (myTeacherSalaryContractSetBucket.TeacherSalaryContractFixeds != null &&
+                    myTeacherSalaryContractSetBucket.TeacherSalaryContractFixeds.Any())
+                {
+                    myTeacherSalaryContractFixeds = myTeacherSalaryContractSetBucket.TeacherSalaryContractFixeds;
+                }
+                if (myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null)
+                {
+                    myTeacherSalaryContractPerformanceSet = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet;
+                }
+                if (myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails != null &&
+                    myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Any())
+                {
+                    myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails;
+                }
+            }
+
+            if (myTeacherSalaryContractPerformanceSet != null)
+            {
+                output.ComputeType = myTeacherSalaryContractPerformanceSet.ComputeType;
+                output.GradientCalculateType = myTeacherSalaryContractPerformanceSet.GradientCalculateType;
+            }
+
+            //固定工资
+            var allTeacherSalaryFundsItem = new List<TeacherSalaryFundsItemOutput>();
+            if (config.DefaultItems != null && config.DefaultItems.Count > 0)
+            {
+                allTeacherSalaryFundsItem.AddRange(config.DefaultItems);
+            }
+            if (config.CustomItems != null && config.CustomItems.Count > 0)
+            {
+                allTeacherSalaryFundsItem.AddRange(config.CustomItems);
+            }
+            if (allTeacherSalaryFundsItem.Count > 0)
+            {
+                var fixedFundsItem = allTeacherSalaryFundsItem.Where(p => p.Id != SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId).OrderBy(p => p.Id);
+                foreach (var myixedFundsItem in fixedFundsItem)
+                {
+                    var value = 0M;
+                    if (myTeacherSalaryContractFixeds != null)
+                    {
+                        var myFixedItem = myTeacherSalaryContractFixeds.FirstOrDefault(p => p.FundsItemsId == myixedFundsItem.Id);
+                        if (myFixedItem != null)
+                        {
+                            value = myFixedItem.AmountValue;
+                        }
+                    }
+                    output.FixedItems.Add(new TeacherSalaryContractFixedItem()
+                    {
+                        Id = myixedFundsItem.Id,
+                        Name = myixedFundsItem.Name,
+                        Value = value
+                    });
+                }
+            }
+
+            //绩效工资
+            output.PerformanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId, myTeacherSalaryContractPerformanceSetDetails,
+                output.ComputeType, output.GradientCalculateType);
+
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractChangeComputeType(TeacherSalaryContractChangeComputeTypeRequest request)
+        {
+            EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;
+            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails = null;
+            var myTeacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(request.TeacherId);
+            if (myTeacherSalaryContractSetBucket != null)
+            {
+                if (myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null)
+                {
+                    myTeacherSalaryContractPerformanceSet = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet;
+                }
+                if (myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails != null &&
+                    myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Any())
+                {
+                    myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails;
+                }
+            }
+
+            if (myTeacherSalaryContractPerformanceSet != null && myTeacherSalaryContractPerformanceSet.ComputeType != request.NewComputeType)
+            {
+                myTeacherSalaryContractPerformanceSetDetails = null;
+            }
+
+            //绩效工资
+            var performanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId, myTeacherSalaryContractPerformanceSetDetails,
+                request.NewComputeType, request.NewGradientCalculateType);
+
+            return ResponseBase.Success(new TeacherSalaryContractChangeComputeTypeOutput()
+            {
+                PerformanceSetItems = performanceSetItems
+            }); ;
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request)
+        {
+            var config = await GetTeacherSalaryFundsItems(false);
+            if (config.IsOpenContractPerformance)
+            {
+                if (request.ContractPerformanceSet == null || request.PerformanceSetDetails == null || request.PerformanceSetDetails.Count == 0)
+                {
+                    return ResponseBase.CommonError("请设置绩效工资");
+                }
+            }
+
+            var teacherSalaryContractFixeds = new List<EtTeacherSalaryContractFixed>();
+            foreach (var reqFixed in request.ContractFixeds)
+            {
+                teacherSalaryContractFixeds.Add(new EtTeacherSalaryContractFixed()
+                {
+                    AmountValue = reqFixed.AmountValue,
+                    FundsItemsId = reqFixed.FundsItemsId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    TeacherId = request.TeacherId,
+                    TenantId = request.LoginTenantId
+                });
+            }
+
+            EtTeacherSalaryContractPerformanceSet performanceSet = null;
+            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails = null;
+            if (config.IsOpenContractPerformance)
+            {
+                performanceSet = new EtTeacherSalaryContractPerformanceSet()
+                {
+                    ComputeDesc = string.Empty,
+                    ComputeType = request.ContractPerformanceSet.ComputeType,
+                    GradientCalculateType = request.ContractPerformanceSet.GradientCalculateType,
+                    IsDeleted = EmIsDeleted.Normal,
+                    TeacherId = request.TeacherId,
+                    TenantId = request.LoginTenantId
+                };
+                var strDesc = new StringBuilder();
+                strDesc.Append($"<div class='performance_set_rule'>结算方式：{EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(performanceSet.ComputeType)} </div>");
+                strDesc.Append($"<div class='performance_set_rule'>梯度工资：{EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(performanceSet.GradientCalculateType)}</div>");
+                switch (performanceSet.ComputeType)
+                {
+                    case EmTeacherSalaryComputeType.Class:
+                        var allClassIds = request.PerformanceSetDetails.Select(p => p.RelationId).Distinct();
+                        foreach (var classId in allClassIds)
+                        {
+                            var myClassBucket = await _classDAL.GetClassBucket(classId);
+                            if (myClassBucket == null || myClassBucket.EtClass == null)
+                            {
+                                continue;
+                            }
+                            var myClassSetDetails = request.PerformanceSetDetails.Where(p => p.RelationId == classId).OrderBy(p => p.MinLimit);
+                            var tempClassPerformanceSetDetailEntity = new List<EtTeacherSalaryContractPerformanceSetDetail>();
+                            foreach (var p in myClassSetDetails)
+                            {
+                                tempClassPerformanceSetDetailEntity.Add(new EtTeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    ComputeMode = p.ComputeMode,
+                                    ComputeType = performanceSet.ComputeType,
+                                    ComputeValue = p.ComputeValue,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    MaxLimit = p.MaxLimit,
+                                    MinLimit = p.MinLimit,
+                                    RelationId = classId,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
+                            }
+                            var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempClassPerformanceSetDetailEntity);
+                            strDesc.Append($"<div class='performance_set_rule_title'>{myClassBucket.EtClass.Name}：{desClassResult.Item2}</div>{desClassResult.Item1}");
+                            performanceSetDetails.AddRange(tempClassPerformanceSetDetailEntity);
+                        }
+                        break;
+                    case EmTeacherSalaryComputeType.Course:
+                        var allCourseIds = request.PerformanceSetDetails.Select(p => p.RelationId).Distinct();
+                        foreach (var courseId in allCourseIds)
+                        {
+                            var myCourseResult = await _courseDAL.GetCourse(courseId);
+                            if (myCourseResult == null || myCourseResult.Item1 == null)
+                            {
+                                continue;
+                            }
+                            var myCourseDetails = request.PerformanceSetDetails.Where(p => p.RelationId == courseId).OrderBy(p => p.MinLimit);
+                            var tempCoursePerformanceSetDetailEntity = new List<EtTeacherSalaryContractPerformanceSetDetail>();
+                            foreach (var p in myCourseDetails)
+                            {
+                                tempCoursePerformanceSetDetailEntity.Add(new EtTeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    ComputeMode = p.ComputeMode,
+                                    ComputeType = performanceSet.ComputeType,
+                                    ComputeValue = p.ComputeValue,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    MaxLimit = p.MaxLimit,
+                                    MinLimit = p.MinLimit,
+                                    RelationId = courseId,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
+                            }
+                            var desCourseResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempCoursePerformanceSetDetailEntity);
+                            strDesc.Append($"<div class='performance_set_rule_title'>{myCourseResult.Item1.Name}：{desCourseResult.Item2}</div>{desCourseResult.Item1}");
+                            performanceSetDetails.AddRange(tempCoursePerformanceSetDetailEntity);
+                        }
+                        break;
+                    case EmTeacherSalaryComputeType.Global:
+                        var myGlobalSetDetails = request.PerformanceSetDetails.Where(p => p.RelationId == 0).OrderBy(p => p.MinLimit);
+                        if (myGlobalSetDetails.Any())
+                        {
+                            foreach (var p in myGlobalSetDetails)
+                            {
+                                performanceSetDetails.Add(new EtTeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    ComputeValue = p.ComputeValue,
+                                    ComputeMode = p.ComputeMode,
+                                    ComputeType = performanceSet.ComputeType,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    MaxLimit = p.MaxLimit,
+                                    MinLimit = p.MinLimit,
+                                    RelationId = 0,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
+                            }
+                            var desGlobalResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(performanceSetDetails);
+                            strDesc.Append($"<div class='performance_set_rule_title'>统一设置：{desGlobalResult.Item2}</div>{desGlobalResult.Item1}");
+                        }
+                        break;
+                }
+                performanceSet.ComputeDesc = strDesc.ToString();
+            }
+
+            await _teacherSalaryContractDAL.SaveTeacherSalaryContract(request.TeacherId, teacherSalaryContractFixeds, performanceSet, performanceSetDetails);
             return ResponseBase.Success();
         }
     }

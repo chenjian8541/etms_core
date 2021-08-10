@@ -37,5 +37,9 @@ namespace ETMS.Entity.Database.Source
         public int TryCalssStudentCount { get; set; }
 
         public int MakeUpStudentCount { get; set; }
+
+        public int TryCalssEffectiveCount { get; set; }
+
+        public int MakeUpEffectiveCount { get; set; }
     }
 }
