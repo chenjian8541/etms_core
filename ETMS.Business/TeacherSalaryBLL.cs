@@ -169,22 +169,20 @@ namespace ETMS.Business
                     output.Add(new TeacherSalaryClassDayGetPagingOutput()
                     {
                         ClassId = p.ClassId,
-                        ArrivedAndBeLateCount = p.ArrivedAndBeLateCount,
-                        ArrivedCount = p.ArrivedCount,
-                        BeLateCount = p.BeLateCount,
+                        ArrivedAndBeLateCount = p.TotalArrivedAndBeLateCount,
+                        ArrivedCount = p.TotalArrivedCount,
+                        BeLateCount = p.TotalBeLateCount,
                         ClassName = myClass?.Name,
-                        DeSum = p.DeSum,
-                        Id = p.Id,
-                        LeaveCount = p.LeaveCount,
-                        MakeUpStudentCount = p.MakeUpStudentCount,
-                        NotArrivedCount = p.NotArrivedCount,
-                        Ot = p.Ot,
-                        StudentClassTimes = p.StudentClassTimes,
-                        TeacherClassTimes = p.TeacherClassTimes,
+                        DeSum = p.TotalDeSum,
+                        LeaveCount = p.TotalLeaveCount,
+                        MakeUpStudentCount = p.TotalMakeUpStudentCount,
+                        NotArrivedCount = p.TotalNotArrivedCount,
+                        StudentClassTimes = p.TotalStudentClassTimes.EtmsToString(),
+                        TeacherClassTimes = p.TotalTeacherClassTimes.EtmsToString(),
                         TeacherId = p.TeacherId,
                         TeacherName = myUser.Name,
                         TeacherPhone = myUser.Phone,
-                        TryCalssStudentCount = p.TryCalssStudentCount
+                        TryCalssStudentCount = p.TotalTryCalssStudentCount
                     });
                 }
             }

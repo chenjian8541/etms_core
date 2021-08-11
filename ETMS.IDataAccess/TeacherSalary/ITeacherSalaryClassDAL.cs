@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,6 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<IEnumerable<EtTeacherSalaryClassTimes>> GetTeacherSalaryClassTimes(List<long> teacherIds, DateTime startOt, DateTime endOt);
 
-        Task<Tuple<IEnumerable<EtTeacherSalaryClassDay>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request);
+        Task<Tuple<IEnumerable<TeacherSalaryClassDayView>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request);
     }
 }

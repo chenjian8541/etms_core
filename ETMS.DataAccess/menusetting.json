@@ -721,6 +721,50 @@
         "Id": 49,
         "Name": "课消记录",
         "Type": 0
+      },
+      {
+        "Id": 92,
+        "Name": "工资结算",
+        "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 93,
+            "Name": "工资条",
+            "Type": 0
+          },
+          {
+            "Id": 94,
+            "Name": "绩效管理",
+            "Type": 0
+          }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 69,
+            "Name": "新增工资结算",
+            "Type": 1
+          },
+          {
+            "ActionId": 73,
+            "Name": "工资条确认",
+            "Type": 1
+          },
+          {
+            "ActionId": 72,
+            "Name": "工资条作废",
+            "Type": 1
+          },
+          {
+            "ActionId": 70,
+            "Name": "设置员工工资",
+            "Type": 1
+          },
+          {
+            "ActionId": 71,
+            "Name": "设置工资条项目",
+            "Type": 1
+          }
+        ]
       }
     ]
   },

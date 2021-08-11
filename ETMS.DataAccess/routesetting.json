@@ -872,6 +872,65 @@
           "Title": "课消记录",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 92,
+        "Path": "salaryMgr",
+        "Name": "salaryMgr",
+        "Type": 1,
+        "Component": "@/views/finance/EmployeeSalary",
+        "Meta": {
+          "Title": "工资结算",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "salaryLogDetail/:cid",
+        "Name": "salaryLogDetail",
+        "Type": 1,
+        "Component": "@/components/EmployeeSalaryMgr/SalaryLogDetail",
+        "Meta": {
+          "Title": "结算记录详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "salarySettlement",
+        "Name": "salarySettlement",
+        "Type": 1,
+        "Component": "@/components/EmployeeSalaryMgr/SalarySettlement",
+        "Meta": {
+          "Title": "新增工资结算",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "employeeSalarySetMgr",
+        "Name": "employeeSalarySetMgr",
+        "Type": 1,
+        "Component": "@/components/EmployeeSalaryMgr/EmployeePerformanceSetMgr",
+        "Meta": {
+          "Title": "设置员工工资",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "employeeSalarySetDetail/:tid",
+        "Name": "employeeSalarySetDetail",
+        "Type": 1,
+        "Component": "@/components/EmployeeSalaryMgr/EmployeePerformanceSetDetail",
+        "Meta": {
+          "Title": "设置员工工资详情",
+          "Icon": "item"
+        }
       }
     ]
   },

@@ -29,6 +29,8 @@ namespace ETMS.Entity.Temp
 
         public string CancelDesc { get; set; }
 
+        public bool IsCanCancel { get; set; }
+
         public long CourseId { get; set; }
     }
 }

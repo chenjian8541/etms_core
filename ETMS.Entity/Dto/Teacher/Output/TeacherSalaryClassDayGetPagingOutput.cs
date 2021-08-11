@@ -8,8 +8,6 @@ namespace ETMS.Entity.Dto.Teacher.Output
 {
     public class TeacherSalaryClassDayGetPagingOutput
     {
-        public long Id { get; set; }
-
         public long TeacherId { get; set; }
 
         public string TeacherName { get; set; }
@@ -20,11 +18,9 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public string ClassName { get; set; }
 
-        public DateTime Ot { get; set; }
+        public string TeacherClassTimes { get; set; }
 
-        public decimal TeacherClassTimes { get; set; }
-
-        public decimal StudentClassTimes { get; set; }
+        public string StudentClassTimes { get; set; }
 
         public decimal DeSum { get; set; }
 

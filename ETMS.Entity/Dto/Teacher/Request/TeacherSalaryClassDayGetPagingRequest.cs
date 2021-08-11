@@ -89,6 +89,10 @@ namespace ETMS.Entity.Dto.Teacher.Request
         /// <returns></returns>
         public override string Validate()
         {
+            if (Ot == null || Ot.Count != 2)
+            {
+                return "请选择上课时间进行查询";
+            }
             if (StartOt != null && EndOt != null && StartOt > EndOt)
             {
                 return "开始时间不能大于结束时间";

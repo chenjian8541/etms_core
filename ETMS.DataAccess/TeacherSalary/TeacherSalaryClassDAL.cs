@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ETMS.Utility;
 using ETMS.Entity.Common;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 
 namespace ETMS.DataAccess.TeacherSalary
 {
@@ -75,9 +76,10 @@ namespace ETMS.DataAccess.TeacherSalary
             return await _dbWrapper.ExecuteObject<EtTeacherSalaryClassTimes>(str.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtTeacherSalaryClassDay>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request)
+        public async Task<Tuple<IEnumerable<TeacherSalaryClassDayView>, int>> GetTeacherSalaryClassDayPaging(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<EtTeacherSalaryClassDay>("EtTeacherSalaryClassDay", "*", request.PageSize, request.PageCurrent, "TeacherId,Id DESC", request.ToString());
+            var table = $"(SELECT TeacherId,ClassId,SUM(ArrivedAndBeLateCount) AS TotalArrivedAndBeLateCount,SUM(ArrivedCount) AS TotalArrivedCount,SUM(BeLateCount) AS TotalBeLateCount,SUM(DeSum) AS TotalDeSum,SUM(LeaveCount) AS TotalLeaveCount,SUM(MakeUpStudentCount) AS TotalMakeUpStudentCount,SUM(NotArrivedCount) AS TotalNotArrivedCount,SUM(StudentClassTimes) AS TotalStudentClassTimes,SUM(TeacherClassTimes) AS TotalTeacherClassTimes,SUM(TryCalssStudentCount) AS TotalTryCalssStudentCount FROM EtTeacherSalaryClassDay WHERE {request} group by TeacherId,ClassId) TB";
+            return await _dbWrapper.ExecutePage<TeacherSalaryClassDayView>(table, "*", request.PageSize, request.PageCurrent, "TeacherId", string.Empty);
         }
     }
 }

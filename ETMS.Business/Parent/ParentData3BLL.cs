@@ -653,6 +653,7 @@ namespace ETMS.Business
                         break;
                 }
                 result.CancelDesc = $"{tempTime.ToString("MM月dd日 HH:mm前可取消")}";
+                result.IsCanCancel = tempTime > now;
             }
 
             result.Status = reservationLimit.Status;
@@ -725,7 +726,9 @@ namespace ETMS.Business
                 RuleStartClassReservaLimitDesc = limitResult.RuleStartClassReservaLimitDesc,
                 CourseId = limitResult.CourseId,
                 Status = limitResult.Status,
-                StudentReservationSuccess = reservationSuccess
+                StudentReservationSuccess = reservationSuccess,
+                IsCanCancel = limitResult.IsCanCancel,
+                CancelDesc = limitResult.CancelDesc
             };
 
             return ResponseBase.Success(output);
@@ -914,6 +917,13 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("未查找到预约课次");
             }
+            var now = DateTime.Now;
+            var limitResult = await GetCheckClassTimesReservationLimit2(classTimes, request.StudentId, now);
+            if (!limitResult.IsCanCancel)
+            {
+                return ResponseBase.CommonError("临近上课时间，无法取消预约课次");
+            }
+
             await _classTimesDAL.DelClassTimesStudent(reservationLog.Id);
             classTimesStudents.Remove(reservationLog);
             var surplusReservation = classTimesStudents.Where(p => p.IsReservation == EmBool.True);

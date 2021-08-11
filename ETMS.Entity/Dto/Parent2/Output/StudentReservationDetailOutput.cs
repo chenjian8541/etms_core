@@ -60,6 +60,10 @@ namespace ETMS.Entity.Dto.Parent2.Output
 
         public string CantReservationErrDesc { get; set; }
 
+        public string CancelDesc { get; set; }
+
+        public bool IsCanCancel { get; set; }
+
         public StudentReservationSuccess StudentReservationSuccess { get; set; }
     }
 
