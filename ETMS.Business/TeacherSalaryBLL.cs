@@ -226,7 +226,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> TeacherSalaryContractGetPaging(TeacherSalaryContractGetPagingRequest request)
         {
             var config = await GetTeacherSalaryFundsItems(false);
-            var outputTableHeadInfo = new List<TeacherSalaryContractGetPagingTableHeadOutput>();
+            var outputTableHeadInfo = new List<PagingTableHeadOutput>();
             var allTeacherSalaryFundsItemOutput = new List<TeacherSalaryFundsItemOutput>();
             if (config.DefaultItems != null && config.DefaultItems.Count > 0)
             {
@@ -241,11 +241,11 @@ namespace ETMS.Business
                 var index = 0;
                 foreach (var p in allTeacherSalaryFundsItemOutput)
                 {
-                    outputTableHeadInfo.Add(new TeacherSalaryContractGetPagingTableHeadOutput()
+                    outputTableHeadInfo.Add(new PagingTableHeadOutput()
                     {
                         Index = index,
                         Label = p.Name,
-                        Type = p.Type,
+                        OtherInfo = p.Type,
                         Id = p.Id,
                         Property = $"SalaryContract{index}",
                     });
@@ -270,10 +270,13 @@ namespace ETMS.Business
                         SalaryContractStatus = EmBool.False
                     };
                     var teacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(p.Id);
-                    if (teacherSalaryContractSetBucket == null || teacherSalaryContractSetBucket.TeacherSalaryContractFixeds == null)
+                    if (teacherSalaryContractSetBucket == null || teacherSalaryContractSetBucket.TeacherSalaryContractFixeds == null ||
+                        teacherSalaryContractSetBucket.TeacherSalaryContractFixeds.Count == 0)
                     {
+                        outputItem.Add(item);
                         continue;
                     }
+                    item.SalaryContractStatus = EmBool.True;
                     index = 0;
                     foreach (var myFundsItem in allTeacherSalaryFundsItemOutput)
                     {
@@ -294,10 +297,11 @@ namespace ETMS.Business
                         }
                         index++;
                     }
+                    outputItem.Add(item);
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase2<TeacherSalaryContractGetPagingOutput,
-                List<TeacherSalaryContractGetPagingTableHeadOutput>>(pagingData.Item2, outputItem, outputTableHeadInfo));
+                PagingTableHeadOutput>(pagingData.Item2, outputItem, outputTableHeadInfo));
         }
 
         private async Task<List<TeacherSalaryContractPerformanceSet>> GetTeacherSalaryContractPerformanceSet(long teacherId,

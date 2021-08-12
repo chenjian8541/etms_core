@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.Teacher.Output
+namespace ETMS.Entity.Common
 {
-    public class TeacherSalaryContractGetPagingTableHeadOutput
+    public class PagingTableHeadOutput
     {
         public long Id { get; set; }
 
@@ -16,9 +16,6 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public string Property { get; set; }
 
-        /// <summary>
-        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryFundsItemsType"/>
-        /// </summary>
-        public byte Type { get; set; }
+        public object OtherInfo { get; set; }
     }
 }

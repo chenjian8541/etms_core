@@ -9,11 +9,11 @@ namespace ETMS.Entity.Common
     /// </summary>
     public class ResponsePagingDataBase2<T, U>
     {
-        public ResponsePagingDataBase2(int recordCount, IEnumerable<T> dataItems, U otherInfo)
+        public ResponsePagingDataBase2(int recordCount, IEnumerable<T> dataItems, IEnumerable<U> dataHeads)
         {
             this.RecordCount = recordCount;
             this.DataItems = dataItems;
-            this.OtherInfo = otherInfo;
+            this.DataHeads = dataHeads;
         }
 
         /// <summary>
@@ -27,8 +27,8 @@ namespace ETMS.Entity.Common
         public IEnumerable<T> DataItems { get; set; }
 
         /// <summary>
-        /// 其它信息
+        /// 表头
         /// </summary>
-        public U OtherInfo { get; set; }
+        public IEnumerable<U> DataHeads { get; set; }
     }
 }
