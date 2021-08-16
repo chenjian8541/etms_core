@@ -247,7 +247,7 @@ namespace ETMS.Business
                         Label = p.Name,
                         OtherInfo = p.Type,
                         Id = p.Id,
-                        Property = $"SalaryContract{index}",
+                        Property = $"salaryContract{index}",
                     });
                     index++;
                 }
@@ -652,7 +652,7 @@ namespace ETMS.Business
             }
 
             EtTeacherSalaryContractPerformanceSet performanceSet = null;
-            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails = null;
+            var performanceSetDetails = new List<EtTeacherSalaryContractPerformanceSetDetail>();
             if (config.IsOpenContractPerformance)
             {
                 performanceSet = new EtTeacherSalaryContractPerformanceSet()
@@ -666,7 +666,7 @@ namespace ETMS.Business
                 };
                 var strDesc = new StringBuilder();
                 strDesc.Append($"<div class='performance_set_rule'>结算方式：{EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(performanceSet.ComputeType)} </div>");
-                strDesc.Append($"<div class='performance_set_rule'>梯度工资：{EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(performanceSet.GradientCalculateType)}</div>");
+                strDesc.Append($"<div class='performance_set_rule'>梯度计算：{EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(performanceSet.GradientCalculateType)}</div>");
                 switch (performanceSet.ComputeType)
                 {
                     case EmTeacherSalaryComputeType.Class:

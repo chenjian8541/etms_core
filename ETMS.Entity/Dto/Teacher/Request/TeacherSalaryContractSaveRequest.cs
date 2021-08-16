@@ -60,10 +60,6 @@ namespace ETMS.Entity.Dto.Teacher.Request
 
         public string Validate()
         {
-            if (FundsItemsId <= 0)
-            {
-                return "固定工资-请求数据格式错误";
-            }
             return string.Empty;
         }
     }

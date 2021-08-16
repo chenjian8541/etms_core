@@ -58,7 +58,7 @@ namespace ETMS.EventConsumer.Lib
                 {
                     await this._process.Invoke();
                 }
-                catch
+                catch (Exception ex)
                 {
                     if (_isErrCanTryManyTime)
                     {
@@ -70,6 +70,7 @@ namespace ETMS.EventConsumer.Lib
                             _eventPublisher.Publish(_request);
                         }
                     }
+                    LOG.Log.Error($"[{_processName}]执行出错", ex, this.GetType());
                     throw;
                 }
                 finally

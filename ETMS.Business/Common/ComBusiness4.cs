@@ -37,7 +37,7 @@ namespace ETMS.Business.Common
             var strDesc = new StringBuilder();
             if (items.Count == 1) //无梯度
             {
-                strDesc.Append($"<div class='performance_set_rule_content_item'>{firstItem.ComputeValue}{unitTag}</div>");
+                strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>{firstItem.ComputeValue}{unitTag}</span></div>");
             }
             else
             {
@@ -46,15 +46,15 @@ namespace ETMS.Business.Common
                 {
                     if (p.MinLimit == null || p.MinLimit == 0) //第一项
                     {
-                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>0＜X≤{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
+                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>0＜X≤{p.MaxLimit}</span><span class='rule_interval_value'>{p.ComputeValue}{unitTag}</span></div>");
                         continue;
                     }
                     if (p.MaxLimit == null || p.MaxLimit == 0) //最后一项
                     {
-                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X<span>{p.ComputeValue}{unitTag}</div>");
+                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X</span><span class='rule_interval_value'>{p.ComputeValue}{unitTag}</span></div>");
                         continue;
                     }
-                    strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X≤{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
+                    strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X≤{p.MaxLimit}</span><span class='rule_interval_value'>{p.ComputeValue}{unitTag}</span></div>");
                 }
             }
             return Tuple.Create(strDesc.ToString(), EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(firstItem.ComputeMode)); ;
