@@ -41,19 +41,20 @@ namespace ETMS.Business.Common
             }
             else
             {
+                //采用前开后闭
                 foreach (var p in items)
                 {
                     if (p.MinLimit == null || p.MinLimit == 0) //第一项
                     {
-                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>X＜{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
+                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>0＜X≤{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
                         continue;
                     }
                     if (p.MaxLimit == null || p.MaxLimit == 0) //最后一项
                     {
-                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}≤X<span>{p.ComputeValue}{unitTag}</div>");
+                        strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X<span>{p.ComputeValue}{unitTag}</div>");
                         continue;
                     }
-                    strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}≤X＜{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
+                    strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_desc'>{p.MinLimit}＜X≤{p.MaxLimit}<span>{p.ComputeValue}{unitTag}</div>");
                 }
             }
             return Tuple.Create(strDesc.ToString(), EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(firstItem.ComputeMode)); ;

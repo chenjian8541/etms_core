@@ -890,8 +890,6 @@ namespace ETMS.Business
                 OpType = NoticeStudentReservationOpType.Success
             });
 
-            _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, classTimes.ClassId));
-
             await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"预约上课-班级:{etClass.EtClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
         }
@@ -948,8 +946,6 @@ namespace ETMS.Business
                 ClassTimesStudent = reservationLog,
                 OpType = NoticeStudentReservationOpType.Cancel
             });
-
-            _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, classTimes.ClassId));
 
             await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{etClass.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();

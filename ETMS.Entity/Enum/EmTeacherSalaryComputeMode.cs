@@ -43,5 +43,37 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string GetTeacherSalaryComputeModeDesc2(byte t)
+        {
+            switch (t)
+            {
+                case TeacherClassTimes:
+                    return "授课课时";
+                case StudentAttendeesCount:
+                    return "到课人次";
+                case StudentDeSum:
+                    return "课消金额";
+                case StudentClassTimes:
+                    return "学员课时";
+            }
+            return string.Empty;
+        }
+
+        public static string GetModelUnitDesc(byte t)
+        {
+            switch (t)
+            {
+                case EmTeacherSalaryComputeMode.TeacherClassTimes:
+                    return "元/课时";
+                case EmTeacherSalaryComputeMode.StudentAttendeesCount:
+                    return "元/人次";
+                case EmTeacherSalaryComputeMode.StudentDeSum:
+                    return "%课消比";
+                case EmTeacherSalaryComputeMode.StudentClassTimes:
+                    return "元/课时";
+            }
+            return string.Empty;
+        }
     }
 }

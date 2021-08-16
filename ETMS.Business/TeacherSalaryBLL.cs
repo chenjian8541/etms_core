@@ -355,6 +355,17 @@ namespace ETMS.Business
                                     }
                                 }
                             }
+                            if (performanceSetClass.SetDetails.Count == 0)
+                            {
+                                performanceSetClass.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    MaxLimit = null,
+                                    MinLimit = null,
+                                    ComputeValue = 0
+                                });
+                            }
+                            performanceSetClass.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetClass.ComputeMode);
+                            performanceSetClass.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetClass.ComputeMode);
                             output.Add(performanceSetClass);
                         }
                     }
@@ -417,6 +428,17 @@ namespace ETMS.Business
                                     }
                                 }
                             }
+                            if (performanceSetCourse.SetDetails.Count == 0)
+                            {
+                                performanceSetCourse.SetDetails.Add(new TeacherSalaryContractPerformanceSetDetail()
+                                {
+                                    MaxLimit = null,
+                                    MinLimit = null,
+                                    ComputeValue = 0
+                                });
+                            }
+                            performanceSetCourse.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetCourse.ComputeMode);
+                            performanceSetCourse.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetCourse.ComputeMode);
                             output.Add(performanceSetCourse);
                         }
                     }
@@ -451,13 +473,32 @@ namespace ETMS.Business
                             }
                         }
                     }
+                    var relationExtend = new List<string>();
+                    if (teacherAllClass.Any())
+                    {
+                        foreach (var p in teacherAllClass)
+                        {
+                            relationExtend.Add(p.Name);
+                        }
+                    }
+                    if (setDetailsGlobal.Count == 0)
+                    {
+                        setDetailsGlobal.Add(new TeacherSalaryContractPerformanceSetDetail()
+                        {
+                            ComputeValue = 0,
+                            MaxLimit = null,
+                            MinLimit = null
+                        });
+                    }
                     output = new List<TeacherSalaryContractPerformanceSet>() {
                         new TeacherSalaryContractPerformanceSet(){
                             ComputeMode =computeModeGlobal,
-                            RelationExtend = new List<string>(),
+                            RelationExtend = relationExtend,
                             RelationId = 0,
-                            RelationName ="统一设置",
-                            SetDetails =setDetailsGlobal
+                            RelationName ="所有班级",
+                            SetDetails =setDetailsGlobal,
+                            ComputeModeDesc =  EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(computeModeGlobal),
+                            ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal)
                         }};
                     break;
             }
@@ -467,6 +508,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TeacherSalaryContractGetDetail(TeacherSalaryContractGetDetailRequest request)
         {
+            var user = await _userDAL.GetUser(request.TeacherId);
+            if (user == null)
+            {
+                return ResponseBase.CommonError("员工不存在");
+            }
             var config = await GetTeacherSalaryFundsItems(false);
             var globalConfig = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
             var output = new TeacherSalaryContractGetDetailOutput()
@@ -475,7 +521,10 @@ namespace ETMS.Business
                 IsOpenClassPerformance = config.IsOpenContractPerformance,
                 GradientCalculateType = globalConfig.GradientCalculateType,
                 FixedItems = new List<TeacherSalaryContractFixedItem>(),
-                PerformanceSetItems = new List<TeacherSalaryContractPerformanceSet>()
+                PerformanceSetItems = new List<TeacherSalaryContractPerformanceSet>(),
+                TeacherId = user.Id,
+                TeacherName = user.Name,
+                TeacherPhone = user.Phone
             };
             List<EtTeacherSalaryContractFixed> myTeacherSalaryContractFixeds = null;
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;

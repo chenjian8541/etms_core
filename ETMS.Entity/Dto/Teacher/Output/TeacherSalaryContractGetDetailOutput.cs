@@ -8,6 +8,12 @@ namespace ETMS.Entity.Dto.Teacher.Output
 {
     public class TeacherSalaryContractGetDetailOutput
     {
+        public long TeacherId { get; set; }
+
+        public string TeacherName { get; set; }
+
+        public string TeacherPhone { get; set; }
+
         public bool IsOpenClassPerformance { get; set; }
 
         public List<TeacherSalaryContractFixedItem> FixedItems { get; set; }
@@ -56,6 +62,10 @@ namespace ETMS.Entity.Dto.Teacher.Output
         /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeMode"/>
         /// </summary>
         public byte ComputeMode { get; set; }
+
+        public string ComputeModeUnitDesc { get; set; }
+
+        public string ComputeModeDesc { get; set; }
 
         public List<TeacherSalaryContractPerformanceSetDetail> SetDetails { get; set; }
     }
