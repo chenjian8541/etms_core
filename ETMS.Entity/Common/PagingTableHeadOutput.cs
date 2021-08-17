@@ -17,5 +17,10 @@ namespace ETMS.Entity.Common
         public string Property { get; set; }
 
         public object OtherInfo { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.PagingTableHeadType"/>
+        /// </summary>
+        public byte Type { get; set; }
     }
 }

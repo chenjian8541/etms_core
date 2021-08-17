@@ -67,6 +67,10 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public string ComputeModeDesc { get; set; }
 
+        public string ComputeModeHint { get; set; }
+
+        public int ComputeValueMaxLength { get; set; } = 10;
+
         public List<TeacherSalaryContractPerformanceSetDetail> SetDetails { get; set; }
     }
 

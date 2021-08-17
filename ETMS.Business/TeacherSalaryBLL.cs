@@ -248,6 +248,7 @@ namespace ETMS.Business
                         OtherInfo = p.Type,
                         Id = p.Id,
                         Property = $"salaryContract{index}",
+                        Type = p.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId ? PagingTableHeadType.Html : PagingTableHeadType.Text
                     });
                     index++;
                 }
@@ -282,9 +283,15 @@ namespace ETMS.Business
                     {
                         if (myFundsItem.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId) //绩效工资
                         {
-                            if (teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null)
+                            if (teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null &&
+                                teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails != null &&
+                                teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Count > 0)
                             {
                                 item.SetSalaryContract(index, teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet.ComputeDesc);
+                            }
+                            else
+                            {
+                                item.SetSalaryContract(index, "<span class='tag_color_red'>未设置</span>");
                             }
                         }
                         else
@@ -366,6 +373,8 @@ namespace ETMS.Business
                             }
                             performanceSetClass.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetClass.ComputeMode);
                             performanceSetClass.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetClass.ComputeMode);
+                            performanceSetClass.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetClass.ComputeMode);
+                            performanceSetClass.ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(performanceSetClass.ComputeMode);
                             output.Add(performanceSetClass);
                         }
                     }
@@ -439,6 +448,8 @@ namespace ETMS.Business
                             }
                             performanceSetCourse.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetCourse.ComputeMode);
                             performanceSetCourse.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetCourse.ComputeMode);
+                            performanceSetCourse.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetCourse.ComputeMode);
+                            performanceSetCourse.ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(performanceSetCourse.ComputeMode);
                             output.Add(performanceSetCourse);
                         }
                     }
@@ -498,7 +509,9 @@ namespace ETMS.Business
                             RelationName ="所有班级",
                             SetDetails =setDetailsGlobal,
                             ComputeModeDesc =  EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(computeModeGlobal),
-                            ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal)
+                            ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal),
+                            ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(computeModeGlobal),
+                            ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(computeModeGlobal)
                         }};
                     break;
             }
@@ -632,9 +645,17 @@ namespace ETMS.Business
             var config = await GetTeacherSalaryFundsItems(false);
             if (config.IsOpenContractPerformance)
             {
-                if (request.ContractPerformanceSet == null || request.PerformanceSetDetails == null || request.PerformanceSetDetails.Count == 0)
+                if (request.ContractPerformanceSet == null)
                 {
                     return ResponseBase.CommonError("请设置绩效工资");
+                }
+                if (request.PerformanceSetDetails != null && request.PerformanceSetDetails.Count > 0)
+                {
+                    var tempStudentDeSum = request.PerformanceSetDetails.FirstOrDefault(p => p.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum && p.ComputeValue >= 100);
+                    if (tempStudentDeSum != null)
+                    {
+                        return ResponseBase.CommonError("按课消金额 计算值应该小于100");
+                    }
                 }
             }
 

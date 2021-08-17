@@ -28,6 +28,24 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte StudentClassTimes = 3;
 
+        public static string GetSalaryComputeModeHint(byte t)
+        {
+            if (t == StudentDeSum)
+            {
+                return "0~100";
+            }
+            return string.Empty;
+        }
+
+        public static int GetSalaryComputeModeValueMaxLength(byte t)
+        {
+            if (t == StudentDeSum)
+            {
+                return 2;
+            }
+            return 10;
+        }
+
         public static string GetTeacherSalaryComputeModeDesc(byte t)
         {
             switch (t)
