@@ -366,7 +366,19 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_1_0()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            var allCourseIds = _mySalaryClassTimesList.GroupBy(p => p.CourseId).Select(p => p.Key);
+            foreach (var myCourseId in allCourseIds)
+            {
+                var myCourseSetRule = _myTeacherSalaryContractPerformanceSetDetails.FirstOrDefault(p => p.RelationId == myCourseId);
+                if (myCourseSetRule == null)
+                {
+                    continue;
+                }
+                var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
+                output.Add(GetCalculateType_None(myCourseId, myCourseSetRule, myClassTimes));
+            }
+            return output;
         }
 
         /// <summary>
@@ -377,7 +389,19 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_1_1()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            var allCourseIds = _mySalaryClassTimesList.GroupBy(p => p.CourseId).Select(p => p.Key);
+            foreach (var myCourseId in allCourseIds)
+            {
+                var myCourseSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myCourseId).ToList();
+                if (myCourseSetRules == null || !myCourseSetRules.Any())
+                {
+                    continue;
+                }
+                var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
+                output.Add(GetCalculateType_MoreThanValue(myCourseId, myCourseSetRules, myClassTimes)); ;
+            }
+            return output;
         }
 
         /// <summary>
@@ -388,7 +412,19 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_1_2()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            var allCourseIds = _mySalaryClassTimesList.GroupBy(p => p.CourseId).Select(p => p.Key);
+            foreach (var myCourseId in allCourseIds)
+            {
+                var myCourseSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myCourseId).ToList();
+                if (myCourseSetRules == null || !myCourseSetRules.Any())
+                {
+                    continue;
+                }
+                var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
+                output.Add(GetCalculateType_AllValue(myCourseId, myCourseSetRules, myClassTimes)); ;
+            }
+            return output;
         }
 
         /// <summary>
