@@ -95,17 +95,18 @@ namespace Etms.Tools.Test
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            var students = new List<MyStudent>();
-            students.Add(new MyStudent() { Id = 1, Name = "张三1" });
-            students.Add(new MyStudent() { Id = 2, Name = "张三2" });
-            students.Add(new MyStudent() { Id = 3, Name = "张三3" });
-            students.Add(new MyStudent() { Id = 4, Name = "张三4" });
-            students.Add(new MyStudent() { Id = 5, Name = "张三5" });
-
-            var log = students.FirstOrDefault(p => p.Id == 4);
-            log.Name = "chenjian ";
-
-            Console.WriteLine(students[3].Name);
+            var stuList = new List<MyStudent>() {
+            new MyStudent(){ ClassId = 1, Name="1" },
+            new MyStudent(){ ClassId = 1, Name="1" },
+            new MyStudent(){ ClassId = 9, Name="1" },
+            new MyStudent(){ ClassId =2, Name="1" },
+            new MyStudent(){ ClassId = 5, Name="1" },
+            new MyStudent(){ ClassId = 5, Name="1" },
+            new MyStudent(){ ClassId = 2, Name="1" },
+            new MyStudent(){ ClassId = 3, Name="1" },
+            };
+            var ids = stuList.GroupBy(p => p.ClassId).Select(p=>p.Key).ToList();
+            Console.WriteLine(ids.First());
             Console.Read();
         }
 
@@ -353,8 +354,33 @@ namespace Etms.Tools.Test
 
     public class MyStudent
     {
-        public int Id { get; set; }
+        public int ClassId { get; set; }
 
         public string Name { get; set; }
+    }
+
+    public class TestMethod
+    {
+        private string _name;
+
+        public TestMethod(string name)
+        {
+            this._name = name;
+        }
+
+        public List<string> Hello_0()
+        {
+            return new List<string>() { $"{_name}0" };
+        }
+
+        public List<string> Hello_1()
+        {
+            return new List<string>() { $"{_name}1" };
+        }
+
+        public List<string> Hello_2()
+        {
+            return new List<string>() { $"{_name}2" };
+        }
     }
 }

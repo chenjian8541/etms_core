@@ -17,6 +17,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ETMS.Entity.Extensions;
+using ETMS.Entity.CacheBucket.RedisLock;
+using ETMS.Entity.Temp;
 
 namespace ETMS.Business
 {
@@ -38,9 +40,13 @@ namespace ETMS.Business
 
         private readonly ICourseDAL _courseDAL;
 
+        private readonly ITeacherSalaryPayrollDAL _teacherSalaryPayrollDAL;
+
+        private IDistributedLockDAL _distributedLockDAL;
+
         public TeacherSalaryBLL(IAppConfig2BLL appConfig2BLL, ITeacherSalaryFundsItemsDAL teacherSalaryFundsItemsDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
             IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IClassDAL classDAL, ITeacherSalaryContractDAL teacherSalaryContractDAL,
-            ICourseDAL courseDAL)
+            ICourseDAL courseDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL, IDistributedLockDAL distributedLockDAL)
         {
             this._appConfig2BLL = appConfig2BLL;
             this._teacherSalaryFundsItemsDAL = teacherSalaryFundsItemsDAL;
@@ -50,13 +56,15 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._teacherSalaryContractDAL = teacherSalaryContractDAL;
             this._courseDAL = courseDAL;
+            this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _teacherSalaryFundsItemsDAL, _teacherSalaryClassDAL,
-                _userOperationLogDAL, _userDAL, _classDAL, _teacherSalaryContractDAL, _courseDAL);
+                _userOperationLogDAL, _userDAL, _classDAL, _teacherSalaryContractDAL, _courseDAL, _teacherSalaryPayrollDAL);
         }
 
         private async Task<TeacherSalaryFundsItemsGetOutput> GetTeacherSalaryFundsItems(bool isGetDisable)
@@ -567,7 +575,7 @@ namespace ETMS.Business
                 output.GradientCalculateType = myTeacherSalaryContractPerformanceSet.GradientCalculateType;
             }
 
-            //固定工资
+            //工资条项目
             var allTeacherSalaryFundsItem = new List<TeacherSalaryFundsItemOutput>();
             if (config.DefaultItems != null && config.DefaultItems.Count > 0)
             {
@@ -782,5 +790,66 @@ namespace ETMS.Business
             await _teacherSalaryContractDAL.SaveTeacherSalaryContract(request.TeacherId, teacherSalaryContractFixeds, performanceSet, performanceSetDetails);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollGoSettlement(TeacherSalaryPayrollGoSettlementRequest request)
+        {
+            var lockKey = new TeacherSalaryPayrollGoSettlementToken(request.LoginTenantId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await this.TeacherSalaryPayrollGoSettlementProcess(request);
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("系统正在处理工资结算，请稍后再试");
+        }
+
+        private async Task<ResponseBase> TeacherSalaryPayrollGoSettlementProcess(TeacherSalaryPayrollGoSettlementRequest request)
+        {
+            if (await _teacherSalaryPayrollDAL.ExistName(request.Name))
+            {
+                return ResponseBase.CommonError("结算名称已存在");
+            }
+            var config = await GetTeacherSalaryFundsItems(false);
+            var isOpenContractPerformance = config.IsOpenContractPerformance;
+            IEnumerable<EtTeacherSalaryClassTimes> teacherSalaryClassTimesList = null;
+            if (isOpenContractPerformance)
+            {
+                teacherSalaryClassTimesList = await _teacherSalaryClassDAL.GetTeacherSalaryClassTimes(request.UserIds,
+                    request.StartOt.Value, request.EndOt.Value);
+            }
+            var allTeacherSalaryFundsItem = new List<TeacherSalaryFundsItemOutput>();
+            if (config.DefaultItems != null && config.DefaultItems.Count > 0)
+            {
+                allTeacherSalaryFundsItem.AddRange(config.DefaultItems);
+            }
+            if (config.CustomItems != null && config.CustomItems.Count > 0)
+            {
+                allTeacherSalaryFundsItem.AddRange(config.CustomItems);
+            }
+            var globalConfig = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
+            var processHandler = new UserSalarySettlementHandler(_userDAL, _teacherSalaryPayrollDAL, _teacherSalaryContractDAL,
+                isOpenContractPerformance, allTeacherSalaryFundsItem, globalConfig, teacherSalaryClassTimesList);
+            return await processHandler.Process(request);
+        }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollGetPaging(TeacherSalaryPayrollGetPagingRequest request)
+        { return ResponseBase.Success(); }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollGet(TeacherSalaryPayrollGetRequest request)
+        { return ResponseBase.Success(); }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request)
+        { return ResponseBase.Success(); }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollDel(TeacherSalaryPayrollDelRequest request)
+        { return ResponseBase.Success(); }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollRepeal(TeacherSalaryPayrollRepealRequest request)
+        { return ResponseBase.Success(); }
     }
 }

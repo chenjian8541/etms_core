@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness
 {
-    public interface ITeacherSalaryBLL: IBaseBLL
+    public interface ITeacherSalaryBLL : IBaseBLL
     {
         Task<ResponseBase> TeacherSalaryFundsItemsGet(TeacherSalaryFundsItemsGetRequest request);
 
@@ -33,5 +33,17 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TeacherSalaryContractChangeComputeType(TeacherSalaryContractChangeComputeTypeRequest request);
 
         Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollGoSettlement(TeacherSalaryPayrollGoSettlementRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollGetPaging(TeacherSalaryPayrollGetPagingRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollGet(TeacherSalaryPayrollGetRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollDel(TeacherSalaryPayrollDelRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollRepeal(TeacherSalaryPayrollRepealRequest request);
     }
 }
