@@ -98,20 +98,23 @@ namespace ETMS.Business
                     output.ComputeRelationValue = myClassTimes.Sum(p => p.StudentClassTimes);
                     break;
             }
-            if (setRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum) //课消金额按比例绩效
+            if (output.ComputeRelationValue > 0)
             {
-                if (setRule.ComputeValue <= 0 || output.ComputeRelationValue <= 0)
+                if (setRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum) //课消金额按比例绩效
                 {
-                    output.ComputeSum = 0;
+                    if (setRule.ComputeValue <= 0)
+                    {
+                        output.ComputeSum = 0;
+                    }
+                    else
+                    {
+                        output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue / 100;
+                    }
                 }
                 else
                 {
-                    output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue / 100;
+                    output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue;
                 }
-            }
-            else
-            {
-                output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue;
             }
             output.SubmitSum = output.ComputeSum;
             return output;
@@ -224,6 +227,69 @@ namespace ETMS.Business
         }
 
         /// <summary>
+        /// 合计值_全额累计
+        /// </summary>
+        /// <param name="relationId"></param>
+        /// <param name="setRules"></param>
+        /// <param name="myClassTimes"></param>
+        /// <returns></returns>
+        private EtTeacherSalaryPayrollUserPerformance GetCalculateType_AllValue(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
+            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        {
+            var firstRule = setRules.First();
+            var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRules);
+            var output = new EtTeacherSalaryPayrollUserPerformance()
+            {
+                ComputeMode = firstRule.ComputeMode,
+                ComputeType = firstRule.ComputeType,
+                RelationId = relationId,
+                IsDeleted = EmIsDeleted.Normal,
+                TenantId = _tenantId,
+                UserId = _userId,
+                ComputeDesc = $"<div class='performance_set_rule_title'>{desClassResult.Item2}</div>{desClassResult.Item1}"
+            };
+            switch (firstRule.ComputeMode)
+            {
+                case EmTeacherSalaryComputeMode.TeacherClassTimes:
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes); ;
+                    break;
+                case EmTeacherSalaryComputeMode.StudentAttendeesCount:
+                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes); ;
+                    break;
+                case EmTeacherSalaryComputeMode.StudentDeSum:
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum); ;
+                    break;
+                case EmTeacherSalaryComputeMode.StudentClassTimes:
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.StudentClassTimes);
+                    break;
+            }
+            if (output.ComputeRelationValue > 0)
+            {
+                var myRules = setRules.OrderByDescending(p => p.MinLimit);
+                foreach (var p in myRules)
+                {
+                    if (output.ComputeRelationValue > p.MinLimit.Value)
+                    {
+                        if (firstRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum)
+                        {
+                            if (p.ComputeValue > 0)
+                            {
+                                output.ComputeSum = output.ComputeRelationValue * p.ComputeValue / 100;
+                            }
+                        }
+                        else
+                        {
+                            output.ComputeSum = output.ComputeRelationValue * p.ComputeValue;
+                        }
+                        break;
+                    }
+                }
+            }
+            output.SubmitSum = output.ComputeSum;
+            return output;
+        }
+
+        /// <summary>
         /// 按合计值统计
         /// 按班级设置
         /// 无梯度
@@ -277,7 +343,19 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_0_2()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            foreach (var myClassId in allClassIds)
+            {
+                var myClassSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClassId).ToList();
+                if (myClassSetRules == null || !myClassSetRules.Any())
+                {
+                    continue;
+                }
+                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                output.Add(GetCalculateType_AllValue(myClassId, myClassSetRules, myClassTimes)); ;
+            }
+            return output;
         }
 
         /// <summary>
