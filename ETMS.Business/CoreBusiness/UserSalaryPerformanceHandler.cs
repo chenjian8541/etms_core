@@ -38,6 +38,8 @@ namespace ETMS.Business
             this._globalConfig = teacherSalaryGlobalRuleView;
         }
 
+        #region 计算绩效值
+
         /// <summary>
         /// 获取有效的到课人数
         /// </summary>
@@ -63,6 +65,133 @@ namespace ETMS.Business
                 totalValidArrivedAndBeLateCount -= toatlMakeUpEffectiveCount;
             }
             return totalValidArrivedAndBeLateCount;
+        }
+
+        /// <summary>
+        /// 无梯度_计算
+        /// </summary>
+        /// <param name="computeRelationValue">关联值</param>
+        /// <param name="setRule">计算规则</param>
+        /// <returns></returns>
+        private decimal GetComputeSum_CalculateType_None(decimal computeRelationValue, EtTeacherSalaryContractPerformanceSetDetail setRule)
+        {
+            if (setRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum) //课消金额按比例绩效
+            {
+                if (setRule.ComputeValue <= 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return computeRelationValue * setRule.ComputeValue / 100;
+                }
+            }
+            else
+            {
+                return computeRelationValue * setRule.ComputeValue;
+            }
+        }
+
+        /// <summary>
+        /// 超额累计_计算
+        /// </summary>
+        /// <param name="computeRelationValue"></param>
+        /// <param name="setRules"></param>
+        /// <returns></returns>
+        private decimal GetComputeSum_CalculateType_MoreThanValue(decimal surplusRelationValue, List<EtTeacherSalaryContractPerformanceSetDetail> setRules)
+        {
+            var myRules = setRules.OrderBy(p => p.MinLimit);
+            var totalMoney = 0M;
+            if (setRules.First().ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum)
+            {
+                foreach (var p in myRules)
+                {
+                    if (p.ComputeValue <= 0) //防止0作为除数
+                    {
+                        if (p.MaxLimit == null)
+                        {
+                            break;
+                        }
+                        var tempIntervalValue = p.MaxLimit.Value - p.MinLimit.Value;
+                        surplusRelationValue -= tempIntervalValue;
+                        if (surplusRelationValue <= 0)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (p.MaxLimit == null) //最后一项
+                    {
+                        totalMoney += surplusRelationValue * p.ComputeValue / 100;
+                        break;
+                    }
+                    var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
+                    if (surplusRelationValue > intervalValue)
+                    {
+                        totalMoney += intervalValue * p.ComputeValue / 100;
+                        surplusRelationValue -= intervalValue;
+                    }
+                    else
+                    {
+                        totalMoney += surplusRelationValue * p.ComputeValue / 100;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var p in myRules)
+                {
+                    if (p.MaxLimit == null) //最后一项
+                    {
+                        totalMoney += surplusRelationValue * p.ComputeValue;
+                        break;
+                    }
+                    var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
+                    if (surplusRelationValue > intervalValue)
+                    {
+                        totalMoney += intervalValue * p.ComputeValue;
+                        surplusRelationValue -= intervalValue;
+                    }
+                    else
+                    {
+                        totalMoney += surplusRelationValue * p.ComputeValue;
+                        break;
+                    }
+                }
+            }
+            return totalMoney;
+        }
+
+        /// <summary>
+        /// 全额累计_计算
+        /// </summary>
+        /// <param name="computeRelationValue"></param>
+        /// <param name="setRules"></param>
+        /// <returns></returns>
+        private decimal GetComputeSum_CalculateType_AllValue(decimal computeRelationValue, List<EtTeacherSalaryContractPerformanceSetDetail> setRules)
+        {
+            var computeMode = setRules.First().ComputeMode;
+            var myRules = setRules.OrderByDescending(p => p.MinLimit);
+            foreach (var p in myRules)
+            {
+                if (computeRelationValue > p.MinLimit.Value)
+                {
+                    if (computeMode == EmTeacherSalaryComputeMode.StudentDeSum)
+                    {
+                        if (p.ComputeValue > 0)
+                        {
+                            return computeRelationValue * p.ComputeValue / 100;
+                        }
+                    }
+                    else
+                    {
+                        return computeRelationValue * p.ComputeValue;
+                    }
+                    break;
+                }
+            }
+            return 0;
         }
 
         /// <summary>
@@ -100,22 +229,9 @@ namespace ETMS.Business
             }
             if (output.ComputeRelationValue > 0)
             {
-                if (setRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum) //课消金额按比例绩效
-                {
-                    if (setRule.ComputeValue <= 0)
-                    {
-                        output.ComputeSum = 0;
-                    }
-                    else
-                    {
-                        output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue / 100;
-                    }
-                }
-                else
-                {
-                    output.ComputeSum = output.ComputeRelationValue * setRule.ComputeValue;
-                }
+                output.ComputeSum = GetComputeSum_CalculateType_None(output.ComputeRelationValue, setRule);
             }
+
             output.SubmitSum = output.ComputeSum;
             return output;
         }
@@ -159,68 +275,7 @@ namespace ETMS.Business
             }
             if (output.ComputeRelationValue > 0)
             {
-                var myRules = setRules.OrderBy(p => p.MinLimit);
-                var totalMoney = 0M;
-                var surplusRelationValue = output.ComputeRelationValue;
-                if (firstRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum)
-                {
-                    foreach (var p in myRules)
-                    {
-                        if (p.ComputeValue <= 0) //防止0作为除数
-                        {
-                            if (p.MaxLimit == null)
-                            {
-                                break;
-                            }
-                            var tempIntervalValue = p.MaxLimit.Value - p.MinLimit.Value;
-                            surplusRelationValue -= tempIntervalValue;
-                            if (surplusRelationValue <= 0)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (p.MaxLimit == null) //最后一项
-                        {
-                            totalMoney += surplusRelationValue * p.ComputeValue / 100;
-                            break;
-                        }
-                        var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
-                        if (surplusRelationValue > intervalValue)
-                        {
-                            totalMoney += intervalValue * p.ComputeValue / 100;
-                            surplusRelationValue -= intervalValue;
-                        }
-                        else
-                        {
-                            totalMoney += surplusRelationValue * p.ComputeValue / 100;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var p in myRules)
-                    {
-                        if (p.MaxLimit == null) //最后一项
-                        {
-                            totalMoney += surplusRelationValue * p.ComputeValue;
-                            break;
-                        }
-                        var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
-                        if (surplusRelationValue > intervalValue)
-                        {
-                            totalMoney += intervalValue * p.ComputeValue;
-                            surplusRelationValue -= intervalValue;
-                        }
-                        else
-                        {
-                            totalMoney += surplusRelationValue * p.ComputeValue;
-                            break;
-                        }
-                    }
-                }
-                output.ComputeSum = totalMoney;
+                output.ComputeSum = GetComputeSum_CalculateType_MoreThanValue(output.ComputeRelationValue, setRules);
             }
             output.SubmitSum = output.ComputeSum;
             return output;
@@ -265,29 +320,13 @@ namespace ETMS.Business
             }
             if (output.ComputeRelationValue > 0)
             {
-                var myRules = setRules.OrderByDescending(p => p.MinLimit);
-                foreach (var p in myRules)
-                {
-                    if (output.ComputeRelationValue > p.MinLimit.Value)
-                    {
-                        if (firstRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum)
-                        {
-                            if (p.ComputeValue > 0)
-                            {
-                                output.ComputeSum = output.ComputeRelationValue * p.ComputeValue / 100;
-                            }
-                        }
-                        else
-                        {
-                            output.ComputeSum = output.ComputeRelationValue * p.ComputeValue;
-                        }
-                        break;
-                    }
-                }
+                output.ComputeSum = GetComputeSum_CalculateType_AllValue(output.ComputeRelationValue, setRules);
             }
             output.SubmitSum = output.ComputeSum;
             return output;
         }
+
+        #endregion
 
         /// <summary>
         /// 按合计值统计
@@ -435,7 +474,9 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_2_0()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            output.Add(GetCalculateType_None(0, _myTeacherSalaryContractPerformanceSetDetails.First(), _mySalaryClassTimesList));
+            return output;
         }
 
         /// <summary>
@@ -446,7 +487,9 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_2_1()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            output.Add(GetCalculateType_MoreThanValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            return output;
         }
 
         /// <summary>
@@ -457,7 +500,9 @@ namespace ETMS.Business
         /// <returns></returns>
         public List<EtTeacherSalaryPayrollUserPerformance> Process_0_2_2()
         {
-            return null;
+            var output = new List<EtTeacherSalaryPayrollUserPerformance>();
+            output.Add(GetCalculateType_AllValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            return output;
         }
 
         /// <summary>
