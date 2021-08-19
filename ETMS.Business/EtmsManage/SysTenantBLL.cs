@@ -239,10 +239,13 @@ namespace ETMS.Business.EtmsManage
             {
                 return ResponseBase.CommonError("代理商短信剩余条数不足");
             }
-            var buyEtmsVersion = myAgentAccount.FirstOrDefault(p => p.VersionId == request.VersionId);
-            if (buyEtmsVersion == null || (request.EtmsCount > 0 && buyEtmsVersion.EtmsCount < request.EtmsCount))
+            if (request.EtmsCount > 0)
             {
-                return ResponseBase.CommonError("代理商剩余授权点数不足");
+                var buyEtmsVersion = myAgentAccount.FirstOrDefault(p => p.VersionId == request.VersionId);
+                if (buyEtmsVersion == null || (request.EtmsCount > 0 && buyEtmsVersion.EtmsCount < request.EtmsCount))
+                {
+                    return ResponseBase.CommonError("代理商剩余授权点数不足");
+                }
             }
             var now = DateTime.Now;
             var remark = $"添加机构-名称:{request.Name};机构编码:{request.TenantCode};手机号码:{request.Phone}";

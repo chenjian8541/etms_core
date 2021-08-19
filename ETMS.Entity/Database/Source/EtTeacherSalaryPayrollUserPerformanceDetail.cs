@@ -1,14 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ETMS.Entity.Database.Source
 {
-    [Table("EtTeacherSalaryClassTimes")]
-    public class EtTeacherSalaryClassTimes : Entity<long>
+    /// <summary>
+    /// 工资绩效详情
+    /// </summary>
+    [Table("EtTeacherSalaryPayrollUserPerformanceDetail")]
+    public class EtTeacherSalaryPayrollUserPerformanceDetail : Entity<long>
     {
-        public long TeacherId { get; set; }
+        public long UserId { get; set; }
+
+        public long TeacherSalaryPayrollId { get; set; }
+
+        public long TeacherSalaryPayrollUserId { get; set; }
+
+        public long UserPerformanceId { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeType"/>
+        /// </summary>
+        public byte ComputeType { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeMode"/>
+        /// </summary>
+        public byte ComputeMode { get; set; }
 
         public long ClassId { get; set; }
 
@@ -16,7 +37,7 @@ namespace ETMS.Entity.Database.Source
 
         public long ClassRecordId { get; set; }
 
-        public DateTime Ot { get; set; }
+        public DateTime ClassOt { get; set; }
 
         public byte Week { get; set; }
 
@@ -47,5 +68,7 @@ namespace ETMS.Entity.Database.Source
         public int TryCalssEffectiveCount { get; set; }
 
         public int MakeUpEffectiveCount { get; set; }
+
+        public decimal ComputeSum { get; set; }
     }
 }

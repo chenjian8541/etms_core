@@ -17,7 +17,11 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<long> AddTeacherSalaryPayrollUser(EtTeacherSalaryPayrollUser entity);
 
-        bool AddTeacherSalaryPayrollDetail(List<EtTeacherSalaryPayrollUserDetail> userDetails, List<EtTeacherSalaryPayrollUserPerformance> performances);
+        void AddTeacherSalaryPayrollDetail(List<EtTeacherSalaryPayrollUserDetail> userDetails);
+
+        Task<long> AddTeacherSalaryPayrollUserPerformance(EtTeacherSalaryPayrollUserPerformance userPerformance);
+
+        void AddTeacherSalaryPayrollUserPerformanceDetail(List<EtTeacherSalaryPayrollUserPerformanceDetail> performanceDetails);
 
         Task<bool> SetTeacherSalaryPayStatus(long teacherSalaryPayrollId, byte newStatus);
 
@@ -26,6 +30,8 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<bool> DelTeacherSalaryPay(long teacherSalaryPayrollId);
 
-        Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetSalaryPayrollPaging(RequestPagingBase request);
+
+        Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetail(RequestPagingBase request);
     }
 }

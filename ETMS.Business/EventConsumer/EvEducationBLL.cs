@@ -36,6 +36,7 @@ namespace ETMS.Business.EventConsumer
             if (classRecord.Status == EmClassRecordStatus.Revoked)
             {
                 await _teacherSalaryClassDAL.DelTeacherSalaryClassTimes(request.ClassRecordId);
+                return;
             }
             var classRecordStudent = await _classRecordDAL.GetClassRecordStudents(request.ClassRecordId);
             var studentClassTimes = 0M;
@@ -114,7 +115,10 @@ namespace ETMS.Business.EventConsumer
                     TenantId = classRecord.TenantId,
                     TryCalssStudentCount = tryCalssStudentCount,
                     TryCalssEffectiveCount = tryCalssEffectiveCount,
-                    MakeUpEffectiveCount = makeUpEffectiveCount
+                    MakeUpEffectiveCount = makeUpEffectiveCount,
+                    EndTime = classRecord.EndTime,
+                    StartTime = classRecord.StartTime,
+                    Week = classRecord.Week,
                 });
             }
             else
@@ -143,7 +147,10 @@ namespace ETMS.Business.EventConsumer
                             TenantId = classRecord.TenantId,
                             TryCalssStudentCount = tryCalssStudentCount,
                             TryCalssEffectiveCount = tryCalssEffectiveCount,
-                            MakeUpEffectiveCount = makeUpEffectiveCount
+                            MakeUpEffectiveCount = makeUpEffectiveCount,
+                            EndTime = classRecord.EndTime,
+                            StartTime = classRecord.StartTime,
+                            Week = classRecord.Week
                         });
                     }
                 }
@@ -166,6 +173,7 @@ namespace ETMS.Business.EventConsumer
             if (thisDayClassRecord == null || thisDayClassRecord.Count == 0)
             {
                 await _teacherSalaryClassDAL.DelTeacherSalaryClassDay(ot);
+                return;
             }
 
             var entitys = new List<EtTeacherSalaryClassDay>();

@@ -79,9 +79,9 @@ namespace ETMS.Entity.Dto.Teacher.Request
             {
                 return "开始时间不能大于结束时间";
             }
-            if ((EndOt.Value - StartOt.Value).TotalDays > 400)
+            if ((EndOt.Value - StartOt.Value).TotalDays > 100)
             {
-                return "结算区间不能大于一年";
+                return "结算区间间隔不能大于100天";
             }
             if (UserIds == null || UserIds.Count == 0)
             {

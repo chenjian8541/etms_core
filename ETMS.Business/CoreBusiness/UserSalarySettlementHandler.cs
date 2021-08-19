@@ -58,25 +58,25 @@ namespace ETMS.Business
             this._payrollUser = new List<TeacherSalaryPayrollDetailView>();
         }
 
-        private List<EtTeacherSalaryPayrollUserPerformance> GetUserPerformance(long userId,
+        private List<TeacherSalaryPayrollUserPerformanceView> GetUserPerformance(long userId,
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet,
             List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails)
         {
             if (myTeacherSalaryContractPerformanceSetDetails == null ||
                 myTeacherSalaryContractPerformanceSetDetails.Count == 0)
             {
-                return new List<EtTeacherSalaryPayrollUserPerformance>();
+                return new List<TeacherSalaryPayrollUserPerformanceView>();
             }
             var mySalaryClassTimesList = _teacherSalaryClassTimesList.Where(p => p.TeacherId == userId);
             if (!mySalaryClassTimesList.Any())
             {
-                return new List<EtTeacherSalaryPayrollUserPerformance>();
+                return new List<TeacherSalaryPayrollUserPerformanceView>();
             }
 
             var processHandler = new UserSalaryPerformanceHandler(_teacherSalaryPayroll.TenantId, userId,
                 myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails, mySalaryClassTimesList, _globalConfig);
             var processMethod = typeof(UserSalaryPerformanceHandler).GetMethod($"Process_{_globalConfig.StatisticalRuleType}_{myTeacherSalaryContractPerformanceSet.ComputeType}_{myTeacherSalaryContractPerformanceSet.GradientCalculateType}");
-            return processMethod.Invoke(processHandler, null) as List<EtTeacherSalaryPayrollUserPerformance>;
+            return processMethod.Invoke(processHandler, null) as List<TeacherSalaryPayrollUserPerformanceView>;
         }
 
         private async Task PayrollUserHandle(long userId)
@@ -126,10 +126,12 @@ namespace ETMS.Business
                     StartDate = _teacherSalaryPayroll.StartDate,
                     Status = _teacherSalaryPayroll.Status,
                     StatisticalRuleType = _globalConfig.StatisticalRuleType,
+                    IncludeArrivedMakeUpStudent = _globalConfig.IncludeArrivedMakeUpStudent,
+                    IncludeArrivedTryCalssStudent = _globalConfig.IncludeArrivedTryCalssStudent,
                     PerformanceSetDesc = myTeacherSalaryContractPerformanceSet?.ComputeDesc
                 },
                 TeacherSalaryPayrollUserDetails = new List<EtTeacherSalaryPayrollUserDetail>(),
-                TeacherSalaryPayrollUserPerformances = new List<EtTeacherSalaryPayrollUserPerformance>()
+                PerformanceViews = new List<TeacherSalaryPayrollUserPerformanceView>()
             };
             var index = 0;
             foreach (var myFundsItem in _allTeacherSalaryFundsItem)
@@ -139,10 +141,10 @@ namespace ETMS.Business
                     var amountSum1 = 0M;
                     if (myTeacherSalaryContractPerformanceSetDetails != null && myTeacherSalaryContractPerformanceSetDetails.Any())
                     {
-                        myPayrollUser.TeacherSalaryPayrollUserPerformances = GetUserPerformance(userId, myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails);
-                        if (myPayrollUser.TeacherSalaryPayrollUserPerformances.Any())
+                        myPayrollUser.PerformanceViews = GetUserPerformance(userId, myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails);
+                        if (myPayrollUser.PerformanceViews.Any())
                         {
-                            amountSum1 = myPayrollUser.TeacherSalaryPayrollUserPerformances.Sum(p => p.SubmitSum);
+                            amountSum1 = myPayrollUser.PerformanceViews.Sum(p => p.TeacherSalaryPayrollUserPerformance.SubmitSum);
                         }
                     }
                     myPayrollUser.TeacherSalaryPayrollUserDetails.Add(new EtTeacherSalaryPayrollUserDetail()
@@ -228,18 +230,36 @@ namespace ETMS.Business
                 var teacherSalaryPayrollUserId = await _teacherSalaryPayrollDAL.AddTeacherSalaryPayrollUser(teacherSalaryPayrollUser);
 
                 var userDetails = p.TeacherSalaryPayrollUserDetails;
-                var performances = p.TeacherSalaryPayrollUserPerformances;
+                var performances = p.PerformanceViews;
                 foreach (var u in userDetails)
                 {
                     u.TeacherSalaryPayrollId = teacherSalaryPayrollId;
                     u.TeacherSalaryPayrollUserId = teacherSalaryPayrollUserId;
                 }
-                foreach (var f in performances)
+                _teacherSalaryPayrollDAL.AddTeacherSalaryPayrollDetail(userDetails);
+
+                if (performances != null && performances.Count > 0)
                 {
-                    f.TeacherSalaryPayrollId = teacherSalaryPayrollId;
-                    f.TeacherSalaryPayrollUserId = teacherSalaryPayrollUserId;
+                    foreach (var f in performances)
+                    {
+                        var userPerformance = f.TeacherSalaryPayrollUserPerformance;
+                        userPerformance.TeacherSalaryPayrollId = teacherSalaryPayrollId;
+                        userPerformance.TeacherSalaryPayrollUserId = teacherSalaryPayrollUserId;
+                        var userPerformanceId = await _teacherSalaryPayrollDAL.AddTeacherSalaryPayrollUserPerformance(userPerformance);
+
+                        var userPerformanceDetails = f.PerformanceDetails;
+                        if (userPerformanceDetails != null && userPerformanceDetails.Count > 0)
+                        {
+                            foreach (var j in userPerformanceDetails)
+                            {
+                                j.TeacherSalaryPayrollId = teacherSalaryPayrollId;
+                                j.TeacherSalaryPayrollUserId = teacherSalaryPayrollUserId;
+                                j.UserPerformanceId = userPerformanceId;
+                            }
+                            _teacherSalaryPayrollDAL.AddTeacherSalaryPayrollUserPerformanceDetail(userPerformanceDetails);
+                        }
+                    }
                 }
-                _teacherSalaryPayrollDAL.AddTeacherSalaryPayrollDetail(userDetails, performances);
             }
 
             var output = new TeacherSalaryPayrollGoSettlementOutput()

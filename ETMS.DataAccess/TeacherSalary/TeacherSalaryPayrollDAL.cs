@@ -67,17 +67,26 @@ namespace ETMS.DataAccess.TeacherSalary
             return entity.Id;
         }
 
-        public bool AddTeacherSalaryPayrollDetail(List<EtTeacherSalaryPayrollUserDetail> userDetails, List<EtTeacherSalaryPayrollUserPerformance> performances)
+        public void AddTeacherSalaryPayrollDetail(List<EtTeacherSalaryPayrollUserDetail> userDetails)
         {
             if (userDetails.Any())
             {
                 this._dbWrapper.InsertRange(userDetails);
             }
-            if (performances.Any())
+        }
+
+        public async Task<long> AddTeacherSalaryPayrollUserPerformance(EtTeacherSalaryPayrollUserPerformance entity)
+        {
+            await this._dbWrapper.Insert(entity);
+            return entity.Id;
+        }
+
+        public void AddTeacherSalaryPayrollUserPerformanceDetail(List<EtTeacherSalaryPayrollUserPerformanceDetail> entitys)
+        {
+            if (entitys.Any())
             {
-                this._dbWrapper.InsertRange(performances);
+                this._dbWrapper.InsertRange(entitys);
             }
-            return true;
         }
 
         public async Task<bool> SetTeacherSalaryPayStatus(long teacherSalaryPayrollId, byte newStatus)
@@ -128,9 +137,14 @@ namespace ETMS.DataAccess.TeacherSalary
             return true;
         }
 
-        public async Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetSalaryPayrollPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtTeacherSalaryPayroll>("EtTeacherSalaryPayroll", "*", request.PageSize, request.PageCurrent, "EndDate DESC,Id DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetail(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<EtTeacherSalaryPayrollUserPerformanceDetail>("EtTeacherSalaryPayrollUserPerformanceDetail", "*", request.PageSize, request.PageCurrent, "ClassOt DESC", request.ToString());
         }
     }
 }

@@ -41,6 +41,18 @@ namespace ETMS.Entity.Database.Source
         public string PerformanceSetDesc { get; set; }
 
         /// <summary>
+        /// 补课计入到课人次
+        /// <see cref="EmBool"/>
+        /// </summary>
+        public byte IncludeArrivedMakeUpStudent { get; set; }
+
+        /// <summary>
+        /// 试听计入到课人次
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IncludeArrivedTryCalssStudent { get; set; }
+
+        /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryPayrollStatus"/>
         /// </summary>
         public byte Status { get; set; }
