@@ -280,7 +280,7 @@ namespace ETMS.Business
                 FinishCount = _finishUserIds.Count,
                 FailCount = _failUserIds.Count
             };
-            return ResponseBase.Success();
+            return ResponseBase.Success(output);
         }
     }
 }

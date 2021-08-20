@@ -1282,10 +1282,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("工资条已确认，无法执行此操作");
             }
-            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.Repeal)
-            {
-                return ResponseBase.CommonError("工资条已作废，无法执行此操作");
-            }
+            //if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.Repeal)
+            //{
+            //    return ResponseBase.CommonError("工资条已作废，无法执行此操作");
+            //}
             await _teacherSalaryPayrollDAL.DelTeacherSalaryPay(request.CId);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除工资条-{teacherSalaryPayroll.Name}", EmUserOperationType.TeacherSalary);
