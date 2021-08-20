@@ -17,5 +17,10 @@ namespace ETMS.Entity.Enum
         /// 按每个课次单独统计
         /// </summary>
         public const byte AloneClassTimes = 1;
+
+        public static string GetTeacherSalaryStatisticalRuleType(byte t)
+        {
+            return t == TotalClassTimesFirst ? "按合计值统计" : "按每个课次单独统计";
+        }
     }
 }

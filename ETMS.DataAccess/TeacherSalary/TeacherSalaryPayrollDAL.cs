@@ -55,6 +55,11 @@ namespace ETMS.DataAccess.TeacherSalary
             return obj != null;
         }
 
+        public async Task<TeacherSalaryPayrollBucket> GetTeacherSalaryPayrollBucket(long id)
+        {
+            return await GetCache(_tenantId, id);
+        }
+
         public async Task<long> AddTeacherSalaryPayroll(EtTeacherSalaryPayroll entity)
         {
             await this._dbWrapper.Insert(entity);
@@ -94,6 +99,18 @@ namespace ETMS.DataAccess.TeacherSalary
             var sql = new StringBuilder();
             sql.Append($"UPDATE EtTeacherSalaryPayroll SET [Status] = {newStatus} WHERE Id = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTeacherSalaryPayrollUser  SET [Status] = {newStatus} WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
+            await _dbWrapper.Execute(sql.ToString());
+            await UpdateCache(_tenantId, teacherSalaryPayrollId);
+            return true;
+        }
+
+        public async Task<bool> SetTeacherSalaryPayStatusIsOK(long teacherSalaryPayrollId, DateTime payDate)
+        {
+            var payDateDesc = payDate.EtmsToDateString();
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtTeacherSalaryPayroll SET [Status] = {EmTeacherSalaryPayrollStatus.IsOK},PayDate = '{payDateDesc}' WHERE Id = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSalaryPayrollUser  SET [Status] = {EmTeacherSalaryPayrollStatus.IsOK},PayDate = '{payDateDesc}' WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
+            await _dbWrapper.Execute(sql.ToString());
             await UpdateCache(_tenantId, teacherSalaryPayrollId);
             return true;
         }
@@ -131,6 +148,7 @@ namespace ETMS.DataAccess.TeacherSalary
             sql.Append($"UPDATE EtTeacherSalaryPayrollUser SET IsDeleted = {EmIsDeleted.Deleted} WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTeacherSalaryPayrollUserDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTeacherSalaryPayrollUserPerformance SET IsDeleted = {EmIsDeleted.Deleted} WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSalaryPayrollUserPerformanceDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TeacherSalaryPayrollId = {teacherSalaryPayrollId} AND TenantId = {_tenantId} ;");
             await _dbWrapper.Execute(sql.ToString());
 
             RemoveCache(_tenantId, teacherSalaryPayrollId);
@@ -142,7 +160,7 @@ namespace ETMS.DataAccess.TeacherSalary
             return await _dbWrapper.ExecutePage<EtTeacherSalaryPayroll>("EtTeacherSalaryPayroll", "*", request.PageSize, request.PageCurrent, "EndDate DESC,Id DESC", request.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetail(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetailPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtTeacherSalaryPayrollUserPerformanceDetail>("EtTeacherSalaryPayrollUserPerformanceDetail", "*", request.PageSize, request.PageCurrent, "ClassOt DESC", request.ToString());
         }

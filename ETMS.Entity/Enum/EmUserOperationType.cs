@@ -163,7 +163,7 @@ namespace ETMS.Entity.Enum
         [Description("微官网")]
         MicroWebManage = 81,
 
-        [Description("老师工资")]
+        [Description("工资结算")]
         TeacherSalary = 82
     }
 }

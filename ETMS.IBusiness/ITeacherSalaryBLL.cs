@@ -45,5 +45,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TeacherSalaryPayrollDel(TeacherSalaryPayrollDelRequest request);
 
         Task<ResponseBase> TeacherSalaryPayrollRepeal(TeacherSalaryPayrollRepealRequest request);
+
+        Task<ResponseBase> TeacherSalaryUserPerformanceDetailGetPaging(TeacherSalaryUserPerformanceDetailGetPagingRequest request);
     }
 }

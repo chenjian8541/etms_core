@@ -3,6 +3,7 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.IDataAccess;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -61,6 +62,11 @@ namespace ETMS.DataAccess
                 await _dbWrapper.Execute($"UPDATE EtIncomeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND OrderId IN ({string.Join(',', orderIds)}) ");
             }
             return true;
+        }
+
+        public async Task RepealIncomeLog(long projectType, long relationId, long repealUserId, DateTime repealOt)
+        {
+            await _dbWrapper.Execute($"UPDATE EtIncomeLog SET [Status] = {EmIncomeLogStatus.Repeal},RepealUserId = {repealUserId},RepealOt = '{repealOt.EtmsToDateString()}' WHERE TenantId = {_tenantId} AND ProjectType = {projectType} AND RelationId = {relationId} ");
         }
     }
 }

@@ -22,5 +22,7 @@ namespace ETMS.IDataAccess
         Task<bool> EditIncomeLog(EtIncomeLog log);
 
         Task<bool> DelIncomeLog(List<long> orderIds);
+
+        Task RepealIncomeLog(long projectType, long relationId, long repealUserId, DateTime repealOt);
     }
 }

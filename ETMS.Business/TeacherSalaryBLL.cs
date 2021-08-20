@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using ETMS.Entity.Extensions;
 using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Temp;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -44,9 +46,14 @@ namespace ETMS.Business
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private readonly IIncomeLogDAL _incomeLogDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
         public TeacherSalaryBLL(IAppConfig2BLL appConfig2BLL, ITeacherSalaryFundsItemsDAL teacherSalaryFundsItemsDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
             IUserOperationLogDAL userOperationLogDAL, IUserDAL userDAL, IClassDAL classDAL, ITeacherSalaryContractDAL teacherSalaryContractDAL,
-            ICourseDAL courseDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL, IDistributedLockDAL distributedLockDAL)
+            ICourseDAL courseDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL, IDistributedLockDAL distributedLockDAL, IIncomeLogDAL incomeLogDAL,
+            IEventPublisher eventPublisher)
         {
             this._appConfig2BLL = appConfig2BLL;
             this._teacherSalaryFundsItemsDAL = teacherSalaryFundsItemsDAL;
@@ -58,13 +65,15 @@ namespace ETMS.Business
             this._courseDAL = courseDAL;
             this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
             this._distributedLockDAL = distributedLockDAL;
+            this._incomeLogDAL = incomeLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _teacherSalaryFundsItemsDAL, _teacherSalaryClassDAL,
-                _userOperationLogDAL, _userDAL, _classDAL, _teacherSalaryContractDAL, _courseDAL, _teacherSalaryPayrollDAL);
+                _userOperationLogDAL, _userDAL, _classDAL, _teacherSalaryContractDAL, _courseDAL, _teacherSalaryPayrollDAL, _incomeLogDAL);
         }
 
         private async Task<TeacherSalaryFundsItemsGetOutput> GetTeacherSalaryFundsItems(bool isGetDisable)
@@ -805,7 +814,10 @@ namespace ETMS.Business
                     _distributedLockDAL.LockRelease(lockKey);
                 }
             }
-            return ResponseBase.CommonError("系统正在处理工资结算，请稍后再试");
+            else
+            {
+                return ResponseBase.CommonError("系统正在处理工资结算，请稍后再试");
+            }
         }
 
         private async Task<ResponseBase> TeacherSalaryPayrollGoSettlementProcess(TeacherSalaryPayrollGoSettlementRequest request)
@@ -838,18 +850,341 @@ namespace ETMS.Business
         }
 
         public async Task<ResponseBase> TeacherSalaryPayrollGetPaging(TeacherSalaryPayrollGetPagingRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var pagingData = await _teacherSalaryPayrollDAL.GetSalaryPayrollPaging(request);
+            var output = new List<TeacherSalaryPayrollGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var opUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.OpUserId);
+                    var userIds = EtmsHelper.AnalyzeMuIds(p.UserIds);
+                    var userNames = new List<string>();
+                    for (var i = 0; i < userIds.Count; i++)
+                    {
+                        if (userNames.Count > 2)
+                        {
+                            break;
+                        }
+                        var myUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, userIds[i]);
+                        if (myUser != null)
+                        {
+                            userNames.Add(myUser.Name);
+                        }
+                    }
+                    string strUserNameDesc;
+                    if (userIds.Count > 3)
+                    {
+                        strUserNameDesc = $"{string.Join('、', userNames)}等{p.UserCount}名员工";
+                    }
+                    else
+                    {
+                        strUserNameDesc = string.Join('、', userNames);
+                    }
+                    var item = new TeacherSalaryPayrollGetPagingOutput()
+                    {
+                        CId = p.Id,
+                        DateDesc = $"{p.StartDate.EtmsToDateString()}至{p.EndDate.EtmsToDateString()}",
+                        Name = p.Name,
+                        OpUserId = p.OpUserId,
+                        OpUserName = opUser?.Name,
+                        OtDesc = p.Ot.EtmsToDateString(),
+                        PaySum = p.PaySum,
+                        PayDateDesc = p.PayDate.EtmsToDateString(),
+                        Status = p.Status,
+                        StatusDesc = EmTeacherSalaryPayrollStatus.GetTeacherSalaryPayrollStatusDesc(p.Status),
+                        UserCount = p.UserCount,
+                        UserNameDesc = strUserNameDesc
+                    };
+                    output.Add(item);
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<TeacherSalaryPayrollGetPagingOutput>(pagingData.Item2, output));
+        }
 
         public async Task<ResponseBase> TeacherSalaryPayrollGet(TeacherSalaryPayrollGetRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.CId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            var teacherSalaryPayrollUsers = salaryPayrollBucket.TeacherSalaryPayrollUsers;
+            var teacherSalaryPayrollUserDetails = salaryPayrollBucket.TeacherSalaryPayrollUserDetails;
+            var teacherSalaryPayrollUserPerformances = salaryPayrollBucket.TeacherSalaryPayrollUserPerformances;
+            var userOp = await _userDAL.GetUser(teacherSalaryPayroll.OpUserId);
+            var bascInfo = new TeacherSalaryPayrollInfo()
+            {
+                CId = teacherSalaryPayroll.Id,
+                DateDesc = $"{teacherSalaryPayroll.StartDate.EtmsToDateString()}至{teacherSalaryPayroll.EndDate.EtmsToDateString()}",
+                Name = teacherSalaryPayroll.Name,
+                OpUserId = teacherSalaryPayroll.OpUserId,
+                OpUserName = userOp?.Name,
+                OtDesc = teacherSalaryPayroll.Ot.EtmsToDateString(),
+                PayDateDesc = teacherSalaryPayroll.PayDate.EtmsToDateString(),
+                PaySum = teacherSalaryPayroll.PaySum,
+                Status = teacherSalaryPayroll.Status,
+                StatusDesc = EmTeacherSalaryPayrollStatus.GetTeacherSalaryPayrollStatusDesc(teacherSalaryPayroll.Status),
+                UserCount = teacherSalaryPayroll.UserCount
+            };
+            var payrollUserTableHeads = new List<PagingTableHeadOutput>();
+            var firstUserSalaryDetail = teacherSalaryPayrollUserDetails.Where(p => p.UserId == teacherSalaryPayrollUsers[0].UserId).OrderBy(p => p.OrderIndex);
+            var index = 0;
+            foreach (var p in firstUserSalaryDetail)
+            {
+                payrollUserTableHeads.Add(new PagingTableHeadOutput()
+                {
+                    Index = index,
+                    Label = p.FundsItemsName,
+                    Type = p.FundsItemsType,
+                    Id = p.FundsItemsId,
+                    Property = $"salaryContract{index}",
+                    OtherInfo = p.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId
+                });
+                index++;
+            }
+
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            var payrollUserList = new List<TeacherSalaryPayrollUserInfo>();
+            foreach (var myUserItem in teacherSalaryPayrollUsers)
+            {
+                var myUser = await _userDAL.GetUser(myUserItem.UserId);
+                if (myUser == null)
+                {
+                    continue;
+                }
+                var item = new TeacherSalaryPayrollUserInfo()
+                {
+                    UserId = myUserItem.UserId,
+                    CId = myUserItem.Id,
+                    ComputeType = myUserItem.ComputeType,
+                    ComputeTypeDesc = EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(myUserItem.ComputeType),
+                    GradientCalculateType = myUserItem.GradientCalculateType,
+                    GradientCalculateTypeDesc = EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(myUserItem.GradientCalculateType),
+                    StatisticalRuleType = myUserItem.StatisticalRuleType,
+                    StatisticalRuleTypeDesc = EmTeacherSalaryStatisticalRuleType.GetTeacherSalaryStatisticalRuleType(myUserItem.StatisticalRuleType),
+                    UserName = myUser.Name,
+                    UserPhone = myUser.Phone,
+                    IsTeacher = myUser.IsTeacher,
+                    IsTeacherDesc = myUser.IsTeacher ? "是" : "否",
+                    PayItemSum = myUserItem.PayItemSum,
+                    PerformanceSetDesc = myUserItem.PerformanceSetDesc,
+                    IncludeArrivedMakeUpStudent = myUserItem.IncludeArrivedMakeUpStudent,
+                    IncludeArrivedTryCalssStudent = myUserItem.IncludeArrivedTryCalssStudent
+                };
+                foreach (var myFundsItem in payrollUserTableHeads)
+                {
+                    var mySalaryItem = teacherSalaryPayrollUserDetails.FirstOrDefault(p => p.FundsItemsId == myFundsItem.Id && p.TeacherSalaryPayrollUserId == myUserItem.Id);
+                    if (mySalaryItem != null)
+                    {
+                        item.SetSalaryContract(myFundsItem.Index, mySalaryItem.AmountSum.EtmsToString2());
+                    }
+                    if (myFundsItem.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId)
+                    {
+                        item.UserPerformancesList = new List<UserPerformances>();
+                        var myUserPerformance = teacherSalaryPayrollUserPerformances.Where(p => p.TeacherSalaryPayrollUserId == myUserItem.Id);
+                        if (myUserPerformance.Any())
+                        {
+                            foreach (var p in myUserPerformance)
+                            {
+                                string relationDesc = null;
+                                switch (myUserItem.ComputeType)
+                                {
+                                    case EmTeacherSalaryComputeType.Class:
+                                        var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.RelationId);
+                                        relationDesc = myClass?.Name;
+                                        break;
+                                    case EmTeacherSalaryComputeType.Course:
+                                        var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, p.RelationId);
+                                        relationDesc = myCourse?.Name;
+                                        break;
+                                    case EmTeacherSalaryComputeType.Global:
+                                        relationDesc = "统一设置";
+                                        break;
+                                }
+                                item.UserPerformancesList.Add(new UserPerformances()
+                                {
+                                    CId = p.Id,
+                                    ComputeDesc = p.ComputeDesc,
+                                    ComputeMode = p.ComputeMode,
+                                    ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(p.ComputeMode),
+                                    ComputeRelationValue = p.ComputeRelationValue,
+                                    ComputeSum = p.ComputeSum,
+                                    ComputeType = p.ComputeType,
+                                    RelationDesc = relationDesc,
+                                    RelationId = p.RelationId,
+                                    SubmitSum = p.SubmitSum,
+                                    TeacherSalaryPayrollId = p.TeacherSalaryPayrollId,
+                                    TeacherSalaryPayrollUserId = p.TeacherSalaryPayrollUserId
+                                });
+                            }
+                        }
+                    }
+                }
+                payrollUserList.Add(item);
+            }
+
+            return ResponseBase.Success(new TeacherSalaryPayrollGetOutput()
+            {
+                BascInfo = bascInfo,
+                PayrollUserTableHeads = payrollUserTableHeads,
+                PayrollUserList = payrollUserList
+            });
+        }
 
         public async Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.CId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.IsOK)
+            {
+                return ResponseBase.CommonError("工资条已确认，无法执行此操作");
+            }
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.Repeal)
+            {
+                return ResponseBase.CommonError("工资条已作废，无法执行此操作");
+            }
+            await _teacherSalaryPayrollDAL.SetTeacherSalaryPayStatusIsOK(request.CId, request.PayDate.Value);
+
+            //生成一笔支出记录
+            var desc = $"工资确认结算-{teacherSalaryPayroll.Name}";
+            await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+            {
+                AccountNo = string.Empty,
+                CreateOt = DateTime.Now,
+                IsDeleted = EmIsDeleted.Normal,
+                No = string.Empty,
+                Ot = request.PayDate.Value,
+                PayType = request.PayType,
+                ProjectType = EmIncomeLogProjectType.TeacherSalary,
+                Type = EmIncomeLogType.AccountOut,
+                Remark = desc,
+                RepealOt = null,
+                RepealUserId = null,
+                Status = EmIncomeLogStatus.Normal,
+                Sum = teacherSalaryPayroll.PaySum,
+                TenantId = request.LoginTenantId,
+                UserId = request.LoginUserId,
+                OrderId = null,
+                RelationId = teacherSalaryPayroll.Id
+            });
+
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+            {
+                StatisticsDate = request.PayDate.Value
+            });
+            await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
 
         public async Task<ResponseBase> TeacherSalaryPayrollDel(TeacherSalaryPayrollDelRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.CId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.IsOK)
+            {
+                return ResponseBase.CommonError("工资条已确认，无法执行此操作");
+            }
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.Repeal)
+            {
+                return ResponseBase.CommonError("工资条已作废，无法执行此操作");
+            }
+            await _teacherSalaryPayrollDAL.DelTeacherSalaryPay(request.CId);
+
+            await _userOperationLogDAL.AddUserLog(request, $"删除工资条-{teacherSalaryPayroll.Name}", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
 
         public async Task<ResponseBase> TeacherSalaryPayrollRepeal(TeacherSalaryPayrollRepealRequest request)
-        { return ResponseBase.Success(); }
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.CId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.NotSure)
+            {
+                return ResponseBase.CommonError("未确认的工资条，无法作废");
+            }
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.Repeal)
+            {
+                return ResponseBase.CommonError("工资条已作废，无法执行此操作");
+            }
+            var now = DateTime.Now;
+            await _teacherSalaryPayrollDAL.SetTeacherSalaryPayStatus(request.CId, EmTeacherSalaryPayrollStatus.Repeal);
+            await _incomeLogDAL.RepealIncomeLog(EmIncomeLogProjectType.TeacherSalary, request.CId, request.LoginUserId, now);
+
+            _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
+            {
+                StatisticsDate = teacherSalaryPayroll.PayDate.Value
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"工资条作废-{teacherSalaryPayroll.Name}", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TeacherSalaryUserPerformanceDetailGetPaging(TeacherSalaryUserPerformanceDetailGetPagingRequest request)
+        {
+            var pagingData = await _teacherSalaryPayrollDAL.GetUserPerformanceDetailPaging(request);
+            var output = new List<TeacherSalaryUserPerformanceDetailGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxClass = new DataTempBox<EtClass>();
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                foreach (var p in pagingData.Item1)
+                {
+                    string className = null;
+                    string courseName = null;
+                    var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                    if (myClass != null)
+                    {
+                        className = myClass.Name;
+                    }
+                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, p.CourseId);
+                    if (myCourse != null)
+                    {
+                        courseName = myCourse.Name;
+                    }
+                    output.Add(new TeacherSalaryUserPerformanceDetailGetPagingOutput()
+                    {
+                        ArrivedAndBeLateCount = p.ArrivedAndBeLateCount,
+                        ArrivedCount = p.ArrivedCount,
+                        BeLateCount = p.BeLateCount,
+                        CId = p.Id,
+                        ClassOtDesc = p.ClassOt.EtmsToDateString(),
+                        ClassRecordId = p.ClassRecordId,
+                        ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(p.StartTime)}~{EtmsHelper.GetTimeDesc(p.EndTime)}",
+                        ComputeMode = p.ComputeMode,
+                        ComputeType = p.ComputeType,
+                        ComputeSum = p.ComputeSum,
+                        DeSum = p.DeSum,
+                        LeaveCount = p.LeaveCount,
+                        MakeUpEffectiveCount = p.MakeUpEffectiveCount,
+                        MakeUpStudentCount = p.MakeUpStudentCount,
+                        NotArrivedCount = p.NotArrivedCount,
+                        TeacherClassTimes = p.TeacherClassTimes,
+                        StudentClassTimes = p.StudentClassTimes,
+                        TryCalssEffectiveCount = p.TryCalssEffectiveCount,
+                        TryCalssStudentCount = p.TryCalssStudentCount,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}",
+                        ClassName = className,
+                        CourseName = courseName
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<TeacherSalaryUserPerformanceDetailGetPagingOutput>(pagingData.Item2, output));
+        }
     }
 }

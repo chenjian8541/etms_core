@@ -27,6 +27,11 @@ namespace ETMS.Entity.Database.Source
         public long? OrderId { get; set; }
 
         /// <summary>
+        /// 关联ID
+        /// </summary>
+        public long? RelationId { get; set; }
+
+        /// <summary>
         /// 项目名称  <see cref=" ETMS.Entity.Enum.EmIncomeLogProjectType"/>
         /// </summary>
         public long ProjectType { get; set; }

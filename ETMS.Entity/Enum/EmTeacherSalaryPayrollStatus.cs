@@ -22,5 +22,19 @@ namespace ETMS.Entity.Enum
         /// 已确认
         /// </summary>
         public const byte IsOK = 2;
+
+        public static string GetTeacherSalaryPayrollStatusDesc(byte t)
+        {
+            switch (t)
+            {
+                case NotSure:
+                    return "未确认";
+                case Repeal:
+                    return "已作废";
+                case IsOK:
+                    return "已确认";
+            }
+            return string.Empty;
+        }
     }
 }

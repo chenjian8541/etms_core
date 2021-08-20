@@ -276,5 +276,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> TeacherSalaryUserPerformanceDetailGetPaging(TeacherSalaryUserPerformanceDetailGetPagingRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryUserPerformanceDetailGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

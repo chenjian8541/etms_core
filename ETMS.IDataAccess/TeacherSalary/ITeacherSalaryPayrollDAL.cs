@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
 using System;
@@ -11,7 +12,10 @@ namespace ETMS.IDataAccess.TeacherSalary
 {
     public interface ITeacherSalaryPayrollDAL : IBaseDAL
     {
+
         Task<bool> ExistName(string name);
+
+        Task<TeacherSalaryPayrollBucket> GetTeacherSalaryPayrollBucket(long id);
 
         Task<long> AddTeacherSalaryPayroll(EtTeacherSalaryPayroll entity);
 
@@ -25,6 +29,8 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<bool> SetTeacherSalaryPayStatus(long teacherSalaryPayrollId, byte newStatus);
 
+        Task<bool> SetTeacherSalaryPayStatusIsOK(long teacherSalaryPayrollId, DateTime payDate);
+
         Task<bool> UpdatePayValue(TeacherSalaryUpdatePayValue teacherSalaryPayroll, TeacherSalaryUpdatePayValue teacherSalaryPayrollUser,
             List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserDetails, List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserPerformances);
 
@@ -32,6 +38,6 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetSalaryPayrollPaging(RequestPagingBase request);
 
-        Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetail(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetailPaging(RequestPagingBase request);
     }
 }

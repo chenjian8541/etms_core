@@ -38,6 +38,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const long StudentAccountRefund = -6;
 
+        /// <summary>
+        /// 员工工资
+        /// </summary>
+        public const long TeacherSalary = -7;
+
         public static string GetIncomeLogProjectType(List<EtIncomeProjectType> etIncomeProjectTypes, long type)
         {
             if (type >= 0)
@@ -62,6 +67,8 @@ namespace ETMS.Entity.Enum
                     return "账户充值";
                 case StudentAccountRefund:
                     return "账户退款";
+                case TeacherSalary:
+                    return "员工工资";
             }
             return string.Empty;
         }
@@ -82,6 +89,8 @@ namespace ETMS.Entity.Enum
                     return "账户充值";
                 case StudentAccountRefund:
                     return "账户退款";
+                case TeacherSalary:
+                    return "员工工资";
             }
             return string.Empty;
         }
