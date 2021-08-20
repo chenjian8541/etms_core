@@ -31,7 +31,7 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<bool> SetTeacherSalaryPayStatusIsOK(long teacherSalaryPayrollId, DateTime payDate);
 
-        Task<bool> UpdatePayValue(TeacherSalaryUpdatePayValue teacherSalaryPayroll, TeacherSalaryUpdatePayValue teacherSalaryPayrollUser,
+        Task<bool> UpdatePayValue(long payrollId, TeacherSalaryUpdatePayValue teacherSalaryPayroll, TeacherSalaryUpdatePayValue teacherSalaryPayrollUser,
             List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserDetails, List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserPerformances);
 
         Task<bool> DelTeacherSalaryPay(long teacherSalaryPayrollId);

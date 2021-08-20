@@ -115,12 +115,18 @@ namespace ETMS.DataAccess.TeacherSalary
             return true;
         }
 
-        public async Task<bool> UpdatePayValue(TeacherSalaryUpdatePayValue teacherSalaryPayroll, TeacherSalaryUpdatePayValue teacherSalaryPayrollUser,
+        public async Task<bool> UpdatePayValue(long payrollId, TeacherSalaryUpdatePayValue teacherSalaryPayroll, TeacherSalaryUpdatePayValue teacherSalaryPayrollUser,
             List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserDetails, List<TeacherSalaryUpdatePayValue> teacherSalaryPayrollUserPerformances)
         {
             var sql = new StringBuilder();
-            sql.Append($"UPDATE EtTeacherSalaryPayroll SET PaySum = {teacherSalaryPayroll.NewValue} WHERE Id = {teacherSalaryPayroll.Id} ;");
-            sql.Append($"UPDATE EtTeacherSalaryPayrollUser SET PayItemSum = {teacherSalaryPayrollUser.NewValue} WHERE Id = {teacherSalaryPayrollUser.Id} ;");
+            if (teacherSalaryPayroll != null)
+            {
+                sql.Append($"UPDATE EtTeacherSalaryPayroll SET PaySum = {teacherSalaryPayroll.NewValue} WHERE Id = {teacherSalaryPayroll.Id} ;");
+            }
+            if (teacherSalaryPayrollUser != null)
+            {
+                sql.Append($"UPDATE EtTeacherSalaryPayrollUser SET PayItemSum = {teacherSalaryPayrollUser.NewValue} WHERE Id = {teacherSalaryPayrollUser.Id} ;");
+            }
             if (teacherSalaryPayrollUserDetails.Any())
             {
                 foreach (var p in teacherSalaryPayrollUserDetails)
@@ -137,7 +143,7 @@ namespace ETMS.DataAccess.TeacherSalary
             }
 
             await _dbWrapper.Execute(sql.ToString());
-            await UpdateCache(_tenantId, teacherSalaryPayroll.Id);
+            await UpdateCache(_tenantId, payrollId);
             return true;
         }
 

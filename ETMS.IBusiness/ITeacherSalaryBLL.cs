@@ -40,6 +40,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> TeacherSalaryPayrollGet(TeacherSalaryPayrollGetRequest request);
 
+        Task<ResponseBase> TeacherSalaryPayrollUserGet(TeacherSalaryPayrollUserGetRequest request);
+
+        Task<ResponseBase> TeacherSalaryPayrollUserModify(TeacherSalaryPayrollUserModifyRequest request);
+
         Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request);
 
         Task<ResponseBase> TeacherSalaryPayrollDel(TeacherSalaryPayrollDelRequest request);

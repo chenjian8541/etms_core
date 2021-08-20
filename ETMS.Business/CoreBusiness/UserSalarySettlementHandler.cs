@@ -185,7 +185,19 @@ namespace ETMS.Business
                     });
                 }
             }
-            myPayrollUser.TeacherSalaryPayrollUser.PayItemSum = myPayrollUser.TeacherSalaryPayrollUserDetails.Sum(p => p.AmountSum);
+            var tempPayItemSum = 0M;
+            foreach (var p in myPayrollUser.TeacherSalaryPayrollUserDetails)
+            {
+                if (p.FundsItemsType == EmTeacherSalaryFundsItemsType.Add)
+                {
+                    tempPayItemSum += p.AmountSum;
+                }
+                else
+                {
+                    tempPayItemSum -= p.AmountSum;
+                }
+            }
+            myPayrollUser.TeacherSalaryPayrollUser.PayItemSum = tempPayItemSum;
             _payrollUser.Add(myPayrollUser);
         }
 

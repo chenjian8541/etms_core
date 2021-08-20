@@ -235,6 +235,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TeacherSalaryPayrollUserGet(TeacherSalaryPayrollUserGetRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryPayrollUserGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollUserModify(TeacherSalaryPayrollUserModifyRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryPayrollUserModify(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request)
         {
             try

@@ -960,20 +960,11 @@ namespace ETMS.Business
                 {
                     UserId = myUserItem.UserId,
                     CId = myUserItem.Id,
-                    ComputeType = myUserItem.ComputeType,
-                    ComputeTypeDesc = EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(myUserItem.ComputeType),
-                    GradientCalculateType = myUserItem.GradientCalculateType,
-                    GradientCalculateTypeDesc = EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(myUserItem.GradientCalculateType),
-                    StatisticalRuleType = myUserItem.StatisticalRuleType,
-                    StatisticalRuleTypeDesc = EmTeacherSalaryStatisticalRuleType.GetTeacherSalaryStatisticalRuleType(myUserItem.StatisticalRuleType),
                     UserName = myUser.Name,
                     UserPhone = myUser.Phone,
                     IsTeacher = myUser.IsTeacher,
                     IsTeacherDesc = myUser.IsTeacher ? "是" : "否",
-                    PayItemSum = myUserItem.PayItemSum,
-                    PerformanceSetDesc = myUserItem.PerformanceSetDesc,
-                    IncludeArrivedMakeUpStudent = myUserItem.IncludeArrivedMakeUpStudent,
-                    IncludeArrivedTryCalssStudent = myUserItem.IncludeArrivedTryCalssStudent
+                    PayItemSum = myUserItem.PayItemSum
                 };
                 foreach (var myFundsItem in payrollUserTableHeads)
                 {
@@ -981,47 +972,6 @@ namespace ETMS.Business
                     if (mySalaryItem != null)
                     {
                         item.SetSalaryContract(myFundsItem.Index, mySalaryItem.AmountSum.EtmsToString2());
-                    }
-                    if (myFundsItem.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId)
-                    {
-                        item.UserPerformancesList = new List<UserPerformances>();
-                        var myUserPerformance = teacherSalaryPayrollUserPerformances.Where(p => p.TeacherSalaryPayrollUserId == myUserItem.Id);
-                        if (myUserPerformance.Any())
-                        {
-                            foreach (var p in myUserPerformance)
-                            {
-                                string relationDesc = null;
-                                switch (myUserItem.ComputeType)
-                                {
-                                    case EmTeacherSalaryComputeType.Class:
-                                        var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.RelationId);
-                                        relationDesc = myClass?.Name;
-                                        break;
-                                    case EmTeacherSalaryComputeType.Course:
-                                        var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, p.RelationId);
-                                        relationDesc = myCourse?.Name;
-                                        break;
-                                    case EmTeacherSalaryComputeType.Global:
-                                        relationDesc = "统一设置";
-                                        break;
-                                }
-                                item.UserPerformancesList.Add(new UserPerformances()
-                                {
-                                    CId = p.Id,
-                                    ComputeDesc = p.ComputeDesc,
-                                    ComputeMode = p.ComputeMode,
-                                    ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(p.ComputeMode),
-                                    ComputeRelationValue = p.ComputeRelationValue,
-                                    ComputeSum = p.ComputeSum,
-                                    ComputeType = p.ComputeType,
-                                    RelationDesc = relationDesc,
-                                    RelationId = p.RelationId,
-                                    SubmitSum = p.SubmitSum,
-                                    TeacherSalaryPayrollId = p.TeacherSalaryPayrollId,
-                                    TeacherSalaryPayrollUserId = p.TeacherSalaryPayrollUserId
-                                });
-                            }
-                        }
                     }
                 }
                 payrollUserList.Add(item);
@@ -1033,6 +983,242 @@ namespace ETMS.Business
                 PayrollUserTableHeads = payrollUserTableHeads,
                 PayrollUserList = payrollUserList
             });
+        }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollUserGet(TeacherSalaryPayrollUserGetRequest request)
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.TeacherSalaryPayrollIdId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            var teacherSalaryPayrollUsers = salaryPayrollBucket.TeacherSalaryPayrollUsers;
+            var teacherSalaryPayrollUserDetails = salaryPayrollBucket.TeacherSalaryPayrollUserDetails;
+            var teacherSalaryPayrollUserPerformances = salaryPayrollBucket.TeacherSalaryPayrollUserPerformances;
+            var myPayrollUser = teacherSalaryPayrollUsers.FirstOrDefault(p => p.Id == request.PayrollUserId);
+            if (myPayrollUser == null)
+            {
+                return ResponseBase.CommonError("未找到员工工资信息");
+            }
+            var user = await _userDAL.GetUser(myPayrollUser.UserId);
+            if (user == null)
+            {
+                return ResponseBase.CommonError("员工不存在");
+            }
+            var baseInfo = new TeacherSalaryPayrollUserBaseInfo()
+            {
+                ComputeType = myPayrollUser.ComputeType,
+                ComputeTypeDesc = EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(myPayrollUser.ComputeType),
+                GradientCalculateType = myPayrollUser.GradientCalculateType,
+                GradientCalculateTypeDesc = EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(myPayrollUser.GradientCalculateType),
+                StatisticalRuleType = myPayrollUser.StatisticalRuleType,
+                StatisticalRuleTypeDesc = EmTeacherSalaryStatisticalRuleType.GetTeacherSalaryStatisticalRuleType(myPayrollUser.StatisticalRuleType),
+                PerformanceSetDesc = myPayrollUser.PerformanceSetDesc,
+                IncludeArrivedMakeUpStudent = myPayrollUser.IncludeArrivedMakeUpStudent,
+                IncludeArrivedTryCalssStudent = myPayrollUser.IncludeArrivedTryCalssStudent,
+                DateDesc = $"{teacherSalaryPayroll.StartDate.EtmsToDateString()}至{teacherSalaryPayroll.EndDate.EtmsToDateString()}",
+                Name = teacherSalaryPayroll.Name,
+                Status = teacherSalaryPayroll.Status,
+                PayrollUserId = request.PayrollUserId,
+                TeacherSalaryPayrollIdId = request.TeacherSalaryPayrollIdId,
+                PayItemSum = myPayrollUser.PayItemSum,
+                UserName = user.Name,
+                IsOpenClassPerformance = false
+            };
+            var fixedSalarys = new List<TeacherSalaryPayrollUserFixedSalary>();
+            var mySalaryPayrollUserDetails = teacherSalaryPayrollUserDetails.Where(p => p.TeacherSalaryPayrollUserId == request.PayrollUserId).OrderBy(p => p.OrderIndex);
+            foreach (var p in mySalaryPayrollUserDetails)
+            {
+                if (p.FundsItemsId == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId)
+                {
+                    baseInfo.IsOpenClassPerformance = true;
+                }
+                else
+                {
+                    fixedSalarys.Add(new TeacherSalaryPayrollUserFixedSalary()
+                    {
+                        FundsItemsId = p.FundsItemsId,
+                        FundsItemsType = p.FundsItemsType,
+                        FundsItemsName = p.FundsItemsName,
+                        AmountSum = p.AmountSum,
+                        Id = p.Id
+                    });
+                }
+            }
+            List<UserPerformances> performanceSalarys = null;
+            if (baseInfo.IsOpenClassPerformance)
+            {
+                performanceSalarys = new List<UserPerformances>();
+                if (teacherSalaryPayrollUserPerformances != null && teacherSalaryPayrollUserPerformances.Any())
+                {
+                    var myUserPerformances = teacherSalaryPayrollUserPerformances.Where(p => p.TeacherSalaryPayrollUserId == request.PayrollUserId);
+                    var tempBoxClass = new DataTempBox<EtClass>();
+                    var tempBoxCourse = new DataTempBox<EtCourse>();
+                    if (myUserPerformances.Any())
+                    {
+                        foreach (var p in myUserPerformances)
+                        {
+                            string relationDesc = null;
+                            switch (myPayrollUser.ComputeType)
+                            {
+                                case EmTeacherSalaryComputeType.Class:
+                                    var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.RelationId);
+                                    relationDesc = myClass?.Name;
+                                    break;
+                                case EmTeacherSalaryComputeType.Course:
+                                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, p.RelationId);
+                                    relationDesc = myCourse?.Name;
+                                    break;
+                                case EmTeacherSalaryComputeType.Global:
+                                    relationDesc = "统一设置";
+                                    break;
+                            }
+                            performanceSalarys.Add(new UserPerformances()
+                            {
+                                CId = p.Id,
+                                ComputeDesc = p.ComputeDesc,
+                                ComputeMode = p.ComputeMode,
+                                ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(p.ComputeMode),
+                                ComputeRelationValue = p.ComputeRelationValue,
+                                ComputeSum = p.ComputeSum,
+                                ComputeType = p.ComputeType,
+                                RelationDesc = relationDesc,
+                                RelationId = p.RelationId,
+                                SubmitSum = p.SubmitSum,
+                                TeacherSalaryPayrollId = p.TeacherSalaryPayrollId,
+                                TeacherSalaryPayrollUserId = p.TeacherSalaryPayrollUserId
+                            });
+                        }
+                    }
+                }
+            }
+
+            return ResponseBase.Success(new TeacherSalaryPayrollUserGetOutput()
+            {
+                BaseInfo = baseInfo,
+                FixedSalarys = fixedSalarys,
+                PerformanceSalarys = performanceSalarys
+            });
+        }
+
+        public async Task<ResponseBase> TeacherSalaryPayrollUserModify(TeacherSalaryPayrollUserModifyRequest request)
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.TeacherSalaryPayrollIdId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+            var teacherSalaryPayrollUsers = salaryPayrollBucket.TeacherSalaryPayrollUsers;
+            var teacherSalaryPayrollUserDetails = salaryPayrollBucket.TeacherSalaryPayrollUserDetails;
+            var teacherSalaryPayrollUserPerformances = salaryPayrollBucket.TeacherSalaryPayrollUserPerformances;
+            var myPayrollUser = teacherSalaryPayrollUsers.FirstOrDefault(p => p.Id == request.PayrollUserId);
+            if (myPayrollUser == null)
+            {
+                return ResponseBase.CommonError("未找到员工工资信息");
+            }
+
+            //绩效工资
+            var newTotalPerformanceSum = 0M;
+            var updateTeacherSalaryPayrollUserPerformances = new List<TeacherSalaryUpdatePayValue>();
+            if (request.PerformanceSalaryList != null && request.PerformanceSalaryList.Any())
+            {
+                var myUserPerformances = teacherSalaryPayrollUserPerformances.Where(p => p.TeacherSalaryPayrollUserId == request.PayrollUserId);
+                foreach (var p in myUserPerformances)
+                {
+                    foreach (var j in request.PerformanceSalaryList)
+                    {
+                        if (p.Id == j.Id)
+                        {
+                            if (p.SubmitSum != j.NewValue)
+                            {
+                                p.SubmitSum = j.NewValue;
+                                updateTeacherSalaryPayrollUserPerformances.Add(new TeacherSalaryUpdatePayValue()
+                                {
+                                    Id = p.Id,
+                                    NewValue = j.NewValue
+                                });
+                            }
+                            break;
+                        }
+                    }
+                    newTotalPerformanceSum += p.SubmitSum;
+                }
+            }
+
+            var updateTeacherSalaryPayrollUserDetails = new List<TeacherSalaryUpdatePayValue>();
+            var myUserDetails = teacherSalaryPayrollUserDetails.Where(p => p.TeacherSalaryPayrollUserId == request.PayrollUserId);
+            var newTotalPayItemSum = 0M;
+            foreach (var p in myUserDetails)
+            {
+                if (p.FundsItemsId == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId)
+                {
+                    if (p.AmountSum != newTotalPerformanceSum)
+                    {
+                        p.AmountSum = newTotalPerformanceSum;
+                        updateTeacherSalaryPayrollUserDetails.Add(new TeacherSalaryUpdatePayValue()
+                        {
+                            Id = p.Id,
+                            NewValue = newTotalPerformanceSum
+                        });
+                    }
+                }
+                else
+                {
+                    foreach (var j in request.FixedSalaryList)
+                    {
+                        if (p.Id == j.Id)
+                        {
+                            if (p.AmountSum != j.NewValue)
+                            {
+                                p.AmountSum = j.NewValue;
+                                updateTeacherSalaryPayrollUserDetails.Add(new TeacherSalaryUpdatePayValue()
+                                {
+                                    Id = p.Id,
+                                    NewValue = j.NewValue
+                                });
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (p.FundsItemsType == EmTeacherSalaryFundsItemsType.Add)
+                {
+                    newTotalPayItemSum += p.AmountSum;
+                }
+                else
+                {
+                    newTotalPayItemSum -= p.AmountSum;
+                }
+            }
+
+            if (updateTeacherSalaryPayrollUserPerformances.Count == 0 && updateTeacherSalaryPayrollUserDetails.Count == 0) //未做任何改变
+            {
+                return ResponseBase.Success();
+            }
+
+            TeacherSalaryUpdatePayValue updateTeacherSalaryPayroll = null;
+            TeacherSalaryUpdatePayValue updateTeacherSalaryPayrollUser = null;
+            if (newTotalPayItemSum != myPayrollUser.PayItemSum)
+            {
+                updateTeacherSalaryPayrollUser = new TeacherSalaryUpdatePayValue()
+                {
+                    Id = myPayrollUser.Id,
+                    NewValue = newTotalPayItemSum
+                };
+                updateTeacherSalaryPayroll = new TeacherSalaryUpdatePayValue()
+                {
+                    Id = teacherSalaryPayroll.Id,
+                    NewValue = teacherSalaryPayroll.PaySum - myPayrollUser.PayItemSum + newTotalPayItemSum
+                };
+            }
+
+            await _teacherSalaryPayrollDAL.UpdatePayValue(teacherSalaryPayroll.Id, updateTeacherSalaryPayroll, updateTeacherSalaryPayrollUser, updateTeacherSalaryPayrollUserDetails,
+                updateTeacherSalaryPayrollUserPerformances);
+
+            await _userOperationLogDAL.AddUserLog(request, $"修改工资条-{teacherSalaryPayroll.Name}", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> TeacherSalaryPayrollSetOK(TeacherSalaryPayrollSetOKRequest request)
