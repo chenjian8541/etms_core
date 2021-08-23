@@ -95,6 +95,10 @@ namespace ETMS.Entity.Dto.Teacher.Request
             {
                 return "请选择发薪日期";
             }
+            if (PayDate != null && PayDate.Value <= StartOt.Value)
+            {
+                return "发薪日期不能小于结算开始日期";
+            }
             return base.Validate();
         }
     }

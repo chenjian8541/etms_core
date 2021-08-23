@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,6 +45,22 @@ namespace ETMS.Entity.Enum
                 return 2;
             }
             return 10;
+        }
+
+        public static string GetComputeRelationValueDesc(byte t, decimal computeRelationValue)
+        {
+            switch (t)
+            {
+                case TeacherClassTimes:
+                    return $"{computeRelationValue.EtmsToString()}课时";
+                case StudentAttendeesCount:
+                    return $"{computeRelationValue.EtmsToString()}人次";
+                case StudentDeSum:
+                    return $"{computeRelationValue.EtmsToString()}元";
+                case StudentClassTimes:
+                    return $"{computeRelationValue.EtmsToString()}课时";
+            }
+            return string.Empty;
         }
 
         public static string GetTeacherSalaryComputeModeDesc(byte t)

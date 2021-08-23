@@ -1010,6 +1010,7 @@ namespace ETMS.Business
             {
                 ComputeType = myPayrollUser.ComputeType,
                 ComputeTypeDesc = EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(myPayrollUser.ComputeType),
+                ComputeTypeDescTag = EmTeacherSalaryComputeType.GetComputeTypeDescTag(myPayrollUser.ComputeType),
                 GradientCalculateType = myPayrollUser.GradientCalculateType,
                 GradientCalculateTypeDesc = EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(myPayrollUser.GradientCalculateType),
                 StatisticalRuleType = myPayrollUser.StatisticalRuleType,
@@ -1081,6 +1082,7 @@ namespace ETMS.Business
                                 ComputeMode = p.ComputeMode,
                                 ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(p.ComputeMode),
                                 ComputeRelationValue = p.ComputeRelationValue,
+                                ComputeRelationValueDesc = EmTeacherSalaryComputeMode.GetComputeRelationValueDesc(p.ComputeMode, p.ComputeRelationValue),
                                 ComputeSum = p.ComputeSum,
                                 ComputeType = p.ComputeType,
                                 RelationDesc = relationDesc,
@@ -1237,10 +1239,15 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("工资条已作废，无法执行此操作");
             }
+            if (request.PayDate.Value <= teacherSalaryPayroll.StartDate)
+            {
+                return ResponseBase.CommonError("发薪日期不能小于结算开始日期");
+            }
+
             await _teacherSalaryPayrollDAL.SetTeacherSalaryPayStatusIsOK(request.CId, request.PayDate.Value);
 
             //生成一笔支出记录
-            var desc = $"工资确认结算-{teacherSalaryPayroll.Name}";
+            var desc = $"工资条确认结算-{teacherSalaryPayroll.Name}";
             await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
             {
                 AccountNo = string.Empty,
@@ -1323,6 +1330,10 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TeacherSalaryUserPerformanceDetailGetPaging(TeacherSalaryUserPerformanceDetailGetPagingRequest request)
         {
+            if (request.UserPerformanceId == null)
+            {
+                return ResponseBase.Success(new ResponsePagingDataBase<TeacherSalaryUserPerformanceDetailGetPagingOutput>(0, new List<TeacherSalaryUserPerformanceDetailGetPagingOutput>()));
+            }
             var pagingData = await _teacherSalaryPayrollDAL.GetUserPerformanceDetailPaging(request);
             var output = new List<TeacherSalaryUserPerformanceDetailGetPagingOutput>();
             if (pagingData.Item1.Any())

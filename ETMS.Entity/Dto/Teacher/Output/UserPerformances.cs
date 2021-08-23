@@ -34,6 +34,8 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public decimal ComputeRelationValue { get; set; }
 
+        public string ComputeRelationValueDesc { get; set; }
+
         public decimal ComputeSum { get; set; }
 
         public decimal SubmitSum { get; set; }

@@ -899,7 +899,7 @@
       {
         "Id": 0,
         "Hidden": true,
-        "Path": "salaryLogUserDetail/:cid/uid",
+        "Path": "salaryLogUserDetail/:cid/:uid",
         "Name": "salaryLogUserDetail",
         "Type": 1,
         "Component": "@/components/EmployeeSalaryMgr/SalaryLogUserDetail",

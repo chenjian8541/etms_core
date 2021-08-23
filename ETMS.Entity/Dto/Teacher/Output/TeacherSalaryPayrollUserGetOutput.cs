@@ -48,6 +48,8 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public string ComputeTypeDesc { get; set; }
 
+        public string ComputeTypeDescTag { get; set; }
+
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryGradientCalculateType"/>
         /// </summary>

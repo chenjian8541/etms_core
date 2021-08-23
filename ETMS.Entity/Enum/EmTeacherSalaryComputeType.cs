@@ -27,5 +27,19 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string GetComputeTypeDescTag(byte t)
+        {
+            switch (t)
+            {
+                case Class:
+                    return "班级";
+                case Course:
+                    return "课程";
+                case Global:
+                    return "统一设置";
+            }
+            return string.Empty;
+        }
     }
 }

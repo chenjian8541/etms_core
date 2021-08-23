@@ -32,10 +32,10 @@ namespace ETMS.Entity.Dto.Teacher.Request
         /// <returns></returns>
         public override string Validate()
         {
-            if (UserPerformanceId == null)
-            {
-                return "请求数据格式错误";
-            }
+            //if (UserPerformanceId == null)
+            //{
+            //    return "请求数据格式错误";
+            //}
             return base.Validate();
         }
     }
