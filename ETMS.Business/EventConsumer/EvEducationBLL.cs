@@ -19,15 +19,23 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ITeacherSalaryClassDAL _teacherSalaryClassDAL;
 
-        public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL)
+        private readonly ITeacherSalaryMonthStatisticsDAL _teacherSalaryMonthStatisticsDAL;
+
+        private readonly ITeacherSalaryPayrollDAL _teacherSalaryPayrollDAL;
+
+        public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
+            ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._teacherSalaryClassDAL = teacherSalaryClassDAL;
+            this._teacherSalaryMonthStatisticsDAL = teacherSalaryMonthStatisticsDAL;
+            this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL);
+            this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL, _teacherSalaryMonthStatisticsDAL,
+                _teacherSalaryPayrollDAL);
         }
 
         public async Task StatisticsTeacherSalaryClassTimesConsumerEvent(StatisticsTeacherSalaryClassTimesEvent request)
@@ -333,6 +341,23 @@ namespace ETMS.Business.EventConsumer
             }
 
             await _teacherSalaryClassDAL.SaveTeacherSalaryClassDay(ot, entitys);
+        }
+
+        public async Task StatisticsTeacherSalaryMonthConsumerEvent(StatisticsTeacherSalaryMonthEvent request)
+        {
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.PayrollId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return;
+            }
+            var ot = salaryPayrollBucket.TeacherSalaryPayroll.PayDate.Value;
+            var year = ot.Year;
+            var month = ot.Month;
+
+            foreach (var myItem in salaryPayrollBucket.TeacherSalaryPayrollUsers)
+            {
+                await _teacherSalaryMonthStatisticsDAL.UpdateTeacherSalaryMonthStatistics(myItem.UserId, year, month);
+            }
         }
     }
 }

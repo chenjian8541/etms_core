@@ -1278,6 +1278,11 @@ namespace ETMS.Business
             {
                 PayrollId = teacherSalaryPayroll.Id
             });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryMonthEvent(request.LoginTenantId)
+            {
+                PayrollId = teacherSalaryPayroll.Id
+            });
+
             await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.TeacherSalary);
             return ResponseBase.Success();
         }
@@ -1329,6 +1334,10 @@ namespace ETMS.Business
                 StatisticsDate = teacherSalaryPayroll.PayDate.Value
             });
             _eventPublisher.Publish(new NoticeTeacherSalaryEvent(request.LoginTenantId)
+            {
+                PayrollId = teacherSalaryPayroll.Id
+            });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryMonthEvent(request.LoginTenantId)
             {
                 PayrollId = teacherSalaryPayroll.Id
             });
