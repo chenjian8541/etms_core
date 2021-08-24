@@ -1274,6 +1274,10 @@ namespace ETMS.Business
             {
                 StatisticsDate = request.PayDate.Value
             });
+            _eventPublisher.Publish(new NoticeTeacherSalaryEvent(request.LoginTenantId)
+            {
+                PayrollId = teacherSalaryPayroll.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.TeacherSalary);
             return ResponseBase.Success();
         }
@@ -1323,6 +1327,10 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
             {
                 StatisticsDate = teacherSalaryPayroll.PayDate.Value
+            });
+            _eventPublisher.Publish(new NoticeTeacherSalaryEvent(request.LoginTenantId)
+            {
+                PayrollId = teacherSalaryPayroll.Id
             });
 
             await _userOperationLogDAL.AddUserLog(request, $"工资条作废-{teacherSalaryPayroll.Name}", EmUserOperationType.TeacherSalary);

@@ -11,6 +11,7 @@ using ETMS.IBusiness.SendNotice;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IDataAccess.TeacherSalary;
 using ETMS.IEventProvider;
 using ETMS.LOG;
 using ETMS.Utility;
@@ -45,10 +46,12 @@ namespace ETMS.Business.SendNotice
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly ITeacherSalaryPayrollDAL _teacherSalaryPayrollDAL;
+
         public UserSendNotice2BLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, IComponentAccessBLL componentAccessBLL,
                IUserWechatDAL userWechatDAL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
                IActiveGrowthRecordDAL activeGrowthRecordDAL, IUserDAL userDAL, IWxService wxService, IClassDAL classDAL, ITenantLibBLL tenantLibBLL,
-               IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassTimesDAL classTimesDAL, IStudentDAL studentDAL)
+               IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassTimesDAL classTimesDAL, IStudentDAL studentDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL)
              : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
@@ -61,13 +64,14 @@ namespace ETMS.Business.SendNotice
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._classTimesDAL = classTimesDAL;
             this._studentDAL = studentDAL;
+            this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._tenantLibBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _userWechatDAL, _activeGrowthRecordDAL, _userDAL, _classDAL,
-                _studentCheckOnLogDAL, _classTimesDAL, _studentDAL);
+                _studentCheckOnLogDAL, _classTimesDAL, _studentDAL, _teacherSalaryPayrollDAL);
         }
 
         public async Task NoticeUserActiveGrowthCommentConsumerEvent(NoticeUserActiveGrowthCommentEvent request)
@@ -247,6 +251,72 @@ namespace ETMS.Business.SendNotice
             }
             foreach (var user in myNoticeUsers)
             {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
+                    Url = url
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
+
+        public async Task NoticeTeacherSalaryConsumerEvent(NoticeTeacherSalaryEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.UserNoticeConfig.TeacherSalaryPayrollWeChat)
+            {
+                return;
+            }
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(request.PayrollId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return;
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+
+            var title = string.Empty;
+            if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.IsOK)
+            {
+                title = "工资结算";
+            }
+            else
+            {
+                title = "工资条作废";
+            }
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>(),
+                Title = title,
+                OtDesc = $"{teacherSalaryPayroll.StartDate.EtmsToDateString()}至{teacherSalaryPayroll.EndDate.EtmsToDateString()}",
+                Content = teacherSalaryPayroll.Name
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            string url;
+            foreach (var payrollUser in salaryPayrollBucket.TeacherSalaryPayrollUsers)
+            {
+                var user = await _userDAL.GetUser(payrollUser.UserId);
+                if (user == null)
+                {
+                    continue;
+                }
+                if (teacherSalaryPayroll.Status == EmTeacherSalaryPayrollStatus.IsOK)
+                {
+                    url = string.Format(wxConfig.TemplateNoticeConfig.TeacherSalaryDetailUrl, payrollUser.Id);
+                }
+                else
+                {
+                    url = wxConfig.TemplateNoticeConfig.TeacherSalaryListUrl;
+                }
                 smsReq.Users.Add(new NoticeUserMessageUser()
                 {
                     Phone = user.Phone,

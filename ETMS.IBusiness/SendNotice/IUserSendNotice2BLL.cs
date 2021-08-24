@@ -11,5 +11,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeUserActiveGrowthCommentConsumerEvent(NoticeUserActiveGrowthCommentEvent request);
 
         Task NoticeUserAboutStudentCheckOnConsumerEvent(NoticeUserAboutStudentCheckOnEvent request);
+
+        Task NoticeTeacherSalaryConsumerEvent(NoticeTeacherSalaryEvent request);
     }
 }

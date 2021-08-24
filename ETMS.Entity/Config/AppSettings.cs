@@ -257,6 +257,10 @@ namespace ETMS.Entity.Config
         public string TeacherActiveGrowthRecordDetailUrl { get; set; }
 
         public string TeacherStudentCheckLogUrl { get; set; }
+
+        public string TeacherSalaryListUrl { get; set; }
+
+        public string TeacherSalaryDetailUrl { get; set; }
     }
 
     public class ServerConfig
