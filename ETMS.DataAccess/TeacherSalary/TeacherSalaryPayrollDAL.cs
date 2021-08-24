@@ -170,5 +170,18 @@ namespace ETMS.DataAccess.TeacherSalary
         {
             return await _dbWrapper.ExecutePage<EtTeacherSalaryPayrollUserPerformanceDetail>("EtTeacherSalaryPayrollUserPerformanceDetail", "*", request.PageSize, request.PageCurrent, "ClassOt DESC", request.ToString());
         }
+
+        public async Task<IEnumerable<EtTeacherSalaryPayrollUser>> GetValidSalaryPayrollUser(long userId, int year, int month)
+        {
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1);
+            var sql = $"SELECT * FROM EtTeacherSalaryPayrollUser WHERE TenantId = {_tenantId} AND UserId = {userId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmTeacherSalaryPayrollStatus.IsOK} AND PayDate >= '{startDate.EtmsToDateString()}' AND PayDate < '{endDate.EtmsToDateString()}'";
+            return await _dbWrapper.ExecuteObject<EtTeacherSalaryPayrollUser>(sql);
+        }
+
+        public async Task<EtTeacherSalaryPayrollUser> GetTeacherSalaryPayrollUser(long id)
+        {
+            return await _dbWrapper.Find<EtTeacherSalaryPayrollUser>(p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
+        }
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.EventConsumer
 {
-    [QueueConsumerAttribution("StatisticsTeacherSalaryClassTimesQueue")]
+    [QueueConsumerAttribution("StatisticsTeacherSalaryMonthQueue")]
     public class StatisticsTeacherSalaryMonthConsumer : ConsumerBase<StatisticsTeacherSalaryMonthEvent>
     {
         protected override async Task Receive(StatisticsTeacherSalaryMonthEvent eEvent)

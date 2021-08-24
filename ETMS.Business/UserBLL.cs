@@ -22,6 +22,7 @@ using ETMS.Entity.Config.Router;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.Entity.Database.Manage;
+using ETMS.IDataAccess.TeacherSalary;
 
 namespace ETMS.Business
 {
@@ -53,11 +54,13 @@ namespace ETMS.Business
 
         private readonly ISysTenantUserFeedbackDAL _sysTenantUserFeedbackDAL;
 
+        private readonly ITeacherSalaryMonthStatisticsDAL _teacherSalaryMonthStatisticsDAL;
+
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
             IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
             IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL,
-            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL)
+            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL, ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -72,11 +75,13 @@ namespace ETMS.Business
             this._tenantConfigDAL = tenantConfigDAL;
             this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
             this._sysTenantUserFeedbackDAL = sysTenantUserFeedbackDAL;
+            this._teacherSalaryMonthStatisticsDAL = teacherSalaryMonthStatisticsDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _etUserDAL, _userOperationLogDAL, _roleDAL, _subjectDAL, _tenantConfigDAL);
+            this.InitDataAccess(tenantId, _etUserDAL, _userOperationLogDAL, _roleDAL, _subjectDAL, _tenantConfigDAL,
+                _teacherSalaryMonthStatisticsDAL);
         }
 
         private async Task<TenantOEMInfoOutput> GetTenantOEMInfoOutput(int tenantId)
@@ -155,6 +160,15 @@ namespace ETMS.Business
                 TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId),
                 TenantName = tenant.Name
             });
+        }
+
+        public async Task<ResponseBase> GetUserImportantInfo(RequestBase request)
+        {
+            var output = new GetUserImportantInfoOutput();
+            var now = DateTime.Now;
+            var myMoney = await _teacherSalaryMonthStatisticsDAL.GetTeacherSalaryMonthStatistics(request.LoginUserId, now.Year, now.Month);
+            output.SalaryThisMonth = myMoney.ToString("F2");
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> GetLoginPermission(GetLoginPermissionRequest request)

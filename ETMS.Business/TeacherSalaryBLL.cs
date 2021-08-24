@@ -1401,5 +1401,90 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherSalaryUserPerformanceDetailGetPagingOutput>(pagingData.Item2, output));
         }
+
+        public async Task<ResponseBase> TeacherSalaryUserGetH5(TeacherSalaryUserGetH5Request request)
+        {
+            int year;
+            int month;
+            if (request.Year != null && request.Month != null)
+            {
+                year = request.Year.Value;
+                month = request.Month.Value;
+            }
+            else
+            {
+                year = DateTime.Now.Year;
+                month = DateTime.Now.Month;
+            }
+            var myData = await _teacherSalaryPayrollDAL.GetValidSalaryPayrollUser(request.LoginUserId, year, month);
+            var totalSalary = 0M;
+            var salaryDetails = new List<TeacherSalaryUserGetH5UserDetail>();
+            if (myData.Any())
+            {
+                var tempData = myData.OrderByDescending(p => p.PayDate);
+                foreach (var p in tempData)
+                {
+                    totalSalary += p.PayItemSum;
+                    salaryDetails.Add(new TeacherSalaryUserGetH5UserDetail()
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        OtDesc = $"{p.StartDate.EtmsToDateString()}至{p.EndDate.EtmsToDateString()}",
+                        PayDateDesc = p.PayDate.EtmsToDateString(),
+                        PayItemSum = p.PayItemSum.ToString("F2")
+                    });
+                }
+            }
+            var output = new TeacherSalaryUserGetH5Output()
+            {
+                Year = year,
+                Month = month,
+                TotalSalary = totalSalary.ToString("F2"),
+                SalaryDetails = salaryDetails
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TeacherSalaryUserDetailGetH5(TeacherSalaryUserDetailGetH5Request request)
+        {
+            var myTeacherSalaryPayrollUser = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollUser(request.Id);
+            if (myTeacherSalaryPayrollUser == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            if (myTeacherSalaryPayrollUser.UserId != request.LoginUserId)
+            {
+                return ResponseBase.CommonError("您没有权限查看此工资条");
+            }
+            var salaryPayrollBucket = await _teacherSalaryPayrollDAL.GetTeacherSalaryPayrollBucket(myTeacherSalaryPayrollUser.TeacherSalaryPayrollId);
+            if (salaryPayrollBucket == null || salaryPayrollBucket.TeacherSalaryPayroll == null)
+            {
+                return ResponseBase.CommonError("未找到此工资条");
+            }
+            var teacherSalaryPayroll = salaryPayrollBucket.TeacherSalaryPayroll;
+
+            var output = new TeacherSalaryUserDetailGetH5Output()
+            {
+                Name = teacherSalaryPayroll.Name,
+                PayDateDesc = teacherSalaryPayroll.PayDate.EtmsToDateString(),
+                OtDesc = $"{teacherSalaryPayroll.StartDate.EtmsToDateString()}至{teacherSalaryPayroll.EndDate.EtmsToDateString()}",
+                Items = new List<TeacherSalaryUserDetailGetH5Item>()
+            };
+            var myTeacherSalaryPayrollUserDetails = salaryPayrollBucket.TeacherSalaryPayrollUserDetails.Where(p => p.TeacherSalaryPayrollUserId == request.Id).OrderBy(p => p.OrderIndex);
+            if (myTeacherSalaryPayrollUserDetails.Any())
+            {
+                foreach (var p in myTeacherSalaryPayrollUserDetails)
+                {
+                    output.Items.Add(new TeacherSalaryUserDetailGetH5Item()
+                    {
+                        Type = p.FundsItemsType,
+                        Name = p.FundsItemsName,
+                        AmountSum = p.AmountSum.ToString("F2")
+                    });
+                }
+            }
+
+            return ResponseBase.Success(output);
+        }
     }
 }

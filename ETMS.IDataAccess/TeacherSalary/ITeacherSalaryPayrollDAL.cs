@@ -39,5 +39,9 @@ namespace ETMS.IDataAccess.TeacherSalary
         Task<Tuple<IEnumerable<EtTeacherSalaryPayroll>, int>> GetSalaryPayrollPaging(RequestPagingBase request);
 
         Task<Tuple<IEnumerable<EtTeacherSalaryPayrollUserPerformanceDetail>, int>> GetUserPerformanceDetailPaging(RequestPagingBase request);
+
+        Task<IEnumerable<EtTeacherSalaryPayrollUser>> GetValidSalaryPayrollUser(long userId, int year, int month);
+
+        Task<EtTeacherSalaryPayrollUser> GetTeacherSalaryPayrollUser(long id);
     }
 }
