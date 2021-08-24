@@ -612,7 +612,8 @@ namespace ETMS.Business
                     {
                         Id = myixedFundsItem.Id,
                         Name = myixedFundsItem.Name,
-                        Value = value
+                        Value = value,
+                        Type = myixedFundsItem.Type
                     });
                 }
             }

@@ -308,6 +308,11 @@ namespace ETMS.Entity.Config
         /// 学员请假申请通知(微信)
         /// </summary>
         public bool StudentLeaveApplyWeChat { get; set; } = true;
+
+        /// <summary>
+        /// 老师工资(微信)
+        /// </summary>
+        public bool TeacherSalaryPayrollWeChat { get; set; } = true;
     }
 
     public class TenantInfoConfig

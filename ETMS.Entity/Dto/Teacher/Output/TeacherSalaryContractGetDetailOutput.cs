@@ -38,6 +38,8 @@ namespace ETMS.Entity.Dto.Teacher.Output
         public string Name { get; set; }
 
         public decimal Value { get; set; }
+
+        public byte Type { get; set; }
     }
 
     public class TeacherSalaryContractPerformanceSet

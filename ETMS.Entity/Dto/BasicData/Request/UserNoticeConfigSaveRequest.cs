@@ -19,5 +19,7 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员请假申请通知(微信)
         /// </summary>
         public bool StudentLeaveApplyWeChat { get; set; }
+
+        public bool TeacherSalaryPayrollWeChat { get; set; }
     }
 }

@@ -741,7 +741,17 @@
         "ChildrenAction": [
           {
             "ActionId": 69,
-            "Name": "新增工资结算",
+            "Name": "新建工资结算",
+            "Type": 1
+          },
+          {
+            "ActionId": 74,
+            "Name": "删除工资条",
+            "Type": 1
+          },
+          {
+            "ActionId": 75,
+            "Name": "修改工资条",
             "Type": 1
           },
           {
