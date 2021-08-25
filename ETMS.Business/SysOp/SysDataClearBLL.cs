@@ -210,7 +210,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearCourse();
             await _sysDataClearDAL.ClearStudentCourse();
             await _sysDataClearDAL.ClearClassRecord();
-            await _sysDataClearDAL.ClearOrder();
+            await this.ClearOrder();
             await _sysDataClearDAL.ClearClass();
             await _sysDataClearDAL.ClearClassTimes();
             await _sysDataClearDAL.ClearStatisticsClass();
@@ -251,7 +251,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearStudent();
             await _sysDataClearDAL.ClearStudentCourse();
             await _sysDataClearDAL.ClearClassRecord();
-            await _sysDataClearDAL.ClearOrder();
+            await this.ClearOrder();
             await _sysDataClearDAL.ClearClass();
             await _sysDataClearDAL.ClearClassTimes();
             await _sysDataClearDAL.ClearStatisticsClass();
