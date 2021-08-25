@@ -291,6 +291,7 @@ namespace ETMS.Business
             foreach (var myItem in orderDetail)
             {
                 var productName = string.Empty;
+                var courseDesc = string.Empty;
                 switch (myItem.ProductType)
                 {
                     case EmProductType.Cost:
@@ -311,6 +312,21 @@ namespace ETMS.Business
                             {
                                 isOnlyOneToOneCourse = false;
                             }
+                            //if (request.IsGetCourseDesc)
+                            //{
+                            var myStudentCourse = await _studentCourseDAL.GetEtStudentCourseDetail(request.CId, myItem.ProductId);
+                            if (myStudentCourse.EndTime != null)
+                            {
+                                if (myStudentCourse.DeType == EmDeClassTimesType.ClassTimes)
+                                {
+                                    courseDesc = $"有效期至：{myStudentCourse.EndTime.EtmsToDateString()}";
+                                }
+                                else
+                                {
+                                    courseDesc = $"起止时间：{myStudentCourse.StartTime.EtmsToDateString()}至{myStudentCourse.EndTime.EtmsToDateString()}";
+                                }
+                            }
+                            //}
                         }
                         break;
                 }
@@ -328,7 +344,8 @@ namespace ETMS.Business
                     ProductName = productName,
                     CId = myItem.Id,
                     OutQuantity = myItem.OutQuantity,
-                    OutQuantityDesc = ComBusiness.GetOutQuantityDesc(myItem.OutQuantity, myItem.BugUnit, myItem.ProductType)
+                    OutQuantityDesc = ComBusiness.GetOutQuantityDesc(myItem.OutQuantity, myItem.BugUnit, myItem.ProductType),
+                    CourseDesc = courseDesc
                 });
             }
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
@@ -761,7 +778,7 @@ namespace ETMS.Business
                         output.OrderCosts.Add(new OrderGetProductInfoCostItem()
                         {
                             BuyQuantity = p.BuyQuantity,
-                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity,0, p.BugUnit, p.ProductType),
+                            BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, 0, p.BugUnit, p.ProductType),
                             DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
                             OrderDetailId = p.Id,
                             PriceRule = p.PriceRule,

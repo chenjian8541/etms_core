@@ -9,6 +9,8 @@ namespace ETMS.Entity.Dto.HisData.Request
     {
         public long CId { get; set; }
 
+        //public bool IsGetCourseDesc { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

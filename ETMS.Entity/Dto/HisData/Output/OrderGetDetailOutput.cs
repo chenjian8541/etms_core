@@ -198,6 +198,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         public decimal OutQuantity { get; set; }
 
         public string OutQuantityDesc { get; set; }
+
+        public string CourseDesc { get; set; }
     }
 
     public class OrderGetDetailIncomeLog
