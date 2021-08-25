@@ -34,5 +34,9 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public int StudentLeaveApplyMonthLimitCount { get; set; }
 
+        /// <summary>
+        /// 老师端是否展示工资
+        /// </summary>
+        public bool TeacherIsShowSalary { get; set; }
     }
 }

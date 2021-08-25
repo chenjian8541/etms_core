@@ -417,6 +417,7 @@ namespace ETMS.Business
             config.TenantOtherConfig.AutoMarkGraduation = request.AutoMarkGraduation;
             config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount = request.StudentLeaveApplyMonthLimitCount;
             config.TenantOtherConfig.StudentLeaveApplyMonthLimitType = request.StudentLeaveApplyMonthLimitType;
+            config.TenantOtherConfig.TeacherIsShowSalary = request.TeacherIsShowSalary;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

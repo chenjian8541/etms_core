@@ -165,9 +165,14 @@ namespace ETMS.Business
         public async Task<ResponseBase> GetUserImportantInfo(RequestBase request)
         {
             var output = new GetUserImportantInfoOutput();
-            var now = DateTime.Now;
-            var myMoney = await _teacherSalaryMonthStatisticsDAL.GetTeacherSalaryMonthStatistics(request.LoginUserId, now.Year, now.Month);
-            output.SalaryThisMonth = myMoney.ToString("F2");
+            var appConfig = await _tenantConfigDAL.GetTenantConfig();
+            output.IsShowTeacherSalary = appConfig.TenantOtherConfig.TeacherIsShowSalary;
+            if (output.IsShowTeacherSalary)
+            {
+                var now = DateTime.Now;
+                var myMoney = await _teacherSalaryMonthStatisticsDAL.GetTeacherSalaryMonthStatistics(request.LoginUserId, now.Year, now.Month);
+                output.SalaryThisMonth = myMoney.ToString("F2");
+            }
             return ResponseBase.Success(output);
         }
 

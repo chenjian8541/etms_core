@@ -9,5 +9,7 @@ namespace ETMS.Entity.Dto.User.Output
     public class GetUserImportantInfoOutput
     {
         public string SalaryThisMonth { get; set; }
+
+        public bool IsShowTeacherSalary { get; set; }
     }
 }

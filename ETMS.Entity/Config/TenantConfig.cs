@@ -125,6 +125,11 @@ namespace ETMS.Entity.Config
         /// 学员请假次数限制
         /// </summary>
         public int StudentLeaveApplyMonthLimitCount { get; set; }
+
+        /// <summary>
+        /// 老师端是否展示工资
+        /// </summary>
+        public bool TeacherIsShowSalary { get; set; } = true;
     }
 
     /// <summary>
