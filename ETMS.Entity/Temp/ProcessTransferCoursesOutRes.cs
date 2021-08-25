@@ -12,5 +12,7 @@ namespace ETMS.Entity.Temp
         public string OutCourseDesc { get; set; }
 
         public List<long> SourceOrderIds { get; set; }
+
+        public List<long> ChangeCourseIds { get; set; }
     }
 }

@@ -14,5 +14,7 @@ namespace ETMS.Entity.Temp
         public List<EtStudentCourseDetail> StudentCourseDetails { get; set; }
 
         public List<OneToOneClass> OneToOneClassLst { get; set; }
+
+        public List<long> ChangeCourseIds { get; set; }
     }
 }

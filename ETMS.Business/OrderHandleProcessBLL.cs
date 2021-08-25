@@ -259,11 +259,13 @@ namespace ETMS.Business
                 });
             }
 
+            var changeCourseIds = new List<long>();
             foreach (var returnDetail in request.NewOrderDetails) //处理库存和销售数量
             {
                 switch (returnDetail.ProductType)
                 {
                     case EmProductType.Course:
+                        changeCourseIds.Add(returnDetail.ProductId);
                         break;
                     case EmProductType.Goods:
                         var tempMyGoodsReturnQuantity = (int)returnDetail.OutQuantity;
@@ -318,6 +320,18 @@ namespace ETMS.Business
             {
                 StatisticsDate = request.NewOrder.Ot
             });
+
+            if (changeCourseIds.Any())
+            {
+                foreach (var myCourseId in changeCourseIds)
+                {
+                    _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
+                    {
+                        CourseId = myCourseId,
+                        StudentId = request.SourceOrder.StudentId
+                    });
+                }
+            }
         }
     }
 }

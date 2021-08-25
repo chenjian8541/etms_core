@@ -198,6 +198,8 @@ namespace ETMS.Business
             var processTransferCoursesOutRes = (ProcessTransferCoursesOutRes)processTransferCoursesOutResult.resultData;
 
             var opContent = $"转出课程：{processTransferCoursesOutRes.OutCourseDesc}<br>转入课程：{processTransferCoursesBuyRes.BuyCourse}";
+            var allChangedCourseIds = processTransferCoursesBuyRes.ChangeCourseIds;
+            allChangedCourseIds.AddRange(processTransferCoursesOutRes.ChangeCourseIds);
             var transferOrder = new EtOrder()
             {
                 InOutType = request.TransferCoursesOrderInfo.InOutType,
@@ -255,7 +257,8 @@ namespace ETMS.Business
                 OneToOneClassList = processTransferCoursesBuyRes.OneToOneClassLst,
                 TransferOrder = transferOrder,
                 Request = request,
-                UserId = request.LoginUserId
+                UserId = request.LoginUserId,
+                ChangeCourseIds = allChangedCourseIds
             });
 
             //_eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.LoginTenantId)
@@ -433,7 +436,8 @@ namespace ETMS.Business
                 BuyCourse = new StringBuilder(),
                 OneToOneClassLst = new List<OneToOneClass>(),
                 OrderDetails = new List<EtOrderDetail>(),
-                StudentCourseDetails = new List<EtStudentCourseDetail>()
+                StudentCourseDetails = new List<EtStudentCourseDetail>(),
+                ChangeCourseIds = new List<long>()
             };
             //课程
             if (request.TransferCoursesBuy != null && request.TransferCoursesBuy.Any())
@@ -459,6 +463,7 @@ namespace ETMS.Business
                     output.OrderDetails.Add(orderCourseDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
                     output.BuyCourse.Append($"{desc}；");
+                    output.ChangeCourseIds.Add(p.CourseId);
                 }
             }
             return ResponseBase.Success(output);
@@ -480,6 +485,7 @@ namespace ETMS.Business
             var sourceOrderIds = new List<long>();
             var monthToDay = SystemConfig.ComConfig.MonthToDay;
             var desc = new StringBuilder();
+            var changeCourseIds = new List<long>();
             foreach (var outOrderDetail in request.TransferCoursesOut)
             {
                 //处理原订单和学员剩余课程,创建订单详情
@@ -585,6 +591,7 @@ namespace ETMS.Business
 
                 mySourceOrderDetail.OutQuantity += (int)outOrderDetail.ReturnCount;
                 sourceOrderDetailUpdateEntitys.Add(mySourceOrderDetail);
+                changeCourseIds.Add(mySourceStudentCourseDetail.CourseId);
             }
             if (sourceOrderDetailUpdateEntitys.Count > 0)
             {
@@ -602,7 +609,8 @@ namespace ETMS.Business
             {
                 NewOrderDetailList = newOrderDetailList,
                 OutCourseDesc = $"{myOutCourse.Name}({desc})",
-                SourceOrderIds = sourceOrderIds
+                SourceOrderIds = sourceOrderIds,
+                ChangeCourseIds = changeCourseIds
             });
         }
 
@@ -718,6 +726,17 @@ namespace ETMS.Business
 
 
             await _userOperationLogDAL.AddUserLog(request.Request, $"转课-{request.TransferOrder.BuyCourse}", EmUserOperationType.OrderMgr);
+            if (request.ChangeCourseIds.Any())
+            {
+                foreach (var myCourseId in request.ChangeCourseIds)
+                {
+                    _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
+                    {
+                        CourseId = myCourseId,
+                        StudentId = request.TransferOrder.StudentId
+                    });
+                }
+            }
         }
     }
 }

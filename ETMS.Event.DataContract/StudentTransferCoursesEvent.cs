@@ -19,5 +19,7 @@ namespace ETMS.Event.DataContract
         public EtOrder TransferOrder { get; set; }
 
         public TransferCoursesRequest Request { get; set; }
+
+        public List<long> ChangeCourseIds { get; set; }
     }
 }
