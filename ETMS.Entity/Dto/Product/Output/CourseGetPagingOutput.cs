@@ -88,5 +88,12 @@ namespace ETMS.Entity.Dto.Product.Output
         public byte PriceUnit { get; set; }
 
         public int Points { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExpiredType"/>
+        /// </summary>
+        public byte? ExpiredType { get; set; }
+
+        public int? ExpiredValue { get; set; }
     }
 }

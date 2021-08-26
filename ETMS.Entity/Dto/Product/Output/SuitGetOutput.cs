@@ -80,6 +80,8 @@ namespace ETMS.Entity.Dto.Product.Output
         public decimal TotalPrice { get; set; }
 
         public int Points { get; set; }
+
+        public PriceRuleDesc MyRule { get; set; }
     }
 
     public class SuitDetailGoodsItem

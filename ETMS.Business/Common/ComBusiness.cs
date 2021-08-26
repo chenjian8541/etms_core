@@ -31,7 +31,9 @@ namespace ETMS.Business.Common
                 PriceUnit = p.PriceUnit,
                 Quantity = p.Quantity,
                 TotalPrice = p.TotalPrice,
-                Points = p.Points
+                Points = p.Points,
+                ExpiredType = p.ExpiredType,
+                ExpiredValue = p.ExpiredValue
             };
             var givePointsDesc = string.Empty;
             if (p.Points > 0)

@@ -254,6 +254,7 @@ namespace ETMS.Business
                             continue;
                         }
                         var myCourse = myCourseResult.Item1;
+                        var myPriceRuleDescs = ComBusiness3.GetPriceRuleDescs(myCourseResult.Item2);
                         var courseGetPagingOutput = new CourseGetPagingOutput()
                         {
                             CId = myCourse.Id,
@@ -264,7 +265,7 @@ namespace ETMS.Business
                             Remark = myCourse.Remark,
                             Type = myCourse.Type,
                             TypeDesc = EmCourseType.GetCourseTypeDesc(myCourse.Type),
-                            PriceRuleDescs = ComBusiness3.GetPriceRuleDescs(myCourseResult.Item2),
+                            PriceRuleDescs = myPriceRuleDescs,
                             Label = myCourse.Name,
                             Value = myCourse.Id,
                             CheckPoints = myCourse.CheckPoints
@@ -288,7 +289,8 @@ namespace ETMS.Business
                             PriceTypeDesc = ComBusiness.GetPriceRuleDesc(myCoursePriceRule).PriceTypeDesc,
                             Quantity = myCoursePriceRule.Quantity,
                             TotalPrice = myCoursePriceRule.TotalPrice,
-                            Points = myCoursePriceRule.Points
+                            Points = myCoursePriceRule.Points,
+                            MyRule = myPriceRuleDescs.FirstOrDefault(p => p.CId == myDetail.CoursePriceRuleId)
                         });
                         break;
                     case EmProductType.Goods:
