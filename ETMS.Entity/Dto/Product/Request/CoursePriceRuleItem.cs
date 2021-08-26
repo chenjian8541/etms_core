@@ -19,6 +19,13 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public string Points { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExpiredType"/>
+        /// </summary>
+        public byte? ExpiredType { get; set; }
+
+        public int? ExpiredValue { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Name))

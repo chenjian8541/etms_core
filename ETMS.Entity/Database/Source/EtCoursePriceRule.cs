@@ -50,5 +50,12 @@ namespace ETMS.Entity.Database.Source
         /// 赠送积分
         /// </summary>
         public int Points { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExpiredType"/>
+        /// </summary>
+        public byte? ExpiredType { get; set; }
+
+        public int? ExpiredValue { get; set; }
     }
 }

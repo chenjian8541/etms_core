@@ -109,7 +109,9 @@ namespace ETMS.Business
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
                         Points = p.Points.EtmsToPoints(),
-                        Id = p.Id
+                        Id = p.Id,
+                        ExpiredType = p.ExpiredType,
+                        ExpiredValue = p.ExpiredValue
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.ClassTimes);
@@ -245,7 +247,9 @@ namespace ETMS.Business
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
                             Points = p.Points,
-                            IsCanModify = true
+                            IsCanModify = true,
+                            ExpiredType = p.ExpiredType,
+                            ExpiredValue = p.ExpiredValue
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {

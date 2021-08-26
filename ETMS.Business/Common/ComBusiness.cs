@@ -38,13 +38,21 @@ namespace ETMS.Business.Common
             {
                 givePointsDesc = $",赠送{p.Points}积分";
             }
+            var expirationDesc = string.Empty;
+            if (p.PriceType == EmCoursePriceType.ClassTimes)
+            {
+                if (p.ExpiredType != null && p.ExpiredValue != null && p.ExpiredValue > 0)
+                {
+                    expirationDesc = $",有效期{p.ExpiredValue}{EmCoursePriceRuleExpiredType.GetCoursePriceRuleExpiredTypeDesc(p.ExpiredType.Value)}";
+                }
+            }
             var priceTypeDesc = EmCoursePriceType.GetGetCourseUnitDesc(p.PriceType);
             if (p.Quantity == 1)
             {
                 return new PriceRuleDesc()
                 {
                     PriceType = p.PriceType,
-                    Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元/{priceTypeDesc}){givePointsDesc}",
+                    Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元/{priceTypeDesc}){expirationDesc}{givePointsDesc}",
                     RuleValue = rule,
                     PriceTypeDesc = priceTypeDesc,
                     CId = p.Id
@@ -53,7 +61,7 @@ namespace ETMS.Business.Common
             return new PriceRuleDesc()
             {
                 PriceType = p.PriceType,
-                Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元{p.Quantity}{priceTypeDesc}){givePointsDesc}",
+                Desc = $"{p.Name}({p.TotalPrice.ToDecimalDesc()}元{p.Quantity}{priceTypeDesc}){expirationDesc}{givePointsDesc}",
                 RuleValue = rule,
                 PriceTypeDesc = priceTypeDesc,
                 CId = p.Id
