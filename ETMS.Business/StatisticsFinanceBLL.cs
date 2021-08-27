@@ -213,5 +213,36 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(new ResponsePagingDataBase<GetStatisticsFinanceIncomeMonthPagingOutput>(pagingData.Item2, output));
         }
+
+        public async Task<ResponseBase> GetStatisticsFinanceIncomeYear(GetStatisticsFinanceIncomeYearRequest request)
+        {
+            int year;
+            if (request.Year != null)
+            {
+                year = request.Year.Value;
+            }
+            else
+            {
+                year = DateTime.Now.Year;
+            }
+
+            var value = 0M;
+            var statisticsFinanceIncomeYearBucket = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncomeYear(year);
+            if (statisticsFinanceIncomeYearBucket != null)
+            {
+                if (request.Type == EmIncomeLogType.AccountIn)
+                {
+                    value = statisticsFinanceIncomeYearBucket.TotalSumIn;
+                }
+                else
+                {
+                    value = statisticsFinanceIncomeYearBucket.TotalSumOut;
+                }
+            }
+            return ResponseBase.Success(new GetStatisticsFinanceIncomeYearOutput()
+            {
+                FinanceIncomeValue = value.ToString("F2")
+            });
+        }
     }
 }

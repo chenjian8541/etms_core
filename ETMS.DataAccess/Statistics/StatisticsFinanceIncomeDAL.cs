@@ -11,13 +11,35 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Temp.View;
 using ETMS.Entity.Common;
+using ETMS.Entity.CacheBucket;
+using ETMS.ICache;
+using ETMS.Entity.View;
 
 namespace ETMS.DataAccess
 {
-    public class StatisticsFinanceIncomeDAL : DataAccessBase, IStatisticsFinanceIncomeDAL
+    public class StatisticsFinanceIncomeDAL : DataAccessBase<StatisticsFinanceIncomeYearBucket>, IStatisticsFinanceIncomeDAL
     {
-        public StatisticsFinanceIncomeDAL(IDbWrapper dbWrapper) : base(dbWrapper)
+        public StatisticsFinanceIncomeDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
+        }
+
+        protected override async Task<StatisticsFinanceIncomeYearBucket> GetDb(params object[] keys)
+        {
+            var year = keys[1].ToInt();
+            var sql = $"SELECT [Type],SUM(TotalSum) AS MyTotalSum FROM EtStatisticsFinanceIncomeMonth WHERE TenantId = {_tenantId} AND [Year] = {year} AND IsDeleted = {EmIsDeleted.Normal} GROUP BY [Type]";
+            var data = await _dbWrapper.ExecuteObject<StatisticsFinanceIncomeYearView>(sql);
+            var inLog = data.FirstOrDefault(p => p.Type == EmIncomeLogType.AccountIn);
+            var outLog = data.FirstOrDefault(p => p.Type == EmIncomeLogType.AccountOut);
+            var output = new StatisticsFinanceIncomeYearBucket();
+            if (inLog != null)
+            {
+                output.TotalSumIn = inLog.MyTotalSum;
+            }
+            if (outLog != null)
+            {
+                output.TotalSumOut = outLog.MyTotalSum;
+            }
+            return output;
         }
 
         public async Task UpdateStatisticsFinanceIncome(DateTime date)
@@ -44,6 +66,7 @@ namespace ETMS.DataAccess
             {
                 await _dbWrapper.InsertRangeAsync(newEtStatisticsFinanceIncome);
             }
+            RemoveCache(_tenantId, date.Year);
         }
 
         public async Task UpdateStatisticsFinanceIncomeMonth(DateTime time)
@@ -74,6 +97,7 @@ namespace ETMS.DataAccess
                 }
                 _dbWrapper.InsertRange(statisticsFinanceIncomeMonths);
             }
+            RemoveCache(_tenantId, time.Year);
         }
 
         public async Task<List<EtStatisticsFinanceIncome>> GetStatisticsFinanceIncome(DateTime startTime, DateTime endTime, byte type)
@@ -95,6 +119,11 @@ namespace ETMS.DataAccess
         public async Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsFinanceIncomeMonth>("EtStatisticsFinanceIncomeMonth", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
+        }
+
+        public async Task<StatisticsFinanceIncomeYearBucket> GetStatisticsFinanceIncomeYear(int year)
+        {
+            return await GetCache(_tenantId, year);
         }
     }
 }

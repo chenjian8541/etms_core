@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.CacheBucket;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.IDataAccess
 {
-    public interface IStatisticsFinanceIncomeDAL: IBaseDAL
+    public interface IStatisticsFinanceIncomeDAL : IBaseDAL
     {
         Task UpdateStatisticsFinanceIncome(DateTime date);
 
@@ -20,5 +21,7 @@ namespace ETMS.IDataAccess
         Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type);
 
         Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request);
+
+        Task<StatisticsFinanceIncomeYearBucket> GetStatisticsFinanceIncomeYear(int year);
     }
 }

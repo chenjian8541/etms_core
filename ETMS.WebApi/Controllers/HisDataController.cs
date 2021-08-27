@@ -640,6 +640,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> GetStatisticsFinanceIncomeYear(GetStatisticsFinanceIncomeYearRequest request)
+        {
+            try
+            {
+                _statisticsFinanceBLL.InitTenantId(request.LoginTenantId);
+                return await _statisticsFinanceBLL.GetStatisticsFinanceIncomeYear(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StatisticsClassAttendanceGet(StatisticsClassAttendanceRequest request)
         {
             try
