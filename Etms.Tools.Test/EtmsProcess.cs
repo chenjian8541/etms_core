@@ -111,12 +111,14 @@ namespace Etms.Tools.Test
         private ISysTenantDAL _sysTenantDAL;
         private IEventPublisher _eventPublisher;
         private IRoleDAL _roleDAL;
+        private IClassRecordDAL _classRecordDAL;
         public void ProcessT()
         {
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
             _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
             _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
+            _classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
             var pageCurrent = 1;
             var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
             if (getTenantsEffectiveResult.Item2 == 0)
@@ -140,29 +142,34 @@ namespace Etms.Tools.Test
             {
                 return;
             }
-            var dateList = new List<DateTime>();
-            dateList.Add(new DateTime(2021, 01, 01));
-            dateList.Add(new DateTime(2021, 02, 01));
-            dateList.Add(new DateTime(2021, 03, 01));
-            dateList.Add(new DateTime(2021, 04, 01));
-            dateList.Add(new DateTime(2021, 05, 01));
-            dateList.Add(new DateTime(2021, 06, 01));
-            dateList.Add(new DateTime(2021, 07, 01));
-            dateList.Add(new DateTime(2021, 08, 01));
+            var date = new DateTime(2019, 01, 01);
+            var maxDate = DateTime.Now.AddDays(1).Date;
             foreach (var tenant in tenantList)
             {
-                foreach (var mydate in dateList)
+                while (date < maxDate)
                 {
-                    Console.WriteLine($"{tenant.Name}-处理中...");
-                    _eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
+                    _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenant.Id)
                     {
-                        Time = mydate
+                        Time = date,
+                        IsJobRequest = true
                     });
-                    _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
+                    _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(tenant.Id)
                     {
-                        Time = mydate
+                        StatisticsDate = date
                     });
+                    date = date.AddDays(1);
+                    Console.WriteLine($"处理完成:{date} ");
                 }
+                _classRecordDAL.ResetTenantId(tenant.Id);
+                try
+                {
+                    ProcessClassRecord(tenant.Id);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
                 //_classDAL.ResetTenantId(tenant.Id);
                 //_roleDAL.ResetTenantId(tenant.Id);
                 //try
@@ -176,6 +183,48 @@ namespace Etms.Tools.Test
                 //}
             }
         }
+
+        private void ProcessClassRecord(int tenantId)
+        {
+            var query = new ClassRecordGetPagingRequest()
+            {
+                LoginTenantId = tenantId,
+                PageCurrent = 1,
+                PageSize = 200,
+                Status = EmClassRecordStatus.Normal
+            };
+            var pagingData = _classRecordDAL.GetPaging(query).Result;
+            if (pagingData.Item2 == 0)
+            {
+                return;
+            }
+            HandleClassRecord(pagingData.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+            query.PageCurrent++;
+            while (query.PageCurrent <= totalPage)
+            {
+                pagingData = _classRecordDAL.GetPaging(query).Result;
+                HandleClassRecord(pagingData.Item1);
+                query.PageCurrent++;
+            }
+        }
+
+        private void HandleClassRecord(IEnumerable<EtClassRecord> classRecordList)
+        {
+            if (classRecordList == null || !classRecordList.Any())
+            {
+                return;
+            }
+            foreach (var p in classRecordList)
+            {
+                _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(p.TenantId)
+                {
+                    ClassRecordId = p.Id
+                });
+                Console.WriteLine($"处理完成_上课记录:{p.CheckOt} ");
+            }
+        }
+
 
         //private void ProcessClass(int tenantId)
         //{

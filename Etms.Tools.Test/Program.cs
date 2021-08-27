@@ -91,22 +91,11 @@ namespace Etms.Tools.Test
             //Console.WriteLine(startTimeDesc);
             //Console.WriteLine(endTimeDesc);
 
-            //new EtmsProcess().ProcessT();
-
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            var stuList = new List<MyStudent>() {
-            new MyStudent(){ ClassId = 1, Name="1" },
-            new MyStudent(){ ClassId = 1, Name="1" },
-            new MyStudent(){ ClassId = 9, Name="1" },
-            new MyStudent(){ ClassId =2, Name="1" },
-            new MyStudent(){ ClassId = 5, Name="1" },
-            new MyStudent(){ ClassId = 5, Name="1" },
-            new MyStudent(){ ClassId = 2, Name="1" },
-            new MyStudent(){ ClassId = 3, Name="1" },
-            };
-            var ids = stuList.GroupBy(p => p.ClassId).Select(p=>p.Key).ToList();
-            Console.WriteLine(ids.First());
+            new EtmsProcess().ProcessT();
+
+            Console.WriteLine("已完成");
             Console.Read();
         }
 

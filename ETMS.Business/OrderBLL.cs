@@ -315,7 +315,7 @@ namespace ETMS.Business
                             //if (request.IsGetCourseDesc)
                             //{
                             var myStudentCourse = await _studentCourseDAL.GetEtStudentCourseDetail(request.CId, myItem.ProductId);
-                            if (myStudentCourse.EndTime != null)
+                            if (myStudentCourse != null && myStudentCourse.EndTime != null)
                             {
                                 if (myStudentCourse.DeType == EmDeClassTimesType.ClassTimes)
                                 {
