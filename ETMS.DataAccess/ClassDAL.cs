@@ -286,25 +286,17 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> SyncClassInfo(long classId, string studentIdsClass,
+        public List<string> GetSyncClassInfoSql(long classId, string studentIdsClass,
             string courseList, string classRoomIds, string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType,
             int studentClassCount)
         {
-            var strSql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}',StudentCount = StudentTempCount + {studentClassCount} WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
-            await _dbWrapper.Execute(strSql);
-
-            strSql = $"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
-            await _dbWrapper.Execute(strSql);
-
-            strSql = $"UPDATE EtClassTimes SET ClassRoomIds = '{classRoomIds}' WHERE ClassId = {classId} AND ClassRoomIdsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
-            await _dbWrapper.Execute(strSql);
-
-            strSql = $"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
-            await _dbWrapper.Execute(strSql);
-
-            strSql = $"UPDATE EtClassTimes SET LimitStudentNums = {limitStudentNums.EtmsToSqlString()},LimitStudentNumsType = {limitStudentNumsType} WHERE ClassId = {classId} AND LimitStudentNumsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
-            await _dbWrapper.Execute(strSql);
-            return true;
+            var sql = new List<string>();
+            sql.Add($"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}',StudentCount = StudentTempCount + {studentClassCount} WHERE ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+            sql.Add($"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+            sql.Add($"UPDATE EtClassTimes SET ClassRoomIds = '{classRoomIds}' WHERE ClassId = {classId} AND ClassRoomIdsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+            sql.Add($"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+            sql.Add($"UPDATE EtClassTimes SET LimitStudentNums = {limitStudentNums.EtmsToSqlString()},LimitStudentNumsType = {limitStudentNumsType} WHERE ClassId = {classId} AND LimitStudentNumsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
+            return sql;
         }
 
         public async Task<IEnumerable<EtClass>> GetStudentClass(long studentId)

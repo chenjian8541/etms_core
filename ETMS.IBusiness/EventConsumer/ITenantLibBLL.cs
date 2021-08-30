@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Database.Source;
+using ETMS.Event.DataContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task<EtNoticeConfig> NoticeConfigGet(int type, byte peopleType, int scenesType);
 
         Task<IEnumerable<EtClass>> GetStudentInClass(long studentId);
+
+        Task ComSqlHandleConsumerEvent(ComSqlHandleEvent request);
     }
 }

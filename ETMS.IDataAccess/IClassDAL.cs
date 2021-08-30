@@ -66,7 +66,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> ClassEditStudentInfo(long classId, string studentIds, int studentNums);
 
-        Task<bool> SyncClassInfo(long classId, string studentIdsClass, string courseList, string classRoomIds,
+        List<string> GetSyncClassInfoSql(long classId, string studentIdsClass, string courseList, string classRoomIds,
             string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType, int studentClassCount);
 
         Task<IEnumerable<EtClass>> GetStudentClass(long studentId);
