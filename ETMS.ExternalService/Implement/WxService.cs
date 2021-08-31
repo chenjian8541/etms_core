@@ -517,9 +517,14 @@ namespace ETMS.ExternalService.Implement
                     {
                         tenantNameDesc = request.TenantSmsSignature;
                     }
+                    var title = $"您收到一份来自[{tenantNameDesc}]的通知，赶紧点击看一看吧！";
+                    if (!string.IsNullOrEmpty(student.TitleAdd))
+                    {
+                        title = $"{title}\r\n{student.TitleAdd}";
+                    }
                     var data = new
                     {
-                        first = new TemplateDataItem($"您收到一份来自[{tenantNameDesc}]的通知，赶紧点击看一看吧！"),
+                        first = new TemplateDataItem(title),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(request.OtDesc, DefaultColor),
                         keyword3 = new TemplateDataItem("点击查看详情", LinkColor),

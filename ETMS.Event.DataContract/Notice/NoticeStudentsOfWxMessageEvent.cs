@@ -14,5 +14,7 @@ namespace ETMS.Event.DataContract
         public long WxMessageAddId { get; set; }
 
         public DateTime Ot { get; set; }
+
+        public string Title { get; set; }
     }
 }

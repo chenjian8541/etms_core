@@ -174,7 +174,8 @@ namespace ETMS.Business
             {
                 WxMessageAddId = wxMessage.Id,
                 StudentIds = studentIds,
-                Ot = wxMessage.Ot
+                Ot = wxMessage.Ot,
+                Title = wxMessage.Title
             });
         }
 
@@ -237,7 +238,8 @@ namespace ETMS.Business
             {
                 WxMessageAddId = wxMessage.Id,
                 StudentIds = studentIds,
-                Ot = wxMessage.Ot
+                Ot = wxMessage.Ot,
+                Title = wxMessage.Title
             });
         }
 
@@ -287,7 +289,8 @@ namespace ETMS.Business
             {
                 WxMessageAddId = wxMessage.Id,
                 StudentIds = studentIds,
-                Ot = wxMessage.Ot
+                Ot = wxMessage.Ot,
+                Title = wxMessage.Title
             });
         }
 

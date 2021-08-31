@@ -928,7 +928,8 @@ namespace ETMS.Business
                     Phone = student.Phone,
                     StudentId = student.Id,
                     OpendId = await GetOpenId(true, student.Phone),
-                    Url = url
+                    Url = url,
+                    TitleAdd = request.Title
                 });
                 if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
                 {
@@ -938,7 +939,8 @@ namespace ETMS.Business
                         Phone = student.PhoneBak,
                         StudentId = student.Id,
                         OpendId = await GetOpenId(true, student.PhoneBak),
-                        Url = url
+                        Url = url,
+                        TitleAdd = request.Title
                     });
                 }
             }

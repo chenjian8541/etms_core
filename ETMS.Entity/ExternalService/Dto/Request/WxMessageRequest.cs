@@ -24,6 +24,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 
     public class WxMessageStudent {
 
+        public string TitleAdd { get; set; }
+
         public long StudentId { get; set; }
 
         public string OpendId { get; set; }
