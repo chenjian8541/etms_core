@@ -30,6 +30,8 @@ namespace ETMS.DataAccess
             strSql.Append($"DELETE EtStatisticsClassAttendance WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' ;");
             strSql.Append($"DELETE EtStatisticsClassCourse WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' ;");
             strSql.Append($"DELETE EtStatisticsClassTeacher WHERE TenantId = {_tenantId} AND Ot = '{otDesc}' ;");
+            await _dbWrapper.Execute(strSql.ToString());
+
             await _dbWrapper.Insert(myStatisticsClassTimes);
             if (myStatisticsClassAttendances.Count > 0)
             {
