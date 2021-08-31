@@ -18,6 +18,7 @@ using ETMS.Entity.Temp.Request;
 using Newtonsoft.Json;
 using ETMS.Business.Common;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.Entity.Dto.Educational.Output;
 
 namespace ETMS.Business
 {
@@ -106,6 +107,16 @@ namespace ETMS.Business
                     return ResponseBase.CommonError("此课次已点名");
                 }
             }
+            //防止重复点名
+            //if (!request.IsIgnoreCheck)
+            //{
+            //    var isRepeatData = await _classRecordDAL.ExistClassRecord(request.ClassId, request.ClassOt, request.StartTime, request.EndTime);
+            //    if (isRepeatData)
+            //    {
+            //        return ResponseBase.Success(new ClassCheckSignOutput(false));
+            //    }
+            //}
+
             List<EtStudentCheckOnLog> checkInLog = null;
             if (request.ClassTimesId != null)
             {
@@ -494,8 +505,7 @@ namespace ETMS.Business
 
             _eventPublisher.Publish(new StatisticsClassEvent(request.TenantId)
             {
-                ClassRecord = request.ClassRecord,
-                RecordId = recordId
+                ClassOt = request.ClassRecord.ClassOt
             });
             _eventPublisher.Publish(new NoticeStudentsCheckSignEvent(request.TenantId)
             {

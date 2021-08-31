@@ -422,8 +422,7 @@ namespace ETMS.Business
 
             _eventPublisher.Publish(new StatisticsClassEvent(_tenantId)
             {
-                ClassRecord = classRecord,
-                RecordId = recordId
+                ClassOt = classRecord.ClassOt
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(_tenantId));
             _eventPublisher.Publish(new StatisticsClassFinishCountEvent(_tenantId)

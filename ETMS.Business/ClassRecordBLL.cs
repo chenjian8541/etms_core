@@ -569,10 +569,9 @@ namespace ETMS.Business
                     Time = classRecord.ClassOt
                 });
             }
-            _eventPublisher.Publish(new StatisticsClassRecordStudentChangeEvent(request.LoginTenantId)
+            _eventPublisher.Publish(new StatisticsClassEvent(request.LoginTenantId)
             {
-                ClassRecord = classRecord,
-                ClassRecordStudent = p
+                ClassOt = classRecord.ClassOt
             });
 
             _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(request.LoginTenantId)

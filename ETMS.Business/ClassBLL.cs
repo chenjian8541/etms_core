@@ -22,6 +22,7 @@ using ETMS.Entity.Dto.Common.Request;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Dto.Common.Output;
 using ETMS.Entity.View;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -376,7 +377,26 @@ namespace ETMS.Business
             }
             if (request.IsIgnoreCheck)
             {
+                var classRecordAllDate = await _classDAL.GetClassRecordAllDate(request.CId);
                 await _classDAL.DelClassDepth(request.CId);
+                if (classRecordAllDate.Any())
+                {
+                    foreach (var myClassRecordDate in classRecordAllDate)
+                    {
+                        _eventPublisher.Publish(new StatisticsEducationEvent(request.LoginTenantId)
+                        {
+                            Time = myClassRecordDate.Ot
+                        });
+                        _eventPublisher.Publish(new StatisticsClassEvent(request.LoginTenantId)
+                        {
+                            ClassOt = myClassRecordDate.Ot
+                        });
+                        _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(request.LoginTenantId)
+                        {
+                            Time = myClassRecordDate.Ot
+                        });
+                    }
+                }
             }
             else
             {

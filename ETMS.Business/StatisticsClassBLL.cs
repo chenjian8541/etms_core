@@ -33,9 +33,11 @@ namespace ETMS.Business
 
         private readonly IStudentDAL _studentDAL;
 
+        private readonly IClassRecordDAL _classRecordDAL;
+
         public StatisticsClassBLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
-            IClassDAL classDAL, IStudentDAL studentDAL)
+            IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -44,108 +46,104 @@ namespace ETMS.Business
             this._statisticsEducationDAL = statisticsEducationDAL;
             this._classDAL = classDAL;
             this._studentDAL = studentDAL;
+            this._classRecordDAL = classRecordDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsClassDAL, _courseDAL, _userDAL,
-                _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL);
+                _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL, _classRecordDAL);
         }
 
         public async Task StatisticsClassConsumeEvent(StatisticsClassEvent request)
         {
-            request.ClassRecord.Id = request.RecordId;
-            var ot = request.ClassRecord.ClassOt.Date;
-            await StatisticsClassAttendanceHandle(ot, request.ClassRecord);
-            await StatisticsClassTimesHandle(ot);
-            await StatisticsClassCourseHandle(ot, request.ClassRecord.ClassTimes, request.ClassRecord.CourseList);
-            await StatisticsClassTeacherHandle(ot, request.ClassRecord.ClassTimes, request.ClassRecord.Teachers);
-            await StatisticsClassAttendanceTag(ot);
-        }
-
-        public async Task StatisticsClassRevokeConsumeEvent(StatisticsClassRevokeEvent request)
-        {
-            await _statisticsClassDAL.StatisticsClassAttendanceDel(request.ClassRecord.Id);
-            await StatisticsClassTimesHandle(request.ClassRecord.ClassOt);
-            var myCourses = request.ClassRecord.CourseList.Split(',');
-            foreach (var p in myCourses)
+            var classOt = request.ClassOt.Date;
+            var myAllClassClassRecord = await _classRecordDAL.GetClassRecord(classOt);
+            var myStatisticsClassTimes = new EtStatisticsClassTimes()
             {
-                if (string.IsNullOrEmpty(p))
-                {
-                    continue;
-                }
-                await _statisticsClassDAL.StatisticsClassCourseDeduction(request.ClassRecord.ClassOt, p.ToLong(), request.ClassRecord.ClassTimes);
-            }
-            var myTeachers = request.ClassRecord.Teachers.Split(',');
-            foreach (var p in myTeachers)
-            {
-                if (string.IsNullOrEmpty(p))
-                {
-                    continue;
-                }
-                await _statisticsClassDAL.StatisticsClassTeacherDeduction(request.ClassRecord.ClassOt, p.ToLong(), request.ClassRecord.ClassTimes);
-            }
-            await this._statisticsClassAttendanceTagDAL.UpdateStatisticsClassAttendanceTag(request.ClassRecord.ClassOt);
-        }
-
-        public async Task StatisticsClassRecordStudentChangeConsumeEvent(StatisticsClassRecordStudentChangeEvent request)
-        {
-            var ot = request.ClassRecord.ClassOt.Date;
-            await StatisticsClassAttendanceTag(ot);
-            await StatisticsClassAttendanceHandle(ot, request.ClassRecord);
-            await StatisticsClassTimesHandle(ot);
-        }
-
-        private async Task StatisticsClassAttendanceHandle(DateTime ot, EtClassRecord classRecord)
-        {
-            decimal attendance = 0;
-            if (classRecord.NeedAttendNumber > 0 && classRecord.AttendNumber > 0)
-            {
-                attendance = classRecord.AttendNumber / (decimal)classRecord.NeedAttendNumber;
-            }
-            await _statisticsClassDAL.StatisticsClassAttendanceSave(new EtStatisticsClassAttendance()
-            {
-                ClassRecordId = classRecord.Id,
-                AttendNumber = classRecord.AttendNumber,
+                ClassTimes = 0,
+                DeSum = 0,
                 IsDeleted = EmIsDeleted.Normal,
-                NeedAttendNumber = classRecord.NeedAttendNumber,
-                Ot = ot,
-                TenantId = classRecord.TenantId,
-                Day = ot.Day,
-                StartTime = classRecord.StartTime,
-                Attendance = Math.Round(attendance, 2)
-            });
-        }
-
-        private async Task StatisticsClassTimesHandle(DateTime ot)
-        {
-            await _statisticsClassDAL.StatisticsClassTimesSave(ot);
-        }
-
-        private async Task StatisticsClassCourseHandle(DateTime ot, decimal classTimes, string classRecordCourses)
-        {
-            var myCourses = classRecordCourses.Split(',');
-            foreach (var p in myCourses)
+                Ot = classOt,
+                TenantId = request.TenantId
+            };
+            var myStatisticsClassAttendances = new List<EtStatisticsClassAttendance>();
+            var myStatisticsClassCourse = new List<EtStatisticsClassCourse>();
+            var myStatisticsClassTeacher = new List<EtStatisticsClassTeacher>();
+            decimal attendance = 0;
+            foreach (var p in myAllClassClassRecord)
             {
-                if (string.IsNullOrEmpty(p))
-                {
-                    continue;
-                }
-                await _statisticsClassDAL.StatisticsClassCourseSave(ot, p.ToLong(), classTimes);
-            }
-        }
+                //EtStatisticsClassTimes
+                myStatisticsClassTimes.ClassTimes += p.ClassTimes;
+                myStatisticsClassTimes.DeSum += p.DeSum;
 
-        private async Task StatisticsClassTeacherHandle(DateTime ot, decimal classTimes, string classRecordTeachers)
-        {
-            var myTeachers = classRecordTeachers.Split(',');
-            foreach (var p in myTeachers)
-            {
-                if (string.IsNullOrEmpty(p))
+                //EtStatisticsClassAttendance
+                attendance = 0;
+                if (p.NeedAttendNumber > 0 && p.AttendNumber > 0)
                 {
-                    continue;
+                    attendance = p.AttendNumber / (decimal)p.NeedAttendNumber;
                 }
-                await _statisticsClassDAL.StatisticsClassTeacherSave(ot, p.ToLong(), classTimes);
+                myStatisticsClassAttendances.Add(new EtStatisticsClassAttendance()
+                {
+                    ClassRecordId = p.Id,
+                    AttendNumber = p.AttendNumber,
+                    IsDeleted = EmIsDeleted.Normal,
+                    NeedAttendNumber = p.NeedAttendNumber,
+                    Ot = classOt,
+                    TenantId = p.TenantId,
+                    Day = classOt.Day,
+                    StartTime = p.StartTime,
+                    Attendance = Math.Round(attendance, 2)
+                });
+
+                //EtStatisticsClassCourse
+                var allCourseIds = EtmsHelper.AnalyzeMuIds(p.CourseList);
+                foreach (var myCourseId in allCourseIds)
+                {
+                    var log = myStatisticsClassCourse.FirstOrDefault(j => j.CourseId == myCourseId);
+                    if (log == null)
+                    {
+                        myStatisticsClassCourse.Add(new EtStatisticsClassCourse()
+                        {
+                            ClassTimes = p.ClassTimes,
+                            CourseId = myCourseId,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = classOt,
+                            TenantId = p.TenantId
+                        });
+                    }
+                    else
+                    {
+                        log.ClassTimes += p.ClassTimes;
+                    }
+                }
+
+                //EtStatisticsClassTeacher
+                var allTeacherIds = EtmsHelper.AnalyzeMuIds(p.Teachers);
+                foreach (var myTeacherId in allTeacherIds)
+                {
+                    var log = myStatisticsClassTeacher.FirstOrDefault(p => p.TeacherId == myTeacherId);
+                    if (log == null)
+                    {
+                        myStatisticsClassTeacher.Add(new EtStatisticsClassTeacher()
+                        {
+                            ClassTimes = p.ClassTimes,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = classOt,
+                            TeacherId = myTeacherId,
+                            TenantId = p.TenantId
+                        });
+                    }
+                    else
+                    {
+                        log.ClassTimes += p.ClassTimes;
+                    }
+                }
             }
+
+            await _statisticsClassDAL.SaveStatisticsClass(classOt, myStatisticsClassTimes, myStatisticsClassAttendances,
+                myStatisticsClassCourse, myStatisticsClassTeacher);
+            await StatisticsClassAttendanceTag(classOt);
         }
 
         private async Task StatisticsClassAttendanceTag(DateTime ot)

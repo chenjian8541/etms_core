@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Utility;
 
 namespace ETMS.DataAccess
 {
@@ -175,6 +176,13 @@ namespace ETMS.DataAccess
         {
             return await this._dbWrapper.FindList<EtClassRecord>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
             && p.ClassOt == classOt && p.Status == EmClassRecordStatus.Normal);
+        }
+
+        public async Task<bool> ExistClassRecord(long classId, DateTime classOt, int startTime, int endTime)
+        {
+            var sql = $"SELECT TOP 1 0 FROM EtClassRecord WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassRecordStatus.Normal} AND ClassOt = '{classOt.EtmsToDateString()}' AND (StartTime BETWEEN '{startTime}' AND '{endTime}' OR EndTime BETWEEN '{startTime}' AND '{endTime}')";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj != null;
         }
     }
 }

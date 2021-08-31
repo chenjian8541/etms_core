@@ -64,6 +64,8 @@ namespace ETMS.Entity.Dto.Educational.Request
         /// </summary>
         public List<ClassCheckSignStudent> Students { get; set; }
 
+        public bool IsIgnoreCheck { get; set; }
+
         public override string Validate()
         {
             if (ClassId < 0)

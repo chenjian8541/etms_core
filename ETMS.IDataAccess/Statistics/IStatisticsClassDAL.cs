@@ -9,25 +9,16 @@ namespace ETMS.IDataAccess
 {
     public interface IStatisticsClassDAL : IBaseDAL
     {
-        Task StatisticsClassAttendanceSave(EtStatisticsClassAttendance entity);
-
-        Task StatisticsClassAttendanceDel(long classRecordId);
+        Task SaveStatisticsClass(DateTime classOt,EtStatisticsClassTimes myStatisticsClassTimes,
+            List<EtStatisticsClassAttendance> myStatisticsClassAttendances,
+            List<EtStatisticsClassCourse> myStatisticsClassCourse,
+            List<EtStatisticsClassTeacher> myStatisticsClassTeacher);
 
         Task<List<EtStatisticsClassAttendance>> StatisticsClassAttendanceGet(DateTime startTime, DateTime endTime);
 
-        Task StatisticsClassTimesSave(DateTime ot);
-
         Task<List<EtStatisticsClassTimes>> StatisticsClassTimesGet(DateTime startTime, DateTime endTime);
 
-        Task StatisticsClassCourseSave(DateTime ot, long courseId, decimal addClassTimes);
-
-        Task StatisticsClassCourseDeduction(DateTime ot, long courseId, decimal deClassTimes);
-
         Task<IEnumerable<StatisticsClassCourseView>> StatisticsClassCourseGet(DateTime startTime, DateTime endTime, int topLimit);
-
-        Task StatisticsClassTeacherSave(DateTime ot, long teacherId, decimal addClassTimes);
-
-        Task StatisticsClassTeacherDeduction(DateTime ot, long teacherId, decimal deClassTimes);
 
         Task<IEnumerable<StatisticsClassTeacherView>> StatisticsClassTeacherGet(DateTime startTime, DateTime endTime, int topLimit);
     }

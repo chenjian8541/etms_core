@@ -220,9 +220,7 @@ namespace ETMS.Business
             var studentId = await _studentDAL.AddStudent(etStudent, studentExtendInfos);
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
-                ChangeCount = 1,
-                OpType = StatisticsStudentOpType.Add,
-                Time = now
+                Time = etStudent.Ot
             }, request, etStudent.Ot, true);
 
             CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
@@ -408,8 +406,6 @@ namespace ETMS.Business
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
                 Time = etStudent.Ot,
-                OpType = StatisticsStudentOpType.Deduction,
-                ChangeCount = 1
             }, request, etStudent.Ot, true);
             AliyunOssUtil.DeleteObject(etStudent.Avatar, etStudent.FaceGreyKey, etStudent.FaceKey);
             await _aiface.StudentDelete(etStudent.Id);

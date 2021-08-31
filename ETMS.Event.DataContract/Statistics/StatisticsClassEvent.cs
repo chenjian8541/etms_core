@@ -10,8 +10,6 @@ namespace ETMS.Event.DataContract
         public StatisticsClassEvent(int tenantId) : base(tenantId)
         { }
 
-        public EtClassRecord ClassRecord { get; set; }
-
-        public long RecordId { get; set; }
+        public DateTime ClassOt { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View.OnlyOneFiled;
 
 namespace ETMS.DataAccess
 {
@@ -72,6 +73,12 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task<IEnumerable<OnlyOneFiledDateTime>> GetClassRecordAllDate(long classId)
+        {
+            var sql = $"SELECT TOP 2000 ClassOt AS Ot FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassId = {classId} GROUP BY ClassOt";
+            return await _dbWrapper.ExecuteObject<OnlyOneFiledDateTime>(sql);
+        }
+
         public async Task<bool> DelClassDepth(long classId)
         {
             await DelClass(classId, true);
@@ -88,6 +95,8 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtActiveHomework SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtActiveHomeworkDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSalaryClassDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSalaryClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             var tempSql = sql.ToString();
             LOG.Log.Info($"[DelClassDepth]执行深度删除:{tempSql}", this.GetType());
             await _dbWrapper.Execute(tempSql);

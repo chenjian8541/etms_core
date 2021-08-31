@@ -204,8 +204,6 @@ namespace ETMS.Business
                 _studentDAL.AddStudent(studentList);
                 SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
                 {
-                    ChangeCount = studentList.Count,
-                    OpType = StatisticsStudentOpType.Add,
                     Time = now
                 }, request, now.Date, true);
                 var phones = studentList.Select(p => p.Phone).ToList();
@@ -530,8 +528,6 @@ namespace ETMS.Business
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
-                ChangeCount = addStudentCount,
-                OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
 
@@ -890,8 +886,6 @@ namespace ETMS.Business
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
-                ChangeCount = addStudentCount,
-                OpType = StatisticsStudentOpType.Add,
                 Time = now
             }, request, now.Date, true);
 

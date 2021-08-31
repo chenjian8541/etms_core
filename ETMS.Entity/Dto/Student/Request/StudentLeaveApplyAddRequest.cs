@@ -21,7 +21,7 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public override string Validate()
         {
-            if (StartDate == null || EndDate == null || EndDate < StartDate)
+            if (EndDate < StartDate)
             {
                 return "请假日期格式不正确";
             }

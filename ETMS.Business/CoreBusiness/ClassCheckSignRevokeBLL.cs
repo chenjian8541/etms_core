@@ -210,9 +210,9 @@ namespace ETMS.Business
             });
 
             //统计信息
-            _eventPublisher.Publish(new StatisticsClassRevokeEvent(request.TenantId)
+            _eventPublisher.Publish(new StatisticsClassEvent(request.TenantId)
             {
-                ClassRecord = classRecord
+                ClassOt = classRecord.ClassOt
             });
 
             _eventPublisher.Publish(new StatisticsClassFinishCountEvent(request.TenantId)
