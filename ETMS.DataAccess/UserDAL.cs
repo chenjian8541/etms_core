@@ -182,10 +182,21 @@ namespace ETMS.DataAccess
             && p.Year == year && p.Month == moth && p.IsDeleted == EmIsDeleted.Normal);
             if (teacherClassTimesData != null)
             {
-                await _dbWrapper.Execute($"UPDATE EtTeacherClassTimes SET ClassTimes = {newClassTimes} ,ClassCount = {newClassCount} WHERE id = {teacherClassTimesData.Id}");
+                if (newClassCount == 0)
+                {
+                    await _dbWrapper.Execute($"DELETE EtTeacherClassTimes WHERE id = {teacherClassTimesData.Id} ");
+                }
+                else
+                {
+                    await _dbWrapper.Execute($"UPDATE EtTeacherClassTimes SET ClassTimes = {newClassTimes} ,ClassCount = {newClassCount} WHERE id = {teacherClassTimesData.Id}");
+                }
             }
             else
             {
+                if (newClassCount == 0)
+                {
+                    return;
+                }
                 var firstDate = new DateTime(classTime.Year, classTime.Month, 1);
                 await this._dbWrapper.Insert(new EtTeacherClassTimes()
                 {

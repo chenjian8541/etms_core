@@ -7,7 +7,9 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Request;
+using ETMS.Entity.Dto.User.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.EventConsumer;
@@ -112,33 +114,42 @@ namespace Etms.Tools.Test
         private IEventPublisher _eventPublisher;
         private IRoleDAL _roleDAL;
         private IClassRecordDAL _classRecordDAL;
+        private IUserDAL _userDAL;
+        private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
-            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
-            _eventPublisher.Publish(new StatisticsClassFinishCountEvent(4195)
+            var firstDate = new DateTime(2020, 01, 01);
+            var maxDate = new DateTime(2021, 10, 01);
+            while (firstDate < maxDate)
             {
-                ClassId = 11834
-            });
-            return;
-            //_sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
-            //_classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
-            //_roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
-            //_classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
-            //var pageCurrent = 1;
-            //var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
-            //if (getTenantsEffectiveResult.Item2 == 0)
-            //{
-            //    return;
-            //}
-            //HandleTenantList(getTenantsEffectiveResult.Item1);
-            //var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
-            //pageCurrent++;
-            //while (pageCurrent <= totalPage)
-            //{
-            //    getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
-            //    HandleTenantList(getTenantsEffectiveResult.Item1);
-            //    pageCurrent++;
-            //}
+                _yearAndMonths.Add(new YearAndMonth()
+                {
+                    Month = firstDate.Month,
+                    Year = firstDate.Year
+                });
+                firstDate = firstDate.AddMonths(1);
+            }
+            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
+            _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
+            _classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
+            _userDAL = CustomServiceLocator.GetInstance<IUserDAL>();
+            _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            var pageCurrent = 1;
+            var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+            if (getTenantsEffectiveResult.Item2 == 0)
+            {
+                return;
+            }
+            HandleTenantList(getTenantsEffectiveResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
+            pageCurrent++;
+            while (pageCurrent <= totalPage)
+            {
+                getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+                HandleTenantList(getTenantsEffectiveResult.Item1);
+                pageCurrent++;
+            }
         }
 
         private void HandleTenantList(IEnumerable<SysTenant> tenantList)
@@ -147,43 +158,52 @@ namespace Etms.Tools.Test
             {
                 return;
             }
-            var date = new DateTime(2019, 01, 01);
-            var maxDate = DateTime.Now.AddDays(1).Date;
             foreach (var tenant in tenantList)
             {
-                while (date < maxDate)
-                {
-                    _eventPublisher.Publish(new StatisticsClassEvent(tenant.Id)
-                    {
-                        ClassOt = date,
-                    });
-                    date = date.AddDays(1);
-                    Console.WriteLine($"处理完成:{date} ");
-                }
-
-                //_classRecordDAL.ResetTenantId(tenant.Id);
-                //try
-                //{
-                //    ProcessClassRecord(tenant.Id);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex.Message);
-                //}
-
-                //_classDAL.ResetTenantId(tenant.Id);
-                //_roleDAL.ResetTenantId(tenant.Id);
-                //try
-                //{
-                //    ProcessClass(tenant.Id);
-                //    SetRole(tenant.Id);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex.Message);
-                //}
+                _userDAL.ResetTenantId(tenant.Id);
+                ProcessUser(tenant.Id);
             }
         }
+
+        private void ProcessUser(int tenantId)
+        {
+            var query = new UserGetPagingRequest()
+            {
+                LoginTenantId = tenantId,
+                PageCurrent = 1,
+                PageSize = 50
+            };
+            var pagingData = _userDAL.GetUserPaging(query).Result;
+            if (pagingData.Item2 == 0)
+            {
+                return;
+            }
+            HandleUser(tenantId, pagingData.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+            query.PageCurrent++;
+            while (query.PageCurrent <= totalPage)
+            {
+                pagingData = _userDAL.GetUserPaging(query).Result;
+                HandleUser(tenantId, pagingData.Item1);
+                query.PageCurrent++;
+            }
+        }
+
+        private void HandleUser(int tenantId, IEnumerable<UserView> userList)
+        {
+            if (userList == null || !userList.Any())
+            {
+                return;
+            }
+            var ids = userList.Select(p => p.Id).ToList();
+            _eventPublisher.Publish(new SyncTeacherMonthClassTimesEvent(tenantId)
+            {
+                TeacherIds = ids,
+                YearAndMonthList = _yearAndMonths
+            });
+            Console.WriteLine($"{tenantId}处理中...");
+        }
+
 
         private void ProcessClassRecord(int tenantId)
         {
