@@ -517,10 +517,14 @@ namespace ETMS.ExternalService.Implement
                     {
                         tenantNameDesc = request.TenantSmsSignature;
                     }
-                    var title = $"您收到一份来自[{tenantNameDesc}]的通知，赶紧点击看一看吧！";
+                    var title = string.Empty;
                     if (!string.IsNullOrEmpty(student.TitleAdd))
                     {
-                        title = $"{title}\r\n{student.TitleAdd}";
+                        title = GetFirstDesc(request, student.TitleAdd);
+                    }
+                    else
+                    {
+                        title = $"您收到一份来自[{tenantNameDesc}]的通知，赶紧点击看一看吧！";
                     }
                     var data = new
                     {

@@ -148,27 +148,23 @@ namespace Etms.Tools.Test
             {
                 while (date < maxDate)
                 {
-                    _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenant.Id)
+                    _eventPublisher.Publish(new StatisticsClassEvent(tenant.Id)
                     {
-                        Time = date,
-                        IsJobRequest = true
-                    });
-                    _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(tenant.Id)
-                    {
-                        StatisticsDate = date
+                        ClassOt = date,
                     });
                     date = date.AddDays(1);
                     Console.WriteLine($"处理完成:{date} ");
                 }
-                _classRecordDAL.ResetTenantId(tenant.Id);
-                try
-                {
-                    ProcessClassRecord(tenant.Id);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+
+                //_classRecordDAL.ResetTenantId(tenant.Id);
+                //try
+                //{
+                //    ProcessClassRecord(tenant.Id);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex.Message);
+                //}
 
                 //_classDAL.ResetTenantId(tenant.Id);
                 //_roleDAL.ResetTenantId(tenant.Id);

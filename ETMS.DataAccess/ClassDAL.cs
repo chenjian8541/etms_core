@@ -386,6 +386,7 @@ namespace ETMS.DataAccess
         public async Task<bool> UpdateClassFinishInfo(long classId, int finishCount, decimal finishClassTimes)
         {
             await _dbWrapper.Execute($"UPDATE EtClass SET FinishCount = {finishCount},FinishClassTimes = {finishClassTimes} WHERE TenantId = {_tenantId} AND Id = {classId} ");
+            RemoveCache(_tenantId, classId);
             return true;
         }
     }
