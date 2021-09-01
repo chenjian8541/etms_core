@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Temp;
 using ETMS.Entity.View.OnlyOneFiled;
+using ETMS.Entity.View;
 
 namespace ETMS.DataAccess
 {
@@ -77,6 +78,12 @@ namespace ETMS.DataAccess
         {
             var sql = $"SELECT TOP 2000 ClassOt AS Ot FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassId = {classId} GROUP BY ClassOt";
             return await _dbWrapper.ExecuteObject<OnlyOneFiledDateTime>(sql);
+        }
+
+        public async Task<IEnumerable<ClassRecordTeacherInfoView>> GetClassRecordTeacherInfoView(long classId)
+        {
+            var sql = $"SELECT TOP 2000 Teachers,SUM(ClassTimes) AS TotalClassTimes,COUNT(Teachers) AS TotalCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassId = {classId} GROUP BY Teachers";
+            return await _dbWrapper.ExecuteObject<ClassRecordTeacherInfoView>(sql);
         }
 
         public async Task<bool> DelClassDepth(long classId)

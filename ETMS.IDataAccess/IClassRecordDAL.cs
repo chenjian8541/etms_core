@@ -66,5 +66,7 @@ namespace ETMS.IDataAccess
         Task<List<EtClassRecord>> GetClassRecord(DateTime classOt);
 
         Task<bool> ExistClassRecord(long classId, DateTime classOt, int startTime, int endTime);
+
+        Task<ClassRecordTeacherStatistics> GetClassRecordTeacherStatistics(long teacherId, DateTime startDate, DateTime endDate);
     }
 }

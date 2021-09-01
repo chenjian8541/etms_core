@@ -184,5 +184,12 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj != null;
         }
+
+        public async Task<ClassRecordTeacherStatistics> GetClassRecordTeacherStatistics(long teacherId, DateTime startDate, DateTime endDate)
+        {
+            var sql = $"SELECT SUM(ClassTimes) AS TotalClassTimes,COUNT(0) AS TotalCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmClassRecordStatus.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND Teachers LIKE '%{teacherId}%' AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt < '{endDate.EtmsToDateString()}'";
+            var data = await _dbWrapper.ExecuteObject<ClassRecordTeacherStatistics>(sql);
+            return data.FirstOrDefault();
+        }
     }
 }

@@ -23,19 +23,23 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ITeacherSalaryPayrollDAL _teacherSalaryPayrollDAL;
 
+        private readonly IUserDAL _userDAL;
+
         public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
-            ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL)
+            ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL,
+            IUserDAL userDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._teacherSalaryClassDAL = teacherSalaryClassDAL;
             this._teacherSalaryMonthStatisticsDAL = teacherSalaryMonthStatisticsDAL;
             this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
+            this._userDAL = userDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL, _teacherSalaryMonthStatisticsDAL,
-                _teacherSalaryPayrollDAL);
+                _teacherSalaryPayrollDAL, _userDAL);
         }
 
         public async Task StatisticsTeacherSalaryClassTimesConsumerEvent(StatisticsTeacherSalaryClassTimesEvent request)
@@ -357,6 +361,37 @@ namespace ETMS.Business.EventConsumer
             foreach (var myItem in salaryPayrollBucket.TeacherSalaryPayrollUsers)
             {
                 await _teacherSalaryMonthStatisticsDAL.UpdateTeacherSalaryMonthStatistics(myItem.UserId, year, month);
+            }
+        }
+
+        public async Task SyncTeacherMonthClassTimesConsumerEvent(SyncTeacherMonthClassTimesEvent request)
+        {
+            if (request.YearAndMonthList == null || request.YearAndMonthList.Count == 0)
+            {
+                return;
+            }
+            if (request.TeacherIds == null || request.TeacherIds.Count == 0)
+            {
+                return;
+            }
+            decimal newClassTimes;
+            int newClassCount;
+            foreach (var p in request.YearAndMonthList)
+            {
+                var startDate = new DateTime(p.Year, p.Month, 1);
+                var endDate = startDate.AddMonths(1);
+                foreach (var myTeacherId in request.TeacherIds)
+                {
+                    var myStatistics = await _classRecordDAL.GetClassRecordTeacherStatistics(myTeacherId, startDate, endDate);
+                    newClassTimes = 0;
+                    newClassCount = 0;
+                    if (myStatistics != null)
+                    {
+                        newClassTimes = myStatistics.TotalClassTimes;
+                        newClassCount = myStatistics.TotalCount;
+                    }
+                    await _userDAL.UpdateTeacherMonthClassTimes(myTeacherId, startDate, newClassTimes, newClassCount);
+                }
             }
         }
     }

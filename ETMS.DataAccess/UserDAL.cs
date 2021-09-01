@@ -97,7 +97,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecutePage<UserSimpleView>("EtUser", "Id,Name,Phone,IsTeacher", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task<bool> UpdateTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount)
+        public async Task<bool> AddTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount)
         {
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes + {addClassTimes} , TotalClassCount = TotalClassCount + {addClassCount} WHERE Id = {teacherId}");
             await UpdateCache(_tenantId, teacherId);
@@ -106,6 +106,22 @@ namespace ETMS.DataAccess
 
         public async Task<bool> DeTeacherClassTimesInfo(long teacherId, decimal deClassTimes, int deClassCount)
         {
+            var user = await GetUser(teacherId);
+            if (user == null)
+            {
+                return false;
+            }
+            var newTotalClassTimes = user.TotalClassTimes - deClassTimes;
+            var newTotalClassCount = user.TotalClassCount - deClassCount;
+            if (newTotalClassTimes < 0)
+            {
+                newTotalClassTimes = 0;
+            }
+            if (newTotalClassCount < 0)
+            {
+                newTotalClassCount = 0;
+            }
+            // var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = {newTotalClassTimes} , TotalClassCount = {newTotalClassCount} WHERE Id = {teacherId}");
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes - {deClassTimes} , TotalClassCount = TotalClassCount - {deClassCount} WHERE Id = {teacherId}");
             await UpdateCache(_tenantId, teacherId);
             return count > 0;
@@ -123,7 +139,7 @@ namespace ETMS.DataAccess
             }
             else
             {
-                var firstDate = Convert.ToDateTime($"{year}-{moth}-1");
+                var firstDate = new DateTime(classTime.Year, classTime.Month, 1);
                 await this._dbWrapper.Insert(new EtTeacherClassTimes()
                 {
                     TenantId = _tenantId,
@@ -150,6 +166,33 @@ namespace ETMS.DataAccess
                 await _dbWrapper.Execute($"UPDATE EtTeacherClassTimes SET ClassTimes = ClassTimes - {deClassTimes} ,ClassCount = ClassCount - {deClassCount} WHERE id = {teacherClassTimesData.Id}");
             }
             return true;
+        }
+
+        public async Task UpdateTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal newClassTimes, int newClassCount)
+        {
+            var year = classTime.Year;
+            var moth = classTime.Month;
+            var teacherClassTimesData = await this._dbWrapper.Find<EtTeacherClassTimes>(p => p.TenantId == _tenantId && p.UserId == teacherId
+            && p.Year == year && p.Month == moth && p.IsDeleted == EmIsDeleted.Normal);
+            if (teacherClassTimesData != null)
+            {
+                await _dbWrapper.Execute($"UPDATE EtTeacherClassTimes SET ClassTimes = {newClassTimes} ,ClassCount = {newClassCount} WHERE id = {teacherClassTimesData.Id}");
+            }
+            else
+            {
+                var firstDate = new DateTime(classTime.Year, classTime.Month, 1);
+                await this._dbWrapper.Insert(new EtTeacherClassTimes()
+                {
+                    TenantId = _tenantId,
+                    ClassCount = newClassCount,
+                    ClassTimes = newClassTimes,
+                    FirstTime = firstDate,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Month = moth,
+                    UserId = teacherId,
+                    Year = year
+                });
+            }
         }
 
         public async Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request)

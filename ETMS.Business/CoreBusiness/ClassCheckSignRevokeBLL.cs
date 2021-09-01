@@ -170,10 +170,9 @@ namespace ETMS.Business
             }
 
             //老师课时统计
-            var teachers = classRecord.Teachers.Trim(',').Split(',');
-            foreach (var t in teachers)
+            var teachers = EtmsHelper.AnalyzeMuIds(classRecord.Teachers);
+            foreach (var teacherId in teachers)
             {
-                var teacherId = t.ToLong();
                 await _userDAL.DeTeacherClassTimesInfo(teacherId, classRecord.ClassTimes, 1);
                 await _userDAL.DeTeacherMonthClassTimes(teacherId, classRecord.ClassOt, classRecord.ClassTimes, 1);
             }

@@ -32,13 +32,15 @@ namespace ETMS.IDataAccess
 
         Task<Tuple<IEnumerable<UserSimpleView>, int>> GetUserSimplePaging(IPagingRequest request);
 
-        Task<bool> UpdateTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount);
+        Task<bool> AddTeacherClassTimesInfo(long teacherId, decimal addClassTimes, int addClassCount);
 
         Task<bool> DeTeacherClassTimesInfo(long teacherId, decimal deClassTimes, int deClassCount);
 
         Task<bool> AddTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal addClassTimes, int addClassCount);
 
         Task<bool> DeTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal deClassTimes, int deClassCount);
+
+        Task UpdateTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal newClassTimes, int newClassCount);
 
         Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request);
 

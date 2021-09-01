@@ -2,6 +2,7 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using ETMS.Entity.View.OnlyOneFiled;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace ETMS.IDataAccess
         Task<bool> DelClass(long classId, bool isIgnoreCheck = false);
 
         Task<IEnumerable<OnlyOneFiledDateTime>> GetClassRecordAllDate(long classId);
+
+        Task<IEnumerable<ClassRecordTeacherInfoView>> GetClassRecordTeacherInfoView(long classId);
 
         Task<bool> DelClassDepth(long classId);
 
