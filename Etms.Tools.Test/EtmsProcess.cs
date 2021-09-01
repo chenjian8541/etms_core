@@ -115,25 +115,30 @@ namespace Etms.Tools.Test
         public void ProcessT()
         {
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
-            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
-            _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
-            _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
-            _classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
-            var pageCurrent = 1;
-            var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
-            if (getTenantsEffectiveResult.Item2 == 0)
+            _eventPublisher.Publish(new StatisticsClassFinishCountEvent(4195)
             {
-                return;
-            }
-            HandleTenantList(getTenantsEffectiveResult.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
-            pageCurrent++;
-            while (pageCurrent <= totalPage)
-            {
-                getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
-                HandleTenantList(getTenantsEffectiveResult.Item1);
-                pageCurrent++;
-            }
+                ClassId = 11834
+            });
+            return;
+            //_sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            //_classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
+            //_roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
+            //_classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
+            //var pageCurrent = 1;
+            //var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+            //if (getTenantsEffectiveResult.Item2 == 0)
+            //{
+            //    return;
+            //}
+            //HandleTenantList(getTenantsEffectiveResult.Item1);
+            //var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
+            //pageCurrent++;
+            //while (pageCurrent <= totalPage)
+            //{
+            //    getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
+            //    HandleTenantList(getTenantsEffectiveResult.Item1);
+            //    pageCurrent++;
+            //}
         }
 
         private void HandleTenantList(IEnumerable<SysTenant> tenantList)

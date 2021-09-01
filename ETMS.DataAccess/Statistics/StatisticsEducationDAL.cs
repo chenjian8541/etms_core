@@ -32,7 +32,7 @@ namespace ETMS.DataAccess.Statistics
 
         private async Task StatisticsEducationClassAndTeacherAndCourse(DateTime firstDate, string startTimeDesc, string endTimeDesc)
         {
-            var sql = $"SELECT TOP 2000 ClassId,Teachers,CourseList,SUM(ClassTimes) AS TotalClassTimes,SUM(DeSum) as TotalDeSum,Count(Id) as TotalCount,SUM(NeedAttendNumber) AS TotalNeedAttendNumber,SUM(AttendNumber) AS TotalAttendNumber FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassOt >= '{startTimeDesc}' AND ClassOt < '{endTimeDesc}' AND [Status] = {EmClassRecordStatus.Normal} GROUP BY ClassId,Teachers,CourseList";
+            var sql = $"SELECT TOP 4000 ClassId,Teachers,CourseList,SUM(ClassTimes) AS TotalClassTimes,SUM(DeSum) as TotalDeSum,Count(Id) as TotalCount,SUM(NeedAttendNumber) AS TotalNeedAttendNumber,SUM(AttendNumber) AS TotalAttendNumber FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassOt >= '{startTimeDesc}' AND ClassOt < '{endTimeDesc}' AND [Status] = {EmClassRecordStatus.Normal} GROUP BY ClassId,Teachers,CourseList";
             await _dbWrapper.Execute($"DELETE EtStatisticsEducationMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
             await _dbWrapper.Execute($"DELETE EtStatisticsEducationClassMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
             await _dbWrapper.Execute($"DELETE EtStatisticsEducationTeacherMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
