@@ -24,11 +24,25 @@ namespace ETMS.DataAccess
 
         protected async override Task<UserBucket> GetDb(params object[] keys)
         {
-            var user = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.Id == keys[1].ToLong() && p.IsDeleted == EmIsDeleted.Normal);
+            var userId = keys[1].ToLong();
+            var user = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.Id == userId && p.IsDeleted == EmIsDeleted.Normal);
             if (user == null)
             {
                 return null;
             }
+            if (user.TotalClassCount < 0 || user.TotalClassTimes < 0) //小于0处理
+            {
+                if (user.TotalClassCount < 0)
+                {
+                    user.TotalClassCount = 0;
+                }
+                if (user.TotalClassTimes < 0)
+                {
+                    user.TotalClassTimes = 0;
+                }
+                await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = {user.TotalClassTimes} ,TotalClassCount = {user.TotalClassCount} WHERE Id = {userId} AND TenantId = {_tenantId}");
+            }
+
             return new UserBucket()
             {
                 User = user
@@ -71,6 +85,14 @@ namespace ETMS.DataAccess
 
         public async Task<bool> EditUser(EtUser user)
         {
+            if (user.TotalClassTimes < 0)
+            {
+                user.TotalClassTimes = 0;
+            }
+            if (user.TotalClassCount < 0)
+            {
+                user.TotalClassCount = 0;
+            }
             return await _dbWrapper.Update(user, async () => { await UpdateCache(_tenantId, user.Id); });
         }
 
@@ -106,22 +128,6 @@ namespace ETMS.DataAccess
 
         public async Task<bool> DeTeacherClassTimesInfo(long teacherId, decimal deClassTimes, int deClassCount)
         {
-            var user = await GetUser(teacherId);
-            if (user == null)
-            {
-                return false;
-            }
-            var newTotalClassTimes = user.TotalClassTimes - deClassTimes;
-            var newTotalClassCount = user.TotalClassCount - deClassCount;
-            if (newTotalClassTimes < 0)
-            {
-                newTotalClassTimes = 0;
-            }
-            if (newTotalClassCount < 0)
-            {
-                newTotalClassCount = 0;
-            }
-            // var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = {newTotalClassTimes} , TotalClassCount = {newTotalClassCount} WHERE Id = {teacherId}");
             var count = await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = TotalClassTimes - {deClassTimes} , TotalClassCount = TotalClassCount - {deClassCount} WHERE Id = {teacherId}");
             await UpdateCache(_tenantId, teacherId);
             return count > 0;
