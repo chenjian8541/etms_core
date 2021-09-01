@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.View
 {
-    public class ClassRecordTeacherInfoView
+    public class MyTeacherClassTimesView
     {
-        public string Teachers { get; set; }
+        public decimal TotalClassTimes { get; set; }
+
+        public int TotalClassCount { get; set; }
     }
 }

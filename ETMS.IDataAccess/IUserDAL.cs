@@ -42,6 +42,8 @@ namespace ETMS.IDataAccess
 
         Task UpdateTeacherMonthClassTimes(long teacherId, DateTime classTime, decimal newClassTimes, int newClassCount);
 
+        Task UpdateTeacherClassTimes(long teacherId);
+
         Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request);
 
         Task<int> GetUserCount();

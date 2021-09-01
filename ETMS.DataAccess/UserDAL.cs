@@ -201,6 +201,22 @@ namespace ETMS.DataAccess
             }
         }
 
+        public async Task UpdateTeacherClassTimes(long teacherId)
+        {
+            var sql = $"SELECT SUM(ClassTimes) AS TotalClassTimes,SUM(ClassCount) AS TotalClassCount FROM EtTeacherClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND UserId = {teacherId}";
+            var db = await _dbWrapper.ExecuteObject<MyTeacherClassTimesView>(sql);
+            var totalClassTimes = 0M;
+            var totalClassCount = 0;
+            var myLog = db.FirstOrDefault();
+            if (myLog != null)
+            {
+                totalClassTimes = myLog.TotalClassTimes;
+                totalClassCount = myLog.TotalClassCount;
+            }
+            await _dbWrapper.Execute($"UPDATE EtUser SET TotalClassTimes = {totalClassTimes} , TotalClassCount = {totalClassCount} WHERE Id = {teacherId}");
+            await UpdateCache(_tenantId, teacherId);
+        }
+
         public async Task<Tuple<IEnumerable<TeacherClassTimesView>, int>> GetTeacherClassTimesPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<TeacherClassTimesView>("TeacherClassTimesView", "*", request.PageSize, request.PageCurrent, "FirstTime DESC", request.ToString());

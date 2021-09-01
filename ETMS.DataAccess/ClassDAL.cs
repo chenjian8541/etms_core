@@ -82,7 +82,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<ClassRecordTeacherInfoView>> GetClassRecordTeacherInfoView(long classId)
         {
-            var sql = $"SELECT TOP 2000 Teachers,SUM(ClassTimes) AS TotalClassTimes,COUNT(Teachers) AS TotalCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassId = {classId} GROUP BY Teachers";
+            var sql = $"SELECT TOP 2000 Teachers FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassId = {classId} GROUP BY Teachers";
             return await _dbWrapper.ExecuteObject<ClassRecordTeacherInfoView>(sql);
         }
 

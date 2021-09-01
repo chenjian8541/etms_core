@@ -393,6 +393,10 @@ namespace ETMS.Business.EventConsumer
                     await _userDAL.UpdateTeacherMonthClassTimes(myTeacherId, startDate, newClassTimes, newClassCount);
                 }
             }
+            foreach (var myTeacherId in request.TeacherIds)
+            {
+                await _userDAL.UpdateTeacherClassTimes(myTeacherId);
+            }
         }
     }
 }

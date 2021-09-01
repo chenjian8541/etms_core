@@ -378,7 +378,7 @@ namespace ETMS.Business
             if (request.IsIgnoreCheck)
             {
                 var classRecordAllDate = await _classDAL.GetClassRecordAllDate(request.CId);
-                var teacherAllClassTimes = await _classDAL.GetClassRecordTeacherInfoView(request.CId);
+                var classRecordALLTeachers = await _classDAL.GetClassRecordTeacherInfoView(request.CId);
                 await _classDAL.DelClassDepth(request.CId);
 
                 var myChangeDate = new List<YearAndMonth>();
@@ -412,41 +412,27 @@ namespace ETMS.Business
                 }
 
                 //处理班级点名记录 所影响的老师课时
-                if (teacherAllClassTimes.Any())
+                if (classRecordALLTeachers.Any())
                 {
-                    var teacherClassTimesDeList = new List<ClassDeepDelTeacherClassTimes>();
-                    foreach (var p in teacherAllClassTimes)
+                    var classDeepDelAllTeacherId = new List<long>();
+                    foreach (var p in classRecordALLTeachers)
                     {
                         var allTeacherId = EtmsHelper.AnalyzeMuIds(p.Teachers);
                         foreach (var teacherId in allTeacherId)
                         {
-                            var log = teacherClassTimesDeList.FirstOrDefault(j => j.TeacherId == teacherId);
-                            if (log == null)
+                            var log = classDeepDelAllTeacherId.Exists(j => j == teacherId);
+                            if (!log)
                             {
-                                teacherClassTimesDeList.Add(new ClassDeepDelTeacherClassTimes()
-                                {
-                                    DeClassTimes = p.TotalClassTimes,
-                                    DeCount = p.TotalCount,
-                                    TeacherId = teacherId
-                                });
-                            }
-                            else
-                            {
-                                log.DeClassTimes += p.TotalClassTimes;
-                                log.DeCount += p.TotalCount;
+                                classDeepDelAllTeacherId.Add(teacherId);
                             }
                         }
                     }
-                    if (teacherClassTimesDeList.Any())
+                    if (classDeepDelAllTeacherId.Any())
                     {
-                        foreach (var myTeacher in teacherClassTimesDeList)
-                        {
-                            await _userDAL.DeTeacherClassTimesInfo(myTeacher.TeacherId, myTeacher.DeClassTimes, myTeacher.DeCount);
-                        }
                         _eventPublisher.Publish(new SyncTeacherMonthClassTimesEvent(request.LoginTenantId)
                         {
                             YearAndMonthList = myChangeDate,
-                            TeacherIds = teacherClassTimesDeList.Select(p => p.TeacherId).ToList()
+                            TeacherIds = classDeepDelAllTeacherId
                         });
                     }
                 }
