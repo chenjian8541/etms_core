@@ -1048,7 +1048,7 @@ namespace ETMS.Business
                     tempIds.Append($"{p.Value},");
                     tempNames.Append($"{p.Label},");
                 }
-                newIds = $",{tempIds.ToString()}";
+                newIds = $",{tempIds}";
                 newNames = tempNames.ToString().TrimEnd(',');
             }
             order.CommissionUser = newIds;

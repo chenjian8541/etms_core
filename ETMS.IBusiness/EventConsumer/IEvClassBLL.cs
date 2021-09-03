@@ -20,5 +20,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task StatisticsClassFinishCountConsumerEvent(StatisticsClassFinishCountEvent request);
 
         Task StudentCheckOnAutoGenerateClassRecordConsumerEvent(StudentCheckOnAutoGenerateClassRecordEvent request);
+
+        Task SyncClassInfoAboutDelStudentProcessEvent(SyncClassInfoAboutDelStudentEvent request);
     }
 }

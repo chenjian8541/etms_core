@@ -1543,6 +1543,10 @@ namespace ETMS.Business
             var etClass = etClassBucket.EtClass;
             var etClassStudents = etClassBucket.EtClassStudents;
             var studentIds = string.Empty;
+            if (request.DelStudentId > 0)
+            {
+                etClassStudents = etClassStudents.Where(p => p.StudentId != request.DelStudentId).ToList();
+            }
             var studentCount = etClassStudents.Count;
             if (etClassStudents.Any())
             {

@@ -244,7 +244,7 @@ namespace ETMS.Entity.Dto.Student.Request
                     {
                         tagSql.Append($" OR Tags LIKE '%,{Tags[i]},%'");
                     }
-                    condition.Append($" AND ({tagSql.ToString()})");
+                    condition.Append($" AND ({tagSql})");
                 }
             }
             if (EndClassOtStart != null)

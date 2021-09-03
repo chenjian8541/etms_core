@@ -44,7 +44,7 @@ namespace ETMS.Entity.Dto.Parent2.Request
                         tempSql.Append($" CourseList LIKE '%,{StudentCourseIds[i]},%' OR");
                     }
                 }
-                condition.Append($" AND ({tempSql.ToString()})");
+                condition.Append($" AND ({tempSql})");
             }
             return condition.ToString();
         }

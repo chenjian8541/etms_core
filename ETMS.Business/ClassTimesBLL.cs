@@ -804,6 +804,39 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> ClassTimesDelClassStudent(ClassTimesDelClassStudentRequest request)
+        {
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            if (classTimes.Status == EmClassTimesStatus.BeRollcall)
+            {
+                return ResponseBase.CommonError("已点名无法移除学员");
+            }
+            var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (etClass == null || etClass.EtClass == null)
+            {
+                return ResponseBase.CommonError("课次所在班级不存在");
+            }
+            var classStudent = etClass.EtClassStudents;
+            if (classStudent != null && classStudent.Count > 0)
+            {
+                var thisClassStudent = classStudent.FirstOrDefault(p => p.StudentId == request.StudentId);
+                if (thisClassStudent == null)
+                {
+                    return ResponseBase.CommonError("学员不在此课次中");
+                }
+            }
+
+            _eventPublisher.Publish(new SyncClassTimesStudentEvent(request.LoginTenantId)
+            {
+                ClassTimesId = classTimes.Id
+            });
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ClassTimesDelTempOrTryStudent(ClassTimesDelTempOrTryStudentRequest request)
         {
             var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
@@ -848,6 +881,7 @@ namespace ETMS.Business
             }
             return result;
         }
+
         private async Task<ResponseBase> ClassTimesDelTempStudent(ClassTimesDelTempOrTryStudentRequest request, EtClass etClass, EtClassTimes etClassTimes)
         {
             await _classTimesDAL.DelClassTimesStudent(request.ClassTimesStudentId);

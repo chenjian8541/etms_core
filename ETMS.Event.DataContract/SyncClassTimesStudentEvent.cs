@@ -11,6 +11,8 @@ namespace ETMS.Event.DataContract
         }
 
         public long ClassTimesId { get; set; }
+
+        public long DelStudentId { get; set; }
     }
 }
 

@@ -2,6 +2,7 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -110,7 +111,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<EtClassTimes>> GetList(IValidate request)
         {
-            var sql = $"SELECT * FROM EtClassTimes WHERE {request.ToString()}";
+            var sql = $"SELECT * FROM EtClassTimes WHERE {request}";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
         }
 
@@ -227,14 +228,20 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<ClassTimesClassOtGroupCountView>> ClassTimesClassOtGroupCount(IValidate request)
         {
-            var sql = $"SELECT ClassOt,COUNT(ClassOt) AS TotalCount FROM EtClassTimes WHERE {request.ToString()} GROUP BY ClassOt";
+            var sql = $"SELECT ClassOt,COUNT(ClassOt) AS TotalCount FROM EtClassTimes WHERE {request} GROUP BY ClassOt";
             return await _dbWrapper.ExecuteObject<ClassTimesClassOtGroupCountView>(sql);
         }
 
         public async Task<IEnumerable<EtClassTimes>> GetClassTimes(IValidate request)
         {
-            var sql = $"SELECT TOP 100 * FROM EtClassTimes WHERE {request.ToString()}";
+            var sql = $"SELECT TOP 100 * FROM EtClassTimes WHERE {request}";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
+        }
+
+        public async Task<IEnumerable<OnlyId>> GetMyTempOrReservationClassTimes(long studentId)
+        {
+            var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' )";
+            return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
     }
 }

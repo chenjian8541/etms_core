@@ -31,6 +31,9 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassTimesAddTryStudentOneToOne(ClassTimesAddTryStudentOneToOneRequest request);
 
+        [Obsolete("此功能先不做")]
+        Task<ResponseBase> ClassTimesDelClassStudent(ClassTimesDelClassStudentRequest request);
+
         Task<ResponseBase> ClassTimesDelTempOrTryStudent(ClassTimesDelTempOrTryStudentRequest request);
 
         Task<ResponseBase> ClassTimesGetPaging(ClassTimesGetPagingRequest request);

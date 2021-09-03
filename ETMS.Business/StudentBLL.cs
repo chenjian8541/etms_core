@@ -417,6 +417,8 @@ namespace ETMS.Business
                 StudentId = studentId
             });
 
+            _eventPublisher.Publish(new SyncClassInfoAboutDelStudentEvent(request.LoginTenantId, studentId));
+
             if (isAddLog)
             {
                 await _userOperationLogDAL.AddUserLog(request, $"删除学员-姓名:{etStudent.Name},手机号码:{etStudent.Phone}", EmUserOperationType.StudentManage);

@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
@@ -80,5 +81,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<ClassTimesClassOtGroupCountView>> ClassTimesClassOtGroupCount(IValidate request);
 
         Task<IEnumerable<EtClassTimes>> GetClassTimes(IValidate request);
+
+        Task<IEnumerable<OnlyId>> GetMyTempOrReservationClassTimes(long studentId);
     }
 }

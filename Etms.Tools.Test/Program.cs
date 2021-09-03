@@ -93,9 +93,10 @@ namespace Etms.Tools.Test
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            new EtmsProcess().ProcessT();
+            //new EtmsProcess().ProcessT();
 
-            Console.WriteLine("已完成");
+            var query = new Test();
+            Console.WriteLine($"已完成:{query}");
             Console.Read();
         }
 
@@ -339,6 +340,11 @@ namespace Etms.Tools.Test
     public class Test
     {
         public decimal Money { get; set; }
+
+        public override string ToString()
+        {
+            return "chenjian";
+        }
     }
 
     public class MyStudent

@@ -126,6 +126,11 @@ namespace ETMS.Business.EventConsumer
             }
             var classStudent = classBucket.EtClassStudents;
             var classTimesStudent = await _classTimesDAL.GetClassTimesStudent(classTimes.Id);
+            if (request.DelStudentId > 0)
+            {
+                classStudent = classStudent.Where(p => p.StudentId != request.DelStudentId).ToList();
+                classTimesStudent = classTimesStudent.Where(p => p.StudentId != request.DelStudentId).ToList();
+            }
             var studentCount = 0;
             var studentTempCount = 0;
             var strStudentIdsClass = string.Empty;
@@ -219,6 +224,34 @@ namespace ETMS.Business.EventConsumer
                 {
                     LOG.Log.Error($"[StudentCheckOnAutoGenerateClassRecordConsumerEvent]处理考勤自动生成点名记录失败-{request.TenantId}-{p.Id}", ex, this.GetType());
                     continue;
+                }
+            }
+        }
+
+        public async Task SyncClassInfoAboutDelStudentProcessEvent(SyncClassInfoAboutDelStudentEvent request)
+        {
+            var tempStudentOrReservationStudent = await _classTimesDAL.GetMyTempOrReservationClassTimes(request.StudentId);
+            if (tempStudentOrReservationStudent.Any())
+            {
+                foreach (var myItem in tempStudentOrReservationStudent)
+                {
+                    await SyncClassTimesStudentConsumerEvent(new SyncClassTimesStudentEvent(request.TenantId)
+                    {
+                        ClassTimesId = myItem.Id,
+                        DelStudentId = request.StudentId
+                    });
+                }
+            }
+
+            var myClass = await _classDAL.GetStudentClass(request.StudentId);
+            if (myClass.Any())
+            {
+                foreach (var myItem in myClass)
+                {
+                    _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myItem.Id)
+                    {
+                        DelStudentId = request.StudentId
+                    });
                 }
             }
         }
