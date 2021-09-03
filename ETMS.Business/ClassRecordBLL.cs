@@ -148,7 +148,7 @@ namespace ETMS.Business
                 var allClassRoom = await _classRoomDAL.GetAllClassRoom();
                 classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds);
             }
-            var className = etClass.EtClass.Name;
+            var myClass = etClass.EtClass;
             var courseListDesc = courseInfo.Item1;
             var tempBoxUser = new DataTempBox<EtUser>();
             var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);
@@ -157,7 +157,7 @@ namespace ETMS.Business
                 CId = classRecord.Id,
                 ClassContent = classRecord.ClassContent,
                 ClassId = classRecord.ClassId,
-                ClassName = className,
+                ClassName = myClass.Name,
                 ClassOtDesc = classRecord.ClassOt.EtmsToDateString(),
                 ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}",
                 ClassRoomIdsDesc = classRoomIdsDesc,
@@ -172,7 +172,9 @@ namespace ETMS.Business
                 ClassTimes = classRecord.ClassTimes.EtmsToString(),
                 DeSum = classRecord.DeSum,
                 StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
-                CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId)
+                CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
+                IsLeaveCharge = myClass.IsLeaveCharge,
+                IsNotComeCharge = myClass.IsNotComeCharge
             });
         }
 
@@ -190,10 +192,19 @@ namespace ETMS.Business
                     continue;
                 }
                 var deClassTimes = p.DeClassTimes.EtmsToString();
+                var myCourse = await ComBusiness.GetCourse(courseTempBox, _courseDAL, p.CourseId);
+                var courseDesc = string.Empty;
+                var checkPointsDefault = 0;
+                if (myCourse != null)
+                {
+                    courseDesc = myCourse.Name;
+                    checkPointsDefault = myCourse.CheckPoints;
+                }
                 outPut.Add(new ClassRecordStudentGetOutput()
                 {
                     CId = p.Id,
-                    CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
+                    CourseDesc = courseDesc,
+                    CheckPointsDefault = checkPointsDefault,
                     CourseId = p.CourseId,
                     DeClassTimes = deClassTimes,
                     DeSum = p.DeSum,
@@ -594,7 +605,7 @@ namespace ETMS.Business
             p.Remark = request.NewRemark;
             p.RewardPoints = request.NewRewardPoints;
             p.IsRewardPoints = request.NewRewardPoints > 0;
-            if (p.DeClassTimes == request.NewDeClassTimes)
+            if (p.DeClassTimes + p.ExceedClassTimes == request.NewDeClassTimes)
             {
                 return p;
             }

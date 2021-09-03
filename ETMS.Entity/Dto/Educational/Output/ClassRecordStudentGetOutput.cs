@@ -90,5 +90,10 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 积分
         /// </summary>
         public int NewRewardPoints { get; set; }
+
+        /// <summary>
+        /// 点名或者考勤时默认赠送的积分
+        /// </summary>
+        public int CheckPointsDefault { get; set; }
     }
 }
