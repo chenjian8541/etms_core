@@ -180,7 +180,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> ExistClassRecord(long classId, DateTime classOt, int startTime, int endTime)
         {
-            var sql = $"SELECT TOP 1 0 FROM EtClassRecord WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassRecordStatus.Normal} AND ClassOt = '{classOt.EtmsToDateString()}' AND (StartTime BETWEEN '{startTime}' AND '{endTime}' OR EndTime BETWEEN '{startTime}' AND '{endTime}')";
+            var sql = $"SELECT TOP 1 0 FROM EtClassRecord WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassRecordStatus.Normal} AND ClassOt = '{classOt.EtmsToDateString()}' AND ((StartTime >= '{startTime}' AND StartTime < '{endTime}') OR (EndTime > '{startTime}' AND EndTime <= '{endTime}') OR (StartTime < '{startTime}' AND EndTime > '{endTime}'))";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj != null;
         }

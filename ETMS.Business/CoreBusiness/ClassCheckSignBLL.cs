@@ -108,14 +108,14 @@ namespace ETMS.Business
                 }
             }
             //防止重复点名
-            //if (!request.IsIgnoreCheck)
-            //{
-            //    var isRepeatData = await _classRecordDAL.ExistClassRecord(request.ClassId, request.ClassOt, request.StartTime, request.EndTime);
-            //    if (isRepeatData)
-            //    {
-            //        return ResponseBase.Success(new ClassCheckSignOutput(false));
-            //    }
-            //}
+            if (!request.IsIgnoreCheck)
+            {
+                var isRepeatData = await _classRecordDAL.ExistClassRecord(request.ClassId, request.ClassOt, request.StartTime, request.EndTime);
+                if (isRepeatData)
+                {
+                    return ResponseBase.Success(new ClassCheckSignOutput(false));
+                }
+            }
 
             List<EtStudentCheckOnLog> checkInLog = null;
             if (request.ClassTimesId != null)
@@ -235,7 +235,7 @@ namespace ETMS.Business
                 UserId = request.LoginUserId,
                 LoginClientType = request.LoginClientType
             });
-            return ResponseBase.Success();
+            return ResponseBase.Success(new ClassCheckSignOutput(true));
         }
 
         private async Task<string> CheckStudentCourse(ClassCheckSignStudent student, TenantConfig config, DateTime classDate)
