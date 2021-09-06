@@ -240,7 +240,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<OnlyId>> GetMyTempOrReservationClassTimes(long studentId)
         {
-            var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' )";
+            var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')";
             return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
     }
