@@ -165,6 +165,11 @@ namespace ETMS.Entity.Dto.Educational.Request
         public string Remark { get; set; }
 
         /// <summary>
+        /// 点评信息
+        /// </summary>
+        public ClassCheckSignEvaluate EvaluateInfo { get; set; }
+
+        /// <summary>
         /// 对象的有效性验证方法
         /// </summary>
         /// <returns></returns>
@@ -188,5 +193,15 @@ namespace ETMS.Entity.Dto.Educational.Request
             }
             return string.Empty;
         }
+    }
+
+    public class ClassCheckSignEvaluate 
+    {
+        public string EvaluateContent { get; set; }
+
+        /// <summary>
+        /// 媒体文件
+        /// </summary>
+        public List<string> EvaluateMediasKeys { get; set; }
     }
 }

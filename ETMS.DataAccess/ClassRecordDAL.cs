@@ -20,7 +20,8 @@ namespace ETMS.DataAccess
         {
         }
 
-        public async Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents)
+        public async Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents,
+            List<EtClassRecordEvaluateStudent> evaluateStudents = null)
         {
             await this._dbWrapper.Insert(etClassRecord);
             foreach (var s in classRecordStudents)
@@ -28,6 +29,20 @@ namespace ETMS.DataAccess
                 s.ClassRecordId = etClassRecord.Id;
             }
             this._dbWrapper.InsertRange(classRecordStudents);
+
+            if (evaluateStudents != null && evaluateStudents.Count > 0) //课后点评
+            {
+                foreach (var item in evaluateStudents)
+                {
+                    item.ClassRecordId = etClassRecord.Id;
+                    var myClassRecordStudent = classRecordStudents.FirstOrDefault(p => p.StudentId == item.StudentId);
+                    if (myClassRecordStudent != null)
+                    {
+                        item.ClassRecordStudentId = myClassRecordStudent.Id;
+                    }
+                }
+                this._dbWrapper.InsertRange(evaluateStudents);
+            }
             return etClassRecord.Id;
         }
 

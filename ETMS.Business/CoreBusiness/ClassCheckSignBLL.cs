@@ -164,9 +164,11 @@ namespace ETMS.Business
             var teachers = EtmsHelper.GetMuIds(request.TeacherIds);
             var teacherNum = request.TeacherIds.Count;
             var classRecordStudents = new List<EtClassRecordStudent>();
+            var classRecordEvaluateStudents = new List<EtClassRecordEvaluateStudent>();
+            var evaluateCount = 0;
             foreach (var student in request.Students)
             {
-                classRecordStudents.Add(new EtClassRecordStudent()
+                var myClassRecordStudent = new EtClassRecordStudent()
                 {
                     CheckOt = checkOt,
                     CheckUserId = request.LoginUserId,
@@ -197,7 +199,41 @@ namespace ETMS.Business
                     Teachers = teachers,
                     TenantId = request.LoginTenantId,
                     Week = week
-                });
+                };
+                if (student.EvaluateInfo != null)
+                {
+                    if (!string.IsNullOrEmpty(student.EvaluateInfo.EvaluateContent)
+                        || (student.EvaluateInfo.EvaluateMediasKeys != null && student.EvaluateInfo.EvaluateMediasKeys.Count > 0))
+                    {
+                        evaluateCount++;
+                        myClassRecordStudent.EvaluateCount = 1;
+                        myClassRecordStudent.IsTeacherEvaluate = EmBool.True;
+                        classRecordEvaluateStudents.Add(new EtClassRecordEvaluateStudent()
+                        {
+                            ClassRecordId = myClassRecordStudent.Id,
+                            CheckUserId = myClassRecordStudent.CheckUserId,
+                            IsDeleted = myClassRecordStudent.IsDeleted,
+                            IsRead = false,
+                            EvaluateContent = student.EvaluateInfo.EvaluateContent,
+                            Ot = checkOt,
+                            CheckOt = myClassRecordStudent.CheckOt,
+                            ClassId = myClassRecordStudent.ClassId,
+                            ClassOt = myClassRecordStudent.ClassOt,
+                            EndTime = myClassRecordStudent.EndTime,
+                            EvaluateImg = EtmsHelper2.GetImgKeys(student.EvaluateInfo.EvaluateMediasKeys),
+                            StartTime = myClassRecordStudent.StartTime,
+                            Status = myClassRecordStudent.Status,
+                            StudentId = myClassRecordStudent.StudentId,
+                            StudentType = EmClassStudentType.ClassStudent,
+                            TeacherId = request.LoginUserId,
+                            Teachers = myClassRecordStudent.Teachers,
+                            TenantId = myClassRecordStudent.TenantId,
+                            Week = myClassRecordStudent.Week,
+                            ClassRecordStudentId = 0
+                        });
+                    }
+                }
+                classRecordStudents.Add(myClassRecordStudent);
             }
 
             var attendStudent = request.Students.Where(p => p.StudentCheckStatus == EmClassStudentCheckStatus.Arrived ||
@@ -225,12 +261,14 @@ namespace ETMS.Business
                 Teachers = teachers,
                 TenantId = request.LoginTenantId,
                 Week = week,
-                StudentIds = EtmsHelper.GetMuIds(request.Students.Select(p => p.StudentId))
+                StudentIds = EtmsHelper.GetMuIds(request.Students.Select(p => p.StudentId)),
+                EvaluateStudentCount = evaluateCount
             };
             _eventPublisher.Publish(new ClassCheckSignEvent(request.LoginTenantId)
             {
                 ClassRecord = classRecord,
                 ClassRecordStudents = classRecordStudents,
+                EvaluateStudents = classRecordEvaluateStudents,
                 ClassName = etClassBucket.EtClass.Name,
                 UserId = request.LoginUserId,
                 LoginClientType = request.LoginClientType
@@ -414,7 +452,7 @@ namespace ETMS.Business
                 }
             }
             request.ClassRecord.DeSum = totalDeSum;
-            var recordId = await _classRecordDAL.AddEtClassRecord(request.ClassRecord, request.ClassRecordStudents); //上课记录和详情
+            var recordId = await _classRecordDAL.AddEtClassRecord(request.ClassRecord, request.ClassRecordStudents, request.EvaluateStudents); //上课记录和详情
             if (studentCourseConsumeLogs.Any())
             {
                 _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogs); //课消记录

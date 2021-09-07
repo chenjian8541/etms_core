@@ -15,5 +15,7 @@ namespace ETMS.Event.DataContract
         public EtClassRecord ClassRecord { get; set; }
 
         public List<EtClassRecordStudent> ClassRecordStudents { get; set; }
+
+        public List<EtClassRecordEvaluateStudent> EvaluateStudents { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace ETMS.IDataAccess
 {
     public interface IClassRecordDAL : IBaseDAL
     {
-        Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents);
+        Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents, List<EtClassRecordEvaluateStudent> evaluateStudents = null);
 
         Task<EtClassRecordAbsenceLog> GetRelatedAbsenceLog(long studentId, long courseId);
 
