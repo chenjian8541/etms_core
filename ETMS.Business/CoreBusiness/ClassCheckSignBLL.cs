@@ -200,7 +200,7 @@ namespace ETMS.Business
                     TenantId = request.LoginTenantId,
                     Week = week
                 };
-                if (student.EvaluateInfo != null)
+                if (student.EvaluateInfo != null && EmClassStudentCheckStatus.CheckIsCanEvaluate(student.StudentCheckStatus))
                 {
                     if (!string.IsNullOrEmpty(student.EvaluateInfo.EvaluateContent)
                         || (student.EvaluateInfo.EvaluateMediasKeys != null && student.EvaluateInfo.EvaluateMediasKeys.Count > 0))
