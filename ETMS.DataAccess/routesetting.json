@@ -355,6 +355,18 @@
           "Title": "学员考勤",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "student_leave_setting",
+        "Name": "student_leave_setting",
+        "Type": 1,
+        "Component": "@/components/SystemSet/StudentLeaveSetting",
+        "Meta": {
+          "Title": "请假设置",
+          "Icon": "item"
+        }
       }
     ]
   },

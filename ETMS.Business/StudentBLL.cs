@@ -1023,7 +1023,7 @@ namespace ETMS.Business
                     if (totalCount >= config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount)
                     {
                         return ResponseBase.CommonError(
-                            $"已超过每{EmStudentLeaveApplyMonthLimitType.GetLimitTypeDesc(config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)}最多请假{config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount}次限制");
+                            $"已超过{EmStudentLeaveApplyMonthLimitType.GetLimitTypeDesc(config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)}最多请假{config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount}次限制");
                     }
                 }
             }

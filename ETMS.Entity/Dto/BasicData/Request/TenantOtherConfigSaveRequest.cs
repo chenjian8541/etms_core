@@ -24,17 +24,6 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public bool AutoMarkGraduation { get; set; }
 
         /// <summary>
-        /// 学员请假次数限制类型
-        /// <see cref=" ETMS.Entity.Enum.EmStudentLeaveApplyMonthLimitType"/>
-        /// </summary>
-        public byte StudentLeaveApplyMonthLimitType { get; set; }
-
-        /// <summary>
-        /// 学员请假次数限制
-        /// </summary>
-        public int StudentLeaveApplyMonthLimitCount { get; set; }
-
-        /// <summary>
         /// 老师端是否展示工资
         /// </summary>
         public bool TeacherIsShowSalary { get; set; }

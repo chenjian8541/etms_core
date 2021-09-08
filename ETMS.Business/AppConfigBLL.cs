@@ -415,8 +415,6 @@ namespace ETMS.Business
             config.TenantOtherConfig.ValidPhoneType = request.ValidPhoneType;
             config.TenantOtherConfig.ParentIsShowEndOfClass = request.ParentIsShowEndOfClass;
             config.TenantOtherConfig.AutoMarkGraduation = request.AutoMarkGraduation;
-            config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount = request.StudentLeaveApplyMonthLimitCount;
-            config.TenantOtherConfig.StudentLeaveApplyMonthLimitType = request.StudentLeaveApplyMonthLimitType;
             config.TenantOtherConfig.TeacherIsShowSalary = request.TeacherIsShowSalary;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
@@ -473,6 +471,18 @@ namespace ETMS.Business
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _parentMenusConfigDAL.UpdateParentMenuConfig();
             await _userOperationLogDAL.AddUserLog(request, "家长端菜单设置", EmUserOperationType.SystemConfigModify);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentLeaveConfigSave(StudentLeaveConfigSaveRequest request)
+        {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount = request.StudentLeaveApplyMonthLimitCount;
+            config.TenantOtherConfig.StudentLeaveApplyMonthLimitType = request.StudentLeaveApplyMonthLimitType;
+            config.TenantOtherConfig.StudentLeaveApplyMustBeforeHour = request.StudentLeaveApplyMustBeforeHour;
+
+            await _tenantConfigDAL.SaveTenantConfig(config);
+            await _userOperationLogDAL.AddUserLog(request, "请假设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
     }

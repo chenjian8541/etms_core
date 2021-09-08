@@ -66,5 +66,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentMenuConfigGet(RequestBase request);
 
         Task<ResponseBase> ParentMenuConfigSave(ParentMenuConfigSaveRequest request);
+
+        Task<ResponseBase> StudentLeaveConfigSave(StudentLeaveConfigSaveRequest request);
     }
 }
