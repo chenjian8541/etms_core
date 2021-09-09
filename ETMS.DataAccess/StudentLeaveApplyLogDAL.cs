@@ -28,6 +28,7 @@ namespace ETMS.DataAccess
             && p.EndDate >= time && p.StartDate <= time && p.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass && p.IsDeleted == EmIsDeleted.Normal);
             if (logs == null || !logs.Any())
             {
+                RemoveCache(keys);
                 return null;
             }
             return new StudentLeaveBucket()

@@ -992,6 +992,24 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentLeaveApplyLogRevoke(StudentLeaveApplyLogRevokeRequest request)
+        {
+            var applyLog = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyLog(request.StudentLeaveApplyLogId);
+            if (applyLog == null)
+            {
+                return ResponseBase.CommonError("请假记录不存在");
+            }
+            if (applyLog.HandleStatus != EmStudentLeaveApplyHandleStatus.Pass)
+            {
+                return ResponseBase.CommonError("此记录无法撤销");
+            }
+            applyLog.HandleStatus = EmStudentLeaveApplyHandleStatus.IsRevoke;
+            await _studentLeaveApplyLogDAL.EditStudentLeaveApplyLog(applyLog);
+
+            await _userOperationLogDAL.AddUserLog(request, "撤销请假记录", EmUserOperationType.StudentLeaveApplyManage);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentExtendFieldInit(StudentExtendFieldInitRequest request)
         {
             var holidays = await _studentExtendFieldDAL.GetAllStudentExtendField();
