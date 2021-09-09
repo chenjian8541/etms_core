@@ -119,7 +119,7 @@ namespace ETMS.Entity.Config
         /// 学员请假次数限制类型
         /// <see cref=" ETMS.Entity.Enum.EmStudentLeaveApplyMonthLimitType"/>
         /// </summary>
-        public byte StudentLeaveApplyMonthLimitType { get; set; } = EmStudentLeaveApplyMonthLimitType.NotLimit;
+        public byte StudentLeaveApplyMonthLimitType { get; set; } = EmStudentLeaveApplyMonthLimitType.Month;
 
         /// <summary>
         /// 学员请假次数限制

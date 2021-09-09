@@ -86,5 +86,14 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }
+
+        public async Task<bool> ExistStudentLeaveApplyLog(long studentId, DateTime startFullTime, DateTime endFullTime)
+        {
+            var startTime = startFullTime.EtmsToString();
+            var endTime = endFullTime.EtmsToString();
+            var sql = $"SELECT TOP 1 0 from [EtStudentLeaveApplyLog] WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND HandleStatus IN ({EmStudentLeaveApplyHandleStatus.Unreviewed},{EmStudentLeaveApplyHandleStatus.Pass}) AND ((StartFullTime >= '{startTime}' AND StartFullTime < '{endTime}') OR (EndFullTime > '{startTime}' AND EndFullTime <= '{endTime}') OR (StartFullTime < '{startTime}' AND EndFullTime > '{endTime}'))";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj != null;
+        }
     }
 }

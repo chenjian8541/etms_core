@@ -69,12 +69,15 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IClassRecordDAL _classRecordDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
            IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL,
-           ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL, IEventPublisher eventPublisher)
+           ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL, IEventPublisher eventPublisher,
+           IClassRecordDAL classRecordDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -98,6 +101,7 @@ namespace ETMS.Business
             this._sysTenantDAL = sysTenantDAL;
             this._studentRelationshipDAL = studentRelationshipDAL;
             this._eventPublisher = eventPublisher;
+            this._classRecordDAL = classRecordDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -105,7 +109,146 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _studentLeaveApplyLogDAL, _parentStudentDAL, _studentDAL,
                 _studentOperationLogDAL, _classTimesDAL, _classRoomDAL, _userDAL, _courseDAL, _classDAL,
                 _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL,
-                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL, _studentRelationshipDAL);
+                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL, _studentRelationshipDAL, _classRecordDAL);
+        }
+
+        public async Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request)
+        {
+            //判断是否重复请假
+            var startFullTime = EtmsHelper.GetTime(request.StartDate, request.StartTime);
+            var endFullTime = EtmsHelper.GetTime(request.EndDate, request.EndTime);
+            var isExistApplyLog = await _studentLeaveApplyLogDAL.ExistStudentLeaveApplyLog(request.StudentId, startFullTime, endFullTime);
+            if (isExistApplyLog)
+            {
+                return ResponseBase.CommonError("此时间段已存在请假申请，请勿重复提交");
+            }
+
+            var now = DateTime.Now;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount > 0 || config.TenantOtherConfig.StudentLeaveApplyMustBeforeHour > 0)
+            {
+                IEnumerable<EtClassTimes> myClassTimes = null;
+                if (config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount > 0) //学员请假次数限制
+                {
+                    DateTime? startDate = null;
+                    DateTime? endDate = null;
+                    switch (config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)
+                    {
+                        case EmStudentLeaveApplyMonthLimitType.Week:
+                            var re1 = EtmsHelper2.GetThisWeek(request.StartDate);
+                            startDate = re1.Item1;
+                            endDate = re1.Item2;
+                            break;
+                        case EmStudentLeaveApplyMonthLimitType.Month:
+                            var re2 = EtmsHelper2.GetThisMonth(request.StartDate);
+                            startDate = re2.Item1;
+                            endDate = re2.Item2;
+                            break;
+                        case EmStudentLeaveApplyMonthLimitType.Year:
+                            var re3 = EtmsHelper2.GetThisYear(request.StartDate);
+                            startDate = re3.Item1;
+                            endDate = re3.Item2;
+                            break;
+                    }
+                    if (startDate != null && endDate != null)
+                    {
+                        var classRecordStudentCourseIsLeaveCount = await _classRecordDAL.GetClassRecordStudentCourseIsLeaveCount(request.StudentId, startDate.Value, endDate.Value);
+                        if (classRecordStudentCourseIsLeaveCount.Any())
+                        {
+                            var overtakeLimitCourse = classRecordStudentCourseIsLeaveCount.Where(p => p.TotalCount >= config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount);
+                            if (overtakeLimitCourse.Any())
+                            {
+                                myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, request.StartDate, request.EndDate);
+                                if (myClassTimes.Any())
+                                {
+                                    var allCourseList = myClassTimes.Select(p => p.CourseList).Distinct();
+                                    foreach (var overtakeCourse in overtakeLimitCourse)
+                                    {
+                                        foreach (var p in allCourseList)
+                                        {
+                                            if (EtmsHelper.AnalyzeMuIds(p).Exists(j => j == overtakeCourse.CourseId))
+                                            {
+                                                var myCourse = await _courseDAL.GetCourse(overtakeCourse.CourseId);
+                                                if (myCourse != null && myCourse.Item1 != null)
+                                                {
+                                                    return ResponseBase.CommonError($"课程[{myCourse.Item1.Name}]请假次数已超过最多{config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount}次限制");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (config.TenantOtherConfig.StudentLeaveApplyMustBeforeHour > 0) //发起时间限制
+                {
+                    if (myClassTimes == null)
+                    {
+                        myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, request.StartDate, request.EndDate, 20);
+                    }
+                    if (myClassTimes.Any())
+                    {
+                        foreach (var itemClassTime in myClassTimes)
+                        {
+                            if (itemClassTime.ClassOt == request.StartDate && itemClassTime.EndTime <= request.StartTime) //同一天，课程已结束
+                            {
+                                continue;
+                            }
+                            if (itemClassTime.ClassOt == request.EndDate && itemClassTime.StartTime >= request.EndTime)  //同一天，课程已结束
+                            {
+                                continue;
+                            }
+                            var startTime = EtmsHelper.GetTime(itemClassTime.ClassOt, itemClassTime.StartTime);
+                            var limitDate = startTime.AddHours(-config.TenantOtherConfig.StudentLeaveApplyMustBeforeHour);
+                            if (now <= limitDate)
+                            {
+                                break;
+                            }
+                            return ResponseBase.CommonError($"{itemClassTime.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(itemClassTime.StartTime)}~{EtmsHelper.GetTimeDesc(itemClassTime.EndTime)})有课，必须提前{config.TenantOtherConfig.StudentLeaveApplyMustBeforeHour}小时请假");
+                        }
+                    }
+                }
+            }
+
+            var log = new EtStudentLeaveApplyLog()
+            {
+                ApplyOt = now,
+                EndDate = request.EndDate,
+                EndTime = request.EndTime,
+                HandleOt = null,
+                HandleRemark = string.Empty,
+                HandleStatus = EmStudentLeaveApplyHandleStatus.Unreviewed,
+                HandleUser = null,
+                IsDeleted = EmIsDeleted.Normal,
+                LeaveContent = request.LeaveContent,
+                StartDate = request.StartDate,
+                StartTime = request.StartTime,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId,
+                StartFullTime = startFullTime,
+                EndFullTime = endFullTime
+            };
+            await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(log);
+            await _studentOperationLogDAL.AddStudentLog(new EtStudentOperationLog()
+            {
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = $"添加请假申请",
+                Ot = DateTime.Now,
+                Remark = string.Empty,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId,
+                Type = (int)EmStudentOperationLogType.StudentLeaveApply
+            });
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            _eventPublisher.Publish(new NoticeUserStudentLeaveApplyEvent(request.LoginTenantId)
+            {
+                StudentLeaveApplyLog = log
+            });
+
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request)

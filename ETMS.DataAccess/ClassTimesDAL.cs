@@ -243,5 +243,11 @@ namespace ETMS.DataAccess
             var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')";
             return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
+
+        public async Task<IEnumerable<EtClassTimes>> GetStudentClassTimes(long studentId, DateTime startDate, DateTime endDate, int topLimit = 50)
+        {
+            var sql = $"SELECT TOP {topLimit} * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%') ORDER BY ClassOt,StartTime";
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
+        }
     }
 }

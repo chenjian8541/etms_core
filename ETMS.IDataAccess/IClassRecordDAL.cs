@@ -2,6 +2,7 @@
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp.View;
 using ETMS.Entity.View;
+using ETMS.Entity.View.OnlyOneFiled;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -68,5 +69,15 @@ namespace ETMS.IDataAccess
         Task<bool> ExistClassRecord(long classId, DateTime classOt, int startTime, int endTime);
 
         Task<ClassRecordTeacherStatistics> GetClassRecordTeacherStatistics(long teacherId, DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// 学员期间各课程的请假次数
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <param name="courseIds"></param>
+        /// <returns></returns>
+        Task<IEnumerable<StudentCourseIsLeaveCountView>> GetClassRecordStudentCourseIsLeaveCount(long studentId, DateTime startDate, DateTime endDate);
     }
 }

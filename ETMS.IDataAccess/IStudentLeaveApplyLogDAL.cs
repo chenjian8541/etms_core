@@ -21,5 +21,7 @@ namespace ETMS.IDataAccess
         Task<List<EtStudentLeaveApplyLog>> GetStudentLeaveApplyPassLog(DateTime time);
 
         Task<int> GetStudentLeaveApplyCount(long studentId,DateTime startTime, DateTime endTime);
+
+        Task<bool> ExistStudentLeaveApplyLog(long studentId, DateTime startFullTime, DateTime endFullTime);
     }
 }

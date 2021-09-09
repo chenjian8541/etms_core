@@ -65,5 +65,9 @@ namespace ETMS.Entity.Database.Source
         /// 审核备注
         /// </summary>
         public string HandleRemark { get; set; }
+
+        public DateTime? StartFullTime { get; set; }
+
+        public DateTime? EndFullTime { get; set; }
     }
 }

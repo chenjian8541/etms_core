@@ -20,7 +20,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            //CreateParentToken("13410271814");
+            CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();

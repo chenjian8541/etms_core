@@ -8,8 +8,6 @@ namespace ETMS.Entity.Enum
 {
     public struct EmStudentLeaveApplyMonthLimitType
     {
-        public const byte NotLimit = 5;
-
         public const byte Week = 0;
 
         public const byte Month = 1;
@@ -26,8 +24,6 @@ namespace ETMS.Entity.Enum
                     return "每月";
                 case Year:
                     return "每年";
-                case NotLimit:
-                    return string.Empty;
             }
             return string.Empty;
         }

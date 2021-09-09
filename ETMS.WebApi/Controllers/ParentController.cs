@@ -1,7 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Marketing.Request;
 using ETMS.Entity.Dto.Parent.Request;
-using ETMS.Entity.Dto.Student.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
 using ETMS.WebApi.FilterAttribute;
@@ -25,21 +24,18 @@ namespace ETMS.WebApi.Controllers
 
         private readonly ICouponsBLL _couponsBLL;
 
-        private readonly IStudentBLL _studentBLL;
-
         private readonly IParentDataBLL _parentDataBLL;
 
         private readonly IParentData2BLL _parentData2BLL;
 
         private readonly IParentData3BLL _parentData3BLL;
 
-        public ParentController(IParentBLL parentBLL, IGiftBLL giftBLL, ICouponsBLL couponsBLL, IStudentBLL studentBLL,
+        public ParentController(IParentBLL parentBLL, IGiftBLL giftBLL, ICouponsBLL couponsBLL,
             IParentDataBLL parentDataBLL, IParentData2BLL parentData2BLL, IParentData3BLL parentData3BLL)
         {
             this._parentBLL = parentBLL;
             this._giftBLL = giftBLL;
             this._couponsBLL = couponsBLL;
-            this._studentBLL = studentBLL;
             this._parentDataBLL = parentDataBLL;
             this._parentData2BLL = parentData2BLL;
             this._parentData3BLL = parentData3BLL;
@@ -329,8 +325,8 @@ namespace ETMS.WebApi.Controllers
         {
             try
             {
-                _studentBLL.InitTenantId(request.LoginTenantId);
-                return await _studentBLL.StudentLeaveApplyAdd(request);
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.StudentLeaveApplyAdd(request);
             }
             catch (Exception ex)
             {

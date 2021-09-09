@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Utility;
+using ETMS.Entity.View.OnlyOneFiled;
 
 namespace ETMS.DataAccess
 {
@@ -205,6 +206,21 @@ namespace ETMS.DataAccess
             var sql = $"SELECT SUM(ClassTimes) AS TotalClassTimes,COUNT(0) AS TotalCount FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmClassRecordStatus.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND Teachers LIKE '%{teacherId}%' AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt < '{endDate.EtmsToDateString()}'";
             var data = await _dbWrapper.ExecuteObject<ClassRecordTeacherStatistics>(sql);
             return data.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 学员期间各课程的请假次数
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <param name="courseIds"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<StudentCourseIsLeaveCountView>> GetClassRecordStudentCourseIsLeaveCount(long studentId, DateTime startDate, DateTime endDate)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append($"SELECT CourseId,COUNT(CourseId) AS TotalCount FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND StudentId = {studentId} AND StudentCheckStatus = {EmClassStudentCheckStatus.Leave} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' GROUP BY CourseId");
+            return await _dbWrapper.ExecuteObject<StudentCourseIsLeaveCountView>(strSql.ToString());
         }
     }
 }

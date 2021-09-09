@@ -83,5 +83,14 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClassTimes>> GetClassTimes(IValidate request);
 
         Task<IEnumerable<OnlyId>> GetMyTempOrReservationClassTimes(long studentId);
+
+        /// <summary>
+        /// 获取期间学员的课次 
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns></returns>
+        Task<IEnumerable<EtClassTimes>> GetStudentClassTimes(long studentId, DateTime startDate, DateTime endDate,int topLimit = 50);
     }
 }

@@ -9,6 +9,8 @@ namespace ETMS.IBusiness
 {
     public interface IParentDataBLL : IBaseBLL
     {
+        Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request);
+
         Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request);
 
         Task<ResponseBase> StudentListGet(StudentListGetRequest request);
