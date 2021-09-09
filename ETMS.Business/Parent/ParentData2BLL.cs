@@ -189,7 +189,12 @@ namespace ETMS.Business
                 var allClassRoom = await _classRoomDAL.GetAllClassRoom();
                 classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, p.ClassRoomIds);
             }
-            var student = (await _studentDAL.GetStudent(p.StudentId)).Student;
+            var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var student = studentBucket.Student;
             var output = new ClassRecordDetailGetOutput()
             {
                 ClassRecordBascInfo = new ClassRecordBascInfo()
