@@ -22,9 +22,9 @@ namespace ETMS.Business.Common
 {
     internal static class ComBusiness3
     {
-        internal static string GetStudentDescPC(EtStudent student)
+        internal static string GetStudentDescPC(EtStudent student, int secrecyType)
         {
-            return $"{student.Name}({student.Phone})";
+            return $"{student.Name}({PhoneSecrecy(student.Phone, secrecyType)})";
         }
 
         internal static bool CheckStudentCourseHasSurplus(IEnumerable<EtStudentCourse> studentCourses)
@@ -131,13 +131,13 @@ namespace ETMS.Business.Common
             });
         }
 
-        internal static string PhoneSecrecy(string phone, int loginClientType)
+        internal static string PhoneSecrecy(string phone, int secrecyType)
         {
             if (string.IsNullOrEmpty(phone))
             {
                 return string.Empty;
             }
-            if (loginClientType == EmUserOperationLogClientType.WeChat)
+            if (secrecyType == EmRoleSecrecyType.Secrecy)
             {
                 try
                 {

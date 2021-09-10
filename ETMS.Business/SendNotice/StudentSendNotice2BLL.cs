@@ -548,7 +548,7 @@ namespace ETMS.Business.SendNotice
             var myStudentCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId, request.CourseId);
             if (myStudentCourse == null || myStudentCourse.Count == 0)
             {
-                Log.Error($"[NoticeStudentCourseSurplusConsumerEvent]未找到学员课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
+                Log.Fatal($"[NoticeStudentCourseSurplusConsumerEvent]未找到学员课程信息:{JsonConvert.SerializeObject(request)}", this.GetType());
                 return;
             }
             var myCourseName = myCourse.Item1.Name;

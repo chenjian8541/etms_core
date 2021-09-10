@@ -464,7 +464,7 @@ namespace ETMS.Business
                 var recommendStudentBucket = await _studentDAL.GetStudent(student.RecommendStudentId.Value);
                 if (recommendStudentBucket != null && recommendStudentBucket.Student != null)
                 {
-                    recommendStudentDesc = ComBusiness3.GetStudentDescPC(recommendStudentBucket.Student);
+                    recommendStudentDesc = ComBusiness3.GetStudentDescPC(recommendStudentBucket.Student, request.SecrecyType);
                 }
             }
             var studentGetOutput = new StudentGetOutput()
@@ -486,8 +486,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType),
-                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.LoginClientType),
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -618,8 +618,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType),
-                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.LoginClientType),
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -869,7 +869,7 @@ namespace ETMS.Business
                     TrackTimeDesc = p.TrackTime.EtmsToMinuteString(),
                     NextTrackTimeDesc = p.NextTrackTime.EtmsToDateString(),
                     TrackContent = p.TrackContent,
-                    StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, p.StudentPhone),
+                    StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)),
                     TrackUserName = myUser?.Name,
                     TrackImgUrl = EtmsHelper2.GetImgUrl(p.TrackImg),
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myUser?.Avatar),
@@ -888,7 +888,7 @@ namespace ETMS.Business
                 Ot = p.Ot,
                 Remark = p.Remark,
                 StudentName = p.StudentName,
-                StudentPhone = p.StudentPhone,
+                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                 TypeDesc = EnumDataLib.GetStudentOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label
             })));
         }
@@ -933,7 +933,7 @@ namespace ETMS.Business
                 HandleUserDesc = handleUserDesc,
                 LeaveContent = applyLog.LeaveContent,
                 StudentName = student.Name,
-                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.LoginClientType)
+                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType)
             });
         }
 
@@ -960,7 +960,7 @@ namespace ETMS.Business
                     HandleUserDesc = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
                     LeaveContent = p.LeaveContent,
                     StudentName = p.StudentName,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.LoginClientType)
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentLeaveApplyLogPagingOutput>(pagingData.Item2, output));
@@ -1147,7 +1147,7 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = student.Phone,
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
                 PhoneBak = student.PhoneBak,
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,

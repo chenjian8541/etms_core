@@ -124,7 +124,7 @@ namespace ETMS.Business
                     Status = p.Status,
                     StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(p.Status),
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                     BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, p.BuySmallQuantity, p.BugUnit, EmProductType.Course),
                     GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveSmallQuantity, p.DeType),
                     SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
@@ -177,7 +177,7 @@ namespace ETMS.Business
                 {
                     CId = p.StudentId,
                     Name = p.StudentName,
-                    Phone = p.StudentPhone,
+                    Phone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                     Value = p.StudentId,
                     Label = p.StudentName,
                     AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, p.Avatar)
@@ -186,8 +186,9 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseOwnerGetPagingOutput>(pagingData.Item2, output));
         }
 
-        private async Task<Tuple<List<StudentCourseDetailGetOutput>, bool>> GetStudentCourseDetail(EtStudent myStudent)
+        private async Task<Tuple<List<StudentCourseDetailGetOutput>, bool>> GetStudentCourseDetail(EtStudent myStudent, int secrecyType)
         {
+            var phone = ComBusiness3.PhoneSecrecy(myStudent.Phone, secrecyType);
             var studentCourse = await _studentCourseDAL.GetStudentCourse(myStudent.Id);
             var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(myStudent.Id);
             var studentClass = await _classDAL.GetStudentClass(myStudent.Id);
@@ -213,7 +214,7 @@ namespace ETMS.Business
                         CourseId = courseId,
                         Type = course.Type,
                         StudentName = myStudent.Name,
-                        StudentPhone = myStudent.Phone
+                        StudentPhone = phone
                     };
                     var myCourse = studentCourse.Where(p => p.CourseId == courseId).ToList();
                     myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse);
@@ -334,7 +335,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("学员不存在");
             }
             var myStudent = studentBucket.Student;
-            var result = await GetStudentCourseDetail(myStudent);
+            var result = await GetStudentCourseDetail(myStudent, request.SecrecyType);
             return ResponseBase.Success(result.Item1);
         }
 
@@ -351,7 +352,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("学员不存在");
             }
             var myStudent = studentBucket.Student;
-            var result = await GetStudentCourseDetail(myStudent);
+            var result = await GetStudentCourseDetail(myStudent, request.SecrecyType);
             var isShowSetStudentCheckDefault = result.Item2;
             if (isShowSetStudentCheckDefault)
             {
@@ -870,7 +871,7 @@ namespace ETMS.Business
                     CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
                     StudentId = student.Value,
                     StudentName = studentInfo.Student.Name,
-                    StudentPhone = studentInfo.Student.Phone,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(studentInfo.Student.Phone, request.SecrecyType),
                     StudentType = request.StudentType,
                     StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(request.StudentType),
                     Points = course.Item1.CheckPoints,
@@ -904,7 +905,7 @@ namespace ETMS.Business
                     DeClassTimesDesc = GetDeClassTimesDesc(p.SourceType, p.DeType, p.DeClassTimes, p.DeClassTimesSmall),
                     CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId),
                     StudentName = student?.Name,
-                    StudentPhone = student?.Phone
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseConsumeLogGetPagingOutput>(pagingData.Item2, output));

@@ -10,6 +10,7 @@ using System;
 using ETMS.Utility;
 using Newtonsoft.Json;
 using ETMS.Business.Common;
+using ETMS.Entity.Dto.User.Output;
 
 namespace ETMS.WebApi.FilterAttribute
 {
@@ -52,10 +53,9 @@ namespace ETMS.WebApi.FilterAttribute
                         context.Result = new JsonResult(new { msg = checkUserResult.message });
                         return;
                     }
-                    if (context.ActionArguments.First().Value is IDataLimit)
-                    {
-                        request.IsDataLimit = userLoginBLL.GetUserDataLimit(request).Result;
-                    }
+                    var userLoginInfo = checkUserResult.resultData as CheckUserCanLoginOutput;
+                    request.IsDataLimit = userLoginInfo.IsDataLimit;
+                    request.SecrecyType = userLoginInfo.SecrecyType;
                 }
                 if (context.ActionArguments.First().Value is ParentRequestBase)
                 {

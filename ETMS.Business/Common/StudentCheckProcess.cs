@@ -610,7 +610,7 @@ namespace ETMS.Business.Common
                 CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(checkType),
                 StudentId = _request.Student.Id,
                 StudentName = _request.Student.Name,
-                StudentPhone = _request.Student.Phone,
+                StudentPhone = ComBusiness3.PhoneSecrecy(_request.Student.Phone, _request.RequestBase.SecrecyType),
                 StudentCheckOnLogId = studentCheckOnLogId,
                 StudentAvatar = _request.FaceAvatar,
                 DeClassTimesDesc = deClassTimesDesc

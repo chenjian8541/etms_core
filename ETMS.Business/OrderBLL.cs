@@ -91,7 +91,7 @@ namespace ETMS.Business
                 _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL);
         }
 
-        private async Task<OrderStudentView> OrderStudentGet(EtOrder order)
+        private async Task<OrderStudentView> OrderStudentGet(EtOrder order, int secrecyType)
         {
             var orderStudentView = new OrderStudentView()
             {
@@ -102,7 +102,7 @@ namespace ETMS.Business
                 var studentBucket = await _studentDAL.GetStudent(order.StudentId);
                 if (studentBucket != null && studentBucket.Student != null)
                 {
-                    orderStudentView.StudentPhone = studentBucket.Student.Phone;
+                    orderStudentView.StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, secrecyType);
                     orderStudentView.StudentName = studentBucket.Student.Name;
                     orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
                     orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar);
@@ -131,7 +131,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var p in pagingData.Item1)
             {
-                var studentInfo = await OrderStudentGet(p);
+                var studentInfo = await OrderStudentGet(p, request.SecrecyType);
                 orderOutput.Add(new OrderGetPagingOutput()
                 {
                     AptSum = p.AptSum,
@@ -216,7 +216,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
@@ -471,7 +471,7 @@ namespace ETMS.Business
                 OutList = new List<OrderTransferCoursesGetDetailOut>()
             };
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderTransferCoursesGetDetailBascInfo()
             {
@@ -581,7 +581,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetSimpleDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -650,7 +650,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("订单不存在");
             }
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
             var output = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,

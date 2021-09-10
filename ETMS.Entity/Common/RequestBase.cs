@@ -40,6 +40,11 @@ namespace ETMS.Entity.Common
         /// </summary>
         public bool IsDataLimit { get; set; }
 
+        /// <summary>
+        /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
+        /// </summary>
+        public int SecrecyType { get; set; }
+
 
         protected string DataFilterWhere
         {

@@ -299,7 +299,7 @@ namespace ETMS.Business
                     LogStatusDesc = logStatusDesc.Item2,
                     EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                     CouponsValueDesc = ComBusiness.GetCouponsValueDesc(p.CouponsType, p.CouponsValue),
                     MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用",
                 };
@@ -352,7 +352,7 @@ namespace ETMS.Business
                     CId = p.Id,
                     OrderNo = p.OrderNo,
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                     CouponsTitle = p.CouponsTitle,
                     Ot = p.Ot,
                     Remark = p.Remark,
@@ -384,7 +384,7 @@ namespace ETMS.Business
                     LogStatusDesc = logStatusDesc.Item2,
                     EffectiveTimeDesc = ComBusiness.GetCouponsEffectiveTimeDesc(p),
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
                     CouponsValueDesc = ComBusiness.GetCouponsValueDesc2(p.CouponsType, p.CouponsValue),
                     MinLimitDesc = p.CouponsMinLimit == null || p.CouponsMinLimit == 0 ? "无门槛" : $"消费满{p.CouponsMinLimit.Value.ToDecimalDesc()}元可用",
                 });

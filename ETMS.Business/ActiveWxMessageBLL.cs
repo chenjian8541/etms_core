@@ -423,7 +423,7 @@ namespace ETMS.Business
                     if (student != null)
                     {
                         studentName = student.Name;
-                        studentPhone = student.Phone;
+                        studentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType);
                     }
                     output.Add(new ActiveWxMessageDetailGetPagingOutput()
                     {

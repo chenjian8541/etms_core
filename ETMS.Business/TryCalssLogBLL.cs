@@ -99,7 +99,7 @@ namespace ETMS.Business
                     Week = p.Week,
                     StatusDesc = statusDesc,
                     StudentName = student.Name,
-                    StudentPhone = student.Phone
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TryCalssLogGetPagingOutput>(pagingData.Item2, output));

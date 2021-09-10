@@ -22,5 +22,12 @@ namespace ETMS.Entity.Dto.User.Output
         public long Value { get; set; }
 
         public string Label { get; set; }
+
+        /// <summary>
+        /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
+        /// </summary>
+        public int SecrecyType { get; set; }
+
+        public string SecrecyTypeDesc { get; set; }
     }
 }

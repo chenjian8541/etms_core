@@ -19,6 +19,11 @@ namespace ETMS.Entity.Dto.User.Request
 
         public bool IsMyDataLimit { get; set; }
 
+        /// <summary>
+        /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
+        /// </summary>
+        public int SecrecyType { get; set; }
+
         public RoleNoticeSettingRequest RoleNoticeSetting { get; set; }
 
         public override string Validate()

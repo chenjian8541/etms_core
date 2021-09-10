@@ -145,7 +145,7 @@ namespace ETMS.Business
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null,
-                        etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False, request.SecrecyType);
                     if (classTimesStudent != null)
                     {
                         output.Add(classTimesStudent);
@@ -182,7 +182,7 @@ namespace ETMS.Business
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null,
                         etClass.EtClass.DefaultClassTimes.EtmsToString(),
-                        EmBool.False, classOt);
+                        EmBool.False, request.SecrecyType, classOt);
                     if (classTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
@@ -212,7 +212,7 @@ namespace ETMS.Business
                 {
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
-                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, classOt);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType, classOt);
                     if (tempTimesStudent != null)
                     {
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
@@ -241,7 +241,7 @@ namespace ETMS.Business
 
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
             long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, string defaultClassTimes,
-            byte isReservation, DateTime? classOt = null)
+            byte isReservation, int requestSecrecyType, DateTime? classOt = null)
         {
             var myStudent = await _studentDAL.GetStudent(studentId);
             if (myStudent == null)
@@ -268,7 +268,7 @@ namespace ETMS.Business
                 GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
                 StudentId = studentId,
                 StudentName = myStudent.Student.Name,
-                StudentPhone = myStudent.Student.Phone,
+                StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, requestSecrecyType),
                 CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
                 StudentType = studentType,
                 ClassTimesId = classTimesId,

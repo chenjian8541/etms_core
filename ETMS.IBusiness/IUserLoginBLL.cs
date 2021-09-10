@@ -27,7 +27,7 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> CheckUserCanLogin(RequestBase request);
 
-        Task<bool> GetUserDataLimit(RequestBase request);
+        //Task<bool> GetUserDataLimit(RequestBase request);
 
         ResponseBase UserCheck(UserCheckRequest request);
 

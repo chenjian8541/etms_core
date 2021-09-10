@@ -261,7 +261,9 @@ namespace ETMS.Business
                     Remark = p.Remark,
                     DataLimitDesc = EmDataLimitType.GetIsDataLimit(p.AuthorityValueData) ? "是" : "否",
                     Value = p.Id,
-                    Label = p.Name
+                    Label = p.Name,
+                    SecrecyType = p.SecrecyType,
+                    SecrecyTypeDesc = p.SecrecyType == EmRoleSecrecyType.NotLimited ? "否" : "是"
                 }).ToList()
             });
         }
@@ -318,7 +320,8 @@ namespace ETMS.Business
                 Name = request.Name,
                 Remark = request.Remark,
                 TenantId = request.LoginTenantId,
-                NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting)
+                NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting),
+                SecrecyType = request.SecrecyType
             });
             await _userOperationLogDAL.AddUserLog(request, $"添加角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -336,6 +339,7 @@ namespace ETMS.Business
             role.AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
             role.NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting);
+            role.SecrecyType = request.SecrecyType;
             await _roleDAL.EditRole(role);
             await _userOperationLogDAL.AddUserLog(request, $"编辑角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -382,7 +386,8 @@ namespace ETMS.Business
                 Remark = role.Remark,
                 Menus = GetRoleMenuViewOutputs(myAllMenus),
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
-                RoleNoticeSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting)
+                RoleNoticeSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting),
+                SecrecyType = role.SecrecyType
             });
         }
 

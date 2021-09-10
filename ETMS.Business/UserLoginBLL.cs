@@ -471,17 +471,21 @@ namespace ETMS.Business
                 }
             }
 
-            return ResponseBase.Success();
+            return ResponseBase.Success(new CheckUserCanLoginOutput()
+            {
+                IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
+                SecrecyType = role.SecrecyType
+            });
         }
 
-        public async Task<bool> GetUserDataLimit(RequestBase request)
-        {
-            _etUserDAL.InitTenantId(request.LoginTenantId);
-            var user = await _etUserDAL.GetUser(request.LoginUserId);
-            _roleDAL.InitTenantId(request.LoginTenantId);
-            var role = await _roleDAL.GetRole(user.RoleId);
-            return EmDataLimitType.GetIsDataLimit(role.AuthorityValueData);
-        }
+        //public async Task<bool> GetUserDataLimit(RequestBase request)
+        //{
+        //    _etUserDAL.InitTenantId(request.LoginTenantId);
+        //    var user = await _etUserDAL.GetUser(request.LoginUserId);
+        //    _roleDAL.InitTenantId(request.LoginTenantId);
+        //    var role = await _roleDAL.GetRole(user.RoleId);
+        //    return EmDataLimitType.GetIsDataLimit(role.AuthorityValueData);
+        //}
 
         public ResponseBase UserCheck(UserCheckRequest request)
         {

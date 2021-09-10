@@ -35,6 +35,11 @@ namespace ETMS.Entity.Database.Source
         public string NoticeSetting { get; set; }
 
         /// <summary>
+        /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
+        /// </summary>
+        public int SecrecyType { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

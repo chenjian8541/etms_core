@@ -20,6 +20,11 @@ namespace ETMS.Entity.Dto.User.Output
 
         public bool IsDataLimit { get; set; }
 
+        /// <summary>
+        /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
+        /// </summary>
+        public int SecrecyType { get; set; }
+
         public List<RoleMenuViewOutput> Menus { get; set; }
 
         public RoleNoticeSettingOutput RoleNoticeSetting { get; set; }
