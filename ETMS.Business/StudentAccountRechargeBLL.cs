@@ -358,6 +358,11 @@ namespace ETMS.Business
             {
                 incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.Pos, request.PayInfo.PayPos, now, request.Ot, no, request));
             }
+            if (request.PayInfo.PayOther > 0)
+            {
+                incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.Other, request.PayInfo.PayOther, now, request.Ot, no, request));
+            }
+
             var paySum = request.PayInfo.PaySum;
             var aptSum = paySum;
             var order = new EtOrder()

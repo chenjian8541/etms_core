@@ -811,7 +811,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此订单无须补交费用");
             }
-            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos;
+            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos + request.PayOther;
             if (order.ArrearsSum < payTotal)
             {
                 return ResponseBase.CommonError("支付金额不能大于欠款金额");
@@ -838,6 +838,11 @@ namespace ETMS.Business
             {
                 incomeLogs.Add(GetEtIncomeLog(EmPayType.Pos, request.PayPos, now, request.PayOt, order.No, order.Id, request));
             }
+            if (request.PayOther > 0)
+            {
+                incomeLogs.Add(GetEtIncomeLog(EmPayType.Other, request.PayOther, now, request.PayOt, order.No, order.Id, request));
+            }
+
             _incomeLogDAL.AddIncomeLog(incomeLogs);
             var newArrearsSum = order.ArrearsSum - payTotal;
             var newStatus = EmOrderStatus.MakeUpMoney;

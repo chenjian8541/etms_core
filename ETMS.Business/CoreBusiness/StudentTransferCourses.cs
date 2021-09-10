@@ -374,6 +374,11 @@ namespace ETMS.Business
                     incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Pos, inPayInfo.PayPos, now, orderOt, orderNo,
                         request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
                 }
+                if (inPayInfo.PayOther > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Other, inPayInfo.PayOther, now, orderOt, orderNo,
+                            request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
                 _incomeLogDAL.AddIncomeLog(incomeLogs);
             }
             else

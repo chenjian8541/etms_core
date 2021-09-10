@@ -93,7 +93,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<bool> ExistTenantCode(string tenantCode)
         {
-            var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode && p.IsDeleted == EmIsDeleted.Normal);
+            var oldLog = await this.Find<SysTenant>(p => p.TenantCode == tenantCode);
             return oldLog != null;
         }
 

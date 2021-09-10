@@ -62,11 +62,13 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayPos { get; set; }
 
+        public decimal PayOther { get; set; }
+
         public decimal PaySum
         {
             get
             {
-                return PayWechat + PayAlipay + PayCash + PayBank + PayPos;
+                return PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther;
             }
         }
 

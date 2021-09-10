@@ -156,6 +156,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayPos { get; set; }
 
+        public decimal PayOther { get; set; }
+
         public decimal PayAccountRechargeReal { get; set; }
 
         public decimal PayAccountRechargeGive { get; set; }
@@ -166,7 +168,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             get
             {
-                var temp = PayWechat + PayAlipay + PayCash + PayBank + PayPos;
+                var temp = PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther;
                 if (PayAccountRechargeId != null)
                 {
                     temp += PayAccountRechargeReal + PayAccountRechargeGive;

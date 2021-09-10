@@ -122,6 +122,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayPos { get; set; }
 
+        public decimal PayOther { get; set; }
+
         public decimal PayAccountRechargeReal { get; set; }
 
         public decimal PayAccountRechargeGive { get; set; }
