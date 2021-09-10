@@ -536,7 +536,7 @@ namespace ETMS.Business.EtmsManage
                 return ResponseBase.CommonError($"只允许删除有效期或者添加日期在{SystemConfig.TenantDefaultConfig.TenantTestDay}天内的机构");
             }
 
-
+            var oldTenantCode = tenant.TenantCode;
             var oldSmsCount = tenant.SmsCount;
             await _sysTenantDAL.DelTenant(tenant);
 
@@ -581,7 +581,7 @@ namespace ETMS.Business.EtmsManage
             }
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
-                $"删除机构:名称:{tenant.Name};机构编码:{tenant.TenantCode};手机号码:{tenant.Phone}", EmSysAgentOpLogType.TenantMange);
+                $"删除机构:名称:{tenant.Name};机构编码:{oldTenantCode};手机号码:{tenant.Phone}", EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
 
