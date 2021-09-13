@@ -573,7 +573,22 @@ namespace ETMS.Business
                             reservationLimit.IsCanReservation = false;
                             cantReservationErrDesc = "开始预约时间限制，无法预约";
                         }
-                        result.RuleStartClassReservaLimitDesc = $"上课前{ruleConfig.StartClassReservaLimitValue}天内可以预约";
+                        if (now.Date == startReservationDate && ruleConfig.StartClassReservaLimitTimeValue > 0) //同一天 判断时间
+                        {
+                            if (EtmsHelper.GetTimeHourAndMinuteDesc(now) < ruleConfig.StartClassReservaLimitTimeValue)
+                            {
+                                reservationLimit.IsCanReservation = false;
+                                cantReservationErrDesc = "开始预约时间限制，无法预约";
+                            }
+                        }
+                        if (ruleConfig.StartClassReservaLimitTimeValue > 0)
+                        {
+                            result.RuleStartClassReservaLimitDesc = $"上课前{ruleConfig.StartClassReservaLimitValue}天的{ruleConfig.StartClassReservaLimitTimeValueDesc}后可预约";
+                        }
+                        else
+                        {
+                            result.RuleStartClassReservaLimitDesc = $"上课前{ruleConfig.StartClassReservaLimitValue}天内可以预约";
+                        }
                         break;
                 }
             }

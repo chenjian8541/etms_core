@@ -17,6 +17,16 @@ namespace ETMS.Entity.Dto.Educational.Output
         public int StartClassReservaLimitValue { get; set; }
 
         /// <summary>
+        /// 如果为天的话 则此值记录时间部分 0：表示整天
+        /// </summary>
+        public int StartClassReservaLimitTimeValue { get; set; }
+
+        /// <summary>
+        ///  如果为天的话 则此值记录时间部分 为空表示整天
+        /// </summary>
+        public string StartClassReservaLimitTimeValueDesc { get; set; }
+
+        /// <summary>
         /// 截止预约时间(类型) <see cref="EmDeadlineClassReservaLimitType"/>
         /// </summary>
         public byte DeadlineClassReservaLimitType { get; set; }

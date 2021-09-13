@@ -19,6 +19,11 @@ namespace ETMS.Entity.Dto.Educational.Request
         public int StartClassReservaLimitValue { get; set; }
 
         /// <summary>
+        /// 如果为天的话 则此值记录时间部分 0：表示整天
+        /// </summary>
+        public int StartClassReservaLimitTimeValue { get; set; }
+
+        /// <summary>
         /// 截止预约时间(类型) <see cref="EmDeadlineClassReservaLimitType"/>
         /// </summary>
         public byte DeadlineClassReservaLimitType { get; set; }
@@ -88,9 +93,19 @@ namespace ETMS.Entity.Dto.Educational.Request
                 {
                     return "截止预约时间不能早于开始预约时间";
                 }
-                if (StartClassReservaLimitValue == DeadlineClassReservaLimitValue && StartClassReservaLimitValue != EmStartClassReservaLimitType.LimitDay)
+                if (StartClassReservaLimitValue == DeadlineClassReservaLimitValue)
                 {
-                    return "截止预约时间不能早于开始预约时间";
+                    if (StartClassReservaLimitType != EmStartClassReservaLimitType.LimitDay)
+                    {
+                        return "截止预约时间不能早于开始预约时间";
+                    }
+                    else
+                    {
+                        if (StartClassReservaLimitTimeValue >= DeadlineClassReservaLimitDayTimeValue)
+                        {
+                            return "截止预约时间不能早于开始预约时间";
+                        }
+                    }
                 }
             }
             return string.Empty;

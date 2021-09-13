@@ -62,7 +62,14 @@ namespace ETMS.Business.Common
                     result.RuleStartClassReservaLimitDesc = $"上课前{rule.StartClassReservaLimitValue}小时内可预约";
                     break;
                 case EmStartClassReservaLimitType.LimitDay:
-                    result.RuleStartClassReservaLimitDesc = $"上课前{rule.StartClassReservaLimitValue}天内可预约";
+                    if (rule.StartClassReservaLimitTimeValue > 0)
+                    {
+                        result.RuleStartClassReservaLimitDesc = $"上课前{rule.StartClassReservaLimitValue}天的{rule.StartClassReservaLimitTimeValueDesc}后可预约";
+                    }
+                    else
+                    {
+                        result.RuleStartClassReservaLimitDesc = $"上课前{rule.StartClassReservaLimitValue}天内可预约";
+                    }
                     break;
             }
 
