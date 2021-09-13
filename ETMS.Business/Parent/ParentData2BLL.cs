@@ -181,7 +181,11 @@ namespace ETMS.Business
             }
             var courseTempBox = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var etClass = await _classDAL.GetClassBucket(p.ClassId);
+            var classBucket = await _classDAL.GetClassBucket(p.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
             var teachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, p.Teachers);
             var classRoomIdsDesc = string.Empty;
             if (!string.IsNullOrEmpty(p.ClassRoomIds))
@@ -201,7 +205,7 @@ namespace ETMS.Business
                 {
                     ClassContent = p.ClassContent,
                     ClassId = p.ClassId,
-                    ClassName = etClass.EtClass.Name,
+                    ClassName = classBucket.EtClass.Name,
                     ClassOtDesc = p.ClassOt.EtmsToDateString(),
                     CourseDesc = await ComBusiness.GetCourseName(courseTempBox, _courseDAL, p.CourseId),
                     CourseId = p.CourseId,

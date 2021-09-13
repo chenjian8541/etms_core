@@ -1006,7 +1006,7 @@ namespace ETMS.Business
             applyLog.HandleStatus = EmStudentLeaveApplyHandleStatus.IsRevoke;
             await _studentLeaveApplyLogDAL.EditStudentLeaveApplyLog(applyLog);
 
-            await _userOperationLogDAL.AddUserLog(request, "撤销请假记录", EmUserOperationType.StudentLeaveApplyManage);
+            await _userOperationLogDAL.AddUserLog(request, "撤销学员请假", EmUserOperationType.StudentLeaveApplyManage);
             return ResponseBase.Success();
         }
 

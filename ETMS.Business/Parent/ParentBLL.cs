@@ -91,8 +91,17 @@ namespace ETMS.Business
 
         public async Task<Tuple<string, SysTenant>> GetLoginTenant(string tenantNo, string code)
         {
-            var tenantId = TenantLib.GetTenantDecrypt(tenantNo);
             SysTenant sysTenantInfo = null;
+            int tenantId;
+            try
+            {
+                tenantId = TenantLib.GetTenantDecrypt(tenantNo);
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Error($"[GetLoginTenant]机构编码错误，tenantNo:{tenantNo}，code：{code}", ex, this.GetType());
+                return Tuple.Create("机构编码错误，请检查配置的“家长端专属登录网址”是否正确", sysTenantInfo);
+            }
             if (tenantId == 0 && string.IsNullOrEmpty(code))
             {
                 return Tuple.Create("机构编码不能为空", sysTenantInfo);
