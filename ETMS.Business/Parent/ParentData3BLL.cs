@@ -846,7 +846,22 @@ namespace ETMS.Business
                 }
                 return ResponseBase.CommonError(err);
             }
-            var isInClassTimes = ComBusiness3.CheckStudentInClassTimes(classTimes, request.StudentId);
+            string[] studentIdsClass = null;
+            string[] studentIdsTemp = null;
+            string[] studentIdsReservation = null;
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass))
+            {
+                studentIdsClass = classTimes.StudentIdsClass.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp))
+            {
+                studentIdsTemp = classTimes.StudentIdsTemp.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation))
+            {
+                studentIdsReservation = classTimes.StudentIdsReservation.Split(',');
+            }
+            var isInClassTimes = ComBusiness3.CheckStudentInClassTimes(studentIdsClass, studentIdsTemp, studentIdsReservation, request.StudentId);
             if (isInClassTimes)
             {
                 return ResponseBase.CommonError("您已在此课次中");

@@ -392,6 +392,19 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        private string CheckClassLimitStudentNums(EtClass myClass, int classTimesStudentCount, int addCount)
+        {
+            if (myClass.LimitStudentNums != null && myClass.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+            {
+                var totalCount = classTimesStudentCount + addCount;
+                if (totalCount > myClass.LimitStudentNums.Value)
+                {
+                    return $"班级容量限制{myClass.LimitStudentNums.Value}人，无法添加学员";
+                }
+            }
+            return string.Empty;
+        }
+
         public async Task<ResponseBase> ClassTimesAddTempStudent(ClassTimesAddTempStudentRequest request)
         {
             var classTimes = await _classTimesDAL.GetClassTimes(request.CId);
@@ -408,18 +421,40 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
+
             var courseIds = classTimes.CourseList.Split(',');
             if (courseIds.FirstOrDefault(p => p == request.CourseId.ToString()) == null)
             {
                 return ResponseBase.CommonError("请选择此课次关联的课程");
             }
+            string[] studentIdsClass = null;
+            string[] studentIdsTemp = null;
+            string[] studentIdsReservation = null;
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass))
+            {
+                studentIdsClass = classTimes.StudentIdsClass.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp))
+            {
+                studentIdsTemp = classTimes.StudentIdsTemp.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation))
+            {
+                studentIdsReservation = classTimes.StudentIdsReservation.Split(',');
+            }
             foreach (var student in request.StudentIds)
             {
-                if (ComBusiness3.CheckStudentInClassTimes(classTimes, student.Value))
+                if (ComBusiness3.CheckStudentInClassTimes(studentIdsClass, studentIdsTemp, studentIdsReservation, student.Value))
                 {
                     return ResponseBase.CommonError($"学员[{student.Label}]已存在");
                 }
             }
+            var errMsg = CheckClassLimitStudentNums(etClass.EtClass, classTimes.StudentCount, request.StudentIds.Count);
+            if (!string.IsNullOrEmpty(errMsg))
+            {
+                return ResponseBase.CommonError(errMsg);
+            }
+
             var addClassTimesStudent = new List<EtClassTimesStudent>();
             var studentIds = new List<long>();
             var studentNames = new List<string>();
@@ -510,13 +545,34 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
+            var errMsg = CheckClassLimitStudentNums(etClass.EtClass, classTimes.StudentCount, 1);
+            if (!string.IsNullOrEmpty(errMsg))
+            {
+                return ResponseBase.CommonError(errMsg);
+            }
+
             var courseIds = classTimes.CourseList.Split(',');
             if (courseIds.FirstOrDefault(p => p == request.CourseId.ToString()) == null)
             {
                 return ResponseBase.CommonError("请选择此课次关联的课程");
             }
 
-            if (ComBusiness3.CheckStudentInClassTimes(classTimes, request.StudentId))
+            string[] studentIdsClass = null;
+            string[] studentIdsTemp = null;
+            string[] studentIdsReservation = null;
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass))
+            {
+                studentIdsClass = classTimes.StudentIdsClass.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp))
+            {
+                studentIdsTemp = classTimes.StudentIdsTemp.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation))
+            {
+                studentIdsReservation = classTimes.StudentIdsReservation.Split(',');
+            }
+            if (ComBusiness3.CheckStudentInClassTimes(studentIdsClass, studentIdsTemp, studentIdsReservation, request.StudentId))
             {
                 return ResponseBase.CommonError("学员已在此课次中");
             }
@@ -597,6 +653,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
+            var errMsg = CheckClassLimitStudentNums(etClass.EtClass, classTimes.StudentCount, 1);
+            if (!string.IsNullOrEmpty(errMsg))
+            {
+                return ResponseBase.CommonError(errMsg);
+            }
+
             var classRecordAbsenceLog = await _classRecordDAL.GetClassRecordAbsenceLog(request.ClassRecordAbsenceLogId);
             if (classRecordAbsenceLog == null)
             {
@@ -610,7 +672,23 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此课次不包含需要补的课程");
             }
-            if (ComBusiness3.CheckStudentInClassTimes(classTimes, studentId))
+
+            string[] studentIdsClass = null;
+            string[] studentIdsTemp = null;
+            string[] studentIdsReservation = null;
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass))
+            {
+                studentIdsClass = classTimes.StudentIdsClass.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp))
+            {
+                studentIdsTemp = classTimes.StudentIdsTemp.Split(',');
+            }
+            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation))
+            {
+                studentIdsReservation = classTimes.StudentIdsReservation.Split(',');
+            }
+            if (ComBusiness3.CheckStudentInClassTimes(studentIdsClass, studentIdsTemp, studentIdsReservation, studentId))
             {
                 return ResponseBase.CommonError("学员已在此课次中");
             }

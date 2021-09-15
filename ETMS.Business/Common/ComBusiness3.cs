@@ -112,17 +112,17 @@ namespace ETMS.Business.Common
             return result;
         }
 
-        internal static bool CheckStudentInClassTimes(EtClassTimes classTimes, long studentId)
+        internal static bool CheckStudentInClassTimes(string[] studentIdsClass, string[] studentIdsTemp, string[] studentIdsReservation, long studentId)
         {
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsClass) && classTimes.StudentIdsClass.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            if (studentIdsClass != null && studentIdsClass.Length > 0 && studentIdsClass.FirstOrDefault(p => p == studentId.ToString()) != null)
             {
                 return true;
             }
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsTemp) && classTimes.StudentIdsTemp.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            if (studentIdsTemp != null && studentIdsTemp.Length > 0 && studentIdsTemp.FirstOrDefault(p => p == studentId.ToString()) != null)
             {
                 return true;
             }
-            if (!string.IsNullOrEmpty(classTimes.StudentIdsReservation) && classTimes.StudentIdsReservation.Split(',').FirstOrDefault(p => p == studentId.ToString()) != null)
+            if (studentIdsReservation != null && studentIdsReservation.Length > 0 && studentIdsReservation.FirstOrDefault(p => p == studentId.ToString()) != null)
             {
                 return true;
             }

@@ -571,44 +571,63 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("班级不存在");
             }
-            if (etClassBucket.EtClassStudents != null && (etClassBucket.EtClassStudents.Count + request.StudentIds.Count) > 200)
-            {
-                return ResponseBase.CommonError("一个班级学员的数量不能超过200人");
-            }
+            var myClass = etClassBucket.EtClass;
+            var myClassStudent = etClassBucket.EtClassStudents;
             if (etClassBucket.EtClass.CourseList.Split(',').FirstOrDefault(p => p == request.CourseId.ToString()) == null)
             {
                 return ResponseBase.CommonError("请选择班级所关联的课程");
             }
-            var classStudents = new List<EtClassStudent>();
+            var newStudentIds = new List<long>();
             foreach (var studenInfo in request.StudentIds)
             {
                 if (!await _classDAL.IsStudentBuyCourse(studenInfo.Value, request.CourseId))
                 {
                     return ResponseBase.CommonError($"学员[{studenInfo.Label}]未购买此班级所关联的课程");
                 }
-                if (await _classDAL.IsStudentInClass(request.ClassId, studenInfo.Value))
+                var hisStu = myClassStudent.FirstOrDefault(p => p.StudentId == studenInfo.Value);
+                if (hisStu != null)
                 {
-                    //return ResponseBase.CommonError($"学员[{studenInfo.Label}]已经在此班级");
                     continue;
                 }
+                newStudentIds.Add(studenInfo.Value);
+            }
+            newStudentIds = newStudentIds.Distinct().ToList();
+
+            var totalCount = etClassBucket.EtClassStudents.Count + newStudentIds.Count;
+            if (totalCount > 200)
+            {
+                return ResponseBase.CommonError("一个班级学员的数量不能超过200人");
+            }
+            if (myClass.LimitStudentNums != null && myClass.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+            {
+                if (totalCount > myClass.LimitStudentNums.Value)
+                {
+                    return ResponseBase.CommonError($"班级容量限制{myClass.LimitStudentNums.Value}人，无法添加学员");
+                }
+            }
+            if (newStudentIds.Count == 0)
+            {
+                return ResponseBase.CommonError("学员已在此班级中");
+            }
+
+            var classStudents = new List<EtClassStudent>();
+            foreach (var myStudentId in newStudentIds)
+            {
                 classStudents.Add(new EtClassStudent()
                 {
                     ClassId = request.ClassId,
                     CourseId = request.CourseId,
                     IsDeleted = EmIsDeleted.Normal,
                     Remark = string.Empty,
-                    StudentId = studenInfo.Value,
+                    StudentId = myStudentId,
                     TenantId = request.LoginTenantId
                 });
                 _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
                 {
-                    StudentId = studenInfo.Value
+                    StudentId = myStudentId
                 });
             }
-            if (classStudents.Count == 0)
-            {
-                return ResponseBase.CommonError("学员已在此班级中");
-            }
+
             await _classDAL.AddClassStudent(classStudents);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
             await _userOperationLogDAL.AddUserLog(request, $"班级添加学员-班级[{etClassBucket.EtClass.Name}]添加学员[{string.Join(',', request.StudentIds.Select(p => p.Label))}]", EmUserOperationType.ClassManage);
