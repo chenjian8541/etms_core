@@ -1,6 +1,9 @@
 ﻿using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
+using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IEventProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +19,23 @@ namespace ETMS.Business
     {
         private readonly IStudentCourseDAL _studentCourseDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IIncomeLogDAL _incomeLogDAL;
+
         private int _tenantId;
 
-        public CommonHandlerBLL(IStudentCourseDAL studentCourseDAL)
+        public CommonHandlerBLL(IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IIncomeLogDAL incomeLogDAL)
         {
             this._studentCourseDAL = studentCourseDAL;
+            this._eventPublisher = eventPublisher;
+            this._incomeLogDAL = incomeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._tenantId = tenantId;
-            this.InitDataAccess(tenantId, this._studentCourseDAL);
+            this.InitDataAccess(tenantId, this._studentCourseDAL, _incomeLogDAL);
         }
 
         /// <summary>
@@ -60,6 +69,40 @@ namespace ETMS.Business
                 return;
             }
             await _studentCourseDAL.SetStudentCourseDetailNewStatus(deStudentCourseDetailId, studentCourseDetail.StudentId, EmStudentCourseStatus.Normal);
+        }
+
+        public async Task DelOrdersRefreshAboutStatus(IEnumerable<OrderStudentOt> orders)
+        {
+            var ot = new List<DateTime>();
+            if (orders.Any())
+            {
+                var ids = new List<long>();
+                foreach (var p in orders)
+                {
+                    ids.Add(p.Id);
+                    ot.Add(p.Ot);
+                }
+                await _incomeLogDAL.DelIncomeLog(ids);
+            }
+            if (ot.Any())
+            {
+                var myot = ot.Distinct();
+                foreach (var item in myot)
+                {
+                    _eventPublisher.Publish(new StatisticsSalesProductEvent(_tenantId)
+                    {
+                        StatisticsDate = item
+                    });
+                    _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(_tenantId)
+                    {
+                        StatisticsDate = item
+                    });
+                    _eventPublisher.Publish(new StatisticsSalesCourseEvent(_tenantId)
+                    {
+                        StatisticsDate = item
+                    });
+                }
+            }
         }
     }
 }

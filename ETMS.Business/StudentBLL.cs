@@ -68,13 +68,15 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
+        private readonly ICommonHandlerBLL _commonHandlerBLL;
+
         public StudentBLL(IStudentDAL studentDAL, IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
             IStudentTagDAL studentTagDAL, IStudentRelationshipDAL studentRelationshipDAL, IStudentSourceDAL studentSourceDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, IGradeDAL gradeDAL,
             IStudentTrackLogDAL studentTrackLogDAL, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, INoticeBLL noticeBLL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IAiface aiface, IStudentPointsLogDAL studentPointsLogDAL,
-            IOrderDAL orderDAL, IIncomeLogDAL incomeLogDAL, ITenantConfigDAL tenantConfigDAL)
+            IOrderDAL orderDAL, IIncomeLogDAL incomeLogDAL, ITenantConfigDAL tenantConfigDAL, ICommonHandlerBLL commonHandlerBLL)
         {
             this._studentDAL = studentDAL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
@@ -98,12 +100,14 @@ namespace ETMS.Business
             this._orderDAL = orderDAL;
             this._incomeLogDAL = incomeLogDAL;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._commonHandlerBLL = commonHandlerBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._noticeBLL.InitTenantId(tenantId);
             this._aiface.InitTenantId(tenantId);
+            this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentExtendFieldDAL, _studentTagDAL,
                 _userOperationLogDAL, _studentRelationshipDAL, _studentSourceDAL, _userDAL, _gradeDAL, _studentTrackLogDAL, _studentOperationLogDAL,
                 _studentLeaveApplyLogDAL, _studentCourseDAL, _classDAL, _studentPointsLogDAL, _orderDAL, _incomeLogDAL, _tenantConfigDAL);
@@ -367,37 +371,8 @@ namespace ETMS.Business
             {
                 //删除此学员购买课程对应的支付信息
                 var myUserOrder = await _orderDAL.GetOrderStudentOt(studentId);
-                var ot = new List<DateTime>();
-                if (myUserOrder.Any())
-                {
-                    var ids = new List<long>();
-                    foreach (var p in myUserOrder)
-                    {
-                        ids.Add(p.Id);
-                        ot.Add(p.Ot);
-                    }
-                    await _incomeLogDAL.DelIncomeLog(ids);
-                }
                 await _studentDAL.DelStudentDepth(studentId);
-                if (ot.Any())
-                {
-                    var myot = ot.Distinct();
-                    foreach (var item in myot)
-                    {
-                        _eventPublisher.Publish(new StatisticsSalesProductEvent(request.LoginTenantId)
-                        {
-                            StatisticsDate = item
-                        });
-                        _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
-                        {
-                            StatisticsDate = item
-                        });
-                        _eventPublisher.Publish(new StatisticsSalesCourseEvent(request.LoginTenantId)
-                        {
-                            StatisticsDate = item
-                        });
-                    }
-                }
+                await _commonHandlerBLL.DelOrdersRefreshAboutStatus(myUserOrder);
             }
             else
             {

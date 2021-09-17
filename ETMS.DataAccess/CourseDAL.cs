@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -118,6 +119,12 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtCoursePriceRule WHERE CourseId = {id}");
             base.RemoveCache(_tenantId, id);
             return true;
+        }
+
+        public async Task<IEnumerable<OrderStudentOt>> GetCourseRelatedOrder(long courseId)
+        {
+            var sql = $"SELECT OrderId as Id,Ot from EtOrderDetail WHERE TenantId = {_tenantId} AND ProductType = {EmProductType.Course} AND ProductId = {courseId} AND IsDeleted = {EmIsDeleted.Normal} GROUP BY OrderId,Ot";
+            return await _dbWrapper.ExecuteObject<OrderStudentOt>(sql);
         }
 
         public async Task<bool> DelCourseDepth(long id)

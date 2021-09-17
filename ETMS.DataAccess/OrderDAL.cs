@@ -171,7 +171,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<OrderStudentOt>> GetOrderStudentOt(long studentId)
         {
-            var sql = $"SELECT TOP 50 Id,Ot FROM EtOrder WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}";
+            var sql = $"SELECT TOP 200 Id,Ot FROM EtOrder WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}";
             return await _dbWrapper.ExecuteObject<OrderStudentOt>(sql);
         }
     }

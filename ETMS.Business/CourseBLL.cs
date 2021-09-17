@@ -29,18 +29,22 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
+        private readonly ICommonHandlerBLL _commonHandlerBLL;
+
         public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL, ISuitDAL suitDAL,
-            ITenantConfigDAL tenantConfigDAL)
+            ITenantConfigDAL tenantConfigDAL, ICommonHandlerBLL commonHandlerBLL)
         {
             this._courseDAL = courseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._orderDAL = orderDAL;
             this._suitDAL = suitDAL;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._commonHandlerBLL = commonHandlerBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _courseDAL, _userOperationLogDAL, _orderDAL, _suitDAL, _tenantConfigDAL);
         }
 
@@ -350,7 +354,9 @@ namespace ETMS.Business
             }
             if (request.IsIgnoreCheck)
             {
+                var orders = await _courseDAL.GetCourseRelatedOrder(request.CId);
                 await _courseDAL.DelCourseDepth(request.CId);
+                await _commonHandlerBLL.DelOrdersRefreshAboutStatus(orders);
             }
             else
             {

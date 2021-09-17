@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,6 +26,8 @@ namespace ETMS.IDataAccess
         Task<EtCourse> GetCourse(string name);
 
         Task<bool> DelCourse(long id);
+
+        Task<IEnumerable<OrderStudentOt>> GetCourseRelatedOrder(long courseId);
 
         Task<bool> DelCourseDepth(long id);
 
