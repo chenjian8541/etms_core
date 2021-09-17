@@ -51,6 +51,24 @@ namespace ETMS.Entity.Config
         public CloudBaiduConfig CloudBaiduConfig { get; set; }
 
         public SysAddressConfig SysAddressConfig { get; set; }
+
+        public PayConfig PayConfig { get; set; }
+    }
+
+    public class PayConfig
+    {
+        public LcswConfig LcswConfig { get; set; }
+    }
+
+    public class LcswConfig
+    {
+        public string ApiMpHostPay { get; set; }
+
+        public string ApiMpHostMerchant { get; set; }
+
+        public string InstNo { get; set; }
+
+        public string InstToken { get; set; }
     }
 
     public class SysAddressConfig

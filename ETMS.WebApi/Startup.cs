@@ -82,6 +82,7 @@ namespace ETMS.WebApi
             var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
             InitRabbitMq(builder, appSettings.RabbitMqConfig);
             InitAliyunOssConfig(appSettings.AliyunOssConfig);
+            InitPayConfig(appSettings.PayConfig);
         }
 
         private void RegisterGlobalFilters(FilterCollection filters)
@@ -126,6 +127,12 @@ namespace ETMS.WebApi
             AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceBlacklist, 2);
             AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceStudentCheckOn, 7);
             AliyunOssSTSUtil.InitAliyunSTSConfig(config.STSAccessKeyId, config.STSAccessKeySecret, config.STSRoleArn, config.STSEndpoint);
+        }
+
+        private void InitPayConfig(PayConfig payConfig)
+        {
+            ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
+                payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

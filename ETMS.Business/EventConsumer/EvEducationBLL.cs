@@ -64,7 +64,7 @@ namespace ETMS.Business.EventConsumer
             var makeUpEffectiveCount = 0;
             foreach (var p in classRecordStudent)
             {
-                studentClassTimes += p.DeClassTimes;
+                studentClassTimes += p.DeClassTimes + p.ExceedClassTimes;
                 deSum += p.DeSum;
                 switch (p.StudentCheckStatus)
                 {
@@ -218,7 +218,7 @@ namespace ETMS.Business.EventConsumer
                 var myClassRecordStudent = await _classRecordDAL.GetClassRecordStudents(myClassRecord.Id);
                 foreach (var p in myClassRecordStudent)
                 {
-                    studentClassTimes += p.DeClassTimes;
+                    studentClassTimes += p.DeClassTimes + p.ExceedClassTimes;
                     deSum += p.DeSum;
                     switch (p.StudentCheckStatus)
                     {

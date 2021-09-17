@@ -49,6 +49,7 @@ namespace ETMS.DaemonService
             {
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitSenparcWeixin(appSettings);
+                InitPayConfig(appSettings.PayConfig);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
@@ -232,6 +233,16 @@ namespace ETMS.DaemonService
 
             Log.Info("[服务]SenparcWeixin初始化完成...", typeof(ServiceProvider));
             Console.WriteLine("[服务]SenparcWeixin初始化完成");
+        }
+
+        /// <summary>
+        /// 初始化聚合支付信息
+        /// </summary>
+        /// <param name="payConfig"></param>
+        private static void InitPayConfig(PayConfig payConfig)
+        {
+            ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
+                payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
         }
     }
 }
