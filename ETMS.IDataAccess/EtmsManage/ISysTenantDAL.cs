@@ -30,5 +30,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<bool> TenantSmsDeduction(int id, int deSmsCount);
 
         Task<bool> EditTenantUserId(List<int> tenantIds, long userId);
+
+        Task UpdateTenantLcswInfo(int id, int newLcswApplyStatus, byte newLcswOpenStatus);
     }
 }

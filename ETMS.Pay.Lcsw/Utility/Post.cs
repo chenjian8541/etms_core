@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ETMS.Pay.Lcsw.Dto;
-using ETMS.Pay.Lcsw.Dto.Request.Response;
 using Newtonsoft.Json;
 using ETMS.LOG;
+using ETMS.Entity.Pay.Lcsw.Dto.Request.Response;
+using ETMS.Entity.Pay.Lcsw.Dto;
 
 namespace ETMS.Pay.Lcsw.Utility
 {

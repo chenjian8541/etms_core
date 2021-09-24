@@ -31,9 +31,9 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请填写成长内容";
             }
-            if (GrowthMediasKeys != null && GrowthMediasKeys.Count > 15)
+            if (GrowthMediasKeys != null && GrowthMediasKeys.Count > 30)
             {
-                return "最多保存15个媒体文件";
+                return "最多保存30个媒体文件";
             }
             return base.Validate();
         }

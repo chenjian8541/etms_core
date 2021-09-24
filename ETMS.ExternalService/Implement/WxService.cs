@@ -93,7 +93,7 @@ namespace ETMS.ExternalService.Implement
                         TemplateIdShort = requestBase.TemplateIdShort,
                         TenantId = requestBase.LoginTenantId
                     }).Wait();
-                    throw new EtmsFatalException(err);
+                    //throw new EtmsFatalException(err);
                 }
             }
             catch (Exception ex)
@@ -108,18 +108,27 @@ namespace ETMS.ExternalService.Implement
                     TemplateIdShort = requestBase.TemplateIdShort,
                     TenantId = requestBase.LoginTenantId
                 }).Wait();
-                throw new EtmsFatalException(ex.Message);
+                //throw new EtmsFatalException(ex.Message);
             }
+            return string.Empty;
         }
 
         private string GetTemplateId(NoticeRequestBase requestBase)
         {
-            var myWechartAuthTemplateMsg = _sysWechartAuthTemplateMsgDAL.GetSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort).Result;
-            if (myWechartAuthTemplateMsg == null)
+            try
             {
-                return ResetTemplateId(requestBase);
+                var myWechartAuthTemplateMsg = _sysWechartAuthTemplateMsgDAL.GetSysWechartAuthTemplateMsg(requestBase.AuthorizerAppid, requestBase.TemplateIdShort).Result;
+                if (myWechartAuthTemplateMsg == null)
+                {
+                    return ResetTemplateId(requestBase);
+                }
+                return myWechartAuthTemplateMsg.TemplateId;
             }
-            return myWechartAuthTemplateMsg.TemplateId;
+            catch (Exception ex)
+            {
+                LOG.Log.Fatal($"[GetTemplateId]执行失败:{ex.Message}", requestBase, this.GetType());
+                return string.Empty;
+            }
         }
 
         private void ProcessStudentEequireSubscribe(int loginTenantId, long studentId, string phone, string opendId, string errorMsg)
@@ -155,6 +164,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentsOfClassBeforeDay(NoticeStudentsOfClassBeforeDayRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -189,6 +202,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentsOfClassToday(NoticeStudentsOfClassTodayRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -223,6 +240,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeClassCheckSign(NoticeClassCheckSignRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -285,6 +306,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentLeaveApply(NoticeStudentLeaveApplyRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -332,6 +357,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentContracts(NoticeStudentContractsRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -366,6 +395,10 @@ namespace ETMS.ExternalService.Implement
         public void HomeworkAdd(HomeworkAddRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -400,6 +433,10 @@ namespace ETMS.ExternalService.Implement
         public void HomeworkExpireRemind(HomeworkExpireRemindRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -434,6 +471,10 @@ namespace ETMS.ExternalService.Implement
         public void HomeworkComment(HomeworkCommentRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -467,6 +508,10 @@ namespace ETMS.ExternalService.Implement
         public void GrowthRecordAdd(GrowthRecordAddRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -500,6 +545,10 @@ namespace ETMS.ExternalService.Implement
         public void WxMessage(WxMessageRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -552,6 +601,10 @@ namespace ETMS.ExternalService.Implement
         public void StudentEvaluate(StudentEvaluateRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -586,6 +639,10 @@ namespace ETMS.ExternalService.Implement
         public void StudentCourseSurplus(StudentCourseSurplusRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -626,6 +683,10 @@ namespace ETMS.ExternalService.Implement
         public void StudentMakeup(StudentMakeupRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -693,6 +754,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCourseNotEnough2(NoticeStudentCourseNotEnoughRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -742,6 +807,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCourseNotEnough3(NoticeStudentCourseNotEnoughRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -793,6 +862,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeUserOfClassToday(NoticeUserOfClassTodayRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var user in request.Users)
             {
                 try
@@ -827,6 +900,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeTeacherOfHomeworkFinish(NoticeTeacherOfHomeworkFinishRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var user in request.Users)
             {
                 try
@@ -861,6 +938,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCheckIn(NoticeStudentCheckInRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -904,6 +985,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCheckOut(NoticeStudentCheckOutRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -938,6 +1023,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCouponsGet(NoticeStudentCouponsGetRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -972,6 +1061,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCouponsExplain(NoticeStudentCouponsExplainRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -1006,6 +1099,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeUserOfStudentTryClassFinish(NoticeUserOfStudentTryClassFinishRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var user in request.Users)
             {
                 try
@@ -1039,6 +1136,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentAccountRechargeChanged(NoticeStudentAccountRechargeChangedRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -1074,6 +1175,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentOrUserReservation(NoticeStudentOrUserReservationRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.StudentOrUsers)
             {
                 try
@@ -1109,6 +1214,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentCustomizeMsg(NoticeStudentCustomizeMsgRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try
@@ -1157,6 +1266,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeUserMessage(NoticeUserMessageRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var user in request.Users)
             {
                 try
@@ -1191,6 +1304,10 @@ namespace ETMS.ExternalService.Implement
         public void NoticeStudentMessage(NoticeStudentMessageRequest request)
         {
             request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
             foreach (var student in request.Students)
             {
                 try

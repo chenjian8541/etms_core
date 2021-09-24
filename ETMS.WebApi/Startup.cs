@@ -83,6 +83,7 @@ namespace ETMS.WebApi
             InitRabbitMq(builder, appSettings.RabbitMqConfig);
             InitAliyunOssConfig(appSettings.AliyunOssConfig);
             InitPayConfig(appSettings.PayConfig);
+            InitSytemInitializeData(appSettings);
         }
 
         private void RegisterGlobalFilters(FilterCollection filters)
@@ -133,6 +134,11 @@ namespace ETMS.WebApi
         {
             ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
                 payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
+        }
+
+        private void InitSytemInitializeData(AppSettings appSettings)
+        {
+            SysWebApiAddressConfig.InitConfig(appSettings.SysAddressConfig.WebApiUrl);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

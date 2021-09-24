@@ -1,5 +1,5 @@
-﻿using ETMS.Pay.Lcsw.Dto.Request;
-using ETMS.Pay.Lcsw.Dto.Request.Response;
+﻿using ETMS.Entity.Pay.Lcsw.Dto.Request;
+using ETMS.Entity.Pay.Lcsw.Dto.Request.Response;
 using ETMS.Pay.Lcsw.Utility;
 using System;
 using System.Collections.Generic;
@@ -134,14 +134,15 @@ namespace ETMS.Pay.Lcsw
         /// <returns></returns>
         public ResponseAddTermina AddTermina(RequestAddTermina requesParam)
         {
+            var traceno = Guid.NewGuid().ToString("N");
             var param = new Dictionary<string, object>();
             param.Add("inst_no", Config._instNo);
-            param.Add("trace_no", requesParam.trace_no);
+            param.Add("trace_no", traceno);
             param.Add("merchant_no", requesParam.merchant_no);
             var data = new
             {
                 inst_no = Config._instNo,
-                trace_no = requesParam.trace_no,
+                trace_no = traceno,
                 merchant_no = requesParam.merchant_no,
                 store_code = string.Empty,
                 key_sign = MD5Helper.GetSign(param, "key", Config._instToken),

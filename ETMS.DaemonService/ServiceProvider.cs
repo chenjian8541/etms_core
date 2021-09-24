@@ -50,6 +50,7 @@ namespace ETMS.DaemonService
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitSenparcWeixin(appSettings);
                 InitPayConfig(appSettings.PayConfig);
+                InitSytemInitializeData(appSettings);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
@@ -243,6 +244,11 @@ namespace ETMS.DaemonService
         {
             ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
                 payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
+        }
+
+        private static void InitSytemInitializeData(AppSettings appSettings)
+        {
+            SysWebApiAddressConfig.InitConfig(appSettings.SysAddressConfig.WebApiUrl);
         }
     }
 }

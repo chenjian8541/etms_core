@@ -120,5 +120,11 @@ namespace ETMS.DataAccess.EtmsManage
             }
             return true;
         }
+
+        public async Task UpdateTenantLcswInfo(int id, int newLcswApplyStatus, byte newLcswOpenStatus)
+        {
+            await this.Execute($"UPDATE SysTenant SET LcswApplyStatus = {newLcswApplyStatus} ,LcswOpenStatus = {newLcswOpenStatus} WHERE Id = {id} ");
+            await UpdateCache(id);
+        }
     }
 }

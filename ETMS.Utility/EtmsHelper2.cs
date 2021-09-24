@@ -144,6 +144,25 @@ namespace ETMS.Utility
             }
         }
 
+        public static string GetIdEncrypt(long id)
+        {
+            var strEncrypt = $"8104{id}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static int GetIdDecrypt(string strEncrypt)
+        {
+            if (strEncrypt.Equals("000"))
+            {
+                return 0;
+            }
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode.ToInt();
+        }
+
         public static bool IsThisMonth(DateTime time)
         {
             var now = DateTime.Now;
