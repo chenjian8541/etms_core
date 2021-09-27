@@ -18,8 +18,8 @@ namespace ETMS.Pay.Lcsw.Utility
         {
             string signStr = string.Empty;
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
-            byte[] bResult=md5.ComputeHash(getContentBytes(text));
-            signStr=BitConverter.ToString(bResult).Replace("-", "");
+            byte[] bResult = md5.ComputeHash(getContentBytes(text));
+            signStr = BitConverter.ToString(bResult).Replace("-", "");
             return signStr.ToLower();
         }
 
@@ -29,7 +29,7 @@ namespace ETMS.Pay.Lcsw.Utility
         /// <param name="text">需要签名的字符串</param>
         /// <param name="key">令牌</param>
         /// <returns>(小写)签名结果</returns>
-        public static string GetSign(string text,string key)
+        public static string GetSign(string text, string key)
         {
             string signStr = string.Empty;
             text = text + "&access_token=" + key;
@@ -39,39 +39,61 @@ namespace ETMS.Pay.Lcsw.Utility
             return signStr.ToLower();
         }
 
-        /// <summary>
-        /// 获取签名字符串
-        /// 参数以字典排序
-        /// </summary>
-        /// <param name="paramsMap"></param>
-        /// <param name="tokenKey"></param>
-        /// <param name="tokenValue"></param>
-        /// <returns></returns>
-        public static string GetSign(Dictionary<string, object> paramsMap, string tokenKey, string tokenValue)
+        public static string GetSign(Dictionary<string, object> dic, string tokenKey, string tokenValue)
         {
-            if (string.IsNullOrEmpty(tokenKey))
+            StringBuilder sb = new StringBuilder();
+            dic = dic.OrderBy(a => a.Key).ToDictionary(o => o.Key, p => p.Value);
+            foreach (var item in dic)
             {
-                throw new Exception("tokenKey不能为空");
-            }
-            if (string.IsNullOrEmpty(tokenValue))
-            {
-                throw new Exception("tokenValue不能为空");
-            }
-            var  paramsMaps= (from objDic in paramsMap orderby objDic.Key ascending select objDic);
-            StringBuilder str = new StringBuilder();
-            foreach (var kv in paramsMaps)
-            {
-                string pkey = kv.Key;
-                string pvalue = kv.Value.ToString();
-                if (string.IsNullOrEmpty(pkey) || string.IsNullOrEmpty(pvalue))
+                if (item.Value != null)
                 {
-                    continue;
+                    sb.Append(item.Key + "=" + item.Value + "&");
                 }
-                str.AppendFormat("{0}={1}&", pkey, pvalue);
             }
-            str.AppendFormat("{0}={1}",tokenKey,tokenValue);
-            return GetSign(str.ToString());
+            sb.AppendFormat("{0}={1}", tokenKey, tokenValue);
+            var md5 = System.Security.Cryptography.MD5.Create();
+            var bs = md5.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
+            var str = new StringBuilder();
+            foreach (var b in bs)
+            {
+                str.Append(b.ToString("x2"));
+            }
+            return str.ToString().ToUpper();
         }
+
+        ///// <summary>
+        ///// 获取签名字符串
+        ///// 参数以字典排序
+        ///// </summary>
+        ///// <param name="paramsMap"></param>
+        ///// <param name="tokenKey"></param>
+        ///// <param name="tokenValue"></param>
+        ///// <returns></returns>
+        //public static string GetSign(Dictionary<string, object> paramsMap, string tokenKey, string tokenValue)
+        //{
+        //    if (string.IsNullOrEmpty(tokenKey))
+        //    {
+        //        throw new Exception("tokenKey不能为空");
+        //    }
+        //    if (string.IsNullOrEmpty(tokenValue))
+        //    {
+        //        throw new Exception("tokenValue不能为空");
+        //    }
+        //    var  paramsMaps= (from objDic in paramsMap orderby objDic.Key ascending select objDic);
+        //    StringBuilder str = new StringBuilder();
+        //    foreach (var kv in paramsMaps)
+        //    {
+        //        string pkey = kv.Key;
+        //        string pvalue = kv.Value.ToString();
+        //        if (string.IsNullOrEmpty(pkey) || string.IsNullOrEmpty(pvalue))
+        //        {
+        //            continue;
+        //        }
+        //        str.AppendFormat("{0}={1}&", pkey, pvalue);
+        //    }
+        //    str.AppendFormat("{0}={1}",tokenKey,tokenValue);
+        //    return GetSign(str.ToString());
+        //}
 
         /// <summary>
         /// 获取签名字符串
@@ -107,7 +129,7 @@ namespace ETMS.Pay.Lcsw.Utility
         /// <param name="tokenKey">令牌Key</param>
         /// <param name="tokenValue">令牌Value</param>
         /// <returns></returns>
-        public static string GetSign<T>(T t,string tokenKey,string tokenValue)
+        public static string GetSign<T>(T t, string tokenKey, string tokenValue)
         {
             string signStr = string.Empty;
             var paramsMap = GetEntityToDictionary(t);
@@ -151,7 +173,7 @@ namespace ETMS.Pay.Lcsw.Utility
             System.Reflection.PropertyInfo[] propertyInfos = type.GetProperties();
             for (int i = 0; i < propertyInfos.Length; i++)
             {
-                if (propertyInfos[i].GetValue(t)!=null)
+                if (propertyInfos[i].GetValue(t) != null)
                 {
                     map.Add(propertyInfos[i].Name, propertyInfos[i].GetValue(t, null));
                 }

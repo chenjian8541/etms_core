@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
+using System;
 using System.Threading.Tasks;
 
 namespace ETMS.IBusiness
@@ -9,9 +10,13 @@ namespace ETMS.IBusiness
     {
         ResponseBase MerchantCheckName(MerchantCheckNameRequest request);
 
+        Task<ResponseBase> MerchantSave(MerchantAddRequest request);
+
+        [Obsolete("使用MerchantSave方法")]
         Task<ResponseBase> MerchantAdd(MerchantAddRequest request);
 
-        Task<ResponseBase> MerchantEdit(MerchantEditRequest request);
+        [Obsolete("使用MerchantSave方法")]
+        Task<ResponseBase> MerchantEdit(MerchantAddRequest request);
 
         Task<ResponseBase> MerchantQueryPC(MerchantQueryPCRequest request);
 

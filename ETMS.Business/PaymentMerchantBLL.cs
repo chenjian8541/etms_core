@@ -48,33 +48,47 @@ namespace ETMS.Business
             var res = _payLcswService.CheckName(request.MerchantName);
             var output = new MerchantCheckNameOutput()
             {
-                IsRepeat = false
+                IsRepeat = true
             };
             if (res.IsSuccess())
             {
-                output.IsRepeat = true;
+                output.IsRepeat = false;
             }
             return ResponseBase.Success(output);
         }
 
         private static LcswStatusView GetLcswStatus(string merchant_status)
         {
-            var lcswApplyStatus = EmLcswApplyStatus.Applying;
+            var lcswApplyStatus = merchant_status.ToInt();
             var lcswOpenStatus = EmBool.False;
             if (MerchantStatus.IsPass(merchant_status))
             {
-                lcswApplyStatus = EmLcswApplyStatus.Passed;
                 lcswOpenStatus = EmBool.True;
-            }
-            if (merchant_status == MerchantStatus.AuditFail)
-            {
-                lcswApplyStatus = EmLcswApplyStatus.Fail;
             }
             return new LcswStatusView()
             {
                 LcswApplyStatus = lcswApplyStatus,
                 LcswOpenStatus = lcswOpenStatus
             };
+        }
+
+        public async Task<ResponseBase> MerchantSave(MerchantAddRequest request)
+        {
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            var userId = EtmsHelper2.GetIdDecrypt(request.UserNo);
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (myTenant.LcswApplyStatus != EmLcswApplyStatus.NotApplied) //已申请过
+            {
+                return await MerchantEdit(request, tenantId, userId, myTenant);
+            }
+            else
+            {
+                return await MerchantAdd(request, tenantId, userId, myTenant);
+            }
         }
 
         public async Task<ResponseBase> MerchantAdd(MerchantAddRequest request)
@@ -90,11 +104,11 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("机构已申请过扫呗账户");
             }
-            //var ckRes = _payLcswService.CheckName(request.merchant_name);
-            //if (!ckRes.IsSuccess())
-            //{
-            //    return ResponseBase.CommonError("商户名称已存在");
-            //}
+            return await MerchantAdd(request, tenantId, userId, myTenant);
+        }
+
+        private async Task<ResponseBase> MerchantAdd(MerchantAddRequest request, int tenantId, long userId, SysTenant myTenant)
+        {
             var addRes = _payLcswService.AddMerchant(new RequestAddMerchant()
             {
                 account_name = request.account_name,
@@ -118,43 +132,49 @@ namespace ETMS.Business
                 merchant_phone = request.merchant_phone,
                 merchant_province = request.merchant_province,
                 merchant_province_code = request.merchant_province_code,
-                settlement_type = 1,
+                settlement_type = request.settlement_type,
                 settle_type = "1",
-                account_type = 1
+                account_type = request.account_type,
+                company_account_name = request.company_account_name,
+                company_account_no = request.company_account_no,
+                company_bank_name = request.company_bank_name,
+                company_bank_no = request.company_bank_no
             }
-            , new RequestAddMerchantIsNull()
-            {
-                account_phone = request.account_phone,
-                artif_nm = request.artif_nm,
-                img_3rd_part = request.img_3rd_part,
-                img_bankcard_a = request.img_bankcard_a,
-                img_bankcard_b = request.img_bankcard_b,
-                img_cashier = request.img_cashier,
-                img_contract = request.img_contract,
-                img_idcard_a = request.img_idcard_a,
-                img_idcard_b = request.img_idcard_b,
-                img_idcard_holding = request.img_idcard_holding,
-                img_indoor = request.img_indoor,
-                img_license = request.img_license,
-                img_logo = request.img_logo,
-                img_open_permits = request.img_open_permits,
-                img_org_code = request.img_org_code,
-                img_other = request.img_other,
-                img_standard_protocol = request.img_standard_protocol,
-                img_sub_account_promiss = request.img_sub_account_promiss,
-                img_tax_reg = request.img_tax_reg,
-                img_unincorporated = request.img_unincorporated,
-                img_val_add_protocol = request.img_val_add_protocol,
-                legalIdnum = request.legalIdnum,
-                legalIdnumExpire = request.legalIdnumExpire,
-                license_expire = request.license_expire,
-                license_no = request.license_no,
-                merchant_id_expire = request.merchant_id_expire,
-                merchant_id_no = request.merchant_id_no,
-                merchant_service_phone = request.merchant_service_phone,
-                rate_code = "M0038",
-                notify_url = SysWebApiAddressConfig.MerchantAuditCallbackUrl
-            });
+         , new RequestAddMerchantIsNull()
+         {
+             account_phone = request.account_phone,
+             artif_nm = request.artif_nm,
+             img_3rd_part = request.img_3rd_part,
+             img_bankcard_a = request.img_bankcard_a,
+             img_bankcard_b = request.img_bankcard_b,
+             img_cashier = request.img_cashier,
+             img_contract = request.img_contract,
+             img_idcard_a = request.img_idcard_a,
+             img_idcard_b = request.img_idcard_b,
+             img_idcard_holding = request.img_idcard_holding,
+             img_indoor = request.img_indoor,
+             img_license = request.img_license,
+             img_logo = request.img_logo,
+             img_open_permits = request.img_open_permits,
+             img_org_code = request.img_org_code,
+             img_other = request.img_other,
+             img_standard_protocol = request.img_standard_protocol,
+             img_sub_account_promiss = request.img_sub_account_promiss,
+             img_tax_reg = request.img_tax_reg,
+             img_unincorporated = request.img_unincorporated,
+             img_val_add_protocol = request.img_val_add_protocol,
+             legalIdnum = request.legalIdnum,
+             legalIdnumExpire = request.legalIdnumExpire,
+             license_expire = request.license_expire,
+             license_no = request.license_no,
+             merchant_id_expire = request.merchant_id_expire,
+             merchant_id_no = request.merchant_id_no,
+             merchant_service_phone = request.merchant_service_phone,
+             img_private_idcard_a = request.img_private_idcard_a,
+             img_private_idcard_b = request.img_private_idcard_b,
+             rate_code = "M0038",
+             notify_url = SysWebApiAddressConfig.MerchantAuditCallbackUrl
+         });
             if (!addRes.IsSuccess())
             {
                 return ResponseBase.CommonError($"创建商户失败:{addRes.return_msg}");
@@ -199,11 +219,13 @@ namespace ETMS.Business
                 TerminalName = string.Empty,
                 AccessToken = addTerminalRes.access_token,
                 TraceNo = string.Empty,
-                MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes)
+                MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes),
+                MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request)
             };
             await _tenantLcsAccountDAL.AddTenantLcsAccount(tenantLcsAccount);
             await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
 
+            _userOperationLogDAL.InitTenantId(myTenant.Id);
             await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
             {
                 ClientType = EmUserOperationLogClientType.PC,
@@ -219,7 +241,7 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> MerchantEdit(MerchantEditRequest request)
+        public async Task<ResponseBase> MerchantEdit(MerchantAddRequest request)
         {
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
             var userId = EtmsHelper2.GetIdDecrypt(request.UserNo);
@@ -232,6 +254,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("机构未申请过扫呗账户");
             }
+
+            return await MerchantEdit(request, tenantId, userId, myTenant);
+        }
+
+        private async Task<ResponseBase> MerchantEdit(MerchantAddRequest request, int tenantId, long userId, SysTenant myTenant)
+        {
             var tenantLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
             if (tenantLcsAccount == null)
             {
@@ -247,7 +275,6 @@ namespace ETMS.Business
                 bank_no = request.bank_no,
                 business_code = request.business_code,
                 business_name = request.business_name,
-                daily_timely_code = request.business_name,
                 img_3rd_part = request.img_3rd_part,
                 img_bankcard_a = request.img_bankcard_a,
                 img_bankcard_b = request.img_bankcard_b,
@@ -287,8 +314,15 @@ namespace ETMS.Business
                 merchant_province = request.merchant_province,
                 merchant_province_code = request.merchant_province_code,
                 merchant_service_phone = request.merchant_service_phone,
+                img_private_idcard_a = request.img_private_idcard_a,
+                img_private_idcard_b = request.img_private_idcard_b,
+                account_type = request.account_type,
+                company_account_name = request.company_account_name,
+                company_account_no = request.company_account_no,
+                company_bank_name = request.company_bank_name,
+                company_bank_no = request.company_bank_no,
                 rate_code = "M0038",
-                settlement_type = 1,
+                settlement_type = request.settlement_type,
                 settle_type = "1",
                 notify_url = SysWebApiAddressConfig.MerchantAuditCallbackUrl
             });
@@ -312,9 +346,11 @@ namespace ETMS.Business
             tenantLcsAccount.ReturnCode = editRes.return_code;
             tenantLcsAccount.ReturnMsg = editRes.return_msg;
             tenantLcsAccount.MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes);
+            tenantLcsAccount.MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request);
             await _tenantLcsAccountDAL.EditTenantLcsAccount(tenantLcsAccount);
             await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
 
+            _userOperationLogDAL.InitTenantId(myTenant.Id);
             await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
             {
                 ClientType = EmUserOperationLogClientType.PC,
@@ -339,7 +375,7 @@ namespace ETMS.Business
             }
             var output = new MerchantQueryOutput()
             {
-                LcswApplyStatus = myTenant.LcswApplyStatus,
+                LcswStatus = myTenant.LcswApplyStatus,
                 UserNo = EtmsHelper2.GetIdEncrypt(userId),
                 TenantNo = TenantLib.GetTenantEncrypt(tenantId)
             };
@@ -347,13 +383,20 @@ namespace ETMS.Business
             {
                 return ResponseBase.Success(output);
             }
+            if (EmLcswApplyStatus.IsSuccess(myTenant.LcswApplyStatus))
+            {
+                output.LcswStatus = 10; //使用10来标注 支付账户审核通过并已开通
+            }
             var tenantLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
             if (tenantLcsAccount == null)
             {
                 return ResponseBase.CommonError("扫呗账户不存在");
             }
-            var queryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantInfoOutput>(tenantLcsAccount.MerchantInfoData);
-            output.MerchantInfo = queryRes;
+            if (!string.IsNullOrEmpty(tenantLcsAccount.MerchantRquestData))
+            {
+                var queryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantSaveRequest>(tenantLcsAccount.MerchantRquestData);
+                output.MerchantInfo = queryRes;
+            }
             return ResponseBase.Success(output);
         }
 

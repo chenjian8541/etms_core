@@ -25,9 +25,13 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string StatusDesc { get; set; }
 
-        public ParentDeTypeClassTimes DeTypeClassTimes { get; set; }
+        public string SurplusQuantityDesc { get; set; }
 
-        public ParentDeTypeDay DeTypeDay { get; set; }
+        public string ExpireDateDesc { get; set; }
+
+        //public ParentDeTypeClassTimes DeTypeClassTimes { get; set; }
+
+        //public ParentDeTypeDay DeTypeDay { get; set; }
 
         public List<ParentStudentClass> StudentClass { get; set; }
     }

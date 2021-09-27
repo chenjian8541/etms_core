@@ -37,6 +37,20 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
+        public async Task<ResponseBase> MerchantSave(MerchantAddRequest request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.MerchantSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        [AllowAnonymous]
         public async Task<ResponseBase> MerchantAdd(MerchantAddRequest request)
         {
             try
@@ -51,7 +65,7 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<ResponseBase> MerchantEdit(MerchantEditRequest request)
+        public async Task<ResponseBase> MerchantEdit(MerchantAddRequest request)
         {
             try
             {

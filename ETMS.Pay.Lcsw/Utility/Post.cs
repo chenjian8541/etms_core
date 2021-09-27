@@ -108,14 +108,14 @@ namespace ETMS.Pay.Lcsw.Utility
         /// <returns></returns>
         private static T GetResult<T>(string returnText)
         {
-            if (returnText.Contains("return_code"))
-            {
-                BaseResult baseresult = JsonConvert.DeserializeObject<BaseResult>(returnText);
-                if (baseresult.return_code != ReturnCode.成功)
-                {
-                    throw new Exception(string.Format("扫呗Post请求发生错误！错误信息：{0}", baseresult.return_msg));
-                }
-            }
+            //if (returnText.Contains("return_code"))
+            //{
+            //    BaseResult baseresult = JsonConvert.DeserializeObject<BaseResult>(returnText);
+            //    if (baseresult.return_code != ReturnCode.成功)
+            //    {
+            //        throw new Exception(string.Format("扫呗Post请求发生错误！错误信息：{0}", baseresult.return_msg));
+            //    }
+            //}
             return JsonConvert.DeserializeObject<T>(returnText);
         }
     }

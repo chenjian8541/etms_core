@@ -9,23 +9,33 @@ namespace ETMS.Entity.Enum.EtmsManage
     public struct EmLcswApplyStatus
     {
         /// <summary>
-        /// 未申请
+        /// 未开通
         /// </summary>
         public const int NotApplied = 0;
 
         /// <summary>
-        /// 申请中
+        /// 审核通过，但未签署电子协议
         /// </summary>
-        public const int Applying = 1;
+        public const int Passed = 1;
 
         /// <summary>
-        /// 审核通过
+        /// 驳回
         /// </summary>
-        public const int Passed = 2;
+        public const int Fail = 2;
 
         /// <summary>
-        /// 审核失败
+        /// 审核中
         /// </summary>
-        public const int Fail = 3;
+        public const int Applying = 3;
+
+        /// <summary>
+        /// 审核通过且已签署电子协议
+        /// </summary>
+        public const int AuditPassAndSigned = 5;
+
+        public static bool IsSuccess(int type)
+        {
+            return type == Passed || type == AuditPassAndSigned;
+        }
     }
 }

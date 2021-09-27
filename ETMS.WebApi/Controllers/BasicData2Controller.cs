@@ -84,6 +84,20 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
+        public async Task<ResponseBase> GetRegions2(GetRegionsRequrst request)
+        {
+            try
+            {
+                return await _bascDataInfoBLL.GetRegions(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        [AllowAnonymous]
         public async Task<ResponseBase> GetBanks(GetBanksRequrst request)
         {
             try

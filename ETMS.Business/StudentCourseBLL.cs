@@ -217,7 +217,7 @@ namespace ETMS.Business
                         StudentPhone = phone
                     };
                     var myCourse = studentCourse.Where(p => p.CourseId == courseId).ToList();
-                    myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse);
+                    myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse, false);
 
                     var myFirstCourseLog = myCourse[0];
                     myStudentCourseDetail.Status = myFirstCourseLog.Status;

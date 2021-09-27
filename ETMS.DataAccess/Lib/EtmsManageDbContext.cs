@@ -19,6 +19,31 @@ namespace ETMS.DataAccess.Lib
             optionsBuilder.UseSqlServer(CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsManageConnectionString);
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //无主键的实体
+            modelBuilder.Entity<SysLcsBank>(entity =>
+            {
+                entity.HasNoKey();
+            });
+            modelBuilder.Entity<SysLcsBankMCC1>(entity =>
+            {
+                entity.HasNoKey();
+            });
+            modelBuilder.Entity<SysLcsBankMCC2>(entity =>
+            {
+                entity.HasNoKey();
+            });
+            modelBuilder.Entity<SysLcsBankMCC3>(entity =>
+            {
+                entity.HasNoKey();
+            });
+            modelBuilder.Entity<SysLcswArea>(entity =>
+            {
+                entity.HasNoKey();
+            });
+        }
+
         public DbSet<SysConnectionString> SysConnectionStrings { get; set; }
         public DbSet<SysStudentWechart> SysStudentWecharts { get; set; }
         public DbSet<SysTeacherWechart> SysTeacherWecharts { get; set; }
@@ -56,11 +81,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysSmsTemplate> SysSmsTemplates { get; set; }
         public DbSet<SysTenantOtherInfo> SysTenantOtherInfos { get; set; }
         public DbSet<SysTenantUserFeedback> SysTenantUserFeedbacks { get; set; }
-        public DbSet<SysLcsBank> SysLcsBanks { get; set; }
-        public DbSet<SysLcsBankMCC1> SysLcsBankMCC1s { get; set; }
-        public DbSet<SysLcsBankMCC2> SysLcsBankMCC2s { get; set; }
-        public DbSet<SysLcsBankMCC3> SysLcsBankMCC3s { get; set; }
-        public DbSet<SysLcswArea> SysLcswAreas { get; set; }
         public DbSet<SysTenantLcsAccount> SysTenantLcsAccounts { get; set; }
         public DbSet<SysTenantLcsPayLog> SysTenantLcsPayLogs { get; set; }
     }

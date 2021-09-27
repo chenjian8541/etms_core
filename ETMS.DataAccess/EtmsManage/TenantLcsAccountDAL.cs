@@ -25,6 +25,10 @@ namespace ETMS.DataAccess.EtmsManage
         protected override async Task<SysTenantLcsAccountBucket> GetDb(params object[] keys)
         {
             var data = await this.Find<SysTenantLcsAccount>(p => p.IsDeleted == EmIsDeleted.Normal && p.TenantId == keys[0].ToInt());
+            if (data == null)
+            {
+                return null;
+            }
             return new SysTenantLcsAccountBucket()
             {
                 TenantLcsAccount = data

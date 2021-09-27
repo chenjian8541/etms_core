@@ -98,16 +98,21 @@ namespace ETMS.Business.Common
             return strDesc.ToString().TrimEnd(',');
         }
 
-        internal static string GetStudentCourseDesc(List<EtStudentCourse> studentCourse)
+        internal static string GetStudentCourseDesc(List<EtStudentCourse> studentCourse, bool isShowExceedTotalClassTimes = true)
         {
             var courseSurplusDesc = new StringBuilder();
+            var exceedTotalClassTimes = 0M;
             if (studentCourse != null && studentCourse.Any())
             {
                 var timesStudentCourse = studentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
                 var dayStudentCourse = studentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
-                if (timesStudentCourse != null && timesStudentCourse.SurplusQuantity > 0)
+                if (timesStudentCourse != null)
                 {
-                    courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity.EtmsToString()}课时 ");
+                    if (timesStudentCourse.SurplusQuantity > 0)
+                    {
+                        courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity.EtmsToString()}课时 ");
+                    }
+                    exceedTotalClassTimes = timesStudentCourse.ExceedTotalClassTimes;
                 }
                 if (dayStudentCourse != null)
                 {
@@ -117,13 +122,21 @@ namespace ETMS.Business.Common
                     }
                     if (dayStudentCourse.SurplusSmallQuantity > 0)
                     {
-                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusSmallQuantity.EtmsToString()}天");
+                        courseSurplusDesc.Append($"{dayStudentCourse.SurplusSmallQuantity.EtmsToString()}天 ");
                     }
                 }
             }
             if (courseSurplusDesc.Length == 0)
             {
+                if (isShowExceedTotalClassTimes && exceedTotalClassTimes > 0)
+                {
+                    return $"超上{exceedTotalClassTimes.EtmsToString()}课时";
+                }
                 return "0课时";
+            }
+            if (isShowExceedTotalClassTimes && exceedTotalClassTimes > 0)
+            {
+                courseSurplusDesc.Append($"(超上{exceedTotalClassTimes.EtmsToString()}课时)");
             }
             return courseSurplusDesc.ToString().TrimEnd();
         }

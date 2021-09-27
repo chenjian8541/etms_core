@@ -1161,6 +1161,17 @@
           "Title": "微信助手",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 95,
+        "Path": "paySet",
+        "Name": "paySet",
+        "Type": 1,
+        "Component": "@/views/increment/paySetMgr",
+        "Meta": {
+          "Title": "扫呗支付",
+          "Icon": "item"
+        }
       }
     ]
   }

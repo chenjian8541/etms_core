@@ -74,6 +74,10 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// </summary>
         public int? merchant_business_type { get; set; }
         /// <summary>
+        /// 账户类型，1对公，2对私
+        /// </summary>
+        public int? account_type { get; set; }
+        /// <summary>
         /// 结算类型:1.法人结算 2.非法人结算
         /// </summary>
         public int? settlement_type { get; set; }
@@ -102,9 +106,17 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// </summary>
         public string settle_type { get; set; }
         /// <summary>
-        /// D1手续费代码
+        /// 自动清算金额（单位分）
         /// </summary>
-        public string daily_timely_code { get; set; }
+        public int? settle_amount { get; set; }
+        /// <summary>
+        /// D1状态,0不开通，1开通
+        /// </summary>
+        public int? daily_timely_status { get; set; }
+        ///// <summary>
+        ///// D1手续费代码
+        ///// </summary>
+        //public string daily_timely_code { get; set; }
         /// <summary>
         /// 营业证件号码
         /// </summary>
@@ -137,6 +149,10 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 入账银行预留手机号
         /// </summary>
         public string account_phone { get; set; }
+        /// <summary>
+        /// 限制信用卡使用,0不限制，1限制
+        /// </summary>
+        public int? no_credit { get; set; }
         /// <summary>
         /// 支付费率代码
         /// </summary>
@@ -198,6 +214,14 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// </summary>
         public string img_unincorporated { get; set; }
         /// <summary>
+        /// 对私账户身份证正面照片
+        /// </summary>
+        public string img_private_idcard_a { get; set; }
+        /// <summary>
+        /// 对私账户身份证反面照片
+        /// </summary>
+        public string img_private_idcard_b { get; set; }
+        /// <summary>
         /// 商户标准协议照片
         /// </summary>
         public string img_standard_protocol { get; set; }
@@ -229,5 +253,13 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 微信公众号appsecret，普通商户公众号支付使用，
         /// </summary>
         public string wx_appsecret { get; set; }
+
+        public string company_account_name { get; set; }
+
+        public string company_account_no { get; set; }
+
+        public string company_bank_name { get; set; }
+
+        public string company_bank_no { get; set; }
     }
 }

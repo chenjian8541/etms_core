@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Pay.Lcsw.Dto.Request.Response;
+﻿using ETMS.Entity.Dto.PaymentService.Request;
+using ETMS.Entity.Pay.Lcsw.Dto.Request.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace ETMS.Entity.Dto.PaymentService.Output
         /// 利楚扫呗申请状态
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcswApplyStatus"/>
         /// </summary>
-        public int LcswApplyStatus { get; set; }
+        public int LcswStatus { get; set; }
 
         public string TenantNo { get; set; }
 
@@ -22,6 +23,6 @@ namespace ETMS.Entity.Dto.PaymentService.Output
         /// <summary>
         /// 申请信息
         /// </summary>
-        public MerchantInfoOutput MerchantInfo { get; set; }
+        public MerchantSaveRequest MerchantInfo { get; set; }
     }
 }

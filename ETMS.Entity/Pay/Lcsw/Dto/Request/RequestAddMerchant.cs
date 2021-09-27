@@ -88,6 +88,7 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 营业证件类型：0营业执照，1三证合一，2手持身份证
         /// </summary>
         public int license_type { get; set; }
+        
         /// <summary>
         /// 入账银行卡开户名（结算人姓名/公司名）
         /// </summary>
@@ -108,6 +109,18 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 清算类型：1自动结算；2手动结算，
         /// </summary>
         public string settle_type { get; set; }
+        /// <summary>
+        /// 自动清算金额（单位分）
+        /// </summary>
+        public int settle_amount { get; set; }
+
+        public string company_account_name { get; set; }
+
+        public string company_account_no { get; set; }
+
+        public string company_bank_name { get; set; }
+
+        public string company_bank_no { get; set; }
     }
 
 
@@ -162,9 +175,17 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// </summary>
         public string account_phone { get; set; }
         /// <summary>
+        /// 限制信用卡使用,0不限制，1限制
+        /// </summary>
+        public int no_credit { get; set; }
+        /// <summary>
         /// 支付费率代码
         /// </summary>
         public string rate_code { get; set; }
+        /// <summary>
+        /// 是否绿洲商户：0非绿洲，1开通绿洲
+        /// </summary>
+        public int greenstatus { get; set; }
         /// <summary>
         /// 营业执照照片
         /// </summary>
@@ -222,6 +243,14 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// </summary>
         public string img_unincorporated { get; set; }
         /// <summary>
+        /// 对私账户身份证正面照片
+        /// </summary>
+        public string img_private_idcard_a { get; set; }
+        /// <summary>
+        /// 对私账户身份证反面照片
+        /// </summary>
+        public string img_private_idcard_b { get; set; }
+        /// <summary>
         /// 商户标准协议照片
         /// </summary>
         public string img_standard_protocol { get; set; }
@@ -253,5 +282,9 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 微信公众号appsecret，普通商户公众号支付使用，
         /// </summary>
         public string wx_appsecret { get; set; }
+        /// <summary>
+        /// 区域经理id
+        /// </summary>
+        public int? salesman_id { get; set; }
     }
 }

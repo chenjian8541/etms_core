@@ -272,6 +272,7 @@ namespace ETMS.Business
             {
                 var studentId = studentInfo.Id;
                 var studentCourse = await _studentCourseDAL.GetStudentCourse(studentId);
+                var studentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(studentId);
                 if (studentCourse != null && studentCourse.Any())
                 {
                     var studentClass = await _classDAL.GetStudentClass(studentId);
@@ -292,7 +293,7 @@ namespace ETMS.Business
                             StudentName = studentInfo.Name,
                             Type = course.Type
                         };
-                        var myCourse = studentCourse.Where(p => p.CourseId == courseId);
+                        var myCourse = studentCourse.Where(p => p.CourseId == courseId).ToList();
                         if (!parentIsShowEndOfClass)
                         {
                             if (myCourse.First().Status == EmStudentCourseStatus.EndOfClass)
@@ -300,25 +301,30 @@ namespace ETMS.Business
                                 continue;
                             }
                         }
-                        foreach (var theCourse in myCourse)
-                        {
-                            myStudentCourseDetail.Status = theCourse.Status;
-                            myStudentCourseDetail.StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(theCourse.Status);
-                            if (theCourse.DeType == EmDeClassTimesType.ClassTimes && theCourse.BuyQuantity > 0)
-                            {
-                                myStudentCourseDetail.DeTypeClassTimes = new ParentDeTypeClassTimes()
-                                {
-                                    SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(theCourse.SurplusQuantity, theCourse.SurplusSmallQuantity, theCourse.DeType)
-                                };
-                            }
-                            if (theCourse.DeType == EmDeClassTimesType.Day)
-                            {
-                                myStudentCourseDetail.DeTypeDay = new ParentDeTypeDay()
-                                {
-                                    SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(theCourse.SurplusQuantity, theCourse.SurplusSmallQuantity, theCourse.DeType)
-                                };
-                            }
-                        }
+                        myStudentCourseDetail.Status = myCourse.First().Status;
+                        myStudentCourseDetail.StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(myCourse.First().Status);
+                        myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse);
+                        var myStudentCourseDetailList = studentCourseDetail.Where(p => p.CourseId == courseId).ToList();
+                        myStudentCourseDetail.ExpireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetailList);
+                        //foreach (var theCourse in myCourse)
+                        //{
+                        //    myStudentCourseDetail.Status = theCourse.Status;
+                        //    myStudentCourseDetail.StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(theCourse.Status);
+                        //    if (theCourse.DeType == EmDeClassTimesType.ClassTimes && theCourse.BuyQuantity > 0)
+                        //    {
+                        //        myStudentCourseDetail.DeTypeClassTimes = new ParentDeTypeClassTimes()
+                        //        {
+                        //            SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(theCourse.SurplusQuantity, theCourse.SurplusSmallQuantity, theCourse.DeType)
+                        //        };
+                        //    }
+                        //    if (theCourse.DeType == EmDeClassTimesType.Day)
+                        //    {
+                        //        myStudentCourseDetail.DeTypeDay = new ParentDeTypeDay()
+                        //        {
+                        //            SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(theCourse.SurplusQuantity, theCourse.SurplusSmallQuantity, theCourse.DeType)
+                        //        };
+                        //    }
+                        //}
                         var myClass = studentClass.Where(p => p.CourseList.IndexOf($",{courseId},") != -1);
                         if (myClass.Any())
                         {

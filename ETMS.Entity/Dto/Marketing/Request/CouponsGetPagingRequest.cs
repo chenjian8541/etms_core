@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.Marketing.Request
 
         public int? Status { get; set; }
 
+        public bool IsGetValid { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -25,6 +27,10 @@ namespace ETMS.Entity.Dto.Marketing.Request
             if (Status != null)
             {
                 condition.Append($" AND [Status] = {Status.Value}");
+            }
+            if (IsGetValid)
+            {
+                condition.Append($" AND ( EndTime IS NULL OR EndTime = '' OR EndTime >= '{DateTime.Now.ToString("yyyy-MM-dd")}')");
             }
             return condition.ToString();
         }

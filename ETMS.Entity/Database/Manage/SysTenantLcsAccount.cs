@@ -31,6 +31,8 @@ namespace ETMS.Entity.Database.Manage
 
         public string MerchantInfoData { get; set; }
 
+        public string MerchantRquestData { get; set; }
+
         /// <summary>
         /// 利楚扫呗申请状态
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcswApplyStatus"/>
