@@ -195,6 +195,10 @@ namespace ETMS.Business
             }
             var lcswStatus = GetLcswStatus(queryRes.merchant_status);
             var now = DateTime.Now;
+
+            request.merchant_business_typeDesc = LcswEm.GetMerchantBusinessType(request.merchant_business_type);
+            request.account_typeDesc = LcswEm.GetAccountTypeDesc(request.account_type);
+            request.settlement_typeDesc = LcswEm.GetSettlementType(request.settlement_type);
             var tenantLcsAccount = new SysTenantLcsAccount()
             {
                 AgentId = myTenant.AgentId,
@@ -346,6 +350,10 @@ namespace ETMS.Business
             tenantLcsAccount.ReturnCode = editRes.return_code;
             tenantLcsAccount.ReturnMsg = editRes.return_msg;
             tenantLcsAccount.MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes);
+
+            request.merchant_business_typeDesc = LcswEm.GetMerchantBusinessType(request.merchant_business_type);
+            request.account_typeDesc = LcswEm.GetAccountTypeDesc(request.account_type);
+            request.settlement_typeDesc = LcswEm.GetSettlementType(request.settlement_type);
             tenantLcsAccount.MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request);
             await _tenantLcsAccountDAL.EditTenantLcsAccount(tenantLcsAccount);
             await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
@@ -379,6 +387,7 @@ namespace ETMS.Business
                 UserNo = EtmsHelper2.GetIdEncrypt(userId),
                 TenantNo = TenantLib.GetTenantEncrypt(tenantId)
             };
+
             if (myTenant.LcswApplyStatus == EmLcswApplyStatus.NotApplied)
             {
                 return ResponseBase.Success(output);
@@ -397,6 +406,7 @@ namespace ETMS.Business
                 var queryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantSaveRequest>(tenantLcsAccount.MerchantRquestData);
                 output.MerchantInfo = queryRes;
             }
+
             return ResponseBase.Success(output);
         }
 

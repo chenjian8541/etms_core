@@ -361,5 +361,12 @@ namespace ETMS.Entity.Dto.PaymentService.Request
         public string TenantNo { get; set; }
 
         public string UserNo { get; set; }
+
+
+        public string merchant_business_typeDesc { get; set; }
+
+        public string account_typeDesc { get; set; }
+
+        public string settlement_typeDesc { get; set; }
     }
 }

@@ -17,9 +17,12 @@ namespace ETMS.WebApi.Controllers
     {
         private readonly IPaymentMerchantBLL _paymentMerchantBLL;
 
-        public PaymentServiceController(IPaymentMerchantBLL paymentMerchantBLL)
+        private readonly IPaymentBLL _paymentBLL;
+
+        public PaymentServiceController(IPaymentMerchantBLL paymentMerchantBLL, IPaymentBLL paymentBLL)
         {
             this._paymentMerchantBLL = paymentMerchantBLL;
+            this._paymentBLL = paymentBLL;
         }
 
         [AllowAnonymous]
@@ -121,6 +124,20 @@ namespace ETMS.WebApi.Controllers
                     trace_no = request.trace_no,
                     return_msg = "处理时发生异常"
                 };
+            }
+        }
+
+        public async Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request)
+        {
+            try
+            {
+                _paymentBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentBLL.TenantLcsPayLogPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
             }
         }
     }

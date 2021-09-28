@@ -117,4 +117,31 @@ namespace ETMS.Entity.Pay.Lcsw.Dto
             return t == AuditPass || t == AuditPassAndSigned;
         }
     }
+
+    public class LcswEm
+    {
+        public static string GetMerchantBusinessType(int t)
+        {
+            switch (t)
+            {
+                case 1:
+                    return "企业";
+                case 2:
+                    return "个体工商户";
+                case 3:
+                    return "小微商户";
+            }
+            return string.Empty;
+        }
+
+        public static string GetSettlementType(int t)
+        {
+            return t == 1 ? "法人" : "非法人";
+        }
+
+        public static string GetAccountTypeDesc(int t)
+        {
+            return t == 1 ? "对公结算" : "对私结算";
+        }
+    }
 }

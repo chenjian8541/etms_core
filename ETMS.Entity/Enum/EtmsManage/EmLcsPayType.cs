@@ -52,5 +52,29 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 自动识别类型
         /// </summary>
         public const string AutoTypePay = "000";
+
+        public static string GetPayTypeDesc(string t)
+        {
+            switch (t)
+            {
+                case WeChat:
+                    return "微信";
+                case Alipay:
+                    return "支付宝";
+                case QQ:
+                    return "qq钱包";
+                case JDPay:
+                    return "京东钱包";
+                case PublicPraisePay:
+                    return "口碑";
+                case Bestpay:
+                    return "翼支付";
+                case UnionPayQRCode:
+                    return "银联二维码";
+                case PackagePay:
+                    return "和包支付";
+            }
+            return string.Empty;
+        }
     }
 }
