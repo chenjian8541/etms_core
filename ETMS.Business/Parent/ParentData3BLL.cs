@@ -260,10 +260,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("考勤记录不存在");
             }
+            var checkMediumUrl = string.Empty;
+            var maxDate = DateTime.Now.AddDays(-7);
+            if (log.CheckOt > maxDate)
+            {
+                checkMediumUrl = AliyunOssUtil.GetAccessUrlHttps(log.CheckMedium);
+            }
             return ResponseBase.Success(new CheckOnLogGetOutput()
             {
                 CheckOt = log.CheckOt,
-                CheckMediumUrl = AliyunOssUtil.GetAccessUrlHttps(log.CheckMedium),
+                CheckMediumUrl = checkMediumUrl,
                 CheckType = log.CheckType,
                 CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(log.CheckType)
             });

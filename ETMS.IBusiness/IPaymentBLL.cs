@@ -12,5 +12,7 @@ namespace ETMS.IBusiness
     public interface IPaymentBLL : IBaseBLL
     {
         Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request);
+
+        Task<ResponseBase> BarCodePay(BarCodePayRequest request);
     }
 }

@@ -404,6 +404,7 @@ namespace ETMS.Business
             if (!string.IsNullOrEmpty(tenantLcsAccount.MerchantRquestData))
             {
                 var queryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantSaveRequest>(tenantLcsAccount.MerchantRquestData);
+                queryRes.merchant_no = tenantLcsAccount.MerchantNo;
                 output.MerchantInfo = queryRes;
             }
 

@@ -16,6 +16,7 @@ using ETMS.Utility;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Database.Source;
+using ETMS.Business.Common;
 
 namespace ETMS.Business
 {
@@ -248,6 +249,17 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, "通知推送名单设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> PageBascDataGet(RequestBase request)
+        {
+            var output = new PageBascDataGetOutput()
+            {
+                IsOpenLcsPay = false
+            };
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            output.IsOpenLcsPay = ComBusiness4.GetIsOpenLcsPay(myTenant.LcswApplyStatus, myTenant.LcswOpenStatus);
+            return ResponseBase.Success(output);
         }
     }
 }

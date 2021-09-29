@@ -140,5 +140,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
+        {
+            try
+            {
+                _paymentBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentBLL.BarCodePay(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

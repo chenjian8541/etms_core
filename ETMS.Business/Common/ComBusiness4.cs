@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,6 +81,16 @@ namespace ETMS.Business.Common
                 }
             }
             return Tuple.Create(strDesc.ToString(), EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(firstItem.ComputeMode));
+        }
+
+        internal static bool GetIsOpenLcsPay(int lcswApplyStatus, byte lcswOpenStatus)
+        {
+            return EmLcswApplyStatus.IsSuccess(lcswApplyStatus) && lcswOpenStatus == EmBool.True;
+        }
+
+        internal static string GetLcsTerminalTime(DateTime time)
+        {
+            return time.ToString("yyyyMMddHHmmss");
         }
     }
 }

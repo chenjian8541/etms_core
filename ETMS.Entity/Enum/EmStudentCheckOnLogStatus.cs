@@ -25,5 +25,21 @@ namespace ETMS.Entity.Enum
         /// 撤销记上课
         /// </summary>
         public const byte Revoke = 3;
+
+        public static string GetStatusDesc(byte t)
+        {
+            switch (t)
+            {
+                case NormalNotClass:
+                    return "考勤";
+                case NormalAttendClass:
+                    return "考勤(记上课)";
+                case BeRollcall:
+                    return "考勤(已点名)";
+                case Revoke:
+                    return "考勤(撤销记上课)";
+            }
+            return string.Empty;
+        }
     }
 }

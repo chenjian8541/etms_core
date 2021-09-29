@@ -21,10 +21,13 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IBascDataInfoBLL _bascDataInfoBLL;
 
-        public BasicData2Controller(ISysSmsTemplate2BLL sysSmsTemplate2BLL, IBascDataInfoBLL bascDataInfoBLL)
+        private readonly ITenantBLL _tenantBLL;
+
+        public BasicData2Controller(ISysSmsTemplate2BLL sysSmsTemplate2BLL, IBascDataInfoBLL bascDataInfoBLL, ITenantBLL tenantBLL)
         {
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
             this._bascDataInfoBLL = bascDataInfoBLL;
+            this._tenantBLL = tenantBLL;
         }
 
         public async Task<ResponseBase> SysSmsTemplateGet(SysSmsTemplateGetRequest request)
@@ -117,6 +120,20 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 return await _bascDataInfoBLL.GetIndustry(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> PageBascDataGet(RequestBase request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return await _tenantBLL.PageBascDataGet(request);
             }
             catch (Exception ex)
             {

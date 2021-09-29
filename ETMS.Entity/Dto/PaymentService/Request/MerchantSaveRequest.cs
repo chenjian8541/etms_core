@@ -8,6 +8,11 @@ namespace ETMS.Entity.Dto.PaymentService.Request
 {
     public class MerchantSaveRequest
     {
+        /// <summary>
+        /// 商户号
+        /// </summary>
+        public string merchant_no { get; set; }
+
         public string businessfirst { get; set; }
 
         public string businesssecond { get; set; }

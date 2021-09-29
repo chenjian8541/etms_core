@@ -21,5 +21,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> NoticeConfigGet(NoticeConfigGetRequest request);
 
         Task<ResponseBase> NoticeConfigSave(NoticeConfigSaveRequest request);
+
+        Task<ResponseBase> PageBascDataGet(RequestBase request);
     }
 }

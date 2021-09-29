@@ -4,9 +4,12 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Pay.Lcsw;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +24,17 @@ namespace ETMS.Business
 
         private readonly IStudentDAL _studentDAL;
 
-        public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL)
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly IPayLcswService _payLcswService;
+
+        public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
+            IPayLcswService payLcswService)
         {
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._studentDAL = studentDAL;
+            this._sysTenantDAL = sysTenantDAL;
+            this._payLcswService = payLcswService;
         }
 
         public void InitTenantId(int tenantId)
@@ -77,6 +87,47 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantLcsPayLogPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var isOpenLcsPay = ComBusiness4.GetIsOpenLcsPay(myTenant.LcswApplyStatus, myTenant.LcswOpenStatus);
+            if (!isOpenLcsPay)
+            {
+                return ResponseBase.CommonError("机构未开通扫呗支付");
+            }
+            var myLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
+            if (myLcsAccount == null)
+            {
+                LOG.Log.Error("[BarCodePay]扫呗账户异常", request, this.GetType());
+                return ResponseBase.CommonError("扫呗账户异常，无法支付");
+            }
+            var now = DateTime.Now;
+            var orderNo = string.Empty;
+            switch (request.OrderType)
+            {
+                case EmLcsPayLogOrderType.StudentEnrolment:
+                    orderNo = OrderNumberLib.EnrolmentOrderNumber();
+                    break;
+                case EmLcsPayLogOrderType.StudentAccountRecharge:
+                    orderNo = OrderNumberLib.StudentAccountRecharge();
+                    break;
+            }
+            var resPay = _payLcswService.BarcodePay(new RequestBarcodePay()
+            {
+                accessToken = myLcsAccount.AccessToken,
+                terminal_id = myLcsAccount.TerminalId,
+                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
+                payType = EmLcsPayType.AutoTypePay,
+                auth_no = request.AuthNo,
+                terminal_trace = orderNo,
+                attach = request.LoginTenantId.ToString(),
+                merchant_no = myLcsAccount.MerchantNo,
+                order_body = request.OrderDesc,
+                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString()
+            });
+            return ResponseBase.Success(resPay);
         }
     }
 }

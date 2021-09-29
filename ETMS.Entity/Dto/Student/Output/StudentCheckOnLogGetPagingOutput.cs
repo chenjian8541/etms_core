@@ -46,11 +46,19 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public byte Status { get; set; }
 
-        public string CheckMedium { get; set; }
+        public string StatusDesc { get; set; }
 
         /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        public string ClassName { get; set; }
+
+        public string CourseName { get; set; }
+
+        public string DeClassTimesDesc { get; set; }
+
+        public string CheckMedium { get; set; }
     }
 }

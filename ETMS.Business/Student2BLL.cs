@@ -237,6 +237,11 @@ namespace ETMS.Business
             var tempBoxStudent = new DataTempBox<EtStudent>();
             var tempBoxClass = new DataTempBox<EtClass>();
             var tempBoxCourse = new DataTempBox<EtCourse>();
+            string className;
+            string courseName;
+            string deClassTimesDesc;
+            string checkMedium;
+            var maxDate = DateTime.Now.AddDays(-7);
             foreach (var p in pagingData.Item1)
             {
                 var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
@@ -245,6 +250,10 @@ namespace ETMS.Business
                     continue;
                 }
                 var explain = string.Empty;
+                className = string.Empty;
+                courseName = string.Empty;
+                deClassTimesDesc = string.Empty;
+                checkMedium = string.Empty;
                 if (p.CheckType == EmStudentCheckOnLogCheckType.CheckIn)
                 {
                     switch (p.Status)
@@ -258,18 +267,33 @@ namespace ETMS.Business
                             {
                                 //直接扣减课时
                                 var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
-                                explain = $"签到成功 - 记上课：消耗课程({ckCourse})，扣课时({ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)})";
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                                explain = $"签到成功 - 记上课：消耗课程({ckCourse})，扣课时({deClassTimesDesc})";
                             }
                             else
                             {
                                 var ckClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId.Value);
                                 var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
-                                explain = $"签到成功 - 记上课：班级({ckClass?.Name})，上课时间({p.ClassOtDesc})，消耗课程({ckCourse})，扣课时({ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)})";
+                                className = ckClass?.Name;
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                                explain = $"签到成功 - 记上课：班级({className})，上课时间({p.ClassOtDesc})，消耗课程({ckCourse})，扣课时({deClassTimesDesc})";
                             }
                             break;
                         case EmStudentCheckOnLogStatus.Revoke:
                             explain = "签到成功 - 已撤销记上课";
                             break;
+                    }
+                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
+                        && !string.IsNullOrEmpty(p.CheckMedium) &&
+                        p.CheckOt > maxDate)
+                    {
+                        checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
+                    }
+                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                    {
+                        checkMedium = p.CheckMedium;
                     }
                 }
                 else
@@ -289,21 +313,25 @@ namespace ETMS.Business
                     StudentName = student.Name,
                     StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
                     Explain = explain,
-                    CheckMedium = GetCheckMedium(p.CheckForm, p.CheckMedium),
-                    Remark = p.Remark
+                    Remark = p.Remark,
+                    CheckMedium = checkMedium,
+                    ClassName = className,
+                    CourseName = courseName,
+                    DeClassTimesDesc = deClassTimesDesc,
+                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));
         }
 
-        private string GetCheckMedium(byte checkForm, string checkMedium)
-        {
-            if (checkForm == EmStudentCheckOnLogCheckForm.Face)
-            {
-                return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
-            }
-            return checkMedium;
-        }
+        //private string GetCheckMedium(byte checkForm, string checkMedium)
+        //{
+        //    if (checkForm == EmStudentCheckOnLogCheckForm.Face)
+        //    {
+        //        return AliyunOssUtil.GetAccessUrlHttps(checkMedium);
+        //    }
+        //    return checkMedium;
+        //}
 
         public async Task<ResponseBase> StudentCheckByCard(StudentCheckByCardRequest request)
         {

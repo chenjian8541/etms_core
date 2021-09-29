@@ -254,6 +254,11 @@ namespace ETMS.Business
                 paySum += request.EnrolmentPayInfo.PayOther;
                 incomeLogs.Add(GetEtIncomeLog(EmPayType.Other, request.EnrolmentPayInfo.PayOther, now, request.OtherInfo.Ot, no, request));
             }
+            if (request.EnrolmentPayInfo.PayLcsBarcodePay > 0)
+            {
+                paySum += request.EnrolmentPayInfo.PayLcsBarcodePay;
+                incomeLogs.Add(GetEtIncomeLog(EmPayType.PayLcsBarcodePay, request.EnrolmentPayInfo.PayLcsBarcodePay, now, request.OtherInfo.Ot, no, request));
+            }
 
             var arrearsSum = aptSum - paySum;
             var status = EmOrderStatus.Normal;

@@ -52,12 +52,20 @@ namespace ETMS.Entity.Dto.Student.Request
                 {
                     return null;
                 }
-                _endOt = Convert.ToDateTime(Ot[1]).AddDays(1); ;
+                _endOt = Convert.ToDateTime(Ot[1]); ;
                 return _endOt;
             }
         }
 
         public long? StudentId { get; set; }
+
+        public byte? CheckType { get; set; }
+
+        public long? ClassId { get; set; }
+
+        public long? CourseId { get; set; }
+
+        public byte? Status { get; set; }
 
         /// <summary>
         /// 获取SQL语句
@@ -68,15 +76,31 @@ namespace ETMS.Entity.Dto.Student.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (StartOt != null)
             {
-                condition.Append($" AND CheckOt >= '{StartOt.Value.EtmsToDateString()}'");
+                condition.Append($" AND CheckOt >= '{StartOt.Value.EtmsToString()}'");
             }
             if (EndOt != null)
             {
-                condition.Append($" AND CheckOt < '{EndOt.Value.EtmsToDateString()}'");
+                condition.Append($" AND CheckOt <= '{EndOt.Value.EtmsToString()}'");
             }
             if (StudentId != null)
             {
                 condition.Append($" AND StudentId = {StudentId.Value}");
+            }
+            if (CheckType != null)
+            {
+                condition.Append($" AND CheckType = {CheckType.Value}");
+            }
+            if (ClassId != null)
+            {
+                condition.Append($" AND ClassId = {ClassId.Value}");
+            }
+            if (CourseId != null)
+            {
+                condition.Append($" AND CourseId = {CourseId.Value}");
+            }
+            if (Status != null)
+            {
+                condition.Append($" AND [Status] = {Status.Value}");
             }
             return condition.ToString();
         }
