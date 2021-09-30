@@ -262,7 +262,6 @@ namespace ETMS.Pay.Lcsw
             param.AppendFormat("&terminal_time={0}", requesParam.terminal_time);
             param.AppendFormat("&out_trade_no={0}", requesParam.out_trade_no);
             var key_sign = string.Format("{0}&access_token={1}", param.ToString(), requesParam.accessToken);
-
             var data = new
             {
                 pay_ver = "100",
@@ -272,11 +271,10 @@ namespace ETMS.Pay.Lcsw
                 terminal_id = requesParam.terminal_id,
                 terminal_trace = requesParam.terminal_trace,
                 terminal_time = requesParam.terminal_time,
-                pay_trace = requesParam.pay_trace,
-                pay_time = requesParam.pay_time,
                 out_trade_no = requesParam.out_trade_no,
                 key_sign = MD5Helper.GetSign(key_sign),
             };
+
             return Post.PostGetJson<ResponseQuery>(ApiAddress.Query, data);
         }
 

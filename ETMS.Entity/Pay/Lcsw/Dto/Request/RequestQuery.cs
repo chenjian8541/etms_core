@@ -14,10 +14,6 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /******************************** 必填参数 ==========================*/
         public string payType { get; set; }
 
-        public string pay_trace { get; set; }
-
-        public string pay_time { get; set; }
-
         /// <summary>
         /// 终端查询流水号，填写商户系统的查询流水号
         /// </summary>

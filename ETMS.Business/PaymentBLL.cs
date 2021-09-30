@@ -1,8 +1,10 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
+using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
+using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.IBusiness;
@@ -114,7 +116,7 @@ namespace ETMS.Business
                     orderNo = OrderNumberLib.StudentAccountRecharge();
                     break;
             }
-            var resPay = _payLcswService.BarcodePay(new RequestBarcodePay()
+            var payRequest = new RequestBarcodePay()
             {
                 accessToken = myLcsAccount.AccessToken,
                 terminal_id = myLcsAccount.TerminalId,
@@ -125,9 +127,52 @@ namespace ETMS.Business
                 attach = request.LoginTenantId.ToString(),
                 merchant_no = myLcsAccount.MerchantNo,
                 order_body = request.OrderDesc,
-                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString()
+                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString(),
+                goods_detail = string.Empty
+            };
+            var resPay = _payLcswService.BarcodePay(payRequest);
+            if (!resPay.IsSuccess())
+            {
+                return ResponseBase.CommonError($"扫码支付失败:{resPay.return_msg}");
+            }
+            await _tenantLcsAccountDAL.AddTenantLcsPayLog(new SysTenantLcsPayLog()
+            {
+                AgentId = myTenant.AgentId,
+                Attach = payRequest.attach,
+                AuthNo = payRequest.auth_no,
+                CreateOt = now,
+                IsDeleted = EmIsDeleted.Normal,
+                MerchantName = myLcsAccount.MerchantName,
+                MerchantNo = myLcsAccount.MerchantNo,
+                MerchantType = myLcsAccount.MerchantType,
+                OpenId = string.Empty,
+                OrderBody = payRequest.order_body,
+                OrderDesc = request.OrderDesc,
+                OrderNo = orderNo,
+                OrderSource = EmLcsPayLogOrderSource.PC,
+                OrderType = request.OrderType,
+                OutRefundNo = string.Empty,
+                OutTradeNo = resPay.out_trade_no,
+                PayFinishOt = null,
+                PayType = resPay.pay_type,
+                RefundFee = string.Empty,
+                RefundOt = null,
+                Remark = null,
+                Status = EmLcsPayLogStatus.Unpaid,
+                StudentId = request.StudentId,
+                SubAppid = string.Empty,
+                TenantId = request.LoginTenantId,
+                TerminalId = myLcsAccount.TerminalId,
+                TerminalTrace = orderNo,
+                TotalFee = payRequest.total_fee,
+                TotalFeeDesc = request.PayMoney.ToString(),
             });
-            return ResponseBase.Success(resPay);
+            return ResponseBase.Success(new BarCodePayOutput()
+            {
+                OrderNo = orderNo,
+                out_trade_no = resPay.out_trade_no,
+                pay_type = resPay.pay_type
+            });
         }
     }
 }

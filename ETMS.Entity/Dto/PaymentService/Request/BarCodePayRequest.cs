@@ -9,6 +9,8 @@ namespace ETMS.Entity.Dto.PaymentService.Request
 {
     public class BarCodePayRequest : RequestBase
     {
+        public long StudentId { get; set; }
+
         public decimal PayMoney { get; set; }
 
         public string AuthNo { get; set; }
@@ -19,6 +21,10 @@ namespace ETMS.Entity.Dto.PaymentService.Request
 
         public override string Validate()
         {
+            if (StudentId <= 0)
+            {
+                return "请求数据格式错误";
+            }
             if (PayMoney <= 0)
             {
                 return "支付金额必须大于0";

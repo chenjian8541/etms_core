@@ -10,6 +10,8 @@ namespace ETMS.Entity.Dto.PaymentService.Output
     {
         public string OrderNo { get; set; }
 
+        public string pay_type { get; set; }
 
+        public string out_trade_no { get; set; }
     }
 }
