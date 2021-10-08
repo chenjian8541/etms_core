@@ -13,14 +13,6 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
     public class RequestGetSettlement
     {
         /// <summary>
-        /// 机构编号，扫呗分配
-        /// </summary>
-        public string inst_no { get; set; }
-        /// <summary>
-        /// 请求流水号
-        /// </summary>
-        public string trace_no { get; set; }
-        /// <summary>
         /// 商户号
         /// </summary>
         public string merchant_no { get; set; }

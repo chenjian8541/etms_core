@@ -18,7 +18,9 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task EditTenantLcsAccount(SysTenantLcsAccount entity);
 
-        Task AddTenantLcsPayLog(SysTenantLcsPayLog entity);
+        Task<long> AddTenantLcsPayLog(SysTenantLcsPayLog entity);
+
+        Task<SysTenantLcsPayLog> GetTenantLcsPayLog(long id);
 
         Task EditTenantLcsPayLog(SysTenantLcsPayLog entity);
 

@@ -98,33 +98,13 @@ namespace ETMS.Pay.Lcsw
         /// <returns></returns>
         public ResponseGetSettlement GetSettlement(RequestGetSettlement requesParam)
         {
-            var key_sign = new Dictionary<string, string>();
-            key_sign.Add("inst_no", requesParam.inst_no);
-            key_sign.Add("version", "200");
-            key_sign.Add("trace_no", requesParam.trace_no);
-            key_sign.Add("merchant_no", requesParam.merchant_no);
-            key_sign.Add("begin_date", requesParam.begin_date);
-            key_sign.Add("end_date", requesParam.end_date);
-            var param = from obj in key_sign
-                        orderby obj.Key ascending
-                        select obj;
-            var str = new StringBuilder();
-            foreach (var kv in param)
-            {
-                str.Append(kv.Key + "=" + kv.Value + "&");
-            }
-            string sign = string.Format("{0}key={1}", str.ToString(), Config._instToken);
-            var data = new
-            {
-                inst_no = requesParam.inst_no,
-                version = "200",
-                trace_no = requesParam.trace_no,
-                merchant_no = requesParam.merchant_no,
-                begin_date = requesParam.begin_date,
-                end_date = requesParam.end_date,
-                key_sign = MD5Helper.GetSign(sign),
-            };
-            return Post.PostGetJson<ResponseGetSettlement>(ApiAddress.GetSettlement, data);
+            var param = MD5Helper.GetEntityToDictionary(requesParam);
+            var traceno = Guid.NewGuid().ToString("N");
+            param.Add("version", "200");
+            param.Add("trace_no", traceno);
+            param.Add("inst_no", Config._instNo);
+            param.Add("key_sign", MD5Helper.GetSign(param, "key", Config._instToken));
+            return Post.PostGetJson<ResponseGetSettlement>(ApiAddress.GetSettlement, param);
         }
 
         /// <summary>
@@ -179,36 +159,23 @@ namespace ETMS.Pay.Lcsw
         /// <returns></returns>
         public ResponseBarcodePay BarcodePay(RequestBarcodePay requesParam)
         {
-            var param = new StringBuilder();
-            param.Append("pay_ver=100");
-            param.AppendFormat("&pay_type={0}", requesParam.payType);
-            param.Append("&service_id=010");
-            param.AppendFormat("&merchant_no={0}", requesParam.merchant_no);
-            param.AppendFormat("&terminal_id={0}", requesParam.terminal_id);
-            param.AppendFormat("&terminal_trace={0}", requesParam.terminal_trace);
-            param.AppendFormat("&terminal_time={0}", requesParam.terminal_time);
-            param.AppendFormat("&auth_no={0}", requesParam.auth_no);
-            param.AppendFormat("&total_fee={0}", requesParam.total_fee);
-            //拼接签名
-            var key_sign = string.Format("{0}&access_token={1}", param.ToString(), requesParam.accessToken);
-
-            var data = new
+            var param = new Dictionary<string, object>
             {
-                pay_ver = "100",
-                pay_type = requesParam.payType,
-                service_id = "010",
-                merchant_no = requesParam.merchant_no,
-                terminal_id = requesParam.terminal_id,
-                terminal_trace = requesParam.terminal_trace,
-                terminal_time = requesParam.terminal_time,
-                auth_no = requesParam.auth_no,
-                total_fee = requesParam.total_fee,
-                order_body = requesParam.order_body,
-                attach = requesParam.attach,
-                goods_detail = requesParam.goods_detail,
-                key_sign = MD5Helper.GetSign(key_sign),
+                {"pay_ver", "110"},
+                {"service_id", "010"},
+                {"pay_type", requesParam.payType},
+                {"merchant_no", requesParam.merchant_no},
+                {"terminal_id", requesParam.terminal_id},
+                {"terminal_trace", requesParam.terminal_trace},
+                {"terminal_time", requesParam.terminal_time},
+                {"auth_no", requesParam.auth_no},
+                {"total_fee", requesParam.total_fee},
+                {"order_body",requesParam.order_body },
+                { "attach",requesParam.attach},
+                { "access_token",requesParam.access_token}
             };
-            return Post.PostGetJson<ResponseBarcodePay>(ApiAddress.BarcodePay, data);
+            param.Add("key_sign", MD5Helper.GetSign(param));
+            return Post.PostGetJson<ResponseBarcodePay>(ApiAddress.BarcodePay, param);
         }
 
         /// <summary>
@@ -235,7 +202,7 @@ namespace ETMS.Pay.Lcsw
             param.Add("terminal_time", requesParam.terminal_time);
             param.Add("total_fee", requesParam.total_fee);
             //拼接签名
-            param.Add("key_sign", MD5Helper.GetSignNoSort(param, "access_token", requesParam.accessToken));
+            param.Add("key_sign", MD5Helper.GetSign(param, "access_token", requesParam.access_token));
             //不参与签名的字符
             param.Add("open_id", requesParam.open_id);
             param.Add("order_body", requesParam.order_body);
@@ -250,32 +217,22 @@ namespace ETMS.Pay.Lcsw
         /// </summary>
         /// <param name="requesParam"></param>
         /// <returns></returns>
-        public ResponseQuery Query(RequestQuery requesParam)
+        public ResponseQuery QueryPay(RequestQuery requesParam)
         {
-            var param = new StringBuilder();
-            param.Append("pay_ver=100");
-            param.AppendFormat("&pay_type={0}", requesParam.payType);
-            param.Append("&service_id=020");
-            param.AppendFormat("&merchant_no={0}", requesParam.merchant_no);
-            param.AppendFormat("&terminal_id={0}", requesParam.terminal_id);
-            param.AppendFormat("&terminal_trace={0}", requesParam.terminal_trace);
-            param.AppendFormat("&terminal_time={0}", requesParam.terminal_time);
-            param.AppendFormat("&out_trade_no={0}", requesParam.out_trade_no);
-            var key_sign = string.Format("{0}&access_token={1}", param.ToString(), requesParam.accessToken);
-            var data = new
+            var param = new Dictionary<string, object>
             {
-                pay_ver = "100",
-                pay_type = requesParam.payType,
-                service_id = "020",
-                merchant_no = requesParam.merchant_no,
-                terminal_id = requesParam.terminal_id,
-                terminal_trace = requesParam.terminal_trace,
-                terminal_time = requesParam.terminal_time,
-                out_trade_no = requesParam.out_trade_no,
-                key_sign = MD5Helper.GetSign(key_sign),
+                {"pay_ver", "100"},
+                {"service_id", "020"},
+                {"pay_type", requesParam.payType},
+                {"merchant_no", requesParam.merchant_no},
+                {"terminal_id", requesParam.terminal_id},
+                {"terminal_trace", requesParam.terminal_trace},
+                {"terminal_time",requesParam.terminal_time},
+                {"out_trade_no", requesParam.out_trade_no},
+                { "access_token",requesParam.access_token}
             };
-
-            return Post.PostGetJson<ResponseQuery>(ApiAddress.Query, data);
+            param.Add("key_sign", MD5Helper.GetSign(param));
+            return Post.PostGetJson<ResponseQuery>(ApiAddress.Query, param);
         }
 
         /// <summary>
@@ -285,37 +242,23 @@ namespace ETMS.Pay.Lcsw
         /// </summary>
         /// <param name="requesParam"></param>
         /// <returns></returns>
-        public ResponseRefund Refund(RequestRefund requesParam)
+        public ResponseRefund RefundPay(RequestRefund requesParam)
         {
-            var param = new StringBuilder();
-            param.Append("pay_ver=100");
-            param.AppendFormat("&pay_type={0}", requesParam.payType);
-            param.Append("&service_id=030");
-            param.AppendFormat("&merchant_no={0}", requesParam.merchant_no);
-            param.AppendFormat("&terminal_id={0}", requesParam.terminal_id);
-            param.AppendFormat("&terminal_trace={0}", requesParam.terminal_trace);
-            param.AppendFormat("&terminal_time={0}", requesParam.terminal_time);
-            param.AppendFormat("&refund_fee={0}", requesParam.refund_fee);
-            param.AppendFormat("&out_trade_no={0}", requesParam.out_trade_no);
-            string key_sign = string.Format("{0}&access_token={1}", param.ToString(), requesParam.accessToken);
-
-            var data = new
+            var param = new Dictionary<string, object>
             {
-                pay_ver = "100",
-                pay_type = requesParam.payType,
-                service_id = "030",
-                merchant_no = requesParam.merchant_no,
-                terminal_id = requesParam.terminal_id,
-                terminal_trace = requesParam.terminal_trace,
-                terminal_time = requesParam.terminal_time,
-                refund_fee = requesParam.refund_fee,
-                out_trade_no = requesParam.out_trade_no,
-                pay_trace = requesParam.pay_trace,
-                pay_time = requesParam.pay_time,
-                auth_code = requesParam.auth_code,
-                key_sign = MD5Helper.GetSign(key_sign),
+                {"pay_ver", "100"},
+                {"service_id", "030"},
+                {"pay_type", requesParam.payType},
+                {"merchant_no", requesParam.merchant_no},
+                {"terminal_id", requesParam.terminal_id},
+                {"terminal_trace", requesParam.terminal_trace},
+                {"terminal_time", requesParam.terminal_time},
+                {"refund_fee", requesParam.refund_fee},
+                {"out_trade_no",requesParam.out_trade_no },
+                { "access_token",requesParam.access_token}
             };
-            return Post.PostGetJson<ResponseRefund>(ApiAddress.Refund, data);
+            param.Add("key_sign", MD5Helper.GetSign(param));
+            return Post.PostGetJson<ResponseRefund>(ApiAddress.Refund, param);
         }
     }
 }

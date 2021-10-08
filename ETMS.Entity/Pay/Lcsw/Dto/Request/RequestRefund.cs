@@ -19,12 +19,6 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
 
         public string payType { get; set; }
 
-        public string pay_trace { get; set; }
-
-        public string pay_time { get; set; }
-
-        public string auth_code { get; set; }
-
         /// <summary>
         /// 终端号
         /// </summary>

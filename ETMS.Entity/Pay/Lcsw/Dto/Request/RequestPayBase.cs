@@ -8,7 +8,7 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
 {
     public class RequestPayBase
     {
-        public string accessToken { get; set; }
+        public string access_token { get; set; }
 
         /// <summary>
         /// 商户号

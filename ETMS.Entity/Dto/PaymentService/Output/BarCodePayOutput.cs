@@ -8,6 +8,8 @@ namespace ETMS.Entity.Dto.PaymentService.Output
 {
     public class BarCodePayOutput
     {
+        public long LcsAccountId { get; set; }
+
         public string OrderNo { get; set; }
 
         public string pay_type { get; set; }

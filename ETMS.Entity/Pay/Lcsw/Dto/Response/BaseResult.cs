@@ -33,8 +33,12 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request.Response
         /// </summary>
         public string result_code { get; set; }
 
-        public bool IsSuccess()
+        public bool IsSuccess(bool notIgnoreResultCode = false)
         {
+            if (notIgnoreResultCode)
+            {
+                return this.return_code == ReturnCode.成功 && result_code == ResultCode.SUCCESS;
+            }
             return this.return_code == ReturnCode.成功 && (result_code == ResultCode.SUCCESS || string.IsNullOrEmpty(result_code));
         }
     }

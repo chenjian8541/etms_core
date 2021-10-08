@@ -154,5 +154,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> LcsPayQuery(LcsPayQueryRequest request)
+        {
+            try
+            {
+                _paymentBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentBLL.LcsPayQuery(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request)
+        {
+            try
+            {
+                _paymentBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentBLL.LcsPayRefund(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

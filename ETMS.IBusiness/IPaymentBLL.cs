@@ -14,5 +14,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request);
 
         Task<ResponseBase> BarCodePay(BarCodePayRequest request);
+
+        Task<ResponseBase> LcsPayQuery(LcsPayQueryRequest request);
+
+        Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request);
     }
 }

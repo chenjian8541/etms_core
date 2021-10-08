@@ -1,5 +1,6 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.PaymentService.Output;
@@ -7,6 +8,7 @@ using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
+using ETMS.Entity.Temp;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
@@ -30,18 +32,21 @@ namespace ETMS.Business
 
         private readonly IPayLcswService _payLcswService;
 
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
-            IPayLcswService payLcswService)
+            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL)
         {
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._studentDAL = studentDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._payLcswService = payLcswService;
+            this._userOperationLogDAL = userOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentDAL);
+            this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL);
         }
 
         public async Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request)
@@ -51,14 +56,14 @@ namespace ETMS.Business
             if (pagingData.Item1.Any())
             {
                 var tempBoxStudent = new DataTempBox<EtStudent>();
-                var now = DateTime.Now.Date.AddDays(-15); //限支付15天内退款，超过15天，不能进行退款操作
+                var limitRefundDate = DateTime.Now.Date.AddDays(-SystemConfig.ComConfig.LcsRefundOrderLimitDay);
                 foreach (var p in pagingData.Item1)
                 {
                     var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
                     var isCanRefund = false;
                     if (p.Status == EmLcsPayLogStatus.PaySuccess)
                     {
-                        if (p.PayFinishOt > now)
+                        if (p.PayFinishOt.Value > limitRefundDate)
                         {
                             isCanRefund = true;
                         }
@@ -91,20 +96,38 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<TenantLcsPayLogPagingOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
+        private async Task<CheckTenantLcsAccountView> CheckTenantLcsAccount(int tenantId)
         {
-            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
             var isOpenLcsPay = ComBusiness4.GetIsOpenLcsPay(myTenant.LcswApplyStatus, myTenant.LcswOpenStatus);
             if (!isOpenLcsPay)
             {
-                return ResponseBase.CommonError("机构未开通扫呗支付");
+                return new CheckTenantLcsAccountView("机构未开通扫呗支付");
             }
             var myLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
             if (myLcsAccount == null)
             {
-                LOG.Log.Error("[BarCodePay]扫呗账户异常", request, this.GetType());
-                return ResponseBase.CommonError("扫呗账户异常，无法支付");
+                LOG.Log.Error($"[CheckTenantLcsAccount]扫呗账户异常tenantId:{tenantId}", this.GetType());
+                return new CheckTenantLcsAccountView("扫呗账户异常，无法支付");
             }
+            return new CheckTenantLcsAccountView()
+            {
+                MyTenant = myTenant,
+                MyLcsAccount = myLcsAccount,
+                ErrMsg = null
+            };
+        }
+
+        public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
+        {
+            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
+            }
+            var myTenant = checkTenantLcsAccountResult.MyTenant;
+            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
+
             var now = DateTime.Now;
             var orderNo = string.Empty;
             switch (request.OrderType)
@@ -118,7 +141,7 @@ namespace ETMS.Business
             }
             var payRequest = new RequestBarcodePay()
             {
-                accessToken = myLcsAccount.AccessToken,
+                access_token = myLcsAccount.AccessToken,
                 terminal_id = myLcsAccount.TerminalId,
                 terminal_time = ComBusiness4.GetLcsTerminalTime(now),
                 payType = EmLcsPayType.AutoTypePay,
@@ -127,15 +150,14 @@ namespace ETMS.Business
                 attach = request.LoginTenantId.ToString(),
                 merchant_no = myLcsAccount.MerchantNo,
                 order_body = request.OrderDesc,
-                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString(),
-                goods_detail = string.Empty
+                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString()
             };
             var resPay = _payLcswService.BarcodePay(payRequest);
             if (!resPay.IsSuccess())
             {
                 return ResponseBase.CommonError($"扫码支付失败:{resPay.return_msg}");
             }
-            await _tenantLcsAccountDAL.AddTenantLcsPayLog(new SysTenantLcsPayLog()
+            var lcsPayLogId = await _tenantLcsAccountDAL.AddTenantLcsPayLog(new SysTenantLcsPayLog()
             {
                 AgentId = myTenant.AgentId,
                 Attach = payRequest.attach,
@@ -165,14 +187,107 @@ namespace ETMS.Business
                 TerminalId = myLcsAccount.TerminalId,
                 TerminalTrace = orderNo,
                 TotalFee = payRequest.total_fee,
-                TotalFeeDesc = request.PayMoney.ToString(),
+                TotalFeeDesc = request.PayMoney.ToString()
             });
             return ResponseBase.Success(new BarCodePayOutput()
             {
                 OrderNo = orderNo,
                 out_trade_no = resPay.out_trade_no,
-                pay_type = resPay.pay_type
+                pay_type = resPay.pay_type,
+                LcsAccountId = lcsPayLogId
             });
+        }
+
+        public async Task<ResponseBase> LcsPayQuery(LcsPayQueryRequest request)
+        {
+            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
+            }
+            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
+
+            var now = DateTime.Now;
+            var payResult = _payLcswService.QueryPay(new RequestQuery()
+            {
+                access_token = myLcsAccount.AccessToken,
+                merchant_no = myLcsAccount.MerchantNo,
+                out_trade_no = request.out_trade_no,
+                payType = request.pay_type,
+                terminal_id = myLcsAccount.TerminalId,
+                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
+                terminal_trace = request.OrderNo
+            });
+            if (!payResult.IsSuccess(true))
+            {
+                if (payResult.result_code == "02")
+                {
+                    return ResponseBase.Success(new LcsPayQueryOutput()
+                    {
+                        PayStatus = EmLcsPayQueryPayStatus.Fail
+                    });
+                }
+                return ResponseBase.Success(new LcsPayQueryOutput()
+                {
+                    PayStatus = EmLcsPayQueryPayStatus.Paying
+                });
+            }
+            var paylog = await _tenantLcsAccountDAL.GetTenantLcsPayLog(request.LcsAccountId);
+            paylog.PayFinishOt = now;
+            paylog.Status = EmLcsPayLogStatus.PaySuccess;
+            await _tenantLcsAccountDAL.EditTenantLcsPayLog(paylog);
+
+            return ResponseBase.Success(new LcsPayQueryOutput()
+            {
+                PayStatus = EmLcsPayQueryPayStatus.Success
+            });
+        }
+
+        public async Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request)
+        {
+            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
+            }
+            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
+
+            var now = DateTime.Now;
+            var paylog = await _tenantLcsAccountDAL.GetTenantLcsPayLog(request.LcsAccountId);
+            if (paylog.Status != EmLcsPayLogStatus.PaySuccess)
+            {
+                return ResponseBase.CommonError("此订单无法执行退款");
+            }
+            var limitRefundDate = DateTime.Now.Date.AddDays(-SystemConfig.ComConfig.LcsRefundOrderLimitDay);
+            if (paylog.PayFinishOt.Value <= limitRefundDate)
+            {
+                return ResponseBase.CommonError("此订单超过15天，不能进行退款操作");
+            }
+
+            var refundResult = _payLcswService.RefundPay(new RequestRefund()
+            {
+                access_token = myLcsAccount.AccessToken,
+                merchant_no = myLcsAccount.MerchantNo,
+                out_trade_no = paylog.OutTradeNo,
+                payType = paylog.PayType,
+                refund_fee = paylog.TotalFee,
+                terminal_id = myLcsAccount.TerminalId,
+                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
+                terminal_trace = paylog.OrderNo
+            });
+            if (!refundResult.IsSuccess(true))
+            {
+                return ResponseBase.CommonError(refundResult.return_msg);
+            }
+
+            paylog.RefundOt = now;
+            paylog.RefundFee = refundResult.refund_fee;
+            paylog.OutRefundNo = refundResult.out_refund_no;
+            paylog.Status = EmLcsPayLogStatus.Refunded;
+            await _tenantLcsAccountDAL.EditTenantLcsPayLog(paylog);
+
+            await _userOperationLogDAL.AddUserLog(request, $"退款申请-退款金额:{paylog.TotalFeeDesc},订单号:{paylog.OrderNo}", EmUserOperationType.LcsMgr, now);
+            return ResponseBase.Success();
         }
     }
 }

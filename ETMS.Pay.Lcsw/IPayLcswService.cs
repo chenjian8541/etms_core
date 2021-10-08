@@ -76,7 +76,7 @@ namespace ETMS.Pay.Lcsw
         /// </summary>
         /// <param name="requesParam"></param>
         /// <returns></returns>
-        ResponseQuery Query(RequestQuery requesParam);
+        ResponseQuery QueryPay(RequestQuery requesParam);
 
         /// <summary>
         /// 退款申请
@@ -85,6 +85,6 @@ namespace ETMS.Pay.Lcsw
         /// </summary>
         /// <param name="requesParam"></param>
         /// <returns></returns>
-        ResponseRefund Refund(RequestRefund requesParam);
+        ResponseRefund RefundPay(RequestRefund requesParam);
     }
 }
