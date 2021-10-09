@@ -37,5 +37,15 @@ namespace ETMS.Entity.Config.Menu
         /// 排序号
         /// </summary>
         public int Sort { get; set; }
+
+        /// <summary>
+        /// 类别ID
+        /// </summary>
+        public int CategoryId { get; set; }
+
+        /// <summary>
+        /// 类别名称
+        /// </summary>
+        public string CategoryName { get; set; }
     }
 }

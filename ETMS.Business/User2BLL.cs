@@ -37,8 +37,20 @@ namespace ETMS.Business
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var output = new GetAllMenusH5Output()
             {
-                AllMenus = ComBusiness.GetH5AllMenus(PermissionDataH5.MenuConfigs, role.AuthorityValueMenu, userInfo.IsAdmin)
+                AllCategorys = new List<GetAllMenusH5Category>()
             };
+            var myItems = ComBusiness.GetH5AllMenus(PermissionDataH5.MenuConfigs, role.AuthorityValueMenu, userInfo.IsAdmin);
+            var allCategory = myItems.GroupBy(p => p.CategoryId).OrderBy(p => p.Key);
+            foreach (var p in allCategory)
+            {
+                var thisItem = myItems.Where(j => j.CategoryId == p.Key).OrderBy(j => j.Sort);
+                output.AllCategorys.Add(new GetAllMenusH5Category()
+                {
+                    CategoryId = p.Key,
+                    CategoryName = thisItem.First().CategoryName,
+                    MyMenus = thisItem
+                });
+            }
             return ResponseBase.Success(output);
         }
 

@@ -905,7 +905,9 @@ namespace ETMS.Business.Common
                         Id = p.Id,
                         Name = p.Name,
                         Sort = p.Sort,
-                        IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                        IconUrl = p.Icon,
+                        CategoryId = p.CategoryId,
+                        CategoryName = p.CategoryName
                     });
                 }
                 else
@@ -947,7 +949,9 @@ namespace ETMS.Business.Common
                     Id = p.Id,
                     Name = p.Name,
                     Sort = p.Sort,
-                    IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                    IconUrl = p.Icon,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.CategoryName
                 });
             }
 
@@ -967,10 +971,11 @@ namespace ETMS.Business.Common
             }
             var authorityCoreHome = new AuthorityCore(userHomeMenu.ToBigInteger());
 
+            var allMenusOutput = new List<AllMenuH5Output>();
             var output = new GetEditMenusH5Output()
             {
-                AllMenus = new List<AllMenuH5Output>(),
-                HomeMenus = new List<MenuH5Output>()
+                HomeMenus = new List<MenuH5Output>(),
+                AllMenuCategorys = new List<AllMenuCategory>()
             };
             bool isHome;
             foreach (var p in allMenus)
@@ -994,17 +999,32 @@ namespace ETMS.Business.Common
                         Id = p.Id,
                         Name = p.Name,
                         Sort = p.Sort,
-                        IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                        IconUrl = p.Icon,
+                        CategoryId = p.CategoryId,
+                        CategoryName = p.CategoryName
                     });
                     isHome = true;
                 }
-                output.AllMenus.Add(new AllMenuH5Output()
+                allMenusOutput.Add(new AllMenuH5Output()
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Sort = p.Sort,
-                    IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon),
-                    IsHome = isHome
+                    IconUrl = p.Icon,
+                    IsHome = isHome,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.CategoryName
+                });
+            }
+            var allCategory = allMenusOutput.GroupBy(p => p.CategoryId).OrderBy(p => p.Key);
+            foreach (var p in allCategory)
+            {
+                var thisItem = allMenusOutput.Where(j => j.CategoryId == p.Key).OrderBy(j => j.Sort);
+                output.AllMenuCategorys.Add(new AllMenuCategory()
+                {
+                    CategoryId = p.Key,
+                    CategoryName = thisItem.First().CategoryName,
+                    MyMenus = thisItem
                 });
             }
             return output;

@@ -92,5 +92,41 @@ namespace ETMS.Business.Common
         {
             return time.ToString("yyyyMMddHHmmss");
         }
+
+        internal static string CheckStudentCourseIsEnough(List<EtStudentCourseDetail> myCourseDetail, string studentName, DateTime classDate, decimal deClassTimes)
+        {
+            if (!string.IsNullOrEmpty(studentName))
+            {
+                studentName = $"[{studentName}]";
+            }
+            if (myCourseDetail == null || !myCourseDetail.Any())
+            {
+                return $"学员{studentName}未购买此课程，无法点名";
+            }
+            var dayCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.Day && (p.StartTime == null || classDate >= p.StartTime)
+            && (p.EndTime == null || classDate <= p.EndTime) && p.Status == EmStudentCourseStatus.Normal);
+            if (!dayCourseDetail.Any())
+            {
+                var timesCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes && p.Status == EmStudentCourseStatus.Normal
+                && (p.EndTime == null || classDate <= p.EndTime) && p.SurplusQuantity >= deClassTimes);
+                if (!timesCourseDetail.Any())
+                {
+                    var stopTimeCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes
+                    && p.Status == EmStudentCourseStatus.StopOfClass && (p.EndTime == null || classDate <= p.EndTime) && p.SurplusQuantity >= deClassTimes);
+                    if (stopTimeCourseDetail.Any())
+                    {
+                        return $"学员{studentName}已停课，无法点名";
+                    }
+                    var stopDayCourseDetail = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.Day && (p.StartTime == null || classDate >= p.StartTime)
+                    && (p.EndTime == null || classDate <= p.EndTime) && p.Status == EmStudentCourseStatus.StopOfClass);
+                    if (stopDayCourseDetail.Any())
+                    {
+                        return $"学员{studentName}已停课，无法点名";
+                    }
+                    return $"学员{studentName}剩余课时不足，无法点名";
+                }
+            }
+            return string.Empty;
+        }
     }
 }

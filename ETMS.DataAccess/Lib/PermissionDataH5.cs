@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Config.Menu;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using Newtonsoft.Json;
 using System;
@@ -26,6 +27,11 @@ namespace ETMS.DataAccess.Lib
                         {
                             var json = File.ReadAllText(FileHelper.GetFilePath("menusettingH5.json"));
                             _menuConfigs = JsonConvert.DeserializeObject<List<MenuConfigH5>>(json);
+                            foreach (var p in _menuConfigs)
+                            {
+                                p.CategoryName = EmSystemMenusCategory.GetSystemMenusCategoryName(p.CategoryId);
+                                p.Icon = AliyunOssUtil.GetAccessUrlHttps(p.Icon);
+                            }
                             return _menuConfigs;
                         }
                     }

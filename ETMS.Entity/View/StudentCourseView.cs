@@ -125,5 +125,20 @@ namespace ETMS.Entity.View
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte StudentCheckDefault { get; set; }
+
+        /// <summary>
+        /// 创建人
+        /// </summary>
+        public long CreateBy { get; set; }
+
+        /// <summary>
+        /// 跟进人
+        /// </summary>
+        public long? TrackUser { get; set; }
+
+        /// <summary>
+        /// 学管师
+        /// </summary>
+        public long? LearningManager { get; set; }
     }
 }

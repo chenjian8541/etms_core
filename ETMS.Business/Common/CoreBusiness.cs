@@ -45,14 +45,18 @@ namespace ETMS.Business.Common
         /// <param name="studentCourseDAL"></param>
         /// <param name="classRecordStudent"></param>
         /// <returns></returns>
-        public static async Task<DeStudentClassTimesResult> DeStudentClassTimes(IStudentCourseDAL studentCourseDAL, DeStudentClassTimesTempRequest classRecordStudent)
+        public static async Task<DeStudentClassTimesResult> DeStudentClassTimes(IStudentCourseDAL studentCourseDAL,
+            DeStudentClassTimesTempRequest classRecordStudent, List<EtStudentCourseDetail> myCourseDetail = null)
         {
             if (classRecordStudent.DeClassTimes == 0)
             {
                 return DeStudentClassTimesResult.GetNotDeEntity();
             }
             var classDate = classRecordStudent.ClassOt.Date;
-            var myCourseDetail = await studentCourseDAL.GetStudentCourseDetail(classRecordStudent.StudentId, classRecordStudent.CourseId);
+            if (myCourseDetail == null)
+            {
+                myCourseDetail = await studentCourseDAL.GetStudentCourseDetail(classRecordStudent.StudentId, classRecordStudent.CourseId);
+            }
             if (myCourseDetail == null || !myCourseDetail.Any())
             {
                 //记录超上课时
@@ -181,9 +185,10 @@ namespace ETMS.Business.Common
         /// <param name="classTimsId"></param>
         /// <param name="studentId"></param>
         /// <param name="makeupIsDeClassTimes"></param>
+        /// <param name="isJumpStudentCourseNotEnough"></param>
         /// <returns></returns>
         public static async Task<Tuple<string, DeStudentClassTimesResult>> DeStudentClassTimes(IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
-            IClassDAL classDAL, bool makeupIsDeClassTimes, EtClassTimes myClassTimes, long studentId, DateTime classOt)
+            IClassDAL classDAL, bool makeupIsDeClassTimes, EtClassTimes myClassTimes, long studentId, DateTime classOt, bool isJumpStudentCourseNotEnough = false)
         {
             DeStudentClassTimesResult result = null;
             if (myClassTimes.Status == EmClassTimesStatus.BeRollcall)
@@ -239,6 +244,16 @@ namespace ETMS.Business.Common
                     LOG.Log.Error($"[DeStudentClassTimes]课次中未找到该学员信息,LoginTenantId:{myClassTimes.TenantId},ClassTimesId:{myClassTimes.Id},Student:{studentId}", typeof(CoreBusiness));
                     return Tuple.Create("课次中未找到该学员信息", result);
                 }
+                List<EtStudentCourseDetail> myStudentCourses = null;
+                if (isJumpStudentCourseNotEnough)
+                {
+                    myStudentCourses = await studentCourseDAL.GetStudentCourseDetail(studentId, deCourseId);
+                    var errMsg = ComBusiness4.CheckStudentCourseIsEnough(myStudentCourses, null, classOt, myClass.EtClass.DefaultClassTimes);
+                    if (!string.IsNullOrEmpty(errMsg))
+                    {
+                        return Tuple.Create(errMsg, result);
+                    }
+                }
                 result = await CoreBusiness.DeStudentClassTimes(studentCourseDAL, new DeStudentClassTimesTempRequest()
                 {
                     ClassOt = classOt,
@@ -246,7 +261,7 @@ namespace ETMS.Business.Common
                     StudentId = studentId,
                     DeClassTimes = myClass.EtClass.DefaultClassTimes,
                     CourseId = deCourseId
-                });
+                }, myStudentCourses);
             }
             result.Remrak = remrak;
             result.DeCourseId = deCourseId;

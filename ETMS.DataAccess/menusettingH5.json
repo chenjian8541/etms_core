@@ -1,186 +1,209 @@
-[
+ï»¿[
   {
     "Id": 1,
-    "Name": "ÉÏ¿ÎµãÃû",
+    "Name": "ä¸Šè¯¾ç‚¹å",
     "Icon": "system/material/teacher/menus/10.png",
     "PageId": 0,
     "ActionId": 15,
-    "Sort": 10
+    "Sort": 10,
+    "CategoryId": 2
   },
   {
     "Id": 2,
-    "Name": "µãÃû¼ÇÂ¼",
+    "Name": "ç‚¹åè®°å½•",
     "Icon": "system/material/teacher/menus/20.png",
     "PageId": 34,
     "ActionId": 0,
-    "Sort": 20
+    "Sort": 20,
+    "CategoryId": 2
   },
   {
     "Id": 3,
-    "Name": "¿ÎºóµãÆÀ",
+    "Name": "è¯¾åç‚¹è¯„",
     "Icon": "system/material/teacher/menus/30.png",
     "PageId": 76,
     "ActionId": 0,
-    "Sort": 30
+    "Sort": 30,
+    "CategoryId": 3
   },
   {
     "Id": 4,
-    "Name": "¿Îºó×÷Òµ",
+    "Name": "è¯¾åä½œä¸š",
     "Icon": "system/material/teacher/menus/40.png",
     "PageId": 67,
     "ActionId": 0,
-    "Sort": 40
+    "Sort": 40,
+    "CategoryId": 3
   },
   {
     "Id": 5,
-    "Name": "³É³¤µµ°¸",
+    "Name": "å­¦å‘˜æ¡£æ¡ˆ",
     "Icon": "system/material/teacher/menus/50.png",
     "PageId": 2,
     "ActionId": 0,
-    "Sort": 50
+    "Sort": 50,
+    "CategoryId": 1
   },
   {
     "Id": 6,
-    "Name": "Çë¼ÙÉêÇë",
+    "Name": "è¯·å‡ç”³è¯·",
     "Icon": "system/material/teacher/menus/60.png",
     "PageId": 19,
     "ActionId": 0,
-    "Sort": 60
+    "Sort": 60,
+    "CategoryId": 2
   },
   {
     "Id": 7,
-    "Name": "ÊÔÌıÉêÇë",
+    "Name": "è¯•å¬ç”³è¯·",
     "Icon": "system/material/teacher/menus/70.png",
     "PageId": 63,
     "ActionId": 0,
-    "Sort": 70
+    "Sort": 70,
+    "CategoryId": 2
   },
   {
     "Id": 8,
-    "Name": "ÎÒµÄ¿Î±í",
+    "Name": "æˆ‘çš„è¯¾è¡¨",
     "Icon": "system/material/teacher/menus/80.png",
     "PageId": 0,
     "ActionId": 0,
-    "Sort": 80
+    "Sort": 80,
+    "CategoryId": 2
   },
   {
     "Id": 9,
-    "Name": "¿Î±í¹ÜÀí",
+    "Name": "è¯¾è¡¨ç®¡ç†",
     "Icon": "system/material/teacher/menus/90.png",
     "PageId": 23,
     "ActionId": 0,
-    "Sort": 90
+    "Sort": 90,
+    "CategoryId": 2
   },
   {
     "Id": 10,
-    "Name": "³É³¤µµ°¸",
+    "Name": "æˆé•¿æ¡£æ¡ˆ",
     "Icon": "system/material/teacher/menus/100.png",
     "PageId": 70,
     "ActionId": 0,
-    "Sort": 100
+    "Sort": 100,
+    "CategoryId": 3
   },
   {
     "Id": 11,
-    "Name": "¸ú½ø¼ÇÂ¼",
+    "Name": "è·Ÿè¿›è®°å½•",
     "Icon": "system/material/teacher/menus/110.png",
     "PageId": 6,
     "ActionId": 0,
-    "Sort": 110
+    "Sort": 110,
+    "CategoryId": 1
   },
   {
     "Id": 12,
-    "Name": "ÊÔÌı¼ÇÂ¼",
+    "Name": "è¯•å¬è®°å½•",
     "Icon": "system/material/teacher/menus/120.png",
     "PageId": 7,
     "ActionId": 0,
-    "Sort": 120
+    "Sort": 120,
+    "CategoryId": 1
   },
   {
     "Id": 13,
-    "Name": "¶©µ¥¹ÜÀí",
+    "Name": "è®¢å•ç®¡ç†",
     "Icon": "system/material/teacher/menus/130.png",
     "PageId": 47,
     "ActionId": 0,
-    "Sort": 130
+    "Sort": 130,
+    "CategoryId": 5
   },
   {
     "Id": 14,
-    "Name": "¿ÎÏû¼ÇÂ¼",
+    "Name": "è¯¾æ¶ˆè®°å½•",
     "Icon": "system/material/teacher/menus/140.png",
     "PageId": 49,
     "ActionId": 0,
-    "Sort": 140
+    "Sort": 140,
+    "CategoryId": 5
   },
   {
     "Id": 15,
-    "Name": "ÊÕÖ§Ã÷Ï¸",
+    "Name": "æ”¶æ”¯æ˜ç»†",
     "Icon": "system/material/teacher/menus/150.png",
     "PageId": 48,
     "ActionId": 0,
-    "Sort": 150
+    "Sort": 150,
+    "CategoryId": 5
   },
   {
     "Id": 16,
-    "Name": "¹¤×Ê½áËã",
+    "Name": "å·¥èµ„ç»“ç®—",
     "Icon": "system/material/teacher/menus/160.png",
     "PageId": 92,
     "ActionId": 0,
-    "Sort": 160
+    "Sort": 160,
+    "CategoryId": 5
   },
   {
     "Id": 17,
-    "Name": "ÕĞÉúÍ³¼Æ",
+    "Name": "æ‹›ç”Ÿç»Ÿè®¡",
     "Icon": "system/material/teacher/menus/170.png",
     "PageId": 51,
     "ActionId": 0,
-    "Sort": 170
+    "Sort": 170,
+    "CategoryId": 6
   },
   {
     "Id": 18,
-    "Name": "ÏúÊÛÍ³¼Æ",
+    "Name": "é”€å”®ç»Ÿè®¡",
     "Icon": "system/material/teacher/menus/180.png",
     "PageId": 52,
     "ActionId": 0,
-    "Sort": 180
+    "Sort": 180,
+    "CategoryId": 6
   },
   {
     "Id": 19,
-    "Name": "½ÌÎñÍ³¼Æ",
+    "Name": "æ•™åŠ¡ç»Ÿè®¡",
     "Icon": "system/material/teacher/menus/190.png",
     "PageId": 53,
     "ActionId": 0,
-    "Sort": 190
+    "Sort": 190,
+    "CategoryId": 6
   },
   {
     "Id": 20,
-    "Name": "²ÆÎñÍ³¼Æ",
+    "Name": "è´¢åŠ¡ç»Ÿè®¡",
     "Icon": "system/material/teacher/menus/200.png",
     "PageId": 54,
     "ActionId": 0,
-    "Sort": 200
-  },
-  {
-    "Id": "0",
-    "Name": "Ô¤¾¯ÌáĞÑ",
-    "Icon": "system/material/teacher/menus/210.png",
-    "PageId": 11,
-    "ActionId": 0,
-    "Sort": 210
+    "Sort": 200,
+    "CategoryId": 6
   },
   {
     "Id": 21,
-    "Name": "ÀñÆ·¶Ò»»",
-    "Icon": "system/material/teacher/menus/220.png",
-    "PageId": 9,
+    "Name": "é¢„è­¦æé†’",
+    "Icon": "system/material/teacher/menus/210.png",
+    "PageId": 11,
     "ActionId": 0,
-    "Sort": 220
+    "Sort": 210,
+    "CategoryId": 1
   },
   {
     "Id": 22,
-    "Name": "·¢·ÅÓÅ»İÈ¯",
+    "Name": "ç¤¼å“å…‘æ¢",
+    "Icon": "system/material/teacher/menus/220.png",
+    "PageId": 9,
+    "ActionId": 0,
+    "Sort": 220,
+    "CategoryId": 1
+  },
+  {
+    "Id": 23,
+    "Name": "å‘æ”¾ä¼˜æƒ åˆ¸",
     "Icon": "system/material/teacher/menus/230.png",
     "PageId": 10,
     "ActionId": 0,
-    "Sort": 230
+    "Sort": 230,
+    "CategoryId": 1
   }
 ]

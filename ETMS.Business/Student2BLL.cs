@@ -342,7 +342,7 @@ namespace ETMS.Business
             }
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var studentUseCardCheckInConfig = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn;
-            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig.StudentCheckInConfig)
+            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig)
             {
                 CheckForm = EmStudentCheckOnLogCheckForm.Card,
                 CheckMedium = request.CardNo,
@@ -372,7 +372,7 @@ namespace ETMS.Business
             }
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var studentUseCardCheckInConfig = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn;
-            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig.StudentCheckInConfig)
+            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig)
             {
                 CheckForm = EmStudentCheckOnLogCheckForm.ManualCheck,
                 CheckMedium = string.Empty,
@@ -414,7 +414,7 @@ namespace ETMS.Business
                 };
                 LOG.Log.Fatal($"[人脸考勤]前端未识别出的人脸:{FaceWhite.FaceUrl}", this.GetType());
             }
-            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig.StudentCheckInConfig)
+            var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig)
             {
                 CheckForm = EmStudentCheckOnLogCheckForm.Face,
                 CheckMedium = checkMedium,

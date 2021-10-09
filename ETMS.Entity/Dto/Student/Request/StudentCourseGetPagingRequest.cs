@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
-    public class StudentCourseGetPagingRequest : RequestPagingBase
+    public class StudentCourseGetPagingRequest : RequestPagingBase, IDataLimit
     {
         /// <summary>
         /// 学员信息
@@ -55,6 +55,11 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public bool IsIgnoreNotEnoughRemind { get; set; }
 
+        public string GetDataLimitFilterWhere()
+        {
+            return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
+        }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -100,6 +105,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsIgnoreNotEnoughRemind)
             {
                 condition.Append(" AND NotEnoughRemindCount <> -1 ");
+            }
+            if (IsDataLimit)
+            {
+                condition.Append(GetDataLimitFilterWhere());
             }
             return condition.ToString();
         }

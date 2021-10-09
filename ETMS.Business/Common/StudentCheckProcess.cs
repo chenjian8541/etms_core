@@ -398,8 +398,9 @@ namespace ETMS.Business.Common
             }
             else
             {
+                var isJumpStudentCourseNotEnough = _request.TenantConfig.ClassCheckSignConfig.MustEnoughSurplusClassTimes;
                 var deStudentClassTimesResultTuple = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, _classTimesDAL, _classDAL,
-                    _request.MakeupIsDeClassTimes, myClassTimes, _request.Student.Id, _request.CheckOt);
+                    _request.MakeupIsDeClassTimes, myClassTimes, _request.Student.Id, _request.CheckOt, isJumpStudentCourseNotEnough);
                 if (!string.IsNullOrEmpty(deStudentClassTimesResultTuple.Item1))
                 {
                     studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, deStudentClassTimesResultTuple.Item1);
@@ -623,9 +624,10 @@ namespace ETMS.Business.Common
 
     public class StudentCheckProcessRequest
     {
-        public StudentCheckProcessRequest(StudentCheckInConfig config)
+        public StudentCheckProcessRequest(TenantConfig config)
         {
-            this.StudentCheckInConfig = config;
+            this.TenantConfig = config;
+            this.StudentCheckInConfig = config.StudentCheckInConfig;
         }
 
         public RequestBase RequestBase { get; set; }
@@ -688,6 +690,8 @@ namespace ETMS.Business.Common
         public FaceInfo FaceWhite { get; set; }
 
         public StudentCheckInConfig StudentCheckInConfig { get; set; }
+
+        public TenantConfig TenantConfig { get; set; }
     }
 
     public class StudentBeginClassRelationClassTimesOutput

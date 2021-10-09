@@ -28,5 +28,9 @@ namespace ETMS.Entity.Dto.User.Output
         /// 排序号
         /// </summary>
         public int Sort { get; set; }
+
+        public int CategoryId { get; set; }
+
+        public string CategoryName { get; set; }
     }
 }
