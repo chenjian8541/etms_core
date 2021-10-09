@@ -374,6 +374,72 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        private MerchantSaveRequest ReassignMerchantSaveRequestProperty(MerchantSaveRequest request, ResponseQuerMerchant queryOut)
+        {
+            request.account_name = queryOut.account_name;
+            request.account_no = queryOut.account_no;
+            request.account_phone = queryOut.account_phone;
+            request.account_type = queryOut.account_type;
+            request.artif_nm = queryOut.artif_nm;
+            request.bank_name = queryOut.bank_name;
+            request.bank_no = queryOut.bank_no;
+            request.business_name = queryOut.business_name;
+            request.business_code = queryOut.business_code;
+            request.daily_timely_status = queryOut.daily_timely_status;
+            request.img_3rd_part = queryOut.img_3rd_part;
+            request.img_bankcard_a = queryOut.img_bankcard_a;
+            request.img_bankcard_b = queryOut.img_bankcard_b;
+            request.img_cashier = queryOut.img_cashier;
+            request.img_contract = queryOut.img_contract;
+            request.img_idcard_a = queryOut.img_idcard_a;
+            request.img_idcard_b = queryOut.img_idcard_b;
+            request.img_idcard_holding = queryOut.img_idcard_holding;
+            request.img_indoor = queryOut.img_indoor;
+            request.img_license = queryOut.img_license;
+            request.img_logo = queryOut.img_logo;
+            request.img_open_permits = queryOut.img_open_permits;
+            request.img_org_code = queryOut.img_org_code;
+            request.img_other = queryOut.img_other;
+            request.img_private_idcard_a = queryOut.img_private_idcard_a;
+            request.img_private_idcard_b = queryOut.img_private_idcard_b;
+            request.img_standard_protocol = queryOut.img_standard_protocol;
+            request.img_sub_account_promiss = queryOut.img_sub_account_promiss;
+            request.img_tax_reg = queryOut.img_tax_reg;
+            request.img_unincorporated = queryOut.img_unincorporated;
+            request.img_val_add_protocol = queryOut.img_val_add_protocol;
+            request.legalIdnum = queryOut.legalIdnum;
+            request.legalIdnumExpire = queryOut.legalIdnumExpire;
+            request.license_expire = queryOut.license_expire;
+            request.license_no = queryOut.license_no;
+            request.license_type = queryOut.license_type;
+            request.merchant_address = queryOut.merchant_address;
+            request.merchant_alias = queryOut.merchant_alias;
+            request.merchant_business_type = queryOut.merchant_business_type;
+            request.merchant_city = queryOut.merchant_city;
+            request.merchant_city_code = queryOut.merchant_city_code;
+            request.merchant_company = queryOut.merchant_company;
+            request.merchant_county = queryOut.merchant_county;
+            request.merchant_county_code = queryOut.merchant_county_code;
+            request.merchant_email = queryOut.merchant_email;
+            request.merchant_id_expire = queryOut.merchant_id_expire;
+            request.merchant_id_no = queryOut.merchant_id_no;
+            request.merchant_name = queryOut.merchant_name;
+            request.merchant_no = queryOut.merchant_no;
+            request.merchant_person = queryOut.merchant_person;
+            request.merchant_phone = queryOut.merchant_phone;
+            request.merchant_province = queryOut.merchant_province;
+            request.merchant_province_code = queryOut.merchant_province_code;
+            request.merchant_service_phone = queryOut.merchant_service_phone;
+            request.rate_code = queryOut.rate_code;
+            request.settlement_type = queryOut.settlement_type;
+            request.settle_type = queryOut.settle_type;
+
+            request.merchant_business_typeDesc = LcswEm.GetMerchantBusinessType(request.merchant_business_type);
+            request.account_typeDesc = LcswEm.GetAccountTypeDesc(request.account_type);
+            request.settlement_typeDesc = LcswEm.GetSettlementType(request.settlement_type);
+            return request;
+        }
+
         private async Task<ResponseBase> MerchantQuery(int tenantId, long userId)
         {
             var myTenant = await _sysTenantDAL.GetTenant(tenantId);
@@ -392,22 +458,40 @@ namespace ETMS.Business
             {
                 return ResponseBase.Success(output);
             }
-            if (EmLcswApplyStatus.IsSuccess(myTenant.LcswApplyStatus))
-            {
-                output.LcswStatus = 10; //使用10来标注 支付账户审核通过并已开通
-            }
             var tenantLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
             if (tenantLcsAccount == null)
             {
                 return ResponseBase.CommonError("扫呗账户不存在");
             }
-            if (!string.IsNullOrEmpty(tenantLcsAccount.MerchantRquestData))
+            //更新状态
+            var queryRes = _payLcswService.QuerMerchant(tenantLcsAccount.MerchantNo);
+            if (!queryRes.IsSuccess())
             {
-                var queryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantSaveRequest>(tenantLcsAccount.MerchantRquestData);
-                queryRes.merchant_no = tenantLcsAccount.MerchantNo;
-                output.MerchantInfo = queryRes;
+                return ResponseBase.CommonError("扫呗账户信息异常");
+            }
+            var lcswStatus = GetLcswStatus(queryRes.merchant_status);
+            var myQueryRes = Newtonsoft.Json.JsonConvert.DeserializeObject<MerchantSaveRequest>(tenantLcsAccount.MerchantRquestData);
+            myQueryRes.merchant_no = tenantLcsAccount.MerchantNo;
+            myQueryRes = ReassignMerchantSaveRequestProperty(myQueryRes, queryRes);
+            var now = DateTime.Now;
+            tenantLcsAccount.ChangeTime = now;
+            tenantLcsAccount.LcswApplyStatus = lcswStatus.LcswApplyStatus;
+            tenantLcsAccount.MerchantStatus = queryRes.merchant_status;
+            tenantLcsAccount.MerchantType = queryRes.merchant_type;
+            tenantLcsAccount.MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes);
+            await _tenantLcsAccountDAL.EditTenantLcsAccount(tenantLcsAccount);
+
+            if (lcswStatus.LcswApplyStatus != myTenant.LcswApplyStatus)
+            {
+                await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
+                myTenant.LcswApplyStatus = lcswStatus.LcswApplyStatus;
             }
 
+            if (EmLcswApplyStatus.IsSuccess(myTenant.LcswApplyStatus))
+            {
+                output.LcswStatus = 10; //使用10来标注 支付账户审核通过并已开通
+            }
+            output.MerchantInfo = myQueryRes;
             return ResponseBase.Success(output);
         }
 

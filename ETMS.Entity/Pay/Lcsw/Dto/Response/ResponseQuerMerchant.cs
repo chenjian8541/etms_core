@@ -95,19 +95,19 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request.Response
         /// <summary>
         /// 商户类型:1企业，2个体工商户，3小微商户
         /// </summary>
-        public int? merchant_business_type { get; set; }
+        public int merchant_business_type { get; set; }
         /// <summary>
         /// 账户类型，1对公，2对私
         /// </summary>
-        public int? account_type { get; set; }
+        public int account_type { get; set; }
         /// <summary>
         /// 结算类型:1.法人结算 2.非法人结算
         /// </summary>
-        public int? settlement_type { get; set; }
+        public int settlement_type { get; set; }
         /// <summary>
         /// 营业证件类型：0营业执照，1三证合一，2手持身份证
         /// </summary>
-        public int? license_type { get; set; }
+        public int license_type { get; set; }
         /// <summary>
         /// 入账银行卡开户名（结算人姓名/公司名）
         /// </summary>
@@ -139,7 +139,7 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request.Response
         /// <summary>
         /// D1状态,0不开通，1开通
         /// </summary>
-        public int? daily_timely_status { get; set; }
+        public int daily_timely_status { get; set; }
         /// <summary>
         /// D1手续费代码
         /// </summary>
