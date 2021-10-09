@@ -1,0 +1,186 @@
+[
+  {
+    "Id": 1,
+    "Name": "上课点名",
+    "Icon": "system/material/teacher/menus/10.png",
+    "PageId": 0,
+    "ActionId": 15,
+    "Sort": 10
+  },
+  {
+    "Id": 2,
+    "Name": "点名记录",
+    "Icon": "system/material/teacher/menus/20.png",
+    "PageId": 34,
+    "ActionId": 0,
+    "Sort": 20
+  },
+  {
+    "Id": 3,
+    "Name": "课后点评",
+    "Icon": "system/material/teacher/menus/30.png",
+    "PageId": 76,
+    "ActionId": 0,
+    "Sort": 30
+  },
+  {
+    "Id": 4,
+    "Name": "课后作业",
+    "Icon": "system/material/teacher/menus/40.png",
+    "PageId": 67,
+    "ActionId": 0,
+    "Sort": 40
+  },
+  {
+    "Id": 5,
+    "Name": "成长档案",
+    "Icon": "system/material/teacher/menus/50.png",
+    "PageId": 2,
+    "ActionId": 0,
+    "Sort": 50
+  },
+  {
+    "Id": 6,
+    "Name": "请假申请",
+    "Icon": "system/material/teacher/menus/60.png",
+    "PageId": 19,
+    "ActionId": 0,
+    "Sort": 60
+  },
+  {
+    "Id": 7,
+    "Name": "试听申请",
+    "Icon": "system/material/teacher/menus/70.png",
+    "PageId": 63,
+    "ActionId": 0,
+    "Sort": 70
+  },
+  {
+    "Id": 8,
+    "Name": "我的课表",
+    "Icon": "system/material/teacher/menus/80.png",
+    "PageId": 0,
+    "ActionId": 0,
+    "Sort": 80
+  },
+  {
+    "Id": 9,
+    "Name": "课表管理",
+    "Icon": "system/material/teacher/menus/90.png",
+    "PageId": 23,
+    "ActionId": 0,
+    "Sort": 90
+  },
+  {
+    "Id": 10,
+    "Name": "成长档案",
+    "Icon": "system/material/teacher/menus/100.png",
+    "PageId": 70,
+    "ActionId": 0,
+    "Sort": 100
+  },
+  {
+    "Id": 11,
+    "Name": "跟进记录",
+    "Icon": "system/material/teacher/menus/110.png",
+    "PageId": 6,
+    "ActionId": 0,
+    "Sort": 110
+  },
+  {
+    "Id": 12,
+    "Name": "试听记录",
+    "Icon": "system/material/teacher/menus/120.png",
+    "PageId": 7,
+    "ActionId": 0,
+    "Sort": 120
+  },
+  {
+    "Id": 13,
+    "Name": "订单管理",
+    "Icon": "system/material/teacher/menus/130.png",
+    "PageId": 47,
+    "ActionId": 0,
+    "Sort": 130
+  },
+  {
+    "Id": 14,
+    "Name": "课消记录",
+    "Icon": "system/material/teacher/menus/140.png",
+    "PageId": 49,
+    "ActionId": 0,
+    "Sort": 140
+  },
+  {
+    "Id": 15,
+    "Name": "收支明细",
+    "Icon": "system/material/teacher/menus/150.png",
+    "PageId": 48,
+    "ActionId": 0,
+    "Sort": 150
+  },
+  {
+    "Id": 16,
+    "Name": "工资结算",
+    "Icon": "system/material/teacher/menus/160.png",
+    "PageId": 92,
+    "ActionId": 0,
+    "Sort": 160
+  },
+  {
+    "Id": 17,
+    "Name": "招生统计",
+    "Icon": "system/material/teacher/menus/170.png",
+    "PageId": 51,
+    "ActionId": 0,
+    "Sort": 170
+  },
+  {
+    "Id": 18,
+    "Name": "销售统计",
+    "Icon": "system/material/teacher/menus/180.png",
+    "PageId": 52,
+    "ActionId": 0,
+    "Sort": 180
+  },
+  {
+    "Id": 19,
+    "Name": "教务统计",
+    "Icon": "system/material/teacher/menus/190.png",
+    "PageId": 53,
+    "ActionId": 0,
+    "Sort": 190
+  },
+  {
+    "Id": 20,
+    "Name": "财务统计",
+    "Icon": "system/material/teacher/menus/200.png",
+    "PageId": 54,
+    "ActionId": 0,
+    "Sort": 200
+  },
+  {
+    "Id": "0",
+    "Name": "预警提醒",
+    "Icon": "system/material/teacher/menus/210.png",
+    "PageId": 11,
+    "ActionId": 0,
+    "Sort": 210
+  },
+  {
+    "Id": 21,
+    "Name": "礼品兑换",
+    "Icon": "system/material/teacher/menus/220.png",
+    "PageId": 9,
+    "ActionId": 0,
+    "Sort": 220
+  },
+  {
+    "Id": 22,
+    "Name": "发放优惠券",
+    "Icon": "system/material/teacher/menus/230.png",
+    "PageId": 10,
+    "ActionId": 0,
+    "Sort": 230
+  }
+]

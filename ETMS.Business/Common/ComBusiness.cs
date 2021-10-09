@@ -1,5 +1,6 @@
 ﻿using ETMS.Authority;
 using ETMS.DataAccess.Lib;
+using ETMS.Entity.Config;
 using ETMS.Entity.Config.Menu;
 using ETMS.Entity.Config.Router;
 using ETMS.Entity.Database.Source;
@@ -829,13 +830,9 @@ namespace ETMS.Business.Common
             }
         }
 
-        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, string roleAuthorityValueMenu, bool isAdmin)
+        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, AuthorityCore authorityCoreLeafPage,
+            AuthorityCore authorityCoreActionPage, bool isAdmin)
         {
-            var strMenuCategory = roleAuthorityValueMenu.Split('|');
-            var pageWeight = strMenuCategory[2].ToBigInteger();
-            var actionWeight = strMenuCategory[1].ToBigInteger();
-            var authorityCoreLeafPage = new AuthorityCore(pageWeight);
-            var authorityCoreActionPage = new AuthorityCore(actionWeight);
             var output = new PermissionOutput()
             {
                 Action = new List<int>(),
@@ -859,31 +856,156 @@ namespace ETMS.Business.Common
             return output;
         }
 
-        internal static PermissionOutput GetPermissionOutputH5(string roleAuthorityValueMenu, bool isAdmin)
+        internal static PermissionOutput GetPermissionOutput(List<MenuConfig> menus, string roleAuthorityValueMenu, bool isAdmin)
         {
             var strMenuCategory = roleAuthorityValueMenu.Split('|');
             var pageWeight = strMenuCategory[2].ToBigInteger();
             var actionWeight = strMenuCategory[1].ToBigInteger();
             var authorityCoreLeafPage = new AuthorityCore(pageWeight);
             var authorityCoreActionPage = new AuthorityCore(actionWeight);
-            var output = new PermissionOutput()
+            return GetPermissionOutput(menus, authorityCoreLeafPage, authorityCoreActionPage, isAdmin);
+        }
+
+        internal static Tuple<List<MenuH5Output>, PermissionOutput, bool> GetH5HomeMenuAndPermission(List<MenuConfig> menus,
+            List<MenuConfigH5> allMenus, string roleAuthorityValueMenu, string userHomeMenu, bool isAdmin)
+        {
+            var strMenuCategory = roleAuthorityValueMenu.Split('|');
+            var pageWeight = strMenuCategory[2].ToBigInteger();
+            var actionWeight = strMenuCategory[1].ToBigInteger();
+            var authorityCoreLeafPage = new AuthorityCore(pageWeight);
+            var authorityCoreActionPage = new AuthorityCore(actionWeight);
+            if (string.IsNullOrEmpty(userHomeMenu))
             {
-                Action = new List<int>(),
-                Page = new List<int>()
-            };
-            foreach (var mypage in PermissionDataH5.PageAllList)
+                userHomeMenu = SystemConfig.ComConfig.UserH5HomeMenusDefault;
+            }
+            var authorityCoreHome = new AuthorityCore(userHomeMenu.ToBigInteger());
+            var permissionOutput = GetPermissionOutput(menus, authorityCoreLeafPage, authorityCoreActionPage, isAdmin);
+
+            var isShowMoreMenus = false;
+            var menuH5Output = new List<MenuH5Output>();
+            var allMenusCount = 0;
+            foreach (var p in allMenus)
             {
-                if (authorityCoreLeafPage.Validation(mypage) || isAdmin)
+                if (!isAdmin)
                 {
-                    output.Page.Add(mypage);
+                    if (p.PageId > 0 && !authorityCoreLeafPage.Validation(p.PageId))
+                    {
+                        continue;
+                    }
+                    if (p.ActionId > 0 && !authorityCoreActionPage.Validation(p.ActionId))
+                    {
+                        continue;
+                    }
+                }
+                allMenusCount++;
+                if (authorityCoreHome.Validation(p.Id))
+                {
+                    menuH5Output.Add(new MenuH5Output()
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Sort = p.Sort,
+                        IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                    });
+                }
+                else
+                {
+                    isShowMoreMenus = true;
                 }
             }
-            foreach (var myaction in PermissionDataH5.ActionAllList)
+            if (allMenusCount >= 7)
             {
-                if (authorityCoreActionPage.Validation(myaction) || isAdmin)
+                isShowMoreMenus = true;
+            }
+            return Tuple.Create(menuH5Output, permissionOutput, isShowMoreMenus);
+        }
+
+        internal static List<MenuH5Output> GetH5AllMenus(List<MenuConfigH5> allMenus, string roleAuthorityValueMenu, bool isAdmin)
+        {
+            var strMenuCategory = roleAuthorityValueMenu.Split('|');
+            var pageWeight = strMenuCategory[2].ToBigInteger();
+            var actionWeight = strMenuCategory[1].ToBigInteger();
+            var authorityCoreLeafPage = new AuthorityCore(pageWeight);
+            var authorityCoreActionPage = new AuthorityCore(actionWeight);
+
+            var menuH5Output = new List<MenuH5Output>();
+            foreach (var p in allMenus)
+            {
+                if (!isAdmin)
                 {
-                    output.Action.Add(myaction);
+                    if (p.PageId > 0 && !authorityCoreLeafPage.Validation(p.PageId))
+                    {
+                        continue;
+                    }
+                    if (p.ActionId > 0 && !authorityCoreActionPage.Validation(p.ActionId))
+                    {
+                        continue;
+                    }
                 }
+                menuH5Output.Add(new MenuH5Output()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sort = p.Sort,
+                    IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                });
+            }
+
+            return menuH5Output;
+        }
+
+        internal static GetEditMenusH5Output GetEditMenusH5(List<MenuConfigH5> allMenus, string roleAuthorityValueMenu, string userHomeMenu, bool isAdmin)
+        {
+            var strMenuCategory = roleAuthorityValueMenu.Split('|');
+            var pageWeight = strMenuCategory[2].ToBigInteger();
+            var actionWeight = strMenuCategory[1].ToBigInteger();
+            var authorityCoreLeafPage = new AuthorityCore(pageWeight);
+            var authorityCoreActionPage = new AuthorityCore(actionWeight);
+            if (string.IsNullOrEmpty(userHomeMenu))
+            {
+                userHomeMenu = SystemConfig.ComConfig.UserH5HomeMenusDefault;
+            }
+            var authorityCoreHome = new AuthorityCore(userHomeMenu.ToBigInteger());
+
+            var output = new GetEditMenusH5Output()
+            {
+                AllMenus = new List<AllMenuH5Output>(),
+                HomeMenus = new List<MenuH5Output>()
+            };
+            bool isHome;
+            foreach (var p in allMenus)
+            {
+                if (!isAdmin)
+                {
+                    if (p.PageId > 0 && !authorityCoreLeafPage.Validation(p.PageId))
+                    {
+                        continue;
+                    }
+                    if (p.ActionId > 0 && !authorityCoreActionPage.Validation(p.ActionId))
+                    {
+                        continue;
+                    }
+                }
+                isHome = false;
+                if (authorityCoreHome.Validation(p.Id))
+                {
+                    output.HomeMenus.Add(new MenuH5Output()
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Sort = p.Sort,
+                        IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon)
+                    });
+                    isHome = true;
+                }
+                output.AllMenus.Add(new AllMenuH5Output()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sort = p.Sort,
+                    IconUrl = AliyunOssUtil.GetAccessUrlHttps(p.Icon),
+                    IsHome = isHome
+                });
             }
             return output;
         }

@@ -222,5 +222,10 @@ namespace ETMS.Entity.Config
         /// 扫呗支付(限支付15天内退款，超过15天，不能进行退款操作)
         /// </summary>
         public int LcsRefundOrderLimitDay = 15;
+
+        /// <summary>
+        /// 老师端默认显示菜单值
+        /// </summary>
+        public string UserH5HomeMenusDefault = "2046";
     }
 }

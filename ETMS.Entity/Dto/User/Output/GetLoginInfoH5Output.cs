@@ -47,5 +47,9 @@ namespace ETMS.Entity.Dto.User.Output
         public string TenantNo { get; set; }
 
         public string TenantName { get; set; }
+
+        public List<MenuH5Output> Menus { get; set; }
+
+        public bool IsShowMoreMenus { get; set; }
     }
 }

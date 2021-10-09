@@ -147,6 +147,9 @@ namespace ETMS.Business
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var role = await _roleDAL.GetRole(userInfo.RoleId);
             var config = await _tenantConfigDAL.GetTenantConfig();
+            var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
+            var homeMenuAndPermission = ComBusiness.GetH5HomeMenuAndPermission(myAllMenus, PermissionDataH5.MenuConfigs,
+                role.AuthorityValueMenu, userInfo.HomeMenu, userInfo.IsAdmin);
             return ResponseBase.Success(new GetLoginInfoH5Output()
             {
                 Name = userInfo.Name,
@@ -154,12 +157,14 @@ namespace ETMS.Business
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, userInfo.Avatar),
                 Phone = userInfo.Phone,
                 OrgName = tenant.Name,
-                Permission = ComBusiness.GetPermissionOutputH5(role.AuthorityValueMenu, userInfo.IsAdmin),
                 RoleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin),
                 TenantConfig = config,
                 TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId),
-                TenantName = tenant.Name
-            });
+                TenantName = tenant.Name,
+                Menus = homeMenuAndPermission.Item1,
+                Permission = homeMenuAndPermission.Item2,
+                IsShowMoreMenus = homeMenuAndPermission.Item3
+            }); ;
         }
 
         public async Task<ResponseBase> GetUserImportantInfo(RequestBase request)

@@ -6,11 +6,15 @@
 
   <ItemGroup>
     <None Remove="menusetting.json" />
+    <None Remove="menusettingH5.json" />
     <None Remove="routesetting.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="menusetting.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="menusettingH5.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="routesetting.json">

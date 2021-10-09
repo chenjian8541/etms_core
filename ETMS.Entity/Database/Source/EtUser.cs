@@ -103,6 +103,11 @@ namespace ETMS.Entity.Database.Source
         public DateTime? LastLoginTime { get; set; }
 
         /// <summary>
+        /// 用户首页菜单信息
+        /// </summary>
+        public string HomeMenu { get; set; }
+
+        /// <summary>
         /// 配置信息
         /// </summary>
         public string ConfigInfo { get; set; }

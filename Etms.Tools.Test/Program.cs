@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using ETMS.Authority;
 
 namespace Etms.Tools.Test
 {
@@ -20,7 +21,7 @@ namespace Etms.Tools.Test
     {
         static void Main(string[] args)
         {
-            CreateParentToken("13410271814");
+            //CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
             //Encrypt3DESSqlConnection();
             //Decrypt3DESSqlConnection();
@@ -95,8 +96,10 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var query = new Test();
-            Console.WriteLine($"已完成:{query}");
+            var aa = new AuthorityCore();
+            var bb = aa.AuthoritySum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+            Console.WriteLine(bb);
             Console.Read();
         }
 

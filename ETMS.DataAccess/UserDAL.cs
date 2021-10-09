@@ -271,5 +271,11 @@ namespace ETMS.DataAccess
             }
             return (await _dbWrapper.ExecuteObject<EtUser>(sql)).ToList();
         }
+
+        public async Task UpdateUserHomeMenu(long userId, string homeMenus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtUser SET HomeMenu = '{homeMenus}' WHERE Id = {userId}");
+            await UpdateCache(_tenantId, userId);
+        }
     }
 }
