@@ -219,9 +219,9 @@ namespace ETMS.Entity.Config
         public long TeacherSalaryPerformanceDefaultId = -10;
 
         /// <summary>
-        /// 扫呗支付(限支付15天内退款，超过15天，不能进行退款操作)
+        /// 扫呗支付(限支付30天内退款，超过30天，不能进行退款操作)
         /// </summary>
-        public int LcsRefundOrderLimitDay = 15;
+        public int LcsRefundOrderLimitDay = 30;
 
         /// <summary>
         /// 老师端默认显示菜单值

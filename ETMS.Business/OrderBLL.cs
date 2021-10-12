@@ -254,7 +254,8 @@ namespace ETMS.Business
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
                 StudentCardNo = studentInfo.StudentCardNo,
-                GiveSum = order.AptSum - order.Sum
+                GiveSum = order.AptSum - order.Sum,
+                IsHasLcsPay = false
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {
@@ -365,6 +366,10 @@ namespace ETMS.Business
                         UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
                         CId = p.Id
                     });
+                    if (p.PayType == EmPayType.PayLcsBarcodePay)
+                    {
+                        output.BascInfo.IsHasLcsPay = true;
+                    }
                 }
             }
             ProcessOrderAccountRechargePay(output.OrderGetDetailIncomeLogs, order, output.BascInfo.UserName);

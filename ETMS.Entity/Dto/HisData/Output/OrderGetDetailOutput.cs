@@ -42,6 +42,8 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// </summary>
         public byte InOutType { get; set; }
 
+        public bool IsHasLcsPay { get; set; }
+
         /// <summary>
         /// 单号
         /// </summary>
