@@ -10,7 +10,7 @@ namespace ETMS.Utility
     {
         public static int GetCent(decimal money)
         {
-            return Convert.ToInt32(money) * 100;
+            return Convert.ToInt32(money * 100);
         }
     }
 }

@@ -953,6 +953,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public ResponseBase SysSafeSmsCheck(SysSafeSmsCheckRequest request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return _tenantBLL.SysSafeSmsCheck(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> NoticeConfigGet(NoticeConfigGetRequest request)
         {
             try

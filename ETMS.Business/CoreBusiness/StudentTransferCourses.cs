@@ -180,7 +180,16 @@ namespace ETMS.Business
                 }
             }
 
-            var newOrderNo = OrderNumberLib.GetTransferCoursesOrderNumber();
+            string newOrderNo;
+            if (string.IsNullOrEmpty(request.OrderNo))
+            {
+                newOrderNo = OrderNumberLib.GetTransferCoursesOrderNumber();
+            }
+            else
+            {
+                newOrderNo = request.OrderNo;
+            }
+
             var now = DateTime.Now;
             var processTransferCoursesBuyResult = await ProcessTransferCoursesBuy(request, studentBucket.Student, newOrderNo);
             if (!processTransferCoursesBuyResult.IsResponseSuccess())
@@ -379,6 +388,12 @@ namespace ETMS.Business
                     incomeLogs.Add(GetEtIncomeLogIn(EmPayType.Other, inPayInfo.PayOther, now, orderOt, orderNo,
                             request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
                 }
+                if (inPayInfo.PayLcsBarcodePay > 0)
+                {
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.PayLcsBarcodePay, inPayInfo.PayLcsBarcodePay, now, orderOt, orderNo,
+                        request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
+                }
+
                 _incomeLogDAL.AddIncomeLog(incomeLogs);
             }
             else

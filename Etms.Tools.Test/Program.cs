@@ -96,10 +96,9 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
-            var aa = new AuthorityCore();
-            var bb = aa.AuthoritySum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-            Console.WriteLine(bb);
+            var aa = EtmsHelper3.GetCent(0.01M);
+            
+            Console.WriteLine(aa);
             Console.Read();
         }
 

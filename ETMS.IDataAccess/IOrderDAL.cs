@@ -22,6 +22,8 @@ namespace ETMS.IDataAccess
 
         Task<EtOrder> GetOrder(long id);
 
+        Task<EtOrder> GetOrder(string orderNo);
+
         Task<List<EtOrderDetail>> GetOrderDetail(long orderId);
 
         Task<EtOrderDetail> GetOrderDetail(long orderId, long productId, byte productType);

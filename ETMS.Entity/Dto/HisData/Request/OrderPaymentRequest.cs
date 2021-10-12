@@ -21,6 +21,8 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public decimal PayOther { get; set; }
 
+        public decimal PayLcsBarcodePay { get; set; }
+
         public string Remark { get; set; }
 
         public DateTime PayOt { get; set; }
@@ -31,7 +33,7 @@ namespace ETMS.Entity.Dto.HisData.Request
             {
                 return "请求数据格式错误";
             }
-            if ((PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther) <= 0)
+            if ((PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther + PayLcsBarcodePay) <= 0)
             {
                 return "请输入支付金额";
             }

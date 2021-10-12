@@ -169,6 +169,7 @@ namespace ETMS.Business
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(request.ClassTimes.StartTime, request.ClassTimes.EndTime, "-"),
+                ClassTimeFullDesc = ComBusiness4.GetClassTimesOtDesc(request.ClassTimes),
                 Students = new List<NoticeStudentsOfClassBeforeDayStudent>(),
                 StartTimeDesc = EtmsHelper.GetTimeDesc(request.ClassTimes.StartTime)
             };
@@ -395,6 +396,7 @@ namespace ETMS.Business
             {
                 ClassRoom = stringClassRoom,
                 ClassTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-"),
+                ClassTimeFullDesc = ComBusiness4.GetClassTimesOtDesc(classTimes),
                 StartTimeDesc = EtmsHelper.GetTimeDesc(classTimes.StartTime),
                 Students = new List<NoticeStudentsOfClassTodayStudent>()
             };

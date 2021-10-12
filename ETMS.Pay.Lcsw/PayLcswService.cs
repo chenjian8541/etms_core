@@ -162,19 +162,18 @@ namespace ETMS.Pay.Lcsw
             var param = new Dictionary<string, object>
             {
                 {"pay_ver", "110"},
-                {"service_id", "010"},
                 {"pay_type", requesParam.payType},
+                {"service_id", "010"},
                 {"merchant_no", requesParam.merchant_no},
                 {"terminal_id", requesParam.terminal_id},
                 {"terminal_trace", requesParam.terminal_trace},
                 {"terminal_time", requesParam.terminal_time},
                 {"auth_no", requesParam.auth_no},
-                {"total_fee", requesParam.total_fee},
-                {"order_body",requesParam.order_body },
-                { "attach",requesParam.attach},
-                { "access_token",requesParam.access_token}
+                {"total_fee", requesParam.total_fee}
             };
-            param.Add("key_sign", MD5Helper.GetSign(param));
+            param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
+            param.Add("order_body", requesParam.order_body);
+            param.Add("attach", requesParam.attach);
             return Post.PostGetJson<ResponseBarcodePay>(ApiAddress.BarcodePay, param);
         }
 
@@ -222,16 +221,15 @@ namespace ETMS.Pay.Lcsw
             var param = new Dictionary<string, object>
             {
                 {"pay_ver", "100"},
-                {"service_id", "020"},
                 {"pay_type", requesParam.payType},
+                {"service_id", "020"},
                 {"merchant_no", requesParam.merchant_no},
                 {"terminal_id", requesParam.terminal_id},
                 {"terminal_trace", requesParam.terminal_trace},
                 {"terminal_time",requesParam.terminal_time},
-                {"out_trade_no", requesParam.out_trade_no},
-                { "access_token",requesParam.access_token}
+                {"out_trade_no", requesParam.out_trade_no}
             };
-            param.Add("key_sign", MD5Helper.GetSign(param));
+            param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
             return Post.PostGetJson<ResponseQuery>(ApiAddress.Query, param);
         }
 
@@ -247,17 +245,16 @@ namespace ETMS.Pay.Lcsw
             var param = new Dictionary<string, object>
             {
                 {"pay_ver", "100"},
-                {"service_id", "030"},
                 {"pay_type", requesParam.payType},
+                {"service_id", "030"},
                 {"merchant_no", requesParam.merchant_no},
                 {"terminal_id", requesParam.terminal_id},
                 {"terminal_trace", requesParam.terminal_trace},
                 {"terminal_time", requesParam.terminal_time},
                 {"refund_fee", requesParam.refund_fee},
-                {"out_trade_no",requesParam.out_trade_no },
-                { "access_token",requesParam.access_token}
+                {"out_trade_no",requesParam.out_trade_no }
             };
-            param.Add("key_sign", MD5Helper.GetSign(param));
+            param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
             return Post.PostGetJson<ResponseRefund>(ApiAddress.Refund, param);
         }
     }

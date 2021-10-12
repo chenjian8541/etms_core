@@ -19,6 +19,8 @@ namespace ETMS.Entity.Dto.PaymentService.Request
 
         public string OrderDesc { get; set; }
 
+        public string OrderNo { get; set; }
+
         public override string Validate()
         {
             if (StudentId <= 0)

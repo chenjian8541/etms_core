@@ -10,6 +10,8 @@ namespace ETMS.Entity.Dto.Student.Request
     {
         public long StudentId { get; set; }
 
+        public string OrderNo { get; set; }
+
         /// <summary>
         ///转出的课程
         /// </summary>
@@ -158,6 +160,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayOther { get; set; }
 
+        public decimal PayLcsBarcodePay { get; set; }
+
         public decimal PayAccountRechargeReal { get; set; }
 
         public decimal PayAccountRechargeGive { get; set; }
@@ -168,7 +172,7 @@ namespace ETMS.Entity.Dto.Student.Request
         {
             get
             {
-                var temp = PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther;
+                var temp = PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther + PayLcsBarcodePay;
                 if (PayAccountRechargeId != null)
                 {
                     temp += PayAccountRechargeReal + PayAccountRechargeGive;

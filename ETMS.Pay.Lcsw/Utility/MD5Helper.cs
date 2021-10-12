@@ -61,10 +61,10 @@ namespace ETMS.Pay.Lcsw.Utility
             return str.ToString().ToUpper();
         }
 
-        public static string GetSign(Dictionary<string, object> dic)
+        public static string GetSign(Dictionary<string, object> dic, string access_token)
         {
             StringBuilder sb = new StringBuilder();
-            dic = dic.OrderBy(a => a.Key).ToDictionary(o => o.Key, p => p.Value);
+            //dic = dic.OrderBy(a => a.Key).ToDictionary(o => o.Key, p => p.Value);
             foreach (var item in dic)
             {
                 if (item.Value != null)
@@ -72,6 +72,7 @@ namespace ETMS.Pay.Lcsw.Utility
                     sb.Append(item.Key + "=" + item.Value + "&");
                 }
             }
+            sb.Append("access_token=" + access_token);
             var md5 = System.Security.Cryptography.MD5.Create();
             var bs = md5.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
             var str = new StringBuilder();

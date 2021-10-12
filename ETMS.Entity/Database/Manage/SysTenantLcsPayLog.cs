@@ -13,7 +13,7 @@ namespace ETMS.Entity.Database.Manage
 
         public int AgentId { get; set; }
 
-        public long StudentId { get; set; }
+        public long RelationId { get; set; }
 
         /// <summary>
         /// 订单类型

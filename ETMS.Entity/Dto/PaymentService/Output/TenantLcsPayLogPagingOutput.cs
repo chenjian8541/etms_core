@@ -8,6 +8,7 @@ namespace ETMS.Entity.Dto.PaymentService.Output
 {
     public class TenantLcsPayLogPagingOutput
     {
+        public long CId { get; set; }
 
         public long StudentId { get; set; }
 
@@ -88,5 +89,7 @@ namespace ETMS.Entity.Dto.PaymentService.Output
         public string StatusDesc { get; set; }
 
         public bool IsCanRefund { get; set; }
+
+        public bool IsLoading { get; set; }
     }
 }

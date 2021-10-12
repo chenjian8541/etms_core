@@ -23,6 +23,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
 
         public string ClassTimeDesc { get; set; }
 
+        public string ClassTimeFullDesc { get; set; }
+
         public List<NoticeStudentsOfClassTodayStudent> Students { get; set; }
     }
 

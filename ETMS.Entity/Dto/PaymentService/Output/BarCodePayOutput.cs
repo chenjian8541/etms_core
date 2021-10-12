@@ -8,6 +8,12 @@ namespace ETMS.Entity.Dto.PaymentService.Output
 {
     public class BarCodePayOutput
     {
+        /// <summary>
+        /// 状态
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcsPayLogStatus"/>
+        /// </summary>
+        public int PayStatus { get; set; }
+
         public long LcsAccountId { get; set; }
 
         public string OrderNo { get; set; }

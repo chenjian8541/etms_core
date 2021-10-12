@@ -10,6 +10,8 @@ namespace ETMS.Entity.Dto.Student.Request
     {
         public long StudentAccountRechargeId { get; set; }
 
+        public string OrderNo { get; set; }
+
         public decimal RechargeReal { get; set; }
 
         public decimal RechargeGive { get; set; }
@@ -64,11 +66,13 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal PayOther { get; set; }
 
+        public decimal PayLcsBarcodePay { get; set; }
+
         public decimal PaySum
         {
             get
             {
-                return PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther;
+                return PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther + PayLcsBarcodePay;
             }
         }
 

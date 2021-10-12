@@ -245,7 +245,8 @@ namespace ETMS.Business.Common
                 var studentNameValue = GetCellValue(myRow.GetCell(i));
                 if (string.IsNullOrEmpty(studentNameValue))
                 {
-                    strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
+                    continue; //无效行
+                    //strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
                 }
                 else
                 {
@@ -589,7 +590,8 @@ namespace ETMS.Business.Common
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
                 if (string.IsNullOrEmpty(studentNameValue))
                 {
-                    strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
+                    continue; //无效行
+                    //strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
                 }
                 else
                 {
@@ -1055,7 +1057,8 @@ namespace ETMS.Business.Common
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
                 if (string.IsNullOrEmpty(studentNameValue))
                 {
-                    strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
+                    continue; //无效行
+                    //strError.Append($"第{readRowIndex + 1}行学员姓名不能为空</br>");
                 }
                 else
                 {

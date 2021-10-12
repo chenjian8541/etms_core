@@ -113,7 +113,15 @@ namespace ETMS.Business
             }
 
             var student = studentBucket.Student;
-            var no = OrderNumberLib.EnrolmentOrderNumber();
+            string no;
+            if (string.IsNullOrEmpty(request.OrderNo))
+            {
+                no = OrderNumberLib.EnrolmentOrderNumber();
+            }
+            else
+            {
+                no = request.OrderNo;
+            }
             var couponsIds = new List<long>();
             //检验优惠券
             if (request.CouponsStudentGetIds != null && request.CouponsStudentGetIds.Any())

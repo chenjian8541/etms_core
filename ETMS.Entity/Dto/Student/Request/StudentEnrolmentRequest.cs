@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.Student.Request
     {
         public long StudentId { get; set; }
 
+        public string OrderNo { get; set; }
+
         public List<EnrolmentCourse> EnrolmentCourses { get; set; }
 
         public List<EnrolmentGoods> EnrolmentGoodss { get; set; }

@@ -9,17 +9,8 @@ namespace ETMS.Entity.Dto.PaymentService.Output
     public class LcsPayQueryOutput
     {
         /// <summary>
-        /// <see cref="EmLcsPayQueryPayStatus"/>
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcsPayLogStatus"/>
         /// </summary>
         public int PayStatus { get; set; }
-    }
-
-    public struct EmLcsPayQueryPayStatus
-    {
-        public const int Success = 1;
-
-        public const int Fail = 2;
-
-        public const int Paying = 3;
     }
 }

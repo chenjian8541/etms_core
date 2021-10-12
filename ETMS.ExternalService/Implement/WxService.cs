@@ -180,7 +180,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         first = new TemplateDataItem(GetFirstDesc(request, $"{student.StudentName}同学，您明天有课程，请提前做好上课准备")),
                         keyword1 = new TemplateDataItem(student.CourseName, DefaultColor),
-                        keyword2 = new TemplateDataItem(request.ClassTimeDesc, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.ClassTimeFullDesc, DefaultColor),
                         keyword3 = new TemplateDataItem(request.ClassRoom, DefaultColor),
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };
@@ -218,7 +218,7 @@ namespace ETMS.ExternalService.Implement
                     {
                         first = new TemplateDataItem(GetFirstDesc(request, $"{student.StudentName}同学，您在今天{request.StartTimeDesc}有课程即将上课，可别迟到哦")),
                         keyword1 = new TemplateDataItem(student.CourseName, DefaultColor),
-                        keyword2 = new TemplateDataItem(request.ClassTimeDesc, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.ClassTimeFullDesc, DefaultColor),
                         keyword3 = new TemplateDataItem(request.ClassRoom, DefaultColor),
                         remark = new TemplateDataItem(request.Remark, DefaultColor)
                     };

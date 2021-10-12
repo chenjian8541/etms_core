@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +128,11 @@ namespace ETMS.Business.Common
                 }
             }
             return string.Empty;
+        }
+
+        internal static string GetClassTimesOtDesc(EtClassTimes classTimes)
+        {
+            return $"{classTimes.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}){EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-")}";
         }
     }
 }

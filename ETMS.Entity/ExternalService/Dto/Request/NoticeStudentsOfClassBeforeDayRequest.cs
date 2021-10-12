@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.ExternalService.Dto.Request
 {
-    public class NoticeStudentsOfClassBeforeDayRequest: NoticeRequestBase
+    public class NoticeStudentsOfClassBeforeDayRequest : NoticeRequestBase
     {
         public NoticeStudentsOfClassBeforeDayRequest(NoticeRequestBase requestBase)
             : base(requestBase.LoginTenantId,
@@ -22,6 +22,8 @@ namespace ETMS.Entity.ExternalService.Dto.Request
         public string StartTimeDesc { get; set; }
 
         public string ClassTimeDesc { get; set; }
+
+        public string ClassTimeFullDesc { get; set; }
 
         public List<NoticeStudentsOfClassBeforeDayStudent> Students { get; set; }
     }

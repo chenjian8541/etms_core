@@ -324,7 +324,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("账户不存在");
             }
-            var no = OrderNumberLib.StudentAccountRecharge();
+            string no;
+            if (string.IsNullOrEmpty(request.OrderNo))
+            {
+                no = OrderNumberLib.StudentAccountRecharge();
+            }
+            else
+            {
+                no = request.OrderNo;
+            }
+
             var now = DateTime.Now;
             await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(request.LoginTenantId)
             {
@@ -361,6 +370,10 @@ namespace ETMS.Business
             if (request.PayInfo.PayOther > 0)
             {
                 incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.Other, request.PayInfo.PayOther, now, request.Ot, no, request));
+            }
+            if (request.PayInfo.PayLcsBarcodePay > 0)
+            {
+                incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.PayLcsBarcodePay, request.PayInfo.PayLcsBarcodePay, now, request.Ot, no, request));
             }
 
             var paySum = request.PayInfo.PaySum;

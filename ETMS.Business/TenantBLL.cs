@@ -166,6 +166,11 @@ namespace ETMS.Business
             return await _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeSend(request.LoginTenantId, sysTenantInfo.Phone);
         }
 
+        public ResponseBase SysSafeSmsCheck(SysSafeSmsCheckRequest request)
+        {
+            return _sysSafeSmsCodeCheckBLL.SysSafeSmsCodeCheck(request.LoginTenantId, request.SmsCode);
+        }
+
         public async Task<ResponseBase> NoticeConfigGet(NoticeConfigGetRequest request)
         {
             var log = await _noticeConfigDAL.GetNoticeConfig(EmNoticeConfigType.NoticePeopleLimit, request.PeopleType, request.ScenesType);

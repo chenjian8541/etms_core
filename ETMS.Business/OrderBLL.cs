@@ -374,6 +374,19 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> OrderSimpleGet(OrderSimpleGetRequest request)
+        {
+            var order = await _orderDAL.GetOrder(request.OrderNo);
+            if (order == null)
+            {
+                return ResponseBase.CommonError("订单不存在");
+            }
+            return ResponseBase.Success(new OrderSimpleGetOutput()
+            {
+                OrderId = order.Id
+            });
+        }
+
         public async Task<ResponseBase> OrderGetDetailAccountRecharge(OrderGetDetailRequest request)
         {
             var order = await _orderDAL.GetOrder(request.CId);
@@ -811,7 +824,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此订单无须补交费用");
             }
-            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos + request.PayOther;
+            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos + request.PayOther + request.PayLcsBarcodePay;
             if (order.ArrearsSum < payTotal)
             {
                 return ResponseBase.CommonError("支付金额不能大于欠款金额");
@@ -841,6 +854,10 @@ namespace ETMS.Business
             if (request.PayOther > 0)
             {
                 incomeLogs.Add(GetEtIncomeLog(EmPayType.Other, request.PayOther, now, request.PayOt, order.No, order.Id, request));
+            }
+            if (request.PayLcsBarcodePay > 0)
+            {
+                incomeLogs.Add(GetEtIncomeLog(EmPayType.PayLcsBarcodePay, request.PayLcsBarcodePay, now, request.PayOt, order.No, order.Id, request));
             }
 
             _incomeLogDAL.AddIncomeLog(incomeLogs);

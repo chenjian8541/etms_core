@@ -57,6 +57,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtOrder>(id);
         }
 
+        public async Task<EtOrder> GetOrder(string orderNo)
+        {
+            return await _dbWrapper.Find<EtOrder>(p => p.No == orderNo && p.IsDeleted == EmIsDeleted.Normal && p.TenantId == _tenantId);
+        }
+
         public async Task<List<EtOrderDetail>> GetOrderDetail(long orderId)
         {
             return await _dbWrapper.FindList<EtOrderDetail>(p => p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);

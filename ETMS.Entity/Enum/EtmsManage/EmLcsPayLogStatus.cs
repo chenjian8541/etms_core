@@ -23,10 +23,10 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int PaySuccess = 2;
 
-        ///// <summary>
-        ///// 支付失败
-        ///// </summary>
-        //public const int PayFail = 3;
+        /// <summary>
+        /// 支付失败
+        /// </summary>
+        public const int PayFail = 3;
 
         /// <summary>
         /// 已退款
@@ -39,12 +39,12 @@ namespace ETMS.Entity.Enum.EtmsManage
             {
                 case 0:
                     return "未支付";
-                //case 1:
-                //    return "支付中";
+                case 1:
+                    return "支付中";
                 case 2:
                     return "支付成功";
-                //case 3:
-                //    return "支付失败";
+                case 3:
+                    return "支付失败";
                 case 4:
                     return "已退款";
             }
