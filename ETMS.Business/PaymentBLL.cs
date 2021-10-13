@@ -12,6 +12,7 @@ using ETMS.Entity.Temp;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IDataAccess.Lcs;
 using ETMS.Pay.Lcsw;
 using ETMS.Utility;
 using System;
@@ -34,24 +35,27 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
+
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
-            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL)
+            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL)
         {
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._studentDAL = studentDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._payLcswService = payLcswService;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL);
+            this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _tenantLcsPayLogDAL);
         }
 
         public async Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request)
         {
-            var pagingData = await _tenantLcsAccountDAL.GetTenantLcsPayLogPaging(request);
+            var pagingData = await _tenantLcsPayLogDAL.GetTenantLcsPayLogPaging(request);
             var output = new List<TenantLcsPayLogPagingOutput>();
             if (pagingData.Item1.Any())
             {
@@ -191,7 +195,7 @@ namespace ETMS.Business
             var lcsPayLogId = 0L;
             if (status != EmLcsPayLogStatus.PayFail)
             {
-                lcsPayLogId = await _tenantLcsAccountDAL.AddTenantLcsPayLog(new SysTenantLcsPayLog()
+                lcsPayLogId = await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
                 {
                     AgentId = myTenant.AgentId,
                     Attach = payRequest.attach,
@@ -221,6 +225,7 @@ namespace ETMS.Business
                     TerminalId = myLcsAccount.TerminalId,
                     TerminalTrace = orderNo,
                     TotalFee = payRequest.total_fee,
+                    TotalFeeValue = request.PayMoney,
                     TotalFeeDesc = request.PayMoney.ToString()
                 });
             }
@@ -277,10 +282,10 @@ namespace ETMS.Business
             }
             if (status != EmLcsPayLogStatus.Unpaid)
             {
-                var paylog = await _tenantLcsAccountDAL.GetTenantLcsPayLog(request.LcsAccountId);
+                var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
                 paylog.PayFinishOt = payFinishOt;
                 paylog.Status = status;
-                await _tenantLcsAccountDAL.EditTenantLcsPayLog(paylog);
+                await _tenantLcsPayLogDAL.EditTenantLcsPayLog(paylog);
             }
 
             return ResponseBase.Success(new LcsPayQueryOutput()
@@ -299,7 +304,7 @@ namespace ETMS.Business
             var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
 
             var now = DateTime.Now;
-            var paylog = await _tenantLcsAccountDAL.GetTenantLcsPayLog(request.LcsAccountId);
+            var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
             if (paylog.Status != EmLcsPayLogStatus.PaySuccess)
             {
                 return ResponseBase.CommonError("此订单无法执行退款");
@@ -330,7 +335,7 @@ namespace ETMS.Business
             paylog.RefundFee = refundResult.refund_fee;
             paylog.OutRefundNo = refundResult.out_refund_no;
             paylog.Status = EmLcsPayLogStatus.Refunded;
-            await _tenantLcsAccountDAL.EditTenantLcsPayLog(paylog);
+            await _tenantLcsPayLogDAL.EditTenantLcsPayLog(paylog);
 
             await _userOperationLogDAL.AddUserLog(request, $"退款申请-退款金额:{paylog.TotalFeeDesc},订单号:{paylog.OrderNo}", EmUserOperationType.LcsMgr, now);
             return ResponseBase.Success();

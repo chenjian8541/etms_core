@@ -61,26 +61,5 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Update(entity);
             await UpdateCache(entity.TenantId);
         }
-
-        public async Task<long> AddTenantLcsPayLog(SysTenantLcsPayLog entity)
-        {
-            await this.Insert(entity);
-            return entity.Id;
-        }
-
-        public async Task<SysTenantLcsPayLog> GetTenantLcsPayLog(long id)
-        {
-            return await this.Find<SysTenantLcsPayLog>(p => p.Id == id);
-        }
-
-        public async Task EditTenantLcsPayLog(SysTenantLcsPayLog entity)
-        {
-            await this.Update(entity);
-        }
-
-        public async Task<Tuple<IEnumerable<SysTenantLcsPayLog>, int>> GetTenantLcsPayLogPaging(IPagingRequest request)
-        {
-            return await this.ExecutePage<SysTenantLcsPayLog>("SysTenantLcsPayLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
-        }
     }
 }

@@ -80,7 +80,7 @@ namespace ETMS.Entity.Dto.PaymentService.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (StudentId != null)
             {
-                condition.Append($" AND StudentId = {StudentId.Value}");
+                condition.Append($" AND RelationId = {StudentId.Value}");
             }
             if (StartOt != null)
             {
