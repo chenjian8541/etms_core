@@ -17,6 +17,8 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string StudentPhone { get; set; }
 
+        public string StudentTrackUserName { get; set; }
+
         /// <summary> 
         /// 考勤形式  <see cref="ETMS.Entity.Enum.EmStudentCheckOnLogCheckForm"/>
         /// </summary>

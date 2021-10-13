@@ -67,6 +67,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public byte? Status { get; set; }
 
+        public long? TrackUser { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -101,6 +103,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (Status != null)
             {
                 condition.Append($" AND [Status] = {Status.Value}");
+            }
+            if (TrackUser != null)
+            {
+                condition.Append($" AND TrackUser = {TrackUser.Value}");
             }
             return condition.ToString();
         }

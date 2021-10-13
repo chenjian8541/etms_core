@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +18,8 @@ namespace ETMS.IDataAccess
         Task<bool> EditStudentCheckOnLog(EtStudentCheckOnLog entity);
 
         Task<Tuple<IEnumerable<EtStudentCheckOnLog>, int>> GetPaging(RequestPagingBase request);
+
+        Task<Tuple<IEnumerable<StudentCheckOnLogView>, int>> GetViewPaging(RequestPagingBase request);
 
         Task<EtStudentCheckOnLog> GetStudentCheckOnLastTime(long studentId);
 

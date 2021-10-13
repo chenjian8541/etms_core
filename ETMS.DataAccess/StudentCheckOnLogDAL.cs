@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Common;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 
 namespace ETMS.DataAccess
 {
@@ -60,6 +61,11 @@ namespace ETMS.DataAccess
         public async Task<Tuple<IEnumerable<EtStudentCheckOnLog>, int>> GetPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtStudentCheckOnLog>("EtStudentCheckOnLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<StudentCheckOnLogView>, int>> GetViewPaging(RequestPagingBase request)
+        {
+            return await _dbWrapper.ExecutePage<StudentCheckOnLogView>("StudentCheckOnLogView", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
         public async Task<EtStudentCheckOnLog> GetStudentCheckOnLastTime(long studentId)

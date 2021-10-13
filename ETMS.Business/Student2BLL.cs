@@ -232,15 +232,29 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request)
         {
+            if (request.TrackUser == null) //客户要求  考勤记录增加跟进人查询
+            {
+                return await StudentCheckOnLogGetPaging1(request);
+            }
+            else
+            {
+                return await StudentCheckOnLogGetPaging2(request);
+            }
+        }
+
+        private async Task<ResponseBase> StudentCheckOnLogGetPaging1(StudentCheckOnLogGetPagingRequest request)
+        {
             var pagingData = await _studentCheckOnLogDAL.GetPaging(request);
             var output = new List<StudentCheckOnLogGetPagingOutput>();
             var tempBoxStudent = new DataTempBox<EtStudent>();
             var tempBoxClass = new DataTempBox<EtClass>();
             var tempBoxCourse = new DataTempBox<EtCourse>();
+            var tempBoxUser = new DataTempBox<EtUser>();
             string className;
             string courseName;
             string deClassTimesDesc;
             string checkMedium;
+            string studentTrackUserName;
             var maxDate = DateTime.Now.AddDays(-7);
             foreach (var p in pagingData.Item1)
             {
@@ -300,6 +314,7 @@ namespace ETMS.Business
                 {
                     explain = "签退成功";
                 }
+                studentTrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser);
                 output.Add(new StudentCheckOnLogGetPagingOutput()
                 {
                     CheckForm = p.CheckForm,
@@ -318,7 +333,100 @@ namespace ETMS.Business
                     ClassName = className,
                     CourseName = courseName,
                     DeClassTimesDesc = deClassTimesDesc,
-                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status)
+                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status),
+                    StudentTrackUserName = studentTrackUserName
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        private async Task<ResponseBase> StudentCheckOnLogGetPaging2(StudentCheckOnLogGetPagingRequest request)
+        {
+            var pagingData = await _studentCheckOnLogDAL.GetViewPaging(request);
+            var output = new List<StudentCheckOnLogGetPagingOutput>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            string className;
+            string courseName;
+            string deClassTimesDesc;
+            string checkMedium;
+            string studentTrackUserName;
+            var maxDate = DateTime.Now.AddDays(-7);
+            foreach (var p in pagingData.Item1)
+            {
+                var explain = string.Empty;
+                className = string.Empty;
+                courseName = string.Empty;
+                deClassTimesDesc = string.Empty;
+                checkMedium = string.Empty;
+                if (p.CheckType == EmStudentCheckOnLogCheckType.CheckIn)
+                {
+                    switch (p.Status)
+                    {
+                        case EmStudentCheckOnLogStatus.NormalNotClass:
+                            explain = "签到成功";
+                            break;
+                        case EmStudentCheckOnLogStatus.NormalAttendClass:
+                        case EmStudentCheckOnLogStatus.BeRollcall:
+                            if (p.ClassTimesId == null)
+                            {
+                                //直接扣减课时
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                                explain = $"签到成功 - 记上课：消耗课程({ckCourse})，扣课时({deClassTimesDesc})";
+                            }
+                            else
+                            {
+                                var ckClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId.Value);
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                className = ckClass?.Name;
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                                explain = $"签到成功 - 记上课：班级({className})，上课时间({p.ClassOtDesc})，消耗课程({ckCourse})，扣课时({deClassTimesDesc})";
+                            }
+                            break;
+                        case EmStudentCheckOnLogStatus.Revoke:
+                            explain = "签到成功 - 已撤销记上课";
+                            break;
+                    }
+                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
+                        && !string.IsNullOrEmpty(p.CheckMedium) &&
+                        p.CheckOt > maxDate)
+                    {
+                        checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
+                    }
+                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                    {
+                        checkMedium = p.CheckMedium;
+                    }
+                }
+                else
+                {
+                    explain = "签退成功";
+                }
+                studentTrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.TrackUser);
+                output.Add(new StudentCheckOnLogGetPagingOutput()
+                {
+                    CheckForm = p.CheckForm,
+                    CheckFormDesc = EmStudentCheckOnLogCheckForm.GetStudentCheckOnLogCheckFormDesc(p.CheckForm),
+                    CheckOt = p.CheckOt,
+                    CheckType = p.CheckType,
+                    CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(p.CheckType),
+                    Status = p.Status,
+                    StudentCheckOnLogId = p.Id,
+                    StudentId = p.StudentId,
+                    StudentName = p.StudentName,
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                    Explain = explain,
+                    Remark = p.Remark,
+                    CheckMedium = checkMedium,
+                    ClassName = className,
+                    CourseName = courseName,
+                    DeClassTimesDesc = deClassTimesDesc,
+                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status),
+                    StudentTrackUserName = studentTrackUserName
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));
