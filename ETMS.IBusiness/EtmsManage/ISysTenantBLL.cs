@@ -22,6 +22,8 @@ namespace ETMS.IBusiness.EtmsManage
 
         Task<ResponseBase> TenantEdit(TenantEditRequest request);
 
+        Task<ResponseBase> TenantEditImportant(TenantEditImportantRequest request);
+
         Task<ResponseBase> TenantSetUser(TenantSetUserRequest request);
 
         Task<ResponseBase> TenantSetExDate(TenantSetExDateRequest request);

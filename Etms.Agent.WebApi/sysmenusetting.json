@@ -47,6 +47,11 @@
         "Type": 1
       },
       {
+        "ActionId": 23,
+        "Name": "编辑机构编码",
+        "Type": 1
+      },
+      {
         "ActionId": 3,
         "Name": "删除机构",
         "Type": 1

@@ -70,6 +70,12 @@ namespace ETMS.DataAccess.EtmsManage
             return true;
         }
 
+        public async Task EditTenantCode(int id, string newTenantCode)
+        {
+            await this.Execute($"UPDATE SysTenant SET TenantCode = '{newTenantCode}' WHERE Id = {id} ");
+            await UpdateCache(id);
+        }
+
         public async Task<bool> DelTenant(SysTenant sysTenant)
         {
             sysTenant.SmsCount = 0;

@@ -496,6 +496,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantEditImportant(TenantEditImportantRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantEditImportant(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TenantSetUser(TenantSetUserRequest request)
         {
             try

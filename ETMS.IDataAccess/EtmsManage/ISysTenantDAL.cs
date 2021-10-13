@@ -15,9 +15,11 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task<Tuple<IEnumerable<SysTenant>, int>> GetTenantsEffective(int pageSize, int pageCurrent);
 
-        Task<int> AddTenant(SysTenant sysTenant,long userId);
+        Task<int> AddTenant(SysTenant sysTenant, long userId);
 
         Task<bool> EditTenant(SysTenant sysTenant);
+
+        Task EditTenantCode(int id, string newTenantCode);
 
         Task<bool> DelTenant(SysTenant sysTenant);
 

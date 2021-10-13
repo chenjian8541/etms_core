@@ -498,6 +498,28 @@ namespace ETMS.Business.EtmsManage
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> TenantEditImportant(TenantEditImportantRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            if (tenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (tenant.TenantCode == request.NewTenantCode)
+            {
+                return ResponseBase.CommonError("新编码与原编码相同");
+            }
+            if (await this._sysTenantDAL.ExistTenantCode(request.NewTenantCode))
+            {
+                return ResponseBase.CommonError("机构编码已存在");
+            }
+            await _sysTenantDAL.EditTenantCode(tenant.Id, request.NewTenantCode);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request,
+              $"编辑机构编码:原编码:{tenant.TenantCode};新编码:{request.NewTenantCode}", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> TenantSetUser(TenantSetUserRequest request)
         {
             await _sysTenantDAL.EditTenantUserId(request.Ids, request.UserId);
