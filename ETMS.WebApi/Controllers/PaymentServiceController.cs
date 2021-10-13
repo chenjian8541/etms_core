@@ -19,10 +19,13 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IPaymentBLL _paymentBLL;
 
-        public PaymentServiceController(IPaymentMerchantBLL paymentMerchantBLL, IPaymentBLL paymentBLL)
+        private readonly IPaymentStatisticsBLL _paymentStatisticsBLL;
+
+        public PaymentServiceController(IPaymentMerchantBLL paymentMerchantBLL, IPaymentBLL paymentBLL, IPaymentStatisticsBLL paymentStatisticsBLL)
         {
             this._paymentMerchantBLL = paymentMerchantBLL;
             this._paymentBLL = paymentBLL;
+            this._paymentStatisticsBLL = paymentStatisticsBLL;
         }
 
         [AllowAnonymous]
@@ -175,6 +178,76 @@ namespace ETMS.WebApi.Controllers
             {
                 _paymentBLL.InitTenantId(request.LoginTenantId);
                 return await _paymentBLL.LcsPayRefund(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsLcsPayDayGetLine(StatisticsLcsPayDayGetLineRequest request)
+        {
+            try
+            {
+                _paymentStatisticsBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentStatisticsBLL.StatisticsLcsPayDayGetLine(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsLcsPayDayGetPaging(StatisticsLcsPayDayGetPagingRequest request)
+        {
+            try
+            {
+                _paymentStatisticsBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentStatisticsBLL.StatisticsLcsPayDayGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsLcsPayMonthGetLine(StatisticsLcsPayMonthGetLineRequest request)
+        {
+            try
+            {
+                _paymentStatisticsBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentStatisticsBLL.StatisticsLcsPayMonthGetLine(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsLcsPayMonthGetPaging(StatisticsLcsPayMonthGetPagingRequest request)
+        {
+            try
+            {
+                _paymentStatisticsBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentStatisticsBLL.StatisticsLcsPayMonthGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StatisticsLcsPayYear(StatisticsLcsPayYearRequest request)
+        {
+            try
+            {
+                _paymentStatisticsBLL.InitTenantId(request.LoginTenantId);
+                return await _paymentStatisticsBLL.StatisticsLcsPayYear(request);
             }
             catch (Exception ex)
             {

@@ -18,5 +18,7 @@ namespace ETMS.IBusiness
         Task ResetTenantToDoThingConsumerEvent(ResetTenantToDoThingEvent request);
 
         Task StatisticsStudentAccountRechargeConsumerEvent(StatisticsStudentAccountRechargeEvent request);
+
+        Task StatisticsLcsPayConsumerEvent(StatisticsLcsPayEvent request);
     }
 }

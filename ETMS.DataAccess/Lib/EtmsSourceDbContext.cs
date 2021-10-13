@@ -176,5 +176,9 @@ namespace ETMS.DataAccess.Lib
 
         public DbSet<EtTeacherSalaryPayrollUserPerformanceDetail> EtTeacherSalaryPayrollUserPerformanceDetails { get; set; }
         public DbSet<EtTenantLcsPayLog> EtTenantLcsPayLogs { get; set; }
+
+        public DbSet<EtStatisticsLcsPayDay> EtStatisticsLcsPayDays { get; set; }
+
+        public DbSet<EtStatisticsLcsPayMonth> EtStatisticsLcsPayMonths { get; set; }
     }
 }

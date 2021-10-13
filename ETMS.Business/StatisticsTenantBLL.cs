@@ -12,6 +12,7 @@ using System.Linq;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.Utility;
+using ETMS.IDataAccess.Statistics;
 
 namespace ETMS.Business
 {
@@ -29,9 +30,11 @@ namespace ETMS.Business
 
         private readonly IStatisticsStudentAccountRechargeDAL _statisticsStudentAccountRechargeDAL;
 
+        private readonly IStatisticsLcsPayDAL _statisticsLcsPayDAL;
+
         public StatisticsTenantBLL(IStatisticsFinanceIncomeDAL statisticsFinanceIncomeDAL, IStatisticsStudentCountDAL statisticsStudentCountDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsClassDAL statisticsClassDAL, ITenantToDoThingDAL tenantToDoThingDAL,
-            IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL)
+            IStatisticsStudentAccountRechargeDAL statisticsStudentAccountRechargeDAL, IStatisticsLcsPayDAL statisticsLcsPayDAL)
         {
             this._statisticsFinanceIncomeDAL = statisticsFinanceIncomeDAL;
             this._statisticsStudentCountDAL = statisticsStudentCountDAL;
@@ -39,12 +42,13 @@ namespace ETMS.Business
             this._statisticsClassDAL = statisticsClassDAL;
             this._tenantToDoThingDAL = tenantToDoThingDAL;
             this._statisticsStudentAccountRechargeDAL = statisticsStudentAccountRechargeDAL;
+            this._statisticsLcsPayDAL = statisticsLcsPayDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsFinanceIncomeDAL, _statisticsStudentCountDAL, _statisticsClassAttendanceTagDAL,
-                _statisticsClassDAL, _tenantToDoThingDAL, _statisticsStudentAccountRechargeDAL);
+                _statisticsClassDAL, _tenantToDoThingDAL, _statisticsStudentAccountRechargeDAL, _statisticsLcsPayDAL);
         }
 
         public async Task<ResponseBase> StatisticsTenantGet(StatisticsTenantGetRequest request)
@@ -145,6 +149,12 @@ namespace ETMS.Business
         public async Task StatisticsStudentAccountRechargeConsumerEvent(StatisticsStudentAccountRechargeEvent request)
         {
             await _statisticsStudentAccountRechargeDAL.UpdateStatisticsStudentAccountRecharge();
+        }
+
+        public async Task StatisticsLcsPayConsumerEvent(StatisticsLcsPayEvent request)
+        {
+            await _statisticsLcsPayDAL.UpdateStatisticsLcsPayDay(request.StatisticsDate);
+            await _statisticsLcsPayDAL.UpdateStatisticsLcsPayMonth(request.StatisticsDate);
         }
     }
 }

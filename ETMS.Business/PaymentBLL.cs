@@ -9,10 +9,12 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
+using ETMS.IEventProvider;
 using ETMS.Pay.Lcsw;
 using ETMS.Utility;
 using System;
@@ -37,8 +39,11 @@ namespace ETMS.Business
 
         private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
-            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL)
+            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
+            IEventPublisher eventPublisher)
         {
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._studentDAL = studentDAL;
@@ -46,6 +51,7 @@ namespace ETMS.Business
             this._payLcswService = payLcswService;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -176,11 +182,13 @@ namespace ETMS.Business
             }
             var status = EmLcsPayLogStatus.Unpaid;
             DateTime? payFinishOt = null;
+            DateTime? payFinishDate = null;
             switch (resPay.result_code)
             {
                 case "01": //成功
                     status = EmLcsPayLogStatus.PaySuccess;
                     payFinishOt = now;
+                    payFinishDate = now.Date;
                     break;
                 case "02": //失败 
                     status = EmLcsPayLogStatus.PayFail;
@@ -226,8 +234,17 @@ namespace ETMS.Business
                     TerminalTrace = orderNo,
                     TotalFee = payRequest.total_fee,
                     TotalFeeValue = request.PayMoney,
-                    TotalFeeDesc = request.PayMoney.ToString()
+                    TotalFeeDesc = request.PayMoney.ToString(),
+                    PayFinishDate = payFinishDate,
+                    RefundDate = null
                 });
+                if (status == EmLcsPayLogStatus.PaySuccess)
+                {
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(request.LoginTenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                }
             }
             return ResponseBase.Success(new BarCodePayOutput()
             {
@@ -265,11 +282,13 @@ namespace ETMS.Business
             }
             var status = EmLcsPayLogStatus.Unpaid;
             DateTime? payFinishOt = null;
+            DateTime? payFinishDate = null;
             switch (payResult.result_code)
             {
                 case "01": //成功
                     status = EmLcsPayLogStatus.PaySuccess;
                     payFinishOt = now;
+                    payFinishDate = now.Date;
                     break;
                 case "02": //失败 
                     status = EmLcsPayLogStatus.PayFail;
@@ -284,8 +303,16 @@ namespace ETMS.Business
             {
                 var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
                 paylog.PayFinishOt = payFinishOt;
+                paylog.PayFinishDate = payFinishDate;
                 paylog.Status = status;
                 await _tenantLcsPayLogDAL.EditTenantLcsPayLog(paylog);
+                if (status == EmLcsPayLogStatus.PaySuccess)
+                {
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(request.LoginTenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                }
             }
 
             return ResponseBase.Success(new LcsPayQueryOutput()
@@ -332,10 +359,23 @@ namespace ETMS.Business
             }
 
             paylog.RefundOt = now;
+            paylog.RefundDate = now.Date;
             paylog.RefundFee = refundResult.refund_fee;
             paylog.OutRefundNo = refundResult.out_refund_no;
             paylog.Status = EmLcsPayLogStatus.Refunded;
             await _tenantLcsPayLogDAL.EditTenantLcsPayLog(paylog);
+
+            _eventPublisher.Publish(new StatisticsLcsPayEvent(request.LoginTenantId)
+            {
+                StatisticsDate = now.Date
+            });
+            if (paylog.PayFinishDate.Value != now.Date)
+            {
+                _eventPublisher.Publish(new StatisticsLcsPayEvent(request.LoginTenantId)
+                {
+                    StatisticsDate = paylog.PayFinishDate.Value
+                });
+            }
 
             await _userOperationLogDAL.AddUserLog(request, $"退款申请-退款金额:{paylog.TotalFeeDesc},订单号:{paylog.OrderNo}", EmUserOperationType.LcsMgr, now);
             return ResponseBase.Success();

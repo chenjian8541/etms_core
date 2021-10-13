@@ -71,6 +71,10 @@ namespace ETMS.Manage.Jobs
                     Time = _now,
                     IsJobRequest = true
                 });
+                _eventPublisher.Publish(new StatisticsLcsPayEvent(tenant.Id)
+                {
+                    StatisticsDate = _now
+                });
             }
         }
     }
