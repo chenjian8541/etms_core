@@ -233,13 +233,15 @@ namespace ETMS.Business.Common
                 if (myRow == null)
                 {
                     strError.Append($"第{readRowIndex + 1}行数据无效，请重新检验</br>");
+                    readRowIndex++;
                     continue;
                 }
                 var myStudentItem = new ImportStudentContentItem();
                 var i = myRow.FirstCellNum;
-                if (i < 0)
+                if (i != 0)
                 {
-                    break;
+                    readRowIndex++;
+                    continue; //无效行
                 }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));
@@ -579,13 +581,15 @@ namespace ETMS.Business.Common
                 if (myRow == null)
                 {
                     strError.Append($"第{readRowIndex + 1}行数据无效，请重新检验</br>");
+                    readRowIndex++;
                     continue;
                 }
                 var myStudentCourseItem = new ImportCourseTimesItem();
                 var i = myRow.FirstCellNum;
-                if (i < 0)
+                if (i != 0)
                 {
-                    break;
+                    readRowIndex++;
+                    continue; //无效行
                 }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
@@ -1047,13 +1051,15 @@ namespace ETMS.Business.Common
                 if (myRow == null)
                 {
                     strError.Append($"第{readRowIndex + 1}行数据无效，请重新检验</br>");
+                    readRowIndex++;
                     continue;
                 }
                 var myStudentCourseItem = new ImportCourseDayItem();
                 var i = myRow.FirstCellNum;
-                if (i < 0)
+                if (i != 0)
                 {
-                    break;
+                    readRowIndex++;
+                    continue;
                 }
 
                 var studentNameValue = GetCellValue(myRow.GetCell(i));    //学员姓名
