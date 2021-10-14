@@ -23,8 +23,9 @@ namespace Etms.Tools.Test
         {
             //CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
+
+            Decrypt3DESSqlConnection();
             //Encrypt3DESSqlConnection();
-            //Decrypt3DESSqlConnection();
             //Console.WriteLine(TenantLib.GetTenantEncrypt(207));
             //Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
 
@@ -287,15 +288,15 @@ namespace Etms.Tools.Test
 
         private static void Decrypt3DESSqlConnection()
         {
-            var conStr = Console.ReadLine();
+            var conStr = "MFTi97yij6knyrahExwfdP8R3AE5YRP/xPlIbNz4wWM3xHRrmpS2bT4qpKsXGxZM2rwdJevcLP3NV0F75VKmMdVtaG3vnc821zPtCyK1Xw+ZpciByVvIR/CWkdSnjgWa19E9MAswxaqVX6/i7dREosEt/b5G4Mjx";
             var res = CryptogramHelper.Decrypt3DES(conStr, SystemConfig.CryptogramConfig.Key);
             Console.WriteLine(res);
         }
 
         private static void Encrypt3DESSqlConnection()
         {
-            var conStr = Console.ReadLine();
-            Console.WriteLine(conStr);
+            var conStr = "server=iZsgar6gznjelyZ;user id=sa;password=Abc8594432<>?;database=EtmsSource007;min pool size=4;max pool size=512";
+            //Console.WriteLine(conStr);
             //try
             //{
             //    using (var con = new SqlConnection(conStr))
