@@ -25,6 +25,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentGetPaging(StudentGetPagingRequest request);
 
+        Task<ResponseBase> StudentExtendFieldInfoGet(StudentExtendFieldInfoGetRequest request);
+
         Task<ResponseBase> StudentGetPagingSimple(StudentGetPagingRequest request);
 
         Task<ResponseBase> StudentSetTrackUser(StudentSetTrackUserRequest request);

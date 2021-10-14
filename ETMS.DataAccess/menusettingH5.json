@@ -199,7 +199,7 @@
   },
   {
     "Id": 23,
-    "Name": "发放优惠券",
+    "Name": "发优惠券",
     "Icon": "system/material/teacher/menus/230.png",
     "PageId": 10,
     "ActionId": 0,

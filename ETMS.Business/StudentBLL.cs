@@ -629,6 +629,53 @@ namespace ETMS.Business
             })));
         }
 
+        public async Task<ResponseBase> StudentExtendFieldInfoGet(StudentExtendFieldInfoGetRequest request)
+        {
+            var allStudentExtendField = await _studentExtendFieldDAL.GetAllStudentExtendField();
+            if (allStudentExtendField == null || allStudentExtendField.Count == 0)
+            {
+                return ResponseBase.Success(null);
+            }
+            var output = new StudentExtendFieldInfoGetOutput()
+            {
+                DisplayNameList = new List<string>(),
+                FileNameList = new List<string>(),
+                StudentExtendFieldInfoValueList = new List<StudentExtendFieldInfoValue>()
+            };
+            foreach (var p in allStudentExtendField)
+            {
+                output.DisplayNameList.Add(p.DisplayName);
+                output.FileNameList.Add($"extendField_{p.Id}");
+            }
+            foreach (var myStuId in request.StudentIds)
+            {
+                var studentBucket = await _studentDAL.GetStudent(myStuId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                if (studentBucket.StudentExtendInfos == null || studentBucket.StudentExtendInfos.Count == 0)
+                {
+                    continue;
+                }
+                var myValue = new StudentExtendFieldInfoValue()
+                {
+                    StudentId = myStuId,
+                    InfoValueList = new List<ExtendFieldInfoValue>()
+                };
+                foreach (var myExtendFileInfo in studentBucket.StudentExtendInfos)
+                {
+                    myValue.InfoValueList.Add(new ExtendFieldInfoValue()
+                    {
+                        FileName = $"extendField_{myExtendFileInfo.ExtendFieldId}",
+                        FileValue = myExtendFileInfo.Value1
+                    });
+                }
+                output.StudentExtendFieldInfoValueList.Add(myValue);
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentGetPagingSimple(StudentGetPagingRequest request)
         {
             var studentPagingInfo = await _studentDAL.GetStudentPaging(request);
