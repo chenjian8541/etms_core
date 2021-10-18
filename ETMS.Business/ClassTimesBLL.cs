@@ -148,6 +148,10 @@ namespace ETMS.Business
                         etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False, request.SecrecyType);
                     if (classTimesStudent != null)
                     {
+                        if (classTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
+                        {
+                            continue;
+                        }
                         output.Add(classTimesStudent);
                     }
                 }
@@ -185,6 +189,10 @@ namespace ETMS.Business
                         EmBool.False, request.SecrecyType, classOt);
                     if (classTimesStudent != null)
                     {
+                        if (classTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
+                        {
+                            continue;
+                        }
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == classTimesStudent.StudentId);
                         if (myCheck != null) //是否考勤
                         {

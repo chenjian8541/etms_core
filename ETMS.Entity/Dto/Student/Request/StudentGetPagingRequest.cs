@@ -72,7 +72,7 @@ namespace ETMS.Entity.Dto.Student.Request
                 {
                     return null;
                 }
-                _endOt = Convert.ToDateTime(Ot[1]).AddDays(1); ;
+                _endOt = Convert.ToDateTime(Ot[1]).AddDays(1);
                 return _endOt;
             }
         }

@@ -203,7 +203,7 @@ namespace ETMS.Utility
             {
                 return string.Empty;
             }
-            return $"{OssAccessUrlHttp}/{key}";
+            return $"{OssAccessUrlHttp}/{key}?x-oss-process=auto-orient,1";
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace ETMS.Utility
             {
                 return string.Empty;
             }
-            return $"{OssAccessUrlHttps}/{key}";
+            return $"{OssAccessUrlHttps}/{key}?x-oss-process=auto-orient,1";
         }
 
         /// <summary>

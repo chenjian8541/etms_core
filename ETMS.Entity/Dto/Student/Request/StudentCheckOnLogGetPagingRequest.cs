@@ -52,7 +52,11 @@ namespace ETMS.Entity.Dto.Student.Request
                 {
                     return null;
                 }
-                _endOt = Convert.ToDateTime(Ot[1]); ;
+                _endOt = Convert.ToDateTime(Ot[1]);
+                if (_endOt.Value.Hour == 0 && _endOt.Value.Minute == 0 && _endOt.Value.Second == 0)
+                {
+                    _endOt = _endOt.Value.AddDays(1);
+                }
                 return _endOt;
             }
         }
