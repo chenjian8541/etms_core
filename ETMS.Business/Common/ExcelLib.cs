@@ -17,15 +17,31 @@ namespace ETMS.Business.Common
 {
     public class ExcelLib
     {
+        public const string ImportStudentExcelTemplateNameFormat = "潜在学员导入模板_{0}.xlsx";
+
+        public const string ImportCourseTimesExcelTemplateNameFormat = "学员课程导入模板(按课时)_{0}.xlsx";
+
+        public const string ImportCourseDayExcelTemplateNameFormat = "学员课程导入模板(按时间)_{0}.xlsx";
+
+        public static void DelHisExcelTemplate(string tenantCode, string serverPath)
+        {
+            var fileName1 = string.Format(ImportStudentExcelTemplateNameFormat, tenantCode);
+            var fileName2 = string.Format(ImportCourseTimesExcelTemplateNameFormat, tenantCode);
+            var fileName3 = string.Format(ImportCourseDayExcelTemplateNameFormat, tenantCode);
+            FileHelper.DelImportExcelTemplateFile(serverPath, fileName1);
+            FileHelper.DelImportExcelTemplateFile(serverPath, fileName2);
+            FileHelper.DelImportExcelTemplateFile(serverPath, fileName3);
+        }
+
         #region 导入潜在学员
 
         public static CheckImportStudentTemplateFileResult CheckImportStudentExcelTemplate(string tenantCode, string serverPath)
         {
-            var fileName = $"潜在学员导入模板_{tenantCode}.xlsx";
+            var fileName = string.Format(ImportStudentExcelTemplateNameFormat, tenantCode);
             return FileHelper.CheckImportExcelTemplateFile(serverPath, fileName);
         }
 
-        public static List<string> GetImportStudentHeadDesc()
+        public static List<string> GetImportStudentHeadDesc(List<EtStudentExtendField> studentExtendFields)
         {
             var headList = new List<string>();
             headList.Add("学员姓名(*)");
@@ -40,6 +56,13 @@ namespace ETMS.Business.Common
             headList.Add("家庭住址");
             headList.Add("备注");
             headList.Add("卡号");
+            if (studentExtendFields != null && studentExtendFields.Count > 0)
+            {
+                foreach (var p in studentExtendFields)
+                {
+                    headList.Add(p.DisplayName);
+                }
+            }
             return headList;
         }
 
@@ -49,7 +72,8 @@ namespace ETMS.Business.Common
             var sheet1 = workMbrTemplate.CreateSheet("导入学员信息");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 13));
+            var headTitleDesc = GetImportStudentHeadDesc(request.StudentExtendFieldAll);
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, headTitleDesc.Count - 1));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -64,7 +88,6 @@ namespace ETMS.Business.Common
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
             rowRemind.Height = 2200; ;
-            var headTitleDesc = GetImportStudentHeadDesc();
 
             var rowHead = sheet1.CreateRow(1);
             var styleHead = workMbrTemplate.CreateCellStyle();
@@ -155,6 +178,18 @@ namespace ETMS.Business.Common
             cellHead11.CellStyle = styleHead;
             cellHead11.SetCellValue(headTitleDesc[11]);
 
+            var i = 12;
+            if (headTitleDesc.Count > i)
+            {
+                while (i < headTitleDesc.Count)
+                {
+                    var myCellHead = rowHead.CreateCell(i);
+                    myCellHead.CellStyle = styleHead;
+                    myCellHead.SetCellValue(headTitleDesc[i]);
+                    i++;
+                }
+            }
+
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
                 workMbrTemplate.Write(fs);
@@ -196,28 +231,29 @@ namespace ETMS.Business.Common
             }
         }
 
-        public static Tuple<string, List<ImportStudentContentItem>> ReadImportStudentExcelContent(Stream excelStream,
-            int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
+        public static Tuple<string, List<ImportStudentContentItem>, List<ImportStudentExtendFieldItem>> ReadImportStudentExcelContent(Stream excelStream,
+            int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone, List<EtStudentExtendField> studentExtendFieldAll)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
             var outStudentContent = new List<ImportStudentContentItem>();
+            var outExtendFieldItem = new List<ImportStudentExtendFieldItem>();
             if (workSheet.LastRowNum <= 1)
             {
-                return Tuple.Create("请按要求填写学员信息", outStudentContent);
+                return Tuple.Create("请按要求填写学员信息", outStudentContent, outExtendFieldItem);
             }
-            if (workSheet.LastRowNum > 1005)
+            if (workSheet.LastRowNum > 505)
             {
-                return Tuple.Create("一次性最多导入1000条数据", outStudentContent);
+                return Tuple.Create("一次性最多导入500条数据", outStudentContent, outExtendFieldItem);
             }
 
             var headRow = workSheet.GetRow(validDataRowIndex - 1);
-            var headTitleDesc = GetImportStudentHeadDesc();
+            var headTitleDesc = GetImportStudentHeadDesc(studentExtendFieldAll);
             for (var i = 0; i < headTitleDesc.Count; i++)
             {
                 if (GetCellValue(headRow.GetCell(i)) != headTitleDesc[i])
                 {
-                    return Tuple.Create("请选择正确的excel模板文件导入", outStudentContent);
+                    return Tuple.Create("excel模板错误或者已过期，请下载最新的导入模板进行数据导入", outStudentContent, outExtendFieldItem);
                 }
             }
 
@@ -297,10 +333,38 @@ namespace ETMS.Business.Common
 
                 myStudentItem.CardNo = GetCellValue(myRow.GetCell(++i));
 
+                ++i;
+                if (headTitleDesc.Count > i)
+                {
+                    var tempExtendInfo = new List<ImportStudentExtendInfo>();
+                    while (i < headTitleDesc.Count)
+                    {
+                        var strTemp = GetCellValue(myRow.GetCell(i));
+                        if (!string.IsNullOrEmpty(strTemp))
+                        {
+                            tempExtendInfo.Add(new ImportStudentExtendInfo()
+                            {
+                                DisplayName = headTitleDesc[i],
+                                Value = strTemp
+                            });
+                        }
+                        ++i;
+                    }
+                    if (tempExtendInfo.Count > 0)
+                    {
+                        outExtendFieldItem.Add(new ImportStudentExtendFieldItem()
+                        {
+                            Phone = myStudentItem.Phone,
+                            StudentName = myStudentItem.StudentName,
+                            ExtendInfoList = tempExtendInfo
+                        });
+                    }
+                }
+
                 outStudentContent.Add(myStudentItem);
                 readRowIndex++;
             }
-            return Tuple.Create(strError.ToString(), outStudentContent);
+            return Tuple.Create(strError.ToString(), outStudentContent, outExtendFieldItem);
         }
 
 
@@ -311,7 +375,7 @@ namespace ETMS.Business.Common
 
         public static CheckImportStudentTemplateFileResult CheckImportCourseTimesExcelTemplate(string tenantCode, string serverPath)
         {
-            var fileName = $"学员课程导入模板(按课时)_{tenantCode}.xlsx";
+            var fileName = string.Format(ImportCourseTimesExcelTemplateNameFormat, tenantCode);
             return FileHelper.CheckImportExcelTemplateFile(serverPath, fileName);
         }
 
@@ -319,7 +383,7 @@ namespace ETMS.Business.Common
         /// 按课时导入
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetImportCourseHeadDescTimes()
+        public static List<string> GetImportCourseHeadDescTimes(List<EtStudentExtendField> studentExtendFields)
         {
             var headList = new List<string>();
             headList.Add("学员姓名(*)");
@@ -344,6 +408,13 @@ namespace ETMS.Business.Common
             headList.Add("家庭住址");
             headList.Add("备注");
             headList.Add("卡号");
+            if (studentExtendFields != null && studentExtendFields.Count > 0)
+            {
+                foreach (var p in studentExtendFields)
+                {
+                    headList.Add(p.DisplayName);
+                }
+            }
             return headList;
         }
 
@@ -352,8 +423,9 @@ namespace ETMS.Business.Common
             var workMbrTemplate = new XSSFWorkbook();
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按课时)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
+            var headTitleDesc = GetImportCourseHeadDescTimes(request.StudentExtendFieldAll);
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 21));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, headTitleDesc.Count - 1));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -370,7 +442,6 @@ namespace ETMS.Business.Common
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
             rowRemind.Height = 2900; ;
-            var headTitleDesc = GetImportCourseHeadDescTimes();
 
             var rowHead = sheet1.CreateRow(1);
             var styleHead = workMbrTemplate.CreateCellStyle();
@@ -537,6 +608,18 @@ namespace ETMS.Business.Common
             cellHead21.CellStyle = styleHead;
             cellHead21.SetCellValue(headTitleDesc[21]);
 
+            var i = 22;
+            if (headTitleDesc.Count > i)
+            {
+                while (i < headTitleDesc.Count)
+                {
+                    var myCellHead = rowHead.CreateCell(i);
+                    myCellHead.CellStyle = styleHead;
+                    myCellHead.SetCellValue(headTitleDesc[i]);
+                    i++;
+                }
+            }
+
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
                 workMbrTemplate.Write(fs);
@@ -544,7 +627,7 @@ namespace ETMS.Business.Common
         }
 
         public static Tuple<string, List<ImportCourseTimesItem>> ReadImportCourseTimesExcelContent(
-            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
+            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone, List<EtStudentExtendField> studentExtendFieldAll)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
@@ -553,18 +636,18 @@ namespace ETMS.Business.Common
             {
                 return Tuple.Create("请按要求填写学员信息", outStudentContent);
             }
-            if (workSheet.LastRowNum > 1005)
+            if (workSheet.LastRowNum > 505)
             {
-                return Tuple.Create("一次性最多导入1000条数据", outStudentContent);
+                return Tuple.Create("一次性最多导入500条数据", outStudentContent);
             }
 
             var headRow = workSheet.GetRow(validDataRowIndex - 1);
-            var headTitleDesc = GetImportCourseHeadDescTimes();
+            var headTitleDesc = GetImportCourseHeadDescTimes(studentExtendFieldAll);
             for (var i = 0; i < headTitleDesc.Count; i++)
             {
                 if (GetCellValue(headRow.GetCell(i)) != headTitleDesc[i])
                 {
-                    return Tuple.Create("请选择正确的excel模板文件导入", outStudentContent);
+                    return Tuple.Create("excel模板错误或者已过期，请下载最新的导入模板进行数据导入", outStudentContent);
                 }
             }
 
@@ -787,6 +870,29 @@ namespace ETMS.Business.Common
 
                 myStudentCourseItem.CardNo = GetCellValue(myRow.GetCell(++i));
 
+                ++i;
+                if (headTitleDesc.Count > i)
+                {
+                    var tempExtendInfo = new List<ImportStudentExtendInfo>();
+                    while (i < headTitleDesc.Count)
+                    {
+                        var strTemp = GetCellValue(myRow.GetCell(i));
+                        if (!string.IsNullOrEmpty(strTemp))
+                        {
+                            tempExtendInfo.Add(new ImportStudentExtendInfo()
+                            {
+                                DisplayName = headTitleDesc[i],
+                                Value = strTemp
+                            });
+                        }
+                        ++i;
+                    }
+                    if (tempExtendInfo.Count > 0)
+                    {
+                        myStudentCourseItem.ExtendInfoList = tempExtendInfo;
+                    }
+                }
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
@@ -799,7 +905,7 @@ namespace ETMS.Business.Common
 
         public static CheckImportStudentTemplateFileResult CheckImportCourseDayExcelTemplate(string tenantCode, string serverPath)
         {
-            var fileName = $"学员课程导入模板(按时间)_{tenantCode}.xlsx";
+            var fileName = string.Format(ImportCourseDayExcelTemplateNameFormat, tenantCode);
             return FileHelper.CheckImportExcelTemplateFile(serverPath, fileName);
         }
 
@@ -807,7 +913,7 @@ namespace ETMS.Business.Common
         /// 按课时导入
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetImportCourseHeadDescDay()
+        public static List<string> GetImportCourseHeadDescDay(List<EtStudentExtendField> studentExtendFields)
         {
             var headList = new List<string>();
             headList.Add("学员姓名(*)");
@@ -830,6 +936,13 @@ namespace ETMS.Business.Common
             headList.Add("家庭住址");
             headList.Add("备注");
             headList.Add("卡号");
+            if (studentExtendFields != null && studentExtendFields.Count > 0)
+            {
+                foreach (var p in studentExtendFields)
+                {
+                    headList.Add(p.DisplayName);
+                }
+            }
             return headList;
         }
 
@@ -838,8 +951,9 @@ namespace ETMS.Business.Common
             var workMbrTemplate = new XSSFWorkbook();
             var sheet1 = workMbrTemplate.CreateSheet("导入学员课程信息(按时间)");
             sheet1.DefaultColumnWidth = sheet1.DefaultColumnWidth * 2;
+            var headTitleDesc = GetImportCourseHeadDescDay(request.StudentExtendFieldAll);
 
-            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, 21));
+            sheet1.AddMergedRegion(new CellRangeAddress(0, 0, 0, headTitleDesc.Count - 1));
             var rowRemind = sheet1.CreateRow(0);
             var notesTitle = rowRemind.CreateCell(0);
             var notesStyle = workMbrTemplate.CreateCellStyle();
@@ -856,7 +970,6 @@ namespace ETMS.Business.Common
             notesTitle.SetCellValue(noteString.ToString());
             notesTitle.CellStyle = notesStyle;
             rowRemind.Height = 2900;
-            var headTitleDesc = GetImportCourseHeadDescDay();
 
             var rowHead = sheet1.CreateRow(1);
             var styleHead = workMbrTemplate.CreateCellStyle();
@@ -1007,6 +1120,17 @@ namespace ETMS.Business.Common
             cellHead19.CellStyle = styleHead;
             cellHead19.SetCellValue(headTitleDesc[19]);
 
+            var i = 20;
+            if (headTitleDesc.Count > i)
+            {
+                while (i < headTitleDesc.Count)
+                {
+                    var myCellHead = rowHead.CreateCell(i);
+                    myCellHead.CellStyle = styleHead;
+                    myCellHead.SetCellValue(headTitleDesc[i]);
+                    i++;
+                }
+            }
             using (var fs = File.OpenWrite(request.CheckResult.StrFileFullPath))
             {
                 workMbrTemplate.Write(fs);
@@ -1014,7 +1138,7 @@ namespace ETMS.Business.Common
         }
 
         public static Tuple<string, List<ImportCourseDayItem>> ReadImportCourseDayExcelContent(
-            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone)
+            Stream excelStream, int sheetIndex, int validDataRowIndex, bool isJumpLimitValidPhone, List<EtStudentExtendField> studentExtendFieldAll)
         {
             var workbook = WorkbookFactory.Create(excelStream);
             var workSheet = workbook.GetSheetAt(sheetIndex);
@@ -1023,18 +1147,18 @@ namespace ETMS.Business.Common
             {
                 return Tuple.Create("请按要求填写学员信息", outStudentContent);
             }
-            if (workSheet.LastRowNum > 1005)
+            if (workSheet.LastRowNum > 505)
             {
-                return Tuple.Create("一次性最多导入1000条数据", outStudentContent);
+                return Tuple.Create("一次性最多导入500条数据", outStudentContent);
             }
 
             var headRow = workSheet.GetRow(validDataRowIndex - 1);
-            var headTitleDesc = GetImportCourseHeadDescDay();
+            var headTitleDesc = GetImportCourseHeadDescDay(studentExtendFieldAll);
             for (var i = 0; i < headTitleDesc.Count; i++)
             {
                 if (GetCellValue(headRow.GetCell(i)) != headTitleDesc[i])
                 {
-                    return Tuple.Create("请选择正确的excel模板文件导入", outStudentContent);
+                    return Tuple.Create("excel模板错误或者已过期，请下载最新的导入模板进行数据导入", outStudentContent);
                 }
             }
 
@@ -1224,6 +1348,29 @@ namespace ETMS.Business.Common
 
                 myStudentCourseItem.CardNo = GetCellValue(myRow.GetCell(++i));
 
+                ++i;
+                if (headTitleDesc.Count > i)
+                {
+                    var tempExtendInfo = new List<ImportStudentExtendInfo>();
+                    while (i < headTitleDesc.Count)
+                    {
+                        var strTemp = GetCellValue(myRow.GetCell(i));
+                        if (!string.IsNullOrEmpty(strTemp))
+                        {
+                            tempExtendInfo.Add(new ImportStudentExtendInfo()
+                            {
+                                DisplayName = headTitleDesc[i],
+                                Value = strTemp
+                            });
+                        }
+                        ++i;
+                    }
+                    if (tempExtendInfo.Count > 0)
+                    {
+                        myStudentCourseItem.ExtendInfoList = tempExtendInfo;
+                    }
+                }
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
@@ -1242,6 +1389,7 @@ namespace ETMS.Business.Common
 
         public List<EtStudentSource> StudentSourceAll { get; set; }
 
+        public List<EtStudentExtendField> StudentExtendFieldAll { get; set; }
     }
 
     public class ImportCourseHeadDescTimesExcelTemplateRequest
@@ -1255,6 +1403,8 @@ namespace ETMS.Business.Common
         public List<EtGrade> GradeAll { get; set; }
 
         public List<EtStudentSource> StudentSourceAll { get; set; }
+
+        public List<EtStudentExtendField> StudentExtendFieldAll { get; set; }
     }
 
     public class ImportCourseHeadDescDayExcelTemplateRequest
@@ -1268,5 +1418,7 @@ namespace ETMS.Business.Common
         public List<EtGrade> GradeAll { get; set; }
 
         public List<EtStudentSource> StudentSourceAll { get; set; }
+
+        public List<EtStudentExtendField> StudentExtendFieldAll { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace ETMS.Entity.Dto.External.Request
     {
         public List<ImportStudentContentItem> ImportStudents { get; set; }
 
+        public List<ImportStudentExtendFieldItem> StudentExtendFieldItems { get; set; }
         public override string Validate()
         {
             if (ImportStudents == null || ImportStudents.Count == 0)

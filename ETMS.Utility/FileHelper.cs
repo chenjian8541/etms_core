@@ -33,6 +33,22 @@ namespace ETMS.Utility
             };
         }
 
+        public static void DelImportExcelTemplateFile(string serverPath, string fileFullName)
+        {
+            var hisFile = CheckImportExcelTemplateFile(serverPath, fileFullName);
+            if (hisFile.IsExist)
+            {
+                try
+                {
+                    File.Delete(hisFile.StrFileFullPath);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"[删除导入文件出错]:fileFullName:{fileFullName}", ex, typeof(FileHelper));
+                }
+            }
+        }
+
         public static Tuple<string, string> PreProcessFolder(string serverPath, string folderTag = ImgFolderTag)
         {
             var timeStr = DateTime.Now.ToString("yyyyMMdd");

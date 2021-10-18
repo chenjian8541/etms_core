@@ -52,10 +52,13 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
+        private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
+
         public ImportBLL(IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentSourceDAL studentSourceDAL, IStudentRelationshipDAL studentRelationshipDAL, IGradeDAL gradeDAL, ISysTenantDAL sysTenantDAL,
             IStudentDAL studentDAL, IEventPublisher eventPublisher, IUserOperationLogDAL userOperationLogDAL, ICourseDAL courseDAL, IOrderDAL orderDAL,
-            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL)
+            IIncomeLogDAL incomeLogDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL,
+            IStudentExtendFieldDAL studentExtendFieldDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -72,13 +75,19 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._classDAL = classDAL;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._studentExtendFieldDAL = studentExtendFieldDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentSourceDAL, _studentRelationshipDAL,
                 _gradeDAL, _studentDAL, _userOperationLogDAL, _courseDAL, _orderDAL, _incomeLogDAL, _studentCourseDAL, _classDAL,
-                _tenantConfigDAL);
+                _tenantConfigDAL, _studentExtendFieldDAL);
+        }
+
+        public async Task<List<EtStudentExtendField>> StudentExtendFieldAllGet()
+        {
+            return await _studentExtendFieldDAL.GetAllStudentExtendField();
         }
 
         public async Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request)
@@ -93,7 +102,8 @@ namespace ETMS.Business
                     GradeAll = await _gradeDAL.GetAllGrade(),
                     StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
                     StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
-                });
+                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
+                }); ;
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportStudentTemplateFileResult.UrlKey));
         }
@@ -211,6 +221,15 @@ namespace ETMS.Business
                 {
                     Phones = phones.ToArray()
                 });
+
+                if (request.StudentExtendFieldItems != null && request.StudentExtendFieldItems.Count > 0)
+                {
+                    _eventPublisher.Publish(new ImportExtendFieldExcelEvent(request.LoginTenantId)
+                    {
+                        Students = studentList,
+                        StudentExtendFieldItems = request.StudentExtendFieldItems
+                    });
+                }
                 await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
             return ResponseBase.Success(new ImportStudentOutput()
@@ -245,6 +264,7 @@ namespace ETMS.Business
                     GradeAll = await _gradeDAL.GetAllGrade(),
                     StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
                     StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
+                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseTimesExcelTemplate.UrlKey));
@@ -269,6 +289,8 @@ namespace ETMS.Business
             {
                 pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
             }
+            var studentExtendInfos = new List<EtStudentExtendInfo>();
+            var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var p in request.ImportCourseTimess)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
@@ -349,8 +371,27 @@ namespace ETMS.Business
                         TrackUser = null,
                         Password = pwd
                     };
-                    await _studentDAL.AddStudent(student, null);
+                    await _studentDAL.AddStudentNotUpCache(student);
                     addStudentCount++;
+                    if (p.ExtendInfoList != null && p.ExtendInfoList.Count > 0 && studentExtendFieldAll != null && studentExtendFieldAll.Count > 0)
+                    {
+                        foreach (var j in p.ExtendInfoList)
+                        {
+                            var tempFile = studentExtendFieldAll.FirstOrDefault(a => a.DisplayName == j.DisplayName);
+                            if (tempFile != null)
+                            {
+                                studentExtendInfos.Add(new EtStudentExtendInfo()
+                                {
+                                    ExtendFieldId = tempFile.Id,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    Remark = string.Empty,
+                                    StudentId = student.Id,
+                                    TenantId = request.LoginTenantId,
+                                    Value1 = j.Value
+                                });
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -526,6 +567,12 @@ namespace ETMS.Business
                     StudentId = student.Id
                 });
             }
+
+            if (studentExtendInfos.Any())
+            {
+                _studentDAL.AddStudentExtend(studentExtendInfos);
+            }
+
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {
                 Time = now
@@ -573,6 +620,7 @@ namespace ETMS.Business
                     GradeAll = await _gradeDAL.GetAllGrade(),
                     StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
                     StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
+                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseDayExcelTemplate.UrlKey));
@@ -597,6 +645,8 @@ namespace ETMS.Business
             {
                 pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
             }
+            var studentExtendInfos = new List<EtStudentExtendInfo>();
+            var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var p in request.ImportCourseDays)
             {
                 var student = await _studentDAL.GetStudent(p.StudentName, p.Phone);
@@ -677,8 +727,27 @@ namespace ETMS.Business
                         TrackUser = null,
                         Password = pwd
                     };
-                    await _studentDAL.AddStudent(student, null);
+                    await _studentDAL.AddStudentNotUpCache(student);
                     addStudentCount++;
+                    if (p.ExtendInfoList != null && p.ExtendInfoList.Count > 0 && studentExtendFieldAll != null && studentExtendFieldAll.Count > 0)
+                    {
+                        foreach (var j in p.ExtendInfoList)
+                        {
+                            var tempFile = studentExtendFieldAll.FirstOrDefault(a => a.DisplayName == j.DisplayName);
+                            if (tempFile != null)
+                            {
+                                studentExtendInfos.Add(new EtStudentExtendInfo()
+                                {
+                                    ExtendFieldId = tempFile.Id,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    Remark = string.Empty,
+                                    StudentId = student.Id,
+                                    TenantId = request.LoginTenantId,
+                                    Value1 = j.Value
+                                });
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -883,6 +952,11 @@ namespace ETMS.Business
                 {
                     StudentId = student.Id
                 });
+            }
+
+            if (studentExtendInfos.Any())
+            {
+                _studentDAL.AddStudentExtend(studentExtendInfos);
             }
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(request.LoginTenantId)
             {

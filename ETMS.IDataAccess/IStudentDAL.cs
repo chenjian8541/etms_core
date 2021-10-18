@@ -17,6 +17,10 @@ namespace ETMS.IDataAccess
 
         void AddStudent(List<EtStudent> students);
 
+        void AddStudentExtend(List<EtStudentExtendInfo> studentExtendInfos);
+
+        Task AddStudentNotUpCache(EtStudent student);
+
         Task<long> AddStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos);
 
         Task<bool> EditStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos);

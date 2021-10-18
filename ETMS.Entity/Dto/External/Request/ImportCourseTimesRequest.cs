@@ -8,6 +8,7 @@ namespace ETMS.Entity.Dto.External.Request
     public class ImportCourseTimesRequest : RequestBase
     {
         public List<ImportCourseTimesItem> ImportCourseTimess { get; set; }
+
         public override string Validate()
         {
             if (ImportCourseTimess == null || ImportCourseTimess.Count == 0)
@@ -66,5 +67,7 @@ namespace ETMS.Entity.Dto.External.Request
         public string Remark { get; set; }
 
         public string CardNo { get; set; }
+
+        public List<ImportStudentExtendInfo> ExtendInfoList { get; set; }
     }
 }

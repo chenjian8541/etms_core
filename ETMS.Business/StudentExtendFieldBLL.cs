@@ -1,10 +1,14 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.BasicData.Output;
 using ETMS.Entity.Dto.BasicData.Request;
 using ETMS.Entity.Enum;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,10 +23,17 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public StudentExtendFieldBLL(IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
+        public StudentExtendFieldBLL(IStudentExtendFieldDAL studentExtendFieldDAL, IUserOperationLogDAL userOperationLogDAL,
+            ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._studentExtendFieldDAL = studentExtendFieldDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._sysTenantDAL = sysTenantDAL;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -44,6 +55,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal
             });
             await _userOperationLogDAL.AddUserLog(request, $"添加学员自定义属性-{request.Name}", EmUserOperationType.StudentExtendFieldSetting);
+            await DelExcelTemplate(request.LoginTenantId);
             return ResponseBase.Success();
         }
 
@@ -61,7 +73,14 @@ namespace ETMS.Business
         {
             await _studentExtendFieldDAL.DelStudentExtendField(request.CId);
             await _userOperationLogDAL.AddUserLog(request, "删除学员自定义属性", EmUserOperationType.StudentExtendFieldSetting);
+            await DelExcelTemplate(request.LoginTenantId);
             return ResponseBase.Success();
+        }
+
+        private async Task DelExcelTemplate(int tenantId)
+        {
+            var mTenant = await _sysTenantDAL.GetTenant(tenantId);
+            ExcelLib.DelHisExcelTemplate(mTenant.TenantCode, _appConfigurtaionServices.AppSettings.StaticFilesConfig.ServerPath);
         }
     }
 }

@@ -64,6 +64,16 @@ namespace ETMS.DataAccess
             _dbWrapper.InsertRange(students);
         }
 
+        public void AddStudentExtend(List<EtStudentExtendInfo> studentExtendInfos)
+        {
+            _dbWrapper.InsertRange(studentExtendInfos);
+        }
+
+        public async Task AddStudentNotUpCache(EtStudent student)
+        {
+            await _dbWrapper.Insert(student);
+        }
+
         public async Task<long> AddStudent(EtStudent student, List<EtStudentExtendInfo> studentExtendInfos)
         {
             await _dbWrapper.Insert(student);

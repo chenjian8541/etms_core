@@ -35,9 +35,11 @@ namespace ETMS.WebApi.Controllers.External
             {
                 return ResponseBase.CommonError("文件大小被限制");
             }
+            var studentExtendFieldAll = await importBLL.StudentExtendFieldAllGet();
             using (var excelStream = file.OpenReadStream())
             {
-                var excelContent = ExcelLib.ReadImportStudentExcelContent(excelStream, 0, 2, tenantConfig.TenantOtherConfig.ValidPhoneType == EmValidPhoneType.NotLimit);
+                var excelContent = ExcelLib.ReadImportStudentExcelContent(excelStream, 0, 2,
+                    tenantConfig.TenantOtherConfig.ValidPhoneType == EmValidPhoneType.NotLimit, studentExtendFieldAll);
                 if (!string.IsNullOrEmpty(excelContent.Item1))
                 {
                     return ResponseBase.CommonError(excelContent.Item1);
@@ -45,6 +47,7 @@ namespace ETMS.WebApi.Controllers.External
                 else
                 {
                     request.ImportStudents = excelContent.Item2;
+                    request.StudentExtendFieldItems = excelContent.Item3;
                     return await importBLL.ImportStudent(request);
                 }
             }

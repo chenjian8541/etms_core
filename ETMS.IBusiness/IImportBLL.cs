@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.External.Request;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace ETMS.IBusiness
 {
     public interface IImportBLL : IBaseBLL
     {
+        Task<List<EtStudentExtendField>> StudentExtendFieldAllGet();
+
         Task<ResponseBase> GetImportStudentExcelTemplate(GetImportStudentExcelTemplateRequest request);
 
         Task<ResponseBase> ImportStudent(ImportStudentRequest request);

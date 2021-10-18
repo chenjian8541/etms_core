@@ -37,10 +37,12 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
+
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -52,13 +54,14 @@ namespace ETMS.Business.EventConsumer
             this._studentCourseDAL = studentCourseDAL;
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
+            this._studentExtendFieldDAL = studentExtendFieldDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
-               _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL);
+               _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -264,6 +267,58 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             await _studentDAL.UpdateStudentAgeInfo(student.Id, newAge, newAgeMonth);
+        }
+
+        public async Task ImportExtendFieldExcelConsumerEvent(ImportExtendFieldExcelEvent request)
+        {
+            if (request.Students == null || request.Students.Count == 0)
+            {
+                return;
+            }
+            if (request.StudentExtendFieldItems == null || request.StudentExtendFieldItems.Count == 0)
+            {
+                return;
+            }
+            var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
+            if (studentExtendFieldAll == null || studentExtendFieldAll.Count == 0)
+            {
+                return;
+            }
+            var studentList = request.Students;
+            var studentExtendInfos = new List<EtStudentExtendInfo>();
+            foreach (var p in request.StudentExtendFieldItems)
+            {
+                if (p.ExtendInfoList == null || p.ExtendInfoList.Count == 0)
+                {
+                    continue;
+                }
+                var myStudent = studentList.FirstOrDefault(j => j.Name == p.StudentName && j.Phone == p.Phone);
+                if (myStudent == null)
+                {
+                    continue;
+                }
+                foreach (var a in p.ExtendInfoList)
+                {
+                    var myExtendField = studentExtendFieldAll.FirstOrDefault(j => j.DisplayName == a.DisplayName);
+                    if (myExtendField == null)
+                    {
+                        continue;
+                    }
+                    studentExtendInfos.Add(new EtStudentExtendInfo()
+                    {
+                        ExtendFieldId = myExtendField.Id,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Remark = string.Empty,
+                        StudentId = myStudent.Id,
+                        TenantId = request.TenantId,
+                        Value1 = a.Value
+                    });
+                }
+            }
+            if (studentExtendInfos.Any())
+            {
+                _studentDAL.AddStudentExtend(studentExtendInfos);
+            }
         }
     }
 }
