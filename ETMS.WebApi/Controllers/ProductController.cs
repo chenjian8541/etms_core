@@ -25,12 +25,15 @@ namespace ETMS.WebApi.Controllers
 
         private readonly ISuitBLL _suitBLL;
 
-        public ProductController(IGoodsBLL goodsBLL, ICostBLL costBLL, ICourseBLL courseBLL, ISuitBLL suitBLL)
+        private readonly IMallGoodsBLL _mallGoodsBLL;
+
+        public ProductController(IGoodsBLL goodsBLL, ICostBLL costBLL, ICourseBLL courseBLL, ISuitBLL suitBLL, IMallGoodsBLL mallGoodsBLL)
         {
             this._goodsBLL = goodsBLL;
             this._costBLL = costBLL;
             this._courseBLL = courseBLL;
             this._suitBLL = suitBLL;
+            this._mallGoodsBLL = mallGoodsBLL;
         }
 
         [HttpPost]
@@ -425,6 +428,118 @@ namespace ETMS.WebApi.Controllers
             {
                 _suitBLL.InitTenantId(request.LoginTenantId);
                 return await _suitBLL.SuitGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsAdd(MallGoodsAddRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsEdit(MallGoodsEditRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsDel(MallGoodsDelRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsChangeOrderIndex(MallGoodsChangeOrderIndexRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsChangeOrderIndex(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsGet(MallGoodsGetRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsSaveConfig(MallGoodsSaveConfigRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsSaveConfig(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsGetConfig(MallGoodsGetConfigRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsGetConfig(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsGetPaging(request);
             }
             catch (Exception ex)
             {

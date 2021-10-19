@@ -323,6 +323,8 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtSuit SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtSuitDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType = {EmProductType.Course} AND TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtMallCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }
@@ -334,6 +336,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtGoodsInventoryLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtCost SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType <> {EmProductType.Course} ;");
+            sql.Append($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType <> {EmProductType.Course} AND TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }

@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Utility;
@@ -133,6 +134,24 @@ namespace ETMS.Business.Common
         internal static string GetClassTimesOtDesc(EtClassTimes classTimes)
         {
             return $"{classTimes.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}){EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-")}";
+        }
+
+        internal static List<Img> GetImgs(string keys)
+        {
+            if (string.IsNullOrEmpty(keys))
+            {
+                return new List<Img>();
+            }
+            var imgs = new List<Img>();
+            var myMedias = keys.Split('|');
+            foreach (var p in myMedias)
+            {
+                if (!string.IsNullOrEmpty(p))
+                {
+                    imgs.Add(new Img(p, AliyunOssUtil.GetAccessUrlHttps(p)));
+                }
+            }
+            return imgs;
         }
     }
 }

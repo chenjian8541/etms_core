@@ -167,6 +167,9 @@ namespace ETMS.Entity.Enum
         TeacherSalary = 82,
 
         [Description("扫呗支付管理")]
-        LcsMgr = 83
+        LcsMgr = 83,
+
+        [Description("在线商城")]
+        MallGoodsMgr = 84
     }
 }

@@ -24,6 +24,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte Cost = 2;
 
+        /// <summary>
+        /// 套餐
+        /// </summary>
+        public const byte Suit = 3;
+
         public static string GetProductType(byte b)
         {
             switch (b)
@@ -34,6 +39,8 @@ namespace ETMS.Entity.Enum
                     return "物品";
                 case Cost:
                     return "费用";
+                case Suit:
+                    return "套餐";
             }
             return string.Empty;
         }

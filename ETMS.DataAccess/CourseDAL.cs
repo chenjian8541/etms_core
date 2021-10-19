@@ -117,6 +117,7 @@ namespace ETMS.DataAccess
         public async Task<bool> DelCourse(long id)
         {
             await _dbWrapper.Execute($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtCoursePriceRule WHERE CourseId = {id}");
+            await _dbWrapper.Execute($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType = {EmProductType.Course} AND RelatedId = {id}");
             base.RemoveCache(_tenantId, id);
             return true;
         }
@@ -153,6 +154,7 @@ namespace ETMS.DataAccess
             var tempSql = sql.ToString();
             LOG.Log.Info($"[DelCourseDepth]执行深度删除:{tempSql}", this.GetType());
             await _dbWrapper.Execute(tempSql);
+            await _dbWrapper.Execute($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType = {EmProductType.Course} AND RelatedId = {id}");
             base.RemoveCache(_tenantId, id);
             return true;
         }

@@ -33,5 +33,10 @@ namespace ETMS.Entity.Enum
         /// [老师工资]绩效工资统计规则
         /// </summary>
         public const byte TeacherSalaryGlobalRuleSetting = 4;
+
+        /// <summary>
+        /// 机构配置2
+        /// </summary>
+        public const byte TenantConfig2 = 5;
     }
 }

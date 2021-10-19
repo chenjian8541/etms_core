@@ -180,5 +180,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsLcsPayDay> EtStatisticsLcsPayDays { get; set; }
 
         public DbSet<EtStatisticsLcsPayMonth> EtStatisticsLcsPayMonths { get; set; }
+        public DbSet<EtMallGoods> EtMallGoodss { get; set; }
+        public DbSet<EtMallCoursePriceRule> EtMallCoursePriceRules { get; set; }
     }
 }

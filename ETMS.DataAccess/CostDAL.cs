@@ -57,6 +57,7 @@ namespace ETMS.DataAccess
         public async Task<bool> DelCost(long id)
         {
             await _dbWrapper.Execute($"UPDATE EtCost SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id}");
+            await _dbWrapper.Execute($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType = {EmProductType.Cost} AND RelatedId = {id}");
             RemoveCache(_tenantId, id);
             return true;
         }

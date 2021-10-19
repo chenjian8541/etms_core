@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Enum;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,6 +29,18 @@ namespace ETMS.Entity.Common
         {
             if (PageSize > 0 && PageCurrent > 0)
             {
+                try
+                {
+                    var s = this.ToString();
+                    if (!SQLHelper.SqlValidate(s))
+                    {
+                        return "请勿输入敏感字符";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error("[验证敏感字符出错]", ex, this.GetType());
+                }
                 return string.Empty;
             }
             else

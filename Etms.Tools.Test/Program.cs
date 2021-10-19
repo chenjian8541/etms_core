@@ -24,7 +24,7 @@ namespace Etms.Tools.Test
             //CreateParentToken("13410271814");
             //CreateTencentCloudAccount();
 
-            Decrypt3DESSqlConnection();
+            //Decrypt3DESSqlConnection();
             //Encrypt3DESSqlConnection();
             //Console.WriteLine(TenantLib.GetTenantEncrypt(207));
             //Console.WriteLine(TenantLib.GetTenantDecrypt("ODEwNDIwNw"));
@@ -97,8 +97,13 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
 
+            while (true)
+            {
+                var s = Console.ReadLine();
+                Console.WriteLine(SQLHelper.SqlValidate(s));
+            }
             var aa = EtmsHelper3.GetCent(0.01M);
-            
+
             Console.WriteLine(aa);
             Console.Read();
         }

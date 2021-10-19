@@ -196,6 +196,10 @@ namespace ETMS.Entity.Config
         public string ParentLogin { get; set; }
 
         public string TeacherLogin { get; set; }
+
+        public string MallGoodsHomeUrl { get; set; }
+
+        public string MallGoodsDetailUrl { get; set; }
     }
 
     public class TemplateNoticeConfig
