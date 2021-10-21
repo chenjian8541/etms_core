@@ -186,7 +186,7 @@ namespace ETMS.Business.Common
             return result;
         }
 
-        internal static List<PriceRuleDesc> GetPriceRuleDescs(List<EtCoursePriceRule> priceRules)
+        internal static List<PriceRuleDesc> GetPriceRuleDescs<T>(List<T> priceRules) where T : BaseCoursePrice
         {
             if (priceRules == null || !priceRules.Any())
             {

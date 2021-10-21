@@ -44,33 +44,5 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 选填
         /// </summary>
         public string attach { get; set; }
-
-        /// <summary>
-        /// 订单包含的商品列表信息
-        /// 选填
-        /// </summary>
-        public List<RequestUnifiedOrder_Goods> goods_detail { get; set; }
-
-        /*========================== 选填参数 ********************************/
-    }
-
-    public class RequestUnifiedOrder_Goods
-    {
-        /// <summary>
-        /// 商品编号
-        /// </summary>
-        public string goods_Id { get; set; }
-        /// <summary>
-        /// 商品名称
-        /// </summary>
-        public string goods_name { get; set; }
-        /// <summary>
-        /// 商品数量
-        /// </summary>
-        public string quantity { get; set; }
-        /// <summary>
-        /// 商品单价，单位为分
-        /// </summary>
-        public string price { get; set; }
     }
 }

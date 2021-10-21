@@ -1,4 +1,5 @@
-﻿using ETMS.Business.Common;
+﻿using ETMS.Business.BaseBLL;
+using ETMS.Business.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
@@ -25,13 +26,9 @@ using System.Threading.Tasks;
 
 namespace ETMS.Business
 {
-    public class PaymentBLL : IPaymentBLL
+    public class PaymentBLL : TenantLcsAccountBLL, IPaymentBLL
     {
-        private readonly ITenantLcsAccountDAL _tenantLcsAccountDAL;
-
         private readonly IStudentDAL _studentDAL;
-
-        private readonly ISysTenantDAL _sysTenantDAL;
 
         private readonly IPayLcswService _payLcswService;
 
@@ -43,11 +40,9 @@ namespace ETMS.Business
 
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
             IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher) : base(tenantLcsAccountDAL, sysTenantDAL)
         {
-            this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._studentDAL = studentDAL;
-            this._sysTenantDAL = sysTenantDAL;
             this._payLcswService = payLcswService;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
@@ -110,28 +105,6 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantLcsPayLogPagingOutput>(pagingData.Item2, output));
-        }
-
-        private async Task<CheckTenantLcsAccountView> CheckTenantLcsAccount(int tenantId)
-        {
-            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
-            var isOpenLcsPay = ComBusiness4.GetIsOpenLcsPay(myTenant.LcswApplyStatus, myTenant.LcswOpenStatus);
-            if (!isOpenLcsPay)
-            {
-                return new CheckTenantLcsAccountView("机构未开通扫呗支付");
-            }
-            var myLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
-            if (myLcsAccount == null)
-            {
-                LOG.Log.Error($"[CheckTenantLcsAccount]扫呗账户异常tenantId:{tenantId}", this.GetType());
-                return new CheckTenantLcsAccountView("扫呗账户异常，无法支付");
-            }
-            return new CheckTenantLcsAccountView()
-            {
-                MyTenant = myTenant,
-                MyLcsAccount = myLcsAccount,
-                ErrMsg = null
-            };
         }
 
         public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
@@ -236,7 +209,8 @@ namespace ETMS.Business
                     TotalFeeValue = request.PayMoney,
                     TotalFeeDesc = request.PayMoney.ToString(),
                     PayFinishDate = payFinishDate,
-                    RefundDate = null
+                    RefundDate = null,
+                    DataType = EmTenantLcsPayLogDataType.Normal
                 });
                 if (status == EmLcsPayLogStatus.PaySuccess)
                 {
@@ -379,6 +353,39 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, $"退款申请-退款金额:{paylog.TotalFeeDesc},订单号:{paylog.OrderNo}", EmUserOperationType.LcsMgr, now);
             return ResponseBase.Success();
+        }
+
+        public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request)
+        {
+            LOG.Log.Info("[LcsPayJspayCallback]利楚扫呗支付回调", request, this.GetType());
+            var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(request.out_trade_no);
+            if (request.return_code == "01")
+            {
+                var now = DateTime.Now;
+                if (request.result_code == "01") //支付成功 
+                {
+                    payLog.Status = EmLcsPayLogStatus.PaySuccess;
+                    payLog.PayFinishOt = now;
+                    payLog.PayFinishDate = now.Date;
+                    payLog.DataType = EmTenantLcsPayLogDataType.Normal;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(payLog.TenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                }
+                else if (request.result_code == "02")  //支付失败 
+                {
+                    payLog.Status = EmLcsPayLogStatus.PayFail;
+                    payLog.DataType = EmTenantLcsPayLogDataType.Normal;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                }
+            }
+            return new LcsPayJspayCallbackOutput()
+            {
+                return_code = "01",
+                return_msg = "处理成功"
+            };
         }
     }
 }

@@ -32,9 +32,9 @@ namespace ETMS.Entity.Dto.Product.Request
                 {
                     return "请正确设置收费标准";
                 }
-                if (ByClassTimes.Count > 10)
+                if (ByClassTimes.Count > 20)
                 {
-                    return "最多允许设置10种收费方式";
+                    return "最多允许设置20种收费方式";
                 }
                 foreach (var rule in ByClassTimes)
                 {
@@ -51,9 +51,9 @@ namespace ETMS.Entity.Dto.Product.Request
                 {
                     return "请正确设置收费标准";
                 }
-                if (ByMonth.Count > 10)
+                if (ByMonth.Count > 20)
                 {
-                    return "最多允许设置10种收费方式";
+                    return "最多允许设置20种收费方式";
                 }
                 foreach (var rule in ByMonth)
                 {
@@ -70,9 +70,9 @@ namespace ETMS.Entity.Dto.Product.Request
                 {
                     return "请正确设置收费标准";
                 }
-                if (ByDay.Count > 10)
+                if (ByDay.Count > 20)
                 {
-                    return "最多允许设置10种收费方式";
+                    return "最多允许设置20种收费方式";
                 }
                 foreach (var rule in ByDay)
                 {

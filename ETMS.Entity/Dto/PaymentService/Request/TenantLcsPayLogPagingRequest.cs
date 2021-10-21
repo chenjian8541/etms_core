@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -78,6 +79,7 @@ namespace ETMS.Entity.Dto.PaymentService.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
+            condition.Append($" AND DataType = {EmTenantLcsPayLogDataType.Normal}");
             if (StudentId != null)
             {
                 condition.Append($" AND RelationId = {StudentId.Value}");

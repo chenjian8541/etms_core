@@ -26,8 +26,8 @@ namespace ETMS.IDataAccess.MallGoodsDAL
 
         Task<bool> UpdateOrderIndex(long id, long newOrderIndex);
 
-        Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(RequestPagingBase request);
+        Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(IPagingRequest request);
 
-        Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(RequestPagingBase request);
+        Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(IPagingRequest request);
     }
 }

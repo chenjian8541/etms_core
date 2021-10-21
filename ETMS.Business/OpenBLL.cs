@@ -25,6 +25,8 @@ using Senparc.Weixin.MP.Helpers;
 using ETMS.IEventProvider;
 using ETMS.Business.Common;
 using ETMS.Event.DataContract;
+using ETMS.IDataAccess.MallGoodsDAL;
+using ETMS.Entity.Dto.Product.Output;
 
 namespace ETMS.Business
 {
@@ -44,9 +46,11 @@ namespace ETMS.Business
 
         private readonly IParentStudentDAL _parentStudentDAL;
 
+        private readonly IMallGoodsDAL _mallGoodsDAL;
+
         public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
             IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
-            IParentStudentDAL parentStudentDAL)
+            IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL)
         {
             this._microWebBLL = microWebBLL;
             this._appConfigBLL = appConfigBLL;
@@ -55,13 +59,14 @@ namespace ETMS.Business
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._eventPublisher = eventPublisher;
             this._parentStudentDAL = parentStudentDAL;
+            this._mallGoodsDAL = mallGoodsDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._microWebBLL.InitTenantId(tenantId);
             this._appConfigBLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL);
+            this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL, _mallGoodsDAL);
         }
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
@@ -292,6 +297,75 @@ namespace ETMS.Business
         {
             await _microWebColumnArticleDAL.AddReadCount(request.ArticleId);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
+        {
+            var pagingData = await _mallGoodsDAL.GetPagingComplex(request);
+            var output = new List<MallGoodsOpenGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    List<PriceRuleDesc> myPriceRuleDesc = null;
+                    if (p.ProductType == EmProductType.Course)
+                    {
+                        var myMallGoodsBucket = await _mallGoodsDAL.GetMallGoods(p.Id);
+                        if (myMallGoodsBucket == null || myMallGoodsBucket.MallGoods == null)
+                        {
+                            continue;
+                        }
+                        myPriceRuleDesc = ComBusiness3.GetPriceRuleDescs(myMallGoodsBucket.MallCoursePriceRules);
+                    }
+                    output.Add(new MallGoodsOpenGetPagingOutput()
+                    {
+                        GId = p.Id,
+                        ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                        Name = p.Name,
+                        OriginalPrice = p.OriginalPrice == 0 ? string.Empty : p.OriginalPrice.EtmsToString2(),
+                        Price = p.Price,
+                        PriceDesc = p.PriceDesc,
+                        ProductType = p.ProductType,
+                        ProductTypeDesc = p.ProductTypeDesc,
+                        SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
+                        TagItems = ComBusiness4.GetTagView(p.TagContent),
+                        CoursePriceRules = myPriceRuleDesc
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsOpenGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request)
+        {
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.GId);
+            if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
+            {
+                return ResponseBase.CommonError("商品不存在");
+            }
+            var p = mallGoodsBucket.MallGoods;
+            List<PriceRuleDesc> myPriceRuleDesc = null;
+            if (p.ProductType == EmProductType.Course)
+            {
+                myPriceRuleDesc = ComBusiness3.GetPriceRuleDescs(mallGoodsBucket.MallCoursePriceRules);
+            }
+            var output = new MallGoodsDetailGetOutput()
+            {
+                GsContent = p.GsContent,
+                GId = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                PriceDesc = p.PriceDesc,
+                ProductType = p.ProductType,
+                OriginalPrice = p.OriginalPrice == 0 ? string.Empty : p.OriginalPrice.EtmsToString2(),
+                ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                ImgDetailUrL = EtmsHelper2.GetImgUrl(p.ImgDetail),
+                ProductTypeDesc = p.ProductTypeDesc,
+                SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
+                TagItems = ComBusiness4.GetTagView(p.TagContent),
+                CoursePriceRules = myPriceRuleDesc
+            };
+            return ResponseBase.Success(output);
         }
     }
 }

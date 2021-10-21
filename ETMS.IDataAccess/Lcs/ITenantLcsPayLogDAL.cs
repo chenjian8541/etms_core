@@ -14,6 +14,8 @@ namespace ETMS.IDataAccess.Lcs
 
         Task<EtTenantLcsPayLog> GetTenantLcsPayLog(long id);
 
+        Task<EtTenantLcsPayLog> GetTenantLcsPayLogBuyOutTradeNo(string outTradeNo);
+
         Task EditTenantLcsPayLog(EtTenantLcsPayLog entity);
 
         Task<Tuple<IEnumerable<EtTenantLcsPayLog>, int>> GetTenantLcsPayLogPaging(IPagingRequest request);

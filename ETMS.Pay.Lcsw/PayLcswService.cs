@@ -191,23 +191,23 @@ namespace ETMS.Pay.Lcsw
                     throw new Exception("用户标识不能为空");
                 }
             }
-            var param = new Dictionary<string, object>();
-            param.Add("pay_ver", "100");
-            param.Add("pay_type", requesParam.payType);
-            param.Add("service_id", "012");
-            param.Add("merchant_no", requesParam.merchant_no);
-            param.Add("terminal_id", requesParam.terminal_id);
-            param.Add("terminal_trace", requesParam.terminal_trace);
-            param.Add("terminal_time", requesParam.terminal_time);
-            param.Add("total_fee", requesParam.total_fee);
-            //拼接签名
-            param.Add("key_sign", MD5Helper.GetSign(param, "access_token", requesParam.access_token));
+            var param = new Dictionary<string, object>
+            {
+                {"pay_ver", "100"},
+                {"pay_type", requesParam.payType},
+                {"service_id", "012"},
+                {"merchant_no", requesParam.merchant_no},
+                {"terminal_id", requesParam.terminal_id},
+                { "terminal_trace", requesParam.terminal_trace},
+                {"terminal_time", requesParam.terminal_time},
+                {"total_fee", requesParam.total_fee},
+                {"open_id",requesParam.open_id }
+            };
+            param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
             //不参与签名的字符
-            param.Add("open_id", requesParam.open_id);
             param.Add("order_body", requesParam.order_body);
             param.Add("notify_url", requesParam.notify_url);
             param.Add("attach", requesParam.attach);
-            param.Add("goods_detail", requesParam.goods_detail);
             return Post.PostGetJson<ResponseUnifiedOrder>(ApiAddress.UnifiedOrder, param);
         }
 

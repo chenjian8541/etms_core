@@ -509,7 +509,7 @@ namespace ETMS.Business
 
         public async Task<MerchantAuditCallbackOutput> MerchantAuditCallback(MerchantAuditCallbackRequest request)
         {
-            LOG.Log.Info("[MerchantAuditCallback]利楚扫呗回调", request, this.GetType());
+            LOG.Log.Info("[MerchantAuditCallback]利楚扫呗商户申请回调", request, this.GetType());
             var tenantLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(request.merchant_no);
             var output = new MerchantAuditCallbackOutput()
             {
@@ -542,7 +542,12 @@ namespace ETMS.Business
             await _tenantLcsAccountDAL.EditTenantLcsAccount(tenantLcsAccount);
             await _sysTenantDAL.UpdateTenantLcswInfo(tenantLcsAccount.TenantId, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
 
-            return new MerchantAuditCallbackOutput();
+            return new MerchantAuditCallbackOutput()
+            {
+                return_code = "01",
+                return_msg = "处理成功",
+                trace_no = request.trace_no
+            };
         }
     }
 }

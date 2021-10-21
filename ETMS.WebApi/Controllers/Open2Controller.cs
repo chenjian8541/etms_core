@@ -168,5 +168,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.MallGoodsGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.MallGoodsDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -22,6 +22,13 @@ namespace ETMS.Business.Common
             return $"{strTime}{strRandom}";
         }
 
+        public static string EnrolmentOrderNumber2()
+        {
+            var strTime = DateTime.Now.ToString("yyMMddHHmmss");
+            var strRandom = new Random().Next(1000, 9999);
+            return $"L{strTime}{strRandom}";
+        }
+
         public static string GetReturnOrderNumber()
         {
             var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");

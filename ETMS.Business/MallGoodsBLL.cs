@@ -139,50 +139,6 @@ namespace ETMS.Business
             return Tuple.Create(rules, minPrice, minPrice.EtmsToString2());
         }
 
-        private string GetSpecContent(List<MallGoodsSpecItem> specItems)
-        {
-            if (specItems == null || specItems.Count == 0)
-            {
-                return null;
-            }
-            return JsonConvert.SerializeObject(new MallGoodsSpec()
-            {
-                SpecItems = specItems
-            });
-        }
-
-        private string GetTagContent(List<MallGoodsTagItem> tagItems)
-        {
-            if (tagItems == null || tagItems.Count == 0)
-            {
-                return null;
-            }
-            return JsonConvert.SerializeObject(new MallGoodsTag()
-            {
-                Items = tagItems
-            });
-        }
-
-        private List<MallGoodsSpecItem> GetSpecView(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return new List<MallGoodsSpecItem>();
-            }
-            var view = JsonConvert.DeserializeObject<MallGoodsSpec>(content);
-            return view.SpecItems;
-        }
-
-        private List<MallGoodsTagItem> GetTagView(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return new List<MallGoodsTagItem>();
-            }
-            var view = JsonConvert.DeserializeObject<MallGoodsTag>(content);
-            return view.Items;
-        }
-
         public async Task<ResponseBase> MallGoodsAdd(MallGoodsAddRequest request)
         {
             if (await _mallGoodsDAL.ExistMlGoods(request.Name))
@@ -225,8 +181,8 @@ namespace ETMS.Business
                 ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys),
                 RelatedId = request.RelatedId,
                 TenantId = request.LoginTenantId,
-                SpecContent = GetSpecContent(request.SpecItems),
-                TagContent = GetTagContent(request.TagItems)
+                SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
+                TagContent = ComBusiness4.GetTagContent(request.TagItems)
             };
             await _mallGoodsDAL.AddMallGoods(entity, mlCoursePriceRules);
 
@@ -273,8 +229,8 @@ namespace ETMS.Business
             myMallGood.GsContent = request.GsContent;
             myMallGood.ImgCover = request.ImgCoverKey;
             myMallGood.ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys);
-            myMallGood.SpecContent = GetSpecContent(request.SpecItems);
-            myMallGood.TagContent = GetTagContent(request.TagItems);
+            myMallGood.SpecContent = ComBusiness4.GetSpecContent(request.SpecItems);
+            myMallGood.TagContent = ComBusiness4.GetTagContent(request.TagItems);
             await _mallGoodsDAL.EditMallGoods(myMallGood, mlCoursePriceRules);
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑商品-{request.Name}", EmUserOperationType.MallGoodsMgr);
@@ -397,8 +353,8 @@ namespace ETMS.Business
                 ImgCover = new Img(myMallGoods.ImgCover, AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover)),
                 ImgDetail = ComBusiness4.GetImgs(myMallGoods.ImgDetail),
                 CoursePriceRules = coursePriceRules,
-                SpecItems = GetSpecView(myMallGoods.SpecContent),
-                TagItems = GetTagView(myMallGoods.TagContent)
+                SpecItems = ComBusiness4.GetSpecView(myMallGoods.SpecContent),
+                TagItems = ComBusiness4.GetTagView(myMallGoods.TagContent)
             };
 
             return ResponseBase.Success(output);
@@ -427,14 +383,101 @@ namespace ETMS.Business
             {
                 HomeShareUrl = string.Format(wxConfig.WeChatEntranceConfig.MallGoodsHomeUrl, tenantNo),
                 DetailShareUrl = string.Format(wxConfig.WeChatEntranceConfig.MallGoodsDetailUrl, tenantNo),
-                HomeShareImgUrl = myImg
+                HomeShareImgUrl = myImg,
+                TenantNo = tenantNo
             };
             return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
         {
-            return ResponseBase.Success();
+            var pagingData = await _mallGoodsDAL.GetPagingSimple(request);
+            var output = new List<MallGoodsGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var isCanUp = true;
+                var isCanDown = true;
+                var i = 1;
+                var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, request.PageSize);
+                var myCount = pagingData.Item1.Count();
+                string relatedName = null;
+                foreach (var p in pagingData.Item1)
+                {
+                    isCanUp = true;
+                    isCanDown = true;
+                    relatedName = null;
+                    if (request.PageCurrent == 1 && i == 1)
+                    {
+                        isCanUp = false;
+                    }
+                    if (request.PageCurrent == totalPage && i == myCount)
+                    {
+                        isCanDown = false;
+                    }
+                    i++;
+
+                    List<PriceRuleDesc> myPriceRuleDesc = null;
+                    switch (p.ProductType)
+                    {
+                        case EmProductType.Course:
+                            var myCourse = await _courseDAL.GetCourse(p.RelatedId);
+                            if (myCourse == null || myCourse.Item1 == null)
+                            {
+                                continue;
+                            }
+                            relatedName = myCourse.Item1.Name;
+                            var myMallGoodsBucket = await _mallGoodsDAL.GetMallGoods(p.Id);
+                            if (myMallGoodsBucket == null || myMallGoodsBucket.MallGoods == null)
+                            {
+                                continue;
+                            }
+                            myPriceRuleDesc = ComBusiness3.GetPriceRuleDescs(myMallGoodsBucket.MallCoursePriceRules);
+                            break;
+                        case EmProductType.Goods:
+                            var myGoods = await _goodsDAL.GetGoods(p.RelatedId);
+                            if (myGoods == null)
+                            {
+                                continue;
+                            }
+                            relatedName = myGoods.Name;
+                            break;
+                        case EmProductType.Cost:
+                            var myCost = await _costDAL.GetCost(p.RelatedId);
+                            if (myCost == null)
+                            {
+                                continue;
+                            }
+                            relatedName = myCost.Name;
+                            break;
+                        case EmProductType.Suit:
+                            var mySuit = await _suitDAL.GetSuit(p.RelatedId);
+                            if (mySuit == null || mySuit.Item1 == null)
+                            {
+                                continue;
+                            }
+                            relatedName = mySuit.Item1.Name;
+                            break;
+                    }
+                    output.Add(new MallGoodsGetPagingOutput()
+                    {
+                        Id = p.Id,
+                        ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                        IsCanUp = isCanUp,
+                        IsCanDown = isCanDown,
+                        Name = p.Name,
+                        OrderIndex = p.OrderIndex,
+                        OriginalPrice = p.OriginalPrice,
+                        Price = p.Price,
+                        PriceDesc = p.PriceDesc,
+                        ProductType = p.ProductType,
+                        ProductTypeDesc = p.ProductTypeDesc,
+                        RelatedId = p.RelatedId,
+                        RelatedName = relatedName,
+                        PriceRuleDescs = myPriceRuleDesc
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

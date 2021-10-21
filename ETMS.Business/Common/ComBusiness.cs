@@ -21,7 +21,7 @@ namespace ETMS.Business.Common
 {
     public class ComBusiness
     {
-        internal static PriceRuleDesc GetPriceRuleDesc(EtCoursePriceRule p)
+        internal static PriceRuleDesc GetPriceRuleDesc<T>(T p) where T : BaseCoursePrice
         {
             var rule = new CoursePriceRuleOut()
             {

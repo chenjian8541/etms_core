@@ -12,10 +12,13 @@ namespace ETMS.Entity.Config
 
         public static string MerchantAuditCallbackUrl;
 
+        public static string LcsPayJspayCallbackUrl;
+
         public static void InitConfig(string baseUrl)
         {
             BaseUrl = baseUrl;
             MerchantAuditCallbackUrl = $"{baseUrl}/pay/merchantAuditCallback";
+            LcsPayJspayCallbackUrl = $"{baseUrl}/pay/lcsPayJspayCallbackUrl";
         }
     }
 }

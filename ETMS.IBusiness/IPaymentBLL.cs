@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Dto.Product.Request;
 using System;
@@ -18,5 +19,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> LcsPayQuery(LcsPayQueryRequest request);
 
         Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request);
+
+        Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request);
     }
 }

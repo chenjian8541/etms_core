@@ -9,6 +9,8 @@ namespace ETMS.Entity.Dto.Product.Output
 {
     public class MallGoodsGetConfigOutput
     {
+        public string TenantNo { get; set; }
+
         public string HomeShareUrl { get; set; }
 
         public string DetailShareUrl { get; set; }

@@ -2,7 +2,9 @@
 using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.View.Database;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -152,6 +154,50 @@ namespace ETMS.Business.Common
                 }
             }
             return imgs;
+        }
+
+        internal static string GetSpecContent(List<MallGoodsSpecItem> specItems)
+        {
+            if (specItems == null || specItems.Count == 0)
+            {
+                return null;
+            }
+            return JsonConvert.SerializeObject(new MallGoodsSpec()
+            {
+                SpecItems = specItems
+            });
+        }
+
+        internal static string GetTagContent(List<MallGoodsTagItem> tagItems)
+        {
+            if (tagItems == null || tagItems.Count == 0)
+            {
+                return null;
+            }
+            return JsonConvert.SerializeObject(new MallGoodsTag()
+            {
+                Items = tagItems
+            });
+        }
+
+        internal static List<MallGoodsSpecItem> GetSpecView(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return new List<MallGoodsSpecItem>();
+            }
+            var view = JsonConvert.DeserializeObject<MallGoodsSpec>(content);
+            return view.SpecItems;
+        }
+
+        internal static List<MallGoodsTagItem> GetTagView(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return new List<MallGoodsTagItem>();
+            }
+            var view = JsonConvert.DeserializeObject<MallGoodsTag>(content);
+            return view.Items;
         }
     }
 }

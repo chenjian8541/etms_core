@@ -130,6 +130,24 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request)
+        {
+            try
+            {
+                return await _paymentBLL.LcsPayJspayCallback(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return new LcsPayJspayCallbackOutput()
+                {
+                    return_code = "02",
+                    return_msg = "处理时发生异常"
+                };
+            }
+        }
+
         public async Task<ResponseBase> TenantLcsPayLogPaging(TenantLcsPayLogPagingRequest request)
         {
             try

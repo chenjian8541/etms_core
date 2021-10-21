@@ -154,6 +154,11 @@ namespace ETMS.Entity.Database.Source
         public int Status { get; set; }
 
         /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTenantLcsPayLogDataType"/>
+        /// </summary>
+        public byte DataType { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

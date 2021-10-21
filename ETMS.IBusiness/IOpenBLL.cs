@@ -28,5 +28,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> MicroWebColumnGet(MicroWebColumnGetRequest request);
 
         Task<ResponseBase> MicroWebArticleReading(MicroWebArticleReadingRequest request);
+
+        Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request);
+
+        Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request);
     }
 }
