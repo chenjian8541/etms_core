@@ -16,19 +16,15 @@ using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
-using ETMS.Entity.Database.Manage;
-using ETMS.Entity.Enum.EtmsManage;
 using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
-using Senparc.Weixin.Open.OAuthAPIs;
-using Senparc.Weixin.Open.Containers;
+using ETMS.Business.WxCore;
 
 namespace ETMS.Business
 {
-    public class UserLoginBLL : IUserLoginBLL
+    public class UserLoginBLL : WeChatAccessBLL, IUserLoginBLL
     {
         private readonly ISysTenantDAL _sysTenantDAL;
 
@@ -37,8 +33,6 @@ namespace ETMS.Business
         private readonly IUserOperationLogDAL _etUserOperationLogDAL;
 
         private readonly IUserLoginFailedRecordDAL _userLoginFailedRecordDAL;
-
-        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
         private readonly ISmsService _smsService;
 
@@ -50,8 +44,6 @@ namespace ETMS.Business
 
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
-        private readonly IComponentAccessBLL _componentAccessBLL;
-
         private readonly IUserWechatDAL _userWechatDAL;
 
         private readonly ISysTenantUserDAL _sysTenantUserDAL;
@@ -61,18 +53,17 @@ namespace ETMS.Business
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
             IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL, IComponentAccessBLL componentAccessBLL,
             IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL)
+            : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._etUserDAL = etUserDAL;
             this._etUserOperationLogDAL = etUserOperationLogDAL;
             this._userLoginFailedRecordDAL = userLoginFailedRecordDAL;
-            this._appConfigurtaionServices = appConfigurtaionServices;
             this._smsService = smsService;
             this._userLoginSmsCodeDAL = userLoginSmsCodeDAL;
             this._roleDAL = roleDAL;
             this._appAuthorityDAL = appAuthorityDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
-            this._componentAccessBLL = componentAccessBLL;
             this._userWechatDAL = userWechatDAL;
             this._sysTenantUserDAL = sysTenantUserDAL;
         }
@@ -86,21 +77,6 @@ namespace ETMS.Business
         public async Task<ResponseBase> UserGetAuthorizeUrl2(UserGetAuthorizeUrl2Request request)
         {
             return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
-        }
-
-        private async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl)
-        {
-            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
-            if (tenantWechartAuth == null)
-            {
-                Log.Error($"[GetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
-                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
-            }
-            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
-                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
-            Log.Info($"[老师端获取授权地址]{url}", this.GetType());
-            return ResponseBase.Success(url);
         }
 
         public async Task<ResponseBase> UserBindingWeChat(UserBindingWeChatRequest request)
@@ -376,10 +352,8 @@ namespace ETMS.Business
                     Log.Error($"[SaveUserWechat]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
                     return;
                 }
-                var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-                var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
-                var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, wechatCode);
-                var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
+                var authToken = this.GetAuthAccessToken(tenantWechartAuth.AuthorizerAppid, wechatCode);
+                var userInfo = this.GetUserInfo(authToken.access_token, authToken.openid);
                 _userWechatDAL.InitTenantId(tenantId);
                 await _userWechatDAL.SaveUserWechat(new EtUserWechat()
                 {

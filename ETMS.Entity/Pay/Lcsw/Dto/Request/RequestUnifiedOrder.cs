@@ -44,5 +44,7 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         /// 选填
         /// </summary>
         public string attach { get; set; }
+
+        public string sub_appid { get; set; }
     }
 }

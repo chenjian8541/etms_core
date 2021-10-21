@@ -10,9 +10,11 @@ using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
 using ETMS.IBusiness.Parent;
+using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IDataAccess.MallGoodsDAL;
+using ETMS.LOG;
 using ETMS.Pay.Lcsw;
 using ETMS.Utility;
 using System;
@@ -31,12 +33,16 @@ namespace ETMS.Business.Parent
 
         private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
 
+        private readonly IComponentAccessBLL _componentAccessBLL;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
-            IPayLcswService payLcswService, IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL) : base(tenantLcsAccountDAL, sysTenantDAL)
+            IPayLcswService payLcswService, IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
+            IComponentAccessBLL componentAccessBLL) : base(tenantLcsAccountDAL, sysTenantDAL)
         {
             this._payLcswService = payLcswService;
             this._mallGoodsDAL = mallGoodsDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
+            this._componentAccessBLL = componentAccessBLL;
         }
 
         public void InitTenantId(int tenantId)
@@ -90,6 +96,12 @@ namespace ETMS.Business.Parent
             {
                 return ResponseBase.CommonError("商品不存在");
             }
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
+            if (tenantWechartAuth == null)
+            {
+                Log.Error($"[ParentBuyMallGoodsPrepay]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
+            }
             var myMallGoods = mallGoodsBucket.MallGoods;
             var myMallCoursePriceRules = mallGoodsBucket.MallCoursePriceRules;
             var checkBuyMallGoodsResult = CheckBuyMallGoods(myMallGoods, myMallCoursePriceRules, request.BuyCount, request.CoursePriceRuleId);
@@ -98,7 +110,7 @@ namespace ETMS.Business.Parent
                 return ResponseBase.CommonError(checkBuyMallGoodsResult.ErrMsg);
             }
             var totalMoney = checkBuyMallGoodsResult.TotalMoney;
-            var myCoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule;
+            //var myCoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule;
 
             var myTenant = checkTenantLcsAccountResult.MyTenant;
             var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
@@ -116,7 +128,8 @@ namespace ETMS.Business.Parent
                 payType = "010",
                 terminal_trace = orderNo,
                 notify_url = SysWebApiAddressConfig.LcsPayJspayCallbackUrl,
-                total_fee = EtmsHelper3.GetCent(totalMoney).ToString()
+                total_fee = EtmsHelper3.GetCent(totalMoney).ToString(),
+                sub_appid = tenantWechartAuth.AuthorizerAppid
             };
             var unifiedOrderResult = _payLcswService.UnifiedOrder(unifiedOrderRequest);
             if (unifiedOrderResult.IsSuccess())

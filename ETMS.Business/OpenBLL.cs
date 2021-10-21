@@ -15,30 +15,28 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using ETMS.Entity.CacheBucket.MicroWeb;
 using ETMS.IBusiness;
 using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Open2.Output;
 using ETMS.IBusiness.Wechart;
-using ETMS.LOG;
-using Senparc.Weixin.MP.Helpers;
 using ETMS.IEventProvider;
 using ETMS.Business.Common;
 using ETMS.Event.DataContract;
 using ETMS.IDataAccess.MallGoodsDAL;
 using ETMS.Entity.Dto.Product.Output;
+using ETMS.Business.WxCore;
+using ETMS.Entity.Config;
+using ETMS.LOG;
 
 namespace ETMS.Business
 {
-    public class OpenBLL : IOpenBLL
+    public class OpenBLL : WeChatAccessBLL, IOpenBLL
     {
         private readonly IMicroWebBLL _microWebBLL;
 
         private readonly IAppConfigBLL _appConfigBLL;
 
         private readonly IMicroWebColumnArticleDAL _microWebColumnArticleDAL;
-
-        private readonly IComponentAccessBLL _componentAccessBLL;
 
         private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
 
@@ -50,12 +48,12 @@ namespace ETMS.Business
 
         public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
             IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
-            IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL)
+            IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL, IAppConfigurtaionServices appConfigurtaionServices)
+            : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._microWebBLL = microWebBLL;
             this._appConfigBLL = appConfigBLL;
             this._microWebColumnArticleDAL = microWebColumnArticleDAL;
-            this._componentAccessBLL = componentAccessBLL;
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._eventPublisher = eventPublisher;
             this._parentStudentDAL = parentStudentDAL;
@@ -169,43 +167,28 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetJsSdkUiPackage(GetJsSdkUiPackageRequest request)
         {
-            var output = new GetJsSdkUiPackageOutput()
+            return await base.GetJsSdkUiPackage(request.LoginTenantId, request.Url);
+        }
+
+        public async Task<ResponseBase> GetAuthorizeUrl(GetAuthorizeUrlRequest request)
+        {
+            return await this.GetAuthorizeUrl2(request.LoginTenantId, request.SourceUrl);
+        }
+
+        public async Task<ResponseBase> GetWxOpenId(GetWxOpenIdRequest request)
+        {
+            Log.Info($"GetWxOpenId:{request.Code}", this.GetType());
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
+            if (tenantWechartAuth == null)
             {
-                IsSuccess = false
-            };
-            try
-            {
-                var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
-                if (tenantWechartAuth == null)
-                {
-                    Log.Fatal($"[OpenBLL]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
-                    return ResponseBase.Success(output);
-                }
-                var sysWechartAuthorizerToken = await _componentAccessBLL.GetSysWechartAuthorizerToken(tenantWechartAuth.AuthorizerAppid);
-                if (sysWechartAuthorizerToken == null)
-                {
-                    Log.Fatal($"[OpenBLL]未获取到token信息,tenantId:{request.LoginTenantId}", this.GetType());
-                    return ResponseBase.Success(output);
-                }
-                var ticketResult = Senparc.Weixin.Open.ComponentAPIs.ComponentApi.GetJsApiTicket(sysWechartAuthorizerToken.AuthorizerAccessToken);
-                var noncestr = JSSDKHelper.GetNoncestr();
-                var timestamp = JSSDKHelper.GetTimestamp();
-                var signature = JSSDKHelper.GetSignature(ticketResult.ticket, noncestr, timestamp, request.Url);
-                output.IsSuccess = true;
-                output.MyData = new GetJsSdkUiPackageData()
-                {
-                    AppId = tenantWechartAuth.AuthorizerAppid,
-                    NonceStr = noncestr,
-                    Timestamp = timestamp,
-                    Signature = signature
-                };
-                return ResponseBase.Success(output);
+                Log.Error($"[GetWxOpenId]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
+                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
-            catch (Exception ex)
+            var authToken = GetAuthAccessToken(tenantWechartAuth.AuthorizerAppid, request.Code);
+            return ResponseBase.Success(new GetWxOpenIdOutput()
             {
-                Log.Fatal($"[OpenBLL]{ex.Message},tenantId:{request.LoginTenantId}", ex, this.GetType());
-                return ResponseBase.Success(output);
-            }
+                OpenId = authToken.openid
+            });
         }
 
         public async Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request)

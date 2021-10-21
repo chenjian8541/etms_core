@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Business.BaseBLL
 {
-    public class TenantLcsAccountBLL
+    public abstract class TenantLcsAccountBLL
     {
         protected readonly ITenantLcsAccountDAL _tenantLcsAccountDAL;
 

@@ -21,6 +21,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> GetJsSdkUiPackage(GetJsSdkUiPackageRequest request);
 
+        Task<ResponseBase> GetAuthorizeUrl(GetAuthorizeUrlRequest request);
+
+        Task<ResponseBase> GetWxOpenId(GetWxOpenIdRequest request);
+
         Task<ResponseBase> TryCalssApply(TryCalssApplyRequest request);
 
         Task<ResponseBase> TryCalssApplySupplement(TryCalssApplySupplementRequest request);

@@ -198,13 +198,14 @@ namespace ETMS.Pay.Lcsw
                 {"service_id", "012"},
                 {"merchant_no", requesParam.merchant_no},
                 {"terminal_id", requesParam.terminal_id},
-                { "terminal_trace", requesParam.terminal_trace},
+                {"terminal_trace", requesParam.terminal_trace},
                 {"terminal_time", requesParam.terminal_time},
-                {"total_fee", requesParam.total_fee},
-                {"open_id",requesParam.open_id }
+                {"total_fee", requesParam.total_fee}
             };
             param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
             //不参与签名的字符
+            param.Add("sub_appid", requesParam.sub_appid);
+            param.Add("open_id", requesParam.open_id);
             param.Add("order_body", requesParam.order_body);
             param.Add("notify_url", requesParam.notify_url);
             param.Add("attach", requesParam.attach);

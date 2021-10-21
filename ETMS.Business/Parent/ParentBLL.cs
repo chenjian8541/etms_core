@@ -22,22 +22,19 @@ using WxApi.ReceiveEntity;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.IBusiness.Wechart;
-using Senparc.Weixin.Open.OAuthAPIs;
-using Senparc.Weixin.Open.Containers;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Dto.SysCom.Output;
+using ETMS.Business.WxCore;
 
 namespace ETMS.Business
 {
-    public class ParentBLL : IParentBLL
+    public class ParentBLL : WeChatAccessBLL, IParentBLL
     {
         private readonly IParentLoginSmsCodeDAL _parentLoginSmsCodeDAL;
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
         private readonly IParentStudentDAL _parentStudentDAL;
-
-        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
         private readonly ISmsService _smsService;
 
@@ -48,8 +45,6 @@ namespace ETMS.Business
         private readonly ISysStudentWechartDAL _sysStudentWechartDAL;
 
         private readonly IStudentDAL _studentDAL;
-
-        private readonly IComponentAccessBLL _componentAccessBLL;
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
@@ -65,17 +60,16 @@ namespace ETMS.Business
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL)
+            : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._parentStudentDAL = parentStudentDAL;
-            this._appConfigurtaionServices = appConfigurtaionServices;
             this._smsService = smsService;
             this._studentOperationLogDAL = studentOperationLogDAL;
             this._studentWechatDAL = studentWechatDAL;
             this._sysStudentWechartDAL = sysStudentWechartDAL;
             this._studentDAL = studentDAL;
-            this._componentAccessBLL = componentAccessBLL;
             this._tenantConfigDAL = tenantConfigDAL;
             this._httpContextAccessor = httpContextAccessor;
             this._sysTenantStudentDAL = sysTenantStudentDAL;
@@ -294,14 +288,11 @@ namespace ETMS.Business
                 Log.Error($"[ParentGetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
                 return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
-            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
-            var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, request.Code);
-
+            var authToken = GetAuthAccessToken(tenantWechartAuth.AuthorizerAppid, request.Code);
             var sysStudentWechartLog = await _sysStudentWechartDAL.GetSysStudentWechart(authToken.openid);
             if (sysStudentWechartLog == null || sysStudentWechartLog.TenantId == 0)
             {
-                return await ResetSysStudentWechart(authToken, tenantId, tenantWechartAuth.AuthorizerAppid);
+                return await ResetSysStudentWechart(authToken.access_token, authToken.openid, tenantId, tenantWechartAuth.AuthorizerAppid);
             }
             var sysTenantInfo = await _sysTenantDAL.GetTenant(sysStudentWechartLog.TenantId);
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
@@ -313,7 +304,7 @@ namespace ETMS.Business
             var myStudentWechatLog = await _studentWechatDAL.GetStudentWechat(authToken.openid);
             if (myStudentWechatLog == null)
             {
-                return await ResetSysStudentWechart(authToken, tenantId, tenantWechartAuth.AuthorizerAppid);
+                return await ResetSysStudentWechart(authToken.access_token, authToken.openid, tenantId, tenantWechartAuth.AuthorizerAppid);
             }
             var result = await GetParentLoginResult(sysStudentWechartLog.TenantId, myStudentWechatLog.Phone, "");
             if (result.IsResponseSuccess())
@@ -331,10 +322,10 @@ namespace ETMS.Business
             }
         }
 
-        private async Task<ResponseBase> ResetSysStudentWechart(OAuthAccessTokenResult authToken, int tenantId, string authorizerAppid)
+        private async Task<ResponseBase> ResetSysStudentWechart(string access_token, string openid, int tenantId, string authorizerAppid)
         {
-            await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid);
-            var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
+            await _sysStudentWechartDAL.DelSysStudentWechart(openid);
+            var userInfo = GetUserInfo(access_token, openid);
             var sysStudentWechart = new SysStudentWechart()
             {
                 Headimgurl = userInfo.headimgurl,
@@ -358,21 +349,6 @@ namespace ETMS.Business
             return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
         }
 
-        private async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl)
-        {
-            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
-            if (tenantWechartAuth == null)
-            {
-                Log.Error($"[GetAuthorizeUrl]未找到机构授权信息,tenantId:{tenantId}", this.GetType());
-                return ResponseBase.CommonError("机构绑定的微信公众号无权限");
-            }
-            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
-                new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
-            Log.Info($"[家长端获取授权地址]{url}", this.GetType());
-            return ResponseBase.Success(url);
-        }
-
         public async Task<ResponseBase> ParentBindingWeChat(ParentBindingWeChatRequest request)
         {
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(request.LoginTenantId);
@@ -381,10 +357,8 @@ namespace ETMS.Business
                 Log.Error($"[ParentBindingWeChat]未找到机构授权信息,tenantId:{request.LoginTenantId}", this.GetType());
                 return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
-            var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var componentAccessToken = ComponentContainer.GetComponentAccessToken(componentAppid);
-            var authToken = OAuthApi.GetAccessToken(tenantWechartAuth.AuthorizerAppid, componentAppid, componentAccessToken, request.Code);
-            var userInfo = OAuthApi.GetUserInfo(authToken.access_token, authToken.openid);
+            var authToken = GetAuthAccessToken(tenantWechartAuth.AuthorizerAppid, request.Code);
+            var userInfo = this.GetUserInfo(authToken.access_token, authToken.openid);
             await _sysStudentWechartDAL.DelSysStudentWechart(authToken.openid);
             var sysStudentWechart = new SysStudentWechart()
             {

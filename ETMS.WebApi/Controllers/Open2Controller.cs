@@ -113,6 +113,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> GetAuthorizeUrl(GetAuthorizeUrlRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.GetAuthorizeUrl(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> GetWxOpenId(GetWxOpenIdRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.GetWxOpenId(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TryClassApply(TryCalssApplyRequest request)
         {
             try
