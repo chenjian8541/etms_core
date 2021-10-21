@@ -9,6 +9,8 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Utility;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -23,13 +25,16 @@ namespace ETMS.Business
 
         private readonly IOrderDAL _orderDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public CostBLL(ICostDAL costDAL, IUserOperationLogDAL userOperationLogDAL, ISuitDAL suitDAL,
-            IOrderDAL orderDAL)
+            IOrderDAL orderDAL, IEventPublisher eventPublisher)
         {
             this._costDAL = costDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._suitDAL = suitDAL;
             this._orderDAL = orderDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -71,12 +76,23 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("已存在相同名称的费用");
             }
+            var oldName = cost.Name;
             cost.Name = request.Name;
             cost.Price = request.Price;
             cost.Remark = request.Remark;
             cost.Status = request.Status;
             cost.Points = request.Points.EtmsToPoints();
             await _costDAL.EditCost(cost);
+            if (oldName != request.Name)
+            {
+                _eventPublisher.Publish(new SyncMallGoodsRelatedNameEvent(request.LoginTenantId)
+                {
+                    ProductType = EmProductType.Cost,
+                    RelatedId = cost.Id,
+                    NewName = request.Name
+                });
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑费用-{request.Name}", EmUserOperationType.CostManage);
             return ResponseBase.Success();
         }

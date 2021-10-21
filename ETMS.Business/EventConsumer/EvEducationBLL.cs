@@ -3,6 +3,7 @@ using ETMS.Entity.Enum;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.MallGoodsDAL;
 using ETMS.IDataAccess.TeacherSalary;
 using ETMS.Utility;
 using System;
@@ -25,21 +26,24 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IUserDAL _userDAL;
 
+        private readonly IMallGoodsDAL _mallGoodsDAL;
+
         public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
             ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL,
-            IUserDAL userDAL)
+            IUserDAL userDAL, IMallGoodsDAL mallGoodsDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._teacherSalaryClassDAL = teacherSalaryClassDAL;
             this._teacherSalaryMonthStatisticsDAL = teacherSalaryMonthStatisticsDAL;
             this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
             this._userDAL = userDAL;
+            this._mallGoodsDAL = mallGoodsDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL, _teacherSalaryMonthStatisticsDAL,
-                _teacherSalaryPayrollDAL, _userDAL);
+                _teacherSalaryPayrollDAL, _userDAL, _mallGoodsDAL);
         }
 
         public async Task StatisticsTeacherSalaryClassTimesConsumerEvent(StatisticsTeacherSalaryClassTimesEvent request)
@@ -397,6 +401,11 @@ namespace ETMS.Business.EventConsumer
             {
                 await _userDAL.UpdateTeacherClassTimes(myTeacherId);
             }
+        }
+
+        public async Task SyncMallGoodsRelatedNameConsumerEvent(SyncMallGoodsRelatedNameEvent request)
+        {
+            await _mallGoodsDAL.UpdateRelatedName(request.ProductType, request.RelatedId, request.NewName);
         }
     }
 }

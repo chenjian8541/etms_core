@@ -16,5 +16,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task StatisticsTeacherSalaryMonthConsumerEvent(StatisticsTeacherSalaryMonthEvent request);
 
         Task SyncTeacherMonthClassTimesConsumerEvent(SyncTeacherMonthClassTimesEvent request);
+
+        Task SyncMallGoodsRelatedNameConsumerEvent(SyncMallGoodsRelatedNameEvent request);
     }
 }

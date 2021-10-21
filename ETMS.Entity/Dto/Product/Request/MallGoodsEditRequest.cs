@@ -18,6 +18,8 @@ namespace ETMS.Entity.Dto.Product.Request
         /// </summary>
         public byte ProductType { get; set; }
 
+        public string RelatedName { get; set; }
+
         public string Name { get; set; }
 
         public decimal OriginalPrice { get; set; }

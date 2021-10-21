@@ -34,5 +34,7 @@ namespace ETMS.Entity.View.MallGoods
         public string SpecContent { get; set; }
 
         public string ImgCover { get; set; }
+
+        public string RelatedName { get; set; }
     }
 }

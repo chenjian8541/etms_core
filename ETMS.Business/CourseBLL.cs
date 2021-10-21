@@ -14,6 +14,8 @@ using ETMS.Utility;
 using ETMS.Business.Common;
 using ETMS.Entity.Dto.Common.Output;
 using ETMS.Entity.View;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -31,8 +33,10 @@ namespace ETMS.Business
 
         private readonly ICommonHandlerBLL _commonHandlerBLL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public CourseBLL(ICourseDAL courseDAL, IUserOperationLogDAL userOperationLogDAL, IOrderDAL orderDAL, ISuitDAL suitDAL,
-            ITenantConfigDAL tenantConfigDAL, ICommonHandlerBLL commonHandlerBLL)
+            ITenantConfigDAL tenantConfigDAL, ICommonHandlerBLL commonHandlerBLL, IEventPublisher eventPublisher)
         {
             this._courseDAL = courseDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -40,6 +44,7 @@ namespace ETMS.Business
             this._suitDAL = suitDAL;
             this._tenantConfigDAL = tenantConfigDAL;
             this._commonHandlerBLL = commonHandlerBLL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -190,6 +195,7 @@ namespace ETMS.Business
             }
 
             var course = courseInfo.Item1;
+            var oldName = course.Name;
             course.Name = request.Name;
             course.Remark = request.Remark;
             course.StyleColor = request.StyleColor;
@@ -202,6 +208,15 @@ namespace ETMS.Business
             course.PriceType = coursePriceRuleInfo.Item2;
             course.PriceTypeDesc = coursePriceRuleInfo.Item3;
             await _courseDAL.EditCourse(course, coursePriceRuleInfo.Item1);
+            if (oldName != request.Name)
+            {
+                _eventPublisher.Publish(new SyncMallGoodsRelatedNameEvent(request.LoginTenantId)
+                {
+                    ProductType = EmProductType.Course,
+                    RelatedId = course.Id,
+                    NewName = request.Name
+                });
+            }
             await _userOperationLogDAL.AddUserLog(request, $"编辑课程-{request.Name}", EmUserOperationType.CourseManage);
             return ResponseBase.Success();
         }

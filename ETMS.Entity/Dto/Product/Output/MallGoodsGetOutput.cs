@@ -21,6 +21,8 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public long RelatedId { get; set; }
 
+        public string RelatedName { get; set; }
+
         public string Name { get; set; }
 
         public decimal OriginalPrice { get; set; }

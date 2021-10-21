@@ -110,6 +110,7 @@ namespace ETMS.Business
             var oldInventoryQuantity = goods.InventoryQuantity;
             var myInventoryQuantity = string.IsNullOrEmpty(request.InventoryQuantity) ? 0 : request.InventoryQuantity.ToInt();
 
+            var oldName = goods.Name;
             goods.Name = request.Name;
             goods.Price = request.Price;
             goods.Remark = request.Remark;
@@ -147,6 +148,16 @@ namespace ETMS.Business
             }
 
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
+            if (oldName != request.Name)
+            {
+                _eventPublisher.Publish(new SyncMallGoodsRelatedNameEvent(request.LoginTenantId)
+                {
+                    ProductType = EmProductType.Goods,
+                    RelatedId = goods.Id,
+                    NewName = request.Name
+                });
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑物品-{request.Name}", EmUserOperationType.GoodsManage);
             return ResponseBase.Success();
         }

@@ -13,8 +13,6 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public byte? ProductType { get; set; }
 
-        public long? RelatedId { get; set; }
-
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -24,15 +22,11 @@ namespace ETMS.Entity.Dto.Product.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (!string.IsNullOrEmpty(Name))
             {
-                condition.Append($" AND Name like '%{Name}%'");
+                condition.Append($" AND (Name like '%{Name}%' OR RelatedName '%{Name}%')");
             }
-            if (ProductType != null)
+            else if (ProductType != null)
             {
                 condition.Append($" AND [ProductType] = {ProductType.Value}");
-            }
-            if (RelatedId != null)
-            {
-                condition.Append($" AND [RelatedId] = {RelatedId.Value}");
             }
             return condition.ToString();
         }

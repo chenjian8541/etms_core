@@ -182,7 +182,8 @@ namespace ETMS.Business
                 RelatedId = request.RelatedId,
                 TenantId = request.LoginTenantId,
                 SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
-                TagContent = ComBusiness4.GetTagContent(request.TagItems)
+                TagContent = ComBusiness4.GetTagContent(request.TagItems),
+                RelatedName = request.RelatedName
             };
             await _mallGoodsDAL.AddMallGoods(entity, mlCoursePriceRules);
 
@@ -222,6 +223,7 @@ namespace ETMS.Business
                 price = request.Price;
                 priceDesc = request.Price.EtmsToString2();
             }
+            myMallGood.RelatedName = request.RelatedName;
             myMallGood.Name = request.Name;
             myMallGood.Price = price;
             myMallGood.PriceDesc = priceDesc;
@@ -246,7 +248,7 @@ namespace ETMS.Business
             }
             await _mallGoodsDAL.DelMallGoods(request.Id);
 
-            await _userOperationLogDAL.AddUserLog(request, $"删除商品-{myMallGoodsBucket.MallGoods.Name}", EmUserOperationType.MallGoodsMgr);
+            await _userOperationLogDAL.AddUserLog(request, $"移除商品-{myMallGoodsBucket.MallGoods.Name}", EmUserOperationType.MallGoodsMgr);
             return ResponseBase.Success();
         }
 
@@ -339,9 +341,46 @@ namespace ETMS.Business
                     }
                 }
             }
+            var relatedName = string.Empty;
+            switch (myMallGoods.ProductType)
+            {
+                case EmProductType.Course:
+                    var myCourse = await _courseDAL.GetCourse(myMallGoods.RelatedId);
+                    if (myCourse == null || myCourse.Item1 == null)
+                    {
+                        return ResponseBase.CommonError("关联商品不存在");
+                    }
+                    relatedName = myCourse.Item1.Name;
+                    break;
+                case EmProductType.Goods:
+                    var myGoods = await _goodsDAL.GetGoods(myMallGoods.RelatedId);
+                    if (myGoods == null)
+                    {
+                        return ResponseBase.CommonError("关联商品不存在");
+                    }
+                    relatedName = myGoods.Name;
+                    break;
+                case EmProductType.Cost:
+                    var myCost = await _costDAL.GetCost(myMallGoods.RelatedId);
+                    if (myCost == null)
+                    {
+                        return ResponseBase.CommonError("关联商品不存在");
+                    }
+                    relatedName = myCost.Name;
+                    break;
+                case EmProductType.Suit:
+                    var mySuit = await _suitDAL.GetSuit(myMallGoods.RelatedId);
+                    if (mySuit == null || mySuit.Item1 == null)
+                    {
+                        return ResponseBase.CommonError("关联商品不存在");
+                    }
+                    relatedName = mySuit.Item1.Name;
+                    break;
+            }
             var output = new MallGoodsGetOutput()
             {
                 Id = myMallGoods.Id,
+                RelatedName = relatedName,
                 Name = myMallGoods.Name,
                 GsContent = myMallGoods.GsContent,
                 OriginalPrice = myMallGoods.OriginalPrice,
@@ -400,12 +439,10 @@ namespace ETMS.Business
                 var i = 1;
                 var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, request.PageSize);
                 var myCount = pagingData.Item1.Count();
-                string relatedName = null;
                 foreach (var p in pagingData.Item1)
                 {
                     isCanUp = true;
                     isCanDown = true;
-                    relatedName = null;
                     if (request.PageCurrent == 1 && i == 1)
                     {
                         isCanUp = false;
@@ -417,46 +454,14 @@ namespace ETMS.Business
                     i++;
 
                     List<PriceRuleDesc> myPriceRuleDesc = null;
-                    switch (p.ProductType)
+                    if (p.ProductType == EmProductType.Course)
                     {
-                        case EmProductType.Course:
-                            var myCourse = await _courseDAL.GetCourse(p.RelatedId);
-                            if (myCourse == null || myCourse.Item1 == null)
-                            {
-                                continue;
-                            }
-                            relatedName = myCourse.Item1.Name;
-                            var myMallGoodsBucket = await _mallGoodsDAL.GetMallGoods(p.Id);
-                            if (myMallGoodsBucket == null || myMallGoodsBucket.MallGoods == null)
-                            {
-                                continue;
-                            }
-                            myPriceRuleDesc = ComBusiness3.GetPriceRuleDescs(myMallGoodsBucket.MallCoursePriceRules);
-                            break;
-                        case EmProductType.Goods:
-                            var myGoods = await _goodsDAL.GetGoods(p.RelatedId);
-                            if (myGoods == null)
-                            {
-                                continue;
-                            }
-                            relatedName = myGoods.Name;
-                            break;
-                        case EmProductType.Cost:
-                            var myCost = await _costDAL.GetCost(p.RelatedId);
-                            if (myCost == null)
-                            {
-                                continue;
-                            }
-                            relatedName = myCost.Name;
-                            break;
-                        case EmProductType.Suit:
-                            var mySuit = await _suitDAL.GetSuit(p.RelatedId);
-                            if (mySuit == null || mySuit.Item1 == null)
-                            {
-                                continue;
-                            }
-                            relatedName = mySuit.Item1.Name;
-                            break;
+                        var myMallGoodsBucket = await _mallGoodsDAL.GetMallGoods(p.Id);
+                        if (myMallGoodsBucket == null || myMallGoodsBucket.MallGoods == null)
+                        {
+                            continue;
+                        }
+                        myPriceRuleDesc = ComBusiness3.GetPriceRuleDescs(myMallGoodsBucket.MallCoursePriceRules);
                     }
                     output.Add(new MallGoodsGetPagingOutput()
                     {
@@ -472,7 +477,7 @@ namespace ETMS.Business
                         ProductType = p.ProductType,
                         ProductTypeDesc = p.ProductTypeDesc,
                         RelatedId = p.RelatedId,
-                        RelatedName = relatedName,
+                        RelatedName = p.RelatedName,
                         PriceRuleDescs = myPriceRuleDesc
                     });
                 }

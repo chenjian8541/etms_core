@@ -12,6 +12,8 @@ using ETMS.Entity.Enum;
 using ETMS.Utility;
 using ETMS.Business.Common;
 using ETMS.Entity.Dto.Product.Output;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -27,13 +29,17 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
-        public SuitBLL(ISuitDAL suitDAL, ICourseDAL courseDAL, ICostDAL costDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL)
+        private readonly IEventPublisher _eventPublisher;
+
+        public SuitBLL(ISuitDAL suitDAL, ICourseDAL courseDAL, ICostDAL costDAL, IGoodsDAL goodsDAL,
+            IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
         {
             this._suitDAL = suitDAL;
             this._courseDAL = courseDAL;
             this._costDAL = costDAL;
             this._goodsDAL = goodsDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -207,11 +213,21 @@ namespace ETMS.Business
             var suitDetail = suitDetailResult.Item2;
             var suitPrice = suitDetail.Sum(p => p.ItemAptSum);
             var suit = suitResult.Item1;
+            var oldName = suit.Name;
             suit.Name = request.Name;
             suit.Remark = request.Remark;
             suit.Price = suitPrice;
             suit.Points = 0;
             await _suitDAL.EditSuit(suit, suitDetail);
+            if (oldName != request.Name)
+            {
+                _eventPublisher.Publish(new SyncMallGoodsRelatedNameEvent(request.LoginTenantId)
+                {
+                    ProductType = EmProductType.Suit,
+                    RelatedId = suit.Id,
+                    NewName = request.Name
+                });
+            }
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑套餐-{request.Name}", EmUserOperationType.SuitMgr);
             return ResponseBase.Success();

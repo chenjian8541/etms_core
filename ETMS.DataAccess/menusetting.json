@@ -406,6 +406,33 @@
         ]
       },
       {
+        "Id": 100,
+        "Name": "在线商城",
+        "Type": "0",
+        "ChildrenAction": [
+          {
+            "ActionId": 76,
+            "Name": "设置商城",
+            "Type": 1
+          },
+          {
+            "ActionId": 77,
+            "Name": "添加商品",
+            "Type": 1
+          },
+          {
+            "ActionId": 78,
+            "Name": "编辑商品",
+            "Type": 1
+          },
+          {
+            "ActionId": 79,
+            "Name": "移除商品",
+            "Type": 1
+          }
+        ]
+      },
+      {
         "Id": 30,
         "Name": "老师管理",
         "Type": 0,

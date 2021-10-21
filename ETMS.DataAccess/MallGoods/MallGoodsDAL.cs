@@ -99,14 +99,19 @@ namespace ETMS.DataAccess.MallGoods
             return true;
         }
 
+        public async Task UpdateRelatedName(byte productType, long relatedId, string newName)
+        {
+            await _dbWrapper.Execute($"UPDATE EtMallGoods SET RelatedName = '{newName}' WHERE TenantId = {_tenantId} AND ProductType = {productType} AND RelatedId = {relatedId} AND IsDeleted = {EmIsDeleted.Normal}");
+        }
+
         public async Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
 
         public async Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,TagContent,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName,TagContent,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
     }
 }

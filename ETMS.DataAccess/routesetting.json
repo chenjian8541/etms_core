@@ -312,6 +312,41 @@
         }
       },
       {
+        "Id": 100,
+        "Path": "mallMgr",
+        "Name": "mallMgr",
+        "Type": 1,
+        "Component": "@/components/MallGoods/Main",
+        "Meta": {
+          "Title": "在线商城",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "mallGoodsEdit/:cid",
+        "Name": "mallGoodsEdit",
+        "Type": 1,
+        "Component": "@/components/MallGoods/Edit",
+        "Meta": {
+          "Title": "编辑商品",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "mallGoodsAdd",
+        "Name": "mallGoodsAdd",
+        "Type": 1,
+        "Component": "@/components/MallGoods/Edit",
+        "Meta": {
+          "Title": "添加商品",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 30,
         "Path": "teacher",
         "Name": "teacher",
