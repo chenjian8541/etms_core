@@ -171,7 +171,9 @@ namespace ETMS.Business
                 Status = p.Status,
                 Remark = p.Remark,
                 StatusDesc = EmCostStatus.GetCostStatusDesc(p.Status),
-                Points = p.Points
+                Points = p.Points,
+                Value = p.Id,
+                Label = p.Name
             })));
         }
     }

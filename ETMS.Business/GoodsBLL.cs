@@ -239,7 +239,9 @@ namespace ETMS.Business
                 Status = p.Status,
                 StatusDesc = EmGoodsStatus.GetGoodsStatusDesc(p.Status),
                 LimitQuantityDesc = p.LimitQuantity == null ? "未设置" : p.LimitQuantity.ToString(),
-                Points = p.Points
+                Points = p.Points,
+                Value = p.Id,
+                Label = p.Name
             })));
         }
 

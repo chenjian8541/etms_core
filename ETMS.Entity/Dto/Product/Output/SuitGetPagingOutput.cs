@@ -32,5 +32,9 @@ namespace ETMS.Entity.Dto.Product.Output
         /// 单价
         /// </summary>
         public decimal Price { get; set; }
+
+        public long Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

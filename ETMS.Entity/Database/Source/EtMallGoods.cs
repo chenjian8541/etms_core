@@ -25,6 +25,8 @@ namespace ETMS.Entity.Database.Source
 
         public decimal OriginalPrice { get; set; }
 
+        public string OriginalPriceDesc { get; set; }
+
         public decimal Price { get; set; }
 
         public string PriceDesc { get; set; }

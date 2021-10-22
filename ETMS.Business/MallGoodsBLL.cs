@@ -183,7 +183,8 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
                 TagContent = ComBusiness4.GetTagContent(request.TagItems),
-                RelatedName = request.RelatedName
+                RelatedName = request.RelatedName,
+                OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2()
             };
             await _mallGoodsDAL.AddMallGoods(entity, mlCoursePriceRules);
 
@@ -233,6 +234,7 @@ namespace ETMS.Business
             myMallGood.ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys);
             myMallGood.SpecContent = ComBusiness4.GetSpecContent(request.SpecItems);
             myMallGood.TagContent = ComBusiness4.GetTagContent(request.TagItems);
+            myMallGood.OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2();
             await _mallGoodsDAL.EditMallGoods(myMallGood, mlCoursePriceRules);
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑商品-{request.Name}", EmUserOperationType.MallGoodsMgr);
@@ -393,7 +395,8 @@ namespace ETMS.Business
                 ImgDetail = ComBusiness4.GetImgs(myMallGoods.ImgDetail),
                 CoursePriceRules = coursePriceRules,
                 SpecItems = ComBusiness4.GetSpecView(myMallGoods.SpecContent),
-                TagItems = ComBusiness4.GetTagView(myMallGoods.TagContent)
+                TagItems = ComBusiness4.GetTagView(myMallGoods.TagContent),
+                OriginalPriceDesc = myMallGoods.OriginalPriceDesc
             };
 
             return ResponseBase.Success(output);
@@ -471,7 +474,7 @@ namespace ETMS.Business
                         IsCanDown = isCanDown,
                         Name = p.Name,
                         OrderIndex = p.OrderIndex,
-                        OriginalPrice = p.OriginalPrice,
+                        OriginalPriceDesc = p.OriginalPriceDesc,
                         Price = p.Price,
                         PriceDesc = p.PriceDesc,
                         ProductType = p.ProductType,

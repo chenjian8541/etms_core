@@ -38,5 +38,9 @@ namespace ETMS.Entity.Dto.Product.Output
         public string LimitQuantityDesc { get; set; }
 
         public int Points { get; set; }
+
+        public long Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

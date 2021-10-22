@@ -22,7 +22,7 @@ namespace ETMS.Entity.Dto.Product.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (!string.IsNullOrEmpty(Name))
             {
-                condition.Append($" AND (Name like '%{Name}%' OR RelatedName '%{Name}%')");
+                condition.Append($" AND (Name like '%{Name}%' OR RelatedName like '%{Name}%')");
             }
             else if (ProductType != null)
             {

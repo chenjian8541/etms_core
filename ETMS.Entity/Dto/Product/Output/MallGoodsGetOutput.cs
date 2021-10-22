@@ -27,6 +27,8 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public decimal OriginalPrice { get; set; }
 
+        public string OriginalPriceDesc { get; set; }
+
         public decimal Price { get; set; }
 
         public string PriceDesc { get; set; }

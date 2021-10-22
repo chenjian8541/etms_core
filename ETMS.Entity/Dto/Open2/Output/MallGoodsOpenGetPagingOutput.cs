@@ -21,7 +21,7 @@ namespace ETMS.Entity.Dto.Open2.Output
 
         public string Name { get; set; }
 
-        public string OriginalPrice { get; set; }
+        public string OriginalPriceDesc { get; set; }
 
         public decimal Price { get; set; }
 

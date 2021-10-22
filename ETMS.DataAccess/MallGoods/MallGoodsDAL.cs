@@ -106,12 +106,12 @@ namespace ETMS.DataAccess.MallGoods
 
         public async Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,OriginalPriceDesc,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
 
         public async Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName,TagContent,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName,TagContent,OriginalPriceDesc,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
     }
 }

@@ -419,6 +419,8 @@ namespace ETMS.Business
                     Status = p.Status,
                     Points = p.Points,
                     StatusDesc = EmProductStatus.GetCourseStatusDesc(p.Status),
+                    Label = p.Name,
+                    Value = p.Id
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<SuitGetPagingOutput>(pagingData.Item2, output));
