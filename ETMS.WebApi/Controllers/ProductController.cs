@@ -506,12 +506,40 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> MallGoodsSaveConfig(MallGoodsSaveConfigRequest request)
+        public async Task<ResponseBase> MallGoodsTagSet(MallGoodsTagSetRequest request)
         {
             try
             {
                 _mallGoodsBLL.InitTenantId(request.LoginTenantId);
-                return await _mallGoodsBLL.MallGoodsSaveConfig(request);
+                return await _mallGoodsBLL.MallGoodsTagSet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsSaveStatus(MallGoodsSaveStatusRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsSaveStatus(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallGoodsSaveShareConfig(MallGoodsSaveShareConfigRequest request)
+        {
+            try
+            {
+                _mallGoodsBLL.InitTenantId(request.LoginTenantId);
+                return await _mallGoodsBLL.MallGoodsSaveShareConfig(request);
             }
             catch (Exception ex)
             {

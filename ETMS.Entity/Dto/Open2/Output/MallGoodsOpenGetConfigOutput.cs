@@ -1,23 +1,14 @@
-﻿using ETMS.Entity.Dto.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.Product.Output
+namespace ETMS.Entity.Dto.Open2.Output
 {
-    public class MallGoodsGetConfigOutput
+    public class MallGoodsOpenGetConfigOutput
     {
-        public string TenantNo { get; set; }
-
-        public string HomeShareUrl { get; set; }
-
-        public string DetailShareUrl { get; set; }
-
         public string HomeShareImgUrl { get; set; }
-
-        public string HomeShareImgKey { get; set; }
 
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmMallGoodsStatus"/>

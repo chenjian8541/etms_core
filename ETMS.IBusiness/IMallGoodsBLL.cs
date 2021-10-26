@@ -20,7 +20,11 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> MallGoodsGet(MallGoodsGetRequest request);
 
-        Task<ResponseBase> MallGoodsSaveConfig(MallGoodsSaveConfigRequest request);
+        Task<ResponseBase> MallGoodsTagSet(MallGoodsTagSetRequest request);
+
+        Task<ResponseBase> MallGoodsSaveStatus(MallGoodsSaveStatusRequest request);
+
+        Task<ResponseBase> MallGoodsSaveShareConfig(MallGoodsSaveShareConfigRequest request);
 
         Task<ResponseBase> MallGoodsGetConfig(MallGoodsGetConfigRequest request);
 

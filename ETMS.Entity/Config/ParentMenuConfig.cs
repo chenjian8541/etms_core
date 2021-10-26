@@ -39,6 +39,11 @@ namespace ETMS.Entity.Config
         public const int MicroWeb = 6;
 
         /// <summary>
+        /// 在线商城
+        /// </summary>
+        public const int MallGoods = 7;
+
+        /// <summary>
         /// 余额
         /// </summary>
         public const int Balance = 20;
@@ -102,6 +107,7 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(Homework, "作业", 15));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));
             AllConfig.Add(new ParentMenuInfo(ReservationMgr, "在线预约", 25));
+            AllConfig.Add(new ParentMenuInfo(MallGoods, "在线商城", 27));
             AllConfig.Add(new ParentMenuInfo(MicroWeb, "微官网", 30));
 
             AllConfig.Add(new ParentMenuInfo(Balance, "余额", 35));

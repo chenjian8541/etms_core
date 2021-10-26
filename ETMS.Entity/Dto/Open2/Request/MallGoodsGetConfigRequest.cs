@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.Product.Request
+namespace ETMS.Entity.Dto.Open2.Request
 {
-    public class MallGoodsSaveConfigRequest : RequestBase
+    public class MallGoodsGetConfigRequest : Open2Base
     {
-        public string HomeShareImgKey { get; set; }
     }
 }

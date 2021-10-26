@@ -17,10 +17,12 @@ using System.Threading.Tasks;
 using ETMS.Entity.Dto.Common;
 using ETMS.Business.Common;
 using ETMS.Entity.Config;
+using ETMS.Business.BaseBLL;
+using ETMS.IDataAccess.EtmsManage;
 
 namespace ETMS.Business
 {
-    public class MallGoodsBLL : IMallGoodsBLL
+    public class MallGoodsBLL : TenantLcsAccountBLL, IMallGoodsBLL
     {
         private readonly IMallGoodsDAL _mallGoodsDAL;
 
@@ -39,7 +41,9 @@ namespace ETMS.Business
         private readonly ITenantConfig2DAL _tenantConfig2DAL;
 
         public MallGoodsBLL(IMallGoodsDAL mallGoodsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, ISuitDAL suitDAL,
-            IUserOperationLogDAL userOperationLogDAL, IAppConfigurtaionServices appConfigurtaionServices, ITenantConfig2DAL tenantConfig2DAL)
+            IUserOperationLogDAL userOperationLogDAL, IAppConfigurtaionServices appConfigurtaionServices,
+            ITenantConfig2DAL tenantConfig2DAL, ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
             this._courseDAL = courseDAL;
@@ -256,13 +260,30 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> MallGoodsChangeOrderIndex(MallGoodsChangeOrderIndexRequest request)
         {
-            if (request.OrderIndex1 == request.OrderIndex2)
+            if (request.Id2 > 0)
             {
-                request.OrderIndex2--;
+                await MallGoodsChangeOrderIndex(request.Id1, request.OrderIndex1, request.Id2, request.OrderIndex2);
             }
-            await _mallGoodsDAL.UpdateOrderIndex(request.Id1, request.OrderIndex2);
-            await _mallGoodsDAL.UpdateOrderIndex(request.Id2, request.OrderIndex1);
+            else
+            {
+                var nearEntity = await _mallGoodsDAL.GetMallGoodsNearOrderIndex(request.OrderIndex1, request.NoId2Type);
+                if (nearEntity == null)
+                {
+                    return ResponseBase.CommonError("操作失败");
+                }
+                await MallGoodsChangeOrderIndex(request.Id1, request.OrderIndex1, nearEntity.Id, nearEntity.OrderIndex);
+            }
             return ResponseBase.Success();
+        }
+
+        private async Task MallGoodsChangeOrderIndex(long id1, long orderIndex1, long id2, long orderIndex2)
+        {
+            if (orderIndex1 == orderIndex2)
+            {
+                orderIndex2--;
+            }
+            await _mallGoodsDAL.UpdateOrderIndex(id1, orderIndex2);
+            await _mallGoodsDAL.UpdateOrderIndex(id2, orderIndex1);
         }
 
         public async Task<ResponseBase> MallGoodsGet(MallGoodsGetRequest request)
@@ -379,6 +400,21 @@ namespace ETMS.Business
                     relatedName = mySuit.Item1.Name;
                     break;
             }
+            if (coursePriceRules == null)
+            {
+                coursePriceRules = new CoursePriceRuleOutput()
+                {
+                    ByClassTimes = new List<CoursePriceRuleOutputItem>(),
+                    ByMonth = new List<CoursePriceRuleOutputItem>(),
+                    ByDay = new List<CoursePriceRuleOutputItem>(),
+                    ByClassTimesIsCanModify = true,
+                    ByDayIsCanModify = true,
+                    ByMonthIsCanModify = true,
+                    IsByClassTimes = false,
+                    IsByDay = false,
+                    IsByMonth = false
+                };
+            }
             var output = new MallGoodsGetOutput()
             {
                 Id = myMallGoods.Id,
@@ -391,20 +427,47 @@ namespace ETMS.Business
                 ProductType = myMallGoods.ProductType,
                 ProductTypeDesc = myMallGoods.ProductTypeDesc,
                 RelatedId = myMallGoods.RelatedId,
-                ImgCover = new Img(myMallGoods.ImgCover, AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover)),
                 ImgDetail = ComBusiness4.GetImgs(myMallGoods.ImgDetail),
                 CoursePriceRules = coursePriceRules,
                 SpecItems = ComBusiness4.GetSpecView(myMallGoods.SpecContent),
                 TagItems = ComBusiness4.GetTagView(myMallGoods.TagContent),
-                OriginalPriceDesc = myMallGoods.OriginalPriceDesc
+                OriginalPriceDesc = myMallGoods.OriginalPriceDesc,
+                imgCoverKey = myMallGoods.ImgCover,
+                imgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover)
             };
 
             return ResponseBase.Success(output);
         }
 
-        public async Task<ResponseBase> MallGoodsSaveConfig(MallGoodsSaveConfigRequest request)
+        public async Task<ResponseBase> MallGoodsTagSet(MallGoodsTagSetRequest request)
+        {
+            var tagContent = ComBusiness4.GetTagContent(request.TagItems);
+            await _mallGoodsDAL.UpdateTagContent(request.Ids, tagContent);
+
+            await _userOperationLogDAL.AddUserLog(request, "批量设置活动标签", EmUserOperationType.MallGoodsMgr);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> MallGoodsSaveStatus(MallGoodsSaveStatusRequest request)
+        {
+            if (request.MallGoodsStatus == EmMallGoodsStatus.Open)
+            {
+                var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+                if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+                {
+                    return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
+                }
+            }
+            var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
+            tenantConfig.MallGoodsConfig.MallGoodsStatus = request.MallGoodsStatus;
+            await _tenantConfig2DAL.SaveTenantConfig(tenantConfig);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> MallGoodsSaveShareConfig(MallGoodsSaveShareConfigRequest request)
         {
             var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
+            tenantConfig.MallGoodsConfig.Title = request.Title;
             tenantConfig.MallGoodsConfig.HomeShareImgKey = request.HomeShareImgKey;
             await _tenantConfig2DAL.SaveTenantConfig(tenantConfig);
             return ResponseBase.Success();
@@ -416,17 +479,15 @@ namespace ETMS.Business
             var wxConfig = config.WxConfig;
             var tenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
             var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
-            Img myImg = null;
-            if (!string.IsNullOrEmpty(tenantConfig.MallGoodsConfig.HomeShareImgKey))
-            {
-                myImg = new Img(tenantConfig.MallGoodsConfig.HomeShareImgKey, AliyunOssUtil.GetAccessUrlHttps(tenantConfig.MallGoodsConfig.HomeShareImgKey));
-            }
             var output = new MallGoodsGetConfigOutput()
             {
                 HomeShareUrl = string.Format(wxConfig.WeChatEntranceConfig.MallGoodsHomeUrl, tenantNo),
                 DetailShareUrl = string.Format(wxConfig.WeChatEntranceConfig.MallGoodsDetailUrl, tenantNo),
-                HomeShareImgUrl = myImg,
-                TenantNo = tenantNo
+                HomeShareImgUrl = AliyunOssUtil.GetAccessUrlHttps(tenantConfig.MallGoodsConfig.HomeShareImgKey),
+                HomeShareImgKey = tenantConfig.MallGoodsConfig.HomeShareImgKey,
+                TenantNo = tenantNo,
+                MallGoodsStatus = tenantConfig.MallGoodsConfig.MallGoodsStatus,
+                Title = tenantConfig.MallGoodsConfig.Title
             };
             return ResponseBase.Success(output);
         }

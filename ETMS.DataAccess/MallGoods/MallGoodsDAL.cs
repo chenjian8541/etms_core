@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket.Mall;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View.MallGoods;
 using ETMS.ICache;
 using ETMS.IDataAccess.MallGoodsDAL;
@@ -73,11 +74,32 @@ namespace ETMS.DataAccess.MallGoods
         {
             await _dbWrapper.Update(mlGoods);
             await _dbWrapper.Execute($"DELETE EtMallCoursePriceRule WHERE TenantId = {_tenantId} AND MallGoodsId = {mlGoods.Id} ");
-            if (mlCoursePriceRules.Any())
+            if (mlCoursePriceRules != null && mlCoursePriceRules.Any())
             {
                 _dbWrapper.InsertRange(mlCoursePriceRules);
             }
             await base.UpdateCache(_tenantId, mlGoods.Id);
+        }
+
+        public async Task UpdateTagContent(List<long> ids, string newTagContent)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return;
+            }
+            if (ids.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtMallGoods SET TagContent = '{newTagContent}' WHERE Id = {ids[0]} ");
+                RemoveCache(_tenantId, ids[0]);
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtMallGoods SET TagContent = '{newTagContent}' WHERE Id IN ({string.Join(',', ids)}) ");
+                foreach (var id in ids)
+                {
+                    RemoveCache(_tenantId, id);
+                }
+            }
         }
 
         public async Task<MallGoodsBucket> GetMallGoods(long id)
@@ -90,6 +112,22 @@ namespace ETMS.DataAccess.MallGoods
             await _dbWrapper.Execute($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtMallCoursePriceRule WHERE MallGoodsId = {id};");
             base.RemoveCache(_tenantId, id);
             return true;
+        }
+
+        public async Task<MallGoodsNearOrderIndexView> GetMallGoodsNearOrderIndex(long orderIndex, int type)
+        {
+            if (type == 1)
+            {
+                var obj = await _dbWrapper.ExecuteObject<MallGoodsNearOrderIndexView>(
+                    $"select top 1 Id,OrderIndex from EtMallGoods WHERE TenantId = {_tenantId} AND [IsDeleted] = {EmIsDeleted.Normal} AND OrderIndex > {orderIndex} ORDER BY OrderIndex ASC");
+                return obj.FirstOrDefault();
+            }
+            else
+            {
+                var obj = await _dbWrapper.ExecuteObject<MallGoodsNearOrderIndexView>(
+                    $"select top 1 Id,OrderIndex from EtMallGoods WHERE TenantId = {_tenantId} AND [IsDeleted] = {EmIsDeleted.Normal} AND OrderIndex < {orderIndex} ORDER BY OrderIndex DESC");
+                return obj.FirstOrDefault();
+            }
         }
 
         public async Task<bool> UpdateOrderIndex(long id, long newOrderIndex)

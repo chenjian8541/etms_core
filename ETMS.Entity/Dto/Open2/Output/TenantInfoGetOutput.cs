@@ -11,5 +11,7 @@ namespace ETMS.Entity.Dto.Open2.Output
         public GetTenantInfoH5Output TenantInfo { get; set; }
 
         public MicroWebTenantAddressGetOutput TenantAddressInfo { get; set; }
+
+        public MallGoodsOpenGetConfigOutput MallGoodsConfig { get; set; }
     }
 }

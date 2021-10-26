@@ -37,7 +37,9 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public List<MallGoodsSpecItem> SpecItems { get; set; }
 
-        public Img ImgCover { get; set; }
+        public string imgCoverKey { get; set; }
+
+        public string imgCoverUrl { get; set; }
 
         public List<Img> ImgDetail { get; set; }
 

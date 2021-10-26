@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket.Mall;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Temp;
 using ETMS.Entity.View.MallGoods;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,13 @@ namespace ETMS.IDataAccess.MallGoodsDAL
 
         Task EditMallGoods(EtMallGoods mlGoods, List<EtMallCoursePriceRule> mlCoursePriceRules);
 
+        Task UpdateTagContent(List<long> ids, string newTagContent);
+
         Task<MallGoodsBucket> GetMallGoods(long id);
 
         Task<bool> DelMallGoods(long id);
+
+        Task<MallGoodsNearOrderIndexView> GetMallGoodsNearOrderIndex(long orderIndex, int type);
 
         Task<bool> UpdateOrderIndex(long id, long newOrderIndex);
 

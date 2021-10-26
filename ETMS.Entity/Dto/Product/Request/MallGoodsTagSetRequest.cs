@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.View.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,27 +8,21 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Product.Request
 {
-    public class MallGoodsChangeOrderIndexRequest : RequestBase
+    public class MallGoodsTagSetRequest : RequestBase
     {
-        public long Id1 { get; set; }
+        public List<long> Ids { get; set; }
 
-        public long OrderIndex1 { get; set; }
-
-        public long Id2 { get; set; }
-
-        public long OrderIndex2 { get; set; }
-
-        public byte NoId2Type { get; set; }
+        public List<MallGoodsTagItem> TagItems { get; set; }
 
         public override string Validate()
         {
-            if (Id1 <= 0)
+            if (Ids == null || Ids.Count == 0)
             {
                 return "请求数据格式错误";
             }
-            if (Id2 <= 0 && NoId2Type <= 0)
+            if (TagItems != null && TagItems.Count > 2)
             {
-                return "请求数据格式错误";
+                return "一件商品最多设置两个标签";
             }
             return string.Empty;
         }

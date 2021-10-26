@@ -38,5 +38,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public bool IsCanUp { get; set; }
 
         public bool IsCanDown { get; set; }
+
+        public bool IsLoading { get; set; }
     }
 }

@@ -46,9 +46,14 @@ namespace ETMS.Business
 
         private readonly IMallGoodsDAL _mallGoodsDAL;
 
+        private readonly ILcsAccountBLL _lcsAccountBLL;
+
+        private readonly ITenantConfig2DAL _tenantConfig2DAL;
+
         public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
             IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
-            IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL, IAppConfigurtaionServices appConfigurtaionServices)
+            IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL, IAppConfigurtaionServices appConfigurtaionServices,
+            ILcsAccountBLL lcsAccountBLL, ITenantConfig2DAL tenantConfig2DAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._microWebBLL = microWebBLL;
@@ -58,23 +63,43 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._parentStudentDAL = parentStudentDAL;
             this._mallGoodsDAL = mallGoodsDAL;
+            this._lcsAccountBLL = lcsAccountBLL;
+            this._tenantConfig2DAL = tenantConfig2DAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._microWebBLL.InitTenantId(tenantId);
             this._appConfigBLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL, _mallGoodsDAL);
+            this._lcsAccountBLL.InitTenantId(tenantId);
+            this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL, _mallGoodsDAL,
+                _tenantConfig2DAL);
         }
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
         {
             var tenantInfo = await _appConfigBLL.GetTenantInfoH52(request.LoginTenantId);
             var addressConfig = await _microWebBLL.MicroWebTenantAddressGet(request.LoginTenantId);
+            var config = await _tenantConfig2DAL.GetTenantConfig();
+            var mallConfig = config.MallGoodsConfig;
+            if (mallConfig.MallGoodsStatus == EmMallGoodsStatus.Open)
+            {
+                var checkTenantLcsAccountResult = await _lcsAccountBLL.CheckLcsAccount(request.LoginTenantId);
+                if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+                {
+                    mallConfig.MallGoodsStatus = EmMallGoodsStatus.Close;
+                }
+            }
             return ResponseBase.Success(new TenantInfoGetOutput()
             {
                 TenantAddressInfo = addressConfig,
-                TenantInfo = tenantInfo
+                TenantInfo = tenantInfo,
+                MallGoodsConfig = new MallGoodsOpenGetConfigOutput()
+                {
+                    Title = string.IsNullOrEmpty(mallConfig.Title) ? tenantInfo.TenantName : mallConfig.Title,
+                    MallGoodsStatus = mallConfig.MallGoodsStatus,
+                    HomeShareImgUrl = AliyunOssUtil.GetAccessUrlHttps(mallConfig.HomeShareImgKey)
+                }
             });
         }
 
