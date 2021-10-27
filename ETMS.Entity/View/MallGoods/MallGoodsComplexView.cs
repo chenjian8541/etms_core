@@ -10,6 +10,8 @@ namespace ETMS.Entity.View.MallGoods
     {
         public long Id { get; set; }
 
+        public string GId { get; set; }
+
         /// <summary>
         /// 产品类型  <see cref=" ETMS.Entity.Enum.EmProductType"/>
         /// </summary>

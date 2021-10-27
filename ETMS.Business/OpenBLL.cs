@@ -327,7 +327,7 @@ namespace ETMS.Business
                     }
                     output.Add(new MallGoodsOpenGetPagingOutput()
                     {
-                        GId = p.Id,
+                        GId = p.GId,
                         ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
                         Name = p.Name,
                         OriginalPriceDesc = p.OriginalPriceDesc,
@@ -346,7 +346,8 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request)
         {
-            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.GId);
+
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
             if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
             {
                 return ResponseBase.CommonError("商品不存在");
@@ -360,7 +361,7 @@ namespace ETMS.Business
             var output = new MallGoodsDetailGetOutput()
             {
                 GsContent = p.GsContent,
-                GId = p.Id,
+                GId = p.GId,
                 Name = p.Name,
                 Price = p.Price,
                 PriceDesc = p.PriceDesc,

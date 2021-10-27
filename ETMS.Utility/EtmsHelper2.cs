@@ -163,6 +163,18 @@ namespace ETMS.Utility
             return strCode.ToInt();
         }
 
+        public static long GetIdDecrypt2(string strEncrypt)
+        {
+            if (strEncrypt.Equals("000"))
+            {
+                return 0;
+            }
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode.ToLong();
+        }
+
         public static bool IsThisMonth(DateTime time)
         {
             var now = DateTime.Now;

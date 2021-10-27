@@ -188,7 +188,8 @@ namespace ETMS.Business
                 SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
                 TagContent = ComBusiness4.GetTagContent(request.TagItems),
                 RelatedName = request.RelatedName,
-                OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2()
+                OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2(),
+                GId = string.Empty
             };
             await _mallGoodsDAL.AddMallGoods(entity, mlCoursePriceRules);
 
@@ -433,7 +434,8 @@ namespace ETMS.Business
                 TagItems = ComBusiness4.GetTagView(myMallGoods.TagContent),
                 OriginalPriceDesc = myMallGoods.OriginalPriceDesc,
                 imgCoverKey = myMallGoods.ImgCover,
-                imgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover)
+                imgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover),
+                GId = myMallGoods.GId
             };
 
             return ResponseBase.Success(output);
@@ -479,6 +481,7 @@ namespace ETMS.Business
             var wxConfig = config.WxConfig;
             var tenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
             var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
+            var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var output = new MallGoodsGetConfigOutput()
             {
                 HomeShareUrl = string.Format(wxConfig.WeChatEntranceConfig.MallGoodsHomeUrl, tenantNo),
@@ -487,7 +490,8 @@ namespace ETMS.Business
                 HomeShareImgKey = tenantConfig.MallGoodsConfig.HomeShareImgKey,
                 TenantNo = tenantNo,
                 MallGoodsStatus = tenantConfig.MallGoodsConfig.MallGoodsStatus,
-                Title = tenantConfig.MallGoodsConfig.Title
+                Title = tenantConfig.MallGoodsConfig.Title,
+                TenantName = tenant.Name
             };
             return ResponseBase.Success(output);
         }
@@ -542,7 +546,9 @@ namespace ETMS.Business
                         ProductTypeDesc = p.ProductTypeDesc,
                         RelatedId = p.RelatedId,
                         RelatedName = p.RelatedName,
-                        PriceRuleDescs = myPriceRuleDesc
+                        PriceRuleDescs = myPriceRuleDesc,
+                        GId = p.GId,
+                        IsLoading = false
                     });
                 }
             }

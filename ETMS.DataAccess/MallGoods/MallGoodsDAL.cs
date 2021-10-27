@@ -58,6 +58,8 @@ namespace ETMS.DataAccess.MallGoods
         public async Task<bool> AddMallGoods(EtMallGoods mlGoods, List<EtMallCoursePriceRule> mlCoursePriceRules)
         {
             await _dbWrapper.Insert(mlGoods);
+            var gid = EtmsHelper2.GetIdEncrypt(mlGoods.Id);
+            await _dbWrapper.Execute($"UPDATE EtMallGoods SET GId = '{gid}' WHERE Id = {mlGoods.Id}");
             if (mlCoursePriceRules != null && mlCoursePriceRules.Any())
             {
                 foreach (var s in mlCoursePriceRules)
@@ -144,12 +146,12 @@ namespace ETMS.DataAccess.MallGoods
 
         public async Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,OriginalPriceDesc,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,GId,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,OriginalPriceDesc,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
 
         public async Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName,TagContent,OriginalPriceDesc,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsComplexView>("EtMallGoods", "Id,GId,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,RelatedName,TagContent,OriginalPriceDesc,SpecContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
     }
 }
