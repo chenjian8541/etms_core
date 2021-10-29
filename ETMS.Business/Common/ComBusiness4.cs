@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Common;
+using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.View.Database;
@@ -198,6 +199,64 @@ namespace ETMS.Business.Common
             }
             var view = JsonConvert.DeserializeObject<MallGoodsTag>(content);
             return view.Items;
+        }
+
+        internal static Tuple<EtOrderDetail, string> GetGoodsOrderDetail(EtGoods goods, EnrolmentGoods enrolmentGoods, string no,
+            DateTime ot, int tenantId, long userId)
+        {
+            var priceRuleDesc = $"{goods.Price}元/件";
+            var ruleDesc = goods.Name;
+            return new Tuple<EtOrderDetail, string>(new EtOrderDetail()
+            {
+                OrderNo = no,
+                Ot = ot,
+                Price = goods.Price,
+                BuyQuantity = enrolmentGoods.BuyQuantity,
+                BugUnit = 0,
+                DiscountType = enrolmentGoods.DiscountType,
+                DiscountValue = enrolmentGoods.DiscountValue,
+                GiveQuantity = 0,
+                GiveUnit = 0,
+                IsDeleted = EmIsDeleted.Normal,
+                ItemAptSum = enrolmentGoods.ItemAptSum,
+                ItemSum = (enrolmentGoods.BuyQuantity * goods.Price).EtmsToRound(),
+                PriceRule = priceRuleDesc,
+                ProductId = goods.Id,
+                ProductType = EmProductType.Goods,
+                Remark = string.Empty,
+                Status = EmOrderStatus.Normal,
+                TenantId = tenantId,
+                UserId = userId
+            }, ruleDesc);
+        }
+
+        internal static Tuple<EtOrderDetail, string> GetCostOrderDetail(EtCost cost, EnrolmentCost enrolmentCost, string no,
+            DateTime ot, int tenantId, long userId)
+        {
+            var priceRuleDesc = $"{cost.Price}元/笔";
+            var ruleDesc = cost.Name;
+            return new Tuple<EtOrderDetail, string>(new EtOrderDetail()
+            {
+                OrderNo = no,
+                Ot = ot,
+                Price = cost.Price,
+                BuyQuantity = enrolmentCost.BuyQuantity,
+                BugUnit = 0,
+                DiscountType = enrolmentCost.DiscountType,
+                DiscountValue = enrolmentCost.DiscountValue,
+                GiveQuantity = 0,
+                GiveUnit = 0,
+                IsDeleted = EmIsDeleted.Normal,
+                ItemAptSum = enrolmentCost.ItemAptSum,
+                ItemSum = (enrolmentCost.BuyQuantity * cost.Price).EtmsToRound(),
+                PriceRule = priceRuleDesc,
+                ProductId = cost.Id,
+                ProductType = EmProductType.Cost,
+                Remark = string.Empty,
+                Status = EmOrderStatus.Normal,
+                TenantId = tenantId,
+                UserId = userId
+            }, ruleDesc);
         }
     }
 }

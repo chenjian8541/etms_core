@@ -337,7 +337,8 @@ namespace ETMS.Business
                         ProductTypeDesc = p.ProductTypeDesc,
                         SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
                         TagItems = ComBusiness4.GetTagView(p.TagContent),
-                        CoursePriceRules = myPriceRuleDesc
+                        CoursePriceRules = myPriceRuleDesc,
+                        Points = p.Points
                     });
                 }
             }
@@ -372,7 +373,8 @@ namespace ETMS.Business
                 ProductTypeDesc = p.ProductTypeDesc,
                 SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
                 TagItems = ComBusiness4.GetTagView(p.TagContent),
-                CoursePriceRules = myPriceRuleDesc
+                CoursePriceRules = myPriceRuleDesc,
+                Points = p.Points
             };
             return ResponseBase.Success(output);
         }

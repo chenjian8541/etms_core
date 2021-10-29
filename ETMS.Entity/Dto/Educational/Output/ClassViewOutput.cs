@@ -94,6 +94,11 @@ namespace ETMS.Entity.Dto.Educational.Output
         public bool IsNotComeCharge { get; set; }
 
         /// <summary>
+        /// 是否允许在线选班
+        /// </summary>
+        public bool IsCanOnlineSelClass { get; set; }
+
+        /// <summary>
         /// 排课状态  <see cref="ETMS.Entity.Enum.EmClassScheduleStatus"/>
         /// </summary>
         public byte ScheduleStatus { get; set; }

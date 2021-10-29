@@ -82,6 +82,11 @@ namespace ETMS.Entity.Dto.Educational.Output
         public bool IsLeaveCharge { get; set; }
 
         /// <summary>
+        /// 是否允许在线选班
+        /// </summary>
+        public bool IsCanOnlineSelClass { get; set; }
+
+        /// <summary>
         /// 未到是否收费
         /// </summary>
         public bool IsNotComeCharge { get; set; }

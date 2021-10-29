@@ -33,6 +33,8 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public string PriceDesc { get; set; }
 
+        public int Points { get; set; }
+
         public string ImgCoverUrl { get; set; }
 
         public List<PriceRuleDesc> PriceRuleDescs { get; set; }

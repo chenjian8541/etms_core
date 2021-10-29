@@ -31,6 +31,7 @@ namespace ETMS.Entity.View.MallGoods
 
         public string PriceDesc { get; set; }
 
+        public int Points { get; set; }
         public string TagContent { get; set; }
 
         public string SpecContent { get; set; }

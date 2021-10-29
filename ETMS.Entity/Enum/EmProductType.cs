@@ -44,5 +44,21 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string GetProductUnitDesc(byte b)
+        {
+            switch (b)
+            {
+                case Course:
+                    return string.Empty;
+                case Goods:
+                    return "件";
+                case Cost:
+                    return "笔";
+                case Suit:
+                    return "单";
+            }
+            return string.Empty;
+        }
     }
 }

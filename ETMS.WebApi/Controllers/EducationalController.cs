@@ -937,5 +937,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ClassChangeOnlineSelStatus(ClassChangeOnlineSelStatusRequest request)
+        {
+            try
+            {
+                _classBLL.InitTenantId(request.LoginTenantId);
+                return await _classBLL.ClassChangeOnlineSelStatus(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

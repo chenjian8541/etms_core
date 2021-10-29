@@ -94,5 +94,11 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClassStudent>> GetStudentCourseInClass(long studentId);
 
         Task<bool> UpdateClassFinishInfo(long classId, int finishCount, decimal finishClassTimes);
+
+        Task ChangeClassOnlineSelClassStatus(long classId,byte newIsCanOnlineSelClass);
+
+        Task ChangeClassOnlineSelClassStatus(List<long> ids, byte newIsCanOnlineSelClass);
+
+        Task<IEnumerable<ClassCanChooseView>> GetStudentClassCanChoose(long studentId, long courseId);
     }
 }

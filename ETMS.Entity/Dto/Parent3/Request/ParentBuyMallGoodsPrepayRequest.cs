@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,9 @@ namespace ETMS.Entity.Dto.Parent3.Request
 {
     public class ParentBuyMallGoodsPrepayRequest : ParentRequestBase
     {
-        public long GId { get; set; }
+        public long Id { get; set; }
+
+        public string GId { get; set; }
 
         public int BuyCount { get; set; }
 
@@ -19,7 +22,12 @@ namespace ETMS.Entity.Dto.Parent3.Request
 
         public override string Validate()
         {
-            if (GId <= 0)
+            if (string.IsNullOrEmpty(GId))
+            {
+                return "请求数据格式错误";
+            }
+            Id = EtmsHelper2.GetIdDecrypt2(GId);
+            if (Id <= 0)
             {
                 return "请求数据格式错误";
             }

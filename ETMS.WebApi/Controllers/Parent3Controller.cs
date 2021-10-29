@@ -3,6 +3,7 @@ using ETMS.Entity.Dto.Marketing.Request;
 using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Dto.Parent2.Request;
 using ETMS.Entity.Dto.Parent3.Request;
+using ETMS.Entity.Dto.Parent4.Request;
 using ETMS.IBusiness;
 using ETMS.IBusiness.Parent;
 using ETMS.LOG;
@@ -26,6 +27,20 @@ namespace ETMS.WebApi.Controllers
         public Parent3Controller(IParentData4BLL parentData4BLL)
         {
             this._parentData4BLL = parentData4BLL;
+        }
+
+        public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
+        {
+            try
+            {
+                _parentData4BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData4BLL.ClassCanChooseGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
         }
 
         public async Task<ResponseBase> ParentBuyMallGoodsPrepay(ParentBuyMallGoodsPrepayRequest request)

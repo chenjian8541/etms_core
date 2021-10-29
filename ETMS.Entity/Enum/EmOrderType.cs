@@ -34,6 +34,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte StudentAccountRefund = 4;
 
+        /// <summary>
+        /// 在线购课
+        /// </summary>
+        public const byte OnlineBuyMallGoods = 5;
+
         public static bool IsBuyOrder(int orderType)
         {
             switch (orderType)
@@ -48,6 +53,8 @@ namespace ETMS.Entity.Enum
                     return false;
                 case StudentAccountRefund:
                     return false;
+                case OnlineBuyMallGoods:
+                    return true;
             }
             return false;
         }
@@ -66,6 +73,8 @@ namespace ETMS.Entity.Enum
                     return "账户充值";
                 case StudentAccountRefund:
                     return "账户退款";
+                case OnlineBuyMallGoods:
+                    return "在线购课";
             }
             return string.Empty;
         }

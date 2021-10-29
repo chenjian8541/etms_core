@@ -26,6 +26,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public decimal Price { get; set; }
 
+        public int Points { get; set; }
+
         public List<MallGoodsTagItem> TagItems { get; set; }
 
         public List<MallGoodsSpecItem> SpecItems { get; set; }

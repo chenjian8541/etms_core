@@ -120,7 +120,8 @@ namespace ETMS.Business
                 Teachers = GetMuIds(request.TeacherIds),
                 StudentIds = string.Empty,
                 OrderId = null,
-                LimitStudentNumsType = request.LimitStudentNumsType
+                LimitStudentNumsType = request.LimitStudentNumsType,
+                IsCanOnlineSelClass = request.IsCanOnlineSelClass
             };
             await _classDAL.AddClass(etClass);
             await _userOperationLogDAL.AddUserLog(request, $"添加班级-{request.Name}", EmUserOperationType.ClassManage);
@@ -146,6 +147,7 @@ namespace ETMS.Business
             etClass.Remark = request.Remark;
             etClass.IsLeaveCharge = request.IsLeaveCharge;
             etClass.IsNotComeCharge = request.IsNotComeCharge;
+            etClass.IsCanOnlineSelClass = request.IsCanOnlineSelClass;
             if (etClass.Type == EmClassType.OneToMany)
             {
                 etClass.CourseList = GetMuIds(request.CourseIds);
@@ -199,6 +201,7 @@ namespace ETMS.Business
                 TeacherNum = etClass.TeacherNum,
                 Teachers = etClass.Teachers,
                 LimitStudentNumsType = etClass.LimitStudentNumsType,
+                IsCanOnlineSelClass = etClass.IsCanOnlineSelClass,
                 Type = etClass.Type,
                 CourseIds = await ComBusiness.GetCourseMultiSelectValue(tempBoxCourse, _courseDAL, etClass.CourseList),
                 TeacherIds = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, etClass.Teachers)
@@ -246,6 +249,7 @@ namespace ETMS.Business
                 OneToOneStudentName = student?.Name,
                 OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType),
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
+                IsCanOnlineSelClass = etClass.IsCanOnlineSelClass,
                 LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(etClass.StudentNums, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
             });
         }
@@ -268,7 +272,8 @@ namespace ETMS.Business
                 Type = etClass.Type,
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
                 IsLeaveCharge = etClass.IsLeaveCharge,
-                IsNotComeCharge = etClass.IsNotComeCharge
+                IsNotComeCharge = etClass.IsNotComeCharge,
+                IsCanOnlineSelClass = etClass.IsCanOnlineSelClass
             };
             if (!string.IsNullOrEmpty(etClass.CourseList))
             {
@@ -543,7 +548,8 @@ namespace ETMS.Business
                     TypeDesc = EmClassType.GetClassTypeDesc(p.Type),
                     Label = p.Name,
                     Value = p.Id,
-                    LimitStudentNumsType = p.LimitStudentNumsType
+                    LimitStudentNumsType = p.LimitStudentNumsType,
+                    IsCanOnlineSelClass = p.IsCanOnlineSelClass
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassViewOutput>(pagingData.Item2, classViewList));
@@ -1873,6 +1879,13 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassChangeOnlineSelStatus(ClassChangeOnlineSelStatusRequest request)
+        {
+            await _classDAL.ChangeClassOnlineSelClassStatus(request.Ids, request.NewOnlineSelStatus);
+            await _userOperationLogDAL.AddUserLog(request, "批量编辑在线选班", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
         }
     }
 }

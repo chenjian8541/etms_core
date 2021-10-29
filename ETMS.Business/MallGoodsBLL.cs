@@ -188,6 +188,7 @@ namespace ETMS.Business
                 SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
                 TagContent = ComBusiness4.GetTagContent(request.TagItems),
                 RelatedName = request.RelatedName,
+                Points = request.Points,
                 OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2(),
                 GId = string.Empty
             };
@@ -236,6 +237,7 @@ namespace ETMS.Business
             myMallGood.OriginalPrice = request.OriginalPrice;
             myMallGood.GsContent = request.GsContent;
             myMallGood.ImgCover = request.ImgCoverKey;
+            myMallGood.Points = request.Points;
             myMallGood.ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys);
             myMallGood.SpecContent = ComBusiness4.GetSpecContent(request.SpecItems);
             myMallGood.TagContent = ComBusiness4.GetTagContent(request.TagItems);
@@ -435,7 +437,8 @@ namespace ETMS.Business
                 OriginalPriceDesc = myMallGoods.OriginalPriceDesc,
                 imgCoverKey = myMallGoods.ImgCover,
                 imgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(myMallGoods.ImgCover),
-                GId = myMallGoods.GId
+                GId = myMallGoods.GId,
+                Points = myMallGoods.Points
             };
 
             return ResponseBase.Success(output);
@@ -548,6 +551,7 @@ namespace ETMS.Business
                         RelatedName = p.RelatedName,
                         PriceRuleDescs = myPriceRuleDesc,
                         GId = p.GId,
+                        Points = p.Points,
                         IsLoading = false
                     });
                 }

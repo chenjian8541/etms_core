@@ -27,6 +27,7 @@ namespace ETMS.Entity.Dto.Open2.Output
 
         public string PriceDesc { get; set; }
 
+        public int Points { get; set; }
         public List<MallGoodsTagItem> TagItems { get; set; }
 
         public List<MallGoodsSpecItem> SpecItems { get; set; }

@@ -396,5 +396,37 @@ namespace ETMS.DataAccess
             RemoveCache(_tenantId, classId);
             return true;
         }
+
+        public async Task ChangeClassOnlineSelClassStatus(long classId, byte newIsCanOnlineSelClass)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClass SET IsCanOnlineSelClass = {newIsCanOnlineSelClass} WHERE Id = {classId}");
+            RemoveCache(_tenantId, classId);
+        }
+
+        public async Task ChangeClassOnlineSelClassStatus(List<long> ids, byte newIsCanOnlineSelClass)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return;
+            }
+            if (ids.Count == 1)
+            {
+                await ChangeClassOnlineSelClassStatus(ids[0], newIsCanOnlineSelClass);
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtClass SET IsCanOnlineSelClass = {newIsCanOnlineSelClass} WHERE Id IN ({string.Join(',', ids)})");
+                foreach (var id in ids)
+                {
+                    RemoveCache(_tenantId, id);
+                }
+            }
+        }
+
+        public async Task<IEnumerable<ClassCanChooseView>> GetStudentClassCanChoose(long studentId, long courseId)
+        {
+            return await _dbWrapper.ExecuteObject<ClassCanChooseView>(
+                $"SELECT TOP 100 Id,Name,StudentNums,LimitStudentNums,LimitStudentNumsType,Teachers FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToMany} AND IsDeleted = {EmIsDeleted.Normal} AND IsCanOnlineSelClass = {EmBool.True} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND CourseList LIKE '%,{courseId},%' AND (StudentIds IS NULL OR StudentIds NOT LIKE '%,{studentId},%')");
+        }
     }
 }

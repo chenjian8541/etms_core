@@ -5,18 +5,24 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Parent3.Request;
 using ETMS.Entity.Dto.Parent4.Output;
+using ETMS.Entity.Dto.Parent4.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness.Parent;
 using ETMS.IBusiness.Wechart;
+using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IDataAccess.MallGoodsDAL;
+using ETMS.IEventProvider;
 using ETMS.LOG;
 using ETMS.Pay.Lcsw;
 using ETMS.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,24 +41,73 @@ namespace ETMS.Business.Parent
 
         private readonly IComponentAccessBLL _componentAccessBLL;
 
+        private readonly IClassDAL _classDAL;
+
+        private readonly IUserDAL _userDAL;
+
+        private readonly IStudentDAL _studentDAL;
+
+        private readonly IMallOrderDAL _mallOrder;
+
+        private readonly IEventPublisher _eventPublisher;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
             IPayLcswService payLcswService, IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
-            IComponentAccessBLL componentAccessBLL) : base(tenantLcsAccountDAL, sysTenantDAL)
+            IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
+            IMallOrderDAL mallOrder, IEventPublisher eventPublisher) : base(tenantLcsAccountDAL, sysTenantDAL)
         {
             this._payLcswService = payLcswService;
             this._mallGoodsDAL = mallGoodsDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
             this._componentAccessBLL = componentAccessBLL;
+            this._classDAL = classDAL;
+            this._userDAL = userDAL;
+            this._studentDAL = studentDAL;
+            this._mallOrder = mallOrder;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL);
+            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL, _mallOrder);
+        }
+
+        public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
+        {
+            var output = new List<ClassCanChooseGetOutput>();
+            var classList = await _classDAL.GetStudentClassCanChoose(request.StudentId, request.CourseId);
+            if (classList == null || !classList.Any())
+            {
+                return ResponseBase.Success(output);
+            }
+            var tempBoxUser = new DataTempBox<EtUser>();
+            foreach (var p in classList)
+            {
+                var isCanChoose = true;
+                if (p.LimitStudentNums != null && p.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+                {
+                    if (p.StudentNums >= p.LimitStudentNums.Value)
+                    {
+                        isCanChoose = false;
+                    }
+                }
+                output.Add(new ClassCanChooseGetOutput()
+                {
+                    Id = p.Id,
+                    IsCanChoose = isCanChoose,
+                    Name = p.Name,
+                    LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(p.StudentNums, p.LimitStudentNums, p.LimitStudentNumsType),
+                    TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers)
+                });
+            }
+            return ResponseBase.Success(output);
         }
 
         private CheckBuyMallGoodsResult CheckBuyMallGoods(EtMallGoods mallGoods, List<EtMallCoursePriceRule> mallCoursePriceRules, int buyCount,
-            long? coursePriceRuleId)
+            long? coursePriceRuleId, bool isGetComplex = false)
         {
+            var totalPoint = 0;
+            string strRuleDesc = null;
             if (mallGoods.ProductType == EmProductType.Course)
             {
                 if (coursePriceRuleId == null || coursePriceRuleId.Value <= 0)
@@ -68,18 +123,50 @@ namespace ETMS.Business.Parent
                 {
                     return new CheckBuyMallGoodsResult("课程收费方式错误");
                 }
-                var buyQuantity = priceRule.Quantity > 1 ? priceRule.Quantity : buyCount;
-                var itemSum = priceRule.Quantity > 1 ? priceRule.TotalPrice : (buyQuantity * priceRule.Price).EtmsToRound();
+                int buyQuantity;
+                decimal itemSum;
+                if (priceRule.Quantity > 1)
+                {
+                    buyQuantity = 1;
+                    itemSum = priceRule.TotalPrice;
+                }
+                else
+                {
+                    buyQuantity = buyCount;
+                    itemSum = (buyCount * priceRule.Price).EtmsToRound();
+                }
+                if (isGetComplex)
+                {
+                    if (priceRule.Points > 0)
+                    {
+                        totalPoint = buyQuantity * priceRule.Points;
+                    }
+                    strRuleDesc = ComBusiness.GetPriceRuleDesc(priceRule).Desc;
+                }
                 return new CheckBuyMallGoodsResult()
                 {
                     TotalMoney = itemSum,
+                    BuyCount = buyQuantity,
                     CoursePriceRule = priceRule,
+                    TotalPoint = totalPoint,
+                    PriceRuleDesc = strRuleDesc,
                     ErrMsg = string.Empty
                 };
             }
+            if (isGetComplex)
+            {
+                if (mallGoods.Points > 0)
+                {
+                    totalPoint = buyCount * mallGoods.Points;
+                }
+                strRuleDesc = $"{mallGoods.Price.EtmsToString2()}/{EmProductType.GetProductUnitDesc(mallGoods.ProductType)}";
+            }
             return new CheckBuyMallGoodsResult()
             {
-                TotalMoney = mallGoods.Price,
+                TotalMoney = (buyCount * mallGoods.Price).EtmsToRound(),
+                BuyCount = buyCount,
+                TotalPoint = totalPoint,
+                PriceRuleDesc = strRuleDesc,
                 ErrMsg = string.Empty
             };
         }
@@ -91,7 +178,7 @@ namespace ETMS.Business.Parent
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
             }
-            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.GId);
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
             if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
             {
                 return ResponseBase.CommonError("商品不存在");
@@ -189,7 +276,88 @@ namespace ETMS.Business.Parent
 
         public async Task<ResponseBase> ParentBuyMallGoodsSubmit(ParentBuyMallGoodsSubmitRequest request)
         {
-            return ResponseBase.Success();
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
+            if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
+            {
+                return ResponseBase.CommonError("商品不存在");
+            }
+            var myMallGoods = mallGoodsBucket.MallGoods;
+            var myMallCoursePriceRules = mallGoodsBucket.MallCoursePriceRules;
+            var checkBuyMallGoodsResult = CheckBuyMallGoods(myMallGoods, myMallCoursePriceRules, request.BuyCount,
+                request.CoursePriceRuleId, true);
+            if (!string.IsNullOrEmpty(checkBuyMallGoodsResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkBuyMallGoodsResult.ErrMsg);
+            }
+
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var lcsPaylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.TenantLcsPayLogId);
+            if (lcsPaylog == null)
+            {
+                return ResponseBase.CommonError("支付记录不存在");
+            }
+
+            var now = DateTime.Now;
+            if (lcsPaylog.Status != EmLcsPayLogStatus.PaySuccess)
+            {
+                lcsPaylog.Status = EmLcsPayLogStatus.PaySuccess;
+                lcsPaylog.PayFinishOt = now;
+                lcsPaylog.PayFinishDate = now.Date;
+                lcsPaylog.DataType = EmTenantLcsPayLogDataType.Normal;
+                await _tenantLcsPayLogDAL.EditTenantLcsPayLog(lcsPaylog);
+                _eventPublisher.Publish(new StatisticsLcsPayEvent(lcsPaylog.TenantId)
+                {
+                    StatisticsDate = now.Date
+                });
+            }
+            var goodsSpecContent = string.Empty;
+            if (request.SpecItems != null && request.SpecItems.Any())
+            {
+                goodsSpecContent = JsonConvert.SerializeObject(request.SpecItems);
+            }
+            var mallOrderEntity = new EtMallOrder()
+            {
+                OrderNo = lcsPaylog.OrderNo,
+                AptSum = checkBuyMallGoodsResult.TotalMoney,
+                BuyCount = checkBuyMallGoodsResult.BuyCount,
+                CreateOt = now.Date,
+                CreateTime = now,
+                GoodsName = myMallGoods.Name,
+                ImgCover = myMallGoods.ImgCover,
+                IsDeleted = EmIsDeleted.Normal,
+                LcsPayLogId = lcsPaylog.Id,
+                MallGoodsId = myMallGoods.Id,
+                PaySum = lcsPaylog.TotalFeeValue,
+                ProductType = myMallGoods.ProductType,
+                ProductTypeDesc = myMallGoods.ProductTypeDesc,
+                RelatedId = myMallGoods.RelatedId,
+                Remark = request.Remark,
+                Status = EmMallOrderStatus.Normal,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId,
+                PriceRuleDesc = checkBuyMallGoodsResult.PriceRuleDesc,
+                TotalPoints = checkBuyMallGoodsResult.TotalPoint,
+                GoodsSpecContent = goodsSpecContent
+            };
+            var mallOrderId = await _mallOrder.AddMallOrder(mallOrderEntity);
+
+            _eventPublisher.Publish(new ParentBuyMallGoodsSubmitEvent(request.LoginTenantId)
+            {
+                MallOrder = mallOrderEntity,
+                MyMallGoodsBucket = mallGoodsBucket,
+                MyTenantLcsPayLog = lcsPaylog,
+                MyStudent = studentBucket.Student,
+                CoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule
+            });
+            return ResponseBase.Success(new ParentBuyMallGoodsSubmitOutput()
+            {
+                MallGoodsId = mallOrderId,
+                OrderNo = mallOrderEntity.OrderNo
+            });
         }
     }
 }

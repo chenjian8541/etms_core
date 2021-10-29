@@ -25,6 +25,8 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// </summary>
         public bool IsNotComeCharge { get; set; }
 
+        public bool IsCanOnlineSelClass { get; set; }
+
         public List<SelectItem> ClassRooms { get; set; }
 
         public List<SelectItem> ClassCourses { get; set; }

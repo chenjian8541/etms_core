@@ -21,6 +21,12 @@ namespace ETMS.Entity.Temp
 
         public decimal TotalMoney { get; set; }
 
+        public int BuyCount { get; set; }
+
+        public string PriceRuleDesc { get; set; }
+
+        public int TotalPoint { get; set; }
+
         public EtMallCoursePriceRule CoursePriceRule { get; set; }
     }
 }

@@ -10,7 +10,6 @@
     <Folder Include="Dto\OpenParent\Output\" />
     <Folder Include="Dto\Open\Output\" />
     <Folder Include="Dto\Parent3\Output\" />
-    <Folder Include="Dto\Parent4\Request\" />
     <Folder Include="EtmsAttribute\" />
     <Folder Include="Web\" />
   </ItemGroup>

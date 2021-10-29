@@ -36,6 +36,7 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public bool IsNotComeCharge { get; set; }
 
+        public bool IsCanOnlineSelClass { get; set; }
         public List<MultiSelectValueRequest> CourseIds { get; set; }
 
         public override string Validate()

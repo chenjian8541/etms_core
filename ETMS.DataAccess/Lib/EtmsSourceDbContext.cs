@@ -182,5 +182,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtStatisticsLcsPayMonth> EtStatisticsLcsPayMonths { get; set; }
         public DbSet<EtMallGoods> EtMallGoodss { get; set; }
         public DbSet<EtMallCoursePriceRule> EtMallCoursePriceRules { get; set; }
+        public DbSet<EtMallOrder> EtMallOrders { get; set; }
     }
 }

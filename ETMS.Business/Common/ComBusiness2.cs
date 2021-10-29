@@ -42,8 +42,8 @@ namespace ETMS.Business.Common
             };
         }
 
-        internal static EtStudentCourseDetail GetStudentCourseDetail(EtCourse course, EtCoursePriceRule priceRule,
-            EnrolmentCourse enrolmentCourse, string no, long studentId, int tenantId)
+        internal static EtStudentCourseDetail GetStudentCourseDetail<T>(EtCourse course, T priceRule,
+            EnrolmentCourse enrolmentCourse, string no, long studentId, int tenantId) where T : BaseCoursePrice
         {
             var buyQuantity = priceRule.Quantity > 1 ? priceRule.Quantity : enrolmentCourse.BuyQuantity;
             var deType = priceRule.PriceUnit == EmCourseUnit.ClassTimes ? EmDeClassTimesType.ClassTimes : EmDeClassTimesType.Day;
@@ -161,8 +161,8 @@ namespace ETMS.Business.Common
             return price;
         }
 
-        internal static Tuple<EtOrderDetail, string> GetCourseOrderDetail(EtCourse course, EtCoursePriceRule priceRule,
-            EnrolmentCourse enrolmentCourse, string no, DateTime ot, long userId, int tenantId)
+        internal static Tuple<EtOrderDetail, string> GetCourseOrderDetail<T>(EtCourse course, T priceRule,
+            EnrolmentCourse enrolmentCourse, string no, DateTime ot, long userId, int tenantId) where T : BaseCoursePrice
         {
             var priceRuleDesc = ComBusiness.GetPriceRuleDesc(priceRule).Desc;
             var ruleDesc = $"{course.Name}  {priceRuleDesc}";
