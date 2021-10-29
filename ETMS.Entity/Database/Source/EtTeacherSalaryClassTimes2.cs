@@ -5,9 +5,8 @@ using System.Text;
 
 namespace ETMS.Entity.Database.Source
 {
-    [Table("EtTeacherSalaryClassTimes")]
-    public class EtTeacherSalaryClassTimes : BaseTeacherSalaryClassTimes
+    [Table("EtTeacherSalaryClassTimes2")]
+    public class EtTeacherSalaryClassTimes2 : BaseTeacherSalaryClassTimes
     {
-        public long CourseId { get; set; }
     }
 }

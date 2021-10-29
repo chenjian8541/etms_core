@@ -33,6 +33,8 @@ namespace ETMS.Business
 
         private IEnumerable<EtTeacherSalaryClassTimes> _teacherSalaryClassTimesList;
 
+        private IEnumerable<EtTeacherSalaryClassTimes2> _teacherSalaryClassTimesList2;
+
         private List<long> _finishUserIds;
 
         private List<long> _failUserIds;
@@ -44,7 +46,8 @@ namespace ETMS.Business
         public UserSalarySettlementHandler(IUserDAL userDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL,
             ITeacherSalaryContractDAL teacherSalaryContractDAL, bool isOpenContractPerformance,
             List<TeacherSalaryFundsItemOutput> allTeacherSalaryFundsItem, TeacherSalaryGlobalRuleView teacherSalaryGlobalRuleView,
-            IEnumerable<EtTeacherSalaryClassTimes> teacherSalaryClassTimesList)
+            IEnumerable<EtTeacherSalaryClassTimes> teacherSalaryClassTimesList,
+            IEnumerable<EtTeacherSalaryClassTimes2> teacherSalaryClassTimesList2)
         {
             this._userDAL = userDAL;
             this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
@@ -53,6 +56,7 @@ namespace ETMS.Business
             this._allTeacherSalaryFundsItem = allTeacherSalaryFundsItem;
             this._globalConfig = teacherSalaryGlobalRuleView;
             this._teacherSalaryClassTimesList = teacherSalaryClassTimesList;
+            this._teacherSalaryClassTimesList2 = teacherSalaryClassTimesList2;
             this._finishUserIds = new List<long>();
             this._failUserIds = new List<long>();
             this._payrollUser = new List<TeacherSalaryPayrollDetailView>();
@@ -72,9 +76,11 @@ namespace ETMS.Business
             {
                 return new List<TeacherSalaryPayrollUserPerformanceView>();
             }
+            var mySalaryClassTimesList2 = _teacherSalaryClassTimesList2.Where(p => p.TeacherId == userId);
 
             var processHandler = new UserSalaryPerformanceHandler(_teacherSalaryPayroll.TenantId, userId,
-                myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails, mySalaryClassTimesList, _globalConfig);
+                myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails, mySalaryClassTimesList2,
+                mySalaryClassTimesList, _globalConfig);
             var processMethod = typeof(UserSalaryPerformanceHandler).GetMethod($"Process_{_globalConfig.StatisticalRuleType}_{myTeacherSalaryContractPerformanceSet.ComputeType}_{myTeacherSalaryContractPerformanceSet.GradientCalculateType}");
             return processMethod.Invoke(processHandler, null) as List<TeacherSalaryPayrollUserPerformanceView>;
         }

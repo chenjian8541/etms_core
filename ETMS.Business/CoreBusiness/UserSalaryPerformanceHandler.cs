@@ -25,16 +25,19 @@ namespace ETMS.Business
         private long _userId;
         private EtTeacherSalaryContractPerformanceSet _myTeacherSalaryContractPerformanceSet;
         private List<EtTeacherSalaryContractPerformanceSetDetail> _myTeacherSalaryContractPerformanceSetDetails;
+        private IEnumerable<EtTeacherSalaryClassTimes2> _mySalaryClassTimesList2;
         private IEnumerable<EtTeacherSalaryClassTimes> _mySalaryClassTimesList;
         private TeacherSalaryGlobalRuleView _globalConfig;
         public UserSalaryPerformanceHandler(int tenantId, long userId, EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet,
             List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails,
-            IEnumerable<EtTeacherSalaryClassTimes> mySalaryClassTimesList, TeacherSalaryGlobalRuleView teacherSalaryGlobalRuleView)
+            IEnumerable<EtTeacherSalaryClassTimes2> mySalaryClassTimesList2, IEnumerable<EtTeacherSalaryClassTimes> mySalaryClassTimesList,
+            TeacherSalaryGlobalRuleView teacherSalaryGlobalRuleView)
         {
             this._tenantId = tenantId;
             this._userId = userId;
             this._myTeacherSalaryContractPerformanceSet = myTeacherSalaryContractPerformanceSet;
             this._myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractPerformanceSetDetails;
+            this._mySalaryClassTimesList2 = mySalaryClassTimesList2;
             this._mySalaryClassTimesList = mySalaryClassTimesList;
             this._globalConfig = teacherSalaryGlobalRuleView;
         }
@@ -46,7 +49,7 @@ namespace ETMS.Business
         /// </summary>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private int GetValidArrivedAndBeLateCount(IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private int GetValidArrivedAndBeLateCount<T>(IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var totalValidArrivedAndBeLateCount = 0;
             var totalTryCalssEffectiveCount = 0;
@@ -73,7 +76,7 @@ namespace ETMS.Business
         /// </summary>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private int GetValidArrivedAndBeLateCount(EtTeacherSalaryClassTimes myClassTimes)
+        private int GetValidArrivedAndBeLateCount<T>(T myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var totalValidArrivedAndBeLateCount = myClassTimes.ArrivedAndBeLateCount;
             if (_globalConfig.IncludeArrivedTryCalssStudent == EmBool.False)
@@ -226,9 +229,14 @@ namespace ETMS.Business
             return 0;
         }
 
-        private EtTeacherSalaryPayrollUserPerformanceDetail GetPerformanceDetail(EtTeacherSalaryClassTimes myClassTimes, byte computeMode,
-            byte computeType, decimal itemComputeValue = 0)
+        private EtTeacherSalaryPayrollUserPerformanceDetail GetPerformanceDetail<T>(T myClassTimes, byte computeMode,
+            byte computeType, decimal itemComputeValue = 0) where T : BaseTeacherSalaryClassTimes
         {
+            var courseId = 0L;
+            if (myClassTimes is EtTeacherSalaryClassTimes)
+            {
+                courseId = (myClassTimes as EtTeacherSalaryClassTimes).CourseId;
+            }
             return new EtTeacherSalaryPayrollUserPerformanceDetail()
             {
                 ArrivedAndBeLateCount = myClassTimes.ArrivedAndBeLateCount,
@@ -239,7 +247,7 @@ namespace ETMS.Business
                 ClassRecordId = myClassTimes.ClassRecordId,
                 ComputeMode = computeMode,
                 ComputeType = computeType,
-                CourseId = myClassTimes.CourseId,
+                CourseId = courseId,
                 DeSum = myClassTimes.DeSum,
                 EndTime = myClassTimes.EndTime,
                 IsDeleted = myClassTimes.IsDeleted,
@@ -263,8 +271,8 @@ namespace ETMS.Business
         /// 按合计值_无梯度计算
         /// </summary>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_None(long relationId, EtTeacherSalaryContractPerformanceSetDetail setRule,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_None<T>(long relationId, EtTeacherSalaryContractPerformanceSetDetail setRule,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRule);
             var output = new EtTeacherSalaryPayrollUserPerformance()
@@ -318,8 +326,8 @@ namespace ETMS.Business
         /// <param name="setRules"></param>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_MoreThanValue(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_MoreThanValue<T>(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var firstRule = setRules.First();
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRules);
@@ -373,8 +381,8 @@ namespace ETMS.Business
         /// <param name="setRules"></param>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_AllValue(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_AllValue<T>(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var firstRule = setRules.First();
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRules);
@@ -429,8 +437,8 @@ namespace ETMS.Business
         /// <param name="setRule"></param>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_None2(long relationId, EtTeacherSalaryContractPerformanceSetDetail setRule,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_None2<T>(long relationId, EtTeacherSalaryContractPerformanceSetDetail setRule,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRule);
             var output = new EtTeacherSalaryPayrollUserPerformance()
@@ -506,8 +514,8 @@ namespace ETMS.Business
         /// <param name="setRules"></param>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_MoreThanValue2(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_MoreThanValue2<T>(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var firstRule = setRules.First();
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRules);
@@ -584,8 +592,8 @@ namespace ETMS.Business
         /// <param name="setRules"></param>
         /// <param name="myClassTimes"></param>
         /// <returns></returns>
-        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_AllValue2(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
-            IEnumerable<EtTeacherSalaryClassTimes> myClassTimes)
+        private TeacherSalaryPayrollUserPerformanceView GetCalculateType_AllValue2<T>(long relationId, List<EtTeacherSalaryContractPerformanceSetDetail> setRules,
+            IEnumerable<T> myClassTimes) where T : BaseTeacherSalaryClassTimes
         {
             var firstRule = setRules.First();
             var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(setRules);
@@ -666,7 +674,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_0_0()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRule = _myTeacherSalaryContractPerformanceSetDetails.FirstOrDefault(p => p.RelationId == myClassId);
@@ -674,7 +682,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_None(myClassId, myClassSetRule, myClassTimes));
             }
             return output;
@@ -689,7 +697,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_0_1()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClassId).ToList();
@@ -697,7 +705,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_MoreThanValue(myClassId, myClassSetRules, myClassTimes)); ;
             }
             return output;
@@ -712,7 +720,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_0_2()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClassId).ToList();
@@ -720,7 +728,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_AllValue(myClassId, myClassSetRules, myClassTimes)); ;
             }
             return output;
@@ -804,7 +812,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_2_0()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_None(0, _myTeacherSalaryContractPerformanceSetDetails.First(), _mySalaryClassTimesList));
+            output.Add(GetCalculateType_None(0, _myTeacherSalaryContractPerformanceSetDetails.First(), _mySalaryClassTimesList2));
             return output;
         }
 
@@ -817,7 +825,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_2_1()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_MoreThanValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            output.Add(GetCalculateType_MoreThanValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList2));
             return output;
         }
 
@@ -830,7 +838,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_0_2_2()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_AllValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            output.Add(GetCalculateType_AllValue(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList2));
             return output;
         }
 
@@ -843,7 +851,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_0_0()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRule = _myTeacherSalaryContractPerformanceSetDetails.FirstOrDefault(p => p.RelationId == myClassId);
@@ -851,7 +859,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_None2(myClassId, myClassSetRule, myClassTimes));
             }
             return output;
@@ -866,7 +874,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_0_1()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClassId).ToList();
@@ -874,7 +882,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_MoreThanValue2(myClassId, myClassSetRules, myClassTimes)); ;
             }
             return output;
@@ -889,7 +897,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_0_2()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            var allClassIds = _mySalaryClassTimesList.GroupBy(p => p.ClassId).Select(p => p.Key);
+            var allClassIds = _mySalaryClassTimesList2.GroupBy(p => p.ClassId).Select(p => p.Key);
             foreach (var myClassId in allClassIds)
             {
                 var myClassSetRules = _myTeacherSalaryContractPerformanceSetDetails.Where(p => p.RelationId == myClassId).ToList();
@@ -897,7 +905,7 @@ namespace ETMS.Business
                 {
                     continue;
                 }
-                var myClassTimes = _mySalaryClassTimesList.Where(p => p.ClassId == myClassId);
+                var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
                 output.Add(GetCalculateType_AllValue2(myClassId, myClassSetRules, myClassTimes)); ;
             }
             return output;
@@ -981,7 +989,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_2_0()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_None2(0, _myTeacherSalaryContractPerformanceSetDetails.First(), _mySalaryClassTimesList));
+            output.Add(GetCalculateType_None2(0, _myTeacherSalaryContractPerformanceSetDetails.First(), _mySalaryClassTimesList2));
             return output;
         }
 
@@ -994,7 +1002,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_2_1()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_MoreThanValue2(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            output.Add(GetCalculateType_MoreThanValue2(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList2));
             return output;
         }
 
@@ -1007,7 +1015,7 @@ namespace ETMS.Business
         public List<TeacherSalaryPayrollUserPerformanceView> Process_1_2_2()
         {
             var output = new List<TeacherSalaryPayrollUserPerformanceView>();
-            output.Add(GetCalculateType_AllValue2(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList));
+            output.Add(GetCalculateType_AllValue2(0, _myTeacherSalaryContractPerformanceSetDetails, _mySalaryClassTimesList2));
             return output;
         }
     }

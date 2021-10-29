@@ -506,6 +506,7 @@ namespace ETMS.DataAccess.SysOp
         {
             var sql = new StringBuilder();
             sql.Append($"UPDATE EtTeacherSalaryClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTeacherSalaryClassTimes2 SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtTeacherSalaryClassDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtTeacherSalaryFundsItems SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtTeacherSalaryContractFixed SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");

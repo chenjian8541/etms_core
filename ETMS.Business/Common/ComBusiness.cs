@@ -293,7 +293,7 @@ namespace ETMS.Business.Common
 
         internal static async Task<EtUser> GetUser(DataTempBox<EtUser> tempBox, IUserDAL userDAL, long? userId)
         {
-            if (userId == null)
+            if (userId == null || userId == 0)
             {
                 return null;
             }
@@ -306,7 +306,7 @@ namespace ETMS.Business.Common
 
         internal static async Task<string> GetUserName(DataTempBox<EtUser> tempBox, IUserDAL userDAL, long? userId)
         {
-            if (userId == null)
+            if (userId == null || userId == 0)
             {
                 return string.Empty;
             }

@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
@@ -52,9 +53,198 @@ namespace ETMS.Business.EventConsumer
             if (classRecord.Status == EmClassRecordStatus.Revoked)
             {
                 await _teacherSalaryClassDAL.DelTeacherSalaryClassTimes(request.ClassRecordId);
+                await _teacherSalaryClassDAL.DelTeacherSalaryClassTimes2(request.ClassRecordId);
                 return;
             }
             var classRecordStudent = await _classRecordDAL.GetClassRecordStudents(request.ClassRecordId);
+            if (classRecordStudent == null || classRecordStudent.Count == 0)
+            {
+                await _teacherSalaryClassDAL.DelTeacherSalaryClassTimes(request.ClassRecordId);
+                await _teacherSalaryClassDAL.DelTeacherSalaryClassTimes2(request.ClassRecordId);
+                return;
+            }
+            var statisticsViewOneCourse = GetStatisticsTeacherSalaryClassTimesOneCourse(classRecord, classRecordStudent);
+            await StatisticsTeacherSalaryClassTimesConsumerEvent2(classRecord, statisticsViewOneCourse);
+            await StatisticsTeacherSalaryClassTimesConsumerEvent1(classRecord, classRecordStudent, statisticsViewOneCourse);
+        }
+
+        private List<EtTeacherSalaryClassTimes> _tempEntitysList;
+
+        /// <summary>
+        /// 按班级和课程分析
+        /// </summary>
+        /// <param name="classRecord"></param>
+        /// <param name="classRecordStudent"></param>
+        /// <param name="statisticsView"></param>
+        /// <returns></returns>
+        public async Task StatisticsTeacherSalaryClassTimesConsumerEvent1(EtClassRecord classRecord,
+            List<EtClassRecordStudent> classRecordStudent, TempStatisticsTeacherSalaryClassTimesOneCourse statisticsView)
+        {
+            _tempEntitysList = new List<EtTeacherSalaryClassTimes>();
+            var ot = classRecord.ClassOt.Date;
+            var teacherIds = EtmsHelper.AnalyzeMuIds(classRecord.Teachers);
+            var myCourseIds = classRecordStudent.GroupBy(p => p.CourseId).Select(p => p.Key).ToList();
+            if (myCourseIds.Count == 1)
+            {
+                AddStatisticsTeacherSalaryClassTimesConsumerEvent1(classRecord, ot, teacherIds, myCourseIds[0], statisticsView);
+            }
+            else
+            {
+                //处理多门课程的情况
+                foreach (var myCourseId in myCourseIds)
+                {
+                    var myClassRecordStudent = classRecordStudent.Where(p => p.CourseId == myCourseId).ToList();
+                    if (myClassRecordStudent.Any())
+                    {
+                        var myStatisticsView = GetStatisticsTeacherSalaryClassTimesOneCourse(classRecord, myClassRecordStudent);
+                        AddStatisticsTeacherSalaryClassTimesConsumerEvent1(classRecord, ot, teacherIds, myCourseId, myStatisticsView);
+                    }
+                }
+            }
+            if (_tempEntitysList.Any())
+            {
+                await _teacherSalaryClassDAL.SaveTeacherSalaryClassTimes(classRecord.Id, _tempEntitysList);
+            }
+        }
+
+        private void AddStatisticsTeacherSalaryClassTimesConsumerEvent1(EtClassRecord classRecord, DateTime ot,
+            List<long> teacherIds, long myCourseId, TempStatisticsTeacherSalaryClassTimesOneCourse statisticsView)
+        {
+            if (teacherIds.Count == 1)
+            {
+                _tempEntitysList.Add(new EtTeacherSalaryClassTimes()
+                {
+                    TeacherId = teacherIds[0],
+                    CourseId = myCourseId,
+                    ArrivedCount = statisticsView.ArrivedCount,
+                    ArrivedAndBeLateCount = statisticsView.ArrivedAndBeLateCount,
+                    BeLateCount = statisticsView.BeLateCount,
+                    ClassId = classRecord.ClassId,
+                    ClassRecordId = classRecord.Id,
+                    IsDeleted = EmIsDeleted.Normal,
+                    DeSum = statisticsView.DeSum,
+                    LeaveCount = statisticsView.LeaveCount,
+                    MakeUpStudentCount = statisticsView.MakeUpStudentCount,
+                    NotArrivedCount = statisticsView.NotArrivedCount,
+                    Ot = ot,
+                    StudentClassTimes = statisticsView.StudentClassTimes,
+                    TeacherClassTimes = classRecord.ClassTimes,
+                    TenantId = classRecord.TenantId,
+                    TryCalssStudentCount = statisticsView.TryCalssStudentCount,
+                    TryCalssEffectiveCount = statisticsView.TryCalssEffectiveCount,
+                    MakeUpEffectiveCount = statisticsView.MakeUpEffectiveCount,
+                    EndTime = classRecord.EndTime,
+                    StartTime = classRecord.StartTime,
+                    Week = classRecord.Week
+                });
+            }
+            else
+            {
+                foreach (var teacherId in teacherIds)
+                {
+                    _tempEntitysList.Add(new EtTeacherSalaryClassTimes()
+                    {
+                        TeacherId = teacherId,
+                        CourseId = myCourseId,
+                        ArrivedCount = statisticsView.ArrivedCount,
+                        ArrivedAndBeLateCount = statisticsView.ArrivedAndBeLateCount,
+                        BeLateCount = statisticsView.BeLateCount,
+                        ClassId = classRecord.ClassId,
+                        ClassRecordId = classRecord.Id,
+                        IsDeleted = EmIsDeleted.Normal,
+                        DeSum = statisticsView.DeSum,
+                        LeaveCount = statisticsView.LeaveCount,
+                        MakeUpStudentCount = statisticsView.MakeUpStudentCount,
+                        NotArrivedCount = statisticsView.NotArrivedCount,
+                        Ot = ot,
+                        StudentClassTimes = statisticsView.StudentClassTimes,
+                        TeacherClassTimes = classRecord.ClassTimes,
+                        TenantId = classRecord.TenantId,
+                        TryCalssStudentCount = statisticsView.TryCalssStudentCount,
+                        TryCalssEffectiveCount = statisticsView.TryCalssEffectiveCount,
+                        MakeUpEffectiveCount = statisticsView.MakeUpEffectiveCount,
+                        EndTime = classRecord.EndTime,
+                        StartTime = classRecord.StartTime,
+                        Week = classRecord.Week
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// 按班级分析
+        /// </summary>
+        /// <param name="classRecord"></param>
+        /// <param name="statisticsView"></param>
+        /// <returns></returns>
+        public async Task StatisticsTeacherSalaryClassTimesConsumerEvent2(EtClassRecord classRecord, TempStatisticsTeacherSalaryClassTimesOneCourse statisticsView)
+        {
+            var entitys = new List<EtTeacherSalaryClassTimes2>();
+            var ot = classRecord.ClassOt.Date;
+            var teacherIds = EtmsHelper.AnalyzeMuIds(classRecord.Teachers);
+            if (teacherIds.Count == 1)
+            {
+                entitys.Add(new EtTeacherSalaryClassTimes2()
+                {
+                    TeacherId = teacherIds[0],
+                    ArrivedCount = statisticsView.ArrivedCount,
+                    ArrivedAndBeLateCount = statisticsView.ArrivedAndBeLateCount,
+                    BeLateCount = statisticsView.BeLateCount,
+                    ClassId = classRecord.ClassId,
+                    ClassRecordId = classRecord.Id,
+                    IsDeleted = EmIsDeleted.Normal,
+                    DeSum = statisticsView.DeSum,
+                    LeaveCount = statisticsView.LeaveCount,
+                    MakeUpStudentCount = statisticsView.MakeUpStudentCount,
+                    NotArrivedCount = statisticsView.NotArrivedCount,
+                    Ot = ot,
+                    StudentClassTimes = statisticsView.StudentClassTimes,
+                    TeacherClassTimes = classRecord.ClassTimes,
+                    TenantId = classRecord.TenantId,
+                    TryCalssStudentCount = statisticsView.TryCalssStudentCount,
+                    TryCalssEffectiveCount = statisticsView.TryCalssEffectiveCount,
+                    MakeUpEffectiveCount = statisticsView.MakeUpEffectiveCount,
+                    EndTime = classRecord.EndTime,
+                    StartTime = classRecord.StartTime,
+                    Week = classRecord.Week
+                });
+            }
+            else
+            {
+                foreach (var teacherId in teacherIds)
+                {
+                    entitys.Add(new EtTeacherSalaryClassTimes2()
+                    {
+                        TeacherId = teacherId,
+                        ArrivedCount = statisticsView.ArrivedCount,
+                        ArrivedAndBeLateCount = statisticsView.ArrivedAndBeLateCount,
+                        BeLateCount = statisticsView.BeLateCount,
+                        ClassId = classRecord.ClassId,
+                        ClassRecordId = classRecord.Id,
+                        IsDeleted = EmIsDeleted.Normal,
+                        DeSum = statisticsView.DeSum,
+                        LeaveCount = statisticsView.LeaveCount,
+                        MakeUpStudentCount = statisticsView.MakeUpStudentCount,
+                        NotArrivedCount = statisticsView.NotArrivedCount,
+                        Ot = ot,
+                        StudentClassTimes = statisticsView.StudentClassTimes,
+                        TeacherClassTimes = classRecord.ClassTimes,
+                        TenantId = classRecord.TenantId,
+                        TryCalssStudentCount = statisticsView.TryCalssStudentCount,
+                        TryCalssEffectiveCount = statisticsView.TryCalssEffectiveCount,
+                        MakeUpEffectiveCount = statisticsView.MakeUpEffectiveCount,
+                        EndTime = classRecord.EndTime,
+                        StartTime = classRecord.StartTime,
+                        Week = classRecord.Week
+                    });
+                }
+            }
+
+            await _teacherSalaryClassDAL.SaveTeacherSalaryClassTimes2(classRecord.Id, entitys);
+        }
+
+        public TempStatisticsTeacherSalaryClassTimesOneCourse GetStatisticsTeacherSalaryClassTimesOneCourse(EtClassRecord classRecord, List<EtClassRecordStudent> classRecordStudent)
+        {
             var studentClassTimes = 0M;
             var deSum = 0M;
             var arrivedAndBeLateCount = 0;
@@ -104,75 +294,20 @@ namespace ETMS.Business.EventConsumer
                     }
                 }
             }
-            var entitys = new List<EtTeacherSalaryClassTimes>();
-
-            var ot = classRecord.ClassOt.Date;
-            var teacherIds = EtmsHelper.AnalyzeMuIds(classRecord.Teachers);
-            var courseIds = EtmsHelper.AnalyzeMuIds(classRecord.CourseList);
-            if (teacherIds.Count == 1 && courseIds.Count == 1)  //大部分情况下是一位老师 一门课程
+            return new TempStatisticsTeacherSalaryClassTimesOneCourse()
             {
-                entitys.Add(new EtTeacherSalaryClassTimes()
-                {
-                    TeacherId = teacherIds[0],
-                    CourseId = courseIds[0],
-                    ArrivedCount = arrivedCount,
-                    ArrivedAndBeLateCount = arrivedAndBeLateCount,
-                    BeLateCount = beLateCount,
-                    ClassId = classRecord.ClassId,
-                    ClassRecordId = classRecord.Id,
-                    IsDeleted = EmIsDeleted.Normal,
-                    DeSum = deSum,
-                    LeaveCount = leaveCount,
-                    MakeUpStudentCount = makeUpStudentCount,
-                    NotArrivedCount = notArrivedCount,
-                    Ot = ot,
-                    StudentClassTimes = studentClassTimes,
-                    TeacherClassTimes = classRecord.ClassTimes,
-                    TenantId = classRecord.TenantId,
-                    TryCalssStudentCount = tryCalssStudentCount,
-                    TryCalssEffectiveCount = tryCalssEffectiveCount,
-                    MakeUpEffectiveCount = makeUpEffectiveCount,
-                    EndTime = classRecord.EndTime,
-                    StartTime = classRecord.StartTime,
-                    Week = classRecord.Week,
-                });
-            }
-            else
-            {
-                foreach (var teacherId in teacherIds)
-                {
-                    foreach (var courseId in courseIds)
-                    {
-                        entitys.Add(new EtTeacherSalaryClassTimes()
-                        {
-                            TeacherId = teacherId,
-                            CourseId = courseId,
-                            ArrivedCount = arrivedCount,
-                            ArrivedAndBeLateCount = arrivedAndBeLateCount,
-                            BeLateCount = beLateCount,
-                            ClassId = classRecord.ClassId,
-                            ClassRecordId = classRecord.Id,
-                            IsDeleted = EmIsDeleted.Normal,
-                            DeSum = deSum,
-                            LeaveCount = leaveCount,
-                            MakeUpStudentCount = makeUpStudentCount,
-                            NotArrivedCount = notArrivedCount,
-                            Ot = ot,
-                            StudentClassTimes = studentClassTimes,
-                            TeacherClassTimes = classRecord.ClassTimes,
-                            TenantId = classRecord.TenantId,
-                            TryCalssStudentCount = tryCalssStudentCount,
-                            TryCalssEffectiveCount = tryCalssEffectiveCount,
-                            MakeUpEffectiveCount = makeUpEffectiveCount,
-                            EndTime = classRecord.EndTime,
-                            StartTime = classRecord.StartTime,
-                            Week = classRecord.Week
-                        });
-                    }
-                }
-            }
-
-            await _teacherSalaryClassDAL.SaveTeacherSalaryClassTimes(request.ClassRecordId, entitys);
+                ArrivedAndBeLateCount = arrivedAndBeLateCount,
+                ArrivedCount = arrivedCount,
+                BeLateCount = beLateCount,
+                DeSum = deSum,
+                LeaveCount = leaveCount,
+                MakeUpEffectiveCount = makeUpEffectiveCount,
+                MakeUpStudentCount = makeUpStudentCount,
+                NotArrivedCount = notArrivedCount,
+                StudentClassTimes = studentClassTimes,
+                TryCalssEffectiveCount = tryCalssEffectiveCount,
+                TryCalssStudentCount = tryCalssStudentCount
+            };
         }
 
         public async Task StatisticsTeacherSalaryClassDayConsumerEvent(StatisticsTeacherSalaryClassDayEvent request)

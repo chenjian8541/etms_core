@@ -160,9 +160,14 @@ namespace Etms.Tools.Test
             }
             foreach (var tenant in tenantList)
             {
-                _userDAL.ResetTenantId(tenant.Id);
-                ProcessUser(tenant.Id);
+                ExecuteTeacherSalaryClassTimes(tenant.Id);
             }
+        }
+
+        private void ExecuteTeacherSalaryClassTimes(int tenantId)
+        {
+            _classRecordDAL.ResetTenantId(tenantId);
+            ProcessClassRecord(tenantId);
         }
 
         private void ProcessUser(int tenantId)

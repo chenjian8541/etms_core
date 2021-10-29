@@ -95,10 +95,9 @@ namespace Etms.Tools.Test
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            //new EtmsProcess().ProcessT();
+            new EtmsProcess().ProcessT();
 
-
-            Console.WriteLine(DateTime.Now.ToString("yyMMddHHmmss"));
+            Console.WriteLine("处理完成");
             Console.Read();
         }
 

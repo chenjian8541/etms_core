@@ -830,9 +830,12 @@ namespace ETMS.Business
             var config = await GetTeacherSalaryFundsItems(false);
             var isOpenContractPerformance = config.IsOpenContractPerformance;
             IEnumerable<EtTeacherSalaryClassTimes> teacherSalaryClassTimesList = null;
+            IEnumerable<EtTeacherSalaryClassTimes2> teacherSalaryClassTimesList2 = null;
             if (isOpenContractPerformance)
             {
                 teacherSalaryClassTimesList = await _teacherSalaryClassDAL.GetTeacherSalaryClassTimes(request.UserIds,
+                    request.StartOt.Value, request.EndOt.Value);
+                teacherSalaryClassTimesList2 = await _teacherSalaryClassDAL.GetTeacherSalaryClassTimes2(request.UserIds,
                     request.StartOt.Value, request.EndOt.Value);
             }
             var allTeacherSalaryFundsItem = new List<TeacherSalaryFundsItemOutput>();
@@ -846,7 +849,7 @@ namespace ETMS.Business
             }
             var globalConfig = await _appConfig2BLL.GetTeacherSalaryGlobalRule();
             var processHandler = new UserSalarySettlementHandler(_userDAL, _teacherSalaryPayrollDAL, _teacherSalaryContractDAL,
-                isOpenContractPerformance, allTeacherSalaryFundsItem, globalConfig, teacherSalaryClassTimesList);
+                isOpenContractPerformance, allTeacherSalaryFundsItem, globalConfig, teacherSalaryClassTimesList, teacherSalaryClassTimesList2);
             return await processHandler.Process(request);
         }
 
