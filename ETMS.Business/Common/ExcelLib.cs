@@ -893,6 +893,11 @@ namespace ETMS.Business.Common
                     }
                 }
 
+                if (myStudentCourseItem.SurplusQuantity > myStudentCourseItem.BuyQuantity + myStudentCourseItem.GiveQuantity)
+                {
+                    strError.Append($"第{readRowIndex + 1}课程剩余数量不能大于购买数量+赠送数量</br>");
+                }
+
                 outStudentContent.Add(myStudentCourseItem);
                 readRowIndex++;
             }
