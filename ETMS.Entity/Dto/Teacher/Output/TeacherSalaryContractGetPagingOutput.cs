@@ -28,6 +28,11 @@ namespace ETMS.Entity.Dto.Teacher.Output
         /// </summary>
         public bool IsTeacher { get; set; }
 
+        /// <summary>
+        /// 是否设置绩效工资
+        /// </summary>
+        public bool IsSetContractPerformance { get; set; }
+
         public string IsTeacherDesc { get; set; }
 
         /// <summary>

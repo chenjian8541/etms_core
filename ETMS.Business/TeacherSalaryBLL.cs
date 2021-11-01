@@ -285,7 +285,8 @@ namespace ETMS.Business
                         IsTeacherDesc = p.IsTeacher ? "是" : "否",
                         Name = p.Name,
                         Phone = p.Phone,
-                        SalaryContractStatus = EmBool.False
+                        SalaryContractStatus = EmBool.False,
+                        IsSetContractPerformance = false
                     };
                     var teacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(p.Id);
                     if (teacherSalaryContractSetBucket == null || teacherSalaryContractSetBucket.TeacherSalaryContractFixeds == null ||
@@ -300,11 +301,13 @@ namespace ETMS.Business
                     {
                         if (myFundsItem.Id == SystemConfig.ComConfig.TeacherSalaryPerformanceDefaultId) //绩效工资
                         {
+
                             if (teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet != null &&
                                 teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails != null &&
                                 teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Count > 0)
                             {
                                 item.SetSalaryContract(index, teacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSet.ComputeDesc);
+                                item.IsSetContractPerformance = true;
                             }
                             else
                             {
@@ -660,6 +663,12 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request)
         {
+            var teacher = await _userDAL.GetUser(request.TeacherId);
+            if (teacher == null)
+            {
+                return ResponseBase.CommonError("员工不存在");
+            }
+
             var config = await GetTeacherSalaryFundsItems(false);
             if (config.IsOpenContractPerformance)
             {
@@ -798,6 +807,22 @@ namespace ETMS.Business
             }
 
             await _teacherSalaryContractDAL.SaveTeacherSalaryContract(request.TeacherId, teacherSalaryContractFixeds, performanceSet, performanceSetDetails);
+
+            await _userOperationLogDAL.AddUserLog(request, $"设置员工[{teacher.Name}]绩效工资", EmUserOperationType.TeacherSalary);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractClear(TeacherSalaryContractClearRequest request)
+        {
+            var teacher = await _userDAL.GetUser(request.TeacherId);
+            if (teacher == null)
+            {
+                return ResponseBase.CommonError("员工不存在");
+            }
+
+            await _teacherSalaryContractDAL.ClearTeacherSalaryContractPerformance(request.TeacherId);
+
+            await _userOperationLogDAL.AddUserLog(request, $"清除员工[{teacher.Name}]绩效工资设置信息", EmUserOperationType.TeacherSalary);
             return ResponseBase.Success();
         }
 

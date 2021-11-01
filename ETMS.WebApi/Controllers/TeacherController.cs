@@ -151,6 +151,8 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+
+
         public async Task<ResponseBase> TeacherSalaryContractGetDetail(TeacherSalaryContractGetDetailRequest request)
         {
             try
@@ -185,6 +187,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
                 return await _teacherSalaryBLL.TeacherSalaryContractSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSalaryContractClear(TeacherSalaryContractClearRequest request)
+        {
+            try
+            {
+                _teacherSalaryBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSalaryBLL.TeacherSalaryContractClear(request);
             }
             catch (Exception ex)
             {

@@ -14,5 +14,7 @@ namespace ETMS.IDataAccess.TeacherSalary
 
         Task<bool> SaveTeacherSalaryContract(long teacherId, List<EtTeacherSalaryContractFixed> fixeds, EtTeacherSalaryContractPerformanceSet performanceSet,
             List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails);
+
+        Task ClearTeacherSalaryContractPerformance(long teacherId);
     }
 }

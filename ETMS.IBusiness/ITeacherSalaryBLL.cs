@@ -34,6 +34,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> TeacherSalaryContractSave(TeacherSalaryContractSaveRequest request);
 
+        Task<ResponseBase> TeacherSalaryContractClear(TeacherSalaryContractClearRequest request);
+
         Task<ResponseBase> TeacherSalaryPayrollGoSettlement(TeacherSalaryPayrollGoSettlementRequest request);
 
         Task<ResponseBase> TeacherSalaryPayrollGetPaging(TeacherSalaryPayrollGetPagingRequest request);

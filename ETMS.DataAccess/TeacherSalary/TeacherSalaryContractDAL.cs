@@ -67,5 +67,14 @@ namespace ETMS.DataAccess.TeacherSalary
             await UpdateCache(_tenantId, teacherId);
             return true;
         }
+
+        public async Task ClearTeacherSalaryContractPerformance(long teacherId)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSet WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
+            strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSetDetail WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
+            await _dbWrapper.Execute(strSql.ToString());
+            await UpdateCache(_tenantId, teacherId);
+        }
     }
 }
