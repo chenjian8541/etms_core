@@ -131,7 +131,8 @@ namespace ETMS.Business.EtmsManage
                     TencentCloudId = p.TencentCloudId,
                     Value = p.Id,
                     Label = p.Name,
-                    UserName = myUser?.Name
+                    UserName = myUser?.Name,
+                    LastOpTimeDesc = p.LastOpTime.EtmsToString()
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -464,7 +465,8 @@ namespace ETMS.Business.EtmsManage
                 AICloudType = p.AICloudType,
                 BaiduCloudId = p.BaiduCloudId,
                 MaxUserCount = p.MaxUserCount,
-                TencentCloudId = p.TencentCloudId
+                TencentCloudId = p.TencentCloudId,
+                LastOpTimeDesc = p.LastOpTime.EtmsToString()
             };
             return ResponseBase.Success(output);
         }

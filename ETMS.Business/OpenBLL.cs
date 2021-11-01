@@ -338,7 +338,8 @@ namespace ETMS.Business
                         SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
                         TagItems = ComBusiness4.GetTagView(p.TagContent),
                         CoursePriceRules = myPriceRuleDesc,
-                        Points = p.Points
+                        Points = p.Points,
+                        RelatedId = p.RelatedId
                     });
                 }
             }
@@ -369,12 +370,12 @@ namespace ETMS.Business
                 ProductType = p.ProductType,
                 OriginalPriceDesc = p.OriginalPriceDesc,
                 ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
-                ImgDetailUrL = EtmsHelper2.GetImgUrl(p.ImgDetail),
                 ProductTypeDesc = p.ProductTypeDesc,
                 SpecItems = ComBusiness4.GetSpecView(p.SpecContent),
                 TagItems = ComBusiness4.GetTagView(p.TagContent),
                 CoursePriceRules = myPriceRuleDesc,
-                Points = p.Points
+                Points = p.Points,
+                RelatedId = p.RelatedId
             };
             return ResponseBase.Success(output);
         }

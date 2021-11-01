@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess
         Task<bool> IsUserCanNotBeDelete2(long userId);
 
         Task<Tuple<IEnumerable<UserOperationLogView>, int>> GetPaging(RequestPagingBase request);
+
+        Task<DateTime?> GetLastOpTime(long tenantId);
     }
 }

@@ -34,5 +34,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<bool> EditTenantUserId(List<int> tenantIds, long userId);
 
         Task UpdateTenantLcswInfo(int id, int newLcswApplyStatus, byte newLcswOpenStatus);
+
+        Task UpdateTenantLastOpTime(int id, DateTime lastOpTime);
     }
 }

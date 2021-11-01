@@ -8,7 +8,7 @@ namespace ETMS.Entity.Dto.Parent4.Output
 {
     public class ParentBuyMallGoodsSubmitOutput
     {
-        public long MallGoodsId { get; set; }
+        public long MallOrderId { get; set; }
 
         public string OrderNo { get; set; }
     }

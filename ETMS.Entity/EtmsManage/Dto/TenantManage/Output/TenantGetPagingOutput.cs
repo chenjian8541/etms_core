@@ -105,5 +105,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string Label { get; set; }
 
         public string UserName { get; set; }
+
+        /// <summary>
+        /// 最后一次操作时间
+        /// </summary>
+        public string LastOpTimeDesc { get; set; }
     }
 }

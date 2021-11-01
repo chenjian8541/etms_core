@@ -107,5 +107,10 @@ namespace ETMS.Entity.EtmsManage.View
         public int BaiduCloudId { get; set; }
 
         public long UserId { get; set; }
+
+        /// <summary>
+        /// 最后一次操作时间
+        /// </summary>
+        public DateTime? LastOpTime { get; set; }
     }
 }

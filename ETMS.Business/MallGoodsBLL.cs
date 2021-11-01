@@ -558,5 +558,34 @@ namespace ETMS.Business
             }
             return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsGetPagingOutput>(pagingData.Item2, output));
         }
+
+        public async Task<ResponseBase> MallGoodsGetPaging2(MallGoodsGetPagingRequest request)
+        {
+            var pagingData = await _mallGoodsDAL.GetPagingSimple(request);
+            var output = new List<MallGoodsGetPaging2Output>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new MallGoodsGetPaging2Output()
+                    {
+                        Id = p.Id,
+                        ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                        Name = p.Name,
+                        OrderIndex = p.OrderIndex,
+                        OriginalPriceDesc = p.OriginalPriceDesc,
+                        Price = p.Price,
+                        PriceDesc = p.PriceDesc,
+                        ProductType = p.ProductType,
+                        ProductTypeDesc = p.ProductTypeDesc,
+                        RelatedId = p.RelatedId,
+                        RelatedName = p.RelatedName,
+                        GId = p.GId,
+                        Points = p.Points
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsGetPaging2Output>(pagingData.Item2, output));
+        }
     }
 }

@@ -88,6 +88,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public long? UserId { get; set; }
 
+        public int? LastOpLimitMonth { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -173,6 +175,12 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (UserId != null)
             {
                 condition.Append($" AND UserId = {UserId.Value}");
+            }
+            if (LastOpLimitMonth != null)
+            {
+                var time = DateTime.Now.AddMonths(-LastOpLimitMonth.Value);
+                var timeDesc = time.EtmsToString();
+                condition.Append($" AND (LastOpTime <= '{timeDesc}' OR LastOpTime IS NULL) AND Ot <= '{timeDesc}'");
             }
             return condition.ToString();
         }

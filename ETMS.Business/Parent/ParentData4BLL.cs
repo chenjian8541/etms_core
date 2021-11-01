@@ -355,7 +355,7 @@ namespace ETMS.Business.Parent
             });
             return ResponseBase.Success(new ParentBuyMallGoodsSubmitOutput()
             {
-                MallGoodsId = mallOrderId,
+                MallOrderId = mallOrderId,
                 OrderNo = mallOrderEntity.OrderNo
             });
         }

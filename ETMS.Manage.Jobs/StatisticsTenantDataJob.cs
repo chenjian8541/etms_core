@@ -75,6 +75,7 @@ namespace ETMS.Manage.Jobs
                 {
                     StatisticsDate = _now
                 });
+                _eventPublisher.Publish(new SyncTenantLastOpTimeEvent(tenant.Id));
             }
         }
     }

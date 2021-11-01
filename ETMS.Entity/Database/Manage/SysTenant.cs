@@ -123,5 +123,10 @@ namespace ETMS.Entity.Database.Manage
         /// 短信签名
         /// </summary>
         public string SmsSignature { get; set; }
+
+        /// <summary>
+        /// 最后一次操作时间
+        /// </summary>
+        public DateTime? LastOpTime { get; set; }
     }
 }

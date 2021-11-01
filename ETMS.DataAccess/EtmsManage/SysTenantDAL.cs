@@ -132,5 +132,11 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Execute($"UPDATE SysTenant SET LcswApplyStatus = {newLcswApplyStatus} ,LcswOpenStatus = {newLcswOpenStatus} WHERE Id = {id} ");
             await UpdateCache(id);
         }
+
+        public async Task UpdateTenantLastOpTime(int id, DateTime lastOpTime)
+        {
+            await this.Execute($"UPDATE SysTenant SET LastOpTime = '{lastOpTime.EtmsToString()}' WHERE Id = {id} ");
+            await UpdateCache(id);
+        }
     }
 }

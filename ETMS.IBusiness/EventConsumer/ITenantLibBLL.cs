@@ -15,5 +15,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task<IEnumerable<EtClass>> GetStudentInClass(long studentId);
 
         Task ComSqlHandleConsumerEvent(ComSqlHandleEvent request);
+
+        Task SyncTenantLastOpTimeConsumerEvent(SyncTenantLastOpTimeEvent request);
     }
 }

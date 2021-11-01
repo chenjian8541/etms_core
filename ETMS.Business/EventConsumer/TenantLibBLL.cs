@@ -2,6 +2,7 @@
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.EtmsManage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +23,26 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IComDAL _comDAL;
 
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
+        private readonly ISysTenantDAL _sysTenantDAL;
+
         public TenantLibBLL(IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL, INoticeConfigDAL noticeConfigDAL,
-            IComDAL comDAL)
+            IComDAL comDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
             this._classDAL = classDAL;
             this._noticeConfigDAL = noticeConfigDAL;
             this._comDAL = comDAL;
+            this._userOperationLogDAL = userOperationLogDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _classDAL, _noticeConfigDAL, _comDAL);
+            this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _classDAL, _noticeConfigDAL, _comDAL,
+                _userOperationLogDAL);
         }
 
         public async Task<EtNoticeConfig> NoticeConfigGet(int type, byte peopleType, int scenesType)
@@ -50,6 +58,15 @@ namespace ETMS.Business.EventConsumer
         public async Task ComSqlHandleConsumerEvent(ComSqlHandleEvent request)
         {
             await _comDAL.ExecuteSql(request.Sql);
+        }
+
+        public async Task SyncTenantLastOpTimeConsumerEvent(SyncTenantLastOpTimeEvent request)
+        {
+            var lastOpTime = await _userOperationLogDAL.GetLastOpTime(request.TenantId);
+            if (lastOpTime != null)
+            {
+                await _sysTenantDAL.UpdateTenantLastOpTime(request.TenantId, lastOpTime.Value);
+            }
         }
     }
 }

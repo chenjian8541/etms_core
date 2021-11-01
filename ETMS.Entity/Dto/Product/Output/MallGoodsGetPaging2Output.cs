@@ -1,15 +1,15 @@
-﻿using ETMS.Entity.Dto.Product.Output;
-using ETMS.Entity.View.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.Open2.Output
+namespace ETMS.Entity.Dto.Product.Output
 {
-    public class MallGoodsDetailGetOutput
+    public class MallGoodsGetPaging2Output
     {
+        public long Id { get; set; }
+
         public string GId { get; set; }
 
         /// <summary>
@@ -19,7 +19,13 @@ namespace ETMS.Entity.Dto.Open2.Output
 
         public string ProductTypeDesc { get; set; }
 
+        public long RelatedId { get; set; }
+
+        public string RelatedName { get; set; }
+
         public string Name { get; set; }
+
+        public long OrderIndex { get; set; }
 
         public string OriginalPriceDesc { get; set; }
 
@@ -28,16 +34,8 @@ namespace ETMS.Entity.Dto.Open2.Output
         public string PriceDesc { get; set; }
 
         public int Points { get; set; }
-        public List<MallGoodsTagItem> TagItems { get; set; }
-
-        public List<MallGoodsSpecItem> SpecItems { get; set; }
-
-        public long RelatedId { get; set; }
 
         public string ImgCoverUrl { get; set; }
 
-        public string GsContent { get; set; }
-
-        public List<PriceRuleDesc> CoursePriceRules { get; set; }
     }
 }

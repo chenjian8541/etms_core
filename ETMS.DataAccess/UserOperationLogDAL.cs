@@ -67,5 +67,15 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<UserOperationLogView>("UserOperationLogView", "*", request.PageSize, request.PageCurrent, "Ot DESC", request.ToString());
         }
+
+        public async Task<DateTime?> GetLastOpTime(long tenantId)
+        {
+            var obj = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 Ot FROM EtUserOperationLog WHERE TenantId = {_tenantId} ORDER BY Id DESC");
+            if (obj == null)
+            {
+                return null;
+            }
+            return Convert.ToDateTime(obj);
+        }
     }
 }

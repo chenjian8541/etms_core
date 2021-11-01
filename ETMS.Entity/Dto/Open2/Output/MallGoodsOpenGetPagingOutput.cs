@@ -30,6 +30,8 @@ namespace ETMS.Entity.Dto.Open2.Output
         public int Points { get; set; }
         public string ImgCoverUrl { get; set; }
 
+        public long RelatedId { get; set; }
+
         public List<MallGoodsTagItem> TagItems { get; set; }
 
         public List<MallGoodsSpecItem> SpecItems { get; set; }
