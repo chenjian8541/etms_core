@@ -6,6 +6,7 @@ using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.MallGoodsDAL;
 using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
@@ -40,9 +41,14 @@ namespace ETMS.Business
 
         private readonly IUserDAL _userDAL;
 
+        private readonly IMallOrderDAL _mallOrderDAL;
+
+        private readonly IIncomeLogDAL _incomeLogDAL;
+
         public StudentContractsSelfHelpBLL(IStudentDAL studentDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
           IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog,
-          IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, ISuitDAL suitDAL, IUserDAL userDAL)
+          IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, ISuitDAL suitDAL, IUserDAL userDAL, IMallOrderDAL mallOrderDAL,
+          IIncomeLogDAL incomeLogDAL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -55,12 +61,14 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._suitDAL = suitDAL;
             this._userDAL = userDAL;
+            this._mallOrderDAL = mallOrderDAL;
+            this._incomeLogDAL = incomeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _goodsDAL, _costDAL, _studentCourseDAL,
-                _orderDAL, _studentPointsLog, _classDAL, _suitDAL, _userDAL);
+                _orderDAL, _studentPointsLog, _classDAL, _suitDAL, _userDAL, _mallOrderDAL, _incomeLogDAL);
         }
 
         private StringBuilder buyCourse = new StringBuilder();
@@ -91,7 +99,7 @@ namespace ETMS.Business
             var myCoursrBucket = await _courseDAL.GetCourse(suitDetail.ProductId);
             if (myCoursrBucket == null || myCoursrBucket.Item1 == null || myCoursrBucket.Item2 == null)
             {
-                LOG.Log.Error($"[在线购课]套餐中的课程不存在", _request, this.GetType());
+                LOG.Log.Error($"[在线商城]套餐中的课程不存在", _request, this.GetType());
                 return;
             }
             var course = myCoursrBucket.Item1;
@@ -99,7 +107,7 @@ namespace ETMS.Business
             var priceRule = courseRules.FirstOrDefault(p => p.Id == suitDetail.CoursePriceRuleId);
             if (priceRule == null)
             {
-                LOG.Log.Error($"[在线购课]套餐中的课程收费方式不存在", _request, this.GetType());
+                LOG.Log.Error($"[在线商城]套餐中的课程收费方式不存在", _request, this.GetType());
                 return;
             }
             if (course.Type == EmCourseType.OneToOne)
@@ -214,7 +222,7 @@ namespace ETMS.Business
             var goods = await _goodsDAL.GetGoods(suitDetail.ProductId);
             if (goods == null)
             {
-                LOG.Log.Error($"[在线购课]套餐中的商品不存在", _request, this.GetType());
+                LOG.Log.Error($"[在线商城]套餐中的商品不存在", _request, this.GetType());
                 return;
             }
             var consumeDetail = new EnrolmentGoods()
@@ -244,7 +252,7 @@ namespace ETMS.Business
             var cost = await _costDAL.GetCost(suitDetail.ProductId);
             if (cost == null)
             {
-                LOG.Log.Error($"[在线购课]套餐中的费用不存在", _request, this.GetType());
+                LOG.Log.Error($"[在线商城]套餐中的费用不存在", _request, this.GetType());
                 return;
             }
             var consumeDetail = new EnrolmentCost()
@@ -374,7 +382,7 @@ namespace ETMS.Business
                     var courseBucket = await _courseDAL.GetCourse(mallOrder.RelatedId);
                     if (courseBucket == null || courseBucket.Item1 == null || courseBucket.Item2 == null)
                     {
-                        LOG.Log.Error("[在线购课]关联的课程不存在", request, this.GetType());
+                        LOG.Log.Error("[在线商城]关联的课程不存在", request, this.GetType());
                         return;
                     }
                     var course = courseBucket.Item1;
@@ -390,7 +398,7 @@ namespace ETMS.Business
                     var goods = await _goodsDAL.GetGoods(mallOrder.RelatedId);
                     if (goods == null)
                     {
-                        LOG.Log.Error("[在线购课]关联的物品不存在", request, this.GetType());
+                        LOG.Log.Error("[在线商城]关联的物品不存在", request, this.GetType());
                         return;
                     }
                     var consumeDetail12 = GetEnrolmentGoods(goods);
@@ -400,7 +408,7 @@ namespace ETMS.Business
                     var cost = await _costDAL.GetCost(mallOrder.RelatedId);
                     if (cost == null)
                     {
-                        LOG.Log.Error("[在线购课]关联的费用不存在", request, this.GetType());
+                        LOG.Log.Error("[在线商城]关联的费用不存在", request, this.GetType());
                         return;
                     }
                     var consumeDetail13 = GetEnrolmentCost(cost);
@@ -410,7 +418,7 @@ namespace ETMS.Business
                     var suitBucket = await _suitDAL.GetSuit(mallOrder.RelatedId);
                     if (suitBucket == null || suitBucket.Item1 == null || suitBucket.Item2 == null || suitBucket.Item2.Count == 0)
                     {
-                        LOG.Log.Error("[在线购课]关联的套餐不存在", request, this.GetType());
+                        LOG.Log.Error("[在线商城]关联的套餐不存在", request, this.GetType());
                         return;
                     }
                     var allProduct = suitBucket.Item2;
@@ -440,11 +448,11 @@ namespace ETMS.Business
                 CouponsIds = string.Empty,
                 IsDeleted = EmIsDeleted.Normal,
                 Ot = mallOrder.CreateOt,
-                Remark = mallOrder.Remark,
+                Remark = request.MallOrder.Remark,
                 TotalPoints = mallOrder.TotalPoints,
                 No = no,
                 StudentId = mallOrder.StudentId,
-                OrderType = EmOrderType.OnlineBuyMallGoods,
+                OrderType = EmOrderType.StudentEnrolment,
                 AptSum = mallOrder.AptSum,
                 ArrearsSum = 0,
                 BuyCost = EtmsHelper.DescPrefix(buyCost.ToString().TrimEnd('；'), "费用"),
@@ -457,7 +465,8 @@ namespace ETMS.Business
                 CreateOt = mallOrder.CreateTime,
                 PayAccountRechargeGive = 0,
                 PayAccountRechargeReal = 0,
-                PayAccountRechargeId = null
+                PayAccountRechargeId = null,
+                OrderSource = EmOrderSource.MallGoodsOrder
             };
 
             var myCourse = await _studentCourseDAL.GetStudentCourse(mallOrder.StudentId);
@@ -467,6 +476,7 @@ namespace ETMS.Business
             }
             var orderId = await _orderDAL.AddOrder(order, orderDetails);
 
+            await _mallOrderDAL.SetMallOrderOrderId(request.MallOrder.Id, orderId);
             //学员课程信息
             if (studentCourseDetails != null && studentCourseDetails.Count > 0)
             {
@@ -488,13 +498,34 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new StatisticsStudentEvent(order.TenantId) { OpType = EmStatisticsStudentType.StudentType });
             }
 
+            var incomeLogs = new List<EtIncomeLog>();
+            incomeLogs.Add(new EtIncomeLog()
+            {
+                AccountNo = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                No = no,
+                Ot = ot,
+                PayType = EmPayType.WeChat,
+                ProjectType = EmIncomeLogProjectType.StudentEnrolment,
+                Remark = "在线商城",
+                RepealOt = null,
+                OrderId = orderId,
+                RepealUserId = null,
+                Status = EmIncomeLogStatus.Normal,
+                Sum = order.PaySum,
+                TenantId = tenantId,
+                Type = EmIncomeLogType.AccountIn,
+                UserId = userId,
+                CreateOt = ot
+            });
+            _incomeLogDAL.AddIncomeLog(incomeLogs);
             var studentEnrolmentEvent = new StudentEnrolmentEvent(request.TenantId)
             {
                 UserId = userId,
                 Order = order,
                 OrderDetails = orderDetails,
                 StudentCourseDetails = studentCourseDetails,
-                IncomeLogs = new List<EtIncomeLog>(),
+                IncomeLogs = incomeLogs,
                 CreateTime = mallOrder.CreateTime,
                 OneToOneClassList = oneToOneClassLst,
                 CouponsStudentGetIds = null,

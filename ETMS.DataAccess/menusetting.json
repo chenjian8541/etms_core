@@ -672,6 +672,18 @@
         "Id": 47,
         "Name": "订单管理",
         "Type": 0,
+        "ChildrenPage": [
+          {
+            "Id": 101,
+            "Name": "订单列表",
+            "Type": 0
+          },
+          {
+            "Id": 102,
+            "Name": "在线商城",
+            "Type": 0
+          }
+        ],
         "ChildrenAction": [
           {
             "ActionId": 26,

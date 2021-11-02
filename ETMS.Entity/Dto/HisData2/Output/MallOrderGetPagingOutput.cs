@@ -1,14 +1,21 @@
-﻿using System;
+﻿using ETMS.Entity.View;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Source
+namespace ETMS.Entity.Dto.HisData2.Output
 {
-    [Table("EtMallOrder")]
-    public class EtMallOrder : Entity<long>
+    public class MallOrderGetPagingOutput
     {
+        public long CId { get; set; }
+
         public long StudentId { get; set; }
+
+        public string StudentName { get; set; }
+
+        public string StudentPhone { get; set; }
 
         public long MallGoodsId { get; set; }
 
@@ -33,11 +40,11 @@ namespace ETMS.Entity.Database.Source
 
         public string GoodsName { get; set; }
 
-        public string ImgCover { get; set; }
+        public List<ParentBuyMallGoodsSubmitSpecItem> GoodsSpecContent { get; set; }
+
+        public string ImgCoverUrl { get; set; }
 
         public string PriceRuleDesc { get; set; }
-
-        public string GoodsSpecContent { get; set; }
 
         public long LcsPayLogId { get; set; }
 
@@ -51,6 +58,8 @@ namespace ETMS.Entity.Database.Source
         /// <see cref="ETMS.Entity.Enum.EmMallOrderStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        public string StatusDesc { get; set; }
 
         public string Remark { get; set; }
     }

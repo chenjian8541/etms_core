@@ -606,7 +606,7 @@ namespace ETMS.Business
                 opContent.Append($"<br>费用：{request.Order.BuyCost}；");
             }
 
-            if (request.Order.OrderType != EmOrderType.OnlineBuyMallGoods)
+            if (!request.IsMallOrder)
             {
                 await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
                 {

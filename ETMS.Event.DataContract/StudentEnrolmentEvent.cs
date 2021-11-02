@@ -22,5 +22,7 @@ namespace ETMS.Event.DataContract
         public List<OneToOneClass> OneToOneClassList { get; set; }
 
         public List<long> CouponsStudentGetIds { get; set; }
+
+        public bool IsMallOrder { get; set; }
     }
 }

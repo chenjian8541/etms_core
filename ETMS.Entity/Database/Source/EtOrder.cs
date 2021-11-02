@@ -27,6 +27,11 @@ namespace ETMS.Entity.Database.Source
         public int OrderType { get; set; }
 
         /// <summary>
+        /// 订单来源  <see cref="ETMS.Entity.Enum.EmOrderSource"/>
+        /// </summary>
+        public int OrderSource { get; set; }
+
+        /// <summary>
         /// 签约类型 <see cref="ETMS.Entity.Enum.EmOrderBuyType">
         /// </summary>
         public byte BuyType { get; set; }

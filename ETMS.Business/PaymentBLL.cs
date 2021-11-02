@@ -123,7 +123,6 @@ namespace ETMS.Business
             {
                 switch (request.OrderType)
                 {
-                    case EmLcsPayLogOrderType.OnlineBuyCourse:
                     case EmLcsPayLogOrderType.StudentEnrolment:
                         orderNo = OrderNumberLib.EnrolmentOrderNumber();
                         break;

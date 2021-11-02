@@ -38,6 +38,13 @@ namespace ETMS.Entity.Dto.HisData.Output
         public string OrderTypeDesc { get; set; }
 
         /// <summary>
+        /// 订单来源  <see cref="ETMS.Entity.Enum.EmOrderSource"/>
+        /// </summary>
+        public int OrderSource { get; set; }
+
+        public string OrderSourceDesc { get; set; }
+
+        /// <summary>
         /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
         /// </summary>
         public byte InOutType { get; set; }

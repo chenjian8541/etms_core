@@ -26,6 +26,16 @@ namespace ETMS.DataAccess.MallGoods
             await _dbWrapper.Update(entity);
         }
 
+        public async Task SetMallOrderOrderId(long id, long orderId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtMallOrder SET OrderId = {orderId} WHERE Id = {id}");
+        }
+
+        public async Task<EtMallOrder> GetMallOrder(long id)
+        {
+            return await _dbWrapper.Find<EtMallOrder>(id);
+        }
+
         public async Task<Tuple<IEnumerable<EtMallOrder>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtMallOrder>("EtMallOrder", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());

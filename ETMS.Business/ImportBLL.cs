@@ -467,6 +467,7 @@ namespace ETMS.Business
                     PaySum = p.PaySum,
                     Sum = p.AptSum,
                     Status = status,
+                    OrderSource = EmOrderSource.OrderImport,
                     CreateOt = now
                 };
 
@@ -836,6 +837,7 @@ namespace ETMS.Business
                     PaySum = p.PaySum,
                     Sum = p.AptSum,
                     Status = status,
+                    OrderSource = EmOrderSource.OrderImport,
                     CreateOt = now
                 };
 

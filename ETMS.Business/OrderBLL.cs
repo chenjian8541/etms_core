@@ -159,7 +159,9 @@ namespace ETMS.Business
                     UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
                     CId = p.Id,
                     InOutType = p.InOutType,
-                    OrderTypeDesc = EmOrderType.GetOrderTypeDesc(p.OrderType)
+                    OrderTypeDesc = EmOrderType.GetOrderTypeDesc(p.OrderType),
+                    OrderSource = p.OrderSource,
+                    OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(p.OrderSource)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<OrderGetPagingOutput>(pagingData.Item2, orderOutput));
@@ -255,7 +257,9 @@ namespace ETMS.Business
                 IsTransferCourse = order.IsTransferCourse,
                 StudentCardNo = studentInfo.StudentCardNo,
                 GiveSum = order.AptSum - order.Sum,
-                IsHasLcsPay = false
+                IsHasLcsPay = false,
+                OrderSource = order.OrderSource,
+                OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(order.OrderSource)
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {
@@ -635,7 +639,9 @@ namespace ETMS.Business
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
                 StudentCardNo = studentInfo.StudentCardNo,
-                GiveSum = order.AptSum - order.Sum
+                GiveSum = order.AptSum - order.Sum,
+                OrderSource = order.OrderSource,
+                OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(order.OrderSource)
             };
             var payLog = await _incomeLogDAL.GetIncomeLogByOrderId(request.CId);
             output.OrderGetDetailIncomeLogs = new List<OrderGetDetailIncomeLog>();
@@ -704,7 +710,9 @@ namespace ETMS.Business
                 IsReturn = order.IsReturn,
                 IsTransferCourse = order.IsTransferCourse,
                 StudentCardNo = studentInfo.StudentCardNo,
-                GiveSum = order.AptSum - order.Sum
+                GiveSum = order.AptSum - order.Sum,
+                OrderSource = order.OrderSource,
+                OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(order.OrderSource)
             };
             return ResponseBase.Success(output);
         }

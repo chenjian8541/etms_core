@@ -23,10 +23,6 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int StudentAccountRecharge = 3;
 
-        /// <summary>
-        /// 在线购课
-        /// </summary>
-        public const int OnlineBuyCourse = 4;
 
         public static string GetPayLogOrderTypeDesc(int t)
         {
@@ -38,8 +34,6 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "转课";
                 case 3:
                     return "账户充值";
-                case 4:
-                    return "在线购课";
             }
             return string.Empty;
         }

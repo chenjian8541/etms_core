@@ -14,6 +14,10 @@ namespace ETMS.IDataAccess.MallGoodsDAL
 
         Task EditMallOrder(EtMallOrder entity);
 
+        Task SetMallOrderOrderId(long id, long orderId);
+
+        Task<EtMallOrder> GetMallOrder(long id);
+
         Task<Tuple<IEnumerable<EtMallOrder>, int>> GetPaging(IPagingRequest request);
     }
 }
