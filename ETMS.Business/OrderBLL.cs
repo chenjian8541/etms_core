@@ -18,6 +18,7 @@ using ETMS.LOG;
 using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
 using Microsoft.AspNetCore.Http;
+using ETMS.IDataAccess.MallGoodsDAL;
 
 namespace ETMS.Business
 {
@@ -57,12 +58,14 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly IMallOrderDAL _mallOrderDAL;
+
         public OrderBLL(IOrderDAL orderDAL, IStudentDAL studentDAL, IUserDAL userDAL, IIncomeLogDAL incomeLogDAL, ICouponsDAL couponsDAL,
             ICostDAL costDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
             IStudentCourseDAL studentCourseDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IParentStudentDAL parentStudentDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IHttpContextAccessor httpContextAccessor,
-            IAppConfigurtaionServices appConfigurtaionServices)
+            IAppConfigurtaionServices appConfigurtaionServices, IMallOrderDAL mallOrderDAL)
         {
             this._orderDAL = orderDAL;
             this._studentDAL = studentDAL;
@@ -81,6 +84,7 @@ namespace ETMS.Business
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._mallOrderDAL = mallOrderDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -88,7 +92,7 @@ namespace ETMS.Business
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _orderDAL, _studentDAL, _userDAL, _incomeLogDAL,
                 _couponsDAL, _costDAL, _courseDAL, _goodsDAL, _userOperationLogDAL, _studentCourseDAL,
-                _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL);
+                _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL, _mallOrderDAL);
         }
 
         private async Task<OrderStudentView> OrderStudentGet(EtOrder order, int secrecyType)
@@ -1154,7 +1158,7 @@ namespace ETMS.Business
             switch (order.OrderType)
             {
                 case EmOrderType.StudentEnrolment:
-                    return await OrderStudentEnrolmentRepeal(request);
+                    return await OrderStudentEnrolmentRepeal(order, request);
                     //case EmOrderType.ReturnOrder:
                     //    return await ReturnOrderRepeal(request, order);
                     //case EmOrderType.TransferCourse:
@@ -1163,7 +1167,7 @@ namespace ETMS.Business
             return ResponseBase.CommonError("此类型订单无法作废");
         }
 
-        private async Task<ResponseBase> OrderStudentEnrolmentRepeal(OrderRepealRequest request)
+        private async Task<ResponseBase> OrderStudentEnrolmentRepeal(EtOrder order, OrderRepealRequest request)
         {
             //var unionOrderSource = await _orderDAL.GetUnionOrderSource(request.OrderId);
             //if (unionOrderSource != null && unionOrderSource.Count > 0)
@@ -1186,6 +1190,11 @@ namespace ETMS.Business
             }
 
             await _orderDAL.OrderStudentEnrolmentRepeal(request.OrderId);
+            if (order.OrderSource == EmOrderSource.MallGoodsOrder)
+            {
+                await _mallOrderDAL.OrderRepeal(request.OrderId);
+            }
+
             _eventPublisher.Publish(new OrderStudentEnrolmentRepealEvent(request.LoginTenantId)
             {
                 OrderId = request.OrderId,

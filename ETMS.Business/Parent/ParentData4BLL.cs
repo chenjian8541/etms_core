@@ -10,6 +10,7 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness.Parent;
@@ -47,7 +48,7 @@ namespace ETMS.Business.Parent
 
         private readonly IStudentDAL _studentDAL;
 
-        private readonly IMallOrderDAL _mallOrder;
+        private readonly IMallOrderDAL _mallOrderDAL;
 
         private readonly IEventPublisher _eventPublisher;
 
@@ -63,13 +64,13 @@ namespace ETMS.Business.Parent
             this._classDAL = classDAL;
             this._userDAL = userDAL;
             this._studentDAL = studentDAL;
-            this._mallOrder = mallOrder;
+            this._mallOrderDAL = mallOrder;
             this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL, _mallOrder);
+            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL, _mallOrderDAL);
         }
 
         public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
@@ -343,7 +344,7 @@ namespace ETMS.Business.Parent
                 TotalPoints = checkBuyMallGoodsResult.TotalPoint,
                 GoodsSpecContent = goodsSpecContent
             };
-            var mallOrderId = await _mallOrder.AddMallOrder(mallOrderEntity);
+            var mallOrderId = await _mallOrderDAL.AddMallOrder(mallOrderEntity);
 
             _eventPublisher.Publish(new ParentBuyMallGoodsSubmitEvent(request.LoginTenantId)
             {
@@ -358,6 +359,59 @@ namespace ETMS.Business.Parent
                 MallOrderId = mallOrderId,
                 OrderNo = mallOrderEntity.OrderNo
             });
+        }
+
+        public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
+        {
+            var pagingData = await _mallOrderDAL.GetPaging(request);
+            var output = new List<MallGoodsGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    List<ParentBuyMallGoodsSubmitSpecItem> goodsSpecContent = null;
+                    if (p.ProductType == EmProductType.Goods)
+                    {
+                        if (!string.IsNullOrEmpty(p.GoodsSpecContent))
+                        {
+                            goodsSpecContent = JsonConvert.DeserializeObject<List<ParentBuyMallGoodsSubmitSpecItem>>(p.GoodsSpecContent);
+                        }
+                    }
+                    output.Add(new MallGoodsGetPagingOutput()
+                    {
+                        StudentId = p.StudentId,
+                        AptSum = p.AptSum,
+                        BuyCount = p.BuyCount,
+                        CId = p.Id,
+                        CreateTime = p.CreateTime,
+                        GoodsName = p.GoodsName,
+                        GoodsSpecContent = goodsSpecContent,
+                        ProductType = p.ProductType,
+                        ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                        LcsPayLogId = p.LcsPayLogId,
+                        MallGoodsId = p.MallGoodsId,
+                        OrderNo = p.OrderNo,
+                        PaySum = p.PaySum,
+                        PriceRuleDesc = p.PriceRuleDesc,
+                        ProductTypeDesc = p.ProductTypeDesc,
+                        RelatedId = p.RelatedId,
+                        Remark = p.Remark,
+                        Status = p.Status,
+                        StatusDesc = EmMallOrderStatus.GetMallOrderStatusDesc(p.Status),
+                        StudentName = myStudent.Name,
+                        StudentPhone = myStudent.Phone,
+                        TotalPoints = p.TotalPoints,
+                        OrderId = p.OrderId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

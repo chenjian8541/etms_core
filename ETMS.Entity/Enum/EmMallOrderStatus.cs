@@ -26,7 +26,7 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 已作废
         /// </summary>
-        public const byte Refund = 3;
+        public const byte Repeal = 3;
 
         public static string GetMallOrderStatusDesc(byte t)
         {
@@ -38,7 +38,7 @@ namespace ETMS.Entity.Enum
                     return "待支付";
                 case MakeUpMoney:
                     return "待补交";
-                case Refund:
+                case Repeal:
                     return "已作废";
             }
             return string.Empty;

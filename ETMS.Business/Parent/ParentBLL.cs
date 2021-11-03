@@ -55,11 +55,15 @@ namespace ETMS.Business
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
         private readonly IParentMenusConfigDAL _parentMenusConfigDAL;
+
+        private readonly ITenantConfig2DAL _tenantConfig2DAL;
+
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
-            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL,
+            ITenantConfig2DAL tenantConfig2DAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
@@ -75,6 +79,7 @@ namespace ETMS.Business
             this._sysTenantStudentDAL = sysTenantStudentDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._parentMenusConfigDAL = parentMenusConfigDAL;
+            this._tenantConfig2DAL = tenantConfig2DAL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -433,6 +438,22 @@ namespace ETMS.Business
 
             _parentMenusConfigDAL.InitTenantId(request.LoginTenantId);
             var menus = await _parentMenusConfigDAL.GetParentMenuConfig();
+            _tenantConfig2DAL.InitTenantId(request.LoginTenantId);
+            var config2 = await _tenantConfig2DAL.GetTenantConfig();
+            if (config2.MallGoodsConfig.MallGoodsStatus == EmMallGoodsStatus.Close)
+            {
+                var myMallGoods = menus.FirstOrDefault(p => p.Id != ParentMenuConfig.MallGoods);
+                if (myMallGoods != null)
+                {
+                    myMallGoods.IsShow = false;
+                }
+                var myMallOrder = menus.FirstOrDefault(p => p.Id != ParentMenuConfig.MallOrder);
+                if (myMallOrder != null)
+                {
+                    myMallOrder.IsShow = false;
+                }
+            }
+
             output.Menus = menus;
             return ResponseBase.Success(output);
         }

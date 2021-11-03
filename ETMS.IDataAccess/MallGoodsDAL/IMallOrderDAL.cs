@@ -19,5 +19,7 @@ namespace ETMS.IDataAccess.MallGoodsDAL
         Task<EtMallOrder> GetMallOrder(long id);
 
         Task<Tuple<IEnumerable<EtMallOrder>, int>> GetPaging(IPagingRequest request);
+
+        Task OrderRepeal(long orderId);
     }
 }

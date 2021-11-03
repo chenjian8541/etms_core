@@ -70,5 +70,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)
+        {
+            try
+            {
+                _parentData4BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData4BLL.MallGoodsGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

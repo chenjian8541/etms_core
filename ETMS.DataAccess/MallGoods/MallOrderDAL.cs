@@ -1,6 +1,7 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
 using ETMS.IDataAccess.MallGoodsDAL;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,11 @@ namespace ETMS.DataAccess.MallGoods
         public async Task<Tuple<IEnumerable<EtMallOrder>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtMallOrder>("EtMallOrder", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task OrderRepeal(long orderId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtMallOrder SET [Status] = {EmMallOrderStatus.Repeal} WHERE TenantId = {_tenantId} AND OrderId = {orderId}");
         }
     }
 }
