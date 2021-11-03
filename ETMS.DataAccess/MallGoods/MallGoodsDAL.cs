@@ -146,7 +146,7 @@ namespace ETMS.DataAccess.MallGoods
 
         public async Task<Tuple<IEnumerable<MallGoodsSimpleView>, int>> GetPagingSimple(IPagingRequest request)
         {
-            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,Points,GId,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,OriginalPriceDesc,RelatedName", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
+            return await _dbWrapper.ExecutePage<MallGoodsSimpleView>("EtMallGoods", "Id,Points,GId,ProductType,ProductTypeDesc,RelatedId,Name,OrderIndex,OriginalPrice,Price,PriceDesc,ImgCover,OriginalPriceDesc,RelatedName,TagContent", request.PageSize, request.PageCurrent, "OrderIndex DESC", request.ToString());
         }
 
         public async Task<Tuple<IEnumerable<MallGoodsComplexView>, int>> GetPagingComplex(IPagingRequest request)

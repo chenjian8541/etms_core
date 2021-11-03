@@ -37,5 +37,7 @@ namespace ETMS.Entity.View.MallGoods
         public string RelatedName { get; set; }
 
         public string OriginalPriceDesc { get; set; }
+
+        public string TagContent { get; set; }
     }
 }

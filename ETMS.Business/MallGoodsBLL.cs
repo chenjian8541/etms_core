@@ -581,7 +581,8 @@ namespace ETMS.Business
                         RelatedId = p.RelatedId,
                         RelatedName = p.RelatedName,
                         GId = p.GId,
-                        Points = p.Points
+                        Points = p.Points,
+                        TagItems = ComBusiness4.GetTagView(p.TagContent)
                     });
                 }
             }

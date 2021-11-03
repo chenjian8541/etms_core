@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.View.Database;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,5 +38,6 @@ namespace ETMS.Entity.Dto.Product.Output
 
         public string ImgCoverUrl { get; set; }
 
+        public List<MallGoodsTagItem> TagItems { get; set; }
     }
 }
