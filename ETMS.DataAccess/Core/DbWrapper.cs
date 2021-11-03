@@ -231,7 +231,7 @@ namespace ETMS.DataAccess.Core
         }
 
         /// <summary>
-        /// 通过查询提交获取记录集合
+        /// 通过查询提交获取记录集合 最多返回1000条记录
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="condition"></param>
@@ -240,7 +240,7 @@ namespace ETMS.DataAccess.Core
         {
             using (var content = new EtmsSourceDbContext(ConnectionString))
             {
-                return await content.Set<T>().Where(condition).ToListAsync();
+                return await content.Set<T>().Where(condition).Take(1000).ToListAsync();
             }
         }
 

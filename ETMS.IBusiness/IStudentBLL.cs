@@ -35,6 +35,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentTrackLogAdd(StudentTrackLogAddRequest request);
 
+        Task<ResponseBase> StudentTrackLogGet(StudentTrackLogGetRequest request);
+
+        Task<ResponseBase> StudentTrackLogEdit(StudentTrackLogEditRequest request);
+
         Task<ResponseBase> StudentTrackLogGetLast(StudentTrackLogGetLastRequest request);
 
         Task<ResponseBase> StudentTrackLogGetList(StudentTrackLogGetListRequest request);

@@ -235,6 +235,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentTrackLogGet(StudentTrackLogGetRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentTrackLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentTrackLogEdit(StudentTrackLogEditRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentTrackLogEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [ActionName("studentTrackLogGetLast")]
         [HttpPost]
         public async Task<ResponseBase> StudentTrackLogGetLast(StudentTrackLogGetLastRequest request)

@@ -82,6 +82,11 @@
             "Type": 1
           },
           {
+            "ActionId": 81,
+            "Name": "编辑跟进记录",
+            "Type": 1
+          },
+          {
             "ActionId": 29,
             "Name": "删除跟进记录",
             "Type": 1

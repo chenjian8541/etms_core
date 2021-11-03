@@ -811,6 +811,45 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentTrackLogGet(StudentTrackLogGetRequest request)
+        {
+            var p = await _studentTrackLogDAL.GetTrackLog(request.CId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("跟进记录不存在");
+            }
+            return ResponseBase.Success(new StudentTrackLogGetOutput()
+            {
+                CId = p.Id,
+                NextTrackTime = p.NextTrackTime.EtmsToDateString(),
+                TrackContent = p.TrackContent,
+                Imgs = ComBusiness4.GetImgs(p.TrackImg)
+            });
+        }
+
+        public async Task<ResponseBase> StudentTrackLogEdit(StudentTrackLogEditRequest request)
+        {
+            var p = await _studentTrackLogDAL.GetTrackLog(request.CId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("跟进记录不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+
+            p.TrackImg = EtmsHelper2.GetImgKeys(request.TrackImgKey);
+            p.TrackContent = request.TrackContent;
+            p.NextTrackTime = request.NextTrackTime;
+            await _studentTrackLogDAL.EditStudentTrackLog(p);
+
+            await _userOperationLogDAL.AddUserLog(request, $"编辑跟进记录-姓名:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},跟进内容:{request.TrackContent}",
+               EmUserOperationType.StudentTrackLog);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentTrackLogGetLast(StudentTrackLogGetLastRequest request)
         {
             var studentTrackLogs = await _studentTrackLogDAL.GetStudentTrackLog(request.StudentId);

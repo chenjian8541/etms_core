@@ -65,6 +65,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string TrackContent { get; set; }
 
+        public long? TrackUserId { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -95,6 +97,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (!string.IsNullOrEmpty(TrackContent))
             {
                 condition.Append($" AND TrackContent LIKE '%{TrackContent}%'");
+            }
+            if (TrackUserId != null)
+            {
+                condition.Append($" AND TrackUserId = {TrackUserId.Value}");
             }
             return condition.ToString();
         }
