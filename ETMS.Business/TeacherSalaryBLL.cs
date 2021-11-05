@@ -332,11 +332,14 @@ namespace ETMS.Business
         }
 
         private async Task<List<TeacherSalaryContractPerformanceSet>> GetTeacherSalaryContractPerformanceSet(long teacherId,
-            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails, byte computeType, byte gradientCalculateType)
+            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails,
+            List<EtTeacherSalaryContractPerformanceLessonBasc> myTeacherSalaryContractPerformanceLessonBasc,
+            byte computeType, byte gradientCalculateType)
         {
             var output = new List<TeacherSalaryContractPerformanceSet>();
             //绩效工资
             var teacherAllClass = await _classDAL.GetClassOfTeacher(teacherId);
+            decimal bascValue = 0M;
             switch (computeType)
             {
                 case EmTeacherSalaryComputeType.Class:
@@ -344,13 +347,23 @@ namespace ETMS.Business
                     {
                         foreach (var myClass in teacherAllClass)
                         {
+                            bascValue = 0;
+                            if (myTeacherSalaryContractPerformanceLessonBasc != null)
+                            {
+                                var myClassLessonBasc = myTeacherSalaryContractPerformanceLessonBasc.FirstOrDefault(p => p.RelationId == myClass.Id);
+                                if (myClassLessonBasc != null)
+                                {
+                                    bascValue = myClassLessonBasc.ComputeValue;
+                                }
+                            }
                             var performanceSetClass = new TeacherSalaryContractPerformanceSet()
                             {
                                 ComputeMode = EmTeacherSalaryComputeMode.TeacherClassTimes,
                                 RelationExtend = new List<string>(),
                                 RelationId = myClass.Id,
                                 RelationName = myClass.Name,
-                                SetDetails = new List<TeacherSalaryContractPerformanceSetDetail>()
+                                SetDetails = new List<TeacherSalaryContractPerformanceSetDetail>(),
+                                LessonBascValue = bascValue
                             };
                             if (myTeacherSalaryContractPerformanceSetDetails != null)
                             {
@@ -411,12 +424,22 @@ namespace ETMS.Business
                             {
                                 continue;
                             }
+                            bascValue = 0;
+                            if (myTeacherSalaryContractPerformanceLessonBasc != null)
+                            {
+                                var myCourseLessonBasc = myTeacherSalaryContractPerformanceLessonBasc.FirstOrDefault(p => p.RelationId == id);
+                                if (myCourseLessonBasc != null)
+                                {
+                                    bascValue = myCourseLessonBasc.ComputeValue;
+                                }
+                            }
                             var performanceSetCourse = new TeacherSalaryContractPerformanceSet()
                             {
                                 ComputeMode = EmTeacherSalaryComputeMode.TeacherClassTimes,
                                 RelationExtend = new List<string>(),
                                 RelationId = id,
                                 RelationName = myCourse.Item1.Name,
+                                LessonBascValue = bascValue,
                                 SetDetails = new List<TeacherSalaryContractPerformanceSetDetail>()
                             };
                             var myCourseClass = teacherAllClass.Where(p => p.CourseList.IndexOf($",{id},") != -1);
@@ -521,12 +544,22 @@ namespace ETMS.Business
                             MinLimit = null
                         });
                     }
+                    bascValue = 0;
+                    if (myTeacherSalaryContractPerformanceLessonBasc != null)
+                    {
+                        var myGlobalLessonBasc = myTeacherSalaryContractPerformanceLessonBasc.FirstOrDefault(p => p.RelationId == 0);
+                        if (myGlobalLessonBasc != null)
+                        {
+                            bascValue = myGlobalLessonBasc.ComputeValue;
+                        }
+                    }
                     output = new List<TeacherSalaryContractPerformanceSet>() {
                         new TeacherSalaryContractPerformanceSet(){
                             ComputeMode =computeModeGlobal,
                             RelationExtend = relationExtend,
                             RelationId = 0,
                             RelationName ="所有班级",
+                            LessonBascValue =bascValue,
                             SetDetails =setDetailsGlobal,
                             ComputeModeDesc =  EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(computeModeGlobal),
                             ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal),
@@ -562,6 +595,7 @@ namespace ETMS.Business
             List<EtTeacherSalaryContractFixed> myTeacherSalaryContractFixeds = null;
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;
             List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails = null;
+            List<EtTeacherSalaryContractPerformanceLessonBasc> myTeacherSalaryContractPerformanceLessonBasc = null;
             var myTeacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(request.TeacherId);
             if (myTeacherSalaryContractSetBucket != null)
             {
@@ -578,6 +612,11 @@ namespace ETMS.Business
                     myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Any())
                 {
                     myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails;
+                }
+                if (myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs != null
+                    && myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs.Any())
+                {
+                    myTeacherSalaryContractPerformanceLessonBasc = myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs;
                 }
             }
 
@@ -622,7 +661,8 @@ namespace ETMS.Business
             }
 
             //绩效工资
-            output.PerformanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId, myTeacherSalaryContractPerformanceSetDetails,
+            output.PerformanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId,
+                myTeacherSalaryContractPerformanceSetDetails, myTeacherSalaryContractPerformanceLessonBasc,
                 output.ComputeType, output.GradientCalculateType);
 
             return ResponseBase.Success(output);
@@ -632,6 +672,7 @@ namespace ETMS.Business
         {
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;
             List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails = null;
+            List<EtTeacherSalaryContractPerformanceLessonBasc> myTeacherSalaryContractPerformanceLessonBasc = null;
             var myTeacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(request.TeacherId);
             if (myTeacherSalaryContractSetBucket != null)
             {
@@ -644,6 +685,11 @@ namespace ETMS.Business
                 {
                     myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails;
                 }
+                if (myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs != null
+                    && myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs.Any())
+                {
+                    myTeacherSalaryContractPerformanceLessonBasc = myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs;
+                }
             }
 
             if (myTeacherSalaryContractPerformanceSet != null && myTeacherSalaryContractPerformanceSet.ComputeType != request.NewComputeType)
@@ -652,7 +698,8 @@ namespace ETMS.Business
             }
 
             //绩效工资
-            var performanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId, myTeacherSalaryContractPerformanceSetDetails,
+            var performanceSetItems = await GetTeacherSalaryContractPerformanceSet(request.TeacherId,
+                myTeacherSalaryContractPerformanceSetDetails, myTeacherSalaryContractPerformanceLessonBasc,
                 request.NewComputeType, request.NewGradientCalculateType);
 
             return ResponseBase.Success(new TeacherSalaryContractChangeComputeTypeOutput()
@@ -699,8 +746,13 @@ namespace ETMS.Business
                 });
             }
 
+            if (request.PerformanceLessonBascs == null)
+            {
+                request.PerformanceLessonBascs = new List<PerformanceLessonBasc>();
+            }
             EtTeacherSalaryContractPerformanceSet performanceSet = null;
             var performanceSetDetails = new List<EtTeacherSalaryContractPerformanceSetDetail>();
+            var performanceLessonBascs = new List<EtTeacherSalaryContractPerformanceLessonBasc>();
             if (config.IsOpenContractPerformance)
             {
                 performanceSet = new EtTeacherSalaryContractPerformanceSet()
@@ -715,6 +767,7 @@ namespace ETMS.Business
                 var strDesc = new StringBuilder();
                 strDesc.Append($"<div class='performance_set_rule'>结算方式：{EmTeacherSalaryComputeType.GetTeacherSalaryComputeTypeDesc(performanceSet.ComputeType)} </div>");
                 strDesc.Append($"<div class='performance_set_rule'>梯度计算：{EmTeacherSalaryGradientCalculateType.GetTeacherSalaryGradientCalculateTypeDesc(performanceSet.GradientCalculateType)}</div>");
+                var bascValue = 0M;
                 switch (performanceSet.ComputeType)
                 {
                     case EmTeacherSalaryComputeType.Class:
@@ -725,6 +778,21 @@ namespace ETMS.Business
                             if (myClassBucket == null || myClassBucket.EtClass == null)
                             {
                                 continue;
+                            }
+                            bascValue = 0;
+                            var myClassLessonBascs = request.PerformanceLessonBascs.FirstOrDefault(p => p.RelationId == classId);
+                            if (myClassLessonBascs != null)
+                            {
+                                bascValue = myClassLessonBascs.ComputeValue;
+                                performanceLessonBascs.Add(new EtTeacherSalaryContractPerformanceLessonBasc()
+                                {
+                                    ComputeType = performanceSet.ComputeType,
+                                    ComputeValue = myClassLessonBascs.ComputeValue,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    RelationId = classId,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
                             }
                             var myClassSetDetails = request.PerformanceSetDetails.Where(p => p.RelationId == classId).OrderBy(p => p.MinLimit);
                             var tempClassPerformanceSetDetailEntity = new List<EtTeacherSalaryContractPerformanceSetDetail>();
@@ -743,7 +811,7 @@ namespace ETMS.Business
                                     TenantId = request.LoginTenantId
                                 });
                             }
-                            var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempClassPerformanceSetDetailEntity);
+                            var desClassResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempClassPerformanceSetDetailEntity, bascValue);
                             strDesc.Append($"<div class='performance_set_rule_title'>{myClassBucket.EtClass.Name}：{desClassResult.Item2}</div>{desClassResult.Item1}");
                             performanceSetDetails.AddRange(tempClassPerformanceSetDetailEntity);
                         }
@@ -756,6 +824,21 @@ namespace ETMS.Business
                             if (myCourseResult == null || myCourseResult.Item1 == null)
                             {
                                 continue;
+                            }
+                            bascValue = 0;
+                            var myCourseLessonBascs = request.PerformanceLessonBascs.FirstOrDefault(p => p.RelationId == courseId);
+                            if (myCourseLessonBascs != null)
+                            {
+                                bascValue = myCourseLessonBascs.ComputeValue;
+                                performanceLessonBascs.Add(new EtTeacherSalaryContractPerformanceLessonBasc()
+                                {
+                                    ComputeType = performanceSet.ComputeType,
+                                    ComputeValue = myCourseLessonBascs.ComputeValue,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    RelationId = courseId,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
                             }
                             var myCourseDetails = request.PerformanceSetDetails.Where(p => p.RelationId == courseId).OrderBy(p => p.MinLimit);
                             var tempCoursePerformanceSetDetailEntity = new List<EtTeacherSalaryContractPerformanceSetDetail>();
@@ -774,7 +857,7 @@ namespace ETMS.Business
                                     TenantId = request.LoginTenantId
                                 });
                             }
-                            var desCourseResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempCoursePerformanceSetDetailEntity);
+                            var desCourseResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(tempCoursePerformanceSetDetailEntity, bascValue);
                             strDesc.Append($"<div class='performance_set_rule_title'>{myCourseResult.Item1.Name}：{desCourseResult.Item2}</div>{desCourseResult.Item1}");
                             performanceSetDetails.AddRange(tempCoursePerformanceSetDetailEntity);
                         }
@@ -783,6 +866,21 @@ namespace ETMS.Business
                         var myGlobalSetDetails = request.PerformanceSetDetails.Where(p => p.RelationId == 0).OrderBy(p => p.MinLimit);
                         if (myGlobalSetDetails.Any())
                         {
+                            bascValue = 0;
+                            var myGlobalLessonBascs = request.PerformanceLessonBascs.FirstOrDefault(p => p.RelationId == 0);
+                            if (myGlobalLessonBascs != null)
+                            {
+                                bascValue = myGlobalLessonBascs.ComputeValue;
+                                performanceLessonBascs.Add(new EtTeacherSalaryContractPerformanceLessonBasc()
+                                {
+                                    ComputeType = performanceSet.ComputeType,
+                                    ComputeValue = myGlobalLessonBascs.ComputeValue,
+                                    IsDeleted = EmIsDeleted.Normal,
+                                    RelationId = 0,
+                                    TeacherId = request.TeacherId,
+                                    TenantId = request.LoginTenantId
+                                });
+                            }
                             foreach (var p in myGlobalSetDetails)
                             {
                                 performanceSetDetails.Add(new EtTeacherSalaryContractPerformanceSetDetail()
@@ -798,7 +896,7 @@ namespace ETMS.Business
                                     TenantId = request.LoginTenantId
                                 });
                             }
-                            var desGlobalResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(performanceSetDetails);
+                            var desGlobalResult = ComBusiness4.GetTeacherSalaryContractPerformanceSetDetailDesc(performanceSetDetails, bascValue);
                             strDesc.Append($"<div class='performance_set_rule_title'>统一设置：{desGlobalResult.Item2}</div>{desGlobalResult.Item1}");
                         }
                         break;
@@ -806,7 +904,8 @@ namespace ETMS.Business
                 performanceSet.ComputeDesc = strDesc.ToString();
             }
 
-            await _teacherSalaryContractDAL.SaveTeacherSalaryContract(request.TeacherId, teacherSalaryContractFixeds, performanceSet, performanceSetDetails);
+            await _teacherSalaryContractDAL.SaveTeacherSalaryContract(request.TeacherId, teacherSalaryContractFixeds, performanceSet,
+                performanceSetDetails, performanceLessonBascs);
 
             await _userOperationLogDAL.AddUserLog(request, $"设置员工[{teacher.Name}]绩效工资", EmUserOperationType.TeacherSalary);
             return ResponseBase.Success();

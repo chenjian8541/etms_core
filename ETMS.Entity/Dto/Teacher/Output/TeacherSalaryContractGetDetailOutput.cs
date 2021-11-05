@@ -73,6 +73,8 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public int ComputeValueMaxLength { get; set; } = 10;
 
+        public decimal LessonBascValue { get; set; }
+
         public List<TeacherSalaryContractPerformanceSetDetail> SetDetails { get; set; }
     }
 

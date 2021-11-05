@@ -442,7 +442,8 @@ namespace ETMS.Business
                 CoursePriceRuleDesc = cartInfo.CoursePriceRuleDesc,
                 CoursePriceRuleId = cartInfo.CoursePriceRuleId,
                 TotalPoint = cartInfo.TotalPoint,
-                TotalPrice = cartInfo.TotalPrice
+                TotalPrice = cartInfo.TotalPrice,
+                RelatedId = p.RelatedId
             };
             return ResponseBase.Success(output);
         }

@@ -13,7 +13,7 @@ namespace ETMS.IDataAccess.TeacherSalary
         Task<TeacherSalaryContractBucket> GetTeacherSalaryContract(long teacherId);
 
         Task<bool> SaveTeacherSalaryContract(long teacherId, List<EtTeacherSalaryContractFixed> fixeds, EtTeacherSalaryContractPerformanceSet performanceSet,
-            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails);
+            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails, List<EtTeacherSalaryContractPerformanceLessonBasc> bascs);
 
         Task ClearTeacherSalaryContractPerformance(long teacherId);
     }

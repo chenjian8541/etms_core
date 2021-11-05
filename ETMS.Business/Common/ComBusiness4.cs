@@ -38,7 +38,7 @@ namespace ETMS.Business.Common
             return Tuple.Create(desc, EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(item.ComputeMode));
         }
 
-        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(List<EtTeacherSalaryContractPerformanceSetDetail> items)
+        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(List<EtTeacherSalaryContractPerformanceSetDetail> items, decimal bascValue = 0)
         {
             if (items == null || items.Count == 0)
             {
@@ -63,6 +63,10 @@ namespace ETMS.Business.Common
                     break;
             }
             var strDesc = new StringBuilder();
+            if (bascValue > 0)
+            {
+                strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>每节课底薪：{bascValue}元</span></div>");
+            }
             if (items.Count == 1) //无梯度
             {
                 strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>{firstItem.ComputeValue}{unitTag}</span></div>");

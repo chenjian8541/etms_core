@@ -69,6 +69,8 @@ namespace ETMS.Entity.Database.Source
 
         public int MakeUpEffectiveCount { get; set; }
 
+        public decimal BascMoney { get; set; }
+
         public decimal ComputeSum { get; set; }
     }
 }

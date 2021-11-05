@@ -31,11 +31,14 @@ namespace ETMS.DataAccess.TeacherSalary
             var teacherSalaryContractPerformanceSetDetail = await this._dbWrapper.FindList<EtTeacherSalaryContractPerformanceSetDetail>(p => p.TenantId == _tenantId
             && p.TeacherId == teacherId && p.IsDeleted == EmIsDeleted.Normal);
 
+            var bascs = await this._dbWrapper.FindList<EtTeacherSalaryContractPerformanceLessonBasc>(p => p.TenantId == _tenantId
+            && p.TeacherId == teacherId && p.IsDeleted == EmIsDeleted.Normal);
             return new TeacherSalaryContractBucket()
             {
                 TeacherSalaryContractFixeds = teacherSalaryContractFixeds,
                 TeacherSalaryContractPerformanceSet = teacherSalaryContractPerformanceSet,
-                TeacherSalaryContractPerformanceSetDetails = teacherSalaryContractPerformanceSetDetail
+                TeacherSalaryContractPerformanceSetDetails = teacherSalaryContractPerformanceSetDetail,
+                EtTeacherSalaryContractPerformanceLessonBascs = bascs
             };
         }
 
@@ -45,12 +48,13 @@ namespace ETMS.DataAccess.TeacherSalary
         }
 
         public async Task<bool> SaveTeacherSalaryContract(long teacherId, List<EtTeacherSalaryContractFixed> fixeds, EtTeacherSalaryContractPerformanceSet performanceSet,
-            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails)
+            List<EtTeacherSalaryContractPerformanceSetDetail> performanceSetDetails, List<EtTeacherSalaryContractPerformanceLessonBasc> bascs)
         {
             var strSql = new StringBuilder();
             strSql.Append($"DELETE EtTeacherSalaryContractFixed WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
             strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSet WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
             strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSetDetail WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
+            strSql.Append($"DELETE EtTeacherSalaryContractPerformanceLessonBasc WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
             await _dbWrapper.Execute(strSql.ToString());
             if (fixeds.Any())
             {
@@ -64,6 +68,10 @@ namespace ETMS.DataAccess.TeacherSalary
             {
                 _dbWrapper.InsertRange(performanceSetDetails);
             }
+            if (bascs != null && bascs.Any())
+            {
+                _dbWrapper.InsertRange(bascs);
+            }
             await UpdateCache(_tenantId, teacherId);
             return true;
         }
@@ -73,6 +81,7 @@ namespace ETMS.DataAccess.TeacherSalary
             var strSql = new StringBuilder();
             strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSet WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
             strSql.Append($"DELETE EtTeacherSalaryContractPerformanceSetDetail WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
+            strSql.Append($"DELETE EtTeacherSalaryContractPerformanceLessonBasc WHERE TenantId = {_tenantId} AND TeacherId  = {teacherId} ;");
             await _dbWrapper.Execute(strSql.ToString());
             await UpdateCache(_tenantId, teacherId);
         }

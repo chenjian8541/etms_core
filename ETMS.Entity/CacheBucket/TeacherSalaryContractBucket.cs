@@ -16,6 +16,8 @@ namespace ETMS.Entity.CacheBucket
 
         public List<EtTeacherSalaryContractPerformanceSetDetail> TeacherSalaryContractPerformanceSetDetails { get; set; }
 
+        public List<EtTeacherSalaryContractPerformanceLessonBasc> EtTeacherSalaryContractPerformanceLessonBascs { get; set; }
+
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.ComTimeOutDay);
 
         public string GetKeyFormat(params object[] parms)

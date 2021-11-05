@@ -17,6 +17,8 @@ namespace ETMS.Entity.Dto.Teacher.Request
 
         public List<PerformanceSetDetail> PerformanceSetDetails { get; set; }
 
+        public List<PerformanceLessonBasc> PerformanceLessonBascs { get; set; }
+
         public override string Validate()
         {
             if (TeacherId <= 0)
@@ -99,11 +101,22 @@ namespace ETMS.Entity.Dto.Teacher.Request
                     return "梯度区间设置无效";
                 }
             }
-            if (ComputeValue <= 0)
-            {
-                return "绩效计算值必须大于0";
-            }
+            //if (ComputeValue <= 0)
+            //{
+            //    return "绩效计算值必须大于0";
+            //}
             return string.Empty;
         }
+    }
+
+    public class PerformanceLessonBasc
+    {
+        /// <summary>
+        /// 关联ID (班级、课程)
+        /// 0：代表全局设置
+        /// </summary>
+        public long RelationId { get; set; }
+
+        public decimal ComputeValue { get; set; }
     }
 }
