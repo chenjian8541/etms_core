@@ -16,5 +16,7 @@ namespace ETMS.Event.DataContract
         public bool IsClassOfOneAutoOver { get; set; }
 
         public bool IsSendNoticeStudent { get; set; }
+
+        public bool IsNeedCheckCourseIsNotEnough { get; set; }
     }
 }

@@ -27,6 +27,7 @@ using ETMS.Entity.Dto.Product.Output;
 using ETMS.Business.WxCore;
 using ETMS.Entity.Config;
 using ETMS.LOG;
+using ETMS.Entity.View;
 
 namespace ETMS.Business
 {
@@ -50,10 +51,12 @@ namespace ETMS.Business
 
         private readonly ITenantConfig2DAL _tenantConfig2DAL;
 
+        private readonly IMallCartDAL _mallCartDAL;
+
         public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
             IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
             IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            ILcsAccountBLL lcsAccountBLL, ITenantConfig2DAL tenantConfig2DAL)
+            ILcsAccountBLL lcsAccountBLL, ITenantConfig2DAL tenantConfig2DAL, IMallCartDAL mallCartDAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._microWebBLL = microWebBLL;
@@ -65,6 +68,7 @@ namespace ETMS.Business
             this._mallGoodsDAL = mallGoodsDAL;
             this._lcsAccountBLL = lcsAccountBLL;
             this._tenantConfig2DAL = tenantConfig2DAL;
+            this._mallCartDAL = mallCartDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -73,7 +77,7 @@ namespace ETMS.Business
             this._appConfigBLL.InitTenantId(tenantId);
             this._lcsAccountBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _microWebColumnArticleDAL, _tryCalssApplyLogDAL, _parentStudentDAL, _mallGoodsDAL,
-                _tenantConfig2DAL);
+                _tenantConfig2DAL, _mallCartDAL);
         }
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
@@ -348,7 +352,6 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request)
         {
-
             var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
             if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
             {
@@ -376,6 +379,70 @@ namespace ETMS.Business
                 CoursePriceRules = myPriceRuleDesc,
                 Points = p.Points,
                 RelatedId = p.RelatedId
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> MallCartAdd(MallCartAddRequest request)
+        {
+            var cartView = new MallCartView()
+            {
+                CartItems = new List<MallCartItem>()
+            };
+            cartView.CartItems.Add(new MallCartItem()
+            {
+                BuyCount = request.BuyCount,
+                CoursePriceRuleDesc = request.CoursePriceRuleDesc,
+                CoursePriceRuleId = request.CoursePriceRuleId,
+                GId = request.GId,
+                Id = request.Id,
+                SpecItems = request.SpecItems,
+                TotalPoint = request.TotalPoint,
+                TotalPrice = request.TotalPrice
+            });
+            var id = await _mallCartDAL.AddMallCart(new EtMallCart()
+            {
+                CreateTime = DateTime.Now,
+                IsDeleted = EmIsDeleted.Normal,
+                TenantId = request.LoginTenantId,
+                CartContent = JsonConvert.SerializeObject(cartView)
+            });
+            return ResponseBase.Success(new MallCartAddOutput()
+            {
+                CId = EtmsHelper2.GetIdEncrypt(id)
+            });
+        }
+
+        public async Task<ResponseBase> MallCartInfoGet(MallCartInfoGetRequest request)
+        {
+            var cartView = await _mallCartDAL.GetMallCart(request.Id);
+            if (cartView == null)
+            {
+                return ResponseBase.CommonError("请先选择购买的商品");
+            }
+            var cartInfo = cartView.CartItems.First();
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(cartInfo.Id);
+            if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
+            {
+                return ResponseBase.CommonError("商品不存在");
+            }
+            var p = mallGoodsBucket.MallGoods;
+            var output = new MallCartInfoGetOutput()
+            {
+                GId = p.GId,
+                Name = p.Name,
+                Price = p.Price,
+                PriceDesc = p.PriceDesc,
+                ProductType = p.ProductType,
+                OriginalPriceDesc = p.OriginalPriceDesc,
+                ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
+                ProductTypeDesc = p.ProductTypeDesc,
+                SpecItems = cartInfo.SpecItems,
+                BuyCount = cartInfo.BuyCount,
+                CoursePriceRuleDesc = cartInfo.CoursePriceRuleDesc,
+                CoursePriceRuleId = cartInfo.CoursePriceRuleId,
+                TotalPoint = cartInfo.TotalPoint,
+                TotalPrice = cartInfo.TotalPrice
             };
             return ResponseBase.Success(output);
         }

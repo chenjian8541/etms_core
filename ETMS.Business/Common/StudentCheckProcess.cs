@@ -52,11 +52,13 @@ namespace ETMS.Business.Common
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private readonly IStudentTrackLogDAL _studentTrackLogDAL;
+
         public StudentCheckProcess(StudentCheckProcessRequest request, IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL,
             IEventPublisher eventPublisher, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IUserOperationLogDAL userOperationLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
             ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IStudentDAL studentDAL,
-            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL)
+            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL, IStudentTrackLogDAL studentTrackLogDAL)
         {
             this._request = request;
             this._eventPublisher = eventPublisher;
@@ -74,6 +76,7 @@ namespace ETMS.Business.Common
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._distributedLockDAL = distributedLockDAL;
+            this._studentTrackLogDAL = studentTrackLogDAL;
         }
 
         private async Task<long> AddNotDeStudentCheckOnLog(byte checkType, string remark = "")
@@ -228,8 +231,11 @@ namespace ETMS.Business.Common
                 {
                     //扣课时
                     var deResult = await CheckInAndDeClassTimes(myClassTimesList.First(), checkType);
-                    output.StudentCheckOnLogId = deResult.Item1;
-                    output.DeClassTimesDesc = deResult.Item2;
+                    output.StudentCheckOnLogId = deResult.StudentCheckOnLogId;
+                    output.DeClassTimesDesc = deResult.DeClassTimesDesc;
+                    output.CourseName = deResult.CourseName;
+                    output.CourseSurplusDesc = deResult.CourseSurplusDesc;
+                    output.IsCourseNotEnough = deResult.IsCourseNotEnough;
                 }
             }
             return output;
@@ -330,6 +336,7 @@ namespace ETMS.Business.Common
                 output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员报读课程不存在");
                 return output;
             }
+            output.CourseName = myDeCourse.Item1.Name;
             var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
             {
                 ClassOt = _request.CheckOt,
@@ -377,20 +384,24 @@ namespace ETMS.Business.Common
                 //    StudentId = _request.Student.Id,
                 //    CourseId = deStudentClassTimesResult.DeCourseId
                 //});
-                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                var res = await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
                 {
                     StudentId = _request.Student.Id,
-                    CourseId = deStudentClassTimesResult.DeCourseId
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    IsNeedCheckCourseIsNotEnough = true
                 });
+                output.CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(res.NewCourse);
+                output.IsCourseNotEnough = res.IsCourseNotEnough;
             }
             return output;
         }
 
-        private async Task<Tuple<long, string>> CheckInAndDeClassTimes(EtClassTimes myClassTimes, byte checkType)
+        private async Task<CheckInAndDeClassTimes> CheckInAndDeClassTimes(EtClassTimes myClassTimes, byte checkType)
         {
             //直接扣课时
             var studentCheckOnLogId = 0L;
             var deClassTimesDesc = string.Empty;
+            var output = new CheckInAndDeClassTimes();
             var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, _request.Student.Id);
             if (myStudentDeLog != null) //已存在扣课时记录,防止重复扣
             {
@@ -409,6 +420,7 @@ namespace ETMS.Business.Common
                 {
                     var deStudentClassTimesResult = deStudentClassTimesResultTuple.Item2;
                     var myCourse = await _courseDAL.GetCourse(deStudentClassTimesResult.DeCourseId);
+                    output.CourseName = myCourse.Item1.Name;
                     if (myCourse.Item1.CheckPoints > 0)
                     {
                         await _studentDAL.AddPoint(_request.Student.Id, myCourse.Item1.CheckPoints);
@@ -449,15 +461,20 @@ namespace ETMS.Business.Common
                         //    StudentId = _request.Student.Id,
                         //    CourseId = deStudentClassTimesResult.DeCourseId
                         //});
-                        await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
+                        var res = await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
                         {
                             StudentId = _request.Student.Id,
-                            CourseId = deStudentClassTimesResult.DeCourseId
+                            CourseId = deStudentClassTimesResult.DeCourseId,
+                            IsNeedCheckCourseIsNotEnough = true
                         });
+                        output.CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(res.NewCourse);
+                        output.IsCourseNotEnough = res.IsCourseNotEnough;
                     }
                 }
             }
-            return Tuple.Create(studentCheckOnLogId, deClassTimesDesc);
+            output.StudentCheckOnLogId = studentCheckOnLogId;
+            output.DeClassTimesDesc = deClassTimesDesc;
+            return output;
         }
 
         public async Task<ResponseBase> Process()
@@ -552,6 +569,9 @@ namespace ETMS.Business.Common
             var output = new StudentCheckOutput();
             var studentCheckOnLogId = 0L;
             var deClassTimesDesc = string.Empty;
+            var courseName = string.Empty;
+            var courseSurplusDesc = string.Empty;
+            var isCourseNotEnough = false;
             if (checkType == EmStudentCheckOnLogCheckType.CheckOut || _request.IsRelationClassTimes == EmBool.False)
             {
                 studentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType);
@@ -577,6 +597,9 @@ namespace ETMS.Business.Common
                     studentCheckOnLogId = resultRelationClassTimes.StudentCheckOnLogId;
                     deClassTimesDesc = resultRelationClassTimes.DeClassTimesDesc;
                     output.NeedDeClassTimes = resultRelationClassTimes.NeedDeClassTimes;
+                    courseName = resultRelationClassTimes.CourseName;
+                    courseSurplusDesc = resultRelationClassTimes.CourseSurplusDesc;
+                    isCourseNotEnough = resultRelationClassTimes.IsCourseNotEnough;
                 }
                 else
                 {
@@ -584,6 +607,9 @@ namespace ETMS.Business.Common
                     studentCheckOnLogId = resultGoDeStudentCourse.StudentCheckOnLogId;
                     deClassTimesDesc = resultGoDeStudentCourse.DeClassTimesDesc;
                     output.PopupsChooseStudentCoueses = resultGoDeStudentCourse.PopupsChooseStudentCoueses;
+                    courseName = resultGoDeStudentCourse.CourseName;
+                    courseSurplusDesc = resultGoDeStudentCourse.CourseSurplusDesc;
+                    isCourseNotEnough = resultGoDeStudentCourse.IsCourseNotEnough;
                 }
             }
             _eventPublisher.Publish(new NoticeStudentsCheckOnEvent(_request.LoginTenantId)
@@ -603,6 +629,7 @@ namespace ETMS.Business.Common
                 await _tempStudentNeedCheckDAL.TempStudentNeedCheckSetIsCheckOut(_request.Student.Id, _request.CheckOt);
             }
             output.CheckState = StudentCheckOutputCheckState.Success;
+            var tempBoxUser = new DataTempBox<EtUser>();
             output.CheckResult = new CheckResult()
             {
                 CheckOt = _request.CheckOt.EtmsToDateString(),
@@ -614,8 +641,34 @@ namespace ETMS.Business.Common
                 StudentPhone = ComBusiness3.PhoneSecrecy(_request.Student.Phone, _request.RequestBase.SecrecyType),
                 StudentCheckOnLogId = studentCheckOnLogId,
                 StudentAvatar = _request.FaceAvatar,
-                DeClassTimesDesc = deClassTimesDesc
+                DeClassTimesDesc = deClassTimesDesc,
+                CourseName = courseName,
+                CourseSurplusDesc = courseSurplusDesc,
+                IsCourseNotEnough = isCourseNotEnough,
+                GenderDesc = EmGender.GetGenderDesc(_request.Student.Gender),
+                OtDesc = _request.Student.Ot.EtmsToDateString(),
+                TrackUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.TrackUser),
+                LearningManagerDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.LearningManager)
             };
+            if (_request.LoginTenantId == 7321) //要求展示跟进记录的客户
+            {
+                var studentTrackLogs = await _studentTrackLogDAL.GetStudentTrackLog(_request.Student.Id);
+                if (studentTrackLogs != null && studentTrackLogs.Any())
+                {
+                    var lastTrackLog = studentTrackLogs.First();
+                    var trackUser = await _userDAL.GetUser(lastTrackLog.TrackUserId);
+                    output.CheckResult.StudentTrackLogLast = new StudentTrackLogLast()
+                    {
+                        CId = lastTrackLog.Id,
+                        TrackTimeDesc = lastTrackLog.TrackTime.EtmsToMinuteString(),
+                        NextTrackTimeDesc = lastTrackLog.NextTrackTime.EtmsToMinuteString(),
+                        TrackContent = lastTrackLog.TrackContent,
+                        TrackUserName = trackUser?.Name,
+                        TrackImgUrl = EtmsHelper2.GetImgUrl(lastTrackLog.TrackImg),
+                        TrackUserAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(trackUser?.Avatar)
+                    };
+                }
+            }
             output.FaceWhite = _request.FaceWhite;
             await _userOperationLogDAL.AddUserLog(_request.RequestBase, $"学员:{output.CheckResult.StudentName},手机号码:{output.CheckResult.StudentPhone} 考勤{output.CheckResult.CheckTypeDesc} {deClassTimesDesc}", EmUserOperationType.StudentCheckOn, _request.CheckOt);
             return ResponseBase.Success(output);
@@ -708,6 +761,15 @@ namespace ETMS.Business.Common
         /// 需要记上课的课次
         /// </summary>
         public List<StudentNeedDeClassTimes> NeedDeClassTimes { get; set; }
+
+        /// <summary>
+        /// 课次剩余描述
+        /// </summary>
+        public string CourseSurplusDesc { get; set; }
+
+        public bool IsCourseNotEnough { get; set; }
+
+        public string CourseName { get; set; }
     }
 
     public class StudentBeginClassGoDeStudentCourseOutput
@@ -720,5 +782,31 @@ namespace ETMS.Business.Common
         public string DeClassTimesDesc { get; set; }
 
         public List<PopupsChooseStudentCouese> PopupsChooseStudentCoueses { get; set; }
+
+        /// <summary>
+        /// 课次剩余描述
+        /// </summary>
+        public string CourseSurplusDesc { get; set; }
+
+        public bool IsCourseNotEnough { get; set; }
+
+        public string CourseName { get; set; }
+    }
+
+    public class CheckInAndDeClassTimes
+    {
+
+        public long StudentCheckOnLogId { get; set; }
+
+        public string DeClassTimesDesc { get; set; }
+
+        /// <summary>
+        /// 课次剩余描述
+        /// </summary>
+        public string CourseSurplusDesc { get; set; }
+
+        public bool IsCourseNotEnough { get; set; }
+
+        public string CourseName { get; set; }
     }
 }

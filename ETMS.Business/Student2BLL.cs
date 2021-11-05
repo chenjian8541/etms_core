@@ -64,12 +64,15 @@ namespace ETMS.Business
 
         private ICommonHandlerBLL _commonHandlerBLL;
 
+        private readonly IStudentTrackLogDAL _studentTrackLogDAL;
+
         public Student2BLL(IStudentDAL studentDAL, IAiface aiface, IUserOperationLogDAL userOperationLogDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassDAL classDAL, ICourseDAL courseDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITempStudentNeedCheckDAL tempStudentNeedCheckDAL, ITempDataCacheDAL tempDataCacheDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL,
-            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL, ICommonHandlerBLL commonHandlerBLL)
+            IStudentPointsLogDAL studentPointsLogDAL, IDistributedLockDAL distributedLockDAL, ICommonHandlerBLL commonHandlerBLL,
+            IStudentTrackLogDAL studentTrackLogDAL)
         {
             this._studentDAL = studentDAL;
             this._aiface = aiface;
@@ -91,6 +94,7 @@ namespace ETMS.Business
             this._studentPointsLogDAL = studentPointsLogDAL;
             this._distributedLockDAL = distributedLockDAL;
             this._commonHandlerBLL = commonHandlerBLL;
+            this._studentTrackLogDAL = studentTrackLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -100,7 +104,7 @@ namespace ETMS.Business
             this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _studentCheckOnLogDAL, _classDAL,
                 _courseDAL, _tenantConfigDAL, _classTimesDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
-                _tempStudentNeedCheckDAL, _studentPointsLogDAL);
+                _tempStudentNeedCheckDAL, _studentPointsLogDAL, _studentTrackLogDAL);
         }
 
         public async Task<ResponseBase> StudentFaceListGet(StudentFaceListGetRequest request)
@@ -467,7 +471,7 @@ namespace ETMS.Business
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(student.Avatar, student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
             _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
-            _distributedLockDAL);
+            _distributedLockDAL, _studentTrackLogDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -497,7 +501,7 @@ namespace ETMS.Business
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
             _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
-            _distributedLockDAL);
+            _distributedLockDAL, _studentTrackLogDAL);
             return await studentCheckProcess.Process();
         }
 
@@ -539,7 +543,7 @@ namespace ETMS.Business
                 FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(studentBucket.Student.Avatar, studentBucket.Student.FaceKey))
             }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
             _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
-            _distributedLockDAL);
+            _distributedLockDAL, _studentTrackLogDAL);
             return await studentCheckProcess.Process();
         }
 

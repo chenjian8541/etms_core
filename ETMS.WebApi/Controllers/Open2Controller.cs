@@ -224,5 +224,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> MallCartAdd(MallCartAddRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.MallCartAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> MallCartInfoGet(MallCartInfoGetRequest request)
+        {
+            try
+            {
+                _openBLL.InitTenantId(request.LoginTenantId);
+                return await _openBLL.MallCartInfoGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -36,5 +36,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request);
 
         Task<ResponseBase> MallGoodsDetailGet(MallGoodsDetailGetRequest request);
+
+        Task<ResponseBase> MallCartAdd(MallCartAddRequest request);
+
+        Task<ResponseBase> MallCartInfoGet(MallCartInfoGetRequest request);
     }
 }

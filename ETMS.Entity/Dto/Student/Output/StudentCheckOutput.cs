@@ -112,6 +112,28 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 扣减课时
         /// </summary>
         public string DeClassTimesDesc { get; set; }
+
+        /// <summary>
+        /// 课次剩余描述
+        /// </summary>
+        public string CourseSurplusDesc { get; set; }
+
+        public bool IsCourseNotEnough { get; set; }
+
+        public string CourseName { get; set; }
+
+        public string GenderDesc { get; set; }
+
+        public string TrackUserDesc { get; set; }
+
+        public string LearningManagerDesc { get; set; }
+
+        public string OtDesc { get; set; }
+
+        /// <summary>
+        /// 跟进记录
+        /// </summary>
+        public StudentTrackLogLast StudentTrackLogLast { get; set; }
     }
 
     public struct StudentCheckOutputCheckState
@@ -120,5 +142,31 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public const byte Success = 1;
 
+    }
+
+    public class StudentTrackLogLast
+    {
+        public long CId { get; set; }
+
+        /// <summary>
+        /// 跟进时间
+        /// </summary>
+        public string TrackTimeDesc { get; set; }
+
+        /// <summary>
+        /// 下一次跟进时间
+        /// </summary>
+        public string NextTrackTimeDesc { get; set; }
+
+        /// <summary>
+        /// 跟进内容
+        /// </summary>
+        public string TrackContent { get; set; }
+
+        public string TrackUserName { get; set; }
+
+        public List<string> TrackImgUrl { get; set; }
+
+        public string TrackUserAvatarUrl { get; set; }
     }
 }
