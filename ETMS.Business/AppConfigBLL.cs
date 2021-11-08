@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IBusiness.SysOp;
 using ETMS.Business.Common;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -34,8 +36,11 @@ namespace ETMS.Business
 
         private readonly IParentMenusConfigDAL _parentMenusConfigDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public AppConfigBLL(ITenantConfigDAL tenantConfigDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL, IHttpContextAccessor httpContextAccessor,
-            IAppConfigurtaionServices appConfigurtaionServices, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL, IParentMenusConfigDAL parentMenusConfigDAL)
+            IAppConfigurtaionServices appConfigurtaionServices, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
+            IParentMenusConfigDAL parentMenusConfigDAL, IEventPublisher eventPublisher)
         {
             this._tenantConfigDAL = tenantConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -44,6 +49,7 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
             this._parentMenusConfigDAL = parentMenusConfigDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -198,6 +204,8 @@ namespace ETMS.Business
             config.StudentCourseRenewalConfig.LimitDay = request.LimitDay;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构信息设置", EmUserOperationType.SystemConfigModify);
+
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             return ResponseBase.Success();
         }
 

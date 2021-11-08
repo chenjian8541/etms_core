@@ -16,7 +16,7 @@ namespace ETMS.Business.Common
 {
     internal static class ComBusiness4
     {
-        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(EtTeacherSalaryContractPerformanceSetDetail item)
+        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(EtTeacherSalaryContractPerformanceSetDetail item, decimal bascValue)
         {
             var unitTag = string.Empty;
             switch (item.ComputeMode)
@@ -34,11 +34,16 @@ namespace ETMS.Business.Common
                     unitTag = "元/课时";
                     break;
             }
-            var desc = $"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>{item.ComputeValue}{unitTag}</span></div>";
-            return Tuple.Create(desc, EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(item.ComputeMode));
+            var strDesc = new StringBuilder();
+            if (bascValue > 0)
+            {
+                strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>每节课底薪：{bascValue}元</span></div>");
+            }
+            strDesc.Append($"<div class='performance_set_rule_content_item'><span class='rule_interval_value'>{item.ComputeValue}{unitTag}</span></div>");
+            return Tuple.Create(strDesc.ToString(), EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(item.ComputeMode));
         }
 
-        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(List<EtTeacherSalaryContractPerformanceSetDetail> items, decimal bascValue = 0)
+        internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(List<EtTeacherSalaryContractPerformanceSetDetail> items, decimal bascValue)
         {
             if (items == null || items.Count == 0)
             {

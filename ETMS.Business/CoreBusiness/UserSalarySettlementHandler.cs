@@ -64,7 +64,8 @@ namespace ETMS.Business
 
         private List<TeacherSalaryPayrollUserPerformanceView> GetUserPerformance(long userId,
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet,
-            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails)
+            List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails,
+            List<EtTeacherSalaryContractPerformanceLessonBasc> myTeacherSalaryContractPerformanceLessonBascs)
         {
             if (myTeacherSalaryContractPerformanceSetDetails == null ||
                 myTeacherSalaryContractPerformanceSetDetails.Count == 0)
@@ -80,7 +81,7 @@ namespace ETMS.Business
 
             var processHandler = new UserSalaryPerformanceHandler(_teacherSalaryPayroll.TenantId, userId,
                 myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails, mySalaryClassTimesList2,
-                mySalaryClassTimesList, _globalConfig);
+                mySalaryClassTimesList, _globalConfig, myTeacherSalaryContractPerformanceLessonBascs);
             var processMethod = typeof(UserSalaryPerformanceHandler).GetMethod($"Process_{_globalConfig.StatisticalRuleType}_{myTeacherSalaryContractPerformanceSet.ComputeType}_{myTeacherSalaryContractPerformanceSet.GradientCalculateType}");
             return processMethod.Invoke(processHandler, null) as List<TeacherSalaryPayrollUserPerformanceView>;
         }
@@ -92,6 +93,7 @@ namespace ETMS.Business
             List<EtTeacherSalaryContractFixed> myTeacherSalaryContractFixeds = null;
             EtTeacherSalaryContractPerformanceSet myTeacherSalaryContractPerformanceSet = null;
             List<EtTeacherSalaryContractPerformanceSetDetail> myTeacherSalaryContractPerformanceSetDetails = null;
+            List<EtTeacherSalaryContractPerformanceLessonBasc> myTeacherSalaryContractPerformanceLessonBascs = null;
             var myTeacherSalaryContractSetBucket = await _teacherSalaryContractDAL.GetTeacherSalaryContract(userId);
             if (myTeacherSalaryContractSetBucket != null)
             {
@@ -108,6 +110,11 @@ namespace ETMS.Business
                     myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails.Any())
                 {
                     myTeacherSalaryContractPerformanceSetDetails = myTeacherSalaryContractSetBucket.TeacherSalaryContractPerformanceSetDetails;
+                }
+                if (myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs != null
+                    && myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs.Any())
+                {
+                    myTeacherSalaryContractPerformanceLessonBascs = myTeacherSalaryContractSetBucket.EtTeacherSalaryContractPerformanceLessonBascs;
                 }
             }
             if (myTeacherSalaryContractPerformanceSet != null)
@@ -147,7 +154,8 @@ namespace ETMS.Business
                     var amountSum1 = 0M;
                     if (myTeacherSalaryContractPerformanceSetDetails != null && myTeacherSalaryContractPerformanceSetDetails.Any())
                     {
-                        myPayrollUser.PerformanceViews = GetUserPerformance(userId, myTeacherSalaryContractPerformanceSet, myTeacherSalaryContractPerformanceSetDetails);
+                        myPayrollUser.PerformanceViews = GetUserPerformance(userId, myTeacherSalaryContractPerformanceSet,
+                            myTeacherSalaryContractPerformanceSetDetails, myTeacherSalaryContractPerformanceLessonBascs);
                         if (myPayrollUser.PerformanceViews.Any())
                         {
                             amountSum1 = myPayrollUser.PerformanceViews.Sum(p => p.TeacherSalaryPayrollUserPerformance.SubmitSum);

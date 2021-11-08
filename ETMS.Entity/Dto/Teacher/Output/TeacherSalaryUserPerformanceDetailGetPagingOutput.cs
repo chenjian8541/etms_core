@@ -57,5 +57,7 @@ namespace ETMS.Entity.Dto.Teacher.Output
         public int MakeUpEffectiveCount { get; set; }
 
         public decimal ComputeSum { get; set; }
+
+        public decimal BascMoney { get; set; }
     }
 }

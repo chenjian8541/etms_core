@@ -1522,7 +1522,8 @@ namespace ETMS.Business
                         TryCalssStudentCount = p.TryCalssStudentCount,
                         WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}",
                         ClassName = className,
-                        CourseName = courseName
+                        CourseName = courseName,
+                        BascMoney = p.BascMoney
                     });
                 }
             }
