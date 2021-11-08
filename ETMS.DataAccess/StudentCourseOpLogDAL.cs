@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -33,6 +34,16 @@ namespace ETMS.DataAccess
             await _dbWrapper.Insert(entity);
             await UpdateCache(_tenantId, entity.StudentId);
             return true;
+        }
+
+        public void AddStudentCourseOpLog(List<EtStudentCourseOpLog> entitys)
+        {
+            _dbWrapper.InsertRange(entitys);
+            var studentIds = entitys.Select(p => p.StudentId).Distinct();
+            foreach (var myStudentId in studentIds)
+            {
+                RemoveCache(_tenantId, myStudentId);
+            }
         }
 
         public async Task<List<EtStudentCourseOpLog>> GetStudentCourseOpLogs(long studentId)

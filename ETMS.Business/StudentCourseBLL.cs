@@ -421,6 +421,67 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentCourseStopBatch(StudentCourseStopBatchRequest request)
+        {
+            var studentDesc = new StringBuilder();
+            var now = DateTime.Now;
+            var stopTime = now.Date;
+            var studentCourseOpLogs = new List<EtStudentCourseOpLog>();
+            var str = new StringBuilder();
+            str.Append($"课程停课，停课日期({stopTime.EtmsToDateString()})");
+            if (request.RestoreTime != null)
+            {
+                str.Append($"，复课日期({stopTime.EtmsToDateString()})");
+            }
+            foreach (var p in request.StudentIds)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                var myCourses = await _studentCourseDAL.GetStudentCourse(p);
+                if (myCourses != null && myCourses.Any())
+                {
+                    var nomalCourse = myCourses.Where(p => p.Status == EmStudentCourseStatus.Normal);
+                    if (nomalCourse.Any())
+                    {
+                        var allIds = nomalCourse.Select(j => j.CourseId).Distinct();
+                        foreach (var myCourseId in allIds)
+                        {
+                            await _studentCourseDAL.StudentCourseStop(p, myCourseId, stopTime, request.RestoreTime);
+                            _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
+                            {
+                                CourseId = myCourseId,
+                                StudentId = p
+                            });
+                            studentCourseOpLogs.Add(new EtStudentCourseOpLog()
+                            {
+                                CourseId = myCourseId,
+                                IsDeleted = EmIsDeleted.Normal,
+                                OpTime = now,
+                                OpType = EmStudentCourseOpLogType.CourseStop,
+                                OpUser = request.LoginUserId,
+                                StudentId = p,
+                                TenantId = request.LoginTenantId,
+                                OpContent = str.ToString(),
+                                Remark = $"批量停课：{request.Remark}"
+                            });
+                        }
+                        studentDesc.Append($"{studentBucket.Student.Name};");
+                    }
+                }
+            }
+
+            if (studentCourseOpLogs.Count > 0)
+            {
+                _studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"批量停课-学员:{studentDesc}", EmUserOperationType.StudentCourseManage, now);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentCourseRestoreTime(StudentCourseRestoreTimeRequest request)
         {
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);

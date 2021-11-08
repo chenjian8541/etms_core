@@ -19,6 +19,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request);
 
+        Task<ResponseBase> StudentCourseStopBatch(StudentCourseStopBatchRequest request);
+
         Task<ResponseBase> StudentCourseRestoreTime(StudentCourseRestoreTimeRequest request);
 
         Task<ResponseBase> StudentCourseMarkExceedClassTimes(StudentCourseMarkExceedClassTimesRequest request);
