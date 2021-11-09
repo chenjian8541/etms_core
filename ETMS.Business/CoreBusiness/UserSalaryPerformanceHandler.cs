@@ -292,13 +292,13 @@ namespace ETMS.Business
             switch (setRule.ComputeMode)
             {
                 case EmTeacherSalaryComputeMode.TeacherClassTimes:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentAttendeesCount:
-                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes); 
+                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentDeSum:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum);
                     break;
                 case EmTeacherSalaryComputeMode.StudentClassTimes:
                     output.ComputeRelationValue = myClassTimes.Sum(p => p.StudentClassTimes);
@@ -352,13 +352,13 @@ namespace ETMS.Business
             switch (firstRule.ComputeMode)
             {
                 case EmTeacherSalaryComputeMode.TeacherClassTimes:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentAttendeesCount:
-                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes); 
+                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentDeSum:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum);
                     break;
                 case EmTeacherSalaryComputeMode.StudentClassTimes:
                     output.ComputeRelationValue = myClassTimes.Sum(p => p.StudentClassTimes);
@@ -411,13 +411,13 @@ namespace ETMS.Business
             switch (firstRule.ComputeMode)
             {
                 case EmTeacherSalaryComputeMode.TeacherClassTimes:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.TeacherClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentAttendeesCount:
-                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes); 
+                    output.ComputeRelationValue = GetValidArrivedAndBeLateCount(myClassTimes);
                     break;
                 case EmTeacherSalaryComputeMode.StudentDeSum:
-                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum); 
+                    output.ComputeRelationValue = myClassTimes.Sum(p => p.DeSum);
                     break;
                 case EmTeacherSalaryComputeMode.StudentClassTimes:
                     output.ComputeRelationValue = myClassTimes.Sum(p => p.StudentClassTimes);
@@ -518,7 +518,7 @@ namespace ETMS.Business
             {
                 output.ComputeSum += bascMoney * myClassTimes.Count();
             }
-            output.SubmitSum = totalComputeSum;
+            output.SubmitSum = output.ComputeSum;
 
             return new TeacherSalaryPayrollUserPerformanceView()
             {
@@ -600,7 +600,7 @@ namespace ETMS.Business
             {
                 output.ComputeSum += bascMoney * myClassTimes.Count();
             }
-            output.SubmitSum = totalComputeSum;
+            output.SubmitSum = output.ComputeSum;
 
             return new TeacherSalaryPayrollUserPerformanceView()
             {
@@ -682,7 +682,7 @@ namespace ETMS.Business
             {
                 output.ComputeSum += bascMoney * myClassTimes.Count();
             }
-            output.SubmitSum = totalComputeSum;
+            output.SubmitSum = output.ComputeSum;
 
             return new TeacherSalaryPayrollUserPerformanceView()
             {
@@ -758,7 +758,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
-                output.Add(GetCalculateType_MoreThanValue(myClassId, myClassSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_MoreThanValue(myClassId, myClassSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -793,7 +793,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
-                output.Add(GetCalculateType_AllValue(myClassId, myClassSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_AllValue(myClassId, myClassSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -863,7 +863,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
-                output.Add(GetCalculateType_MoreThanValue(myCourseId, myCourseSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_MoreThanValue(myCourseId, myCourseSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -898,7 +898,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
-                output.Add(GetCalculateType_AllValue(myCourseId, myCourseSetRules, myClassTimes, myCourseId)); 
+                output.Add(GetCalculateType_AllValue(myCourseId, myCourseSetRules, myClassTimes, myCourseId));
             }
             return output;
         }
@@ -1034,7 +1034,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
-                output.Add(GetCalculateType_MoreThanValue2(myClassId, myClassSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_MoreThanValue2(myClassId, myClassSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -1069,7 +1069,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList2.Where(p => p.ClassId == myClassId);
-                output.Add(GetCalculateType_AllValue2(myClassId, myClassSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_AllValue2(myClassId, myClassSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -1139,7 +1139,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
-                output.Add(GetCalculateType_MoreThanValue2(myCourseId, myCourseSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_MoreThanValue2(myCourseId, myCourseSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
@@ -1174,7 +1174,7 @@ namespace ETMS.Business
                 }
 
                 var myClassTimes = _mySalaryClassTimesList.Where(p => p.CourseId == myCourseId);
-                output.Add(GetCalculateType_AllValue2(myCourseId, myCourseSetRules, myClassTimes, bascMoney)); 
+                output.Add(GetCalculateType_AllValue2(myCourseId, myCourseSetRules, myClassTimes, bascMoney));
             }
             return output;
         }
