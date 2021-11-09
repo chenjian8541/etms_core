@@ -841,7 +841,35 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此订单无须补交费用");
             }
-            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos + request.PayOther + request.PayLcsBarcodePay;
+            long? payAccountRechargeId = null;
+            var payAccountRechargePhone = string.Empty;
+            var payPayAccount = 0M;
+            if (request.PayAccountRechargeId != null &&
+               (request.PayAccountRechargeReal > 0 || request.PayAccountRechargeGive > 0))
+            {
+                //验证充值账户抵扣
+                var myAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(request.PayAccountRechargeId.Value);
+                if (myAccountRecharge == null)
+                {
+                    return ResponseBase.CommonError("充值账户不存在");
+                }
+                if (request.PayAccountRechargeReal > 0
+                    && myAccountRecharge.BalanceReal < request.PayAccountRechargeReal)
+                {
+                    return ResponseBase.CommonError("充值账户实充余额不足");
+                }
+                if (request.PayAccountRechargeGive > 0
+                    && myAccountRecharge.BalanceGive < request.PayAccountRechargeGive)
+                {
+                    return ResponseBase.CommonError("充值账户赠送余额不足");
+                }
+                payAccountRechargeId = myAccountRecharge.Id;
+                payAccountRechargePhone = myAccountRecharge.Phone;
+                payPayAccount = request.PayAccountRechargeReal + request.PayAccountRechargeGive;
+            }
+
+            var payTotal = request.PayWechat + request.PayAlipay + request.PayCash + request.PayBank + request.PayPos + request.PayOther
+                + request.PayLcsBarcodePay + payPayAccount;
             if (order.ArrearsSum < payTotal)
             {
                 return ResponseBase.CommonError("支付金额不能大于欠款金额");
@@ -888,7 +916,44 @@ namespace ETMS.Business
             order.ArrearsSum = newArrearsSum;
             order.Status = newStatus;
             order.PaySum = newPaySum;
+            if (payAccountRechargeId != null)
+            {
+                order.PayAccountRechargeGive += request.PayAccountRechargeGive;
+                order.PayAccountRechargeReal += request.PayAccountRechargeReal;
+                order.PayAccountRechargeId = payAccountRechargeId;
+            }
             await _orderDAL.UpdateOrder(order);
+            if (payAccountRechargeId != null)
+            {
+                await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
+                {
+                    AddBalanceReal = -order.PayAccountRechargeReal,
+                    AddBalanceGive = -order.PayAccountRechargeGive,
+                    AddRechargeSum = 0,
+                    AddRechargeGiveSum = 0,
+                    StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                    TryCount = 0
+                });
+                await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                {
+                    TenantId = order.TenantId,
+                    CgBalanceGive = order.PayAccountRechargeGive,
+                    CgBalanceReal = order.PayAccountRechargeReal,
+                    CgNo = order.No,
+                    CgServiceCharge = 0,
+                    CommissionUser = string.Empty,
+                    IsDeleted = order.IsDeleted,
+                    Ot = order.CreateOt,
+                    Phone = payAccountRechargePhone,
+                    Remark = order.Remark,
+                    RelatedOrderId = order.Id,
+                    Status = EmStudentAccountRechargeLogStatus.Normal,
+                    StudentAccountRechargeId = order.PayAccountRechargeId.Value,
+                    Type = EmStudentAccountRechargeLogType.Pay,
+                    UserId = order.UserId
+                });
+            }
+
             _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.LoginTenantId)
             {
                 StatisticsDate = request.PayOt

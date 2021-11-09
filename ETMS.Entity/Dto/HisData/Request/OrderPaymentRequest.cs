@@ -27,13 +27,24 @@ namespace ETMS.Entity.Dto.HisData.Request
 
         public DateTime PayOt { get; set; }
 
+        public decimal PayAccountRechargeReal { get; set; }
+
+        public decimal PayAccountRechargeGive { get; set; }
+
+        public long? PayAccountRechargeId { get; set; }
+
         public override string Validate()
         {
             if (OrderId <= 0)
             {
                 return "请求数据格式错误";
             }
-            if ((PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther + PayLcsBarcodePay) <= 0)
+            var payPayAccount = 0M;
+            if (this.PayAccountRechargeId != null && (this.PayAccountRechargeReal > 0 || this.PayAccountRechargeGive > 0))
+            {
+                payPayAccount = this.PayAccountRechargeReal + this.PayAccountRechargeGive;
+            }
+            if ((PayWechat + PayAlipay + PayCash + PayBank + PayPos + PayOther + PayLcsBarcodePay + payPayAccount) <= 0)
             {
                 return "请输入支付金额";
             }
