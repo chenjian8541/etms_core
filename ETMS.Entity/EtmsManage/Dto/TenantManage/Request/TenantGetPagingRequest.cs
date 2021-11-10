@@ -91,6 +91,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
         public int? LastOpLimitMonth { get; set; }
 
         /// <summary>
+        /// 过期年月
+        /// </summary>
+        public string ExpiredYearMonth { get; set; }
+
+        /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
         /// <returns></returns>
@@ -181,6 +186,13 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
                 var time = DateTime.Now.AddMonths(-LastOpLimitMonth.Value);
                 var timeDesc = time.EtmsToString();
                 condition.Append($" AND (LastOpTime <= '{timeDesc}' OR LastOpTime IS NULL) AND Ot <= '{timeDesc}'");
+            }
+            if (!string.IsNullOrEmpty(ExpiredYearMonth))
+            {
+                var time = Convert.ToDateTime(ExpiredYearMonth);
+                var minDate = new DateTime(time.Year, time.Month, 1);
+                var maxDate = minDate.AddMonths(1);
+                condition.Append($" AND ExDate >= '{minDate.EtmsToDateString()}' AND ExDate < '{maxDate.EtmsToDateString()}'");
             }
             return condition.ToString();
         }

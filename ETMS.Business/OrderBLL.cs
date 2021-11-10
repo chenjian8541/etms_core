@@ -927,8 +927,8 @@ namespace ETMS.Business
             {
                 await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
                 {
-                    AddBalanceReal = -order.PayAccountRechargeReal,
-                    AddBalanceGive = -order.PayAccountRechargeGive,
+                    AddBalanceReal = -request.PayAccountRechargeReal,
+                    AddBalanceGive = -request.PayAccountRechargeGive,
                     AddRechargeSum = 0,
                     AddRechargeGiveSum = 0,
                     StudentAccountRechargeId = order.PayAccountRechargeId.Value,
@@ -937,8 +937,8 @@ namespace ETMS.Business
                 await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
                 {
                     TenantId = order.TenantId,
-                    CgBalanceGive = order.PayAccountRechargeGive,
-                    CgBalanceReal = order.PayAccountRechargeReal,
+                    CgBalanceGive = request.PayAccountRechargeGive,
+                    CgBalanceReal = request.PayAccountRechargeReal,
                     CgNo = order.No,
                     CgServiceCharge = 0,
                     CommissionUser = string.Empty,

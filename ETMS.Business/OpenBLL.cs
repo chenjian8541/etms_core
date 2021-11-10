@@ -427,12 +427,21 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("商品不存在");
             }
             var p = mallGoodsBucket.MallGoods;
+            var price = p.Price;
+            if (p.ProductType == EmProductType.Course)
+            {
+                var courseRule = mallGoodsBucket.MallCoursePriceRules.FirstOrDefault(j => j.Id == cartInfo.CoursePriceRuleId.Value);
+                if (courseRule == null)
+                {
+                    return ResponseBase.CommonError("课程收费标准不存在");
+                }
+                price = courseRule.TotalPrice;
+            }
             var output = new MallCartInfoGetOutput()
             {
                 GId = p.GId,
                 Name = p.Name,
-                Price = p.Price,
-                PriceDesc = p.PriceDesc,
+                Price = price,
                 ProductType = p.ProductType,
                 OriginalPriceDesc = p.OriginalPriceDesc,
                 ImgCoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.ImgCover),
