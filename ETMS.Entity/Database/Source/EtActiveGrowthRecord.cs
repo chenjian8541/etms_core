@@ -45,6 +45,26 @@ namespace ETMS.Entity.Database.Source
         public string GrowthMedias { get; set; }
 
         /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReadStatus { get; set; }
+
+        /// <summary>
+        /// 收藏状态   <see cref="ETMS.Entity.Enum.EmActiveGrowthRecordDetailFavoriteStatus"/>
+        /// </summary>
+        public byte FavoriteStatus { get; set; }
+
+        /// <summary>
+        /// 总数量
+        /// </summary>
+        public int TotalCount { get; set; }
+
+        /// <summary>
+        /// 已读数量
+        /// </summary>
+        public int ReadCount { get; set; }
+
+        /// <summary>
         /// 创建日期
         /// </summary>
         public DateTime Ot { get; set; }

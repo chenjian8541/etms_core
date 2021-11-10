@@ -44,6 +44,11 @@ namespace ETMS.Entity.Database.Source
         public string GrowthMedias { get; set; }
 
         /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReadStatus { get; set; }
+
+        /// <summary>
         /// 收藏状态   <see cref="ETMS.Entity.Enum.EmActiveGrowthRecordDetailFavoriteStatus"/>
         /// </summary>
         public byte FavoriteStatus { get; set; }

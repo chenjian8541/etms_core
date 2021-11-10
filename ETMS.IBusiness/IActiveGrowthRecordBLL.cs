@@ -14,6 +14,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ActiveGrowthRecordStudentGetPaging(ActiveGrowthRecordStudentGetPagingRequest request);
 
+        Task<ResponseBase> ActiveGrowthRecordStudentStatusGet(ActiveGrowthRecordStudentStatusGetRequest request);
+
         Task<ResponseBase> ActiveGrowthRecordClassAdd(ActiveGrowthRecordClassAddRequest request);
 
         Task<ResponseBase> ActiveGrowthRecordStudentAdd(ActiveGrowthRecordStudentAddRequest request);

@@ -203,6 +203,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveGrowthRecordStudentStatusGet(ActiveGrowthRecordStudentStatusGetRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthRecordStudentStatusGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActiveGrowthRecordClassAdd(ActiveGrowthRecordClassAddRequest request)
         {
             try

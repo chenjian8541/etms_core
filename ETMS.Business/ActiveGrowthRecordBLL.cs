@@ -102,7 +102,11 @@ namespace ETMS.Business
                     SendType = p.SendType,
                     Type = p.Type,
                     GrowthContent = p.GrowthContent,
-                    TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type)
+                    TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type),
+                    FavoriteStatus = p.FavoriteStatus,
+                    ReadStatus = p.ReadStatus,
+                    ReadCount = p.ReadCount,
+                    TotalCount = p.TotalCount
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActiveGrowthRecordGetPagingOutput>(pagingData.Item2, output));
@@ -132,10 +136,56 @@ namespace ETMS.Business
                     SendType = p.SendType,
                     Type = p.Type,
                     GrowthContent = p.GrowthContent,
-                    TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type)
+                    TypeDesc = EmActiveGrowthRecordType.GetActiveGrowthRecordTypeDesc(p.Type),
+                    FavoriteStatus = p.FavoriteStatus,
+                    ReadStatus = p.ReadStatus,
+                    ReadCount = p.ReadCount,
+                    TotalCount = p.TotalCount
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActiveGrowthRecordGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActiveGrowthRecordStudentStatusGet(ActiveGrowthRecordStudentStatusGetRequest request)
+        {
+            var output = new ActiveGrowthRecordStudentStatusGetOutput()
+            {
+                ReadList = new List<ActiveGrowthRecordStudentStatusItem>(),
+                UnReadList = new List<ActiveGrowthRecordStudentStatusItem>()
+            };
+            var activeGrowthRecordSimpleView = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetailSimpleView(request.CId);
+            if (activeGrowthRecordSimpleView.Any())
+            {
+                foreach (var p in activeGrowthRecordSimpleView)
+                {
+                    var myStudentBucket = await _studentDAL.GetStudent(p.StudentId);
+                    if (myStudentBucket == null || myStudentBucket.Student == null)
+                    {
+                        continue;
+                    }
+                    if (p.ReadStatus == EmBool.True)
+                    {
+                        output.ReadList.Add(new ActiveGrowthRecordStudentStatusItem()
+                        {
+                            ReadStatus = p.ReadStatus,
+                            FavoriteStatus = p.FavoriteStatus,
+                            Id = p.Id,
+                            StudentName = myStudentBucket.Student.Name
+                        });
+                    }
+                    else
+                    {
+                        output.UnReadList.Add(new ActiveGrowthRecordStudentStatusItem()
+                        {
+                            ReadStatus = p.ReadStatus,
+                            FavoriteStatus = p.FavoriteStatus,
+                            Id = p.Id,
+                            StudentName = myStudentBucket.Student.Name
+                        });
+                    }
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ActiveGrowthRecordClassAdd(ActiveGrowthRecordClassAddRequest request)
@@ -145,6 +195,17 @@ namespace ETMS.Business
             if (request.GrowthMediasKeys != null && request.GrowthMediasKeys.Count > 0)
             {
                 growthMedias = string.Join('|', request.GrowthMediasKeys);
+            }
+            var classId = request.ClassIds[0];
+            var myClassBucket = await _classDAL.GetClassBucket(classId);
+            if (myClassBucket == null || myClassBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            var totalCount = 0;
+            if (myClassBucket.EtClassStudents != null || myClassBucket.EtClassStudents.Any())
+            {
+                totalCount = myClassBucket.EtClassStudents.Count;
             }
             var entity = new EtActiveGrowthRecord()
             {
@@ -157,7 +218,8 @@ namespace ETMS.Business
                 GrowthMedias = growthMedias,
                 IsDeleted = EmIsDeleted.Normal,
                 SendType = request.SendType,
-                RelatedIds = EtmsHelper.GetMuIds(request.ClassIds)
+                RelatedIds = EtmsHelper.GetMuIds(request.ClassIds),
+                TotalCount = totalCount
             };
             await _activeGrowthRecordDAL.AddActiveGrowthRecord(entity);
             _eventPublisher.Publish(new ActiveGrowthRecordAddEvent(request.LoginTenantId)
@@ -189,7 +251,9 @@ namespace ETMS.Business
                 GrowthMedias = growthMedias,
                 IsDeleted = EmIsDeleted.Normal,
                 SendType = request.SendType,
-                RelatedIds = EtmsHelper.GetMuIds(request.StudentIds)
+                RelatedIds = EtmsHelper.GetMuIds(request.StudentIds),
+                TotalCount = 1,
+                ReadCount = 0
             };
             await _activeGrowthRecordDAL.AddActiveGrowthRecord(entity);
             _eventPublisher.Publish(new ActiveGrowthRecordAddEvent(request.LoginTenantId)
@@ -272,6 +336,7 @@ namespace ETMS.Business
             }
             if (activeGrowthRecordDetails.Count > 0)
             {
+                await _activeGrowthRecordDAL.UpdateActiveGrowthRecordTotalCount(activeGrowthRecord.Id, activeGrowthRecordDetails.Count);
                 _activeGrowthRecordDAL.AddActiveGrowthRecordDetail(activeGrowthRecordDetails);
 
                 _eventPublisher.Publish(new NoticeStudentsOfGrowthRecordEvent(request.TenantId)

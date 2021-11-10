@@ -4,6 +4,7 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -41,6 +42,11 @@ namespace ETMS.DataAccess
             await this._dbWrapper.Insert(entity);
             await UpdateCache(_tenantId, entity.Id);
             return true;
+        }
+
+        public async Task UpdateActiveGrowthRecordTotalCount(long growthRecordId, int totalCount)
+        {
+            await _dbWrapper.Execute($"UPDATE [EtActiveGrowthRecord] SET TotalCount = {totalCount} WHERE Id = {growthRecordId} ");
         }
 
         public async Task<ActiveGrowthRecordBucket> GetActiveGrowthRecord(long id)
@@ -98,6 +104,31 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE EtActiveGrowthRecordDetail SET FavoriteStatus = {newFavoriteStatus} WHERE id = {growthRecordDetailId}");
             return true;
+        }
+
+        public async Task<bool> SetActiveGrowthRecordNewFavoriteStatus(long growthRecordId, byte newFavoriteStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActiveGrowthRecord SET FavoriteStatus = {newFavoriteStatus} WHERE Id = {growthRecordId} AND TenantId = {_tenantId} ");
+            return true;
+        }
+
+        public async Task<bool> SetActiveGrowthRecordIsRead(long growthRecordId, long growthRecordDetailId)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append($"UPDATE EtActiveGrowthRecord SET ReadStatus = {EmBool.True} WHERE Id = {growthRecordId} AND TenantId = {_tenantId} ;");
+            strSql.Append($"UPDATE EtActiveGrowthRecordDetail SET ReadStatus = {EmBool.True} WHERE Id = {growthRecordDetailId} AND TenantId = {_tenantId}; ");
+            await _dbWrapper.Execute(strSql.ToString());
+            return true;
+        }
+
+        public async Task GrowthRecordAddReadCount(long growthRecordId)
+        {
+            await _dbWrapper.Execute($"UPDATE [EtActiveGrowthRecord] SET ReadCount = ReadCount + 1 WHERE Id = {growthRecordId} ");
+        }
+
+        public async Task<IEnumerable<ActiveGrowthRecordDetailSimpleView>> GetActiveGrowthRecordDetailSimpleView(long growthRecordId)
+        {
+            return await _dbWrapper.ExecuteObject<ActiveGrowthRecordDetailSimpleView>($"SELECT TOP 1000 Id,StudentId,ReadStatus,FavoriteStatus FROM EtActiveGrowthRecordDetail WHERE TenantId = {_tenantId} AND GrowthRecordId = {growthRecordId} AND IsDeleted = {EmIsDeleted.Normal} ");
         }
 
         public async Task<IEnumerable<GrowthRecordDetailView>> GetGrowthRecordDetailView(long growthRecordId)

@@ -884,6 +884,11 @@ namespace ETMS.Business
                 StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
                 TenantName = myTenant.Name
             };
+            if (growthRecordDetail.ReadStatus == EmBool.False)
+            {
+                await _activeGrowthRecordDAL.GrowthRecordAddReadCount(growthRecordDetail.GrowthRecordId);
+                await _activeGrowthRecordDAL.SetActiveGrowthRecordIsRead(growthRecordDetail.GrowthRecordId, growthRecordDetail.Id);
+            }
             return ResponseBase.Success(output);
         }
 
@@ -974,7 +979,13 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GrowthRecordChangeFavorite(GrowthRecordChangeFavoriteRequest request)
         {
+            var growthRecordDetail = await _activeGrowthRecordDAL.GetActiveGrowthRecordDetail(request.GrowthRecordDetailId);
+            if (growthRecordDetail == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
             await _activeGrowthRecordDAL.SetActiveGrowthRecordDetailNewFavoriteStatus(request.GrowthRecordDetailId, request.NewFavoriteStatus);
+            await _activeGrowthRecordDAL.SetActiveGrowthRecordNewFavoriteStatus(growthRecordDetail.GrowthRecordId, request.NewFavoriteStatus);
             return ResponseBase.Success();
         }
 

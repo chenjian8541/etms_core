@@ -2,6 +2,7 @@
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,8 @@ namespace ETMS.IDataAccess
     public interface IActiveGrowthRecordDAL : IBaseDAL
     {
         Task<bool> AddActiveGrowthRecord(EtActiveGrowthRecord entity);
+
+        Task UpdateActiveGrowthRecordTotalCount(long growthRecordId, int totalCount);
 
         Task<ActiveGrowthRecordBucket> GetActiveGrowthRecord(long id);
 
@@ -30,6 +33,14 @@ namespace ETMS.IDataAccess
         Task<EtActiveGrowthRecordDetail> GetActiveGrowthRecordDetail(long growthRecordDetailId);
 
         Task<bool> SetActiveGrowthRecordDetailNewFavoriteStatus(long growthRecordDetailId, byte newFavoriteStatus);
+
+        Task<bool> SetActiveGrowthRecordNewFavoriteStatus(long growthRecordId, byte newFavoriteStatus);
+
+        Task<bool> SetActiveGrowthRecordIsRead(long growthRecordId, long growthRecordDetailId);
+
+        Task GrowthRecordAddReadCount(long growthRecordId);
+
+        Task<IEnumerable<ActiveGrowthRecordDetailSimpleView>> GetActiveGrowthRecordDetailSimpleView(long growthRecordId);
 
         Task<IEnumerable<GrowthRecordDetailView>> GetGrowthRecordDetailView(long growthRecordId);
     }
