@@ -119,8 +119,8 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(GrowingCollect, "我的收藏", 40));
             AllConfig.Add(new ParentMenuInfo(ClassRecord, "上课记录", 45));
             AllConfig.Add(new ParentMenuInfo(MyBuyCourse, "报读课程", 50));
+            AllConfig.Add(new ParentMenuInfo(MallOrder, "商城订单", 53));
             AllConfig.Add(new ParentMenuInfo(ConsumeOrderLog, "消费记录", 55));
-            AllConfig.Add(new ParentMenuInfo(MallOrder, "商城订单", 57));
             AllConfig.Add(new ParentMenuInfo(ExchangeLog, "兑换记录", 60));
             AllConfig.Add(new ParentMenuInfo(PointsLog, "积分记录", 65));
             AllConfig.Add(new ParentMenuInfo(CouponsLog, "优惠券", 70));

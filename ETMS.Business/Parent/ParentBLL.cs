@@ -442,12 +442,12 @@ namespace ETMS.Business
             var config2 = await _tenantConfig2DAL.GetTenantConfig();
             if (config2.MallGoodsConfig.MallGoodsStatus == EmMallGoodsStatus.Close)
             {
-                var myMallGoods = menus.FirstOrDefault(p => p.Id != ParentMenuConfig.MallGoods);
+                var myMallGoods = menus.FirstOrDefault(p => p.Id == ParentMenuConfig.MallGoods);
                 if (myMallGoods != null)
                 {
                     myMallGoods.IsShow = false;
                 }
-                var myMallOrder = menus.FirstOrDefault(p => p.Id != ParentMenuConfig.MallOrder);
+                var myMallOrder = menus.FirstOrDefault(p => p.Id == ParentMenuConfig.MallOrder);
                 if (myMallOrder != null)
                 {
                     myMallOrder.IsShow = false;
