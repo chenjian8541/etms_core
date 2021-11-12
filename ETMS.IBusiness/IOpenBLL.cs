@@ -40,5 +40,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> MallCartAdd(MallCartAddRequest request);
 
         Task<ResponseBase> MallCartInfoGet(MallCartInfoGetRequest request);
+
+        Task<ResponseBase> TenantSimpleInfoGetMI(TenantSimpleInfoGetMIRequest request);
     }
 }

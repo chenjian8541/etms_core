@@ -28,6 +28,7 @@ using ETMS.Business.WxCore;
 using ETMS.Entity.Config;
 using ETMS.LOG;
 using ETMS.Entity.View;
+using ETMS.IDataAccess.EtmsManage;
 
 namespace ETMS.Business
 {
@@ -53,10 +54,12 @@ namespace ETMS.Business
 
         private readonly IMallCartDAL _mallCartDAL;
 
+        private readonly ISysTenantDAL _sysTenantDAL;
+
         public OpenBLL(IMicroWebBLL microWebBLL, IAppConfigBLL appConfigBLL, IMicroWebColumnArticleDAL microWebColumnArticleDAL,
             IComponentAccessBLL componentAccessBLL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IEventPublisher eventPublisher,
             IParentStudentDAL parentStudentDAL, IMallGoodsDAL mallGoodsDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            ILcsAccountBLL lcsAccountBLL, ITenantConfig2DAL tenantConfig2DAL, IMallCartDAL mallCartDAL)
+            ILcsAccountBLL lcsAccountBLL, ITenantConfig2DAL tenantConfig2DAL, IMallCartDAL mallCartDAL, ISysTenantDAL sysTenantDAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._microWebBLL = microWebBLL;
@@ -69,6 +72,7 @@ namespace ETMS.Business
             this._lcsAccountBLL = lcsAccountBLL;
             this._tenantConfig2DAL = tenantConfig2DAL;
             this._mallCartDAL = mallCartDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -455,6 +459,25 @@ namespace ETMS.Business
                 RelatedId = p.RelatedId
             };
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantSimpleInfoGetMI(TenantSimpleInfoGetMIRequest request)
+        {
+            var tenantId = EtmsHelper2.GetTenantDecrypt2(request.TenantNo);
+            if (tenantId == 0)
+            {
+                return ResponseBase.CommonError("机构编码错误");
+            }
+            var tenantInfo = await _sysTenantDAL.GetTenant(tenantId);
+            if (tenantInfo == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            return ResponseBase.Success(new TenantSimpleInfoGetMIOutput()
+            {
+                Name = tenantInfo.Name,
+                TenantCode = tenantInfo.TenantCode
+            });
         }
     }
 }

@@ -252,5 +252,18 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> TenantSimpleInfoGetMI(TenantSimpleInfoGetMIRequest request)
+        {
+            try
+            {
+                return await _openBLL.TenantSimpleInfoGetMI(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
