@@ -64,5 +64,32 @@ namespace ETMS.Entity.Dto.OpenApi99.Output
         /// 短信签名
         /// </summary>
         public string SmsSignature { get; set; }
+
+        /// <summary>
+        /// 状态 <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
+
+        /// <summary>
+        /// 购买状态  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantBuyStatus"/>
+        /// </summary>
+        public byte BuyStatus { get; set; }
+
+        /// <summary>
+        /// 注册时间
+        /// </summary>
+        public DateTime Ot { get; set; }
+
+        /// <summary>
+        /// 利楚扫呗申请状态
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcswApplyStatus"/>
+        /// </summary>
+        public int LcswApplyStatus { get; set; }
+
+        /// <summary>
+        /// 聚合支付(利楚扫呗)开启状态
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte LcswOpenStatus { get; set; }
     }
 }

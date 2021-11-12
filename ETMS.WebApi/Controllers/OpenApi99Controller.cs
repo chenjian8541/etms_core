@@ -45,6 +45,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantLcsAccountGet(OpenApi99Base request)
+        {
+            try
+            {
+                _tenantOpenBLL.InitTenantId(request.LoginTenantId);
+                return await _tenantOpenBLL.TenantLcsAccountGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SmsSend(SmsSendRequest request)
         {
             try

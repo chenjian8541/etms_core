@@ -22,11 +22,15 @@ namespace ETMS.Business.OpenApi99
 
         private readonly ISysAIFaceBiduAccountDAL _sysAIFaceBiduAccountDAL;
 
-        public TenantOpenBLL(ISysTenantDAL sysTenantDAL, ISmsService smsService, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL)
+        private readonly ITenantLcsAccountDAL _tenantLcsAccountDAL;
+
+        public TenantOpenBLL(ISysTenantDAL sysTenantDAL, ISmsService smsService,
+            ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL, ITenantLcsAccountDAL tenantLcsAccountDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsService = smsService;
             this._sysAIFaceBiduAccountDAL = sysAIFaceBiduAccountDAL;
+            this._tenantLcsAccountDAL = tenantLcsAccountDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -64,9 +68,46 @@ namespace ETMS.Business.OpenApi99
                 TenantCode = myTenant.TenantCode,
                 FaceApiApiKey = strFaceApiApiKey,
                 FaceApiAppid = strFaceApiAppid,
-                FaceApiSecretKey = strFaceApiSecretKey
+                FaceApiSecretKey = strFaceApiSecretKey,
+                BuyStatus = myTenant.BuyStatus,
+                LcswApplyStatus = myTenant.LcswApplyStatus,
+                LcswOpenStatus = myTenant.LcswOpenStatus,
+                Ot = myTenant.Ot,
+                Status = myTenant.Status
             };
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantLcsAccountGet(OpenApi99Base request)
+        {
+            var p = await _tenantLcsAccountDAL.GetTenantLcsAccount(request.LoginTenantId);
+            if (p == null)
+            {
+                return ResponseBase.Success();
+            }
+            return ResponseBase.Success(new TenantLcsAccountGetOutput()
+            {
+                AccessToken = p.AccessToken,
+                ChangeTime = p.ChangeTime,
+                CreationTime = p.CreationTime,
+                InstNo = p.InstNo,
+                LcswApplyStatus = p.LcswApplyStatus,
+                MerchantCompany = p.MerchantCompany,
+                MerchantInfoData = p.MerchantInfoData,
+                MerchantName = p.MerchantName,
+                MerchantNo = p.MerchantNo,
+                MerchantRquestData = p.MerchantRquestData,
+                MerchantStatus = p.MerchantStatus,
+                MerchantType = p.MerchantType,
+                ResultCode = p.ResultCode,
+                ReturnCode = p.ReturnCode,
+                ReturnMsg = p.ReturnMsg,
+                ReviewTime = p.ReviewTime,
+                StoreCode = p.StoreCode,
+                TerminalId = p.TerminalId,
+                TerminalName = p.TerminalName,
+                TraceNo = p.TraceNo
+            });
         }
 
         public async Task<ResponseBase> SmsSend(SmsSendRequest request)

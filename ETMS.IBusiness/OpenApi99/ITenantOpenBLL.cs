@@ -12,6 +12,8 @@ namespace ETMS.IBusiness.OpenApi99
     {
         Task<ResponseBase> TenantInfoGet(OpenApi99Base request);
 
+        Task<ResponseBase> TenantLcsAccountGet(OpenApi99Base request);
+
         Task<ResponseBase> SmsSend(SmsSendRequest request);
 
         Task<ResponseBase> SmsSendValidCode(SmsSendValidCodeRequest request);
