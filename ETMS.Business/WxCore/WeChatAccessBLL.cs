@@ -43,7 +43,7 @@ namespace ETMS.Business.WxCore
             this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
-        protected virtual async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl)
+        protected virtual async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl, string state)
         {
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)
@@ -52,7 +52,7 @@ namespace ETMS.Business.WxCore
                 return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
             var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, state,
                 new[] { Senparc.Weixin.Open.OAuthScope.snsapi_userinfo, Senparc.Weixin.Open.OAuthScope.snsapi_base });
             Log.Info($"[GetAuthorizeUrl]{url}", this.GetType());
             return ResponseBase.Success(url);
@@ -64,7 +64,7 @@ namespace ETMS.Business.WxCore
         /// <param name="tenantId"></param>
         /// <param name="sourceUrl"></param>
         /// <returns></returns>
-        protected virtual async Task<ResponseBase> GetAuthorizeUrl2(int tenantId, string sourceUrl)
+        protected virtual async Task<ResponseBase> GetAuthorizeUrl2(int tenantId, string sourceUrl, string state)
         {
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)
@@ -73,7 +73,7 @@ namespace ETMS.Business.WxCore
                 return ResponseBase.CommonError("机构绑定的微信公众号无权限");
             }
             var componentAppid = _appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, tenantId.ToString(),
+            var url = OAuthApi.GetAuthorizeUrl(tenantWechartAuth.AuthorizerAppid, componentAppid, sourceUrl, state,
                 new[] { Senparc.Weixin.Open.OAuthScope.snsapi_base });
             Log.Info($"[GetAuthorizeUrl2]{url}", this.GetType());
             return ResponseBase.Success(url);

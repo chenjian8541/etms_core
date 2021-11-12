@@ -205,7 +205,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetAuthorizeUrl(GetAuthorizeUrlRequest request)
         {
-            return await this.GetAuthorizeUrl2(request.LoginTenantId, request.SourceUrl);
+            return await this.GetAuthorizeUrl2(request.LoginTenantId, request.SourceUrl, request.State);
         }
 
         public async Task<ResponseBase> GetWxOpenId(GetWxOpenIdRequest request)

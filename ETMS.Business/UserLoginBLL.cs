@@ -71,12 +71,12 @@ namespace ETMS.Business
         public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
         {
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
-            return await GetAuthorizeUrl(tenantId, request.SourceUrl);
+            return await GetAuthorizeUrl(tenantId, request.SourceUrl, request.State);
         }
 
         public async Task<ResponseBase> UserGetAuthorizeUrl2(UserGetAuthorizeUrl2Request request)
         {
-            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
+            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl, request.State);
         }
 
         public async Task<ResponseBase> UserBindingWeChat(UserBindingWeChatRequest request)

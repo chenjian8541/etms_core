@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.Open2.Request
     {
         public string SourceUrl { get; set; }
 
+        public string State { get; set; }
+
         public override string Validate()
         {
             if (string.IsNullOrEmpty(SourceUrl))

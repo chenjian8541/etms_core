@@ -9,6 +9,8 @@ namespace ETMS.Entity.Dto.Parent.Request
     {
         public string SourceUrl { get; set; }
 
+        public string State { get; set; }
+
         public override string Validate()
         {
             if (string.IsNullOrEmpty(SourceUrl))

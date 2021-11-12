@@ -280,7 +280,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentGetAuthorizeUrl(ParentGetAuthorizeUrlRequest request)
         {
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
-            return await GetAuthorizeUrl(tenantId, request.SourceUrl);
+            return await GetAuthorizeUrl(tenantId, request.SourceUrl, request.State);
         }
 
         public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
@@ -351,7 +351,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentGetAuthorizeUrl2(ParentGetAuthorizeUrl2Request request)
         {
-            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl);
+            return await GetAuthorizeUrl(request.LoginTenantId, request.SourceUrl, request.State);
         }
 
         public async Task<ResponseBase> ParentBindingWeChat(ParentBindingWeChatRequest request)

@@ -11,6 +11,8 @@ namespace ETMS.Entity.Dto.Parent.Request
 
         public string SourceUrl { get; set; }
 
+        public string State { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(TenantNo))
