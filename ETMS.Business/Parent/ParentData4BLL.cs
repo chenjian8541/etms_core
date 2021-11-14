@@ -352,7 +352,8 @@ namespace ETMS.Business.Parent
                 MyMallGoodsBucket = mallGoodsBucket,
                 MyTenantLcsPayLog = lcsPaylog,
                 MyStudent = studentBucket.Student,
-                CoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule
+                CoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule,
+                ClassId = request.ClassId
             });
             return ResponseBase.Success(new ParentBuyMallGoodsSubmitOutput()
             {

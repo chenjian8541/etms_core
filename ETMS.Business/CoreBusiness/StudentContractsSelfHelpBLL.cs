@@ -366,6 +366,60 @@ namespace ETMS.Business
             };
         }
 
+        private async Task ClassStudentAdd(long classId, long studentId, long courseId)
+        {
+            var etClassBucket = await _classDAL.GetClassBucket(classId);
+            if (etClassBucket == null || etClassBucket.EtClass == null)
+            {
+                return;
+            }
+            var myClass = etClassBucket.EtClass;
+            var myClassStudent = etClassBucket.EtClassStudents;
+            if (etClassBucket.EtClass.CourseList.Split(',').FirstOrDefault(p => p == courseId.ToString()) == null)
+            {
+                return;
+            }
+            if (!await _classDAL.IsStudentBuyCourse(studentId, courseId))
+            {
+                return;
+            }
+            var hisStu = myClassStudent.FirstOrDefault(p => p.StudentId == studentId);
+            if (hisStu != null)
+            {
+                return;
+            }
+            var totalCount = etClassBucket.EtClassStudents.Count + 1;
+            if (totalCount > 200)
+            {
+                return;
+            }
+
+            if (myClass.LimitStudentNums != null && myClass.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+            {
+                if (totalCount > myClass.LimitStudentNums.Value)
+                {
+                    return;
+                }
+            }
+
+            var myEtClassStudent = new EtClassStudent()
+            {
+                ClassId = classId,
+                CourseId = courseId,
+                IsDeleted = EmIsDeleted.Normal,
+                Remark = string.Empty,
+                StudentId = studentId,
+                TenantId = tenantId
+            };
+            _eventPublisher.Publish(new SyncStudentClassInfoEvent(tenantId)
+            {
+                StudentId = studentId
+            });
+
+            await _classDAL.AddClassStudent(myEtClassStudent);
+            _eventPublisher.Publish(new SyncClassInfoEvent(tenantId, classId));
+        }
+
         public async Task ParentBuyMallGoodsSubmitConsumerEvent(ParentBuyMallGoodsSubmitEvent request)
         {
             var myuser = await _userDAL.GetAdminUser();
@@ -543,6 +597,12 @@ namespace ETMS.Business
                     Order = order,
                     Type = StudentRecommendRewardType.Buy
                 });
+            }
+
+            if (mallOrder.ProductType == EmProductType.Course && request.ClassId != null) //加入班级
+            {
+
+                await this.ClassStudentAdd(request.ClassId.Value, order.StudentId, mallOrder.RelatedId);
             }
         }
     }

@@ -23,5 +23,7 @@ namespace ETMS.Event.DataContract
         public EtStudent MyStudent { get; set; }
 
         public EtMallCoursePriceRule CoursePriceRule { get; set; }
+
+        public long? ClassId { get; set; }
     }
 }
