@@ -159,9 +159,11 @@ namespace ETMS.Business
             var orderDetails = new List<EtOrderDetail>();
             var studentCourseDetails = new List<EtStudentCourseDetail>();
             var oneToOneClassLst = new List<OneToOneClass>();
+            var isHasCourse = false;
             //课程
             if (request.EnrolmentCourses != null && request.EnrolmentCourses.Any())
             {
+                isHasCourse = true;
                 foreach (var p in request.EnrolmentCourses)
                 {
                     var course = await _courseDAL.GetCourse(p.CourseId);
@@ -373,7 +375,13 @@ namespace ETMS.Business
             //学员
             if (studentBucket.Student.StudentType != EmStudentType.ReadingStudent || order.TotalPoints > 0)
             {
-                await _studentDAL.StudentEnrolmentEventChangeInfo(order.StudentId, order.TotalPoints, EmStudentType.ReadingStudent);
+                byte? newStudentType = null;
+                if (isHasCourse && studentBucket.Student.StudentType != EmStudentType.ReadingStudent)
+                {
+                    newStudentType = EmStudentType.ReadingStudent;
+                }
+
+                await _studentDAL.StudentEnrolmentEventChangeInfo(order.StudentId, order.TotalPoints, newStudentType);
                 _eventPublisher.Publish(new StatisticsStudentEvent(order.TenantId) { OpType = EmStatisticsStudentType.StudentType });
             }
 

@@ -84,7 +84,6 @@ namespace ETMS.Business
         int tenantId;
         DateTime ot;
         long userId = 0;
-
         private void StructureCourse<T>(EtCourse course, T priceRule, EnrolmentCourse consumeDetail) where T : BaseCoursePrice
         {
             studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course, priceRule, consumeDetail, no, studentId, tenantId));
@@ -430,6 +429,7 @@ namespace ETMS.Business
             ot = request.MallOrder.CreateOt;
             mallOrder = request.MallOrder;
             this._request = request;
+            var isHasCourse = false;
             switch (request.MallOrder.ProductType)
             {
                 case EmProductType.Course:
@@ -439,6 +439,7 @@ namespace ETMS.Business
                         LOG.Log.Error("[在线商城]关联的课程不存在", request, this.GetType());
                         return;
                     }
+                    isHasCourse = true;
                     var course = courseBucket.Item1;
                     var priceRule = request.CoursePriceRule;
                     if (course.Type == EmCourseType.OneToOne)
@@ -481,6 +482,7 @@ namespace ETMS.Business
                         switch (itemProduct.ProductType)
                         {
                             case EmProductType.Course:
+                                isHasCourse = true;
                                 await StructureCourse(itemProduct);
                                 break;
                             case EmProductType.Goods:
@@ -548,7 +550,12 @@ namespace ETMS.Business
             //学员
             if (request.MyStudent.StudentType != EmStudentType.ReadingStudent || order.TotalPoints > 0)
             {
-                await _studentDAL.StudentEnrolmentEventChangeInfo(order.StudentId, order.TotalPoints, EmStudentType.ReadingStudent);
+                byte? newStudentType = null;
+                if (isHasCourse && request.MyStudent.StudentType != EmStudentType.ReadingStudent)
+                {
+                    newStudentType = EmStudentType.ReadingStudent;
+                }
+                await _studentDAL.StudentEnrolmentEventChangeInfo(order.StudentId, order.TotalPoints, newStudentType);
                 _eventPublisher.Publish(new StatisticsStudentEvent(order.TenantId) { OpType = EmStatisticsStudentType.StudentType });
             }
 

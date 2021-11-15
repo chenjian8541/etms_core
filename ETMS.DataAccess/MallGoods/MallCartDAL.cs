@@ -37,8 +37,15 @@ namespace ETMS.DataAccess.MallGoods
             };
         }
 
+        private async Task DelHistoryLog()
+        {
+            var hisDate = DateTime.Now.AddDays(-7);
+            await _dbWrapper.Execute($"DELETE EtMallCart WHERE CreateTime <= '{hisDate.EtmsToDateString()}' AND TenantId = {_tenantId}");
+        }
+
         public async Task<long> AddMallCart(EtMallCart entity)
         {
+            await DelHistoryLog();
             await _dbWrapper.Insert(entity);
             return entity.Id;
         }

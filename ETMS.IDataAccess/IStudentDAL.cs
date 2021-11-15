@@ -45,7 +45,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddPoint(long studentId, int addPoint);
 
-        Task<bool> StudentEnrolmentEventChangeInfo(long studentId, int addPoint, byte newStudentType);
+        Task<bool> StudentEnrolmentEventChangeInfo(long studentId, int addPoint, byte? newStudentType);
 
         Task<bool> EditStudentTrackUser(List<long> studentIds, long newTrackUserId);
 

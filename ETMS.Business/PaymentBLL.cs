@@ -357,6 +357,8 @@ namespace ETMS.Business
         public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request)
         {
             LOG.Log.Info("[LcsPayJspayCallback]利楚扫呗支付回调", request, this.GetType());
+            var tenantId = request.attach.ToInt();
+            this.InitTenantId(tenantId);
             var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(request.out_trade_no);
             if (request.return_code == "01")
             {

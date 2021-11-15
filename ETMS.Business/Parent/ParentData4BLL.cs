@@ -209,7 +209,7 @@ namespace ETMS.Business.Parent
                 access_token = myLcsAccount.AccessToken,
                 terminal_id = myLcsAccount.TerminalId,
                 terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                attach = orderNo,
+                attach = myTenant.Id.ToString(),
                 merchant_no = myLcsAccount.MerchantNo,
                 open_id = request.OpenId,
                 order_body = "在线商城_商品购买",

@@ -18,7 +18,7 @@ namespace ETMS.Entity.Config
         {
             BaseUrl = baseUrl;
             MerchantAuditCallbackUrl = $"{baseUrl}/pay/merchantAuditCallback";
-            LcsPayJspayCallbackUrl = $"{baseUrl}/pay/lcsPayJspayCallbackUrl";
+            LcsPayJspayCallbackUrl = $"{baseUrl}/pay/lcsPayJspayCallback";
         }
     }
 }

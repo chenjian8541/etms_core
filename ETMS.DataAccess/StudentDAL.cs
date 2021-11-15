@@ -250,9 +250,22 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> StudentEnrolmentEventChangeInfo(long studentId, int addPoint, byte newStudentType)
+        public async Task<bool> StudentEnrolmentEventChangeInfo(long studentId, int addPoint, byte? newStudentType)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET Points = Points+{addPoint} ,StudentType = {newStudentType} WHERE id = {studentId}");
+            if (addPoint == 0 && newStudentType == null)
+            {
+                return false;
+            }
+            var setSql = new List<string>();
+            if (addPoint > 0)
+            {
+                setSql.Add($"Points = Points+{addPoint}");
+            }
+            if (newStudentType != null)
+            {
+                setSql.Add($"StudentType = {newStudentType}");
+            }
+            await _dbWrapper.Execute($"UPDATE EtStudent SET {string.Join(',', setSql)} WHERE id = {studentId}");
             await UpdateCache(_tenantId, studentId);
             return true;
         }
