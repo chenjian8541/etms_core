@@ -135,6 +135,11 @@ namespace ETMS.Entity.Config
         /// 老师端是否展示工资
         /// </summary>
         public bool TeacherIsShowSalary { get; set; } = true;
+
+        /// <summary>
+        /// 是否开放注册
+        /// </summary>
+        public bool IsOpenStudentRegister { get; set; } = true;
     }
 
     /// <summary>

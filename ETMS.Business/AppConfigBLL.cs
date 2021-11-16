@@ -424,6 +424,7 @@ namespace ETMS.Business
             config.TenantOtherConfig.ParentIsShowEndOfClass = request.ParentIsShowEndOfClass;
             config.TenantOtherConfig.AutoMarkGraduation = request.AutoMarkGraduation;
             config.TenantOtherConfig.TeacherIsShowSalary = request.TeacherIsShowSalary;
+            config.TenantOtherConfig.IsOpenStudentRegister = request.IsOpenStudentRegister;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

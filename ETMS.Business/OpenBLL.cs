@@ -98,10 +98,12 @@ namespace ETMS.Business
                     mallConfig.MallGoodsStatus = EmMallGoodsStatus.Close;
                 }
             }
+            var tenantConfig = await _appConfigBLL.TenantConfigGet(request.LoginTenantId);
             return ResponseBase.Success(new TenantInfoGetOutput()
             {
                 TenantAddressInfo = addressConfig,
                 TenantInfo = tenantInfo,
+                TenantConfig = tenantConfig,
                 MallGoodsConfig = new MallGoodsOpenGetConfigOutput()
                 {
                     Title = string.IsNullOrEmpty(mallConfig.Title) ? tenantInfo.TenantName : mallConfig.Title,

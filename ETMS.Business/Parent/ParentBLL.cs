@@ -25,6 +25,9 @@ using ETMS.IBusiness.Wechart;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Dto.SysCom.Output;
 using ETMS.Business.WxCore;
+using ETMS.Entity.Database.Source;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business
 {
@@ -58,12 +61,15 @@ namespace ETMS.Business
 
         private readonly ITenantConfig2DAL _tenantConfig2DAL;
 
+        private readonly IUserDAL _userDAL;
+
+        private readonly IEventPublisher _eventPublisher;
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL,
-            ITenantConfig2DAL tenantConfig2DAL)
+            ITenantConfig2DAL tenantConfig2DAL, IUserDAL userDAL, IEventPublisher eventPublisher)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
@@ -80,6 +86,8 @@ namespace ETMS.Business
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._parentMenusConfigDAL = parentMenusConfigDAL;
             this._tenantConfig2DAL = tenantConfig2DAL;
+            this._userDAL = userDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -209,7 +217,7 @@ namespace ETMS.Business
             var students = await _parentStudentDAL.UpdateCacheAndGetParentStudents(tenantId, phone);
             if (students == null || !students.Any())
             {
-                var res = ResponseBase.CommonError("未找到手机号绑定的学员信息");
+                var res = ResponseBase.CommonError("手机号未注册");
                 res.ExtCode = StatusCode.ParentUnBindStudent;
                 return res;
             }
@@ -607,6 +615,105 @@ namespace ETMS.Business
                 BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
                 SecurityToken = aliyunOssSTS.Credentials.SecurityToken
             });
+        }
+
+        public async Task<ResponseBase> ParentRegister(ParentRegisterRequest request)
+        {
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
+            {
+                return ResponseBase.CommonError(loginTenantResult.Item1);
+            }
+            var sysTenantInfo = loginTenantResult.Item2;
+
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var loginSms = _parentLoginSmsCodeDAL.GetParentLoginSmsCode(request.Code, request.Phone);
+            if (loginSms == null || loginSms.ExpireAtTime < DateTime.Now || loginSms.SmsCode != request.SmsCode)
+            {
+                return ResponseBase.CommonError("验证码错误");
+            }
+            _parentLoginSmsCodeDAL.RemoveParentLoginSmsCode(request.Code, request.Phone);
+
+            _studentDAL.InitTenantId(sysTenantInfo.Id);
+            var hisStudent = await _studentDAL.GetStudent(request.StudentName, request.Phone);
+            if (hisStudent != null)
+            {
+                return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, string.Empty);
+            }
+            //注册学员
+            _tenantConfigDAL.InitTenantId(sysTenantInfo.Id);
+            _userDAL.InitTenantId(sysTenantInfo.Id);
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
+            var myuser = await _userDAL.GetAdminUser();
+            var now = DateTime.Now;
+            var etStudent = new EtStudent()
+            {
+                BirthdayMonth = null,
+                BirthdayDay = null,
+                Age = null,
+                AgeMonth = null,
+                Name = request.StudentName,
+                Avatar = string.Empty,
+                Birthday = null,
+                CreateBy = myuser.Id,
+                EndClassOt = null,
+                Gender = null,
+                GradeId = null,
+                HomeAddress = request.Address,
+                IntentionLevel = EmStudentIntentionLevel.Low,
+                IsBindingWechat = EmIsBindingWechat.No,
+                IsDeleted = EmIsDeleted.Normal,
+                LastJobProcessTime = now,
+                LastTrackTime = null,
+                LearningManager = null,
+                NextTrackTime = null,
+                Ot = now.Date,
+                Phone = request.Phone,
+                PhoneBak = string.Empty,
+                PhoneBakRelationship = null,
+                PhoneRelationship = 0,
+                Points = 0,
+                Remark = request.Remark,
+                SchoolName = string.Empty,
+                SourceId = null,
+                StudentType = EmStudentType.HiddenStudent,
+                Tags = string.Empty,
+                TenantId = sysTenantInfo.Id,
+                TrackStatus = EmStudentTrackStatus.NotTrack,
+                TrackUser = null,
+                NamePinyin = PinyinHelper.GetPinyinInitials(request.StudentName).ToLower(),
+                RecommendStudentId = null,
+                Password = pwd
+            };
+            await _studentDAL.AddStudent(etStudent, null);
+            CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
+            SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(etStudent.TenantId)
+            {
+                Time = etStudent.Ot
+            }, etStudent.TenantId, etStudent.Ot, true);
+
+            return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, string.Empty);
+        }
+
+        private void SyncStatisticsStudentInfo(StatisticsStudentCountEvent studentCountEvent, int tenantId, DateTime ot, bool isChangeStudentSource)
+        {
+            if (studentCountEvent != null)
+            {
+                _eventPublisher.Publish(studentCountEvent);
+            }
+            if (isChangeStudentSource)
+            {
+                _eventPublisher.Publish(new StatisticsStudentEvent(tenantId) { OpType = EmStatisticsStudentType.StudentSource, StatisticsDate = ot });
+            }
+            _eventPublisher.Publish(new StatisticsStudentEvent(tenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = ot });
         }
     }
 }

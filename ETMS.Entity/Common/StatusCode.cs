@@ -55,7 +55,7 @@ namespace ETMS.Entity.Common
         public const string BusError = "10008";
 
         /// <summary>
-        /// 家长未关联学员
+        /// 未注册
         /// </summary>
         public const string ParentUnBindStudent = "10009";
 

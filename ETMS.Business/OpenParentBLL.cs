@@ -15,6 +15,8 @@ using ETMS.Business.Common;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess;
 using ETMS.Entity.Dto.Parent.Request;
+using ETMS.Entity.Dto.Parent.Output;
+using ETMS.Entity.Dto.OpenParent.Output;
 
 namespace ETMS.Business
 {
@@ -39,7 +41,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentLoginBySms(ParentOpenLoginBySmsRequest request)
         {
-            return await _parentBLL.ParentLoginBySms(new ParentLoginBySmsRequest()
+            var res = await _parentBLL.ParentLoginBySms(new ParentLoginBySmsRequest()
             {
                 Code = string.Empty,
                 IpAddress = string.Empty,
@@ -47,6 +49,49 @@ namespace ETMS.Business
                 SmsCode = request.SmsCode,
                 StudentWechartId = string.Empty,
                 TenantNo = request.TenantNo
+            });
+            if (res.IsResponseSuccess())
+            {
+                var result = res.resultData as ParentLoginBySmsOutput;
+                return ResponseBase.Success(new ParentLoginBySmsOpenOutput()
+                {
+                    LoginStatus = ParentLoginBySmsOutputLoginStatus.Success,
+                    ExpiresIn = result.ExpiresIn,
+                    L = result.L,
+                    S = result.S
+                });
+            }
+            if (res.ExtCode == StatusCode.ParentUnBindStudent)
+            {
+                return ResponseBase.Success(new ParentLoginBySmsOpenOutput()
+                {
+                    LoginStatus = ParentLoginBySmsOutputLoginStatus.Unregistered
+                });
+            }
+            return res;
+        }
+
+        public async Task<ResponseBase> ParentRegisterSendSms(ParentRegisterSendSmsRequest request)
+        {
+            return await _parentBLL.ParentLoginSendSms(new ParentLoginSendSmsRequest()
+            {
+                Code = string.Empty,
+                Phone = request.Phone,
+                TenantNo = request.TenantNo
+            });
+        }
+
+        public async Task<ResponseBase> ParentRegister(ParentRegisterOpenRequest request)
+        {
+            return await _parentBLL.ParentRegister(new ParentRegisterRequest()
+            {
+                Address = request.Address,
+                Phone = request.Phone,
+                Remark = request.Remark,
+                StudentName = request.StudentName,
+                SmsCode = request.SmsCode,
+                TenantNo = request.TenantNo,
+                Code = string.Empty
             });
         }
     }

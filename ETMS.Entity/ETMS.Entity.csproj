@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\OpenParent\Output\" />
     <Folder Include="Dto\Open\Output\" />
     <Folder Include="Dto\Parent3\Output\" />
     <Folder Include="EtmsAttribute\" />
