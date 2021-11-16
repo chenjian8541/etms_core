@@ -209,7 +209,9 @@ namespace ETMS.Business
             var students = await _parentStudentDAL.UpdateCacheAndGetParentStudents(tenantId, phone);
             if (students == null || !students.Any())
             {
-                return ResponseBase.CommonError("未找到手机号绑定的学员信息");
+                var res = ResponseBase.CommonError("未找到手机号绑定的学员信息");
+                res.ExtCode = StatusCode.ParentUnBindStudent;
+                return res;
             }
             if (!string.IsNullOrEmpty(studentWechartId))
             {

@@ -1,5 +1,6 @@
 ﻿using ETMS.Business.BaseBLL;
 using ETMS.Business.Common;
+using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
@@ -52,10 +53,15 @@ namespace ETMS.Business.Parent
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IMallPrepayDAL _mallPrepayDAL;
+
+        private IDistributedLockDAL _distributedLockDAL;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
             IPayLcswService payLcswService, IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
-            IMallOrderDAL mallOrder, IEventPublisher eventPublisher) : base(tenantLcsAccountDAL, sysTenantDAL)
+            IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
+            IDistributedLockDAL distributedLockDAL) : base(tenantLcsAccountDAL, sysTenantDAL)
         {
             this._payLcswService = payLcswService;
             this._mallGoodsDAL = mallGoodsDAL;
@@ -66,11 +72,14 @@ namespace ETMS.Business.Parent
             this._studentDAL = studentDAL;
             this._mallOrderDAL = mallOrder;
             this._eventPublisher = eventPublisher;
+            this._mallPrepayDAL = mallPrepayDAL;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL, _mallOrderDAL);
+            this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL,
+                _mallOrderDAL, _mallPrepayDAL);
         }
 
         public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
@@ -209,7 +218,6 @@ namespace ETMS.Business.Parent
                 access_token = myLcsAccount.AccessToken,
                 terminal_id = myLcsAccount.TerminalId,
                 terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                attach = myTenant.Id.ToString(),
                 merchant_no = myLcsAccount.MerchantNo,
                 open_id = request.OpenId,
                 order_body = "在线商城_商品购买",
@@ -219,45 +227,44 @@ namespace ETMS.Business.Parent
                 total_fee = EtmsHelper3.GetCent(totalMoney).ToString(),
                 sub_appid = tenantWechartAuth.AuthorizerAppid
             };
+            var payLogId = await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
+            {
+                AgentId = myTenant.AgentId,
+                Attach = orderNo,
+                AuthNo = string.Empty,
+                CreateOt = now,
+                DataType = EmTenantLcsPayLogDataType.Prepaid,
+                IsDeleted = EmIsDeleted.Normal,
+                MerchantName = myLcsAccount.MerchantName,
+                MerchantNo = myLcsAccount.MerchantNo,
+                MerchantType = myLcsAccount.MerchantType,
+                OpenId = request.OpenId,
+                OrderBody = unifiedOrderRequest.order_body,
+                OrderDesc = "在线商城",
+                OrderNo = orderNo,
+                OrderSource = EmLcsPayLogOrderSource.WeChat,
+                OrderType = EmLcsPayLogOrderType.StudentEnrolment,
+                OutRefundNo = string.Empty,
+                PayFinishDate = null,
+                PayFinishOt = null,
+                RefundDate = null,
+                RefundFee = null,
+                RefundOt = null,
+                RelationId = request.ParentStudentIds[0],
+                Remark = string.Empty,
+                Status = EmLcsPayLogStatus.Unpaid,
+                TenantId = myTenant.Id,
+                TerminalId = myLcsAccount.TerminalId,
+                TerminalTrace = orderNo,
+                TotalFeeDesc = totalMoney.ToString(),
+                TotalFeeValue = totalMoney
+            });
+            unifiedOrderRequest.attach = $"{myTenant.Id}_{payLogId}";
             var unifiedOrderResult = _payLcswService.UnifiedOrder(unifiedOrderRequest);
             if (unifiedOrderResult.IsSuccess())
             {
-                var payLogId = await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
-                {
-                    AgentId = myTenant.AgentId,
-                    Attach = orderNo,
-                    AuthNo = string.Empty,
-                    CreateOt = now,
-                    DataType = EmTenantLcsPayLogDataType.Prepaid,
-                    IsDeleted = EmIsDeleted.Normal,
-                    MerchantName = myLcsAccount.MerchantName,
-                    MerchantNo = myLcsAccount.MerchantNo,
-                    MerchantType = myLcsAccount.MerchantType,
-                    OpenId = request.OpenId,
-                    OrderBody = unifiedOrderRequest.order_body,
-                    OrderDesc = "在线商城",
-                    OrderNo = orderNo,
-                    OrderSource = EmLcsPayLogOrderSource.WeChat,
-                    OrderType = EmLcsPayLogOrderType.StudentEnrolment,
-                    OutRefundNo = string.Empty,
-                    OutTradeNo = unifiedOrderResult.out_trade_no,
-                    PayFinishDate = null,
-                    PayFinishOt = null,
-                    PayType = unifiedOrderResult.pay_type,
-                    RefundDate = null,
-                    RefundFee = null,
-                    RefundOt = null,
-                    RelationId = request.ParentStudentIds[0],
-                    Remark = string.Empty,
-                    Status = EmLcsPayLogStatus.Unpaid,
-                    SubAppid = unifiedOrderResult.appId,
-                    TenantId = myTenant.Id,
-                    TerminalId = myLcsAccount.TerminalId,
-                    TerminalTrace = orderNo,
-                    TotalFee = unifiedOrderResult.total_fee,
-                    TotalFeeDesc = totalMoney.ToString(),
-                    TotalFeeValue = totalMoney
-                });
+                await _tenantLcsPayLogDAL.UpdateTenantLcsPayLog(payLogId, unifiedOrderResult.out_trade_no,
+                    unifiedOrderResult.pay_type, unifiedOrderResult.appId, unifiedOrderResult.total_fee);
                 return ResponseBase.Success(new ParentBuyMallGoodsPrepayOutput()
                 {
                     ali_trade_no = unifiedOrderResult.ali_trade_no,
@@ -275,7 +282,48 @@ namespace ETMS.Business.Parent
             return ResponseBase.CommonError($"生成预支付订单失败:{unifiedOrderResult.return_msg}");
         }
 
-        public async Task<ResponseBase> ParentBuyMallGoodsSubmit(ParentBuyMallGoodsSubmitRequest request)
+        public async Task<ResponseBase> ParentBuyMallGoodsPayInit(ParentBuyMallGoodsSubmitRequest request)
+        {
+            var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
+            if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
+            {
+                return ResponseBase.CommonError("商品不存在");
+            }
+            var myMallGoods = mallGoodsBucket.MallGoods;
+            var myMallCoursePriceRules = mallGoodsBucket.MallCoursePriceRules;
+            var checkBuyMallGoodsResult = CheckBuyMallGoods(myMallGoods, myMallCoursePriceRules, request.BuyCount,
+                request.CoursePriceRuleId, true);
+            if (!string.IsNullOrEmpty(checkBuyMallGoodsResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkBuyMallGoodsResult.ErrMsg);
+            }
+
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var lcsPaylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.TenantLcsPayLogId);
+            if (lcsPaylog == null)
+            {
+                return ResponseBase.CommonError("支付记录不存在");
+            }
+
+            await _mallPrepayDAL.MallPrepayAdd(new EtMallPrepay()
+            {
+                CreateTime = DateTime.Now,
+                IsDeleted = EmIsDeleted.Normal,
+                LcsPayLogId = request.TenantLcsPayLogId,
+                Status = EmMallPrepayStatus.Untreated,
+                TenantId = request.LoginTenantId,
+                Type = EmMallPrepayType.StudentEnrolment,
+                ReqContent = JsonConvert.SerializeObject(request)
+            });
+
+            return ResponseBase.Success();
+        }
+
+        private async Task<ResponseBase> ProcessParentBuyMallGoodsSubmit(ParentBuyMallGoodsSubmitRequest request)
         {
             var mallGoodsBucket = await _mallGoodsDAL.GetMallGoods(request.Id);
             if (mallGoodsBucket == null || mallGoodsBucket.MallGoods == null)
@@ -360,6 +408,71 @@ namespace ETMS.Business.Parent
                 MallOrderId = mallOrderId,
                 OrderNo = mallOrderEntity.OrderNo
             });
+        }
+
+        private async Task<ResponseBase> HandleParentBuyMallGoodsSubmit(ParentBuyMallGoodsSubmitRequest request)
+        {
+            var lockKey = new HandleParentBuyMallGoodsSubmitToken(request.LoginTenantId, request.TenantLcsPayLogId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    var mallPrepayLog = await _mallPrepayDAL.MallPrepayGet(request.TenantLcsPayLogId);
+                    if (mallPrepayLog != null)
+                    {
+                        if (mallPrepayLog.Status == EmMallPrepayStatus.Finish)
+                        {
+                            LOG.Log.Warn("[在线商城]订单已处理", request, this.GetType());
+                            return ResponseBase.CommonError("订单已处理");
+                        }
+                    }
+                    var lcsPaylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.TenantLcsPayLogId);
+                    if (lcsPaylog == null)
+                    {
+                        return ResponseBase.CommonError("支付记录不存在");
+                    }
+                    if (lcsPaylog.Status == EmLcsPayLogStatus.PaySuccess)
+                    {
+                        LOG.Log.Warn("[在线商城]订单已处理1", request, this.GetType());
+                        return ResponseBase.CommonError("订单已处理");
+                    }
+                    await _mallPrepayDAL.UpdateMallPrepayStatus(request.TenantLcsPayLogId, EmMallPrepayStatus.Finish);
+                    return await ProcessParentBuyMallGoodsSubmit(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error("[在线商城]订单处理失败", request, ex, this.GetType());
+                    return ResponseBase.CommonError("订单处理失败");
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            LOG.Log.Warn("[在线商城]提交已处理的订单", request, this.GetType());
+            return ResponseBase.CommonError("请勿重复提交订单");
+        }
+
+        public async Task<ResponseBase> ParentBuyMallGoodsSubmit(ParentBuyMallGoodsSubmitRequest request)
+        {
+            return await HandleParentBuyMallGoodsSubmit(request);
+        }
+
+        public async Task ParentBuyMallGoodsPaySuccessConsumerEvent(ParentBuyMallGoodsPaySuccessEvent request)
+        {
+            var mallPrepayBucket = await _mallPrepayDAL.MallPrepayGetBucket(request.LcsPayLogId);
+            if (mallPrepayBucket == null || mallPrepayBucket.MallCartView == null)
+            {
+                LOG.Log.Error("[扫呗支付成功回调]预处理请求未找到", request, this.GetType());
+                return;
+            }
+            var mallPrepay = mallPrepayBucket.MallCartView;
+            if (mallPrepay.Status == EmMallPrepayStatus.Finish)
+            {
+                LOG.Log.Warn("[扫呗支付成功回调]无法处理已完成的支付成功请求", request, this.GetType());
+                return;
+            }
+            await HandleParentBuyMallGoodsSubmit(mallPrepay.Request);
         }
 
         public async Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request)

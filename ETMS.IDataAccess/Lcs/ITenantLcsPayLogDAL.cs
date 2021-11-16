@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.IDataAccess.Lcs
 {
-    public interface ITenantLcsPayLogDAL: IBaseDAL
+    public interface ITenantLcsPayLogDAL : IBaseDAL
     {
         Task<long> AddTenantLcsPayLog(EtTenantLcsPayLog entity);
 
@@ -19,5 +19,7 @@ namespace ETMS.IDataAccess.Lcs
         Task EditTenantLcsPayLog(EtTenantLcsPayLog entity);
 
         Task<Tuple<IEnumerable<EtTenantLcsPayLog>, int>> GetTenantLcsPayLogPaging(IPagingRequest request);
+
+        Task UpdateTenantLcsPayLog(long id, string outTradeNo, string payType, string subAppid, string totalFee);
     }
 }

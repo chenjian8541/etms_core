@@ -36,6 +36,11 @@ namespace ETMS.Entity.Common
         public string code { get; set; }
 
         /// <summary>
+        /// 扩展code
+        /// </summary>
+        public string ExtCode { get; set; }
+
+        /// <summary>
         /// 返回信息，如非空，为错误原因
         /// </summary>
         public string message { get; set; }

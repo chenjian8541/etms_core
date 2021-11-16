@@ -6,6 +6,7 @@ using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ETMS.WebApi.Controllers
@@ -131,19 +132,27 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request)
+        public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback()
         {
             try
             {
-                return await _paymentBLL.LcsPayJspayCallback(request);
+                using (var stream = Request.Body)
+                {
+                    var buffer = new byte[Request.ContentLength.Value];
+                    await stream.ReadAsync(buffer, 0, buffer.Length);
+                    var postData = Encoding.UTF8.GetString(buffer);
+                    LOG.Log.Info("[LcsPayJspayCallback]利楚扫呗支付回调", postData, this.GetType());
+                    var request = Newtonsoft.Json.JsonConvert.DeserializeObject<LcsPayJspayCallbackRequest>(postData);
+                    return await _paymentBLL.LcsPayJspayCallback(request);
+                }
             }
             catch (Exception ex)
             {
-                Log.Error(request, ex, this.GetType());
+                Log.Error("利楚扫呗支付回调发生异常", ex, this.GetType());
                 return new LcsPayJspayCallbackOutput()
                 {
                     return_code = "02",
-                    return_msg = "处理时发生异常"
+                    return_msg = "失败"
                 };
             }
         }

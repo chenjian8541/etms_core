@@ -42,5 +42,10 @@ namespace ETMS.DataAccess.Lcs
         {
             return await this._dbWrapper.ExecutePage<EtTenantLcsPayLog>("EtTenantLcsPayLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task UpdateTenantLcsPayLog(long id, string outTradeNo, string payType, string subAppid, string totalFee)
+        {
+            await _dbWrapper.Execute($"UPDATE EtTenantLcsPayLog SET OutTradeNo = '{outTradeNo}',PayType = '{payType}',SubAppid = '{subAppid}',TotalFee = '{totalFee}' WHERE Id = {id} AND TenantId = {_tenantId}");
+        }
     }
 }

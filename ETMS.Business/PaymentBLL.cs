@@ -10,6 +10,7 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
@@ -354,29 +355,30 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        /// <summary>
+        /// 参考：http://help.lcsw.cn/xrmpic/tisnldchblgxohfl/auan62#title-node14
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request)
         {
-            LOG.Log.Info("[LcsPayJspayCallback]利楚扫呗支付回调", request, this.GetType());
-            var tenantId = request.attach.ToInt();
+            var strArray = request.attach.Split('_');
+            var tenantId = strArray[0].ToInt();
+            var lcsPayLogId = strArray[1].ToLong();
             this.InitTenantId(tenantId);
-            var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(request.out_trade_no);
             if (request.return_code == "01")
             {
-                var now = DateTime.Now;
                 if (request.result_code == "01") //支付成功 
                 {
-                    payLog.Status = EmLcsPayLogStatus.PaySuccess;
-                    payLog.PayFinishOt = now;
-                    payLog.PayFinishDate = now.Date;
-                    payLog.DataType = EmTenantLcsPayLogDataType.Normal;
-                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
-                    _eventPublisher.Publish(new StatisticsLcsPayEvent(payLog.TenantId)
+                    _eventPublisher.Publish(new ParentBuyMallGoodsPaySuccessEvent(tenantId)
                     {
-                        StatisticsDate = now.Date
+                        LcsPayLogId = lcsPayLogId,
+                        Now = DateTime.Now
                     });
                 }
                 else if (request.result_code == "02")  //支付失败 
                 {
+                    var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(lcsPayLogId);
                     payLog.Status = EmLcsPayLogStatus.PayFail;
                     payLog.DataType = EmTenantLcsPayLogDataType.Normal;
                     await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
@@ -385,7 +387,7 @@ namespace ETMS.Business
             return new LcsPayJspayCallbackOutput()
             {
                 return_code = "01",
-                return_msg = "处理成功"
+                return_msg = "success"
             };
         }
     }
