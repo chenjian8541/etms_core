@@ -257,7 +257,11 @@ namespace ETMS.Business.Parent
                 TerminalId = myLcsAccount.TerminalId,
                 TerminalTrace = orderNo,
                 TotalFeeDesc = totalMoney.ToString(),
-                TotalFeeValue = totalMoney
+                TotalFeeValue = totalMoney,
+                PayType = string.Empty,
+                OutTradeNo = string.Empty,
+                SubAppid = string.Empty,
+                TotalFee = string.Empty
             });
             unifiedOrderRequest.attach = $"{myTenant.Id}_{payLogId}";
             var unifiedOrderResult = _payLcswService.UnifiedOrder(unifiedOrderRequest);
