@@ -1097,6 +1097,10 @@ namespace ETMS.Business
                 if (request.IsGetComplexInfo)
                 {
                     var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                     classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
                     className = etClass?.Name;
@@ -1190,6 +1194,10 @@ namespace ETMS.Business
                     var className = string.Empty;
                     var teachersDesc = string.Empty;
                     var etClass = await ComBusiness.GetClass(tempClass, _classDAL, classTimes.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                     classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                     className = etClass.Name;
@@ -1276,6 +1284,10 @@ namespace ETMS.Business
                     var className = string.Empty;
                     var teachersDesc = string.Empty;
                     var etClass = await ComBusiness.GetClass(tempClass, _classDAL, classTimes.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                     classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                     className = etClass.Name;
@@ -1405,6 +1417,10 @@ namespace ETMS.Business
                         var className = string.Empty;
                         var teachersDesc = string.Empty;
                         var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
+                        if (etClass == null)
+                        {
+                            continue;
+                        }
                         var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                         classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                         className = etClass.Name;
@@ -1537,6 +1553,10 @@ namespace ETMS.Business
                         var className = string.Empty;
                         var teachersDesc = string.Empty;
                         var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
+                        if (etClass == null)
+                        {
+                            continue;
+                        }
                         var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
                         classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds, "暂无教室");
                         className = etClass.Name;
