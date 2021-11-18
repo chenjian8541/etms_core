@@ -21,7 +21,7 @@ namespace ETMS.DataAccess
         public async Task UpdateStatisticsStudentSource(DateTime time)
         {
             var otDesc = time.EtmsToDateString();
-            var dayData = await this._dbWrapper.ExecuteObject<StatisticsStudentSourceView>($"SELECT SourceId,COUNT(0) AS TotalCount FROM dbo.EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{otDesc}' GROUP BY SourceId");
+            var dayData = await this._dbWrapper.ExecuteObject<StatisticsStudentSourceView>($"SELECT SourceId,COUNT(0) AS TotalCount FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{otDesc}' GROUP BY SourceId");
             await _dbWrapper.ExecuteScalar($"DELETE EtStatisticsStudentSource WHERE TenantId = {_tenantId} AND Ot = '{otDesc}'");
             var listData = new List<EtStatisticsStudentSource>();
             foreach (var p in dayData)
