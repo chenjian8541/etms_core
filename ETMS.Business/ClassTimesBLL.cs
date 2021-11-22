@@ -16,6 +16,7 @@ using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
+using ETMS.Entity.Temp;
 
 namespace ETMS.Business
 {
@@ -1129,10 +1130,105 @@ namespace ETMS.Business
                     TeacherNum = classTimes.TeacherNum,
                     Teachers = classTimes.Teachers,
                     TeachersDesc = teachersDesc,
-                    ReservationType = classTimes.ReservationType
+                    ReservationType = classTimes.ReservationType,
+                    StatusDesc = classTimes.Status == EmClassTimesStatus.BeRollcall ? "已点名" : ""
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassTimesGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ClassTimesGetPagingExport(ClassTimesGetPagingRequest request)
+        {
+            var pagingData = await _classTimesDAL.GetPaging(request);
+            var output = new List<ClassTimesGetPagingExportOutput>();
+            if (pagingData.Item1.Any())
+            {
+                List<EtClassRoom> allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                var allClassTimesStudent = await _classTimesDAL.GetClassTimesStudent(pagingData.Item1.Select(p => p.Id));
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                var classInfos = new List<TempClassExportInfo>();
+                foreach (var classTimes in pagingData.Item1)
+                {
+                    var strStudent = new StringBuilder();
+                    var myClassInfo = classInfos.FirstOrDefault(p => p.ClassId == classTimes.ClassId);
+                    if (myClassInfo == null)
+                    {
+                        var myClassBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+                        if (myClassBucket == null || myClassBucket.EtClass == null)
+                        {
+                            continue;
+                        }
+                        myClassInfo = new TempClassExportInfo()
+                        {
+                            ClassId = classTimes.ClassId,
+                            Name = myClassBucket.EtClass.Name,
+                            StudentNames = string.Empty
+                        };
+                        if (myClassBucket.EtClassStudents != null && myClassBucket.EtClassStudents.Any())
+                        {
+                            foreach (var s in myClassBucket.EtClassStudents)
+                            {
+                                var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, s.StudentId);
+                                if (myStudent != null)
+                                {
+                                    strStudent.Append($"{myStudent.Name},");
+                                }
+                            }
+                            myClassInfo.StudentNames = strStudent.ToString();
+                        }
+                        classInfos.Add(myClassInfo);
+                    }
+                    else
+                    {
+                        strStudent.Append(myClassInfo.StudentNames);
+                    }
+                    var myClassTimesStudent = allClassTimesStudent.Where(p => p.ClassTimesId == classTimes.Id);
+                    if (myClassTimesStudent.Any())
+                    {
+                        foreach (var p in myClassTimesStudent)
+                        {
+                            var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                            if (myStudent != null)
+                            {
+                                strStudent.Append($"[{EmClassStudentType.GetClassStudentTypeDesc(p.StudentType)}]{myStudent.Name},");
+                            }
+                        }
+                    }
+                    var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classTimes.CourseList);
+                    var classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds);
+                    var courseListDesc = courseInfo.Item1;
+                    var courseStyleColor = courseInfo.Item2;
+                    var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                    output.Add(new ClassTimesGetPagingExportOutput()
+                    {
+                        CId = classTimes.Id,
+                        ClassContent = classTimes.ClassContent,
+                        ClassId = classTimes.ClassId,
+                        ClassName = myClassInfo.Name,
+                        ClassOt = classTimes.ClassOt.EtmsToDateString(),
+                        ClassRoomIds = classTimes.ClassRoomIds,
+                        ClassRoomIdsDesc = classRoomIdsDesc,
+                        CourseList = classTimes.CourseList,
+                        CourseListDesc = courseListDesc,
+                        CourseStyleColor = courseStyleColor,
+                        EndTime = classTimes.EndTime,
+                        StartTime = classTimes.StartTime,
+                        Status = classTimes.Status,
+                        TimeDesc = $"{EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}",
+                        Week = classTimes.Week,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(classTimes.Week)}",
+                        TeacherNum = classTimes.TeacherNum,
+                        Teachers = classTimes.Teachers,
+                        TeachersDesc = teachersDesc,
+                        ReservationType = classTimes.ReservationType,
+                        StatusDesc = classTimes.Status == EmClassTimesStatus.BeRollcall ? "已点名" : "",
+                        Students = strStudent.ToString().TrimEnd(',')
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ClassTimesGetPagingExportOutput>(pagingData.Item2, output));
         }
 
         public async Task<ResponseBase> ClassTimesGetOfWeekTime(ClassTimesGetOfWeekTimeRequest request)

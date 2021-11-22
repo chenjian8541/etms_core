@@ -476,6 +476,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassTimesGetPagingExport(ClassTimesGetPagingRequest request)
+        {
+            try
+            {
+                _classTimesBLL.InitTenantId(request.LoginTenantId);
+                return await _classTimesBLL.ClassTimesGetPagingExport(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassTimesGetOfWeekTime(ClassTimesGetOfWeekTimeRequest request)
         {
             try

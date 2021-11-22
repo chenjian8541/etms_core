@@ -92,5 +92,7 @@ namespace ETMS.IDataAccess
         /// <param name="endDate"></param>
         /// <returns></returns>
         Task<IEnumerable<EtClassTimes>> GetStudentClassTimes(long studentId, DateTime startDate, DateTime endDate,int topLimit = 50);
+
+        Task<IEnumerable<GetClassTimesStudentView>> GetClassTimesStudent(IEnumerable<long> classTimesIds);
     }
 }

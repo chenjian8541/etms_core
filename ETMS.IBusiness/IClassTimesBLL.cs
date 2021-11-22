@@ -38,6 +38,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassTimesGetPaging(ClassTimesGetPagingRequest request);
 
+        Task<ResponseBase> ClassTimesGetPagingExport(ClassTimesGetPagingRequest request);
+
         Task<ResponseBase> ClassTimesGetOfWeekTime(ClassTimesGetOfWeekTimeRequest request);
 
         Task<ResponseBase> ClassTimesCancelTryClassStudent(ClassTimesCancelTryClassStudentRequest request);

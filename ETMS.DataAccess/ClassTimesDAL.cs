@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -248,6 +249,21 @@ namespace ETMS.DataAccess
         {
             var sql = $"SELECT TOP {topLimit} * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%') ORDER BY ClassOt,StartTime";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
+        }
+
+        public async Task<IEnumerable<GetClassTimesStudentView>> GetClassTimesStudent(IEnumerable<long> classTimesIds)
+        {
+            if (classTimesIds == null || !classTimesIds.Any())
+            {
+                return null;
+            }
+            if (classTimesIds.Count() == 1)
+            {
+                return await this._dbWrapper.ExecuteObject<GetClassTimesStudentView>(
+                    $"SELECT ClassTimesId,StudentId,StudentType FROM EtClassTimesStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassTimesId = {classTimesIds.First()}");
+            }
+            return await this._dbWrapper.ExecuteObject<GetClassTimesStudentView>(
+                         $"SELECT ClassTimesId,StudentId,StudentType FROM EtClassTimesStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassTimesId IN ({string.Join(',', classTimesIds)})");
         }
     }
 }
