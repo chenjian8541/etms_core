@@ -50,7 +50,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// <summary>
         /// 课消金额
         /// </summary>
-        public decimal DeSum { get; set; }
+        public string DeSum { get; set; }
 
         /// <summary>
         /// 超上课时

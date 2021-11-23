@@ -1113,6 +1113,7 @@ namespace ETMS.Business
         {
             await _studentCourseDAL.CancelStudentCourseNotEnoughRemind(request.StudentId, request.CourseId);
 
+            _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, "取消学员课程不足续费预警", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }

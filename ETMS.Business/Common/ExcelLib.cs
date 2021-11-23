@@ -209,15 +209,7 @@ namespace ETMS.Business.Common
                     case CellType.String:
                         return cell.StringCellValue.Trim();
                     case CellType.Numeric:
-                        short format = cell.CellStyle.DataFormat;
-                        if (format != 0)
-                        {
-                            return cell.DateCellValue.ToString().Trim();
-                        }
-                        else
-                        {
-                            return cell.NumericCellValue.ToString().Trim();
-                        }
+                        return cell.NumericCellValue.ToString().Trim();
                     case CellType.Boolean:
                         return cell.BooleanCellValue.ToString().Trim();
                     default:

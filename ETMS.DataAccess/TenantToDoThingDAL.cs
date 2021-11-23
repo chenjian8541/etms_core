@@ -40,7 +40,7 @@ namespace ETMS.DataAccess
 
         private async Task<int> GetStudentCourseNotEnough(int limitClassTimes, int limitDay)
         {
-            var sql = $"SELECT COUNT(0) FROM StudentCourseView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {limitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={limitDay}))";
+            var sql = $"SELECT COUNT(0) FROM StudentCourseView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND NotEnoughRemindCount <> -1 AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {limitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={limitDay}))";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }

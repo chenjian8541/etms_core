@@ -38,7 +38,7 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public string ClassTimes { get; set; }
 
-        public decimal DeSum { get; set; }
+        public string DeSum { get; set; }
 
         public string ClassContent { get; set; }
 

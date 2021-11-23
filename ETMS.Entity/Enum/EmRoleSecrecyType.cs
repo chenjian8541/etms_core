@@ -17,5 +17,14 @@ namespace ETMS.Entity.Enum
         /// 隐藏保护
         /// </summary>
         public const int Secrecy = 1;
+
+        public static string GetSecrecyValue(int secrecyType, string value)
+        {
+            if (secrecyType == EmRoleSecrecyType.Secrecy)
+            {
+                return "***";
+            }
+            return value;
+        }
     }
 }
