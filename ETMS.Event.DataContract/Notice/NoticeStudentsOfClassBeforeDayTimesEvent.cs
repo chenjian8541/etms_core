@@ -17,5 +17,7 @@ namespace ETMS.Event.DataContract
         public bool IsSendWeChat { get; set; }
 
         public string WeChatNoticeRemark { get; set; }
+
+        public List<EtStudentLeaveApplyLog> LeaveApplyLogs { get; set; }
     }
 }

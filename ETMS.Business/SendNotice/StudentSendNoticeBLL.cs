@@ -59,13 +59,16 @@ namespace ETMS.Business
 
         private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
 
+        private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
+
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices,
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
             IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
-            ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL)
+            ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL,
+            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
@@ -85,6 +88,7 @@ namespace ETMS.Business
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
+            this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -93,7 +97,7 @@ namespace ETMS.Business
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
-                _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL);
+                _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL);
         }
 
         public async Task NoticeStudentsOfClassBeforeDayTenant(NoticeStudentsOfClassBeforeDayTenantEvent request)
@@ -118,6 +122,7 @@ namespace ETMS.Business
             var classTimes = await _jobAnalyzeDAL.GetClassTimesUnRollcall(request.ClassOt);
             if (classTimes != null && classTimes.Any())
             {
+                var _studentLeaveApplyLogs = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(request.ClassOt);
                 foreach (var p in classTimes)
                 {
                     _eventPublisher.Publish(new NoticeStudentsOfClassBeforeDayTimesEvent(request.TenantId)
@@ -125,7 +130,8 @@ namespace ETMS.Business
                         ClassTimes = p,
                         IsSendSms = tenantConfig.StudentNoticeConfig.StartClassSms,
                         IsSendWeChat = tenantConfig.StudentNoticeConfig.StartClassWeChat,
-                        WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark
+                        WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark,
+                        LeaveApplyLogs = _studentLeaveApplyLogs
                     });
                 }
             }
@@ -158,6 +164,7 @@ namespace ETMS.Business
                 return;
             }
 
+            var studentLeaveCheck = new StudentIsLeaveCheck(request.LeaveApplyLogs);
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var stringClassRoom = string.Empty;
             if (!string.IsNullOrEmpty(request.ClassTimes.ClassRoomIds))
@@ -198,6 +205,11 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    if (studentLeaveCheck.IsCheckStudentIsLeave(request.ClassTimes.StartTime,
+                        request.ClassTimes.EndTime, p.StudentId, request.ClassTimes.ClassOt))
                     {
                         continue;
                     }
@@ -247,6 +259,11 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    if (studentLeaveCheck.IsCheckStudentIsLeave(request.ClassTimes.StartTime,
+                        request.ClassTimes.EndTime, p.StudentId, request.ClassTimes.ClassOt))
                     {
                         continue;
                     }
@@ -308,6 +325,7 @@ namespace ETMS.Business
             var classNoticeData = await _tempStudentClassNoticeDAL.GetTempStudentClassNotice(request.ClassOt);
             if (classNoticeData != null && classNoticeData.Count > 0)
             {
+                var studentLeaveApplyLogs = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(request.ClassOt);
                 var ids = new List<long>();
                 foreach (var p in classNoticeData)
                 {
@@ -321,7 +339,8 @@ namespace ETMS.Business
                             IsSendSms = tenantConfig.StudentNoticeConfig.StartClassSms,
                             IsSendWeChat = tenantConfig.StudentNoticeConfig.StartClassWeChat,
                             ClassTimesId = p.ClassTimesId,
-                            WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark
+                            WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark,
+                            LeaveApplyLogs = studentLeaveApplyLogs
                         });
                     }
                     else if (diffMinute - beforeMinute <= 5)  //5分钟的容错时间
@@ -332,7 +351,8 @@ namespace ETMS.Business
                             IsSendSms = tenantConfig.StudentNoticeConfig.StartClassSms,
                             IsSendWeChat = tenantConfig.StudentNoticeConfig.StartClassWeChat,
                             ClassTimesId = p.ClassTimesId,
-                            WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark
+                            WeChatNoticeRemark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark,
+                            LeaveApplyLogs = studentLeaveApplyLogs
                         });
                     }
                 }
@@ -384,6 +404,7 @@ namespace ETMS.Business
                 return;
             }
 
+            var studentLeaveCheck = new StudentIsLeaveCheck(request.LeaveApplyLogs);
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var stringClassRoom = string.Empty;
             if (!string.IsNullOrEmpty(classTimes.ClassRoomIds))
@@ -434,6 +455,10 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    if (studentLeaveCheck.IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classTimes.ClassOt))
                     {
                         continue;
                     }
@@ -491,6 +516,10 @@ namespace ETMS.Business
                     }
                     var student = studentBucket.Student;
                     if (string.IsNullOrEmpty(student.Phone))
+                    {
+                        continue;
+                    }
+                    if (studentLeaveCheck.IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classTimes.ClassOt))
                     {
                         continue;
                     }

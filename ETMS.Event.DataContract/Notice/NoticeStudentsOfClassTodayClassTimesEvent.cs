@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Database.Source;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,6 +17,8 @@ namespace ETMS.Event.DataContract
         public bool IsSendWeChat { get; set; }
 
         public string WeChatNoticeRemark { get; set; }
+
+        public List<EtStudentLeaveApplyLog> LeaveApplyLogs { get; set; }
     }
 }
 
