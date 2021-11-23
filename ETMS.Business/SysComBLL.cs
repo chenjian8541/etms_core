@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Dto.SysCom.Output;
 using ETMS.Entity.Dto.SysCom.Request;
 using ETMS.Entity.Enum;
@@ -42,6 +43,7 @@ namespace ETMS.Business
         {
         }
 
+        [Obsolete("已弃用，请使用SysNotifyGet")]
         public async Task<ResponseBase> SysUpgradeGet(SysUpgradeGetRequest request)
         {
             var output = new SysUpgradeGetOutput()
@@ -59,6 +61,45 @@ namespace ETMS.Business
             }
             output.IsHaveUpgrade = true;
             output.UpgradeInfo = new UpgradeInfo()
+            {
+                EndTime = upgradeGetMsg.EndTime,
+                StartTime = upgradeGetMsg.StartTime,
+                Title = upgradeGetMsg.Title,
+                UpContent = upgradeGetMsg.UpContent,
+                UpgradeId = upgradeGetMsg.Id,
+                VersionNo = upgradeGetMsg.VersionNo,
+                UpTimeDesc = $"{ upgradeGetMsg.StartTime.ToString("yyyy年MM月dd日HH:mm")} - {upgradeGetMsg.EndTime.ToString("MM月dd日HH:mm")}"
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> SysNotifyGet(RequestBase request)
+        {
+            var output = new SysNotifyGetOutput()
+            {
+                SysUpgradeInfo = new SysUpgradeGetOutput()
+                {
+                    IsHaveUpgrade = false
+                }
+            };
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var minExDate = DateTime.Now.AddDays(SystemConfig.ComConfig.SystemExpireDayLimit);
+            output.SystemExpiredInfo = new SystemExpiredInfo()
+            {
+                ExpireDateDesc = myTenant.ExDate.EtmsToDateString(),
+                IsRemind = myTenant.ExDate < minExDate
+            };
+            var upgradeGetMsg = await _sysUpgradeMsgDAL.GetLastSysUpgradeMsg();
+            if (upgradeGetMsg == null || upgradeGetMsg.StartTime <= DateTime.Now)
+            {
+                return ResponseBase.Success(output);
+            }
+            if (await _sysUpgradeMsgDAL.GetUserIsRead(upgradeGetMsg.Id, request.LoginTenantId, request.LoginUserId))
+            {
+                return ResponseBase.Success(output);
+            }
+            output.SysUpgradeInfo.IsHaveUpgrade = true;
+            output.SysUpgradeInfo.UpgradeInfo = new UpgradeInfo()
             {
                 EndTime = upgradeGetMsg.EndTime,
                 StartTime = upgradeGetMsg.StartTime,

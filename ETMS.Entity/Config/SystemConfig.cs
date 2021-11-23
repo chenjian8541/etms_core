@@ -227,5 +227,10 @@ namespace ETMS.Entity.Config
         /// 老师端默认显示菜单值
         /// </summary>
         public string UserH5HomeMenusDefault = "2046";
+
+        /// <summary>
+        /// 系统即将到期提醒
+        /// </summary>
+        public int SystemExpireDayLimit = 30;
     }
 }

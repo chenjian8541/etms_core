@@ -35,6 +35,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> SysNotifyGet(RequestBase request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return await _sysComBLL.SysNotifyGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysUpgradeSetRead(SysUpgradeSetReadRequest request)
         {
             try

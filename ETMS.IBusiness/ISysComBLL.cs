@@ -11,6 +11,8 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> SysUpgradeGet(SysUpgradeGetRequest request);
 
+        Task<ResponseBase> SysNotifyGet(RequestBase request);
+
         Task<ResponseBase> SysUpgradeSetRead(SysUpgradeSetReadRequest request);
 
         Task<ResponseBase> SysKefu(SysKefuRequest request);
