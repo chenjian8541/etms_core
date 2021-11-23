@@ -26,6 +26,8 @@ namespace ETMS.Entity.Dto.Parent.Output
 
         public string StudentName { get; set; }
 
+        public string StudentAvatarUrl { get; set; }
+
         public string TeachersDesc { get; set; }
 
         /// <summary>

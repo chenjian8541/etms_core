@@ -165,6 +165,33 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> ParentLoginSendSms2(ParentLoginSendSmsRequest request)
+        {
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
+            {
+                return ResponseBase.CommonError(loginTenantResult.Item1);
+            }
+            var sysTenantInfo = loginTenantResult.Item2;
+
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.ParentLogin(new SmsParentLoginRequest(sysTenantInfo.Id)
+            {
+                Phone = request.Phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+            }
+            this._parentLoginSmsCodeDAL.AddParentLoginSmsCode(request.Code, request.Phone, smsCode);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request)
         {
             var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);

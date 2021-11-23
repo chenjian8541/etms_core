@@ -14,6 +14,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ParentLoginSendSms(ParentLoginSendSmsRequest request);
 
+        Task<ResponseBase> ParentLoginSendSms2(ParentLoginSendSmsRequest request);
+
         Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request);
 
         Task<ResponseBase> ParentLoginByPwd(ParentLoginByPwdRequest request);

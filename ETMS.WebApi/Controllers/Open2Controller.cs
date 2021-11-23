@@ -24,9 +24,12 @@ namespace ETMS.WebApi.Controllers
     {
         private readonly IOpenBLL _openBLL;
 
-        public Open2Controller(IOpenBLL openBLL)
+        private readonly IOpen2BLL _open2BLL;
+
+        public Open2Controller(IOpenBLL openBLL, IOpen2BLL open2BLL)
         {
             this._openBLL = openBLL;
+            this._open2BLL = open2BLL;
         }
 
         public async Task<ResponseBase> TenantInfoGet(Open2Base request)
@@ -258,6 +261,20 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 return await _openBLL.TenantSimpleInfoGetMI(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request)
+        {
+            try
+            {
+                _open2BLL.InitTenantId(request.LoginTenantId);
+                return await _open2BLL.ClassRecordDetailGet(request);
             }
             catch (Exception ex)
             {

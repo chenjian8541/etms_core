@@ -73,7 +73,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentRegisterSendSms(ParentRegisterSendSmsRequest request)
         {
-            return await _parentBLL.ParentLoginSendSms(new ParentLoginSendSmsRequest()
+            return await _parentBLL.ParentLoginSendSms2(new ParentLoginSendSmsRequest()
             {
                 Code = string.Empty,
                 Phone = request.Phone,

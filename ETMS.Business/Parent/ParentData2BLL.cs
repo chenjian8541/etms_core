@@ -222,6 +222,7 @@ namespace ETMS.Business
                     Week = p.Week,
                     ClassRoomIdsDesc = classRoomIdsDesc,
                     StudentName = student.Name,
+                    StudentAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(student.Avatar),
                     WeekDesc = $"星期{EtmsHelper.GetWeekDesc(p.Week)}",
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                 },
