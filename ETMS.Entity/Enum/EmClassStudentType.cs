@@ -44,5 +44,21 @@ namespace ETMS.Entity.Enum
             }
             return string.Empty;
         }
+
+        public static string GetClassStudentTypeDesc2(byte t)
+        {
+            switch (t)
+            {
+                case EmClassStudentType.ClassStudent:
+                    return "班";
+                case EmClassStudentType.TempStudent:
+                    return "临";
+                case EmClassStudentType.TryCalssStudent:
+                    return "试";
+                case EmClassStudentType.MakeUpStudent:
+                    return "补";
+            }
+            return string.Empty;
+        }
     }
 }

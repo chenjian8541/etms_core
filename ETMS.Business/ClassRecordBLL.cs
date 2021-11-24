@@ -397,14 +397,14 @@ namespace ETMS.Business
         {
             var pagingData = await _classRecordDAL.GetClassRecordStudentPaging(request);
             var output = new List<StudentClassRecordGetPagingOutput>();
-
             var courseTempBox = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
             foreach (var p in pagingData.Item1)
             {
                 var etClass = await _classDAL.GetClassBucket(p.ClassId);
                 var teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers);
-                output.Add(new StudentClassRecordGetPagingOutput()
+                var item = new StudentClassRecordGetPagingOutput()
                 {
                     CheckOt = p.CheckOt,
                     CheckUserId = p.CheckUserId,
@@ -437,13 +437,25 @@ namespace ETMS.Business
                     StudentId = p.StudentId,
                     StudentTryCalssLogId = p.StudentTryCalssLogId,
                     StudentType = p.StudentType,
-                    StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(p.StudentType),
+                    StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc2(p.StudentType),
                     TeacherNum = p.TeacherNum,
                     Teachers = p.Teachers,
                     TeachersDesc = teachersDesc,
                     Week = p.Week,
-                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes)
-                });
+                    DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
+                    IsHasExceedClassTimes = p.ExceedClassTimes > 0,
+                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}"
+                };
+                if (request.IsGetStudent)
+                {
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (myStudent != null)
+                    {
+                        item.StudentName = myStudent.Name;
+                        item.StudentPhone = myStudent.Phone;
+                    }
+                }
+                output.Add(item);
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentClassRecordGetPagingOutput>(pagingData.Item2, output));
         }
