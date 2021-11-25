@@ -62,5 +62,22 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// 发布时间
         /// </summary>
         public string OtDesc { get; set; }
+
+        public string LxStartDateDesc { get; set; }
+
+        public string LxEndDateDesc { get; set; }
+
+        public int LxTotalCount { get; set; }
+
+        public List<HomeworkStudent> Students { get; set; }
+    }
+
+    public class HomeworkStudent
+    {
+        public long StudentId { get; set; }
+
+        public string StudentName { get; set; }
+
+        public bool IsSelect { get; set; }
     }
 }

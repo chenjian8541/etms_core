@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,9 +17,9 @@ namespace ETMS.IDataAccess
 
         Task<ActiveHomeworkDetailBucket> GetActiveHomeworkDetailBucket(long id);
 
-        Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, byte answerStatus);
+        Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, byte answerStatus, DateTime? otDate, long? studentId);
 
-        Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId);
+        Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, DateTime otDate);
 
         Task<Tuple<IEnumerable<EtActiveHomeworkDetail>, int>> GetPaging(IPagingRequest request);
 
@@ -26,6 +27,12 @@ namespace ETMS.IDataAccess
 
         Task<bool> DelActiveHomeworkDetailComment(long detailId, long id);
 
-        Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowExDate();
+        Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowSingleWorkExDate();
+
+        Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailContinuousWorkTodayNotAnswer(DateTime otDate, int maxTime, int minTime);
+
+        Task<byte> GetHomeworkStudentAnswerStatus(long homeworkId, long studentId);
+
+        Task<bool> ExistHomeworkDetail(long homeworkId, DateTime otDate);
     }
 }

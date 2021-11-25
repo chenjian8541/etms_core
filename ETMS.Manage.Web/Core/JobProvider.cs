@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ETMS.Manage.Web.Core
 {
@@ -26,7 +25,11 @@ namespace ETMS.Manage.Web.Core
                 {
                     continue;
                 }
-                if (t.BaseType != typeof(BaseJob))
+                if (t.BaseType != typeof(BaseJob) && t.BaseType != typeof(BaseTenantHandle))
+                {
+                    continue;
+                }
+                if (t.IsAbstract)
                 {
                     continue;
                 }

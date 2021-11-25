@@ -464,12 +464,36 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "homeworkCusAdd/:cid?",
+        "Name": "homeworkCusAdd",
+        "Type": 1,
+        "Component": "@/components/Homework/AddHomeWorkContinuous",
+        "Meta": {
+          "Title": "布置连续作业",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "homeworkDetail/:cid",
         "Name": "homeworkDetail",
         "Type": 1,
         "Component": "@/components/Homework/HomeworkDetail",
         "Meta": {
-          "Title": "作业详情",
+          "Title": "单次-作业详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "homeworkCusDetail/:cid",
+        "Name": "homeworkCusDetail",
+        "Type": 1,
+        "Component": "@/components/Homework/HomeworkDetailContinuous",
+        "Meta": {
+          "Title": "连续-作业详情",
           "Icon": "item"
         }
       },

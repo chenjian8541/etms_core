@@ -15,60 +15,29 @@ namespace ETMS.Manage.Jobs
     /// <summary>
     /// 上课前一天通知
     /// </summary>
-    public class NoticeStudentsOfClassBeforeDayJob : BaseJob
+    public class NoticeStudentsOfClassBeforeDayJob : BaseTenantHandle
     {
-        private readonly ISysTenantDAL _sysTenantDAL;
-
         private readonly IEventPublisher _eventPublisher;
-
-        private const int _pageSize = 100;
 
         private DateTime _classOt;
 
         private int _nowTime;
 
         public NoticeStudentsOfClassBeforeDayJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+            :base(sysTenantDAL)
         {
-            this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
-        }
-
-        public override async Task Process(JobExecutionContext context)
-        {
             _classOt = DateTime.Now.AddDays(1).Date;
             _nowTime = Convert.ToInt32(DateTime.Now.ToString("HHmm"));
-
-            var pageCurrent = 1;
-            var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-            if (getTenantsEffectiveResult.Item2 == 0)
-            {
-                return;
-            }
-            HandleTenantList(getTenantsEffectiveResult.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
-            pageCurrent++;
-            while (pageCurrent <= totalPage)
-            {
-                getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-                HandleTenantList(getTenantsEffectiveResult.Item1);
-                pageCurrent++;
-            }
         }
 
-        private void HandleTenantList(IEnumerable<SysTenant> tenantList)
+        public override async Task ProcessTenant(SysTenant tenant)
         {
-            if (tenantList == null || !tenantList.Any())
+            _eventPublisher.Publish(new NoticeStudentsOfClassBeforeDayTenantEvent(tenant.Id)
             {
-                return;
-            }
-            foreach (var tenant in tenantList)
-            {
-                _eventPublisher.Publish(new NoticeStudentsOfClassBeforeDayTenantEvent(tenant.Id)
-                {
-                    ClassOt = _classOt,
-                    NowTime = _nowTime
-                });
-            }
+                ClassOt = _classOt,
+                NowTime = _nowTime
+            });
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 namespace ETMS.Entity.Database.Source
 {
     [Table("EtActiveHomework")]
-    public class EtActiveHomework: Entity<long>
+    public class EtActiveHomework : Entity<long>
     {
         /// <summary>
         /// 创建人(老师)
@@ -32,6 +32,14 @@ namespace ETMS.Entity.Database.Source
         /// 截止时间
         /// </summary>
         public DateTime? ExDate { get; set; }
+
+        public DateTime? LxStartDate { get; set; }
+
+        public DateTime? LxEndDate { get; set; }
+
+        public int? LxTotalCount { get; set; }
+
+        public int? LxExTime { get; set; }
 
         /// <summary>
         /// 作业要求
@@ -69,5 +77,6 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public DateTime Ot { get; set; }
 
+        public string StudentIds { get; set; }
     }
 }

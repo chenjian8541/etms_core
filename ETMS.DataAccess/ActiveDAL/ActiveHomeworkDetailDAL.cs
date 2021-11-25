@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -53,14 +54,25 @@ namespace ETMS.DataAccess
             return await GetCache(_tenantId, id);
         }
 
-        public async Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, byte answerStatus)
+        public async Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, byte answerStatus, DateTime? otDate, long? studentId)
         {
+            if (otDate != null)
+            {
+                return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+                && p.HomeworkId == homeworkId && p.AnswerStatus == answerStatus && p.OtDate == otDate.Value);
+            }
+            if (studentId != null)
+            {
+                return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+                && p.HomeworkId == homeworkId && p.AnswerStatus == answerStatus && p.StudentId == studentId.Value);
+            }
             return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.HomeworkId == homeworkId && p.AnswerStatus == answerStatus);
         }
 
-        public async Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId)
+        public async Task<List<EtActiveHomeworkDetail>> GetActiveHomeworkDetail(long homeworkId, DateTime otDate)
         {
-            return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.HomeworkId == homeworkId);
+            return await _dbWrapper.FindList<EtActiveHomeworkDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.HomeworkId == homeworkId && p.OtDate == otDate);
         }
 
         public async Task<Tuple<IEnumerable<EtActiveHomeworkDetail>, int>> GetPaging(IPagingRequest request)
@@ -82,12 +94,36 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowExDate()
+        public async Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailTomorrowSingleWorkExDate()
         {
             var tomorrow = DateTime.Now.AddDays(1);
             var afterTomorrow = DateTime.Now.AddDays(2);
             return await _dbWrapper.ExecuteObject<EtActiveHomeworkDetail>(
-                $"SELECT TOP 100 * FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered} AND ExDate < '{afterTomorrow.EtmsToDateString()}' AND ExDate >= '{tomorrow.EtmsToDateString()}'");
+                $"SELECT TOP 500 * FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND [Type] = {EmActiveHomeworkType.SingleWork}  AND IsDeleted = {EmIsDeleted.Normal} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered} AND ExDate < '{afterTomorrow.EtmsToDateString()}' AND ExDate >= '{tomorrow.EtmsToDateString()}'");
+        }
+
+        public async Task<IEnumerable<EtActiveHomeworkDetail>> GetHomeworkDetailContinuousWorkTodayNotAnswer(DateTime otDate, int maxTime, int minTime)
+        {
+            return await _dbWrapper.ExecuteObject<EtActiveHomeworkDetail>(
+                $"SELECT TOP 500 * FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND [Type] = {EmActiveHomeworkType.ContinuousWork} AND IsDeleted = {EmIsDeleted.Normal} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered} AND OtDate = '{otDate.EtmsToDateString()}' AND LxExTime >= {minTime} AND LxExTime <= {maxTime}");
+        }
+
+        public async Task<byte> GetHomeworkStudentAnswerStatus(long homeworkId, long studentId)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered}");
+            if (obj != null)
+            {
+                return EmActiveHomeworkDetailAnswerStatus.Unanswered;
+            }
+            return EmActiveHomeworkDetailAnswerStatus.Answered;
+        }
+
+        public async Task<bool> ExistHomeworkDetail(long homeworkId, DateTime otDate)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND OtDate = '{otDate.EtmsToDateString()}' AND IsDeleted = {EmIsDeleted.Normal}");
+            return obj != null;
         }
     }
 }

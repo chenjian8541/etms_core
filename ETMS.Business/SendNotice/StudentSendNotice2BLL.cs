@@ -98,7 +98,8 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
-            var homeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.HomeworkId);
+            var date = DateTime.Now.Date;
+            var homeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.HomeworkId, date);
             if (homeworkDetails.Count == 0)
             {
                 return;
@@ -427,10 +428,26 @@ namespace ETMS.Business.SendNotice
 
         public async Task NoticeStudentsOfHomeworkExDateConsumeEvent(NoticeStudentsOfHomeworkExDateEvent request)
         {
-            var homeworkDetailTomorrowExDate = await _activeHomeworkDetailDAL.GetHomeworkDetailTomorrowExDate();
-            if (!homeworkDetailTomorrowExDate.Any())
+            var homeworkDetailTomorrowExDate = await _activeHomeworkDetailDAL.GetHomeworkDetailTomorrowSingleWorkExDate();
+            await NoticeStudentsHomeworkExpireRemind(homeworkDetailTomorrowExDate, request);
+        }
+
+        public async Task NoticeStudentsOfHomeworkNotAnswerConsumeEvent(NoticeStudentsOfHomeworkNotAnswerEvent request)
+        {
+            var hourAndMinute = EtmsHelper.GetTimeHourAndMinuteDesc(request.MyNow);
+            var minValue = hourAndMinute - 10;  //10分钟的时间误差
+            var maxValue = hourAndMinute + 10;
+            var homeworkDetail = await _activeHomeworkDetailDAL.GetHomeworkDetailContinuousWorkTodayNotAnswer(request.MyNow.Date, maxValue, minValue);
+            await NoticeStudentsHomeworkExpireRemind(homeworkDetail, request);
+        }
+
+        private async Task NoticeStudentsHomeworkExpireRemind(IEnumerable<EtActiveHomeworkDetail> homeworkDetailTomorrowExDate,
+            ETMS.Event.DataContract.Event request)
+        {
+            if (homeworkDetailTomorrowExDate == null || !homeworkDetailTomorrowExDate.Any())
             {
                 Log.Info($"[NoticeStudentsOfHomeworkExDateConsumeEvent]未发现需要提醒的未交作业的学员:{request.TenantId}", this.GetType());
+                return;
             }
             var req = new HomeworkExpireRemindRequest(await GetNoticeRequestBase(request.TenantId))
             {
@@ -466,15 +483,22 @@ namespace ETMS.Business.SendNotice
                 {
                     continue;
                 }
+                var exDate = string.Empty;
                 if (myHomeWorkDetail.ExDate == null)
                 {
-                    continue;
+                    if (myHomeWorkDetail.Type == EmActiveHomeworkType.SingleWork)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    exDate = myHomeWorkDetail.ExDate.EtmsToString();
                 }
                 var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, myHomeWorkDetail.ClassId);
                 var className = myClass?.Name;
 
                 var url = string.Format(wxConfig.TemplateNoticeConfig.StudentHomeworkDetailUrl, myHomeWorkDetail.Id, myHomeWorkDetail.AnswerStatus);
-                var exDate = myHomeWorkDetail.ExDate.EtmsToString();
                 req.Students.Add(new HomeworkExpireRemindStudent()
                 {
                     Name = student.Name,

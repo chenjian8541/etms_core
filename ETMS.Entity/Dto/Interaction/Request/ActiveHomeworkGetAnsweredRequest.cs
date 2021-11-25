@@ -9,6 +9,10 @@ namespace ETMS.Entity.Dto.Interaction.Request
     {
         public long CId { get; set; }
 
+        public DateTime? OtDate { get; set; }
+
+        public long? StudentId { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

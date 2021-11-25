@@ -11,9 +11,18 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte SingleWork = 0;
 
+        /// <summary>
+        /// 连续作业
+        /// </summary>
+        public const byte ContinuousWork = 1;
+
         public static string GetActiveHomeworkTypeDesc(byte t)
         {
-            return "单次作业";
+            if (t == SingleWork)
+            {
+                return "单次作业";
+            }
+            return "连续作业";
         }
     }
 }

@@ -22,7 +22,7 @@
   },
   {
     "Name": "NoticeStudentsOfClassBeforeDayJob",
-    "Cron": "0 */30 * * * ?", //每隔30分种执行
+    "Cron": "0 */30 * * * ?", //每隔30分钟执行
     "Title": "定时发送上课提醒(提前一天)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
@@ -64,7 +64,7 @@
   },
   {
     "Name": "NoticeUserOfClassTodayJob",
-    "Cron": "0 */5 * * * ?", //每隔5分种执行
+    "Cron": "0 */5 * * * ?", //每隔5分钟执行
     "Title": "定时发送上课提醒(提前几分钟)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
@@ -116,6 +116,20 @@
     "Cron": "0 0 1 * * ?", //每天凌晨1点执行
     "Title": "定时分析机构信息",
     "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "HomeworkGenerateContinuousJob",
+    "Cron": "0 0 8 * * ?", //每天早上8点执行
+    "Title": "连续作业定时生成",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
+  },
+  {
+    "Name": "HomeworkAnalyzeJob",
+    "Cron": "0 */30 * * * ?", //每隔30分钟执行
+    "Title": "作业分析(连续作业未交提醒)",
+    "IsCanTryAgain": true,
     "IsCanParallelProcess": false
   }
 ]

@@ -63,6 +63,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveHomeworkAdd2(ActiveHomeworkAdd2Request request)
+        {
+            try
+            {
+                _activeHomeworkBLL.InitTenantId(request.LoginTenantId);
+                return await _activeHomeworkBLL.ActiveHomeworkAdd2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActiveHomeworkGetBasc(ActiveHomeworkGetBascRequest request)
         {
             try

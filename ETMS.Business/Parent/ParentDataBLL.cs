@@ -712,9 +712,21 @@ namespace ETMS.Business
             activeHomeworkDetail.ReadStatus = EmActiveHomeworkDetailReadStatus.Yes;
             await _activeHomeworkDetailDAL.EditActiveHomeworkDetail(activeHomeworkDetail);
 
-            var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
-            activeHomework.ReadCount += 1;
-            await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+            if (activeHomeworkDetail.Type == EmActiveHomeworkType.SingleWork)
+            {
+                var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
+                activeHomework.ReadCount += 1;
+                await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+            }
+            else
+            {
+                _eventPublisher.Publish(new SyncHomeworkReadAndFinishCountEvent(request.LoginTenantId)
+                {
+                    OpType = SyncHomeworkReadAndFinishCountOpType.Read,
+                    HomeworkId = activeHomeworkDetail.HomeworkId,
+                    StudentId = activeHomeworkDetail.StudentId
+                });
+            }
 
             await _studentOperationLogDAL.AddStudentLog(activeHomeworkDetail.StudentId, request.LoginTenantId, $"阅读课后作业：{activeHomeworkDetail.Title}", EmStudentOperationLogType.Homework);
             return ResponseBase.Success();
@@ -743,9 +755,21 @@ namespace ETMS.Business
             activeHomeworkDetail.AnswerOt = DateTime.Now;
             await _activeHomeworkDetailDAL.EditActiveHomeworkDetail(activeHomeworkDetail);
 
-            var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
-            activeHomework.FinishCount += 1;
-            await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+            if (activeHomeworkDetail.Type == EmActiveHomeworkType.SingleWork)
+            {
+                var activeHomework = await _activeHomeworkDAL.GetActiveHomework(activeHomeworkDetail.HomeworkId);
+                activeHomework.FinishCount += 1;
+                await _activeHomeworkDAL.EditActiveHomework(activeHomework);
+            }
+            else
+            {
+                _eventPublisher.Publish(new SyncHomeworkReadAndFinishCountEvent(request.LoginTenantId)
+                {
+                    OpType = SyncHomeworkReadAndFinishCountOpType.Answer,
+                    HomeworkId = activeHomeworkDetail.HomeworkId,
+                    StudentId = activeHomeworkDetail.StudentId
+                });
+            }
 
             _eventPublisher.Publish(new NoticeTeacherOfHomeworkFinishEvent(activeHomeworkDetail.TenantId)
             {

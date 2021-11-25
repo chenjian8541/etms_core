@@ -12,29 +12,24 @@ using System.Threading.Tasks;
 
 namespace ETMS.Manage.Jobs
 {
-    public class NoticeUserOfClassTodayJob : BaseTenantHandle
+    public class HomeworkAnalyzeJob : BaseTenantHandle
     {
         private readonly IEventPublisher _eventPublisher;
 
-        private DateTime _classOt;
+        private DateTime _myNow;
 
-        private DateTime _nowTime;
-
-        public NoticeUserOfClassTodayJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
-            :base(sysTenantDAL)
+        public HomeworkAnalyzeJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+            : base(sysTenantDAL)
         {
             this._eventPublisher = eventPublisher;
-            var now = DateTime.Now;
-            _classOt = now.Date;
-            _nowTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 1);
+            this._myNow = DateTime.Now;
         }
 
         public override async Task ProcessTenant(SysTenant tenant)
         {
-            _eventPublisher.Publish(new NoticeTeacherOfClassTodayTenantEvent(tenant.Id)
+            _eventPublisher.Publish(new NoticeStudentsOfHomeworkNotAnswerEvent(tenant.Id)
             {
-                ClassOt = _classOt,
-                NowTime = _nowTime
+                MyNow = this._myNow
             });
         }
     }

@@ -12,29 +12,23 @@ using System.Threading.Tasks;
 
 namespace ETMS.Manage.Jobs
 {
-    public class NoticeUserOfClassTodayJob : BaseTenantHandle
+    public class HomeworkGenerateContinuousJob : BaseTenantHandle
     {
         private readonly IEventPublisher _eventPublisher;
 
-        private DateTime _classOt;
+        private DateTime _myDate;
 
-        private DateTime _nowTime;
-
-        public NoticeUserOfClassTodayJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
-            :base(sysTenantDAL)
+        public HomeworkGenerateContinuousJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+            : base(sysTenantDAL)
         {
             this._eventPublisher = eventPublisher;
-            var now = DateTime.Now;
-            _classOt = now.Date;
-            _nowTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 1);
+            this._myDate = DateTime.Now.Date;
         }
-
         public override async Task ProcessTenant(SysTenant tenant)
         {
-            _eventPublisher.Publish(new NoticeTeacherOfClassTodayTenantEvent(tenant.Id)
+            _eventPublisher.Publish(new GenerateContinuousHomeworkEvent(tenant.Id)
             {
-                ClassOt = _classOt,
-                NowTime = _nowTime
+                MyDate = this._myDate
             });
         }
     }

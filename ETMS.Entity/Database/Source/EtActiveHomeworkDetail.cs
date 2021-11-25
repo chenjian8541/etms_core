@@ -43,6 +43,8 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public DateTime? ExDate { get; set; }
 
+        public int? LxExTime { get; set; }
+
         /// <summary>
         /// 作业要求
         /// </summary>
@@ -79,5 +81,10 @@ namespace ETMS.Entity.Database.Source
         /// 发布时间
         /// </summary>
         public DateTime Ot { get; set; }
+
+        /// <summary>
+        /// 发布日期
+        /// </summary>
+        public DateTime? OtDate { get; set; }
     }
 }

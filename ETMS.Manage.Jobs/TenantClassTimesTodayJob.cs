@@ -11,56 +11,25 @@ using ETMS.Utility;
 
 namespace ETMS.Manage.Jobs
 {
-    public class TenantClassTimesTodayJob : BaseJob
+    public class TenantClassTimesTodayJob : BaseTenantHandle
     {
-        private readonly ISysTenantDAL _sysTenantDAL;
-
         private readonly IEventPublisher _eventPublisher;
-
-        private const int _pageSize = 100;
 
         private DateTime _classOt;
 
         public TenantClassTimesTodayJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+            : base(sysTenantDAL)
         {
-            this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
-        }
-
-        public override async Task Process(JobExecutionContext context)
-        {
             _classOt = DateTime.Now;
-
-            var pageCurrent = 1;
-            var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-            if (getTenantsEffectiveResult.Item2 == 0)
-            {
-                return;
-            }
-            HandleTenantList(getTenantsEffectiveResult.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
-            pageCurrent++;
-            while (pageCurrent <= totalPage)
-            {
-                getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-                HandleTenantList(getTenantsEffectiveResult.Item1);
-                pageCurrent++;
-            }
         }
 
-        private void HandleTenantList(IEnumerable<SysTenant> tenantList)
+        public override async Task ProcessTenant(SysTenant tenant)
         {
-            if (tenantList == null || !tenantList.Any())
+            _eventPublisher.Publish(new TenantClassTimesTodayEvent(tenant.Id)
             {
-                return;
-            }
-            foreach (var tenant in tenantList)
-            {
-                _eventPublisher.Publish(new TenantClassTimesTodayEvent(tenant.Id)
-                {
-                    ClassOt = _classOt
-                });
-            }
+                ClassOt = _classOt
+            });
         }
     }
 }

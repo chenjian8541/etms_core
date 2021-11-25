@@ -19,5 +19,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public string ReadStatusDesc { get; set; }
 
         public byte ReadStatus { get; set; }
+
+        public string OtDateDesc { get; set; }
     }
 }

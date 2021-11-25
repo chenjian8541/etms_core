@@ -69,6 +69,15 @@ namespace ETMS.Business
             {
                 var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
                 var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.CreateUserId);
+                var exDateDesc = string.Empty;
+                if (p.Type == EmActiveHomeworkType.SingleWork)
+                {
+                    exDateDesc = p.ExDate == null ? "未设置" : p.ExDate.EtmsToMinuteString();
+                }
+                else
+                {
+                    exDateDesc = $"{p.LxStartDate.EtmsToDateString()}-{p.LxEndDate.EtmsToDateString()}";
+                }
                 output.Add(new ActiveHomeworkGetPagingOutput()
                 {
                     HomeworkId = p.Id,
@@ -76,7 +85,7 @@ namespace ETMS.Business
                     ClassName = myClass?.Name,
                     TeacherName = teacher.Name,
                     TeacherAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, teacher.Avatar),
-                    ExDateDesc = p.ExDate == null ? "未设置" : p.ExDate.EtmsToMinuteString(),
+                    ExDateDesc = exDateDesc,
                     FinishCount = p.FinishCount,
                     OtDesc = p.Ot.EtmsToMinuteString(),
                     ReadCount = p.ReadCount,
@@ -112,6 +121,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ActiveHomeworkAdd(ActiveHomeworkAddRequest request)
         {
             var now = DateTime.Now;
+            var date = now.Date;
             var workMedias = string.Empty;
             if (request.WorkMediasKeys != null && request.WorkMediasKeys.Count > 0)
             {
@@ -149,7 +159,8 @@ namespace ETMS.Business
                     TotalCount = p.StudentIds.Count,
                     Type = EmActiveHomeworkType.SingleWork,
                     WorkContent = request.WorkContent,
-                    WorkMedias = workMedias
+                    WorkMedias = workMedias,
+                    StudentIds = EtmsHelper.GetMuIds(p.StudentIds)
                 };
                 await _activeHomeworkDAL.AddActiveHomework(entity);
 
@@ -174,7 +185,8 @@ namespace ETMS.Business
                         Title = request.Title,
                         Type = EmActiveHomeworkType.SingleWork,
                         WorkContent = request.WorkContent,
-                        WorkMedias = workMedias
+                        WorkMedias = workMedias,
+                        OtDate = date
                     });
                 }
             }
@@ -189,6 +201,113 @@ namespace ETMS.Business
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"布置单次作业-{request.Title}", EmUserOperationType.ActiveHomeworkMgr, now);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ActiveHomeworkAdd2(ActiveHomeworkAdd2Request request)
+        {
+            var now = DateTime.Now;
+            var date = now.Date;
+            var workMedias = string.Empty;
+            if (request.WorkMediasKeys != null && request.WorkMediasKeys.Count > 0)
+            {
+                workMedias = string.Join('|', request.WorkMediasKeys);
+            }
+            var details = new List<EtActiveHomeworkDetail>();
+            var homeworkStudents = new List<EtActiveHomeworkStudent>();
+            var homeworkIds = new List<long>();
+            var isTodaySend = request.LxStartDate <= date;
+            foreach (var p in request.ClassInfos)
+            {
+                if (p.StudentIds == null || p.StudentIds.Count == 0)
+                {
+                    var tempClassStudent = await _classDAL.GetClassBucket(p.ClassId);
+                    if (tempClassStudent == null || tempClassStudent.EtClass == null)
+                    {
+                        LOG.Log.Error("[ActiveHomeworkAdd]班级不存在", request, this.GetType());
+                        return ResponseBase.CommonError("班级不存在");
+                    }
+                    if (tempClassStudent.EtClassStudents != null && tempClassStudent.EtClassStudents.Count > 0)
+                    {
+                        p.StudentIds = tempClassStudent.EtClassStudents.Select(j => j.StudentId).ToList();
+                    }
+                }
+                var entity = new EtActiveHomework()
+                {
+                    ClassId = p.ClassId,
+                    CreateUserId = request.LoginUserId,
+                    ExDate = null,
+                    FinishCount = 0,
+                    ReadCount = 0,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Ot = now,
+                    Status = EmActiveHomeworkStatus.Undone,
+                    TenantId = request.LoginTenantId,
+                    Title = request.Title,
+                    TotalCount = p.StudentIds.Count,
+                    Type = EmActiveHomeworkType.ContinuousWork,
+                    WorkContent = request.WorkContent,
+                    WorkMedias = workMedias,
+                    LxStartDate = request.LxStartDate,
+                    LxEndDate = request.LxEndDate,
+                    LxExTime = request.LxExTime,
+                    LxTotalCount = request.LxTotalCount.ToInt(),
+                    StudentIds = EtmsHelper.GetMuIds(p.StudentIds)
+                };
+                await _activeHomeworkDAL.AddActiveHomework(entity);
+
+                homeworkIds.Add(entity.Id);
+                foreach (var studentId in p.StudentIds)
+                {
+                    if (isTodaySend)
+                    {
+                        details.Add(new EtActiveHomeworkDetail()
+                        {
+                            AnswerContent = string.Empty,
+                            AnswerMedias = string.Empty,
+                            AnswerOt = null,
+                            AnswerStatus = EmActiveHomeworkDetailAnswerStatus.Unanswered,
+                            ClassId = p.ClassId,
+                            CreateUserId = request.LoginUserId,
+                            ExDate = null,
+                            HomeworkId = entity.Id,
+                            IsDeleted = EmIsDeleted.Normal,
+                            Ot = now,
+                            ReadStatus = EmActiveHomeworkDetailReadStatus.No,
+                            StudentId = studentId,
+                            TenantId = request.LoginTenantId,
+                            Title = request.Title,
+                            Type = EmActiveHomeworkType.ContinuousWork,
+                            WorkContent = request.WorkContent,
+                            WorkMedias = workMedias,
+                            OtDate = date,
+                            LxExTime = request.LxExTime
+                        });
+                    }
+                    homeworkStudents.Add(new EtActiveHomeworkStudent()
+                    {
+                        AnswerStatus = EmActiveHomeworkDetailAnswerStatus.Unanswered,
+                        CreateUserId = request.LoginUserId,
+                        HomeworkId = entity.Id,
+                        IsDeleted = EmIsDeleted.Normal,
+                        ReadStatus = EmActiveHomeworkDetailReadStatus.No,
+                        StudentId = studentId,
+                        TenantId = request.LoginTenantId
+                    });
+                }
+            }
+            _activeHomeworkDetailDAL.AddActiveHomeworkDetail(details);
+            _activeHomeworkDAL.AddActiveHomeworkStudent(homeworkStudents);
+
+            foreach (var id in homeworkIds)
+            {
+                _eventPublisher.Publish(new NoticeStudentsOfHomeworkAddEvent(request.LoginTenantId)
+                {
+                    HomeworkId = id
+                });
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"布置连续作业-{request.Title}", EmUserOperationType.ActiveHomeworkMgr, now);
             return ResponseBase.Success();
         }
 
@@ -219,12 +338,34 @@ namespace ETMS.Business
                 WorkContent = p.WorkContent,
                 WorkMediasUrl = GetMediasUrl(p.WorkMedias)
             };
+            if (p.Type == EmActiveHomeworkType.ContinuousWork)
+            {
+                output.LxStartDateDesc = p.LxStartDate.EtmsToDateString();
+                output.LxEndDateDesc = p.LxEndDate.EtmsToDateString();
+                output.LxTotalCount = p.LxTotalCount.Value;
+                output.Students = new List<HomeworkStudent>();
+                var ids = EtmsHelper.AnalyzeMuIds(p.StudentIds);
+                foreach (var studentId in ids)
+                {
+                    var studentBucket = await _studentDAL.GetStudent(studentId);
+                    if (studentBucket == null || studentBucket.Student == null)
+                    {
+                        continue;
+                    }
+                    output.Students.Add(new HomeworkStudent()
+                    {
+                        StudentId = studentId,
+                        StudentName = studentBucket.Student.Name
+                    });
+                }
+            }
             return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ActiveHomeworkStudentGetAnswered(ActiveHomeworkGetAnsweredRequest request)
         {
-            var activeHomeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.CId, EmActiveHomeworkDetailAnswerStatus.Answered);
+            var activeHomeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.CId,
+                EmActiveHomeworkDetailAnswerStatus.Answered, request.OtDate, request.StudentId);
             var output = new List<ActiveHomeworkStudentGetAnsweredOutput>();
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var detail in activeHomeworkDetails)
@@ -329,7 +470,8 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ActiveHomeworkStudentGetUnanswered(ActiveHomeworkGetUnansweredRequest request)
         {
-            var activeHomeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.CId, EmActiveHomeworkDetailAnswerStatus.Unanswered);
+            var activeHomeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.CId,
+                EmActiveHomeworkDetailAnswerStatus.Unanswered, request.OtDate, request.StudentId);
             var output = new List<ActiveHomeworkStudentGetUnansweredOutput>();
             foreach (var p in activeHomeworkDetails)
             {
@@ -346,7 +488,8 @@ namespace ETMS.Business
                     StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar),
                     StudentId = p.StudentId,
                     StudentName = studentBucket.Student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType)
+                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType),
+                    OtDateDesc = p.OtDate.EtmsToDateString()
                 });
             }
             return ResponseBase.Success(output);

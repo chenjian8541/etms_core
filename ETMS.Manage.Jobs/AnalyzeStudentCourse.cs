@@ -15,66 +15,38 @@ using System.Threading.Tasks;
 
 namespace ETMS.Manage.Jobs
 {
-    public class AnalyzeStudentCourse : BaseJob
+    public class AnalyzeStudentCourse : BaseTenantHandle
     {
-        private readonly ISysTenantDAL _sysTenantDAL;
-
         private readonly IEventPublisher _eventPublisher;
 
         private readonly IJobAnalyzeBLL _jobAnalyzeBLL;
 
         private const int _pageSize = 100;
 
-        public AnalyzeStudentCourse(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher, IJobAnalyzeBLL jobAnalyzeBLL)
+        public AnalyzeStudentCourse(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher,
+            IJobAnalyzeBLL jobAnalyzeBLL) : base(sysTenantDAL)
         {
-            this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
             this._jobAnalyzeBLL = jobAnalyzeBLL;
         }
 
-        public override async Task Process(JobExecutionContext context)
+        public override async Task ProcessTenant(SysTenant tenant)
         {
             var pageCurrent = 1;
-            var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-            if (getTenantsEffectiveResult.Item2 == 0)
+            this._jobAnalyzeBLL.ResetTenantId(tenant.Id);
+            var hasCourseStudentResult = await _jobAnalyzeBLL.GetHasCourseStudent(_pageSize, pageCurrent);
+            if (hasCourseStudentResult.Item2 == 0)
             {
                 return;
             }
-            await HandleTenantList(getTenantsEffectiveResult.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
+            HandleStudent(tenant.Id, hasCourseStudentResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(hasCourseStudentResult.Item2, _pageSize);
             pageCurrent++;
             while (pageCurrent <= totalPage)
             {
-                getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-                await HandleTenantList(getTenantsEffectiveResult.Item1);
+                var studentResult = await _jobAnalyzeBLL.GetHasCourseStudent(_pageSize, pageCurrent);
+                HandleStudent(tenant.Id, studentResult.Item1);
                 pageCurrent++;
-            }
-        }
-
-        private async Task HandleTenantList(IEnumerable<SysTenant> tenantList)
-        {
-            if (tenantList == null || !tenantList.Any())
-            {
-                return;
-            }
-            foreach (var tenant in tenantList)
-            {
-                var pageCurrent = 1;
-                this._jobAnalyzeBLL.ResetTenantId(tenant.Id);
-                var hasCourseStudentResult = await _jobAnalyzeBLL.GetHasCourseStudent(_pageSize, pageCurrent);
-                if (hasCourseStudentResult.Item2 == 0)
-                {
-                    continue;
-                }
-                HandleStudent(tenant.Id, hasCourseStudentResult.Item1);
-                var totalPage = EtmsHelper.GetTotalPage(hasCourseStudentResult.Item2, _pageSize);
-                pageCurrent++;
-                while (pageCurrent <= totalPage)
-                {
-                    var studentResult = await _jobAnalyzeBLL.GetHasCourseStudent(_pageSize, pageCurrent);
-                    HandleStudent(tenant.Id, studentResult.Item1);
-                    pageCurrent++;
-                }
             }
         }
 

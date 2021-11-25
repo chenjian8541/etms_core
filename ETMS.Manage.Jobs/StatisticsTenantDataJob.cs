@@ -13,70 +13,38 @@ using System.Threading.Tasks;
 
 namespace ETMS.Manage.Jobs
 {
-    public class StatisticsTenantDataJob : BaseJob
+    public class StatisticsTenantDataJob : BaseTenantHandle
     {
-        private readonly ISysTenantDAL _sysTenantDAL;
-
         private readonly IEventPublisher _eventPublisher;
-
-        private const int _pageSize = 100;
 
         private DateTime _now;
 
         public StatisticsTenantDataJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher)
+            : base(sysTenantDAL)
         {
-            this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
-        }
-
-        public override async Task Process(JobExecutionContext context)
-        {
             _now = DateTime.Now.AddDays(-1).Date;
-
-            var pageCurrent = 1;
-            var getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-            if (getTenantsEffectiveResult.Item2 == 0)
-            {
-                return;
-            }
-            HandleTenantList(getTenantsEffectiveResult.Item1);
-            var totalPage = EtmsHelper.GetTotalPage(getTenantsEffectiveResult.Item2, _pageSize);
-            pageCurrent++;
-            while (pageCurrent <= totalPage)
-            {
-                getTenantsEffectiveResult = await _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent);
-                HandleTenantList(getTenantsEffectiveResult.Item1);
-                pageCurrent++;
-            }
         }
-
-        private void HandleTenantList(IEnumerable<SysTenant> tenantList)
+        public override async Task ProcessTenant(SysTenant tenant)
         {
-            if (tenantList == null || !tenantList.Any())
+            _eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
             {
-                return;
-            }
-            foreach (var tenant in tenantList)
+                Time = _now
+            });
+            _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
             {
-                _eventPublisher.Publish(new StatisticsEducationEvent(tenant.Id)
-                {
-                    Time = _now
-                });
-                _eventPublisher.Publish(new StatisticsFinanceIncomeMonthEvent(tenant.Id)
-                {
-                    Time = _now
-                });
-                _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenant.Id)
-                {
-                    Time = _now,
-                    IsJobRequest = true
-                });
-                _eventPublisher.Publish(new StatisticsLcsPayEvent(tenant.Id)
-                {
-                    StatisticsDate = _now
-                });
-                _eventPublisher.Publish(new SyncTenantLastOpTimeEvent(tenant.Id));
-            }
+                Time = _now
+            });
+            _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenant.Id)
+            {
+                Time = _now,
+                IsJobRequest = true
+            });
+            _eventPublisher.Publish(new StatisticsLcsPayEvent(tenant.Id)
+            {
+                StatisticsDate = _now
+            });
+            _eventPublisher.Publish(new SyncTenantLastOpTimeEvent(tenant.Id));
         }
     }
 }

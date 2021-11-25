@@ -13,6 +13,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ActiveHomeworkAdd(ActiveHomeworkAddRequest request);
 
+        Task<ResponseBase> ActiveHomeworkAdd2(ActiveHomeworkAdd2Request request);
+
         Task<ResponseBase> ActiveHomeworkGetBasc(ActiveHomeworkGetBascRequest request);
 
         Task<ResponseBase> ActiveHomeworkStudentGetAnswered(ActiveHomeworkGetAnsweredRequest request);

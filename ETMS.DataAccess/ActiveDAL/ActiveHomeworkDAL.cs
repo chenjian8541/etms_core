@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -68,5 +69,67 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtActiveHomework>("EtActiveHomework", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task UpdateHomeworkAnswerAndReadCount(long homeworkId, int newReadCount, int newFinishCount)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActiveHomework SET ReadCount = {newReadCount},FinishCount = {newFinishCount} WHERE Id = {homeworkId} AND TenantId = {_tenantId}");
+            await UpdateCache(_tenantId, homeworkId);
+        }
+
+        public async Task<List<EtActiveHomework>> GetNeedCreateContinuousHomework(DateTime nowDate)
+        {
+            return await this._dbWrapper.FindList<EtActiveHomework>(
+                p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Type == EmActiveHomeworkType.ContinuousWork
+                && p.LxStartDate <= nowDate && p.LxEndDate >= nowDate);
+        }
+
+        #region 连续作业
+        public void AddActiveHomeworkStudent(List<EtActiveHomeworkStudent> entitys)
+        {
+            _dbWrapper.InsertRange(entitys);
+        }
+
+        public async Task ResetHomeworkStudentAnswerStatus(long homeworkId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActiveHomeworkStudent SET AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Unanswered} WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND IsDeleted = {EmIsDeleted.Normal} ");
+            await _dbWrapper.Execute($"UPDATE EtActiveHomework SET FinishCount = 0 WHERE Id = {homeworkId} AND TenantId = {_tenantId}");
+            await UpdateCache(_tenantId, homeworkId);
+        }
+
+        public async Task<HomeworkAnswerAndReadCountView> GetAnswerAndReadCount(long homeworkId)
+        {
+            var result = new HomeworkAnswerAndReadCountView()
+            {
+                ReadCount = 0,
+                AnswerCount = 0
+            };
+            var readCountObj = await _dbWrapper.ExecuteScalar(
+                $"SELECT COUNT(0) AS MyCount FROM EtActiveHomeworkStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND HomeworkId = {homeworkId} AND ReadStatus = {EmActiveHomeworkDetailReadStatus.Yes}");
+            if (readCountObj != null)
+            {
+                result.ReadCount = readCountObj.ToInt();
+            }
+            var answerCountObj = await _dbWrapper.ExecuteScalar(
+                $"SELECT COUNT(0) AS MyCount FROM EtActiveHomeworkStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND HomeworkId = {homeworkId} AND AnswerStatus = {EmActiveHomeworkDetailAnswerStatus.Answered}");
+            if (answerCountObj != null)
+            {
+                result.AnswerCount = answerCountObj.ToInt();
+            }
+            return result;
+        }
+
+        public async Task HomeworkStudentSetReadStatus(long homeworkId, long studentId, byte newStatus)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtActiveHomeworkStudent SET ReadStatus = {newStatus} WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND StudentId = {studentId} ");
+        }
+
+        public async Task HomeworkStudentSetAnswerStatus(long homeworkId, long studentId, byte newStatus)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtActiveHomeworkStudent SET AnswerStatus = {newStatus} WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND StudentId = {studentId}");
+        }
+
+        #endregion 
     }
 }

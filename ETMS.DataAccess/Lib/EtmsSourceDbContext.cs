@@ -190,5 +190,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtTeacherSalaryContractPerformanceLessonBasc> EtTeacherSalaryContractPerformanceLessonBascs { get; set; }
 
         public DbSet<EtMallPrepay> EtMallPrepays { get; set; }
+
+        public DbSet<EtActiveHomeworkStudent> EtActiveHomeworkStudents { get; set; }
     }
 }

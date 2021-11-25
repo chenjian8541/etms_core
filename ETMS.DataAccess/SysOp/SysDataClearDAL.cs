@@ -30,6 +30,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtActiveHomework SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtActiveHomeworkDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtActiveHomeworkDetailComment SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtActiveHomeworkStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }
