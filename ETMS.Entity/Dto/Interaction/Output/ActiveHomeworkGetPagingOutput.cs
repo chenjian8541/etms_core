@@ -62,5 +62,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         /// 发布时间
         /// </summary>
         public string OtDesc { get; set; }
+
+        public string LxExTimeDesc { get; set; }
     }
 }

@@ -70,13 +70,18 @@ namespace ETMS.Business
                 var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
                 var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.CreateUserId);
                 var exDateDesc = string.Empty;
+                var lxExTimeDesc = string.Empty;
                 if (p.Type == EmActiveHomeworkType.SingleWork)
                 {
                     exDateDesc = p.ExDate == null ? "未设置" : p.ExDate.EtmsToMinuteString();
                 }
                 else
                 {
-                    exDateDesc = $"{p.LxStartDate.EtmsToDateString()}-{p.LxEndDate.EtmsToDateString()}";
+                    exDateDesc = $"{p.LxStartDate.EtmsToDateString()}~{p.LxEndDate.EtmsToDateString()}";
+                    if (p.LxExTime != null)
+                    {
+                        lxExTimeDesc = EtmsHelper.GetTimeDesc(p.LxExTime.Value);
+                    }
                 }
                 output.Add(new ActiveHomeworkGetPagingOutput()
                 {
@@ -94,7 +99,8 @@ namespace ETMS.Business
                     Type = p.Type,
                     TypeDesc = EmActiveHomeworkType.GetActiveHomeworkTypeDesc(p.Type),
                     WorkContent = p.WorkContent,
-                    WorkMediasUrl = GetMediasUrl(p.WorkMedias)
+                    WorkMediasUrl = GetMediasUrl(p.WorkMedias),
+                    LxExTimeDesc = lxExTimeDesc
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActiveHomeworkGetPagingOutput>(pagingData.Item2, output));
