@@ -342,14 +342,12 @@ namespace ETMS.Business
                     CheckOt = p.CheckOt,
                     CheckType = p.CheckType,
                     CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(p.CheckType),
-                    Status = p.Status,
                     StudentCheckOnLogId = p.Id,
                     StudentId = p.StudentId,
                     StudentName = student.Name,
                     CheckMedium = checkMedium,
                     CourseName = courseName,
-                    DeClassTimesDesc = deClassTimesDesc,
-                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status)
+                    DeClassTimesDesc = deClassTimesDesc
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CheckOnLogGetPagingOutput>(pagingData.Item2, output));

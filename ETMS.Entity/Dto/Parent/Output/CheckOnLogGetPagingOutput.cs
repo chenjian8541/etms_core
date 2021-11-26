@@ -36,13 +36,6 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// </summary>
         public DateTime CheckOt { get; set; }
 
-        /// <summary>
-        /// 状态  <see cref="ETMS.Entity.Enum.EmStudentCheckOnLogStatus"/>
-        /// </summary>
-        public byte Status { get; set; }
-
-        public string StatusDesc { get; set; }
-
         public string CourseName { get; set; }
 
         public string DeClassTimesDesc { get; set; }

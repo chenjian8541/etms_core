@@ -98,6 +98,11 @@ namespace ETMS.Entity.Config
         /// </summary>
         public const int MallOrder = 30;
 
+        /// <summary>
+        /// 考勤记录
+        /// </summary>
+        public const int CheckOnLog = 31;
+
         public static List<ParentMenuInfo> AllConfig
         {
             get;
@@ -123,6 +128,7 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(ConsumeOrderLog, "消费记录", 55));
             AllConfig.Add(new ParentMenuInfo(ExchangeLog, "兑换记录", 60));
             AllConfig.Add(new ParentMenuInfo(PointsLog, "积分记录", 65));
+            AllConfig.Add(new ParentMenuInfo(CheckOnLog, "考勤记录", 67));
             AllConfig.Add(new ParentMenuInfo(CouponsLog, "优惠券", 70));
             AllConfig.Add(new ParentMenuInfo(RecommendAward, "推荐有奖", 75));
             AllConfig.Add(new ParentMenuInfo(WxMessage, "机构通知", 80));
