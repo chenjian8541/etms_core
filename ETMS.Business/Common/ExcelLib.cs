@@ -209,6 +209,13 @@ namespace ETMS.Business.Common
                     case CellType.String:
                         return cell.StringCellValue.Trim();
                     case CellType.Numeric:
+                        var myFormatString = cell.CellStyle.GetDataFormatString();
+                        var myDataFormat = cell.CellStyle.DataFormat;
+                        if (myFormatString.IndexOf("yyyy") != -1 || myDataFormat == 178
+                            || myDataFormat == 22 || myDataFormat == 31)
+                        {
+                            return cell.DateCellValue.ToString().Trim();
+                        }
                         return cell.NumericCellValue.ToString().Trim();
                     case CellType.Boolean:
                         return cell.BooleanCellValue.ToString().Trim();
