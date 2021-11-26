@@ -275,6 +275,86 @@ namespace ETMS.Business
             });
         }
 
+        public async Task<ResponseBase> CheckOnLogGetPaging(CheckOnLogGetPagingRequest request)
+        {
+            var pagingData = await _studentCheckOnLogDAL.GetPaging(request);
+            var output = new List<CheckOnLogGetPagingOutput>();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            var tempBoxStudent = new DataTempBox<EtStudent>();
+            var maxDate = DateTime.Now.AddDays(-7);
+            string courseName;
+            string deClassTimesDesc;
+            string checkMedium;
+            foreach (var p in pagingData.Item1)
+            {
+                var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                if (student == null)
+                {
+                    continue;
+                }
+                var explain = string.Empty;
+                courseName = string.Empty;
+                deClassTimesDesc = string.Empty;
+                checkMedium = string.Empty;
+                if (p.CheckType == EmStudentCheckOnLogCheckType.CheckIn)
+                {
+                    switch (p.Status)
+                    {
+                        case EmStudentCheckOnLogStatus.NormalNotClass:
+                            break;
+                        case EmStudentCheckOnLogStatus.NormalAttendClass:
+                        case EmStudentCheckOnLogStatus.BeRollcall:
+                            if (p.ClassTimesId == null)
+                            {
+                                //直接扣减课时
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                            }
+                            else
+                            {
+                                var ckCourse = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId.Value);
+                                courseName = ckCourse;
+                                deClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes);
+                            }
+                            break;
+                        case EmStudentCheckOnLogStatus.Revoke:
+                            break;
+                    }
+                }
+                else
+                {
+                    explain = "签退成功";
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
+                    && !string.IsNullOrEmpty(p.CheckMedium) && p.CheckOt > maxDate)
+                {
+                    checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                {
+                    checkMedium = p.CheckMedium;
+                }
+                output.Add(new CheckOnLogGetPagingOutput()
+                {
+                    CheckForm = p.CheckForm,
+                    CheckFormDesc = EmStudentCheckOnLogCheckForm.GetStudentCheckOnLogCheckFormDesc(p.CheckForm),
+                    CheckOt = p.CheckOt,
+                    CheckType = p.CheckType,
+                    CheckTypeDesc = EmStudentCheckOnLogCheckType.GetStudentCheckOnLogCheckTypeDesc(p.CheckType),
+                    Status = p.Status,
+                    StudentCheckOnLogId = p.Id,
+                    StudentId = p.StudentId,
+                    StudentName = student.Name,
+                    CheckMedium = checkMedium,
+                    CourseName = courseName,
+                    DeClassTimesDesc = deClassTimesDesc,
+                    StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status)
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<CheckOnLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
         public async Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request)
         {
             var accountLogBucket = await _studentAccountRechargeCoreBLL.GetStudentAccountRechargeByPhone(request.LoginPhone);

@@ -17,7 +17,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditStudentCheckOnLog(EtStudentCheckOnLog entity);
 
-        Task<Tuple<IEnumerable<EtStudentCheckOnLog>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtStudentCheckOnLog>, int>> GetPaging(IPagingRequest request);
 
         Task<Tuple<IEnumerable<StudentCheckOnLogView>, int>> GetViewPaging(RequestPagingBase request);
 

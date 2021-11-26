@@ -967,6 +967,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> CheckOnLogGetPaging(CheckOnLogGetPagingRequest request)
+        {
+            try
+            {
+                _parentData3BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData3BLL.CheckOnLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentOrderTransferCoursesGetDetail(StudentOrderTransferCoursesGetDetailRequest request)
         {
             try

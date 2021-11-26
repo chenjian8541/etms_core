@@ -303,20 +303,19 @@ namespace ETMS.Business
                             explain = "签到成功 - 已撤销记上课";
                             break;
                     }
-                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
-                        && !string.IsNullOrEmpty(p.CheckMedium) &&
-                        p.CheckOt > maxDate)
-                    {
-                        checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
-                    }
-                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
-                    {
-                        checkMedium = p.CheckMedium;
-                    }
                 }
                 else
                 {
                     explain = "签退成功";
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
+                    && !string.IsNullOrEmpty(p.CheckMedium) && p.CheckOt > maxDate)
+                {
+                    checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                {
+                    checkMedium = p.CheckMedium;
                 }
                 studentTrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser);
                 output.Add(new StudentCheckOnLogGetPagingOutput()
@@ -395,20 +394,19 @@ namespace ETMS.Business
                             explain = "签到成功 - 已撤销记上课";
                             break;
                     }
-                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
-                        && !string.IsNullOrEmpty(p.CheckMedium) &&
-                        p.CheckOt > maxDate)
-                    {
-                        checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
-                    }
-                    if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
-                    {
-                        checkMedium = p.CheckMedium;
-                    }
                 }
                 else
                 {
                     explain = "签退成功";
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Face
+                    && !string.IsNullOrEmpty(p.CheckMedium) && p.CheckOt > maxDate)
+                {
+                    checkMedium = AliyunOssUtil.GetAccessUrlHttps(p.CheckMedium);
+                }
+                if (p.CheckForm == EmStudentCheckOnLogCheckForm.Card)
+                {
+                    checkMedium = p.CheckMedium;
                 }
                 studentTrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.TrackUser);
                 output.Add(new StudentCheckOnLogGetPagingOutput()

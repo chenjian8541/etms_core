@@ -24,6 +24,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> CheckOnLogGet(CheckOnLogGetRequest request);
 
+        Task<ResponseBase> CheckOnLogGetPaging(CheckOnLogGetPagingRequest request);
+
         Task<ResponseBase> StudentAccountRechargeGet(StudentAccountRechargeGetRequest request);
 
         Task<ResponseBase> StudentAccountRechargeRuleGet(StudentAccountRechargeRuleGetRequest request);
