@@ -166,7 +166,7 @@ namespace ETMS.DataAccess
 
         public async Task<bool> IsCanNotDelete(long id)
         {
-            var myClassTimes = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND CourseList LIKE '%,{id},%'");
+            var myClassTimes = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND CourseList LIKE '%,{id},%'");
             return myClassTimes != null;
         }
     }

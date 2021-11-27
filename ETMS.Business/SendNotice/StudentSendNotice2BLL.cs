@@ -383,6 +383,7 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
+            var tenantNo = TenantLib.GetTenantEncrypt(request.TenantId);
             var tempBoxUser = new DataTempBox<EtUser>();
             var myCourse = await _courseDAL.GetCourse(classRecordStudentLog.CourseId);
             var courseName = string.Empty;
@@ -401,7 +402,7 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
-            var url = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, classRecordStudentLog.Id);
+            var url = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, tenantNo, classRecordStudentLog.Id);
             req.Students.Add(new StudentEvaluateItem()
             {
                 Name = student.Name,

@@ -602,6 +602,7 @@ namespace ETMS.Business
                 return;
             }
 
+            var tenantNo = TenantLib.GetTenantEncrypt(request.TenantId);
             var tempBox = new DataTempBox<EtUser>();
             var req = new NoticeClassCheckSignRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat))
             {
@@ -685,7 +686,7 @@ namespace ETMS.Business
                     StudentCheckStatus = p.StudentCheckStatus,
                     SurplusClassTimesDesc = surplusClassTimesDesc,
                     OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.Phone),
-                    LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
+                    LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, tenantNo, p.Id),
                     RewardPoints = p.RewardPoints,
                     Points = student.Points,
                     ExTimeDesc = expireDateDesc
@@ -703,7 +704,7 @@ namespace ETMS.Business
                         StudentCheckStatus = p.StudentCheckStatus,
                         SurplusClassTimesDesc = surplusClassTimesDesc,
                         OpendId = await GetOpenId(tenantConfig.StudentNoticeConfig.ClassCheckSignWeChat, student.PhoneBak),
-                        LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, p.Id),
+                        LinkUrl = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, tenantNo, p.Id),
                         RewardPoints = p.RewardPoints,
                         Points = student.Points,
                         ExTimeDesc = expireDateDesc

@@ -118,6 +118,11 @@ namespace ETMS.Business.EventConsumer
         public async Task SyncClassTimesStudentConsumerEvent(SyncClassTimesStudentEvent request)
         {
             var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                LOG.Log.Warn("[SyncClassTimesStudentConsumerEvent]课次不存在", request, this.GetType());
+                return;
+            }
             var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
             if (classBucket == null || classBucket.EtClass == null)
             {
