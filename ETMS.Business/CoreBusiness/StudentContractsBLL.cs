@@ -160,12 +160,16 @@ namespace ETMS.Business
             var studentCourseDetails = new List<EtStudentCourseDetail>();
             var oneToOneClassLst = new List<OneToOneClass>();
             var isHasCourse = false;
+            var myCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId);
+            byte buyType = EmOrderBuyType.New;
+
             //课程
             if (request.EnrolmentCourses != null && request.EnrolmentCourses.Any())
             {
                 isHasCourse = true;
                 foreach (var p in request.EnrolmentCourses)
                 {
+                    buyType = EmOrderBuyType.New;
                     var course = await _courseDAL.GetCourse(p.CourseId);
                     if (course == null || course.Item1 == null || course.Item2 == null)
                     {
@@ -181,7 +185,19 @@ namespace ETMS.Business
                         oneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
                     }
                     studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
-                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.OtherInfo.Ot, request.LoginUserId, request.LoginTenantId);
+                    if (myCourseDetail != null && myCourseDetail.Count > 0)
+                    {
+                        var thisCourse = myCourseDetail.FirstOrDefault(a => a.CourseId == p.CourseId);
+                        if (thisCourse != null)
+                        {
+                            buyType = EmOrderBuyType.Expand;
+                        }
+                        else
+                        {
+                            buyType = EmOrderBuyType.Renew;
+                        }
+                    }
+                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.OtherInfo.Ot, request.LoginUserId, request.LoginTenantId, buyType);
                     orderDetails.Add(orderCourseDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
                     buyCourse.Append($"{desc}；");
@@ -310,8 +326,7 @@ namespace ETMS.Business
                 PayAccountRechargeId = payAccountRechargeId
             };
 
-            var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId);
-            if (myCourse != null && myCourse.Count > 0)
+            if (myCourseDetail != null && myCourseDetail.Count > 0)
             {
                 order.BuyType = EmOrderBuyType.Renew;
             }

@@ -162,7 +162,7 @@ namespace ETMS.Business.Common
         }
 
         internal static Tuple<EtOrderDetail, string> GetCourseOrderDetail<T>(EtCourse course, T priceRule,
-            EnrolmentCourse enrolmentCourse, string no, DateTime ot, long userId, int tenantId) where T : BaseCoursePrice
+            EnrolmentCourse enrolmentCourse, string no, DateTime ot, long userId, int tenantId, byte buyType) where T : BaseCoursePrice
         {
             var priceRuleDesc = ComBusiness.GetPriceRuleDesc(priceRule).Desc;
             var ruleDesc = $"{course.Name}  {priceRuleDesc}";
@@ -189,7 +189,8 @@ namespace ETMS.Business.Common
                 Status = EmOrderStatus.Normal,
                 TenantId = tenantId,
                 UserId = userId,
-                InOutType = EmOrderInOutType.In
+                InOutType = EmOrderInOutType.In,
+                BuyType = buyType
             }, ruleDesc);
         }
 

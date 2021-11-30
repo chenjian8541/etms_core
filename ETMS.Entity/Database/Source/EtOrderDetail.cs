@@ -112,6 +112,11 @@ namespace ETMS.Entity.Database.Source
         public DateTime Ot { get; set; }
 
         /// <summary>
+        /// 签约类型 <see cref="ETMS.Entity.Enum.EmOrderBuyType">
+        /// </summary>
+        public byte BuyType { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmOrderStatus"/>
         /// </summary>
         public byte Status { get; set; }

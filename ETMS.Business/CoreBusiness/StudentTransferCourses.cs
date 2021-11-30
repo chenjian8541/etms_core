@@ -459,11 +459,14 @@ namespace ETMS.Business
                 StudentCourseDetails = new List<EtStudentCourseDetail>(),
                 ChangeCourseIds = new List<long>()
             };
+            var hisCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(student.Id);
             //课程
             if (request.TransferCoursesBuy != null && request.TransferCoursesBuy.Any())
             {
+                byte buyType = EmOrderBuyType.New;
                 foreach (var p in request.TransferCoursesBuy)
                 {
+                    buyType = EmOrderBuyType.New;
                     var course = await _courseDAL.GetCourse(p.CourseId);
                     if (course == null || course.Item1 == null || course.Item2 == null)
                     {
@@ -479,7 +482,19 @@ namespace ETMS.Business
                         output.OneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
                     }
                     output.StudentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
-                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId);
+                    if (hisCourseDetail != null && hisCourseDetail.Count > 0)
+                    {
+                        var thisCourse = hisCourseDetail.FirstOrDefault(a => a.CourseId == p.CourseId);
+                        if (thisCourse != null)
+                        {
+                            buyType = EmOrderBuyType.Expand;
+                        }
+                        else
+                        {
+                            buyType = EmOrderBuyType.Renew;
+                        }
+                    }
+                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId, buyType);
                     output.OrderDetails.Add(orderCourseDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
                     output.BuyCourse.Append($"{desc}；");

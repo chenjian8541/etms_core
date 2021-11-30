@@ -77,6 +77,7 @@ namespace ETMS.Business
         private List<EtOrderDetail> orderDetails = new List<EtOrderDetail>();
         private List<EtStudentCourseDetail> studentCourseDetails = new List<EtStudentCourseDetail>();
         private List<OneToOneClass> oneToOneClassLst = new List<OneToOneClass>();
+        private List<EtStudentCourseDetail> hisBuyCourseDetails;
         private EtMallOrder mallOrder;
         private ParentBuyMallGoodsSubmitEvent _request;
         long studentId;
@@ -87,7 +88,8 @@ namespace ETMS.Business
         private void StructureCourse<T>(EtCourse course, T priceRule, EnrolmentCourse consumeDetail) where T : BaseCoursePrice
         {
             studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course, priceRule, consumeDetail, no, studentId, tenantId));
-            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId);
+            var buyType = GetCourseBuyType(course.Id);
+            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId, buyType);
             orderDetails.Add(orderCourseDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCourseDesc(course.Name, priceRule.PriceUnit, consumeDetail.BuyQuantity, consumeDetail.GiveQuantity, consumeDetail.GiveUnit);
             buyCourse.Append($"{desc}；");
@@ -202,7 +204,8 @@ namespace ETMS.Business
                 ExOt = exOt
             };
             studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course, priceRule, consumeDetail, no, studentId, tenantId));
-            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId);
+            var buyType = GetCourseBuyType(course.Id);
+            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId, buyType);
             orderDetails.Add(orderCourseDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCourseDesc(course.Name, priceRule.PriceUnit, consumeDetail.BuyQuantity, consumeDetail.GiveQuantity, consumeDetail.GiveUnit);
             buyCourse.Append($"{desc}；");
@@ -419,6 +422,23 @@ namespace ETMS.Business
             _eventPublisher.Publish(new SyncClassInfoEvent(tenantId, classId));
         }
 
+        private byte GetCourseBuyType(long courseId)
+        {
+            if (hisBuyCourseDetails == null || hisBuyCourseDetails.Count == 0)
+            {
+                return EmOrderBuyType.New;
+            }
+            var myCourse = hisBuyCourseDetails.FirstOrDefault(p => p.CourseId == courseId);
+            if (myCourse != null)
+            {
+                return EmOrderBuyType.Expand;
+            }
+            else
+            {
+                return EmOrderBuyType.Renew;
+            }
+        }
+
         public async Task ParentBuyMallGoodsSubmitConsumerEvent(ParentBuyMallGoodsSubmitEvent request)
         {
             var myuser = await _userDAL.GetAdminUser();
@@ -430,6 +450,7 @@ namespace ETMS.Business
             mallOrder = request.MallOrder;
             this._request = request;
             var isHasCourse = false;
+            hisBuyCourseDetails = await _studentCourseDAL.GetStudentCourseDetail(studentId);
             switch (request.MallOrder.ProductType)
             {
                 case EmProductType.Course:
