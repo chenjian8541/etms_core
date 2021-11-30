@@ -57,6 +57,11 @@ namespace ETMS.Entity.View
         public string LeaveContent { get; set; }
 
         /// <summary>
+        /// 请假图片或者视频
+        /// </summary>
+        public string LeaveMedias { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmStudentLeaveApplyHandleStatus"/>
         /// </summary>
         public byte HandleStatus { get; set; }

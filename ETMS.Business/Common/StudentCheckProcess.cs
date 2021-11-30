@@ -664,7 +664,7 @@ namespace ETMS.Business.Common
                         NextTrackTimeDesc = lastTrackLog.NextTrackTime.EtmsToMinuteString(),
                         TrackContent = lastTrackLog.TrackContent,
                         TrackUserName = trackUser?.Name,
-                        TrackImgUrl = EtmsHelper2.GetImgUrl(lastTrackLog.TrackImg),
+                        TrackImgUrl = EtmsHelper2.GetMediasUrl(lastTrackLog.TrackImg),
                         TrackUserAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(trackUser?.Avatar)
                     };
                 }

@@ -786,7 +786,7 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 TrackUserId = request.LoginUserId,
                 TrackContent = request.TrackContent,
-                TrackImg = EtmsHelper2.GetImgKeys(request.TrackImgKey)
+                TrackImg = EtmsHelper2.GetMediasKeys(request.TrackImgKey)
             };
             await _studentTrackLogDAL.AddStudentTrackLog(trackLog);
             var student = studentBucket.Student;
@@ -840,7 +840,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("学员不存在");
             }
 
-            p.TrackImg = EtmsHelper2.GetImgKeys(request.TrackImgKey);
+            p.TrackImg = EtmsHelper2.GetMediasKeys(request.TrackImgKey);
             p.TrackContent = request.TrackContent;
             p.NextTrackTime = request.NextTrackTime;
             await _studentTrackLogDAL.EditStudentTrackLog(p);
@@ -866,7 +866,7 @@ namespace ETMS.Business
                 NextTrackTimeDesc = lastTrackLog.NextTrackTime.EtmsToMinuteString(),
                 TrackContent = lastTrackLog.TrackContent,
                 TrackUserName = trackUser?.Name,
-                TrackImgUrl = EtmsHelper2.GetImgUrl(lastTrackLog.TrackImg),
+                TrackImgUrl = EtmsHelper2.GetMediasUrl(lastTrackLog.TrackImg),
                 TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, trackUser?.Avatar),
             });
         }
@@ -891,7 +891,7 @@ namespace ETMS.Business
                     TrackContent = log.TrackContent,
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, user?.Avatar),
                     TrackUserName = user?.Name,
-                    TrackImgUrl = EtmsHelper2.GetImgUrl(log.TrackImg)
+                    TrackImgUrl = EtmsHelper2.GetMediasUrl(log.TrackImg)
                 });
             }
             return ResponseBase.Success(logOutput);
@@ -932,7 +932,7 @@ namespace ETMS.Business
                     TrackContent = p.TrackContent,
                     StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)),
                     TrackUserName = myUser?.Name,
-                    TrackImgUrl = EtmsHelper2.GetImgUrl(p.TrackImg),
+                    TrackImgUrl = EtmsHelper2.GetMediasUrl(p.TrackImg),
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myUser?.Avatar),
                 });
             }
@@ -994,7 +994,8 @@ namespace ETMS.Business
                 HandleUserDesc = handleUserDesc,
                 LeaveContent = applyLog.LeaveContent,
                 StudentName = student.Name,
-                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType)
+                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(applyLog.LeaveMedias)
             });
         }
 

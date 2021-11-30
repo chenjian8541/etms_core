@@ -264,6 +264,11 @@ namespace ETMS.Entity.Config
         /// 是否展示快捷刷卡
         /// </summary>
         public byte IsShowQuickCardCheck { get; set; }
+
+        /// <summary>
+        /// 打印小票
+        /// </summary>
+        public byte IsGoPrintCard { get; set; }
     }
 
     public class StudentUseFaceCheckIn
@@ -297,6 +302,11 @@ namespace ETMS.Entity.Config
         /// 每天限制记上课次数
         /// </summary>
         public byte RelationClassTimesFaceType1DayLimitValue { get; set; }
+
+        /// <summary>
+        /// 打印小票
+        /// </summary>
+        public byte IsGoPrintFace { get; set; }
     }
 
     public class UserNoticeConfig

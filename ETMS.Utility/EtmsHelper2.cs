@@ -220,7 +220,7 @@ namespace ETMS.Utility
             return strCode.ToInt();
         }
 
-        public static string GetImgKeys(List<string> keys)
+        public static string GetMediasKeys(List<string> keys)
         {
             if (keys == null || keys.Count == 0)
             {
@@ -229,7 +229,7 @@ namespace ETMS.Utility
             return string.Join('|', keys);
         }
 
-        public static List<string> GetImgUrl(string keys)
+        public static List<string> GetMediasUrl(string keys)
         {
             var result = new List<string>();
             if (string.IsNullOrEmpty(keys))

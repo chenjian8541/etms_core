@@ -36,5 +36,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string HandleOt { get; set; }
 
         public DateTime ApplyOt { get; set; }
+
+        /// <summary>
+        /// 请假媒体文件
+        /// </summary>
+        public List<string> LeaveMediasUrl { get; set; }
     }
 }

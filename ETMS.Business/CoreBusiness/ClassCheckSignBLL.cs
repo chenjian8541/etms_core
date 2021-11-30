@@ -220,7 +220,7 @@ namespace ETMS.Business
                             ClassId = myClassRecordStudent.ClassId,
                             ClassOt = myClassRecordStudent.ClassOt,
                             EndTime = myClassRecordStudent.EndTime,
-                            EvaluateImg = EtmsHelper2.GetImgKeys(student.EvaluateInfo.EvaluateMediasKeys),
+                            EvaluateImg = EtmsHelper2.GetMediasKeys(student.EvaluateInfo.EvaluateMediasKeys),
                             StartTime = myClassRecordStudent.StartTime,
                             Status = myClassRecordStudent.Status,
                             StudentId = myClassRecordStudent.StudentId,

@@ -19,6 +19,8 @@ namespace ETMS.Entity.Dto.Parent.Request
 
         public string LeaveContent { get; set; }
 
+        public List<string> LeaveMediasKeys { get; set; }
+
         public long StudentId { get; set; }
 
         public override string Validate()

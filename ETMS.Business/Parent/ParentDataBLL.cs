@@ -227,7 +227,8 @@ namespace ETMS.Business
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId,
                 StartFullTime = startFullTime,
-                EndFullTime = endFullTime
+                EndFullTime = endFullTime,
+                LeaveMedias = EtmsHelper2.GetMediasKeys(request.LeaveMediasKeys)
             };
             await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(log);
             await _studentOperationLogDAL.AddStudentLog(new EtStudentOperationLog()
@@ -348,7 +349,8 @@ namespace ETMS.Business
                 LeaveContent = p.LeaveContent,
                 HandleStatusDesc = EmStudentLeaveApplyHandleStatus.GetStudentLeaveApplyHandleStatusDescParent(p.HandleStatus),
                 Id = p.Id,
-                HandleOt = p.HandleOt.EtmsToString()
+                HandleOt = p.HandleOt.EtmsToString(),
+                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias)
             });
         }
 

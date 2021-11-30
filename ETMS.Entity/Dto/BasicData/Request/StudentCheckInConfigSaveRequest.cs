@@ -99,6 +99,16 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public byte RelationClassTimesGoDeStudentCourseMulCourseType { get; set; }
 
+        /// <summary>
+        /// 打印小票
+        /// </summary>
+        public byte IsGoPrintCard { get; set; }
+
+        /// <summary>
+        /// 打印小票
+        /// </summary>
+        public byte IsGoPrintFace { get; set; }
+
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)

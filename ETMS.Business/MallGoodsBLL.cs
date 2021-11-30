@@ -182,7 +182,7 @@ namespace ETMS.Business
                 ProductType = request.ProductType,
                 ProductTypeDesc = EmProductType.GetProductType(request.ProductType),
                 ImgCover = request.ImgCoverKey,
-                ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys),
+                ImgDetail = EtmsHelper2.GetMediasKeys(request.ImgDetailKeys),
                 RelatedId = request.RelatedId,
                 TenantId = request.LoginTenantId,
                 SpecContent = ComBusiness4.GetSpecContent(request.SpecItems),
@@ -238,7 +238,7 @@ namespace ETMS.Business
             myMallGood.GsContent = request.GsContent;
             myMallGood.ImgCover = request.ImgCoverKey;
             myMallGood.Points = request.Points;
-            myMallGood.ImgDetail = EtmsHelper2.GetImgKeys(request.ImgDetailKeys);
+            myMallGood.ImgDetail = EtmsHelper2.GetMediasKeys(request.ImgDetailKeys);
             myMallGood.SpecContent = ComBusiness4.GetSpecContent(request.SpecItems);
             myMallGood.TagContent = ComBusiness4.GetTagContent(request.TagItems);
             myMallGood.OriginalPriceDesc = request.OriginalPrice <= 0 ? string.Empty : request.OriginalPrice.EtmsToString2();

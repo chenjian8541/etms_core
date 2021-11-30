@@ -68,5 +68,10 @@ namespace ETMS.Entity.Dto.Student.Output
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }
+
+        /// <summary>
+        /// 请假媒体文件
+        /// </summary>
+        public List<string> LeaveMediasUrl { get; set; }
     }
 }
