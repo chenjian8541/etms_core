@@ -143,6 +143,86 @@ namespace ETMS.Business
             return Tuple.Create(rules, minPrice, minPrice.EtmsToString2());
         }
 
+        public async Task<ResponseBase> MallGoodsCoursePriceRuleGet(MallGoodsCoursePriceRuleGetRequest request)
+        {
+            var courseInfo = await _courseDAL.GetCourse(request.CourseId);
+            if (courseInfo == null || courseInfo.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+            var output = new MallGoodsCoursePriceRuleGetOutput()
+            {
+                ByClassTimes = new List<MallGoodsCoursePriceRuleItem>(),
+                ByMonth = new List<MallGoodsCoursePriceRuleItem>(),
+                ByDay = new List<MallGoodsCoursePriceRuleItem>(),
+                ByClassTimesIsCanModify = true,
+                ByDayIsCanModify = true,
+                ByMonthIsCanModify = true
+            };
+            var course = courseInfo.Item1;
+            var coursePriceRules = courseInfo.Item2;
+            if (coursePriceRules != null && coursePriceRules.Any())
+            {
+                var byClassTimes = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.ClassTimes);
+                if (byClassTimes.Any())
+                {
+                    output.IsByClassTimes = true;
+                    foreach (var p in byClassTimes)
+                    {
+                        var tempByClassTimes = new MallGoodsCoursePriceRuleItem()
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                            Quantity = p.Quantity,
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points,
+                            IsCanModify = true,
+                            ExpiredType = p.ExpiredType,
+                            ExpiredValue = p.ExpiredValue
+                        };
+                        output.ByClassTimes.Add(tempByClassTimes);
+                    }
+                }
+                var byMonth = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.Month);
+                if (byMonth.Any())
+                {
+                    output.IsByMonth = true;
+                    foreach (var p in byMonth)
+                    {
+                        var tempByMonth = new MallGoodsCoursePriceRuleItem()
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                            Quantity = p.Quantity,
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points,
+                            IsCanModify = true
+                        };
+                        output.ByMonth.Add(tempByMonth);
+                    }
+                }
+                var byDay = coursePriceRules.Where(p => p.PriceType == EmCoursePriceType.Day);
+                if (byDay.Any())
+                {
+                    output.IsByDay = true;
+                    foreach (var p in byDay)
+                    {
+                        var tempByDay = new MallGoodsCoursePriceRuleItem()
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                            Quantity = p.Quantity,
+                            TotalPrice = p.TotalPrice,
+                            Points = p.Points,
+                            IsCanModify = true
+                        };
+                        output.ByDay.Add(tempByDay);
+                    }
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> MallGoodsAdd(MallGoodsAddRequest request)
         {
             if (await _mallGoodsDAL.ExistMlGoods(request.Name))

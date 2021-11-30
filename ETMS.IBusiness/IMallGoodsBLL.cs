@@ -10,6 +10,8 @@ namespace ETMS.IBusiness
 {
     public interface IMallGoodsBLL : IBaseBLL
     {
+        Task<ResponseBase> MallGoodsCoursePriceRuleGet(MallGoodsCoursePriceRuleGetRequest request);
+
         Task<ResponseBase> MallGoodsAdd(MallGoodsAddRequest request);
 
         Task<ResponseBase> MallGoodsEdit(MallGoodsEditRequest request);
