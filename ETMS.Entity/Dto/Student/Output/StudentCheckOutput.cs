@@ -98,6 +98,10 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public byte CheckType { get; set; }
 
+        public byte CheckForm { get; set; }
+
+        public string CheckFormDesc { get; set; }
+
         /// <summary>
         /// 日期
         /// </summary>
@@ -112,6 +116,8 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 扣减课时
         /// </summary>
         public string DeClassTimesDesc { get; set; }
+
+        public string DeClassTimesValueDesc { get; set; }
 
         /// <summary>
         /// 课次剩余描述

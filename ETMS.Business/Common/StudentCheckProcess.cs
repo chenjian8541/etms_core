@@ -233,6 +233,7 @@ namespace ETMS.Business.Common
                     var deResult = await CheckInAndDeClassTimes(myClassTimesList.First(), checkType);
                     output.StudentCheckOnLogId = deResult.StudentCheckOnLogId;
                     output.DeClassTimesDesc = deResult.DeClassTimesDesc;
+                    output.DeClassTimesValueDesc = deResult.DeClassTimesValueDesc;
                     output.CourseName = deResult.CourseName;
                     output.CourseSurplusDesc = deResult.CourseSurplusDesc;
                     output.IsCourseNotEnough = deResult.IsCourseNotEnough;
@@ -363,6 +364,8 @@ namespace ETMS.Business.Common
             output.StudentCheckOnLogId = await AddDeStudentCheckOnLog(checkType, deStudentClassTimesResult, deCourseId, myDeCourse.Item1.CheckPoints);
             await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClassByStudentId(_request.Student.Id, _request.CheckOt);
             output.DeClassTimesDesc = "已记上课";
+            output.DeClassTimesValueDesc = ComBusiness2.GetDeClassTimesDesc(deStudentClassTimesResult.DeType,
+                deStudentClassTimesResult.DeClassTimes, deStudentClassTimesResult.ExceedClassTimes);
             if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
             {
                 await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
@@ -401,6 +404,7 @@ namespace ETMS.Business.Common
             //直接扣课时
             var studentCheckOnLogId = 0L;
             var deClassTimesDesc = string.Empty;
+            var deClassTimesValueDesc = string.Empty;
             var output = new CheckInAndDeClassTimes();
             var myStudentDeLog = await _studentCheckOnLogDAL.GetStudentDeLog(myClassTimes.Id, _request.Student.Id);
             if (myStudentDeLog != null) //已存在扣课时记录,防止重复扣
@@ -440,6 +444,8 @@ namespace ETMS.Business.Common
                         deStudentClassTimesResult.DeCourseId, myCourse.Item1.CheckPoints);
                     await _tempStudentNeedCheckDAL.TempStudentNeedCheckClassSetIsAttendClass(myClassTimes.Id, _request.Student.Id);
                     deClassTimesDesc = "已记上课";
+                    deClassTimesValueDesc = ComBusiness2.GetDeClassTimesDesc(deStudentClassTimesResult.DeType,
+                        deStudentClassTimesResult.DeClassTimes, deStudentClassTimesResult.ExceedClassTimes);
                     if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
                     {
                         await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
@@ -474,6 +480,7 @@ namespace ETMS.Business.Common
             }
             output.StudentCheckOnLogId = studentCheckOnLogId;
             output.DeClassTimesDesc = deClassTimesDesc;
+            output.DeClassTimesValueDesc = deClassTimesValueDesc;
             return output;
         }
 
@@ -569,6 +576,7 @@ namespace ETMS.Business.Common
             var output = new StudentCheckOutput();
             var studentCheckOnLogId = 0L;
             var deClassTimesDesc = string.Empty;
+            var deClassTimesValueDesc = string.Empty;
             var courseName = string.Empty;
             var courseSurplusDesc = string.Empty;
             var isCourseNotEnough = false;
@@ -596,6 +604,7 @@ namespace ETMS.Business.Common
                     var resultRelationClassTimes = await StudentBeginClassRelationClassTimes(checkType);
                     studentCheckOnLogId = resultRelationClassTimes.StudentCheckOnLogId;
                     deClassTimesDesc = resultRelationClassTimes.DeClassTimesDesc;
+                    deClassTimesValueDesc = resultRelationClassTimes.DeClassTimesValueDesc;
                     output.NeedDeClassTimes = resultRelationClassTimes.NeedDeClassTimes;
                     courseName = resultRelationClassTimes.CourseName;
                     courseSurplusDesc = resultRelationClassTimes.CourseSurplusDesc;
@@ -606,6 +615,7 @@ namespace ETMS.Business.Common
                     var resultGoDeStudentCourse = await StudentBeginClassGoDeStudentCourse(checkType, dayLimitValueDeStudentCourse);
                     studentCheckOnLogId = resultGoDeStudentCourse.StudentCheckOnLogId;
                     deClassTimesDesc = resultGoDeStudentCourse.DeClassTimesDesc;
+                    deClassTimesValueDesc = resultGoDeStudentCourse.DeClassTimesValueDesc;
                     output.PopupsChooseStudentCoueses = resultGoDeStudentCourse.PopupsChooseStudentCoueses;
                     courseName = resultGoDeStudentCourse.CourseName;
                     courseSurplusDesc = resultGoDeStudentCourse.CourseSurplusDesc;
@@ -642,11 +652,14 @@ namespace ETMS.Business.Common
                 StudentCheckOnLogId = studentCheckOnLogId,
                 StudentAvatar = _request.FaceAvatar,
                 DeClassTimesDesc = deClassTimesDesc,
+                DeClassTimesValueDesc = deClassTimesValueDesc,
                 CourseName = courseName,
                 CourseSurplusDesc = courseSurplusDesc,
                 IsCourseNotEnough = isCourseNotEnough,
                 GenderDesc = EmGender.GetGenderDesc(_request.Student.Gender),
                 OtDesc = _request.Student.Ot.EtmsToDateString(),
+                CheckForm = _request.CheckForm,
+                CheckFormDesc = EmStudentCheckOnLogCheckForm.GetStudentCheckOnLogCheckFormDesc(_request.CheckForm),
                 TrackUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.TrackUser),
                 LearningManagerDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.LearningManager)
             };
@@ -757,6 +770,8 @@ namespace ETMS.Business.Common
         /// </summary>
         public string DeClassTimesDesc { get; set; }
 
+        public string DeClassTimesValueDesc { get; set; }
+
         /// <summary>
         /// 需要记上课的课次
         /// </summary>
@@ -780,6 +795,8 @@ namespace ETMS.Business.Common
         /// 扣减课时
         /// </summary>
         public string DeClassTimesDesc { get; set; }
+
+        public string DeClassTimesValueDesc { get; set; }
 
         public List<PopupsChooseStudentCouese> PopupsChooseStudentCoueses { get; set; }
 
@@ -808,5 +825,7 @@ namespace ETMS.Business.Common
         public bool IsCourseNotEnough { get; set; }
 
         public string CourseName { get; set; }
+
+        public string DeClassTimesValueDesc { get; set; }
     }
 }
