@@ -11,6 +11,8 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> OrderGetPaging(OrderGetPagingRequest request);
 
+        Task<ResponseBase> OrderGetDetailPaging(OrderGetDetailPagingRequest request);
+
         Task<ResponseBase> OrderGetDetail(OrderGetDetailRequest request);
 
         Task<ResponseBase> OrderSimpleGet(OrderSimpleGetRequest request);

@@ -81,7 +81,7 @@ namespace ETMS.Business
         }
 
         private EtOrderDetail GetTransferOrderDetailOut(EtOrderDetail sourceOrderDetail, TransferCoursesOut productItem,
-            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo)
+            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo, long studentId)
         {
             var buyUnit = sourceOrderDetail.BugUnit;
             if (buyUnit == EmCourseUnit.Month)
@@ -119,7 +119,8 @@ namespace ETMS.Business
                 TenantId = sourceOrderDetail.TenantId,
                 UserId = sourceOrderDetail.UserId,
                 OutOrderId = sourceOrderId,
-                OutOrderNo = sourceOrderNo
+                OutOrderNo = sourceOrderNo,
+                StudentId = studentId
             };
         }
 
@@ -494,7 +495,8 @@ namespace ETMS.Business
                             buyType = EmOrderBuyType.Renew;
                         }
                     }
-                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId, buyType);
+                    var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId,
+                        buyType, request.StudentId);
                     output.OrderDetails.Add(orderCourseDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyCourseDesc(course.Item1.Name, priceRule.PriceUnit, p.BuyQuantity, p.GiveQuantity, p.GiveUnit);
                     output.BuyCourse.Append($"{desc}；");
@@ -537,7 +539,7 @@ namespace ETMS.Business
                     return ResponseBase.CommonError("请求数据错误，请重新再试");
                 }
 
-                newOrderDetailList.Add(GetTransferOrderDetailOut(mySourceOrderDetail, outOrderDetail, newOrderNo, now, mySourceOrderDetail.OrderId, mySourceOrderDetail.OrderNo));
+                newOrderDetailList.Add(GetTransferOrderDetailOut(mySourceOrderDetail, outOrderDetail, newOrderNo, now, mySourceOrderDetail.OrderId, mySourceOrderDetail.OrderNo, request.StudentId));
                 var returnCountDesc = outOrderDetail.ReturnCount.EtmsToString();
                 newOrderOperationLogs.Add(new EtOrderOperationLog()
                 {

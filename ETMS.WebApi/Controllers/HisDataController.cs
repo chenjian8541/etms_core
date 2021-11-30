@@ -67,6 +67,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> OrderGetDetailPaging(OrderGetDetailPagingRequest request)
+        {
+            try
+            {
+                _orderBLL.InitTenantId(request.LoginTenantId);
+                return await _orderBLL.OrderGetDetailPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> OrderGetDetail(OrderGetDetailRequest request)
         {
             try

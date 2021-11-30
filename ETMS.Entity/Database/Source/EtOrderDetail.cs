@@ -17,6 +17,11 @@ namespace ETMS.Entity.Database.Source
         public long UserId { get; set; }
 
         /// <summary>
+        /// 学员ID
+        /// </summary>
+        public long StudentId { get; set; }
+
+        /// <summary>
         /// 订单ID
         /// </summary>
         public long OrderId { get; set; }

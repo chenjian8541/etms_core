@@ -171,6 +171,10 @@ namespace ETMS.Business
             return ResponseBase.Success(new ResponsePagingDataBase<OrderGetPagingOutput>(pagingData.Item2, orderOutput));
         }
 
+        public async Task<ResponseBase> OrderGetDetailPaging(OrderGetDetailPagingRequest request)
+        {
+            return ResponseBase.Success();
+        }
         private async Task<string> GetCommissionUserDesc(DataTempBox<EtUser> tempbox, string commissionUser)
         {
             if (string.IsNullOrEmpty(commissionUser))
@@ -1277,7 +1281,7 @@ namespace ETMS.Business
         { return ResponseBase.Success(); }
 
         private EtOrderDetail GetReturnOrderDetail(EtOrderDetail sourceOrderDetail, OrderReturnProductItem productItem,
-            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo)
+            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo, long studentId)
         {
             var buyUnit = sourceOrderDetail.BugUnit;
             if (buyUnit == EmCourseUnit.Month)
@@ -1315,7 +1319,8 @@ namespace ETMS.Business
                 TenantId = sourceOrderDetail.TenantId,
                 UserId = sourceOrderDetail.UserId,
                 OutOrderId = sourceOrderId,
-                OutOrderNo = sourceOrderNo
+                OutOrderNo = sourceOrderNo,
+                StudentId = studentId
             };
         }
 
@@ -1375,7 +1380,7 @@ namespace ETMS.Business
                 {
                     return ResponseBase.CommonError("请求数据错误，请重新再试");
                 }
-                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now, sourceOrder.Id, sourceOrder.No));
+                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now, sourceOrder.Id, sourceOrder.No, sourceOrder.StudentId));
                 switch (mySourceOrderDetail.ProductType)
                 {
                     case EmProductType.Course:
