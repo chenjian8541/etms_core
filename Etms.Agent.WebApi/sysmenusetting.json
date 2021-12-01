@@ -77,6 +77,11 @@
         "Type": 1
       },
       {
+        "ActionId": 24,
+        "Name": "修改员工数量限制",
+        "Type": 1
+      },
+      {
         "ActionId": 20,
         "Name": "绑定机构业务员",
         "Type": 1

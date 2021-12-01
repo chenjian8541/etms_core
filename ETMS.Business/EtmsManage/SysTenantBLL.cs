@@ -404,7 +404,8 @@ namespace ETMS.Business.EtmsManage
                 TenantCode = tenant.TenantCode,
                 VersionName = version?.Name,
                 SmsSignature = tenant.SmsSignature,
-                BuyStatus = tenant.BuyStatus
+                BuyStatus = tenant.BuyStatus,
+                MaxUserCount = tenant.MaxUserCount
             };
             return ResponseBase.Success(output);
         }
@@ -1163,6 +1164,22 @@ namespace ETMS.Business.EtmsManage
                 IsHideKeFu = request.IsHideKeFu ? EmBool.True : EmBool.False
             };
             await _sysTenantOtherInfoDAL.SaveTenantOtherInfo(entity);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantChangeMaxUserCount(TenantChangeMaxUserCountRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            if (tenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var oldMaxCount = tenant.MaxUserCount;
+            tenant.MaxUserCount = request.NewMaxUserCount;
+            await _sysTenantDAL.EditTenant(tenant);
+
+            await this._sysAgentLogDAL.AddSysAgentOpLog(request,
+                $"修改机构最大员工数:{tenant.Name};机构编码:{tenant.TenantCode};原数量:{oldMaxCount},新数量:{request.NewMaxUserCount}", EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
     }

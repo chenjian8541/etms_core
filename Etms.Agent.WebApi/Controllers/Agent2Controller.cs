@@ -231,6 +231,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantChangeMaxUserCount(TenantChangeMaxUserCountRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantChangeMaxUserCount(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
         {
             try

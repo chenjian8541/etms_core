@@ -69,5 +69,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> TenantOtherInfoGet(TenantOtherInfoGetRequest request);
 
         Task<ResponseBase> TenantOtherInfoSave(TenantOtherInfoSaveRequest request);
+
+        Task<ResponseBase> TenantChangeMaxUserCount(TenantChangeMaxUserCountRequest request);
     }
 }

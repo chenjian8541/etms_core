@@ -60,5 +60,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string Remark { get; set; }
 
         public string SmsSignature { get; set; }
+
+        /// <summary>
+        /// 限制用户数
+        /// (0:不限制)
+        /// </summary>
+        public int MaxUserCount { get; set; }
     }
 }
