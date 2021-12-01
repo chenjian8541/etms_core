@@ -211,7 +211,7 @@ namespace ETMS.Business.Common
         }
 
         internal static Tuple<EtOrderDetail, string> GetGoodsOrderDetail(EtGoods goods, EnrolmentGoods enrolmentGoods, string no,
-            DateTime ot, int tenantId, long userId, long studentId)
+            DateTime ot, int tenantId, long userId, long studentId, int orderType)
         {
             var priceRuleDesc = $"{goods.Price}元/件";
             var ruleDesc = goods.Name;
@@ -236,12 +236,13 @@ namespace ETMS.Business.Common
                 Status = EmOrderStatus.Normal,
                 TenantId = tenantId,
                 UserId = userId,
-                StudentId = studentId
+                StudentId = studentId,
+                OrderType = orderType
             }, ruleDesc);
         }
 
         internal static Tuple<EtOrderDetail, string> GetCostOrderDetail(EtCost cost, EnrolmentCost enrolmentCost, string no,
-            DateTime ot, int tenantId, long userId, long studentId)
+            DateTime ot, int tenantId, long userId, long studentId, int orderType)
         {
             var priceRuleDesc = $"{cost.Price}元/笔";
             var ruleDesc = cost.Name;
@@ -266,7 +267,8 @@ namespace ETMS.Business.Common
                 Status = EmOrderStatus.Normal,
                 TenantId = tenantId,
                 UserId = userId,
-                StudentId = studentId
+                StudentId = studentId,
+                OrderType = orderType
             }, ruleDesc);
         }
     }

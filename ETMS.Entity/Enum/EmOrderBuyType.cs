@@ -26,11 +26,11 @@ namespace ETMS.Entity.Enum
             switch (t)
             {
                 case New:
-                    return "新报";
+                    return "新";
                 case Renew:
-                    return "续报";
+                    return "续";
                 case Expand:
-                    return "扩科";
+                    return "扩";
             }
             return string.Empty;
         }

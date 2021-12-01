@@ -20,6 +20,8 @@ namespace ETMS.IDataAccess
 
         Task<Tuple<IEnumerable<EtOrder>, int>> GetOrderPaging(IPagingRequest request);
 
+        Task<Tuple<IEnumerable<EtOrderDetail>, int>> GetOrderDetailPaging(IPagingRequest request);
+
         Task<EtOrder> GetOrder(long id);
 
         Task<EtOrder> GetOrder(string orderNo);

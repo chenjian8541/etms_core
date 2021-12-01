@@ -497,6 +497,22 @@ namespace ETMS.Business.Common
             return classNameDesc.ToString().TrimEnd(',');
         }
 
+        internal static async Task<EtCost> GetCost(DataTempBox<EtCost> tempBox, ICostDAL costDAL, long costId)
+        {
+            return await tempBox.GetData(costId, async () =>
+            {
+                return await costDAL.GetCost(costId);
+            });
+        }
+
+        internal static async Task<EtGoods> GetGoods(DataTempBox<EtGoods> tempBox, IGoodsDAL goodsDAL, long goodsId)
+        {
+            return await tempBox.GetData(goodsId, async () =>
+            {
+                return await goodsDAL.GetGoods(goodsId);
+            });
+        }
+
         internal static async Task<List<MultiSelectValueRequest>> GetUserMultiSelectValue(DataTempBox<EtUser> tempBox, IUserDAL userDAL, string users)
         {
             var teacherDesc = new List<MultiSelectValueRequest>();

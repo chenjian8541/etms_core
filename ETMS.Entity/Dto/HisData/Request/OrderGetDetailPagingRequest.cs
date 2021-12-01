@@ -19,7 +19,20 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// </summary>
         public byte? Status { get; set; }
 
+        /// <summary>
+        /// 订单状态  0:正常  否则代表已作废
+        /// </summary>
+        public byte? OrderStatus { get; set; }
+
+        public byte? OrderType { get; set; }
+
         public byte? BuyType { get; set; }
+
+        public byte? InOutType { get; set; }
+
+        public byte? ProductType { get; set; }
+
+        public List<long> ProductInfo { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -98,9 +111,36 @@ namespace ETMS.Entity.Dto.HisData.Request
             {
                 condition.Append($" AND [Status] = {Status.Value}");
             }
+            if (OrderStatus != null)
+            {
+                if (OrderStatus == 0)
+                {
+                    condition.Append($" AND [Status] <> {EmOrderStatus.Repeal}");
+                }
+                else
+                {
+                    condition.Append($" AND [Status] = {EmOrderStatus.Repeal}");
+                }
+            }
+            if (OrderType != null)
+            {
+                condition.Append($" AND [OrderType] = {OrderType.Value}");
+            }
             if (BuyType != null)
             {
                 condition.Append($" AND [BuyType] = {BuyType.Value}");
+            }
+            if (InOutType != null)
+            {
+                condition.Append($" AND [InOutType] = {InOutType.Value}");
+            }
+            if (ProductType != null)
+            {
+                condition.Append($" AND [ProductType] = {ProductType.Value}");
+            }
+            if (ProductInfo != null && ProductInfo.Count == 2)
+            {
+                condition.Append($" AND [ProductType] = {ProductInfo[0]} AND ProductId = {ProductInfo[1]}");
             }
             if (StartOt != null)
             {

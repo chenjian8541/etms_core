@@ -95,21 +95,26 @@ namespace ETMS.Business
                 _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _parentStudentDAL, _mallOrderDAL);
         }
 
+        private DataTempBox<EtStudent> tempBoxStudent = null;
         private async Task<OrderStudentView> OrderStudentGet(EtOrder order, int secrecyType)
         {
+            if (tempBoxStudent == null)
+            {
+                tempBoxStudent = new DataTempBox<EtStudent>();
+            }
             var orderStudentView = new OrderStudentView()
             {
                 StudentId = order.StudentId
             };
             if (order.StudentId > 0)
             {
-                var studentBucket = await _studentDAL.GetStudent(order.StudentId);
-                if (studentBucket != null && studentBucket.Student != null)
+                var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, order.StudentId);
+                if (myStudent != null)
                 {
-                    orderStudentView.StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, secrecyType);
-                    orderStudentView.StudentName = studentBucket.Student.Name;
-                    orderStudentView.StudentCardNo = studentBucket.Student.CardNo;
-                    orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar);
+                    orderStudentView.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, secrecyType);
+                    orderStudentView.StudentName = myStudent.Name;
+                    orderStudentView.StudentCardNo = myStudent.CardNo;
+                    orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Avatar);
                     return orderStudentView;
                 }
             }
@@ -173,7 +178,97 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> OrderGetDetailPaging(OrderGetDetailPagingRequest request)
         {
-            return ResponseBase.Success();
+            var pagingData = await _orderDAL.GetOrderDetailPaging(request);
+            var output = new List<OrderGetDetailPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxUser = new DataTempBox<EtUser>();
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                var tempBoxCost = new DataTempBox<EtCost>();
+                var tempBoxGoods = new DataTempBox<EtGoods>();
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var item = new OrderGetDetailPagingOutput()
+                    {
+                        StudentId = p.StudentId,
+                        BugUnit = p.BugUnit,
+                        BuyQuantity = p.BuyQuantity,
+                        BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, 0, p.BugUnit, p.ProductType),
+                        BuyType = p.BuyType,
+                        ProductType = p.ProductType,
+                        ProductTypeDesc = EmProductType.GetProductType(p.ProductType),
+                        CId = p.Id,
+                        OrderId = p.OrderId,
+                        DiscountDesc = ComBusiness.GetDiscountDesc(p.DiscountValue, p.DiscountType),
+                        DiscountType = p.DiscountType,
+                        DiscountValue = p.DiscountValue,
+                        GiveQuantity = p.GiveQuantity,
+                        GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(p.GiveQuantity, p.GiveUnit),
+                        GiveUnit = p.GiveUnit,
+                        InOutType = p.InOutType,
+                        InOutTypeDesc = EmOrderInOutType.GetOrderInOutTypeDesc(p.InOutType),
+                        ItemAptSum = p.ItemAptSum,
+                        ItemSum = p.ItemSum,
+                        OrderNo = p.OrderNo,
+                        OrderType = p.OrderType,
+                        OrderTypeDesc = EmOrderType.GetOrderTypeDesc(p.OrderType),
+                        OtDesc = p.Ot.EtmsToDateString(),
+                        OutOrderId = p.OutOrderId,
+                        OutOrderNo = p.OutOrderNo,
+                        OutQuantity = p.OutQuantity,
+                        Price = p.Price,
+                        PriceRule = p.PriceRule,
+                        ProductId = p.ProductId,
+                        Remark = p.Remark,
+                        Status = p.Status,
+                        StatusDesc = EmOrderStatus.GetOrderStatus(p.Status),
+                        UserId = p.UserId
+                    };
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    item.StudentName = myStudent.Name;
+                    item.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, request.SecrecyType);
+                    var myUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.UserId);
+                    if (myUser != null)
+                    {
+                        item.UserName = myUser.Name;
+                    }
+                    switch (p.ProductType)
+                    {
+                        case EmProductType.Cost:
+                            var myCost = await ComBusiness.GetCost(tempBoxCost, _costDAL, p.ProductId);
+                            if (myCost == null)
+                            {
+                                continue;
+                            }
+                            item.ProductName = myCost.Name;
+                            break;
+                        case EmProductType.Goods:
+                            var myGoods = await ComBusiness.GetGoods(tempBoxGoods, _goodsDAL, p.ProductId);
+                            if (myGoods == null)
+                            {
+                                continue;
+                            }
+                            item.ProductName = myGoods.Name;
+                            break;
+                        case EmProductType.Course:
+                            var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, p.ProductId);
+                            if (myCourse == null)
+                            {
+                                continue;
+                            }
+                            item.ProductName = myCourse.Name;
+                            item.BuyTypeDesc = EmOrderBuyType.GetOrderBuyTypeDesc(p.BuyType);
+                            break;
+                    }
+                    output.Add(item);
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<OrderGetDetailPagingOutput>(pagingData.Item2, output));
         }
         private async Task<string> GetCommissionUserDesc(DataTempBox<EtUser> tempbox, string commissionUser)
         {
@@ -1281,7 +1376,7 @@ namespace ETMS.Business
         { return ResponseBase.Success(); }
 
         private EtOrderDetail GetReturnOrderDetail(EtOrderDetail sourceOrderDetail, OrderReturnProductItem productItem,
-            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo, long studentId)
+            string newNo, DateTime now, long sourceOrderId, string sourceOrderNo, long studentId, int orderType)
         {
             var buyUnit = sourceOrderDetail.BugUnit;
             if (buyUnit == EmCourseUnit.Month)
@@ -1320,7 +1415,8 @@ namespace ETMS.Business
                 UserId = sourceOrderDetail.UserId,
                 OutOrderId = sourceOrderId,
                 OutOrderNo = sourceOrderNo,
-                StudentId = studentId
+                StudentId = studentId,
+                OrderType = orderType
             };
         }
 
@@ -1380,7 +1476,8 @@ namespace ETMS.Business
                 {
                     return ResponseBase.CommonError("请求数据错误，请重新再试");
                 }
-                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now, sourceOrder.Id, sourceOrder.No, sourceOrder.StudentId));
+                newOrderDetailList.Add(GetReturnOrderDetail(mySourceOrderDetail, changeOrderDetail, newOrderNo, now,
+                    sourceOrder.Id, sourceOrder.No, sourceOrder.StudentId, EmOrderType.ReturnOrder));
                 switch (mySourceOrderDetail.ProductType)
                 {
                     case EmProductType.Course:

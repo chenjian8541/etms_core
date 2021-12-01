@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Source
+namespace ETMS.Entity.Dto.HisData.Output
 {
-    /// <summary>
-    /// 订单详情
-    /// </summary>
-    [Table("EtOrderDetail")]
-    public class EtOrderDetail : Entity<long>
+    public class OrderGetDetailPagingOutput
     {
+        public long CId { get; set; }
+
         /// <summary>
         /// 经办人
         /// </summary>
         public long UserId { get; set; }
+
+        public string UserName { get; set; }
+
+        public string StudentName { get; set; }
+
+        public string StudentPhone { get; set; }
 
         /// <summary>
         /// 学员ID
@@ -27,11 +32,6 @@ namespace ETMS.Entity.Database.Source
         public long OrderId { get; set; }
 
         /// <summary>
-        /// 订单类型   <see cref="ETMS.Entity.Enum.EmOrderType"/>
-        /// </summary>
-        public int OrderType { get; set; }
-
-        /// <summary>
         /// 单号
         /// </summary>
         public string OrderNo { get; set; }
@@ -40,6 +40,12 @@ namespace ETMS.Entity.Database.Source
         /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
         /// </summary>
         public byte InOutType { get; set; }
+
+        public string InOutTypeDesc { get; set; }
+
+        public string OrderTypeDesc { get; set; }
+
+        public int OrderType { get; set; }
 
         /// <summary>
         /// 退货数量/或者转课数量
@@ -61,10 +67,14 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public byte ProductType { get; set; }
 
+        public string ProductTypeDesc { get; set; }
+
         /// <summary>
         /// 产品ID
         /// </summary>
         public long ProductId { get; set; }
+
+        public string ProductName { get; set; }
 
         /// <summary>
         /// 定价标准
@@ -96,6 +106,11 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public byte GiveUnit { get; set; }
 
+
+        public string BuyQuantityDesc { get; set; }
+
+        public string GiveQuantityDesc { get; set; }
+
         /// <summary>
         /// 单项总金额
         /// </summary>
@@ -115,21 +130,26 @@ namespace ETMS.Entity.Database.Source
         /// 折扣值
         /// </summary>
         public decimal DiscountValue { get; set; }
+        public string DiscountDesc { get; set; }
 
         /// <summary>
-        /// 订单时间
+        /// 经办日期
         /// </summary>
-        public DateTime Ot { get; set; }
+        public string OtDesc { get; set; }
 
         /// <summary>
         /// 签约类型 <see cref="ETMS.Entity.Enum.EmOrderBuyType">
         /// </summary>
         public byte BuyType { get; set; }
 
+        public string BuyTypeDesc { get; set; }
+
         /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmOrderStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        public string StatusDesc { get; set; }
 
         /// <summary>
         /// 备注

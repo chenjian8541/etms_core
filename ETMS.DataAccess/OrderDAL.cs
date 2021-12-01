@@ -52,6 +52,11 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecutePage<EtOrder>("EtOrder", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
+        public async Task<Tuple<IEnumerable<EtOrderDetail>, int>> GetOrderDetailPaging(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtOrderDetail>("EtOrderDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
         public async Task<EtOrder> GetOrder(long id)
         {
             return await _dbWrapper.Find<EtOrder>(id);

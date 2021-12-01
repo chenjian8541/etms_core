@@ -89,7 +89,8 @@ namespace ETMS.Business
         {
             studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course, priceRule, consumeDetail, no, studentId, tenantId));
             var buyType = GetCourseBuyType(course.Id);
-            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId, buyType, studentId);
+            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail,
+                no, ot, userId, tenantId, buyType, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderCourseDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCourseDesc(course.Name, priceRule.PriceUnit, consumeDetail.BuyQuantity, consumeDetail.GiveQuantity, consumeDetail.GiveUnit);
             buyCourse.Append($"{desc}；");
@@ -205,7 +206,8 @@ namespace ETMS.Business
             };
             studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course, priceRule, consumeDetail, no, studentId, tenantId));
             var buyType = GetCourseBuyType(course.Id);
-            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, no, ot, userId, tenantId, buyType, studentId);
+            var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course, priceRule, consumeDetail, 
+                no, ot, userId, tenantId, buyType, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderCourseDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCourseDesc(course.Name, priceRule.PriceUnit, consumeDetail.BuyQuantity, consumeDetail.GiveQuantity, consumeDetail.GiveUnit);
             buyCourse.Append($"{desc}；");
@@ -213,7 +215,8 @@ namespace ETMS.Business
 
         private void StructureGoods(EtGoods goods, EnrolmentGoods consumeDetail)
         {
-            var orderGoodsDetailResult = ComBusiness4.GetGoodsOrderDetail(goods, consumeDetail, no, ot, tenantId, userId, studentId);
+            var orderGoodsDetailResult = ComBusiness4.GetGoodsOrderDetail(goods, consumeDetail, no, ot,
+                tenantId, userId, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderGoodsDetailResult.Item1);
             var desc = ComBusiness2.GetBuyGoodsDesc(goods.Name, mallOrder.BuyCount);
             buyGoods.Append($"{desc}；");
@@ -235,7 +238,8 @@ namespace ETMS.Business
                 GoodsId = goods.Id,
                 ItemAptSum = suitDetail.ItemAptSum
             };
-            var orderGoodsDetailResult = ComBusiness4.GetGoodsOrderDetail(goods, consumeDetail, no, ot, tenantId, userId, studentId);
+            var orderGoodsDetailResult = ComBusiness4.GetGoodsOrderDetail(goods, consumeDetail, no, ot, 
+                tenantId, userId, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderGoodsDetailResult.Item1);
             var desc = ComBusiness2.GetBuyGoodsDesc(goods.Name, mallOrder.BuyCount);
             buyGoods.Append($"{desc}；");
@@ -243,7 +247,8 @@ namespace ETMS.Business
 
         private void StructureCost(EtCost cost, EnrolmentCost consumeDetail)
         {
-            var orderCostDetailResult = ComBusiness4.GetCostOrderDetail(cost, consumeDetail, no, ot, tenantId, userId, studentId);
+            var orderCostDetailResult = ComBusiness4.GetCostOrderDetail(cost, consumeDetail, no, ot, 
+                tenantId, userId, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderCostDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCostDesc(cost.Name, mallOrder.BuyCount);
             buyCost.Append($"{desc}；");
@@ -265,7 +270,8 @@ namespace ETMS.Business
                 DiscountValue = suitDetail.DiscountValue,
                 ItemAptSum = suitDetail.ItemAptSum
             };
-            var orderCostDetailResult = ComBusiness4.GetCostOrderDetail(cost, consumeDetail, no, ot, tenantId, userId, studentId);
+            var orderCostDetailResult = ComBusiness4.GetCostOrderDetail(cost, consumeDetail, no, ot, 
+                tenantId, userId, studentId, EmOrderType.StudentEnrolment);
             orderDetails.Add(orderCostDetailResult.Item1);
             var desc = ComBusiness2.GetBuyCostDesc(cost.Name, mallOrder.BuyCount);
             buyCost.Append($"{desc}；");

@@ -492,7 +492,8 @@ namespace ETMS.Business
                     Status = EmOrderStatus.Normal,
                     TenantId = request.LoginTenantId,
                     UserId = request.LoginUserId,
-                    StudentId = student.Id
+                    StudentId = student.Id,
+                    OrderType = EmOrderType.StudentEnrolment
                 };
 
                 //订单
@@ -863,7 +864,8 @@ namespace ETMS.Business
                     Status = EmOrderStatus.Normal,
                     TenantId = request.LoginTenantId,
                     UserId = request.LoginUserId,
-                    StudentId = student.Id
+                    StudentId = student.Id,
+                    OrderType = EmOrderType.StudentEnrolment
                 };
 
                 //订单

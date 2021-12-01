@@ -7,12 +7,12 @@ namespace ETMS.Entity.Enum
     public struct EmOrderInOutType
     {
         /// <summary>
-        /// 收入
+        /// 收款
         /// </summary>
         public const byte In = 0;
 
         /// <summary>
-        /// 支出
+        /// 退款
         /// </summary>
         public const byte Out = 1;
 
@@ -23,6 +23,11 @@ namespace ETMS.Entity.Enum
                 return $"+{totalPoints}";
             }
             return $"-{totalPoints}";
+        }
+
+        public static string GetOrderInOutTypeDesc(byte orderInOutType)
+        {
+            return orderInOutType == In ? "收款" : "退款";
         }
     }
 }
