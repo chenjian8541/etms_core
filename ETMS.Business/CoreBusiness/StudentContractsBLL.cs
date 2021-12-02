@@ -190,11 +190,11 @@ namespace ETMS.Business
                         var thisCourse = myCourseDetail.FirstOrDefault(a => a.CourseId == p.CourseId);
                         if (thisCourse != null)
                         {
-                            buyType = EmOrderBuyType.Expand;
+                            buyType = EmOrderBuyType.Renew;
                         }
                         else
                         {
-                            buyType = EmOrderBuyType.Renew;
+                            buyType = EmOrderBuyType.Expand;
                         }
                     }
                     var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.OtherInfo.Ot, request.LoginUserId, request.LoginTenantId,
@@ -217,7 +217,7 @@ namespace ETMS.Business
                         return ResponseBase.CommonError("物品不存在");
                     }
                     var orderGoodsDetailResult = ComBusiness4.GetGoodsOrderDetail(goods, p, no,
-                        request.OtherInfo.Ot, request.LoginTenantId, request.LoginUserId, 
+                        request.OtherInfo.Ot, request.LoginTenantId, request.LoginUserId,
                         request.StudentId, EmOrderType.StudentEnrolment);
                     orderDetails.Add(orderGoodsDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyGoodsDesc(goods.Name, p.BuyQuantity);
@@ -237,7 +237,7 @@ namespace ETMS.Business
                         return ResponseBase.CommonError("费用不存在");
                     }
                     var orderCostDetailResult = ComBusiness4.GetCostOrderDetail(cost, p, no,
-                        request.OtherInfo.Ot, request.LoginTenantId, request.LoginUserId, 
+                        request.OtherInfo.Ot, request.LoginTenantId, request.LoginUserId,
                         request.StudentId, EmOrderType.StudentEnrolment);
                     orderDetails.Add(orderCostDetailResult.Item1);
                     var desc = ComBusiness2.GetBuyCostDesc(cost.Name, p.BuyQuantity);

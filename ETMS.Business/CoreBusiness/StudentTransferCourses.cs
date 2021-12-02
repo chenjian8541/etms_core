@@ -489,11 +489,11 @@ namespace ETMS.Business
                         var thisCourse = hisCourseDetail.FirstOrDefault(a => a.CourseId == p.CourseId);
                         if (thisCourse != null)
                         {
-                            buyType = EmOrderBuyType.Expand;
+                            buyType = EmOrderBuyType.Renew;
                         }
                         else
                         {
-                            buyType = EmOrderBuyType.Renew;
+                            buyType = EmOrderBuyType.Expand;
                         }
                     }
                     var orderCourseDetailResult = ComBusiness2.GetCourseOrderDetail(course.Item1, priceRule, p, no, request.TransferCoursesOrderInfo.Ot, request.LoginUserId, request.LoginTenantId,
