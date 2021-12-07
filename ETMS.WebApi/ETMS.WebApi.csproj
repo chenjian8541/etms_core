@@ -31,6 +31,7 @@
     <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
     <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
+    <ProjectReference Include="..\FubeiOpenApi.CoreSdk\FubeiOpenApi.CoreSdk.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,6 +23,7 @@
     <ProjectReference Include="..\ETMS.Pay.Lcsw\ETMS.Pay.Lcsw.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
     <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />
+    <ProjectReference Include="..\FubeiOpenApi.CoreSdk\FubeiOpenApi.CoreSdk.csproj" />
   </ItemGroup>
 
 </Project>

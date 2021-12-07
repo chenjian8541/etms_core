@@ -40,9 +40,9 @@ namespace ETMS.Entity.Enum
         public const int Pos = 4;
 
         /// <summary>
-        /// 扫呗支付
+        /// 聚合支付
         /// </summary>
-        public const int PayLcsBarcodePay = 10;
+        public const int AgtPay = 10;
 
         /// <summary>
         /// 其他支付
@@ -67,8 +67,8 @@ namespace ETMS.Entity.Enum
                     return "其他支付";
                 case PayAccountRecharge:
                     return "充值账户";
-                case PayLcsBarcodePay:
-                    return "扫呗支付";
+                case AgtPay:
+                    return "聚合支付";
             }
             return string.Empty;
         }
@@ -82,7 +82,7 @@ namespace ETMS.Entity.Enum
             "银联支付",
             "POS机",
             "其他支付",
-            "扫呗支付"
+            "聚合支付"
             };
         }
 
@@ -102,8 +102,8 @@ namespace ETMS.Entity.Enum
                     return Pos;
                 case "其他支付":
                     return Other;
-                case "扫呗支付":
-                    return PayLcsBarcodePay;
+                case "聚合支付":
+                    return AgtPay;
             }
             return Cash;
         }

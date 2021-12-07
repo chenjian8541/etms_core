@@ -12,8 +12,8 @@ namespace ETMS.Business
 {
     public class LcsAccountBLL : TenantLcsAccountBLL, ILcsAccountBLL
     {
-        public LcsAccountBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL)
-            : base(tenantLcsAccountDAL, sysTenantDAL)
+        public LcsAccountBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
         }
 
@@ -23,7 +23,7 @@ namespace ETMS.Business
 
         public async Task<CheckTenantLcsAccountView> CheckLcsAccount(int tenantId)
         {
-            return await base.CheckTenantLcsAccount(tenantId);
+            return await base.CheckTenantAgtPayAccount(tenantId);
         }
     }
 }

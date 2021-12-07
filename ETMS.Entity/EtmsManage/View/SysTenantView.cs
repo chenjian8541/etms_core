@@ -109,6 +109,11 @@ namespace ETMS.Entity.EtmsManage.View
         public long UserId { get; set; }
 
         /// <summary>
+        /// 聚合支付状态类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmAgtPayType"/>
+        /// </summary>
+        public int AgtPayType { get; set; }
+
+        /// <summary>
         /// 最后一次操作时间
         /// </summary>
         public DateTime? LastOpTime { get; set; }

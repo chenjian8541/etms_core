@@ -392,7 +392,7 @@ namespace ETMS.Business
                 }
                 if (inPayInfo.PayLcsBarcodePay > 0)
                 {
-                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.PayLcsBarcodePay, inPayInfo.PayLcsBarcodePay, now, orderOt, orderNo,
+                    incomeLogs.Add(GetEtIncomeLogIn(EmPayType.AgtPay, inPayInfo.PayLcsBarcodePay, now, orderOt, orderNo,
                         request.LoginTenantId, request.LoginUserId, request.TransferCoursesOrderInfo.Remark, orderId));
                 }
 

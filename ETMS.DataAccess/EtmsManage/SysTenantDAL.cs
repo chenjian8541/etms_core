@@ -129,7 +129,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task UpdateTenantLcswInfo(int id, int newLcswApplyStatus, byte newLcswOpenStatus)
         {
-            await this.Execute($"UPDATE SysTenant SET LcswApplyStatus = {newLcswApplyStatus} ,LcswOpenStatus = {newLcswOpenStatus} WHERE Id = {id} ");
+            await this.Execute($"UPDATE SysTenant SET AgtPayType = {EmAgtPayType.Lcsw} ,LcswApplyStatus = {newLcswApplyStatus} ,LcswOpenStatus = {newLcswOpenStatus} WHERE Id = {id} ");
             await UpdateCache(id);
         }
 

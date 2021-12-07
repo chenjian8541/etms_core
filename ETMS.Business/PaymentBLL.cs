@@ -1,9 +1,13 @@
-﻿using ETMS.Business.BaseBLL;
+﻿using Com.Fubei.OpenApi.Sdk;
+using Com.Fubei.OpenApi.Sdk.Enums;
+using Com.Fubei.OpenApi.Sdk.Models;
+using ETMS.Business.BaseBLL;
 using ETMS.Business.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.CoreBusiness.Request;
 using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Enum;
@@ -31,27 +35,29 @@ namespace ETMS.Business
     {
         private readonly IStudentDAL _studentDAL;
 
-        private readonly IPayLcswService _payLcswService;
-
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
         private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IAgtPayServiceBLL _agtPayServiceBLL;
+
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
-            IPayLcswService payLcswService, IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
-            IEventPublisher eventPublisher) : base(tenantLcsAccountDAL, sysTenantDAL)
+           IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
+            IEventPublisher eventPublisher, ITenantFubeiAccountDAL tenantFubeiAccountDAL, IAgtPayServiceBLL agtPayServiceBLL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._studentDAL = studentDAL;
-            this._payLcswService = payLcswService;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
             this._eventPublisher = eventPublisher;
+            this._agtPayServiceBLL = agtPayServiceBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._agtPayServiceBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _userOperationLogDAL, _tenantLcsPayLogDAL);
         }
 
@@ -110,13 +116,13 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> BarCodePay(BarCodePayRequest request)
         {
-            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
             if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
             }
             var myTenant = checkTenantLcsAccountResult.MyTenant;
-            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
+            var myTenantAgtPayAccount = checkTenantLcsAccountResult.MyAgtPayAccountInfo;
 
             var now = DateTime.Now;
             var orderNo = request.OrderNo;
@@ -135,43 +141,28 @@ namespace ETMS.Business
                         break;
                 }
             }
-            var payRequest = new RequestBarcodePay()
+            var payRequest = new BarcodePayRequest()
             {
-                access_token = myLcsAccount.AccessToken,
-                terminal_id = myLcsAccount.TerminalId,
-                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                payType = EmLcsPayType.AutoTypePay,
-                auth_no = request.AuthNo,
-                terminal_trace = orderNo,
-                attach = request.LoginTenantId.ToString(),
-                merchant_no = myLcsAccount.MerchantNo,
-                order_body = request.OrderDesc,
-                total_fee = EtmsHelper3.GetCent(request.PayMoney).ToString()
+                AuthNo = request.AuthNo,
+                Now = now,
+                OrderDesc = request.OrderDesc,
+                OrderNo = orderNo,
+                PayMoney = request.PayMoney,
+                PayMoneyCent = EtmsHelper3.GetCent(request.PayMoney)
             };
-            var resPay = _payLcswService.BarcodePay(payRequest);
-            if (!resPay.IsRequestSuccess())
+            _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
+            var resPay = await _agtPayServiceBLL.BarcodePay(payRequest);
+            if (!resPay.IsSuccess)
             {
-                return ResponseBase.CommonError($"扫码支付失败:{resPay.return_msg}");
+                return ResponseBase.CommonError(resPay.ErrMsg);
             }
-            var status = EmLcsPayLogStatus.Unpaid;
+            var status = resPay.PayResultType;
             DateTime? payFinishOt = null;
             DateTime? payFinishDate = null;
-            switch (resPay.result_code)
+            if (status == EmLcsPayLogStatus.PaySuccess)
             {
-                case "01": //成功
-                    status = EmLcsPayLogStatus.PaySuccess;
-                    payFinishOt = now;
-                    payFinishDate = now.Date;
-                    break;
-                case "02": //失败 
-                    status = EmLcsPayLogStatus.PayFail;
-                    break;
-                case "03": //支付中
-                    status = EmLcsPayLogStatus.Unpaid;
-                    break;
-                case "99": //该条码暂不支持支付类型自动匹配  支付失败
-                    status = EmLcsPayLogStatus.PayFail;
-                    break;
+                payFinishOt = now;
+                payFinishDate = now.Date;
             }
             var lcsPayLogId = 0L;
             if (status != EmLcsPayLogStatus.PayFail)
@@ -179,23 +170,23 @@ namespace ETMS.Business
                 lcsPayLogId = await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
                 {
                     AgentId = myTenant.AgentId,
-                    Attach = payRequest.attach,
-                    AuthNo = payRequest.auth_no,
+                    Attach = string.Empty,
+                    AuthNo = request.AuthNo,
                     CreateOt = now,
                     IsDeleted = EmIsDeleted.Normal,
-                    MerchantName = myLcsAccount.MerchantName,
-                    MerchantNo = myLcsAccount.MerchantNo,
-                    MerchantType = myLcsAccount.MerchantType,
+                    MerchantName = myTenantAgtPayAccount.MerchantName,
+                    MerchantNo = myTenantAgtPayAccount.MerchantNo,
+                    MerchantType = myTenantAgtPayAccount.MerchantType,
                     OpenId = string.Empty,
-                    OrderBody = payRequest.order_body,
+                    OrderBody = request.OrderDesc,
                     OrderDesc = request.OrderDesc,
                     OrderNo = orderNo,
                     OrderSource = EmLcsPayLogOrderSource.PC,
                     OrderType = request.OrderType,
                     OutRefundNo = string.Empty,
-                    OutTradeNo = resPay.out_trade_no,
+                    OutTradeNo = resPay.OutTradeNo,
                     PayFinishOt = payFinishOt,
-                    PayType = resPay.pay_type,
+                    PayType = resPay.PayType,
                     RefundFee = string.Empty,
                     RefundOt = null,
                     Remark = null,
@@ -203,9 +194,9 @@ namespace ETMS.Business
                     RelationId = request.StudentId,
                     SubAppid = string.Empty,
                     TenantId = request.LoginTenantId,
-                    TerminalId = myLcsAccount.TerminalId,
+                    TerminalId = myTenantAgtPayAccount.TerminalId,
                     TerminalTrace = orderNo,
-                    TotalFee = payRequest.total_fee,
+                    TotalFee = payRequest.PayMoneyCent.ToString(),
                     TotalFeeValue = request.PayMoney,
                     TotalFeeDesc = request.PayMoney.ToString(),
                     PayFinishDate = payFinishDate,
@@ -223,8 +214,8 @@ namespace ETMS.Business
             return ResponseBase.Success(new BarCodePayOutput()
             {
                 OrderNo = orderNo,
-                out_trade_no = resPay.out_trade_no,
-                pay_type = resPay.pay_type,
+                out_trade_no = resPay.OutTradeNo,
+                pay_type = resPay.PayType,
                 LcsAccountId = lcsPayLogId,
                 PayStatus = status
             });
@@ -232,46 +223,32 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> LcsPayQuery(LcsPayQueryRequest request)
         {
-            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
             if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
             }
-            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
-
             var now = DateTime.Now;
-            var payResult = _payLcswService.QueryPay(new RequestQuery()
+            _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
+            var payResult = await _agtPayServiceBLL.QueryPayLog(new QueryPayLogRequest()
             {
-                access_token = myLcsAccount.AccessToken,
-                merchant_no = myLcsAccount.MerchantNo,
+                Now = now,
+                OrderNo = request.OrderNo,
                 out_trade_no = request.out_trade_no,
-                payType = request.pay_type,
-                terminal_id = myLcsAccount.TerminalId,
-                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                terminal_trace = request.OrderNo
+                pay_type = request.pay_type,
             });
-            if (!payResult.IsRequestSuccess())
+
+            if (!payResult.IsSuccess)
             {
-                return ResponseBase.CommonError($"扫码支付失败:{payResult.return_msg}");
+                return ResponseBase.CommonError(payResult.ErrMsg);
             }
-            var status = EmLcsPayLogStatus.Unpaid;
+            var status = payResult.PayResultType;
             DateTime? payFinishOt = null;
             DateTime? payFinishDate = null;
-            switch (payResult.result_code)
+            if (status == EmLcsPayLogStatus.PaySuccess)
             {
-                case "01": //成功
-                    status = EmLcsPayLogStatus.PaySuccess;
-                    payFinishOt = now;
-                    payFinishDate = now.Date;
-                    break;
-                case "02": //失败 
-                    status = EmLcsPayLogStatus.PayFail;
-                    break;
-                case "03": //支付中
-                    break;
-                case "99": //该条码暂不支持支付类型自动匹配  支付失败
-                    status = EmLcsPayLogStatus.PayFail;
-                    break;
+                payFinishOt = now;
+                payFinishDate = now.Date;
             }
             if (status != EmLcsPayLogStatus.Unpaid)
             {
@@ -297,12 +274,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request)
         {
-            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
             if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
             }
-            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
 
             var now = DateTime.Now;
             var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
@@ -316,20 +292,15 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此订单超过15天，不能进行退款操作");
             }
 
-            var refundResult = _payLcswService.RefundPay(new RequestRefund()
+            _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
+            var refundResult = await _agtPayServiceBLL.RefundPay(new RefundPayRequest()
             {
-                access_token = myLcsAccount.AccessToken,
-                merchant_no = myLcsAccount.MerchantNo,
-                out_trade_no = paylog.OutTradeNo,
-                payType = paylog.PayType,
-                refund_fee = paylog.TotalFee,
-                terminal_id = myLcsAccount.TerminalId,
-                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                terminal_trace = paylog.OrderNo
+                Now = now,
+                Paylog = paylog
             });
-            if (!refundResult.IsSuccess(true))
+            if (!refundResult.IsSuccess)
             {
-                return ResponseBase.CommonError(refundResult.return_msg);
+                return ResponseBase.CommonError(refundResult.ErrMsg);
             }
 
             paylog.RefundOt = now;
@@ -389,6 +360,81 @@ namespace ETMS.Business
                 return_code = "01",
                 return_msg = "success"
             };
+        }
+
+        /// <summary>
+        /// 付呗支付回调
+        /// https://www.yuque.com/51fubei/openapi/callback_ordercallback
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<string> FubeiApiNotify(FubeiApiNotifyRequest request)
+        {
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<FubeiApiNotifyData>(request.Data);
+            var tenantId = result.attach.ToInt();
+            this.InitTenantId(tenantId);
+            var myTenantFubeiAccount = await _tenantFubeiAccountDAL.GetTenantFubeiAccount(tenantId);
+            if (myTenantFubeiAccount == null)
+            {
+                return "FAIL";
+            }
+            bool valid = false;
+            if (myTenantFubeiAccount.AccountType == EmFubeiAccountType.Merchant)
+            {
+                //商户级
+                valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
+                {
+                    Data = request.Data,
+                    ResultCode = request.ResultCode,
+                    ResultMessage = request.ResultMessage,
+                    AppId = myTenantFubeiAccount.AppId,
+                    AppSecret = myTenantFubeiAccount.AppSecret,
+                    VendorSecret = myTenantFubeiAccount.VendorSecret,
+                    VendorSn = myTenantFubeiAccount.VendorSn
+                }, request.Sign, EApiLevel.Merchant);
+            }
+            else
+            {
+                //服务商级
+                valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
+                {
+                    Data = request.Data,
+                    ResultCode = request.ResultCode,
+                    ResultMessage = request.ResultMessage,
+                    AppId = myTenantFubeiAccount.AppId,
+                    AppSecret = myTenantFubeiAccount.AppSecret,
+                    VendorSecret = myTenantFubeiAccount.VendorSecret,
+                    VendorSn = myTenantFubeiAccount.VendorSn
+                }, request.Sign, EApiLevel.Vendor);
+            }
+            if (valid)
+            {
+                var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(result.order_sn);
+                if (payLog == null)
+                {
+                    return "FAIL";
+                }
+                var newPayStatus = ComBusiness4.GetFubeiPayStatus(result.order_status);
+                if (newPayStatus == EmLcsPayLogStatus.PaySuccess)
+                {
+                    _eventPublisher.Publish(new ParentBuyMallGoodsPaySuccessEvent(tenantId)
+                    {
+                        LcsPayLogId = payLog.Id,
+                        Now = DateTime.Now
+                    });
+                }
+                else if (newPayStatus == EmLcsPayLogStatus.PayFail)
+                {
+                    payLog.Status = EmLcsPayLogStatus.PayFail;
+                    payLog.DataType = EmTenantLcsPayLogDataType.Normal;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                }
+                return "SUCCESS";
+            }
+            else
+            {
+                return "FAIL";
+            }
         }
     }
 }

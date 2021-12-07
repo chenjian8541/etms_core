@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Com.Fubei.OpenApi.Sdk;
 using ETMS.Cache.Redis;
 using ETMS.Cache.Redis.Wrapper;
 using ETMS.Entity.Config;
@@ -244,6 +245,9 @@ namespace ETMS.DaemonService
         {
             ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
                 payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
+            var globalConfig = FubeiOpenApiGlobalConfig.Instance;
+            globalConfig.Api_1_0 = payConfig.FubeiConfig.Api01;
+            globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
         }
 
         private static void InitSytemInitializeData(AppSettings appSettings)

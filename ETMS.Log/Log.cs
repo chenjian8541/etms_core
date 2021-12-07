@@ -117,6 +117,20 @@ namespace ETMS.LOG
         /// <summary>
         /// Debug信息
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message"></param>
+        /// <param name="request"></param>
+        /// <param name="type"></param>
+        public static void Debug<T>(string message, T request, Type type) where T : class
+        {
+            var msg = string.Format("{0}请求参数:{1}", message, JsonConvert.SerializeObject(request));
+            var log = LogManager.GetLogger(repository.Name, type);
+            log.Debug(msg);
+        }
+
+        /// <summary>
+        /// Debug信息
+        /// </summary>
         /// <param name="obj"></param>
         /// <param name="type"></param>
         public static void Debug(object obj, Type type)

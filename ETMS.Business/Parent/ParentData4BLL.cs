@@ -4,6 +4,7 @@ using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.CoreBusiness.Request;
 using ETMS.Entity.Dto.Parent3.Request;
 using ETMS.Entity.Dto.Parent4.Output;
 using ETMS.Entity.Dto.Parent4.Request;
@@ -14,6 +15,7 @@ using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.IBusiness;
 using ETMS.IBusiness.Parent;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
@@ -35,8 +37,6 @@ namespace ETMS.Business.Parent
 {
     public class ParentData4BLL : TenantLcsAccountBLL, IParentData4BLL
     {
-        private readonly IPayLcswService _payLcswService;
-
         private readonly IMallGoodsDAL _mallGoodsDAL;
 
         private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
@@ -57,13 +57,16 @@ namespace ETMS.Business.Parent
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private readonly IAgtPayServiceBLL _agtPayServiceBLL;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
-            IPayLcswService payLcswService, IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
+            IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
-            IDistributedLockDAL distributedLockDAL) : base(tenantLcsAccountDAL, sysTenantDAL)
+            IDistributedLockDAL distributedLockDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
+            IAgtPayServiceBLL agtPayServiceBLL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
-            this._payLcswService = payLcswService;
             this._mallGoodsDAL = mallGoodsDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
             this._componentAccessBLL = componentAccessBLL;
@@ -74,10 +77,12 @@ namespace ETMS.Business.Parent
             this._eventPublisher = eventPublisher;
             this._mallPrepayDAL = mallPrepayDAL;
             this._distributedLockDAL = distributedLockDAL;
+            this._agtPayServiceBLL = agtPayServiceBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._agtPayServiceBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL,
                 _mallOrderDAL, _mallPrepayDAL);
         }
@@ -183,7 +188,7 @@ namespace ETMS.Business.Parent
 
         public async Task<ResponseBase> ParentBuyMallGoodsPrepay(ParentBuyMallGoodsPrepayRequest request)
         {
-            var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
             if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
@@ -210,23 +215,10 @@ namespace ETMS.Business.Parent
             //var myCoursePriceRule = checkBuyMallGoodsResult.CoursePriceRule;
 
             var myTenant = checkTenantLcsAccountResult.MyTenant;
-            var myLcsAccount = checkTenantLcsAccountResult.MyLcsAccount;
+            var myAgtPayAccount = checkTenantLcsAccountResult.MyAgtPayAccountInfo;
             var now = DateTime.Now;
             var orderNo = OrderNumberLib.EnrolmentOrderNumber2();
-            var unifiedOrderRequest = new RequestUnifiedOrder()
-            {
-                access_token = myLcsAccount.AccessToken,
-                terminal_id = myLcsAccount.TerminalId,
-                terminal_time = ComBusiness4.GetLcsTerminalTime(now),
-                merchant_no = myLcsAccount.MerchantNo,
-                open_id = request.OpenId,
-                order_body = "在线商城_商品购买",
-                payType = "010",
-                terminal_trace = orderNo,
-                notify_url = SysWebApiAddressConfig.LcsPayJspayCallbackUrl,
-                total_fee = EtmsHelper3.GetCent(totalMoney).ToString(),
-                sub_appid = tenantWechartAuth.AuthorizerAppid
-            };
+            var orderBody = "在线商城_商品购买";
             var payLogId = await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
             {
                 AgentId = myTenant.AgentId,
@@ -235,11 +227,11 @@ namespace ETMS.Business.Parent
                 CreateOt = now,
                 DataType = EmTenantLcsPayLogDataType.Prepaid,
                 IsDeleted = EmIsDeleted.Normal,
-                MerchantName = myLcsAccount.MerchantName,
-                MerchantNo = myLcsAccount.MerchantNo,
-                MerchantType = myLcsAccount.MerchantType,
+                MerchantName = myAgtPayAccount.MerchantName,
+                MerchantNo = myAgtPayAccount.MerchantNo,
+                MerchantType = myAgtPayAccount.MerchantType,
                 OpenId = request.OpenId,
-                OrderBody = unifiedOrderRequest.order_body,
+                OrderBody = orderBody,
                 OrderDesc = "在线商城",
                 OrderNo = orderNo,
                 OrderSource = EmLcsPayLogOrderSource.WeChat,
@@ -254,7 +246,7 @@ namespace ETMS.Business.Parent
                 Remark = string.Empty,
                 Status = EmLcsPayLogStatus.Unpaid,
                 TenantId = myTenant.Id,
-                TerminalId = myLcsAccount.TerminalId,
+                TerminalId = myAgtPayAccount.TerminalId,
                 TerminalTrace = orderNo,
                 TotalFeeDesc = totalMoney.ToString(),
                 TotalFeeValue = totalMoney,
@@ -263,27 +255,38 @@ namespace ETMS.Business.Parent
                 SubAppid = string.Empty,
                 TotalFee = string.Empty
             });
-            unifiedOrderRequest.attach = $"{myTenant.Id}_{payLogId}";
-            var unifiedOrderResult = _payLcswService.UnifiedOrder(unifiedOrderRequest);
-            if (unifiedOrderResult.IsSuccess())
+            var unifiedOrderRequest = new UnifiedOrderRequest()
             {
-                await _tenantLcsPayLogDAL.UpdateTenantLcsPayLog(payLogId, unifiedOrderResult.out_trade_no,
-                    unifiedOrderResult.pay_type, unifiedOrderResult.appId, unifiedOrderResult.total_fee);
+                Now = now,
+                OpenId = request.OpenId,
+                OrderBody = orderBody,
+                OrderNo = orderNo,
+                PayLogId = payLogId,
+                PayMoney = totalMoney,
+                PayMoneyCent = EtmsHelper3.GetCent(totalMoney),
+                SubAppid = tenantWechartAuth.AuthorizerAppid
+            };
+            _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
+            var unifiedOrderResult = await _agtPayServiceBLL.UnifiedOrder(unifiedOrderRequest);
+            if (unifiedOrderResult.IsSuccess)
+            {
+                await _tenantLcsPayLogDAL.UpdateTenantLcsPayLog(payLogId, unifiedOrderResult.OutTradeNo,
+                    unifiedOrderResult.PayType, unifiedOrderResult.AppId, unifiedOrderRequest.PayMoneyCent.ToString());
                 return ResponseBase.Success(new ParentBuyMallGoodsPrepayOutput()
                 {
                     ali_trade_no = unifiedOrderResult.ali_trade_no,
-                    appId = unifiedOrderResult.appId,
-                    nonceStr = unifiedOrderResult.nonceStr,
+                    appId = unifiedOrderResult.AppId,
+                    nonceStr = unifiedOrderResult.NonceStr,
                     orderNo = orderNo,
-                    package_str = unifiedOrderResult.package_str,
-                    paySign = unifiedOrderResult.paySign,
-                    signType = unifiedOrderResult.signType,
+                    package_str = unifiedOrderResult.Package_str,
+                    paySign = unifiedOrderResult.PaySign,
+                    signType = unifiedOrderResult.SignType,
                     TenantLcsPayLogId = payLogId,
-                    timeStamp = unifiedOrderResult.timeStamp,
-                    token_id = unifiedOrderResult.token_id
+                    timeStamp = unifiedOrderResult.TimeStamp,
+                    token_id = string.Empty
                 });
             }
-            return ResponseBase.CommonError($"生成预支付订单失败:{unifiedOrderResult.return_msg}");
+            return ResponseBase.CommonError(unifiedOrderResult.ErrMsg);
         }
 
         public async Task<ResponseBase> ParentBuyMallGoodsPayInit(ParentBuyMallGoodsSubmitRequest request)

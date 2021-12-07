@@ -8,6 +8,12 @@ namespace ETMS.IBusiness
 {
     public interface IPaymentMerchantBLL
     {
+        Task<ResponseBase> TenantPaymentSetGet(RequestBase request);
+
+        Task<ResponseBase> TenantFubeiAccountBind(TenantFubeiAccountBindRequest request);
+
+        Task<ResponseBase> TenantFubeiAccountGet(RequestBase request);
+
         ResponseBase MerchantCheckName(MerchantCheckNameRequest request);
 
         Task<ResponseBase> MerchantSave(MerchantAddRequest request);

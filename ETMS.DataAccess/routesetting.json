@@ -1228,7 +1228,7 @@
         "Type": 1,
         "Component": "@/views/increment/paySetMgr",
         "Meta": {
-          "Title": "扫呗支付",
+          "Title": "聚合支付",
           "Icon": "item"
         }
       }

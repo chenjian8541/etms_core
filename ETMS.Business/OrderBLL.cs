@@ -473,7 +473,7 @@ namespace ETMS.Business
                         UserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.UserId),
                         CId = p.Id
                     });
-                    if (p.PayType == EmPayType.PayLcsBarcodePay)
+                    if (p.PayType == EmPayType.AgtPay)
                     {
                         output.BascInfo.IsHasLcsPay = true;
                     }
@@ -1001,7 +1001,7 @@ namespace ETMS.Business
             }
             if (request.PayLcsBarcodePay > 0)
             {
-                incomeLogs.Add(GetEtIncomeLog(EmPayType.PayLcsBarcodePay, request.PayLcsBarcodePay, now, request.PayOt, order.No, order.Id, request));
+                incomeLogs.Add(GetEtIncomeLog(EmPayType.AgtPay, request.PayLcsBarcodePay, now, request.PayOt, order.No, order.Id, request));
             }
 
             _incomeLogDAL.AddIncomeLog(incomeLogs);

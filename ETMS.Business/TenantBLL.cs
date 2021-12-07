@@ -258,12 +258,14 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> PageBascDataGet(RequestBase request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var myTenantAgtPayInfo = ComBusiness4.GetTenantAgtPayInfo(myTenant);
             var output = new PageBascDataGetOutput()
             {
-                IsOpenLcsPay = false
+                IsOpenAgtPay = myTenantAgtPayInfo.IsOpenAgtPay,
+                AgtPayType = myTenantAgtPayInfo.AgtPayType,
+                AgtPayDesc = myTenantAgtPayInfo.AgtPayDesc
             };
-            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
-            output.IsOpenLcsPay = ComBusiness4.GetIsOpenLcsPay(myTenant.LcswApplyStatus, myTenant.LcswOpenStatus);
             return ResponseBase.Success(output);
         }
     }

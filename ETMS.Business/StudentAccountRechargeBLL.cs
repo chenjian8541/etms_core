@@ -373,7 +373,7 @@ namespace ETMS.Business
             }
             if (request.PayInfo.PayLcsBarcodePay > 0)
             {
-                incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.PayLcsBarcodePay, request.PayInfo.PayLcsBarcodePay, now, request.Ot, no, request));
+                incomeLogs.Add(GetStudentAccountRechargeIncomeLog(EmPayType.AgtPay, request.PayInfo.PayLcsBarcodePay, now, request.Ot, no, request));
             }
 
             var paySum = request.PayInfo.PaySum;

@@ -976,7 +976,7 @@
       },
       {
         "Id": 95,
-        "Name": "扫呗支付",
+        "Name": "聚合支付",
         "Type": 0,
         "ChildrenPage": [
           {

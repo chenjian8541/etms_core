@@ -29,6 +29,7 @@ using ETMS.Entity.Enum;
 using Senparc.Weixin.RegisterServices;
 using AspNetCoreRateLimit;
 using ETMS.WebApi.Core;
+using Com.Fubei.OpenApi.Sdk;
 
 namespace ETMS.WebApi
 {
@@ -134,6 +135,9 @@ namespace ETMS.WebApi
         {
             ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
                 payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
+            var globalConfig = FubeiOpenApiGlobalConfig.Instance;
+            globalConfig.Api_1_0 = payConfig.FubeiConfig.Api01;
+            globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
         }
 
         private void InitSytemInitializeData(AppSettings appSettings)

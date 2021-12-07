@@ -288,7 +288,7 @@ namespace ETMS.Business
             if (request.EnrolmentPayInfo.PayLcsBarcodePay > 0)
             {
                 paySum += request.EnrolmentPayInfo.PayLcsBarcodePay;
-                incomeLogs.Add(GetEtIncomeLog(EmPayType.PayLcsBarcodePay, request.EnrolmentPayInfo.PayLcsBarcodePay, now, request.OtherInfo.Ot, no, request));
+                incomeLogs.Add(GetEtIncomeLog(EmPayType.AgtPay, request.EnrolmentPayInfo.PayLcsBarcodePay, now, request.OtherInfo.Ot, no, request));
             }
 
             var arrearsSum = aptSum - paySum;

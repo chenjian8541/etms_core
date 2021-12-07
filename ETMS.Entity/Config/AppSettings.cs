@@ -58,6 +58,21 @@ namespace ETMS.Entity.Config
     public class PayConfig
     {
         public LcswConfig LcswConfig { get; set; }
+
+        public FubeiConfig FubeiConfig { get; set; }
+    }
+
+    public class FubeiConfig
+    {
+        public string VendorSn { get; set; }
+
+        public string VendorSecret { get; set; }
+
+        public string Api01 { get; set; }
+
+        public string Api02 { get; set; }
+
+        public string JsapiPath { get; set; }
     }
 
     public class LcswConfig

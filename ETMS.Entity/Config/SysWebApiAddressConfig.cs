@@ -14,11 +14,14 @@ namespace ETMS.Entity.Config
 
         public static string LcsPayJspayCallbackUrl;
 
+        public static string FubeiApiNotifyUrl;
+
         public static void InitConfig(string baseUrl)
         {
             BaseUrl = baseUrl;
             MerchantAuditCallbackUrl = $"{baseUrl}/pay/merchantAuditCallback";
             LcsPayJspayCallbackUrl = $"{baseUrl}/pay/lcsPayJspayCallback";
+            FubeiApiNotifyUrl = $"{baseUrl}/pay/FubeiApiNotify";
         }
     }
 }

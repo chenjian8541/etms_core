@@ -19,8 +19,23 @@ namespace ETMS.Entity.Temp
 
         public SysTenant MyTenant { get; set; }
 
+        public TenantAgtPayAccountInfo MyAgtPayAccountInfo { get; set; }
+
         public SysTenantLcsAccount MyLcsAccount { get; set; }
 
+        public SysTenantFubeiAccount MyFubeiAccount { get; set; }
+
         public string ErrMsg { get; set; }
+    }
+
+    public class TenantAgtPayAccountInfo
+    {
+        public string MerchantName { get; set; }
+
+        public string MerchantNo { get; set; }
+
+        public int MerchantType { get; set; }
+
+        public string TerminalId { get; set; }
     }
 }

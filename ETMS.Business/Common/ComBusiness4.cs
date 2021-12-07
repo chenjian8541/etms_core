@@ -1,8 +1,10 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.View;
 using ETMS.Entity.View.Database;
 using ETMS.Utility;
 using Newtonsoft.Json;
@@ -97,9 +99,31 @@ namespace ETMS.Business.Common
             return Tuple.Create(strDesc.ToString(), EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc(firstItem.ComputeMode));
         }
 
-        internal static bool GetIsOpenLcsPay(int lcswApplyStatus, byte lcswOpenStatus)
+        internal static TenantAgtPayInfoView GetTenantAgtPayInfo(SysTenant tenant)
         {
-            return EmLcswApplyStatus.IsSuccess(lcswApplyStatus) && lcswOpenStatus == EmBool.True;
+            switch (tenant.AgtPayType)
+            {
+                case EmAgtPayType.Lcsw:
+                    return new TenantAgtPayInfoView()
+                    {
+                        AgtPayType = tenant.AgtPayType,
+                        AgtPayDesc = "扫呗支付",
+                        IsOpenAgtPay = EmLcswApplyStatus.IsSuccess(tenant.LcswApplyStatus) && tenant.LcswOpenStatus == EmBool.True
+                    }; ;
+                case EmAgtPayType.Fubei:
+                    return new TenantAgtPayInfoView()
+                    {
+                        AgtPayType = tenant.AgtPayType,
+                        AgtPayDesc = "付呗支付",
+                        IsOpenAgtPay = true
+                    };
+            }
+            return new TenantAgtPayInfoView()
+            {
+                AgtPayType = tenant.AgtPayType,
+                AgtPayDesc = "扫呗支付",
+                IsOpenAgtPay = false
+            };
         }
 
         internal static string GetLcsTerminalTime(DateTime time)
@@ -270,6 +294,31 @@ namespace ETMS.Business.Common
                 StudentId = studentId,
                 OrderType = orderType
             }, ruleDesc);
+        }
+
+        internal static int GetFubeiPayStatus(string order_status)
+        {
+            order_status = order_status.Trim().ToUpper();
+            var status = EmLcsPayLogStatus.Unpaid;
+            switch (order_status)
+            {
+                case "USERPAYING": //用户支付中
+                    status = EmLcsPayLogStatus.Unpaid;
+                    break;
+                case "SUCCESS": //支付成功
+                    status = EmLcsPayLogStatus.PaySuccess;
+                    break;
+                case "REVOKED": //已撤销
+                    status = EmLcsPayLogStatus.PayFail;
+                    break;
+                case "CLOSED": //已关闭
+                    status = EmLcsPayLogStatus.PayFail;
+                    break;
+                case "REVOKING": //撤销中
+                    status = EmLcsPayLogStatus.PayFail;
+                    break;
+            }
+            return status;
         }
     }
 }

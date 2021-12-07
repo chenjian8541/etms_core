@@ -42,8 +42,9 @@ namespace ETMS.Business
 
         public MallGoodsBLL(IMallGoodsDAL mallGoodsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, ISuitDAL suitDAL,
             IUserOperationLogDAL userOperationLogDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            ITenantConfig2DAL tenantConfig2DAL, ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL)
-            : base(tenantLcsAccountDAL, sysTenantDAL)
+            ITenantConfig2DAL tenantConfig2DAL, ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL,
+            ITenantFubeiAccountDAL tenantFubeiAccountDAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
             this._courseDAL = courseDAL;
@@ -537,7 +538,7 @@ namespace ETMS.Business
         {
             if (request.MallGoodsStatus == EmMallGoodsStatus.Open)
             {
-                var checkTenantLcsAccountResult = await CheckTenantLcsAccount(request.LoginTenantId);
+                var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
                 if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
                 {
                     return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);

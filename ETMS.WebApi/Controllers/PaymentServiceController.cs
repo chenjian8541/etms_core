@@ -3,6 +3,7 @@ using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
+using FubeiOpenApi.CoreSdk.Models.Parameter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -27,6 +28,45 @@ namespace ETMS.WebApi.Controllers
             this._paymentMerchantBLL = paymentMerchantBLL;
             this._paymentBLL = paymentBLL;
             this._paymentStatisticsBLL = paymentStatisticsBLL;
+        }
+
+        public async Task<ResponseBase> TenantPaymentSetGet(RequestBase request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantPaymentSetGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantFubeiAccountBind(TenantFubeiAccountBindRequest request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantFubeiAccountBind(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantFubeiAccountGet(RequestBase request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantFubeiAccountGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
         }
 
         [AllowAnonymous]
@@ -280,6 +320,30 @@ namespace ETMS.WebApi.Controllers
             {
                 Log.Error(request, ex, this.GetType());
                 return ResponseBase.UnKnownError();
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<string> FubeiApiNotify([FromForm] FubeiNotificationParam p,
+            [FromForm(Name = "sign")] string sign)
+        {
+            try
+            {
+                var request = new FubeiApiNotifyRequest()
+                {
+                    AppSecret = p.AppSecret,
+                    Data = p.Data,
+                    ResultCode = p.ResultCode,
+                    ResultMessage = p.ResultMessage,
+                    Sign = sign
+                };
+                LOG.Log.Info("[FubeiApiNotify]付呗支付回调", request, this.GetType());
+                return await _paymentBLL.FubeiApiNotify(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[FubeiApiNotify]出错", p, ex, this.GetType());
+                return "FAIL";
             }
         }
     }

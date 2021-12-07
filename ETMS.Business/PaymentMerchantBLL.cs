@@ -3,6 +3,7 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.CoreBusiness.Request;
 using ETMS.Entity.Dto.PaymentService.Output;
 using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Enum;
@@ -34,13 +35,167 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly ITenantFubeiAccountDAL _tenantFubeiAccountDAL;
+
+        private readonly IAgtPayServiceBLL _agtPayServiceBLL;
+
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public PaymentMerchantBLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL, IPayLcswService payLcswService,
-            IUserOperationLogDAL userOperationLogDAL)
+            IUserOperationLogDAL userOperationLogDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
+            IAgtPayServiceBLL agtPayServiceBLL, IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._payLcswService = payLcswService;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._tenantFubeiAccountDAL = tenantFubeiAccountDAL;
+            this._agtPayServiceBLL = agtPayServiceBLL;
+            this._appConfigurtaionServices = appConfigurtaionServices;
+        }
+
+        public async Task<ResponseBase> TenantPaymentSetGet(RequestBase request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var output = new TenantPaymentSetGetOutput()
+            {
+                AgtPayType = myTenant.AgtPayType
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantFubeiAccountBind(TenantFubeiAccountBindRequest request)
+        {
+            this._agtPayServiceBLL.InitTenantId(request.LoginTenantId);
+            var fubeiConfig = this._appConfigurtaionServices.AppSettings.PayConfig.FubeiConfig;
+            var wxConfigResult = await _agtPayServiceBLL.WxConfig(new WxConfigRequest()
+            {
+                AccountType = request.AccountType,
+                AppId = request.AppId,
+                AppSecret = request.AppSecret,
+                CashierId = request.CashierId,
+                JsapiPath = fubeiConfig.JsapiPath,
+                MerchantId = request.MerchantId,
+                StoreId = request.StoreId,
+                WxSubAppid = request.WxSubAppid,
+                VendorSn = fubeiConfig.VendorSn,
+                VendorSecret = fubeiConfig.VendorSecret
+            });
+            if (!wxConfigResult.IsSuccess)
+            {
+                return ResponseBase.CommonError(wxConfigResult.ErrMsg);
+            }
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            var now = DateTime.Now;
+            var account = await _tenantFubeiAccountDAL.GetTenantFubeiAccount(request.LoginTenantId);
+            if (account == null)
+            {
+                //新增
+                var entity = new SysTenantFubeiAccount()
+                {
+                    AccountType = request.AccountType,
+                    AgentId = myTenant.AgentId,
+                    ApplyStatus = EmTenantFubeiAccountApplyStatus.Passed,
+                    AppId = request.AppId,
+                    AppSecret = request.AppSecret,
+                    CashierId = request.CashierId,
+                    MerchantCode = request.MerchantCode,
+                    MerchantId = request.MerchantId,
+                    MerchantName = request.MerchantName,
+                    StoreId = request.StoreId,
+                    VendorSn = fubeiConfig.VendorSn,
+                    VendorSecret = fubeiConfig.VendorSecret,
+                    WxJsapiPath = fubeiConfig.JsapiPath,
+                    WxSubAppid = request.WxSubAppid,
+                    TenantId = request.LoginTenantId,
+                    Remark = string.Empty,
+                    IsDeleted = EmIsDeleted.Normal,
+                    ChangeTime = now,
+                    CreationTime = now
+                };
+                await _tenantFubeiAccountDAL.AddTenantFubeiAccount(entity);
+            }
+            else
+            {
+                //编辑
+                account.AppId = request.AppId;
+                account.AppSecret = request.AppSecret;
+                account.CashierId = request.CashierId;
+                account.MerchantCode = request.MerchantCode;
+                account.MerchantId = request.MerchantId;
+                account.MerchantName = request.MerchantName;
+                account.StoreId = request.StoreId;
+                account.VendorSn = fubeiConfig.VendorSn;
+                account.VendorSecret = fubeiConfig.VendorSecret;
+                account.WxJsapiPath = fubeiConfig.JsapiPath;
+                account.WxSubAppid = request.WxSubAppid;
+                await _tenantFubeiAccountDAL.EditTenantFubeiAccount(account);
+            }
+            myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId); //获取最新的机构信息
+            myTenant.AgtPayType = EmAgtPayType.Fubei;
+            myTenant.LcswOpenStatus = EmBool.True;
+            await _sysTenantDAL.EditTenant(myTenant);
+
+            await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
+            {
+                ClientType = EmUserOperationLogClientType.PC,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = "绑定付呗支付账户",
+                Ot = now,
+                Remark = string.Empty,
+                TenantId = myTenant.Id,
+                Type = (int)EmUserOperationType.LcsMgr,
+                UserId = request.LoginUserId
+            });
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantFubeiAccountGet(RequestBase request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (myTenant.AgtPayType == EmAgtPayType.Lcsw)
+            {
+                return ResponseBase.CommonError("机构已申请了扫呗支付");
+            }
+            if (myTenant.AgtPayType == EmAgtPayType.NotApplied)
+            {
+                return ResponseBase.Success(new TenantFubeiAccountGetOutput()
+                {
+                    AgtPayType = myTenant.AgtPayType
+                });
+            }
+            var account = await _tenantFubeiAccountDAL.GetTenantFubeiAccount(request.LoginTenantId);
+            if (account == null)
+            {
+                return ResponseBase.CommonError("未找到机构绑定的付呗账户");
+            }
+            return ResponseBase.Success(new TenantFubeiAccountGetOutput()
+            {
+                AgtPayType = myTenant.AgtPayType,
+                AccountInfo = new TenantFubeiAccountInfo()
+                {
+                    AccountType = account.AccountType,
+                    AppId = account.AppId,
+                    ApplyStatus = account.ApplyStatus,
+                    AppSecret = account.AppSecret,
+                    CashierId = account.CashierId,
+                    MerchantCode = account.MerchantCode,
+                    MerchantId = account.MerchantId,
+                    MerchantName = account.MerchantName,
+                    StoreId = account.StoreId,
+                    VendorSn = account.VendorSn,
+                    WxSubAppid = account.WxSubAppid
+                }
+            });
         }
 
         public ResponseBase MerchantCheckName(MerchantCheckNameRequest request)
