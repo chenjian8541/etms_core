@@ -502,7 +502,11 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
-            return ResponseBase.Success();
+            var output = new CheckParentCanLoginOutput()
+            {
+                AgtPayType = sysTenantInfo.AgtPayType
+            };
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ParentLoginout(ParentLoginoutRequest request)

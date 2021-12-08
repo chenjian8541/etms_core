@@ -60,7 +60,7 @@ namespace ETMS.Business
                     Ot = p.Ot,
                     OtDesc = p.Ot.EtmsToDateString(),
                     PayType = p.PayType,
-                    PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                    PayTypeDesc = EmPayType.GetPayType(p.PayType, request.AgtPayType),
                     ProjectType = p.ProjectType,
                     ProjectTypeDesc = EmIncomeLogProjectType.GetIncomeLogProjectType(allProjectType, p.ProjectType),
                     Remark = p.Remark,

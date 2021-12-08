@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Enum.EtmsManage;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -49,7 +50,7 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int Other = 99;
 
-        public static string GetPayType(int b)
+        public static string GetPayType(int b, int agtPayType)
         {
             switch (b)
             {
@@ -68,7 +69,11 @@ namespace ETMS.Entity.Enum
                 case PayAccountRecharge:
                     return "充值账户";
                 case AgtPay:
-                    return "聚合支付";
+                    if (agtPayType == EmAgtPayType.Fubei)
+                    {
+                        return "付呗支付";
+                    }
+                    return "扫呗支付";
             }
             return string.Empty;
         }
@@ -81,8 +86,7 @@ namespace ETMS.Entity.Enum
             "现金支付",
             "银联支付",
             "POS机",
-            "其他支付",
-            "聚合支付"
+            "其他支付"
             };
         }
 

@@ -11,6 +11,7 @@ using ETMS.Utility;
 using Newtonsoft.Json;
 using ETMS.Business.Common;
 using ETMS.Entity.Dto.User.Output;
+using ETMS.Entity.Dto.Parent.Output;
 
 namespace ETMS.WebApi.FilterAttribute
 {
@@ -56,6 +57,7 @@ namespace ETMS.WebApi.FilterAttribute
                     var userLoginInfo = checkUserResult.resultData as CheckUserCanLoginOutput;
                     request.IsDataLimit = userLoginInfo.IsDataLimit;
                     request.SecrecyType = userLoginInfo.SecrecyType;
+                    request.AgtPayType = userLoginInfo.AgtPayType;
                 }
                 if (context.ActionArguments.First().Value is ParentRequestBase)
                 {
@@ -78,6 +80,8 @@ namespace ETMS.WebApi.FilterAttribute
                         context.Result = new JsonResult(checkParentCanLoginResult);
                         return;
                     }
+                    var checkParentCanLoginInfo = checkParentCanLoginResult.resultData as CheckParentCanLoginOutput;
+                    request.AgtPayType = checkParentCanLoginInfo.AgtPayType;
                     var myStudents = parentBLL.GetMyStudent(request).Result;
                     if (myStudents == null || !myStudents.Any())
                     {

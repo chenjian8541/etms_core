@@ -61,7 +61,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetStatisticsFinanceInPayType(GetStatisticsFinanceInPayTypeRequest request)
         {
-            return ResponseBase.Success(await GetStatisticsFinanceIncomePayType(request.StartOt.Value, request.EndOt.Value, EmIncomeLogType.AccountIn));
+            return ResponseBase.Success(await GetStatisticsFinanceIncomePayType(request.StartOt.Value, request.EndOt.Value, EmIncomeLogType.AccountIn, request.AgtPayType));
         }
 
         public async Task<ResponseBase> GetStatisticsFinanceOut(GetStatisticsFinanceOutRequest request)
@@ -76,7 +76,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> GetStatisticsFinanceOutPayType(GetStatisticsFinanceOutPayTypeRequest request)
         {
-            return ResponseBase.Success(await GetStatisticsFinanceIncomePayType(request.StartOt.Value, request.EndOt.Value, EmIncomeLogType.AccountOut));
+            return ResponseBase.Success(await GetStatisticsFinanceIncomePayType(request.StartOt.Value, request.EndOt.Value, EmIncomeLogType.AccountOut, request.AgtPayType));
         }
 
         private async Task<EchartsBar<decimal>> GetStatisticsFinanceIncome(DateTime currentDate, DateTime endDate, byte type)
@@ -127,7 +127,8 @@ namespace ETMS.Business
             return echartsPieProjectType;
         }
 
-        private async Task<EchartsPie<decimal>> GetStatisticsFinanceIncomePayType(DateTime currentDate, DateTime endDate, byte type)
+        private async Task<EchartsPie<decimal>> GetStatisticsFinanceIncomePayType(DateTime currentDate, DateTime endDate,
+            byte type, int agtPayType)
         {
             var statisticsData = await _statisticsFinanceIncomeDAL.GetStatisticsFinanceIncome(currentDate, endDate, type);
             var echartsPiePayType = new EchartsPie<decimal>();
@@ -139,7 +140,7 @@ namespace ETMS.Business
                 var echartsOther = new EchartsPieData<decimal>() { Name = otherTagName, Value = 0 };
                 foreach (var item in newPayTypeStatisticsData)
                 {
-                    var tempName = EmPayType.GetPayType(item.MyPayType);
+                    var tempName = EmPayType.GetPayType(item.MyPayType, agtPayType);
                     if (string.IsNullOrEmpty(tempName))
                     {
                         echartsOther.Value += item.MyTotalSum;

@@ -264,7 +264,8 @@ namespace ETMS.Business
             {
                 IsOpenAgtPay = myTenantAgtPayInfo.IsOpenAgtPay,
                 AgtPayType = myTenantAgtPayInfo.AgtPayType,
-                AgtPayDesc = myTenantAgtPayInfo.AgtPayDesc
+                AgtPayDesc = myTenantAgtPayInfo.AgtPayDesc,
+                AgtPayDesc2 = myTenantAgtPayInfo.AgtPayDesc2
             };
             return ResponseBase.Success(output);
         }

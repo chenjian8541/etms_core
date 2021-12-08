@@ -304,7 +304,7 @@ namespace ETMS.Business
             {
                 PayOt = order.Ot.EtmsToDateString(),
                 PayType = EmPayType.PayAccountRecharge,
-                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge),
+                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge, 0),
                 ProjectType = 0,
                 ProjectTypeName = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 Sum = order.PayAccountRechargeReal + order.PayAccountRechargeGive,
@@ -466,7 +466,7 @@ namespace ETMS.Business
                     {
                         PayOt = p.Ot.EtmsToDateString(),
                         PayType = p.PayType,
-                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType, request.AgtPayType),
                         ProjectType = p.ProjectType,
                         ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
                         Sum = p.Sum,
@@ -571,7 +571,7 @@ namespace ETMS.Business
                     {
                         PayOt = p.Ot.EtmsToDateString(),
                         PayType = p.PayType,
-                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType, request.AgtPayType),
                         ProjectType = p.ProjectType,
                         ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
                         Sum = p.Sum,
@@ -681,7 +681,7 @@ namespace ETMS.Business
                     {
                         PayOt = p.Ot.EtmsToDateString(),
                         PayType = p.PayType,
-                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType, request.AgtPayType),
                         ProjectType = p.ProjectType,
                         ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
                         Sum = p.Sum,
@@ -756,7 +756,7 @@ namespace ETMS.Business
                     {
                         PayOt = p.Ot.EtmsToDateString(),
                         PayType = p.PayType,
-                        PayTypeDesc = EmPayType.GetPayType(p.PayType),
+                        PayTypeDesc = EmPayType.GetPayType(p.PayType, request.AgtPayType),
                         ProjectType = p.ProjectType,
                         ProjectTypeName = EmIncomeLogProjectType.GetIncomeLogProjectType(p.ProjectType),
                         Sum = p.Sum,

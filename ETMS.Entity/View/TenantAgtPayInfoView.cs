@@ -16,5 +16,7 @@ namespace ETMS.Entity.View
         public int AgtPayType { get; set; }
 
         public string AgtPayDesc { get; set; }
+
+        public string AgtPayDesc2 { get; set; }
     }
 }

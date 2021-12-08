@@ -32,6 +32,11 @@ namespace ETMS.Entity.Common
         /// </summary>
         public List<long> ParentStudentIds { get; set; }
 
+        /// <summary>
+        /// 聚合支付状态类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmAgtPayType"/>
+        /// </summary>
+        public int AgtPayType { get; set; }
+
         protected virtual string DataFilterWhere2()
         {
             return $"TenantId = {LoginTenantId} AND IsDeleted = {EmIsDeleted.Normal} ";

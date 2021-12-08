@@ -448,7 +448,8 @@ namespace ETMS.Business
             return ResponseBase.Success(new CheckUserCanLoginOutput()
             {
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
-                SecrecyType = role.SecrecyType
+                SecrecyType = role.SecrecyType,
+                AgtPayType = sysTenantInfo.AgtPayType
             });
         }
 
