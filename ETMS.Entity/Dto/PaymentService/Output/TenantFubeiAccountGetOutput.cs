@@ -53,6 +53,6 @@ namespace ETMS.Entity.Dto.PaymentService.Output
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmTenantFubeiAccountApplyStatus"/>
         /// </summary>
-        public byte ApplyStatus { get; set; }
+        public int ApplyStatus { get; set; }
     }
 }

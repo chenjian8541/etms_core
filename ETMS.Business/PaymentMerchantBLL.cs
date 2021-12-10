@@ -71,6 +71,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> TenantFubeiAccountBind(TenantFubeiAccountBindRequest request)
         {
             this._agtPayServiceBLL.InitTenantId(request.LoginTenantId);
+            this._userOperationLogDAL.InitTenantId(request.LoginTenantId);
             var fubeiConfig = this._appConfigurtaionServices.AppSettings.PayConfig.FubeiConfig;
             var wxConfigResult = await _agtPayServiceBLL.WxConfig(new WxConfigRequest()
             {

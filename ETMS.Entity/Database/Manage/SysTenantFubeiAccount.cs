@@ -54,7 +54,7 @@ namespace ETMS.Entity.Database.Manage
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmTenantFubeiAccountApplyStatus"/>
         /// </summary>
-        public byte ApplyStatus { get; set; }
+        public int ApplyStatus { get; set; }
 
         public DateTime CreationTime { get; set; }
 

@@ -73,5 +73,7 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 请假媒体文件
         /// </summary>
         public List<string> LeaveMediasUrl { get; set; }
+
+        public string StudentAvatarUrl { get; set; }
     }
 }

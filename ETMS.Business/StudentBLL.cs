@@ -995,7 +995,8 @@ namespace ETMS.Business
                 LeaveContent = applyLog.LeaveContent,
                 StudentName = student.Name,
                 StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
-                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(applyLog.LeaveMedias)
+                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(applyLog.LeaveMedias),
+                StudentAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(student.Avatar)
             });
         }
 
@@ -1026,6 +1027,49 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentLeaveApplyLogPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentLeaveHelpApply(StudentLeaveHelpApplyRequest request)
+        {
+            var startFullTime = request.StartTime;
+            var endFullTime = request.EndTime;
+            var isExistApplyLog = await _studentLeaveApplyLogDAL.ExistStudentLeaveApplyLog(request.StudentId, startFullTime, endFullTime);
+            if (isExistApplyLog)
+            {
+                return ResponseBase.CommonError("此时间段已存在请假申请，请勿重复提交");
+            }
+            var startDate = startFullTime.Date;
+            var startTime = EtmsHelper.GetTimeHourAndMinuteDesc(startFullTime);
+            var endDate = endFullTime.Date;
+            var endTime = EtmsHelper.GetTimeHourAndMinuteDesc(endFullTime);
+            var now = DateTime.Now;
+            var log = new EtStudentLeaveApplyLog()
+            {
+                ApplyOt = now,
+                EndDate = endDate,
+                EndTime = endTime,
+                HandleOt = now,
+                HandleRemark = request.HandleRemark,
+                HandleStatus = EmStudentLeaveApplyHandleStatus.Pass,
+                HandleUser = request.LoginUserId,
+                IsDeleted = EmIsDeleted.Normal,
+                LeaveContent = request.LeaveContent,
+                StartDate = startDate,
+                StartTime = startTime,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId,
+                StartFullTime = startFullTime,
+                EndFullTime = endFullTime,
+                LeaveMedias = EtmsHelper2.GetMediasKeys(request.LeaveMediasKeys)
+            };
+            await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(log);
+            _eventPublisher.Publish(new NoticeStudentLeaveApplyEvent(request.LoginTenantId)
+            {
+                StudentLeaveApplyLog = log
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, "给学员请假", EmUserOperationType.StudentLeaveApplyManage);
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> StudentLeaveApplyHandle(StudentLeaveApplyHandleRequest request)

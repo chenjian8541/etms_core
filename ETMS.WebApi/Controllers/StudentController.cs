@@ -457,6 +457,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentLeaveHelpApply(StudentLeaveHelpApplyRequest request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentLeaveHelpApply(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyHandle(StudentLeaveApplyHandleRequest request)
         {
             try
