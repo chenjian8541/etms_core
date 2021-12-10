@@ -18,6 +18,8 @@ namespace ETMS.IBusiness
 
         Task<WxConfigOutput> WxConfig(WxConfigRequest request);
 
+        Task<CallbackConfigOutput> CallbackConfig(CallbackConfigRequest request);
+
         Task<BarcodePayOutput> BarcodePay(BarcodePayRequest request);
 
         Task<UnifiedOrderOutput> UnifiedOrder(UnifiedOrderRequest request);

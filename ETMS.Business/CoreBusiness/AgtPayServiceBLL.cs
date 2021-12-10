@@ -1,4 +1,5 @@
 ﻿using Com.Fubei.OpenApi.Sdk;
+using Com.Fubei.OpenApi.Sdk.Dto.Em;
 using Com.Fubei.OpenApi.Sdk.Enums;
 using Com.Fubei.OpenApi.Sdk.Models;
 using ETMS.Business.Common;
@@ -83,7 +84,7 @@ namespace ETMS.Business
             }, apiLevel);
             if (result == null || !result.IsSuccess() || result.Data == null)
             {
-                return GetErrResult<WxConfigOutput>("配置失败");
+                return GetErrResult<WxConfigOutput>("微信配置失败");
             }
             var myResult = result.Data;
             if (myResult.SubAppidCode != 1 || myResult.JsapiCode != 1)
@@ -91,6 +92,40 @@ namespace ETMS.Business
                 return GetErrResult<WxConfigOutput>("微信配置失败");
             }
             return new WxConfigOutput()
+            {
+                IsSuccess = true,
+                ErrMsg = string.Empty
+            };
+        }
+
+        public async Task<CallbackConfigOutput> CallbackConfig(CallbackConfigRequest request)
+        {
+            var apiLevel = EApiLevel.Merchant;
+            if (request.AccountType == EmFubeiAccountType.Vendor)
+            {
+                apiLevel = EApiLevel.Vendor;
+            }
+            var result = await FubeiOpenApiCoreSdk.PostVendorApiRequestAsync<ACallbackConfigResultEntity>("fbpay.pay.callback.config", new ACallbackConfig()
+            {
+                AppId = request.AppId,
+                AppSecret = request.AppSecret,
+                VendorSn = request.VendorSn,
+                VendorSecret = request.VendorSecret,
+                merchant_id = request.MerchantId,
+                refund_callback_url = request.refund_callback_url,
+                remit_callback_url = null,
+                second_callback_url = null
+            }, apiLevel);
+            if (result == null || !result.IsSuccess() || result.Data == null)
+            {
+                return GetErrResult<CallbackConfigOutput>("回调服务配置失败");
+            }
+            var myResult = result.Data;
+            if (myResult.bind_status != 1)
+            {
+                return GetErrResult<CallbackConfigOutput>(myResult.resp_message);
+            }
+            return new CallbackConfigOutput()
             {
                 IsSuccess = true,
                 ErrMsg = string.Empty
@@ -220,11 +255,7 @@ namespace ETMS.Business
                 };
             }
             var myResultData = result.Data;
-            var status = EmLcsPayLogStatus.Unpaid;
-            if (myResultData.OrderStatus == "SUCCESS")
-            {
-                status = EmLcsPayLogStatus.PaySuccess;
-            }
+            var status = ComBusiness4.GetFubeiPayStatus(myResultData.OrderStatus);
             return new BarcodePayOutput()
             {
                 ErrMsg = string.Empty,
@@ -491,13 +522,77 @@ namespace ETMS.Business
                 IsSuccess = true,
                 ErrMsg = string.Empty,
                 out_refund_no = refundResult.out_refund_no,
-                refund_fee = refundResult.refund_fee
+                refund_fee = refundResult.refund_fee,
+                RefundStatus = EmLcsPayLogStatus.Refunded
             };
         }
 
         public async Task<RefundPayOutput> RefundPay_Fubei(RefundPayRequest request)
         {
-            throw new Exception("付呗支付暂时不支持退款");
+            var paylog = request.Paylog;
+            var myFubeiAccount = _checkTenantAgtPayAccountResult.MyFubeiAccount;
+            FubeiApiCommonResult<AOrderRefundResultEntity> result = null;
+            var refundSn = OrderNumberLib.FubeiRefundOrder(paylog.TenantId);
+            if (myFubeiAccount.AccountType == EmFubeiAccountType.Merchant)
+            {
+                //商户级
+                result = await FubeiOpenApiCoreSdk.PostVendorApiRequestAsync<AOrderRefundResultEntity>("fbpay.order.refund", new AOrderRefundParam()
+                {
+                    AppId = myFubeiAccount.AppId,
+                    AppSecret = myFubeiAccount.AppSecret,
+                    VendorSn = myFubeiAccount.VendorSn,
+                    VendorSecret = myFubeiAccount.VendorSecret,
+                    merchant_id = myFubeiAccount.MerchantId,
+                    order_sn = paylog.OutTradeNo,
+                    merchant_order_sn = paylog.OrderNo,
+                    refund_amount = paylog.TotalFeeValue,
+                    merchant_refund_sn = refundSn
+                }, EApiLevel.Merchant);
+            }
+            else
+            {
+                //服务商级
+                result = await FubeiOpenApiCoreSdk.PostVendorApiRequestAsync<AOrderRefundResultEntity>("fbpay.order.refund", new AOrderRefundParam()
+                {
+                    AppId = myFubeiAccount.AppId,
+                    AppSecret = myFubeiAccount.AppSecret,
+                    VendorSn = myFubeiAccount.VendorSn,
+                    VendorSecret = myFubeiAccount.VendorSecret,
+                    merchant_id = myFubeiAccount.MerchantId,
+                    order_sn = paylog.OutTradeNo,
+                    merchant_order_sn = paylog.OrderNo,
+                    refund_amount = paylog.TotalFeeValue,
+                    merchant_refund_sn = refundSn
+                }, EApiLevel.Vendor);
+            }
+            if (result == null || !result.IsSuccess() || result.Data == null)
+            {
+                return GetErrResult<RefundPayOutput>($"退款失败:{result.ResultMessage}");
+            }
+            var myResultData = result.Data;
+            switch (myResultData.refund_status)
+            {
+                case EmRefundStatus.Refunding:
+                    return new RefundPayOutput()
+                    {
+                        IsSuccess = true,
+                        ErrMsg = string.Empty,
+                        RefundStatus = EmLcsPayLogStatus.Refunding,
+                        refund_fee = paylog.TotalFee,
+                        out_refund_no = myResultData.merchant_refund_sn
+                    };
+                case EmRefundStatus.Success:
+                    return new RefundPayOutput()
+                    {
+                        IsSuccess = true,
+                        ErrMsg = string.Empty,
+                        RefundStatus = EmLcsPayLogStatus.Refunded,
+                        refund_fee = paylog.TotalFee,
+                        out_refund_no = myResultData.merchant_refund_sn
+                    };
+                default:
+                    return GetErrResult<RefundPayOutput>("退款失败");
+            }
         }
     }
 }

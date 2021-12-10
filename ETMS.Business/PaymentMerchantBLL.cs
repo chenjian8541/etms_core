@@ -90,6 +90,21 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(wxConfigResult.ErrMsg);
             }
+            var callbackConfigResult = await _agtPayServiceBLL.CallbackConfig(new CallbackConfigRequest()
+            {
+                AccountType = request.AccountType,
+                AppId = request.AppId,
+                AppSecret = request.AppSecret,
+                MerchantId = request.MerchantId,
+                VendorSn = fubeiConfig.VendorSn,
+                VendorSecret = fubeiConfig.VendorSecret,
+                refund_callback_url = SysWebApiAddressConfig.FubeiRefundApiNotify
+            });
+            if (!callbackConfigResult.IsSuccess)
+            {
+                return ResponseBase.CommonError(callbackConfigResult.ErrMsg);
+            }
+
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var now = DateTime.Now;
             var account = await _tenantFubeiAccountDAL.GetTenantFubeiAccount(request.LoginTenantId);

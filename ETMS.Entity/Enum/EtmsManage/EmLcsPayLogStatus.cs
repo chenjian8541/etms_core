@@ -33,6 +33,11 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int Refunded = 4;
 
+        /// <summary>
+        /// 退款中
+        /// </summary>
+        public const int Refunding = 5;
+
         public static string GetPayLogStatus(int t)
         {
             switch (t)
@@ -47,6 +52,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "支付失败";
                 case 4:
                     return "已退款";
+                case 5:
+                    return "退款中";
             }
             return string.Empty;
         }

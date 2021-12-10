@@ -1,4 +1,5 @@
 ﻿using Com.Fubei.OpenApi.Sdk;
+using Com.Fubei.OpenApi.Sdk.Dto.Em;
 using Com.Fubei.OpenApi.Sdk.Enums;
 using Com.Fubei.OpenApi.Sdk.Models;
 using ETMS.Business.BaseBLL;
@@ -307,7 +308,7 @@ namespace ETMS.Business
             paylog.RefundDate = now.Date;
             paylog.RefundFee = refundResult.refund_fee;
             paylog.OutRefundNo = refundResult.out_refund_no;
-            paylog.Status = EmLcsPayLogStatus.Refunded;
+            paylog.Status = refundResult.RefundStatus;
             await _tenantLcsPayLogDAL.EditTenantLcsPayLog(paylog);
 
             _eventPublisher.Publish(new StatisticsLcsPayEvent(request.LoginTenantId)
@@ -435,6 +436,71 @@ namespace ETMS.Business
             {
                 return "FAIL";
             }
+        }
+
+        /// <summary>
+        /// 付呗退款回调
+        /// https://www.yuque.com/51fubei/openapi/callback_refundcallback
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<string> FubeiRefundApiNotify(FubeiApiNotifyRequest request)
+        {
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<FubeiApiNotifyRequestData>(request.Data);
+            if (string.IsNullOrEmpty(result.merchant_refund_sn))
+            {
+                LOG.Log.Fatal("[FubeiRefundApiNotify]付呗退款回调，订单为空", request, this.GetType());
+                return "SUCCESS";
+            }
+            var tenantId = OrderNumberLib.FubeiRefundOrderGetTenantId(result.merchant_refund_sn);
+            this.InitTenantId(tenantId);
+            var myTenantFubeiAccount = await _tenantFubeiAccountDAL.GetTenantFubeiAccount(tenantId);
+            if (myTenantFubeiAccount == null)
+            {
+                return "FAIL";
+            }
+            var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(result.order_sn);
+            if (payLog == null)
+            {
+                return "FAIL";
+            }
+            var now = DateTime.Now;
+            switch (result.refund_status)
+            {
+                case EmRefundStatus.Refunding: //退款中
+                    return "SUCCESS";
+                case EmRefundStatus.Success: //退款成功
+                    payLog.RefundOt = now;
+                    payLog.RefundDate = now.Date;
+                    payLog.RefundFee = EtmsHelper3.GetCent(result.buyer_refund_amount).ToString();
+                    payLog.Status = EmLcsPayLogStatus.Refunded;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = payLog.PayFinishOt.Value.Date
+                    });
+                    return "SUCCESS";
+                case EmRefundStatus.Fail: //退款失败
+                    payLog.RefundOt = null;
+                    payLog.RefundDate = null;
+                    payLog.RefundFee = string.Empty;
+                    payLog.Status = EmLcsPayLogStatus.PaySuccess;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = payLog.PayFinishOt.Value.Date
+                    });
+                    return "SUCCESS";
+            }
+            return "FAIL";
         }
     }
 }

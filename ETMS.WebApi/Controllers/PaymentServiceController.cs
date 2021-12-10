@@ -346,5 +346,29 @@ namespace ETMS.WebApi.Controllers
                 return "FAIL";
             }
         }
+
+        [AllowAnonymous]
+        public async Task<string> FubeiRefundApiNotify([FromForm] FubeiNotificationParam p,
+            [FromForm(Name = "sign")] string sign)
+        {
+            try
+            {
+                var request = new FubeiApiNotifyRequest()
+                {
+                    AppSecret = p.AppSecret,
+                    Data = p.Data,
+                    ResultCode = p.ResultCode,
+                    ResultMessage = p.ResultMessage,
+                    Sign = sign
+                };
+                LOG.Log.Info("[FubeiRefundApiNotify]付呗退款回调", request, this.GetType());
+                return await _paymentBLL.FubeiRefundApiNotify(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[FubeiRefundApiNotify]出错", p, ex, this.GetType());
+                return "FAIL";
+            }
+        }
     }
 }

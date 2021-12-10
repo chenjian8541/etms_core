@@ -63,5 +63,23 @@ namespace ETMS.Business.Common
             var strRandom = new Random().Next(100, 999);
             return $"{strTime}{strRandom}";
         }
+
+        /// <summary>
+        /// 付呗退款单号
+        /// 通过退款单号可以分析出机构id
+        /// </summary>
+        /// <returns></returns>
+        public static string FubeiRefundOrder(int tenantId)
+        {
+            var strTime = DateTime.Now.ToString("yMdHms");
+            var strRandom = new Random().Next(10, 99);
+            return $"R{tenantId}_{strTime}{strRandom}";
+        }
+
+        public static int FubeiRefundOrderGetTenantId(string merchant_refund_sn)
+        {
+            var strS = merchant_refund_sn.Split('_');
+            return strS[0].TrimStart('R').ToInt();
+        }
     }
 }

@@ -23,5 +23,7 @@ namespace ETMS.IBusiness
         Task<LcsPayJspayCallbackOutput> LcsPayJspayCallback(LcsPayJspayCallbackRequest request);
 
         Task<string> FubeiApiNotify(FubeiApiNotifyRequest request);
+
+        Task<string> FubeiRefundApiNotify(FubeiApiNotifyRequest request);
     }
 }
