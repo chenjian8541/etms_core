@@ -488,6 +488,10 @@ namespace ETMS.Business
 
         public async Task<RefundPayOutput> RefundPay(RefundPayRequest request)
         {
+            if (request.Paylog.AgtPayType != _checkTenantAgtPayAccountResult.MyTenant.AgtPayType)
+            {
+                return GetErrResult<RefundPayOutput>("支付订单与所绑定的聚合支付服务商不一致，无法退款");
+            }
             switch (_checkTenantAgtPayAccountResult.MyTenant.AgtPayType)
             {
                 case EmAgtPayType.Lcsw:

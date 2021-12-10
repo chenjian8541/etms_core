@@ -202,7 +202,8 @@ namespace ETMS.Business
                     TotalFeeDesc = request.PayMoney.ToString(),
                     PayFinishDate = payFinishDate,
                     RefundDate = null,
-                    DataType = EmTenantLcsPayLogDataType.Normal
+                    DataType = EmTenantLcsPayLogDataType.Normal,
+                    AgtPayType = myTenant.AgtPayType
                 });
                 if (status == EmLcsPayLogStatus.PaySuccess)
                 {

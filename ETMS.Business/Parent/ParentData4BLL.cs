@@ -253,7 +253,8 @@ namespace ETMS.Business.Parent
                 PayType = string.Empty,
                 OutTradeNo = string.Empty,
                 SubAppid = string.Empty,
-                TotalFee = string.Empty
+                TotalFee = string.Empty,
+                AgtPayType = myTenant.AgtPayType
             });
             var unifiedOrderRequest = new UnifiedOrderRequest()
             {
