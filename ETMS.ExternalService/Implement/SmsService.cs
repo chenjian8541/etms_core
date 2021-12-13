@@ -48,6 +48,43 @@ namespace ETMS.ExternalService.Implement
             return Tuple.Create(key, pwd);
         }
 
+        public async Task<SmsOutput> ComSendSmscode(ComSendSmscodeRequest request)
+        {
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                var sendSmsRequest = new SendSmsTpRequest<ValidCode>()
+                {
+                    username = _smsConfig.ZhuTong.UserName,
+                    password = tKeyAndPwd.Item2,
+                    tKey = tKeyAndPwd.Item1,
+                    signature = smsSignature,
+                    tpId = _smsConfig.ZhuTong.TemplatesLogin.TpId,
+                    records = new List<Records<ValidCode>>() {
+                     new Records<ValidCode>(){
+                         mobile = request.Phone,
+                         tpContent = new ValidCode(){
+                             valid_code = request.ValidCode
+                       }
+                     }
+                    }
+                };
+                var res = await _httpClient.PostAsync<SendSmsTpRequest<ValidCode>, SendSmsTpRes>(_smsConfig.ZhuTong.SendSmsTpUrl, sendSmsRequest);
+                if (!SendSmsTpRes.IsSuccess(res))
+                {
+                    Log.Error($"[ComSendSmscode]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(request)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    return SmsOutput.Fail(res.msg);
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[ComSendSmscode]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+        }
+
         public async Task<SmsOutput> AddSmsSign(AddSmsSignRequest request)
         {
             try

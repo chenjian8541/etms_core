@@ -282,5 +282,31 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> CheckPhoneSmsSend(CheckPhoneSmsSendRequest request)
+        {
+            try
+            {
+                return await _open2BLL.CheckPhoneSmsSend(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TryApplyLogAdd(TryApplyLogAddRequest request)
+        {
+            try
+            {
+                return await _open2BLL.TryApplyLogAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

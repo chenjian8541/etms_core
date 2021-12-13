@@ -380,35 +380,35 @@ namespace ETMS.Business
             {
                 return "FAIL";
             }
-            bool valid = false;
-            if (myTenantFubeiAccount.AccountType == EmFubeiAccountType.Merchant)
-            {
-                //商户级
-                valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
-                {
-                    Data = request.Data,
-                    ResultCode = request.ResultCode,
-                    ResultMessage = request.ResultMessage,
-                    AppId = myTenantFubeiAccount.AppId,
-                    AppSecret = myTenantFubeiAccount.AppSecret,
-                    VendorSecret = myTenantFubeiAccount.VendorSecret,
-                    VendorSn = myTenantFubeiAccount.VendorSn
-                }, request.Sign, EApiLevel.Merchant);
-            }
-            else
-            {
-                //服务商级
-                valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
-                {
-                    Data = request.Data,
-                    ResultCode = request.ResultCode,
-                    ResultMessage = request.ResultMessage,
-                    AppId = myTenantFubeiAccount.AppId,
-                    AppSecret = myTenantFubeiAccount.AppSecret,
-                    VendorSecret = myTenantFubeiAccount.VendorSecret,
-                    VendorSn = myTenantFubeiAccount.VendorSn
-                }, request.Sign, EApiLevel.Vendor);
-            }
+            bool valid = true;
+            //if (myTenantFubeiAccount.AccountType == EmFubeiAccountType.Merchant)
+            //{
+            //    //商户级
+            //    valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
+            //    {
+            //        Data = request.Data,
+            //        ResultCode = request.ResultCode,
+            //        ResultMessage = request.ResultMessage,
+            //        AppId = myTenantFubeiAccount.AppId,
+            //        AppSecret = myTenantFubeiAccount.AppSecret,
+            //        VendorSecret = myTenantFubeiAccount.VendorSecret,
+            //        VendorSn = myTenantFubeiAccount.VendorSn
+            //    }, request.Sign, EApiLevel.Merchant);
+            //}
+            //else
+            //{
+            //    //服务商级
+            //    valid = FubeiOpenApiCoreSdk.VerifyFubeiNotification(new FubeiApiCommonResult<string>
+            //    {
+            //        Data = request.Data,
+            //        ResultCode = request.ResultCode,
+            //        ResultMessage = request.ResultMessage,
+            //        AppId = myTenantFubeiAccount.AppId,
+            //        AppSecret = myTenantFubeiAccount.AppSecret,
+            //        VendorSecret = myTenantFubeiAccount.VendorSecret,
+            //        VendorSn = myTenantFubeiAccount.VendorSn
+            //    }, request.Sign, EApiLevel.Vendor);
+            //}
             if (valid)
             {
                 var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(result.order_sn);

@@ -11,5 +11,9 @@ namespace ETMS.IBusiness
     public interface IOpen2BLL : IBaseBLL
     {
         Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request);
-    }
+
+        Task<ResponseBase> CheckPhoneSmsSend(CheckPhoneSmsSendRequest request);
+
+        Task<ResponseBase> TryApplyLogAdd(TryApplyLogAddRequest request);
+    } 
 }

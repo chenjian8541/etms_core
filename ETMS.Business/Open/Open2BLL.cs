@@ -4,8 +4,12 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Enum;
+using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
+using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.EtmsManage;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -31,8 +35,15 @@ namespace ETMS.Business
 
         private readonly IClassRecordEvaluateDAL _classRecordEvaluateDAL;
 
+        private readonly ISysTryApplyLogDAL _sysTryApplyLogDAL;
+
+        private readonly ISysPhoneSmsCodeDAL _sysPhoneSmsCodeDAL;
+
+        private readonly ISmsService _smsService;
+
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
-            IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL)
+            IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
+            ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -41,6 +52,9 @@ namespace ETMS.Business
             this._classRecordDAL = classRecordDAL;
             this._classRoomDAL = classRoomDAL;
             this._classRecordEvaluateDAL = classRecordEvaluateDAL;
+            this._sysTryApplyLogDAL = sysTryApplyLogDAL;
+            this._sysPhoneSmsCodeDAL = sysPhoneSmsCodeDAL;
+            this._smsService = smsService;
         }
 
         public void InitTenantId(int tenantId)
@@ -137,6 +151,41 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> CheckPhoneSmsSend(CheckPhoneSmsSendRequest request)
+        {
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.ComSendSmscode(new ComSendSmscodeRequest()
+            {
+                Phone = request.Phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+            }
+            _sysPhoneSmsCodeDAL.AddSysPhoneSmsCode(request.Phone, smsCode);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TryApplyLogAdd(TryApplyLogAddRequest request)
+        {
+            var safeSms = _sysPhoneSmsCodeDAL.GetSysPhoneSmsCode(request.Phone);
+            if (safeSms == null || safeSms.ExpireAtTime < DateTime.Now || safeSms.SmsCode != request.SmsCode)
+            {
+                return ResponseBase.CommonError("验证码错误");
+            }
+            _sysPhoneSmsCodeDAL.RemoveSysPhoneSmsCode(request.Phone);
+            await _sysTryApplyLogDAL.AddSysTryApplyLog(new ETMS.Entity.Database.Manage.SysTryApplyLog()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                LinkPhone = request.Phone,
+                Name = request.Name,
+                Ot = DateTime.Now,
+                Remark = null
+            });
+            return ResponseBase.Success();
         }
     }
 }
