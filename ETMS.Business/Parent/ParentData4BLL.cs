@@ -466,12 +466,36 @@ namespace ETMS.Business.Parent
             return await HandleParentBuyMallGoodsSubmit(request);
         }
 
+        private async Task OnlyHandleLcsPayLogPaySuccessful(ParentBuyMallGoodsPaySuccessEvent request)
+        {
+            var lcsPaylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsPayLogId);
+            if (lcsPaylog == null)
+            {
+                return;
+            }
+
+            var now = request.Now;
+            if (lcsPaylog.Status != EmLcsPayLogStatus.PaySuccess)
+            {
+                lcsPaylog.Status = EmLcsPayLogStatus.PaySuccess;
+                lcsPaylog.PayFinishOt = now;
+                lcsPaylog.PayFinishDate = now.Date;
+                lcsPaylog.DataType = EmTenantLcsPayLogDataType.Normal;
+                await _tenantLcsPayLogDAL.EditTenantLcsPayLog(lcsPaylog);
+                _eventPublisher.Publish(new StatisticsLcsPayEvent(lcsPaylog.TenantId)
+                {
+                    StatisticsDate = now.Date
+                });
+            }
+        }
+
         public async Task ParentBuyMallGoodsPaySuccessConsumerEvent(ParentBuyMallGoodsPaySuccessEvent request)
         {
             var mallPrepayBucket = await _mallPrepayDAL.MallPrepayGetBucket(request.LcsPayLogId);
             if (mallPrepayBucket == null || mallPrepayBucket.MallCartView == null)
             {
-                LOG.Log.Error("[扫呗支付成功回调]预处理请求未找到", request, this.GetType());
+                LOG.Log.Fatal("[扫呗支付成功回调]预处理请求未找到", request, this.GetType());
+                await OnlyHandleLcsPayLogPaySuccessful(request);
                 return;
             }
             var mallPrepay = mallPrepayBucket.MallCartView;
