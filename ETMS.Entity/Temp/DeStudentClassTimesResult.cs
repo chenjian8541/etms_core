@@ -34,6 +34,8 @@ namespace ETMS.Entity.Temp
 
         public long DeCourseId { get; set; }
 
+        public decimal Price { get; set; }
+
         public static DeStudentClassTimesResult GetNotDeEntity()
         {
             return new DeStudentClassTimesResult()

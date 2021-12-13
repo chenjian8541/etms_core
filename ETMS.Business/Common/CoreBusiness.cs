@@ -85,7 +85,8 @@ namespace ETMS.Business.Common
                     OrderId = dayCourseDetail.OrderId,
                     OrderNo = dayCourseDetail.OrderNo,
                     DeCourseId = classRecordStudent.CourseId,
-                    DeStudentCourseDetailId = dayCourseDetail.Id
+                    DeStudentCourseDetailId = dayCourseDetail.Id,
+                    Price = dayCourseDetail.Price
                 };
             }
 
@@ -142,7 +143,8 @@ namespace ETMS.Business.Common
                 OrderNo = lastDeStudentCourseDetail.OrderNo,
                 DeStudentCourseDetailId = lastDeStudentCourseDetail.Id,
                 DeClassTimes = thisDeClassTimes,
-                DeCourseId = classRecordStudent.CourseId
+                DeCourseId = classRecordStudent.CourseId,
+                Price = lastDeStudentCourseDetail.Price
             };
 
             //var enoughTimesCourseDetail = timesCourseDetail.FirstOrDefault(p => p.SurplusQuantity >= classRecordStudent.DeClassTimes);
