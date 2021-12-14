@@ -222,5 +222,28 @@ namespace ETMS.DataAccess
             strSql.Append($"SELECT CourseId,COUNT(CourseId) AS TotalCount FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND StudentId = {studentId} AND StudentCheckStatus = {EmClassStudentCheckStatus.Leave} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' GROUP BY CourseId");
             return await _dbWrapper.ExecuteObject<StudentCourseIsLeaveCountView>(strSql.ToString());
         }
+
+        /// <summary>
+        /// 获取超上课时未处理的记录
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        public async Task<List<EtClassRecordStudent>> ClassRecordStudentHasUntreatedExceed(long studentId, long courseId)
+        {
+            return await _dbWrapper.FindList<EtClassRecordStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.StudentId == studentId && p.CourseId == courseId && p.ExceedClassTimes > 0 && p.IsExceedProcessed == EmBool.False
+            && p.Status == EmClassRecordStatus.Normal);
+        }
+
+        public async Task UpdateClassRecordStudentIsExceedProcessed(long studentId, long courseId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassRecordStudent SET IsExceedProcessed = {EmBool.True} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND CourseId = {courseId} AND IsExceedProcessed = {EmBool.False}");
+        }
+
+        public async Task ClassRecordAddDeSum(long id, decimal addDeSum)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassRecord SET DeSum = DeSum + {addDeSum} WHERE Id  = {id} AND TenantId = {_tenantId}");
+        }
     }
 }

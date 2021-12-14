@@ -525,6 +525,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("不存在此学员");
             }
             var deTimesDesc = string.Empty;
+            DeStudentClassTimesResult deResult = null;
             if (request.IsDeMyCourse)
             {
                 var myCourse = await _studentCourseDAL.GetStudentCourseDb(request.StudentId, request.CourseId);
@@ -548,7 +549,7 @@ namespace ETMS.Business
                 }
                 //扣减课时
                 var deOt = DateTime.Now.Date;
-                var deResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+                deResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
                 {
                     ClassOt = deOt,
                     CourseId = myDeClassTimeCourse.CourseId,
@@ -582,6 +583,13 @@ namespace ETMS.Business
                 CourseId = request.CourseId,
                 StudentId = request.StudentId,
                 IsSendNoticeStudent = true
+            });
+            _eventPublisher.Publish(new StudentCourseMarkExceedEvent(request.LoginTenantId)
+            {
+                StudentId = request.StudentId,
+                CourseId = request.CourseId,
+                IsDeMyCourse = request.IsDeMyCourse,
+                DeClassTimesResult = deResult
             });
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()

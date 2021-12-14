@@ -260,5 +260,48 @@ namespace ETMS.Business.EventConsumer
                 }
             }
         }
+
+        public async Task StudentCourseMarkExceedConsumerEvent(StudentCourseMarkExceedEvent request)
+        {
+            if (request.IsDeMyCourse)
+            {
+                if (request.DeClassTimesResult == null)
+                {
+                    return;
+                }
+                var myNotExceedProcessedLogs = await _classRecordDAL.ClassRecordStudentHasUntreatedExceed(request.StudentId, request.CourseId);
+                if (myNotExceedProcessedLogs.Count == 0)
+                {
+                    return;
+                }
+                var price = request.DeClassTimesResult.Price;
+                foreach (var p in myNotExceedProcessedLogs)
+                {
+                    var addDeSum = price * p.ExceedClassTimes;
+                    p.IsExceedProcessed = EmBool.True;
+                    p.DeSum += addDeSum;
+                    await _classRecordDAL.EditClassRecordStudent(p);
+                    await _classRecordDAL.ClassRecordAddDeSum(p.ClassRecordId, addDeSum);
+
+                    _eventPublisher.Publish(new StatisticsTeacherSalaryClassTimesEvent(request.TenantId)
+                    {
+                        ClassRecordId = p.ClassRecordId
+                    });
+                }
+                var classDates = myNotExceedProcessedLogs.Select(p => p.ClassOt).Distinct();
+                foreach (var p in classDates)
+                {
+                    _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(request.TenantId)
+                    {
+                        Time = p
+                    });
+                }
+                await _classRecordDAL.UpdateClassRecordStudentIsExceedProcessed(request.StudentId, request.CourseId);
+            }
+            else
+            {
+                await _classRecordDAL.UpdateClassRecordStudentIsExceedProcessed(request.StudentId, request.CourseId);
+            }
+        }
     }
 }

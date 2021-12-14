@@ -79,5 +79,17 @@ namespace ETMS.IDataAccess
         /// <param name="courseIds"></param>
         /// <returns></returns>
         Task<IEnumerable<StudentCourseIsLeaveCountView>> GetClassRecordStudentCourseIsLeaveCount(long studentId, DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// 获取超上课时未处理的记录
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        Task<List<EtClassRecordStudent>> ClassRecordStudentHasUntreatedExceed(long studentId,long courseId);
+
+        Task UpdateClassRecordStudentIsExceedProcessed(long studentId, long courseId);
+
+        Task ClassRecordAddDeSum(long id,decimal addDeSum);
     }
 }

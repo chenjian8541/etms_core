@@ -159,6 +159,11 @@ namespace ETMS.Entity.Database.Source
         public int RewardPoints { get; set; }
 
         /// <summary>
+        /// 超上课时是否已处理  <see cref="Enum.EmBool"/>
+        /// </summary>
+        public byte IsExceedProcessed { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmClassRecordStatus"/>
         /// </summary>
         public byte Status { get; set; }
