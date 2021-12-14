@@ -24,9 +24,12 @@ namespace Etms.Agent.WebApi.Controllers
     {
         private readonly ISysSmsTemplateBLL _sysSmsTemplateBLL;
 
-        public Agent3Controller(ISysSmsTemplateBLL sysSmsTemplateBLL)
+        private readonly ISysTryApplyLogBLL _sysTryApplyLogBLL;
+
+        public Agent3Controller(ISysSmsTemplateBLL sysSmsTemplateBLL, ISysTryApplyLogBLL sysTryApplyLogBLL)
         {
             this._sysSmsTemplateBLL = sysSmsTemplateBLL;
+            this._sysTryApplyLogBLL = sysTryApplyLogBLL;
         }
 
         public async Task<ResponseBase> SysSmsTemplateGetPaging(SysSmsTemplateGetPagingRequest request)
@@ -47,6 +50,32 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysSmsTemplateBLL.SysSmsTemplateHandle(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TryApplyLogGetPaging(TryApplyLogGetPagingRequest request)
+        {
+            try
+            {
+                return await _sysTryApplyLogBLL.TryApplyLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TryApplyLogHandle(TryApplyLogHandleRequest request)
+        {
+            try
+            {
+                return await _sysTryApplyLogBLL.TryApplyLogHandle(request);
             }
             catch (Exception ex)
             {

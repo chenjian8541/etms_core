@@ -40,6 +40,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("员工管理")]
         public const int UserMgr = 11;
 
+        [Description("试听管理")]
+        public const int TryMgr = 12;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -66,6 +69,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "云账户管理";
                 case UserMgr:
                     return "员工管理";
+                case TryMgr:
+                    return "试听管理";
             }
             return string.Empty;
         }

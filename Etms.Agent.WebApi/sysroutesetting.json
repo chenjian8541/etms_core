@@ -21,6 +21,17 @@
         }
       },
       {
+        "Id": 28,
+        "Path": "tryList",
+        "Name": "tryList",
+        "Type": 1,
+        "Component": "@/components/TryApplyLogMgr/List",
+        "Meta": {
+          "Title": "试听申请记录",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 0,
         "Hidden": true,
         "Path": "tenant_detail/:cid",

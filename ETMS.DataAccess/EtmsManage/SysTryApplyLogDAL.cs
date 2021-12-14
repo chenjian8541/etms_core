@@ -18,9 +18,19 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Insert(entity);
         }
 
+        public async Task<SysTryApplyLog> SysTryApplyLogGet(long id)
+        {
+            return await this.Find<SysTryApplyLog>(p => p.Id == id);
+        }
+
+        public async Task EditSysTryApplyLog(SysTryApplyLog entity)
+        {
+            await this.Update(entity);
+        }
+
         public async Task<Tuple<IEnumerable<SysTryApplyLog>, int>> GetPaging(AgentPagingBase request)
         {
-            return await this.ExecutePage<SysTryApplyLog>("SysTryApplyLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await this.ExecutePage<SysTryApplyLog>("SysTryApplyLog", "*", request.PageSize, request.PageCurrent, "[Status] ASC,Id DESC", request.ToString());
         }
     }
 }

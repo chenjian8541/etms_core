@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Manage
+namespace ETMS.Entity.EtmsManage.Dto.DataLog.Output
 {
-    [Table("SysTryApplyLog")]
-    public class SysTryApplyLog : EManageEntity<long>
+    public class TryApplyLogGetPagingOutput
     {
+        public long CId { get; set; }
         public string Name { get; set; }
 
         public string LinkPhone { get; set; }
@@ -20,7 +21,5 @@ namespace ETMS.Entity.Database.Manage
         public byte Status { get; set; }
 
         public string HandleRemark { get; set; }
-
-        public long? HandleUserId { get; set; }
     }
 }
