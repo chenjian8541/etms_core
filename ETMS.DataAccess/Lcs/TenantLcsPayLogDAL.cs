@@ -30,7 +30,7 @@ namespace ETMS.DataAccess.Lcs
 
         public async Task<EtTenantLcsPayLog> GetTenantLcsPayLogBuyOutTradeNo(string outTradeNo)
         {
-            return await this._dbWrapper.Find<EtTenantLcsPayLog>(p => p.OutRefundNo == outTradeNo);
+            return await this._dbWrapper.Find<EtTenantLcsPayLog>(p => p.OutTradeNo == outTradeNo);
         }
 
         public async Task EditTenantLcsPayLog(EtTenantLcsPayLog entity)
