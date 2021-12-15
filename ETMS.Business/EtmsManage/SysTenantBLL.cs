@@ -604,6 +604,7 @@ namespace ETMS.Business.EtmsManage
                     }
                 }
             }
+            AliyunOssUtil.DelTenant(tenant.Id); //删除OSS文件
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"删除机构:名称:{tenant.Name};机构编码:{oldTenantCode};手机号码:{tenant.Phone}", EmSysAgentOpLogType.TenantMange);

@@ -172,6 +172,21 @@ namespace ETMS.Utility
             return client.GetObject(BucketName, key).Content;
         }
 
+        public static void DelTenant(int tenantId)
+        {
+            var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
+            var id = $"{RootFolder}_{tenantId}";
+            setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
+            {
+                ID = id,
+                Prefix = $"{RootFolder}/{tenantId}/",
+                Status = RuleStatus.Enabled,
+                ExpriationDays = 7
+            });
+            var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+            client.SetBucketLifecycle(setBucketLifecycleRequest);
+        }
+
         /// <summary>
         /// 设置OSS生命周期
         /// </summary>
