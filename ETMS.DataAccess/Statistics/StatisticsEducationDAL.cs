@@ -30,13 +30,29 @@ namespace ETMS.DataAccess.Statistics
             await StatisticsEducationStudent(firstDate, startTimeDesc, endTimeDesc);
         }
 
+        private async Task DelOldLogsStatisticsEducationClassAndTeacherAndCourse(DateTime firstDate, string startTimeDesc, string endTimeDesc)
+        {
+            try
+            {
+                await _dbWrapper.Execute($"DELETE EtStatisticsEducationMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"DELETE EtStatisticsEducationClassMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"DELETE EtStatisticsEducationTeacherMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"DELETE EtStatisticsEducationCourseMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Fatal("[StatisticsEducationDAL]DelOldLogsStatisticsEducationClassAndTeacherAndCourse错误", ex, this.GetType());
+                await _dbWrapper.Execute($"UPDATE EtStatisticsEducationMonth SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"UPDATE EtStatisticsEducationClassMonth SET IsDeleted = {EmIsDeleted.Deleted}  WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"UPDATE EtStatisticsEducationTeacherMonth SET IsDeleted = {EmIsDeleted.Deleted}  WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+                await _dbWrapper.Execute($"UPDATE EtStatisticsEducationCourseMonth SET IsDeleted = {EmIsDeleted.Deleted}  WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+            }
+        }
+
         private async Task StatisticsEducationClassAndTeacherAndCourse(DateTime firstDate, string startTimeDesc, string endTimeDesc)
         {
+            await DelOldLogsStatisticsEducationClassAndTeacherAndCourse(firstDate, startTimeDesc, endTimeDesc);
             var sql = $"SELECT TOP 4000 ClassId,Teachers,CourseList,SUM(ClassTimes) AS TotalClassTimes,SUM(DeSum) as TotalDeSum,Count(Id) as TotalCount,SUM(NeedAttendNumber) AS TotalNeedAttendNumber,SUM(AttendNumber) AS TotalAttendNumber FROM EtClassRecord WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassOt >= '{startTimeDesc}' AND ClassOt < '{endTimeDesc}' AND [Status] = {EmClassRecordStatus.Normal} GROUP BY ClassId,Teachers,CourseList";
-            await _dbWrapper.Execute($"DELETE EtStatisticsEducationMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
-            await _dbWrapper.Execute($"DELETE EtStatisticsEducationClassMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
-            await _dbWrapper.Execute($"DELETE EtStatisticsEducationTeacherMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
-            await _dbWrapper.Execute($"DELETE EtStatisticsEducationCourseMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
             var obj = await _dbWrapper.ExecuteObject<StatisticsEducationClassAndTeacher>(sql);
             if (obj.Any())
             {
@@ -179,11 +195,24 @@ namespace ETMS.DataAccess.Statistics
             }
         }
 
+        private async Task DelOldLogsStatisticsEducationStudent(DateTime firstDate, string startTimeDesc, string endTimeDesc)
+        {
+            try
+            {
+                await _dbWrapper.Execute($"DELETE EtStatisticsEducationStudentMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Fatal("[StatisticsEducationDAL]DelOldLogsStatisticsEducationStudent错误", ex, this.GetType());
+                await _dbWrapper.Execute($"UPDATE EtStatisticsEducationStudentMonth SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
+            }
+        }
+
         private async Task StatisticsEducationStudent(DateTime firstDate, string startTimeDesc, string endTimeDesc)
         {
+            await DelOldLogsStatisticsEducationStudent(firstDate, startTimeDesc, endTimeDesc);
             var sql1 = $"SELECT TOP 3000 StudentId,COUNT(Id) AS TotalCount,SUM(DeClassTimes) AS TotalDeClassTimes,SUM(DeSum) AS TotalDeSum FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassOt >= '{startTimeDesc}' AND ClassOt < '{endTimeDesc}' AND [Status] = {EmClassRecordStatus.Normal} GROUP BY StudentId";
             var sql2 = $"SELECT TOP 3000 StudentId,StudentCheckStatus,Count(StudentCheckStatus) as TotalCount FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassOt >= '{startTimeDesc}' AND ClassOt <= '{endTimeDesc}' AND [Status] = {EmClassRecordStatus.Normal} AND StudentCheckStatus <> {EmClassStudentCheckStatus.Arrived} GROUP BY StudentId,StudentCheckStatus";
-            await _dbWrapper.Execute($"DELETE EtStatisticsEducationStudentMonth WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Ot = '{startTimeDesc}'");
             var statisticsEducationStudent = await _dbWrapper.ExecuteObject<StatisticsEducationStudentView>(sql1);
             var statisticsEducationStudentStudentCheckStatus = await _dbWrapper.ExecuteObject<StatisticsEducationStudentCheckStatusView>(sql2);
             if (statisticsEducationStudent.Any())

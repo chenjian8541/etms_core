@@ -140,16 +140,25 @@ namespace ETMS.DataAccess
 
         private async Task<bool> TempStudentNeedCheckClassDelOldHis()
         {
+            var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
             try
             {
-                var hisOt = DateTime.Now.AddDays(-5); //删除5天前的数据
                 await _dbWrapper.Execute($"DELETE EtTempStudentNeedCheckClass WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception ex1)
             {
-                LOG.Log.Error("TempStudentNeedCheckClassDelOldHis", ex, this.GetType());
-                return true;
+                LOG.Log.Fatal("TempStudentNeedCheckClassDelOldHis", ex1, this.GetType());
+                try
+                {
+                    await _dbWrapper.Execute($"UPDATE EtTempStudentNeedCheckClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND Ot <= '{hisOt.EtmsToDateString()}' ");
+                    return true;
+                }
+                catch (Exception ex2)
+                {
+                    LOG.Log.Error("TempStudentNeedCheckClassDelOldHis", ex2, this.GetType());
+                    return true;
+                }
             }
         }
 
