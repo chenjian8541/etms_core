@@ -35,6 +35,10 @@ namespace ETMS.Entity.Dto.User.Request
             {
                 return "请求数据格式错误";
             }
+            if (SubjectsGoodAt != null && SubjectsGoodAt.Length > 10)
+            {
+                return "最多设置10个擅长的科目";
+            }
             return string.Empty;
         }
     }

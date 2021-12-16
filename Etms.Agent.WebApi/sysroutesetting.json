@@ -27,7 +27,7 @@
         "Type": 1,
         "Component": "@/components/TryApplyLogMgr/List",
         "Meta": {
-          "Title": "试听申请记录",
+          "Title": "试用申请记录",
           "Icon": "item"
         }
       },
