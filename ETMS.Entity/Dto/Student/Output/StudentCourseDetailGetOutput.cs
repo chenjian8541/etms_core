@@ -31,6 +31,8 @@ namespace ETMS.Entity.Dto.Student.Output
 
         public string SurplusQuantityDesc { get; set; }
 
+        public string SurplusMoneyDesc { get; set; }
+
         public List<StudentClass> StudentClass { get; set; }
 
         public List<StudentCourseDetail> StudentCourseDetail { get; set; }

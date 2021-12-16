@@ -116,6 +116,7 @@ namespace ETMS.Business
             var myCourse = await _studentCourseDAL.GetStudentCourseDb(request.StudentId, request.CourseId);
             var myCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var courseClassTimes = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            var surplusMoney = 0M;
             if (courseClassTimes == null)
             {
                 courseClassTimes = GetCourseClassTimesDefault(request.TenantId, request.StudentId, request.CourseId);
@@ -199,6 +200,7 @@ namespace ETMS.Business
                 }
                 myDetailClassTimes.Status = studentCourseStatus;
                 courseClassTimes.SurplusQuantity += myDetailClassTimes.SurplusQuantity;
+                surplusMoney += ComBusiness2.GetStudentCourseDetailSurplusMoney(myDetailClassTimes);
             }
 
             //按月
@@ -241,6 +243,7 @@ namespace ETMS.Business
                 myDetailDay.Status = studentCourseStatus;
                 courseDay.SurplusQuantity += myDetailDay.SurplusQuantity;
                 courseDay.SurplusSmallQuantity += myDetailDay.SurplusSmallQuantity;
+                surplusMoney += ComBusiness2.GetStudentCourseDetailSurplusMoney(myDetailDay);
             }
 
             var newCourseDetail = new List<EtStudentCourseDetail>();
@@ -252,6 +255,7 @@ namespace ETMS.Business
             {
                 courseClassTimes.Status = courseDay.Status = EmStudentCourseStatus.EndOfClass;
                 isClassOver = true;
+                surplusMoney = 0;
                 if (request.IsClassOfOneAutoOver)
                 {
                     _eventPublisher.Publish(new ClassOfOneAutoOverEvent(request.TenantId)
@@ -289,7 +293,8 @@ namespace ETMS.Business
             {
                 isDelOldStudentCourse = true;
             }
-            await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse);
+            await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse,
+                surplusMoney);
 
             if (request.IsSendNoticeStudent)
             {

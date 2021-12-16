@@ -42,6 +42,41 @@ namespace ETMS.Business.Common
             };
         }
 
+        internal static decimal GetStudentCourseDetailSurplusMoney(EtStudentCourseDetail detail)
+        {
+            if (detail.Status == EmStudentCourseStatus.EndOfClass)
+            {
+                return 0;
+            }
+            if (detail.DeType == EmDeClassTimesType.ClassTimes)
+            {
+                if (detail.SurplusQuantity == detail.BuyQuantity + detail.GiveQuantity)
+                {
+                    return detail.TotalMoney;
+                }
+                return detail.SurplusQuantity * detail.Price;
+            }
+            else
+            {
+                if (detail.StartTime != null && detail.EndTime != null)
+                {
+                    if (detail.EndTime <= DateTime.Now.Date)
+                    {
+                        return 0;
+                    }
+                    var diffDay = (detail.EndTime.Value - DateTime.Now.Date).TotalDays;
+                    return (int)diffDay * detail.Price;
+                }
+                else
+                {
+                    //未设置起止日期  
+                    return detail.TotalMoney;
+                    //var totalCount = detail.SurplusQuantity * SystemConfig.ComConfig.MonthToDay + detail.SurplusSmallQuantity;
+                    //return totalCount * detail.Price;
+                }
+            }
+        }
+
         internal static EtStudentCourseDetail GetStudentCourseDetail<T>(EtCourse course, T priceRule,
             EnrolmentCourse enrolmentCourse, string no, long studentId, int tenantId) where T : BaseCoursePrice
         {

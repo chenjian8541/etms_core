@@ -72,6 +72,11 @@ namespace ETMS.Entity.Database.Source
         public decimal SurplusSmallQuantity { get; set; }
 
         /// <summary>
+        /// 剩余学费
+        /// </summary>
+        public decimal SurplusMoney { get; set; }
+
+        /// <summary>
         /// 课程分析JOB最后执行时间
         /// </summary>
         public DateTime LastJobProcessTime { get; set; }

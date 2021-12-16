@@ -223,6 +223,7 @@ namespace ETMS.Business
                     myStudentCourseDetail.Status = myFirstCourseLog.Status;
                     myStudentCourseDetail.StopTimeDesc = myFirstCourseLog.StopTime.EtmsToDateString();
                     myStudentCourseDetail.RestoreTimeDesc = myFirstCourseLog.RestoreTime.EtmsToDateString();
+                    myStudentCourseDetail.SurplusMoneyDesc = myFirstCourseLog.SurplusMoney.EtmsToString2();
                     var myClassTimesCourseLog = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
                     if (myClassTimesCourseLog != null)
                     {

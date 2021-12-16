@@ -99,7 +99,8 @@ namespace ETMS.DataAccess
         }
 
         public async Task<bool> EditStudentCourse(long studentId, IEnumerable<EtStudentCourse> courses,
-            IEnumerable<EtStudentCourseDetail> details, List<EtStudentCourse> oldStudentCourse, bool isDelOldStudentCourse)
+            IEnumerable<EtStudentCourseDetail> details, List<EtStudentCourse> oldStudentCourse, bool isDelOldStudentCourse,
+            decimal surplusMoney)
         {
             if (isDelOldStudentCourse && courses.Count() == 0 && oldStudentCourse.Count > 0)
             {
@@ -111,6 +112,7 @@ namespace ETMS.DataAccess
             }
             foreach (var c in courses)
             {
+                c.SurplusMoney = surplusMoney;
                 if (c.Id > 0)
                 {
                     await _dbWrapper.Update(c);
