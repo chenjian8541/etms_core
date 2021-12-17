@@ -53,6 +53,13 @@ namespace ETMS.Entity.Config
         public SysAddressConfig SysAddressConfig { get; set; }
 
         public PayConfig PayConfig { get; set; }
+
+        public OtherConfig OtherConfig { get; set; }
+    }
+
+    public class OtherConfig
+    {
+        public List<string> ManagerPhone { get; set; }
     }
 
     public class PayConfig

@@ -5,11 +5,13 @@ using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Enum;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -41,9 +43,12 @@ namespace ETMS.Business
 
         private readonly ISmsService _smsService;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
-            ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService)
+            ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
+            IEventPublisher eventPublisher)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -55,6 +60,7 @@ namespace ETMS.Business
             this._sysTryApplyLogDAL = sysTryApplyLogDAL;
             this._sysPhoneSmsCodeDAL = sysPhoneSmsCodeDAL;
             this._smsService = smsService;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -177,13 +183,20 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("验证码错误");
             }
             _sysPhoneSmsCodeDAL.RemoveSysPhoneSmsCode(request.Phone);
-            await _sysTryApplyLogDAL.AddSysTryApplyLog(new ETMS.Entity.Database.Manage.SysTryApplyLog()
+            var log = new ETMS.Entity.Database.Manage.SysTryApplyLog()
             {
                 IsDeleted = EmIsDeleted.Normal,
                 LinkPhone = request.Phone,
                 Name = request.Name,
                 Ot = DateTime.Now,
                 Remark = null
+            };
+            await _sysTryApplyLogDAL.AddSysTryApplyLog(log);
+
+            _eventPublisher.Publish(new NoticeManageEvent()
+            {
+                Type = NoticeManageType.TryApply,
+                TryApplyLog = log
             });
             return ResponseBase.Success();
         }

@@ -1143,5 +1143,38 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public async Task<SmsOutput> CommonSms(CommonSmsRequest request)
+        {
+            try
+            {
+                var tKeyAndPwd = GetTKeyAndPwd();
+                var smsSignature = _smsConfig.ZhuTong.Signature;
+                foreach (var myItem in request.Items)
+                {
+                    var sendSmsRequest = new SendSmsRequest()
+                    {
+                        mobile = myItem.Phone,
+                        password = tKeyAndPwd.Item2,
+                        tKey = tKeyAndPwd.Item1,
+                        time = string.Empty,
+                        username = _smsConfig.ZhuTong.UserName
+                    };
+                    var content = $"{smsSignature}{myItem.SmsContent}";
+                    sendSmsRequest.content = content;
+                    var res = await _httpClient.PostAsync<SendSmsRequest, SendSmsRes>(_smsConfig.ZhuTong.SendSms, sendSmsRequest);
+                    if (!SendSmsRes.IsSuccess(res))
+                    {
+                        Log.Info($"[CommonSms]发送短信失败,请求参数:{EtmsHelper.EtmsSerializeObject(sendSmsRequest)},返回值:{EtmsHelper.EtmsSerializeObject(res)}", this.GetType());
+                    }
+                }
+                return SmsOutput.Success();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[CommonSms]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
+                return SmsOutput.Fail();
+            }
+        }
     }
 }

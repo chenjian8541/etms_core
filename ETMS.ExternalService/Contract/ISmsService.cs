@@ -43,5 +43,7 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> StudentCourseSurplus(StudentCourseSurplusRequest request);
 
         Task<SmsOutput> TenantOpenApi99SendSms(TenantOpenApi99SendSmsRequest request);
+
+        Task<SmsOutput> CommonSms(CommonSmsRequest request);
     }
 }
