@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Com.Fubei.OpenApi.Sdk;
 using ETMS.Authority;
 using ETMS.Cache.Redis;
 using ETMS.Cache.Redis.Wrapper;
@@ -20,6 +21,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.IOC;
 using ETMS.LOG;
+using ETMS.Pay.Lcsw;
 using ETMS.ServiceBus;
 using ETMS.Utility;
 using MassTransit;
@@ -50,10 +52,20 @@ namespace Etms.Tools.Test
             {
                 appSettings = InitCustomIoc(p);
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
+                InitPayConfig(appSettings.PayConfig);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]处理服务业务成功...");
+        }
+
+        private void InitPayConfig(PayConfig payConfig)
+        {
+            ETMS.Pay.Lcsw.Config.InitConfig(payConfig.LcswConfig.ApiMpHostPay, payConfig.LcswConfig.ApiMpHostMerchant,
+                payConfig.LcswConfig.InstNo, payConfig.LcswConfig.InstToken);
+            var globalConfig = FubeiOpenApiGlobalConfig.Instance;
+            globalConfig.Api_1_0 = payConfig.FubeiConfig.Api01;
+            globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
@@ -324,6 +336,14 @@ namespace Etms.Tools.Test
             {
                 Time = new DateTime(2021, 7, 30)
             });
+        }
+
+        private void GetLcsPayInfo(string terminaId)
+        {
+            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            var payLcswService = CustomServiceLocator.GetInstance<IPayLcswService>();
+            var traceno = Guid.NewGuid().ToString("N");
+            var ss = payLcswService.QueryTermina(traceno, terminaId);
         }
     }
 }
