@@ -69,6 +69,9 @@ namespace ETMS.DataAccess
             strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId};");
             strSql.Append($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;");
+            strSql.Append($"UPDATE EtTeacherSalaryClassDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+            strSql.Append($"UPDATE EtTeacherSalaryClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+            strSql.Append($"UPDATE EtTeacherSalaryClassTimes2 SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             await _dbWrapper.Execute(strSql.ToString());
             RemoveCache(_tenantId, classId);
             return true;
@@ -104,6 +107,7 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTeacherSalaryClassDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTeacherSalaryClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSalaryClassTimes2 SET IsDeleted = {EmIsDeleted.Deleted} WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
             var tempSql = sql.ToString();
             LOG.Log.Info($"[DelClassDepth]执行深度删除:{tempSql}", this.GetType());
             await _dbWrapper.Execute(tempSql);

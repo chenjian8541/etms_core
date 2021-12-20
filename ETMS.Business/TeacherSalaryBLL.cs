@@ -183,13 +183,17 @@ namespace ETMS.Business
                         continue;
                     }
                     var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                    if (myClass == null)
+                    {
+                        continue;
+                    }
                     output.Add(new TeacherSalaryClassDayGetPagingOutput()
                     {
                         ClassId = p.ClassId,
                         ArrivedAndBeLateCount = p.TotalArrivedAndBeLateCount,
                         ArrivedCount = p.TotalArrivedCount,
                         BeLateCount = p.TotalBeLateCount,
-                        ClassName = myClass?.Name,
+                        ClassName = myClass.Name,
                         DeSum = p.TotalDeSum,
                         LeaveCount = p.TotalLeaveCount,
                         MakeUpStudentCount = p.TotalMakeUpStudentCount,
