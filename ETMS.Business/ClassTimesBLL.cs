@@ -998,7 +998,7 @@ namespace ETMS.Business
             if (etClass.DataType == EmClassDataType.Temp && string.IsNullOrEmpty(studentIdsTemps))
             {
                 //试听课程，如果没有学员了，则删除数据
-                await _classDAL.DelClass(etClassTimes.ClassId);
+                await _classDAL.DelClassDepth(etClassTimes.ClassId);
                 await _classTimesDAL.DelClassTimes(etClassTimes.Id);
             }
             else
@@ -1041,7 +1041,7 @@ namespace ETMS.Business
             if (etClass.DataType == EmClassDataType.Temp && string.IsNullOrEmpty(studentIdsTemps))
             {
                 //试听课程，如果没有学员了，则删除数据
-                await _classDAL.DelClass(etClassTimes.ClassId);
+                await _classDAL.DelClassDepth(etClassTimes.ClassId);
                 await _classTimesDAL.DelClassTimes(etClassTimes.Id);
             }
             else

@@ -184,7 +184,7 @@ namespace ETMS.Business
             {
                 foreach (var p in myClass)
                 {
-                    await _classDAL.DelClass(p.Id);
+                    await _classDAL.DelClassDepth(p.Id);
                 }
             }
 
