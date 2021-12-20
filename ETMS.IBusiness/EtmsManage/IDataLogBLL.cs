@@ -16,5 +16,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> SysTenantExDateLogPaging(SysTenantExDateLogPagingRequest request);
 
         Task<ResponseBase> UserFeedbackPaging(UserFeedbackPagingRequest request);
+
+        Task<ResponseBase> DangerousIpPaging(DangerousIpPagingRequest request);
     }
 }

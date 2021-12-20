@@ -60,6 +60,8 @@ namespace ETMS.Entity.Config
     public class OtherConfig
     {
         public List<string> ManagerPhone { get; set; }
+
+        public List<string> WarnPhone { get; set; }
     }
 
     public class PayConfig

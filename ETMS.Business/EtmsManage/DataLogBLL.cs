@@ -31,9 +31,10 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysTenantUserFeedbackDAL _sysTenantUserFeedbackDAL;
 
+        private readonly ISysDangerousIpDAL _sysDangerousIpDAL;
         public DataLogBLL(ISysAgentDAL sysAgentDAL, ISysTenantDAL sysTenantDAL, ISysSmsLogDAL sysSmsLogDAL,
             ISysTenantOperationLogDAL sysTenantOperationLogDAL, ISysTenantLogDAL sysTenantLogDAL,
-            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL)
+            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL, ISysDangerousIpDAL sysDangerousIpDAL)
         {
             this._sysAgentDAL = sysAgentDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -41,6 +42,7 @@ namespace ETMS.Business.EtmsManage
             this._sysTenantOperationLogDAL = sysTenantOperationLogDAL;
             this._sysTenantLogDAL = sysTenantLogDAL;
             this._sysTenantUserFeedbackDAL = sysTenantUserFeedbackDAL;
+            this._sysDangerousIpDAL = sysDangerousIpDAL;
         }
 
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
@@ -218,6 +220,26 @@ namespace ETMS.Business.EtmsManage
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<UserFeedbackPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> DangerousIpPaging(DangerousIpPagingRequest request)
+        {
+            var output = new List<DangerousIpPagingOutput>();
+            var pagingData = await _sysDangerousIpDAL.GetPaging(request);
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new DangerousIpPagingOutput()
+                    {
+                        LocalIpAddress = p.LocalIpAddress,
+                        Ot = p.Ot,
+                        RemoteIpAddress = p.RemoteIpAddress,
+                        Url = p.Url
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<DangerousIpPagingOutput>(pagingData.Item2, output));
         }
     }
 }

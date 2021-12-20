@@ -1,4 +1,8 @@
 ﻿using AspNetCoreRateLimit;
+using ETMS.Entity.View;
+using ETMS.Event.DataContract;
+using ETMS.IEventProvider;
+using ETMS.IOC;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,6 +23,18 @@ namespace ETMS.WebApi.Core
         public override Task ReturnQuotaExceededResponse(HttpContext httpContext, RateLimitRule rule, string retryAfter)
         {
             httpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+            var eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            eventPublisher.Publish(new NoticeManageEvent()
+            {
+                Type = NoticeManageType.DangerousIp,
+                MyDangerousVisitor = new DangerousVisitor()
+                {
+                    Url = httpContext.Request.AbsoluteUri(),
+                    RemoteIpAddress = httpContext.Connection.RemoteIpAddress.ToString(),
+                    LocalIpAddress = httpContext.Connection.LocalIpAddress.ToString(),
+                    Time = DateTime.Now
+                }
+            });
             return base.ReturnQuotaExceededResponse(httpContext, rule, retryAfter);
         }
     }

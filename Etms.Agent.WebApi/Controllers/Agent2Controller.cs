@@ -296,6 +296,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> DangerousIpPaging(DangerousIpPagingRequest request)
+        {
+            try
+            {
+                return await _dataLogBLL.DangerousIpPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> UserGet(UserGetRequest request)
         {
             try

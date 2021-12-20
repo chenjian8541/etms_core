@@ -1,9 +1,5 @@
 ﻿using ETMS.Entity.Database.Manage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ETMS.Entity.View;
 
 namespace ETMS.Event.DataContract
 {
@@ -15,10 +11,14 @@ namespace ETMS.Event.DataContract
         public int Type { get; set; }
 
         public SysTryApplyLog TryApplyLog { get; set; }
+
+        public DangerousVisitor MyDangerousVisitor { get; set; }
     }
 
     public struct NoticeManageType
     {
         public const int TryApply = 0;
+
+        public const int DangerousIp = 1;
     }
 }

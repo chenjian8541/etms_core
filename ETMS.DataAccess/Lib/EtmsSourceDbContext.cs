@@ -192,5 +192,8 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtMallPrepay> EtMallPrepays { get; set; }
 
         public DbSet<EtActiveHomeworkStudent> EtActiveHomeworkStudents { get; set; }
+        public DbSet<EtShareTemplate> EtShareTemplates { get; set; }
+        public DbSet<EtShareTemplateLink> EtShareTemplateLinks { get; set; }
+        public DbSet<EtShareTemplatePoster> EtShareTemplatePosters { get; set; }
     }
 }

@@ -169,6 +169,11 @@
             "Id": 27,
             "Name": "意见反馈",
             "Type": 0
+          },
+          {
+            "Id": 29,
+            "Name": "恶意访问",
+            "Type": 0
           }
         ],
         "ChildrenAction": [
