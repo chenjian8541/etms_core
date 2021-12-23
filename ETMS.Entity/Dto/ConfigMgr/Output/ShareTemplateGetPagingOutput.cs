@@ -37,5 +37,7 @@ namespace ETMS.Entity.Dto.ConfigMgr.Output
         /// <see cref="EmBool"/>
         /// </summary>
         public byte IsSystem { get; set; }
+
+        public DateTime? UpdateTime { get; set; }
     }
 }

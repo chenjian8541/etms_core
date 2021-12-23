@@ -11,7 +11,7 @@
       "StatusCode": 200
     },
     "IpWhitelist": [],
-    "EndpointWhitelist": [],
+    "EndpointWhitelist": [ "*:/Open/ComponentCallback", "*:/Open/ComponentNotice" ],
     "ClientWhitelist": [],
     "GeneralRules": [
       {

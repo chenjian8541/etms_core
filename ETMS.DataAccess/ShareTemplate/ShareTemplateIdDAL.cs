@@ -89,12 +89,12 @@ namespace ETMS.DataAccess.ShareTemplate
                         RemoveCache(_tenantId, p.Id);
                     }
                 }
-                await _dbWrapper.Update($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Enabled} WHERE Id = {entity.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
+                await _dbWrapper.Execute($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Enabled} WHERE Id = {entity.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
                 await UpdateCache(_tenantId, entity.Id);
             }
             else
             {
-                await _dbWrapper.Update($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Disabled} WHERE Id = {entity.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
+                await _dbWrapper.Execute($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Disabled} WHERE Id = {entity.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
                 await UpdateCache(_tenantId, entity.Id);
                 var enableIds = await _dbWrapper.ExecuteObject<OnlyId>($"SELECT Id FROM EtShareTemplate WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Type] = {entity.Type} AND UseType = {entity.UseType} AND [Status] = {EmShareTemplateStatus.Enabled}");
                 if (!enableIds.Any())
@@ -102,7 +102,7 @@ namespace ETMS.DataAccess.ShareTemplate
                     var firstSystemLog = await _dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Type == entity.Type && p.UseType == entity.UseType);
                     if (firstSystemLog != null)
                     {
-                        await _dbWrapper.Update($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Enabled} WHERE Id = {firstSystemLog.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
+                        await _dbWrapper.Execute($"UPDATE EtShareTemplate SET [Status] = {EmShareTemplateStatus.Enabled} WHERE Id = {firstSystemLog.Id} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal}");
                         await UpdateCache(_tenantId, firstSystemLog.Id);
                     }
                 }
