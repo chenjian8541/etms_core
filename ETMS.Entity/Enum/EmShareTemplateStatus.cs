@@ -11,11 +11,11 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 禁用
         /// </summary>
-        public const byte Enabled = 0;
+        public const byte Disabled = 0;
 
         /// <summary>
         /// 启用
         /// </summary>
-        public const byte Disabled = 1;
+        public const byte Enabled = 1;
     }
 }

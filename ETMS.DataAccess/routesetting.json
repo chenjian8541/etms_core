@@ -1156,6 +1156,30 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "ShareTemplateAdd",
+        "Name": "ShareTemplateAdd",
+        "Type": 1,
+        "Component": "@/components/ShareTemplateMgr/Op/Edit",
+        "Meta": {
+          "Title": "添加分享链接模板",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "ShareTemplateEdit/:cid",
+        "Name": "ShareTemplateEdit",
+        "Type": 1,
+        "Component": "@/components/ShareTemplateMgr/Op/Edit",
+        "Meta": {
+          "Title": "编辑分享链接模板",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "sms_template_set",
         "Name": "sms_template_set",
         "Type": 1,
