@@ -5,7 +5,7 @@ using System.Text;
 namespace ETMS.Entity.Enum
 {
     /// <summary>
-    /// 家长端通知类型
+    /// 学员端通知类型
     /// </summary>
     public enum EmStudentNoticeType
     {

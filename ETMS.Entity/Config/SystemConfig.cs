@@ -71,7 +71,7 @@ namespace ETMS.Entity.Config
     }
 
     /// <summary>
-    /// 家长端访问配置
+    /// 学员端访问配置
     /// </summary>
     public class ParentAccessConfig
     {

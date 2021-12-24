@@ -24,7 +24,7 @@ namespace ETMS.Entity.CacheBucket
         public const int TenantDataTimeOutDay = 15;
 
         /// <summary>
-        /// 家长保留学员信息 (家长端登陆)
+        /// 家长保留学员信息 (学员端登陆)
         /// </summary>
         public const int ParentStudentTimeOutDay = 1;
 

@@ -10,7 +10,7 @@ namespace ETMS.Business.Common
     public class ParentSignatureLib
     {
         /// <summary>
-        /// 家长端登陆生成签名信息
+        /// 学员端登陆生成签名信息
         /// </summary>
         /// <param name="parentLoginInfo"></param>
         /// <returns></returns>
@@ -54,7 +54,7 @@ namespace ETMS.Business.Common
         }
 
         /// <summary>
-        /// 验证家长端签名
+        /// 验证学员端签名
         /// </summary>
         /// <param name="strLoginInfo"></param>
         /// <param name="strSignature"></param>

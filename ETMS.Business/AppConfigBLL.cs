@@ -277,7 +277,7 @@ namespace ETMS.Business
             }
             config.ParentSetConfig.ParentBanners = banners;
             await _tenantConfigDAL.SaveTenantConfig(config);
-            await _userOperationLogDAL.AddUserLog(request, "家长端设置-首页banner图设置", EmUserOperationType.SystemConfigModify);
+            await _userOperationLogDAL.AddUserLog(request, "学员端设置-首页banner图设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
 
@@ -481,7 +481,7 @@ namespace ETMS.Business
             config.ParentSetConfig.ParentMenus = menus;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _parentMenusConfigDAL.UpdateParentMenuConfig();
-            await _userOperationLogDAL.AddUserLog(request, "家长端菜单设置", EmUserOperationType.SystemConfigModify);
+            await _userOperationLogDAL.AddUserLog(request, "学员端菜单设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
         }
 

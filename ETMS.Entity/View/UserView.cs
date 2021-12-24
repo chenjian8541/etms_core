@@ -47,7 +47,7 @@ namespace ETMS.Entity.View
         public string Avatar { get; set; }
 
         /// <summary>
-        /// 昵称 （家长端显示）
+        /// 昵称 （学员端显示）
         /// </summary>
         public string NickName { get; set; }
 

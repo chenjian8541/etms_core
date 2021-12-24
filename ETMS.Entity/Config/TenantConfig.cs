@@ -57,7 +57,7 @@ namespace ETMS.Entity.Config
         public PrintConfig PrintConfig { get; set; }
 
         /// <summary>
-        /// 家长端设置
+        /// 学员端设置
         /// </summary>
         public ParentSetConfig ParentSetConfig { get; set; }
 
@@ -106,7 +106,7 @@ namespace ETMS.Entity.Config
         public byte ValidPhoneType { get; set; }
 
         /// <summary>
-        /// 家长端是否展示已结课的课程
+        /// 学员端是否展示已结课的课程
         /// </summary>
         public bool ParentIsShowEndOfClass { get; set; } = true;
 

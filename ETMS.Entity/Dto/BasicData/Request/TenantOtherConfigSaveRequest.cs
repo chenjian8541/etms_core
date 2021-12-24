@@ -14,7 +14,7 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public byte ValidPhoneType { get; set; }
 
         /// <summary>
-        /// 家长端是否展示已结课的课程
+        /// 学员端是否展示已结课的课程
         /// </summary>
         public bool ParentIsShowEndOfClass { get; set; }
 

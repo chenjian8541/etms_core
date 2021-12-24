@@ -49,7 +49,7 @@ namespace ETMS.Entity.View
         public int MaxCountClassReservaLimitValue { get; set; }
 
         /// <summary>
-        /// 家长端报名人数展示
+        /// 学员端报名人数展示
         /// </summary>
         public bool IsParentShowClassCount { get; set; }
 

@@ -11,7 +11,7 @@ namespace ETMS.WebApi.FilterAttribute
 {
     /// <summary>
     /// 接口签名授权验证
-    /// 家长端使用签名验证用户信息Headers信息：
+    /// 学员端使用签名验证用户信息Headers信息：
     /// etms-s:签名信息
     /// etms-l:登录信息
     /// </summary>

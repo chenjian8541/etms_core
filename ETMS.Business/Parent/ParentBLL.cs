@@ -107,7 +107,7 @@ namespace ETMS.Business
             catch (Exception ex)
             {
                 LOG.Log.Error($"[GetLoginTenant]机构编码错误，tenantNo:{tenantNo}，code：{code}", ex, this.GetType());
-                return Tuple.Create("机构编码错误，请检查配置的“家长端专属登录网址”是否正确", sysTenantInfo);
+                return Tuple.Create("机构编码错误，请检查配置的“学员端专属登录网址”是否正确", sysTenantInfo);
             }
             if (tenantId == 0 && string.IsNullOrEmpty(code))
             {
@@ -282,7 +282,7 @@ namespace ETMS.Business
             };
             var signatureInfo = ParentSignatureLib.GetSignature(parentTokenConfig);
             _studentOperationLogDAL.InitTenantId(tenantId);
-            await _studentOperationLogDAL.AddStudentLog(students.First().Id, tenantId, $"家长端登录：{phone}", Entity.Enum.EmStudentOperationLogType.Login);
+            await _studentOperationLogDAL.AddStudentLog(students.First().Id, tenantId, $"学员端登录：{phone}", Entity.Enum.EmStudentOperationLogType.Login);
             return ResponseBase.Success(new ParentLoginBySmsOutput()
             {
                 L = signatureInfo.Item1,
@@ -322,7 +322,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ParentLoginByCode(ParentLoginByCodeRequest request)
         {
-            Log.Info($"家长端通过code登录请求:{request.Code}", this.GetType());
+            Log.Info($"学员端通过code登录请求:{request.Code}", this.GetType());
             var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
             if (tenantWechartAuth == null)

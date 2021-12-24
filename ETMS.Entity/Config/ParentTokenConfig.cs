@@ -5,7 +5,7 @@ using System.Text;
 namespace ETMS.Entity.Config
 {
     /// <summary>
-    /// 家长端存储的token信息
+    /// 学员端存储的token信息
     /// </summary>
     public class ParentTokenConfig
     {

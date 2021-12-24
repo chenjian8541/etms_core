@@ -1381,7 +1381,7 @@ namespace ETMS.Business
             var newPwd = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
             await _studentDAL.ChangePwd(student.Id, newPwd);
 
-            await _userOperationLogDAL.AddUserLog(request, $"修改家长端登录密码-学员:{student.Name},手机号码:{student.Phone}", EmUserOperationType.StudentManage);
+            await _userOperationLogDAL.AddUserLog(request, $"修改学员端登录密码-学员:{student.Name},手机号码:{student.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }
     }

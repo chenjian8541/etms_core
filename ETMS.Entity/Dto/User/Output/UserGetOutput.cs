@@ -41,7 +41,7 @@ namespace ETMS.Entity.Dto.User.Output
         public string AvatarKey { get; set; }
 
         /// <summary>
-        /// 昵称 （家长端显示）
+        /// 昵称 （学员端显示）
         /// </summary>
         public string NickName { get; set; }
 

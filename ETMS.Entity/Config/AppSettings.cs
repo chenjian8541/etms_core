@@ -34,7 +34,7 @@ namespace ETMS.Entity.Config
         public ServerConfig ServerConfig { get; set; }
 
         /// <summary>
-        /// 家长端配置
+        /// 学员端配置
         /// </summary>
         public ParentConfig ParentConfig { get; set; }
 
@@ -460,7 +460,7 @@ namespace ETMS.Entity.Config
     }
 
     /// <summary>
-    /// 家长端配置
+    /// 学员端配置
     /// </summary>
     public class ParentConfig
     {

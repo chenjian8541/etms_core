@@ -38,7 +38,7 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public PrintConfig PrintConfig { get; set; }
 
         /// <summary>
-        /// 家长端设置
+        /// 学员端设置
         /// </summary>
         public ParentSetConfig ParentSetConfig { get; set; }
 
