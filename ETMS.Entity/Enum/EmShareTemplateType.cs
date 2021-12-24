@@ -14,9 +14,9 @@ namespace ETMS.Entity.Enum
         public const byte Link = 0;
 
         /// <summary>
-        /// 分享海报
+        /// 展示模板
         /// </summary>
-        public const byte Poster = 1;
+        public const byte ShowTemplate = 1;
 
         public static string GetShareTemplateTypeDesc(byte t)
         {
@@ -24,7 +24,7 @@ namespace ETMS.Entity.Enum
             {
                 return "分享链接";
             }
-            return "分享海报";
+            return "展示模板";
         }
     }
 }

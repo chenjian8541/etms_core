@@ -95,8 +95,8 @@ namespace Etms.Tools.Test
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            //new EtmsProcess().ProcessT();
-            GetPwd();
+            new EtmsProcess().ProcessT();
+            //GetPwd();
 
             //var startDate = Convert.ToDateTime("2021-11-24");
             //var startEnd = Convert.ToDateTime("2021-11-30");

@@ -1161,7 +1161,7 @@
         "Type": 1,
         "Component": "@/components/ShareTemplateMgr/Op/Edit",
         "Meta": {
-          "Title": "添加分享链接模板",
+          "Title": "添加分享展示模板",
           "Icon": "item"
         }
       },
@@ -1173,7 +1173,7 @@
         "Type": 1,
         "Component": "@/components/ShareTemplateMgr/Op/Edit",
         "Meta": {
-          "Title": "编辑分享链接模板",
+          "Title": "编辑分享展示模板",
           "Icon": "item"
         }
       },

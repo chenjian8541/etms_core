@@ -10,11 +10,13 @@ using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Output;
 using ETMS.Entity.EtmsManage.Dto.TenantManage.Request;
 using ETMS.Entity.ExternalService.Dto.Request;
+using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -61,13 +63,15 @@ namespace ETMS.Business.EtmsManage
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public SysTenantBLL(IEtmsSourceDAL etmsSourceDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantLogDAL sysTenantLogDAL, ISysVersionDAL sysVersionDAL,
             ISysAgentDAL sysAgentDAL, ISysAgentLogDAL sysAgentLogDAL,
             ISysConnectionStringDAL sysConnectionStringDAL, ISysAIFaceBiduAccountDAL sysAIFaceBiduAccountDAL,
             ISysAITenantAccountDAL sysAITenantAccountDAL, IUserDAL userDAL, ISmsService smsService, ISysTenantStatisticsDAL sysTenantStatisticsDAL,
             ISysUserDAL sysUserDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL, IAppConfigurtaionServices appConfigurtaionServices,
-            IDistributedLockDAL distributedLockDAL)
+            IDistributedLockDAL distributedLockDAL, IEventPublisher eventPublisher)
         {
             this._etmsSourceDAL = etmsSourceDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -85,6 +89,7 @@ namespace ETMS.Business.EtmsManage
             this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._distributedLockDAL = distributedLockDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public ResponseBase TenantNewCodeGet(TenantNewCodeGetRequest request)
@@ -337,6 +342,8 @@ namespace ETMS.Business.EtmsManage
             }, request.LoginUserId);
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);
+
+            _eventPublisher.Publish(new TenantInitializeEvent(tenantId));
 
             //机构变动记录
             if (request.SmsCount > 0)

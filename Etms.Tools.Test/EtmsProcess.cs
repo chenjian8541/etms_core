@@ -172,8 +172,13 @@ namespace Etms.Tools.Test
             }
             foreach (var tenant in tenantList)
             {
-                ExecuteTeacherSalaryClassTimes(tenant.Id);
+                HandleTenantInitializ(tenant.Id);
             }
+        }
+
+        private void HandleTenantInitializ(int tenantId)
+        {
+            _eventPublisher.Publish(new TenantInitializeEvent(tenantId));
         }
 
         private void ExecuteTeacherSalaryClassTimes(int tenantId)

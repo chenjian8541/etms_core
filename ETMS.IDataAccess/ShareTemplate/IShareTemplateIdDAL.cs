@@ -11,9 +11,13 @@ namespace ETMS.IDataAccess.ShareTemplate
 {
     public interface IShareTemplateIdDAL : IBaseDAL
     {
+        Task<bool> IsInitializeSystemData();
+
         Task<EtShareTemplate> GetShareTemplate(long id);
 
         Task AddShareTemplate(EtShareTemplate entity);
+
+        void AddShareTemplate(List<EtShareTemplate> entitys);
 
         Task EditShareTemplate(EtShareTemplate entity);
 

@@ -28,10 +28,10 @@ namespace ETMS.DataAccess.ShareTemplate
             {
                 myShareTemplateLink = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UseType == useType && p.Type == EmShareTemplateType.Link);
             }
-            var myShareTemplatePoster = myEnabledLogs.FirstOrDefault(p => p.Type == EmShareTemplateType.Poster);
+            var myShareTemplatePoster = myEnabledLogs.FirstOrDefault(p => p.Type == EmShareTemplateType.ShowTemplate);
             if (myShareTemplatePoster == null)
             {
-                myShareTemplateLink = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UseType == useType && p.Type == EmShareTemplateType.Poster);
+                myShareTemplateLink = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UseType == useType && p.Type == EmShareTemplateType.ShowTemplate);
             }
             return new ShareTemplateUseTypeBucket()
             {

@@ -49,6 +49,13 @@ namespace ETMS.DataAccess.ShareTemplate
             };
         }
 
+        public async Task<bool> IsInitializeSystemData()
+        {
+            var sysTemLog = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.IsSystem == EmBool.True);
+            return sysTemLog != null;
+        }
+
         public async Task<EtShareTemplate> GetShareTemplate(long id)
         {
             var bucket = await GetCache(_tenantId, id);
@@ -60,6 +67,11 @@ namespace ETMS.DataAccess.ShareTemplate
             await this._dbWrapper.Insert(entity);
             await UpdateCache(_tenantId, entity.Id);
             await this._shareTemplateUseTypeDAL.UpdateShareTemplate(entity.UseType);
+        }
+
+        public void AddShareTemplate(List<EtShareTemplate> entitys)
+        {
+            this._dbWrapper.InsertRange(entitys);
         }
 
         public async Task EditShareTemplate(EtShareTemplate entity)
