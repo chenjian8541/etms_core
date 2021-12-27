@@ -88,7 +88,7 @@ namespace ETMS.Pay.Lcsw
                 merchant_no = merchantNo,
                 key_sign = MD5Helper.GetSign(param, "key", Config._instToken),
             };
-            return Post.PostGetJson<ResponseQuerMerchant>(ApiAddress.QuerMerchant, data);
+            return Post.PostGetJson2<ResponseQuerMerchant>(ApiAddress.QuerMerchant, data);
         }
 
         /// <summary>

@@ -18,6 +18,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> MerchantSave(MerchantAddRequest request);
 
+        Task<ResponseBase> MerchantLcsAccountBind(MerchantLcsAccountBindRequest request);
+
         [Obsolete("使用MerchantSave方法")]
         Task<ResponseBase> MerchantAdd(MerchantAddRequest request);
 

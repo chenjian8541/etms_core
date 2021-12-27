@@ -8,8 +8,12 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Request;
+using ETMS.Entity.Dto.PaymentService.Request;
 using ETMS.Entity.Dto.User.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Pay.Lcsw.Dto;
+using ETMS.Entity.Pay.Lcsw.Dto.Request.Response;
+using ETMS.Entity.Temp.View;
 using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
@@ -40,6 +44,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using Config = ETMS.Pay.Lcsw.Config;
 
 namespace Etms.Tools.Test
 {
@@ -349,6 +355,146 @@ namespace Etms.Tools.Test
             var payLcswService = CustomServiceLocator.GetInstance<IPayLcswService>();
             var traceno = Guid.NewGuid().ToString("N");
             var ss = payLcswService.QueryTermina(traceno, terminaId);
+        }
+
+        private MerchantSaveRequest ReassignMerchantSaveRequestProperty(MerchantSaveRequest request, ResponseQuerMerchant queryOut)
+        {
+            request.account_name = queryOut.account_name;
+            request.account_no = queryOut.account_no;
+            request.account_phone = queryOut.account_phone;
+            request.account_type = queryOut.account_type;
+            request.artif_nm = queryOut.artif_nm;
+            request.bank_name = queryOut.bank_name;
+            request.bank_no = queryOut.bank_no;
+            request.business_name = queryOut.business_name;
+            request.business_code = queryOut.business_code;
+            request.daily_timely_status = queryOut.daily_timely_status;
+            request.img_3rd_part = queryOut.img_3rd_part;
+            request.img_bankcard_a = queryOut.img_bankcard_a;
+            request.img_bankcard_b = queryOut.img_bankcard_b;
+            request.img_cashier = queryOut.img_cashier;
+            request.img_contract = queryOut.img_contract;
+            request.img_idcard_a = queryOut.img_idcard_a;
+            request.img_idcard_b = queryOut.img_idcard_b;
+            request.img_idcard_holding = queryOut.img_idcard_holding;
+            request.img_indoor = queryOut.img_indoor;
+            request.img_license = queryOut.img_license;
+            request.img_logo = queryOut.img_logo;
+            request.img_open_permits = queryOut.img_open_permits;
+            request.img_org_code = queryOut.img_org_code;
+            request.img_other = queryOut.img_other;
+            request.img_private_idcard_a = queryOut.img_private_idcard_a;
+            request.img_private_idcard_b = queryOut.img_private_idcard_b;
+            request.img_standard_protocol = queryOut.img_standard_protocol;
+            request.img_sub_account_promiss = queryOut.img_sub_account_promiss;
+            request.img_tax_reg = queryOut.img_tax_reg;
+            request.img_unincorporated = queryOut.img_unincorporated;
+            request.img_val_add_protocol = queryOut.img_val_add_protocol;
+            request.legalIdnum = queryOut.legalIdnum;
+            request.legalIdnumExpire = queryOut.legalIdnumExpire;
+            request.license_expire = queryOut.license_expire;
+            request.license_no = queryOut.license_no;
+            request.license_type = queryOut.license_type;
+            request.merchant_address = queryOut.merchant_address;
+            request.merchant_alias = queryOut.merchant_alias;
+            request.merchant_business_type = queryOut.merchant_business_type;
+            request.merchant_city = queryOut.merchant_city;
+            request.merchant_city_code = queryOut.merchant_city_code;
+            request.merchant_company = queryOut.merchant_company;
+            request.merchant_county = queryOut.merchant_county;
+            request.merchant_county_code = queryOut.merchant_county_code;
+            request.merchant_email = queryOut.merchant_email;
+            request.merchant_id_expire = queryOut.merchant_id_expire;
+            request.merchant_id_no = queryOut.merchant_id_no;
+            request.merchant_name = queryOut.merchant_name;
+            request.merchant_no = queryOut.merchant_no;
+            request.merchant_person = queryOut.merchant_person;
+            request.merchant_phone = queryOut.merchant_phone;
+            request.merchant_province = queryOut.merchant_province;
+            request.merchant_province_code = queryOut.merchant_province_code;
+            request.merchant_service_phone = queryOut.merchant_service_phone;
+            request.rate_code = queryOut.rate_code;
+            request.settlement_type = queryOut.settlement_type;
+            request.settle_type = queryOut.settle_type;
+
+            request.merchant_business_typeDesc = LcswEm.GetMerchantBusinessType(request.merchant_business_type);
+            request.account_typeDesc = LcswEm.GetAccountTypeDesc(request.account_type);
+            request.settlement_typeDesc = LcswEm.GetSettlementType(request.settlement_type);
+            return request;
+        }
+
+        private static LcswStatusView GetLcswStatus(string merchant_status)
+        {
+            var lcswApplyStatus = merchant_status.ToInt();
+            var lcswOpenStatus = EmBool.False;
+            if (MerchantStatus.IsPass(merchant_status))
+            {
+                lcswOpenStatus = EmBool.True;
+            }
+            return new LcswStatusView()
+            {
+                LcswApplyStatus = lcswApplyStatus,
+                LcswOpenStatus = lcswOpenStatus
+            };
+        }
+
+        /// <summary>
+        /// 绑定扫呗账户
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="merchantNo"></param>
+        /// <param name="terminaId"></param>
+        /// <returns></returns>
+        private async Task<string> BindLcsPay(int tenantId, string merchantNo, string terminaId)
+        {
+            _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
+            var payLcswService = CustomServiceLocator.GetInstance<IPayLcswService>();
+            var _tenantLcsAccountDAL = CustomServiceLocator.GetInstance<ITenantLcsAccountDAL>();
+            var addRes = payLcswService.QuerMerchant(merchantNo);
+            if (!addRes.IsSuccess())
+            {
+                return "扫呗账户信息异常";
+            }
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
+            if (myTenant == null)
+            {
+                return "机构不存在";
+            }
+            var request = new MerchantSaveRequest();
+            request = ReassignMerchantSaveRequestProperty(request, addRes);
+            var traceno = Guid.NewGuid().ToString("N");
+            var addTerminalRes = payLcswService.QueryTermina(traceno, terminaId);
+            var now = DateTime.Now;
+            var lcswStatus = GetLcswStatus(addRes.merchant_status);
+            await _tenantLcsAccountDAL.AddTenantLcsAccount(new SysTenantLcsAccount()
+            {
+                AgentId = myTenant.AgentId,
+                ChangeTime = now,
+                CreationTime = now,
+                InstNo = Config._instNo,
+                IsDeleted = EmIsDeleted.Normal,
+                LcswApplyStatus = lcswStatus.LcswApplyStatus,
+                MerchantCompany = request.merchant_company,
+                MerchantName = request.merchant_name,
+                MerchantNo = merchantNo,
+                MerchantStatus = addRes.merchant_status,
+                MerchantType = addRes.merchant_type,
+                Remark = string.Empty,
+                ResultCode = addRes.result_code,
+                ReturnCode = addRes.return_code,
+                ReturnMsg = addRes.return_msg,
+                ReviewTime = null,
+                StoreCode = string.Empty,
+                TenantId = myTenant.Id,
+                TerminalId = addTerminalRes.terminal_id,
+                TerminalName = string.Empty,
+                AccessToken = addTerminalRes.access_token,
+                TraceNo = string.Empty,
+                MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(addRes),
+                MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request)
+            });
+            await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
+            return string.Empty;
         }
     }
 }

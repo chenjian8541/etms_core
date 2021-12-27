@@ -23,5 +23,7 @@ namespace ETMS.IBusiness.Parent
         Task ParentBuyMallGoodsPaySuccessConsumerEvent(ParentBuyMallGoodsPaySuccessEvent request);
 
         Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request);
+
+        Task<ResponseBase> TeacherEvaluateGetPaging(TeacherEvaluateGetPagingRequest request);
     }
 }

@@ -97,6 +97,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> MerchantLcsAccountBind(MerchantLcsAccountBindRequest request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.MerchantLcsAccountBind(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [AllowAnonymous]
         public async Task<ResponseBase> MerchantAdd(MerchantAddRequest request)
         {

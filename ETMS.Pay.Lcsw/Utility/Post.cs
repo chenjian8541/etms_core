@@ -42,6 +42,46 @@ namespace ETMS.Pay.Lcsw.Utility
             }
         }
 
+        /// <summary>
+        /// 发起Post请求
+        /// </summary>
+        /// <typeparam name="T">返回数据类型（Json对应的实体）</typeparam>
+        /// <param name="url">请求Url</param>
+        /// <param name="postData">文件流</param>
+        /// <param name="useAjax">是否使用Ajax请求</param>
+        /// <param name="timeOut">代理请求超时时间（毫秒）</param>
+        /// <returns></returns>
+        public static T PostGetJson2<T>(string url, object postData, bool useAjax = false, int timeOut = Config.TIME_OUT)
+            where T : BaseResult, new()
+        {
+            var jsonString = JsonConvert.SerializeObject(postData);
+            LOG.Log.Debug($"[利楚扫呗请求]rul:{url},postData:{jsonString}", typeof(Post));
+            using (var ms = new MemoryStream())
+            {
+                var bytes = Encoding.UTF8.GetBytes(jsonString);
+                ms.Write(bytes, 0, bytes.Length);
+                ms.Seek(0, SeekOrigin.Begin);
+                string returnText = HttpPost(url, ms, useAjax, timeOut);
+                LOG.Log.Debug($"[利楚扫呗返回]rul:{url},postData:{returnText}", typeof(Post));
+                try
+                {
+                    var result = GetResult<T>(returnText);
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[利楚扫呗返回]rul:{url},postData:{returnText}", ex, typeof(Post));
+                    var myBaseResult = JsonConvert.DeserializeObject<BaseResult>(returnText);
+                    var myOut = new T();
+                    myOut.return_code = myBaseResult.return_code;
+                    myOut.return_msg = myBaseResult.return_msg;
+                    myOut.key_sign = myBaseResult.key_sign;
+                    myOut.result_code = myBaseResult.result_code;
+                    return myOut;
+                }
+            }
+        }
+
         private static string HttpPost(string url, Stream postStream = null, bool useAjax = false, int timeOut = Config.TIME_OUT)
         {
             HttpWebResponse response = HttpResponsePost(url, postStream, useAjax, timeOut);

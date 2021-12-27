@@ -559,5 +559,10 @@ namespace ETMS.Business.Parent
             }
             return ResponseBase.Success(new ResponsePagingDataBase<MallGoodsGetPagingOutput>(pagingData.Item2, output));
         }
+
+        public async Task<ResponseBase> TeacherEvaluateGetPaging(TeacherEvaluateGetPagingRequest request)
+        {
+            return ResponseBase.Success();
+        }
     }
 }

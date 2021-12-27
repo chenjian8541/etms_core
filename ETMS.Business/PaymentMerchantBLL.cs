@@ -545,6 +545,101 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> MerchantLcsAccountBind(MerchantLcsAccountBindRequest request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var queryRes = _payLcswService.QuerMerchant(request.MerchantNo);
+            if (!queryRes.IsSuccess())
+            {
+                return ResponseBase.CommonError("商户号未找到对应的商户");
+            }
+            var traceno = Guid.NewGuid().ToString("N");
+            var addTerminalRes = _payLcswService.QueryTermina(traceno, request.TerminalId);
+            if (!addTerminalRes.IsSuccess())
+            {
+                return ResponseBase.CommonError("终端号错误");
+            }
+            var now = DateTime.Now;
+            var lcswStatus = GetLcswStatus(queryRes.merchant_status);
+            var myMerchantSaveRequest = new MerchantSaveRequest();
+            myMerchantSaveRequest = ReassignMerchantSaveRequestProperty(myMerchantSaveRequest, queryRes);
+            var hisLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(request.LoginTenantId);
+            if (hisLcsAccount == null)
+            {
+                await _tenantLcsAccountDAL.AddTenantLcsAccount(new SysTenantLcsAccount()
+                {
+                    AgentId = myTenant.AgentId,
+                    ChangeTime = now,
+                    CreationTime = now,
+                    InstNo = Config._instNo,
+                    IsDeleted = EmIsDeleted.Normal,
+                    LcswApplyStatus = lcswStatus.LcswApplyStatus,
+                    MerchantCompany = myMerchantSaveRequest.merchant_company,
+                    MerchantName = myMerchantSaveRequest.merchant_name,
+                    MerchantNo = request.MerchantNo,
+                    MerchantStatus = queryRes.merchant_status,
+                    MerchantType = queryRes.merchant_type,
+                    Remark = string.Empty,
+                    ResultCode = queryRes.result_code,
+                    ReturnCode = queryRes.return_code,
+                    ReturnMsg = queryRes.return_msg,
+                    ReviewTime = null,
+                    StoreCode = string.Empty,
+                    TenantId = myTenant.Id,
+                    TerminalId = addTerminalRes.terminal_id,
+                    TerminalName = string.Empty,
+                    AccessToken = addTerminalRes.access_token,
+                    TraceNo = string.Empty,
+                    MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes),
+                    MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(myMerchantSaveRequest)
+                });
+            }
+            else
+            {
+                hisLcsAccount.ChangeTime = now;
+                hisLcsAccount.InstNo = Config._instNo;
+                hisLcsAccount.LcswApplyStatus = lcswStatus.LcswApplyStatus;
+                hisLcsAccount.MerchantCompany = myMerchantSaveRequest.merchant_company;
+                hisLcsAccount.MerchantName = myMerchantSaveRequest.merchant_name;
+                hisLcsAccount.MerchantNo = request.MerchantNo;
+                hisLcsAccount.MerchantStatus = queryRes.merchant_status;
+                hisLcsAccount.MerchantType = queryRes.merchant_type;
+                hisLcsAccount.Remark = string.Empty;
+                hisLcsAccount.ResultCode = queryRes.result_code;
+                hisLcsAccount.ReturnCode = queryRes.return_code;
+                hisLcsAccount.ReturnMsg = queryRes.return_msg;
+                hisLcsAccount.ReviewTime = null;
+                hisLcsAccount.StoreCode = string.Empty;
+                hisLcsAccount.TenantId = myTenant.Id;
+                hisLcsAccount.TerminalId = addTerminalRes.terminal_id;
+                hisLcsAccount.TerminalName = string.Empty;
+                hisLcsAccount.AccessToken = addTerminalRes.access_token;
+                hisLcsAccount.TraceNo = string.Empty;
+                hisLcsAccount.MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes);
+                hisLcsAccount.MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(myMerchantSaveRequest);
+                await _tenantLcsAccountDAL.EditTenantLcsAccount(hisLcsAccount);
+            }
+            await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
+            _userOperationLogDAL.InitTenantId(myTenant.Id);
+            await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
+            {
+                ClientType = EmUserOperationLogClientType.PC,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = $"绑定扫呗账户_{request.MerchantNo}",
+                Ot = now,
+                Remark = string.Empty,
+                TenantId = myTenant.Id,
+                Type = (int)EmUserOperationType.LcsMgr,
+                UserId = request.LoginUserId
+            });
+            return ResponseBase.Success();
+        }
+
         private MerchantSaveRequest ReassignMerchantSaveRequestProperty(MerchantSaveRequest request, ResponseQuerMerchant queryOut)
         {
             request.account_name = queryOut.account_name;
