@@ -41,5 +41,10 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 请假媒体文件
         /// </summary>
         public List<string> LeaveMediasUrl { get; set; }
+
+        /// <summary>
+        /// 审核备注
+        /// </summary>
+        public string HandleRemark { get; set; }
     }
 }

@@ -350,7 +350,8 @@ namespace ETMS.Business
                 HandleStatusDesc = EmStudentLeaveApplyHandleStatus.GetStudentLeaveApplyHandleStatusDescParent(p.HandleStatus),
                 Id = p.Id,
                 HandleOt = p.HandleOt.EtmsToString(),
-                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias)
+                LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias),
+                HandleRemark = p.HandleRemark
             });
         }
 

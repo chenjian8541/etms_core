@@ -232,5 +232,10 @@ namespace ETMS.Entity.Config
         /// 系统即将到期提醒
         /// </summary>
         public int SystemExpireDayLimit = 30;
+
+        /// <summary>
+        /// 默认图片
+        /// </summary>
+        public string DefaultImgUrl = "https://xiaohebang.oss-cn-beijing.aliyuncs.com/system/default/xiaohebang.jpg";
     }
 }

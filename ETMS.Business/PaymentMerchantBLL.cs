@@ -252,6 +252,8 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("机构不存在");
             }
+            request.img_org_code = SystemConfig.ComConfig.DefaultImgUrl;
+            request.img_tax_reg = SystemConfig.ComConfig.DefaultImgUrl;
             if (myTenant.LcswApplyStatus != EmLcswApplyStatus.NotApplied) //已申请过
             {
                 return await MerchantEdit(request, tenantId, userId, myTenant);
@@ -370,34 +372,67 @@ namespace ETMS.Business
             request.merchant_business_typeDesc = LcswEm.GetMerchantBusinessType(request.merchant_business_type);
             request.account_typeDesc = LcswEm.GetAccountTypeDesc(request.account_type);
             request.settlement_typeDesc = LcswEm.GetSettlementType(request.settlement_type);
-            var tenantLcsAccount = new SysTenantLcsAccount()
+
+            var logLcsAccount = await _tenantLcsAccountDAL.GetTenantLcsAccount(myTenant.Id);
+            if (logLcsAccount == null)
             {
-                AgentId = myTenant.AgentId,
-                ChangeTime = now,
-                CreationTime = now,
-                InstNo = Config._instNo,
-                IsDeleted = EmIsDeleted.Normal,
-                LcswApplyStatus = lcswStatus.LcswApplyStatus,
-                MerchantCompany = request.merchant_company,
-                MerchantName = request.merchant_name,
-                MerchantNo = addRes.merchant_no,
-                MerchantStatus = queryRes.merchant_status,
-                MerchantType = queryRes.merchant_type,
-                Remark = string.Empty,
-                ResultCode = addRes.result_code,
-                ReturnCode = addRes.return_code,
-                ReturnMsg = addRes.return_msg,
-                ReviewTime = null,
-                StoreCode = string.Empty,
-                TenantId = myTenant.Id,
-                TerminalId = addTerminalRes.terminal_id,
-                TerminalName = string.Empty,
-                AccessToken = addTerminalRes.access_token,
-                TraceNo = string.Empty,
-                MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes),
-                MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request)
-            };
-            await _tenantLcsAccountDAL.AddTenantLcsAccount(tenantLcsAccount);
+                var tenantLcsAccount = new SysTenantLcsAccount()
+                {
+                    AgentId = myTenant.AgentId,
+                    ChangeTime = now,
+                    CreationTime = now,
+                    InstNo = Config._instNo,
+                    IsDeleted = EmIsDeleted.Normal,
+                    LcswApplyStatus = lcswStatus.LcswApplyStatus,
+                    MerchantCompany = request.merchant_company,
+                    MerchantName = request.merchant_name,
+                    MerchantNo = addRes.merchant_no,
+                    MerchantStatus = queryRes.merchant_status,
+                    MerchantType = queryRes.merchant_type,
+                    Remark = string.Empty,
+                    ResultCode = addRes.result_code,
+                    ReturnCode = addRes.return_code,
+                    ReturnMsg = addRes.return_msg,
+                    ReviewTime = null,
+                    StoreCode = string.Empty,
+                    TenantId = myTenant.Id,
+                    TerminalId = addTerminalRes.terminal_id,
+                    TerminalName = string.Empty,
+                    AccessToken = addTerminalRes.access_token,
+                    TraceNo = string.Empty,
+                    MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes),
+                    MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request)
+                };
+                await _tenantLcsAccountDAL.AddTenantLcsAccount(tenantLcsAccount);
+            }
+            else
+            {
+                logLcsAccount.AgentId = myTenant.AgentId;
+                logLcsAccount.ChangeTime = now;
+                logLcsAccount.CreationTime = now;
+                logLcsAccount.InstNo = Config._instNo;
+                logLcsAccount.IsDeleted = EmIsDeleted.Normal;
+                logLcsAccount.LcswApplyStatus = lcswStatus.LcswApplyStatus;
+                logLcsAccount.MerchantCompany = request.merchant_company;
+                logLcsAccount.MerchantName = request.merchant_name;
+                logLcsAccount.MerchantNo = addRes.merchant_no;
+                logLcsAccount.MerchantStatus = queryRes.merchant_status;
+                logLcsAccount.MerchantType = queryRes.merchant_type;
+                logLcsAccount.Remark = string.Empty;
+                logLcsAccount.ResultCode = addRes.result_code;
+                logLcsAccount.ReturnCode = addRes.return_code;
+                logLcsAccount.ReturnMsg = addRes.return_msg;
+                logLcsAccount.ReviewTime = null;
+                logLcsAccount.StoreCode = string.Empty;
+                logLcsAccount.TenantId = myTenant.Id;
+                logLcsAccount.TerminalId = addTerminalRes.terminal_id;
+                logLcsAccount.TerminalName = string.Empty;
+                logLcsAccount.AccessToken = addTerminalRes.access_token;
+                logLcsAccount.TraceNo = string.Empty;
+                logLcsAccount.MerchantInfoData = Newtonsoft.Json.JsonConvert.SerializeObject(queryRes);
+                logLcsAccount.MerchantRquestData = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+                await _tenantLcsAccountDAL.EditTenantLcsAccount(logLcsAccount);
+            }
             await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
 
             _userOperationLogDAL.InitTenantId(myTenant.Id);
