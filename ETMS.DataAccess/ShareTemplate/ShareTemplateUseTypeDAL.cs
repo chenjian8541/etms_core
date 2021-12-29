@@ -36,7 +36,7 @@ namespace ETMS.DataAccess.ShareTemplate
             return new ShareTemplateUseTypeBucket()
             {
                 MyShareTemplateLink = myShareTemplateLink,
-                MyShareTemplatePoster = myShareTemplatePoster
+                MyShareTemplateShow = myShareTemplatePoster
             };
         }
 

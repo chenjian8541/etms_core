@@ -229,7 +229,8 @@ namespace ETMS.Business
                             Teachers = myClassRecordStudent.Teachers,
                             TenantId = myClassRecordStudent.TenantId,
                             Week = myClassRecordStudent.Week,
-                            ClassRecordStudentId = 0
+                            ClassRecordStudentId = 0,
+                            CourseId = myClassRecordStudent.CourseId
                         });
                     }
                 }

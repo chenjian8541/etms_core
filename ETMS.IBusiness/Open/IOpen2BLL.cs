@@ -15,5 +15,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> CheckPhoneSmsSend(CheckPhoneSmsSendRequest request);
 
         Task<ResponseBase> TryApplyLogAdd(TryApplyLogAddRequest request);
+
+        Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request);
+
+        Task<ResponseBase> ShareContentGet(ShareContentGetRequest request);
     } 
 }

@@ -14,9 +14,9 @@ namespace ETMS.Entity.CacheBucket.ShareTemplate
         public EtShareTemplate MyShareTemplateLink { get; set; }
 
         /// <summary>
-        /// 海报
+        /// 展示模板
         /// </summary>
-        public EtShareTemplate MyShareTemplatePoster { get; set; }
+        public EtShareTemplate MyShareTemplateShow { get; set; }
 
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.ComTimeOutDay);
 

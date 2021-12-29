@@ -308,5 +308,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request)
+        {
+            try
+            {
+                _open2BLL.InitTenantId(request.LoginTenantId);
+                return await _open2BLL.EvaluateStudentDetail(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ShareContentGet(ShareContentGetRequest request)
+        {
+            try
+            {
+                _open2BLL.InitTenantId(request.LoginTenantId);
+                return await _open2BLL.ShareContentGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

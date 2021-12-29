@@ -21,6 +21,10 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 return "卡号不能为空";
             }
+            if (NewCardNo.Length > 30)
+            {
+                return "卡号长度不能超过30位";
+            }
             return string.Empty;
         }
     }

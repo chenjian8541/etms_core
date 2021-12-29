@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Parent.Output
 {
-    public class GrowthRecordDetailGetOutput
+    public class GrowthRecordDetailGetOutput: Common.Output.RenderContent
     {
         public int TenantId { get; set; }
 

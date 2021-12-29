@@ -38,7 +38,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtClassRecordEvaluateStudent>(p => p.TenantId == _tenantId && p.ClassRecordStudentId == classRecordStudentId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
-        public async Task<Tuple<IEnumerable<EtClassRecordEvaluateStudent>, int>> GetEvaluateStudentPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtClassRecordEvaluateStudent>, int>> GetEvaluateStudentPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtClassRecordEvaluateStudent>("EtClassRecordEvaluateStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

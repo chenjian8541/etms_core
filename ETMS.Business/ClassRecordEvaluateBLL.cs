@@ -222,7 +222,8 @@ namespace ETMS.Business
                 Teachers = classRecordStudentLog.Teachers,
                 TenantId = classRecordStudentLog.TenantId,
                 Week = classRecordStudentLog.Week,
-                ClassRecordStudentId = request.ClassRecordStudentId
+                ClassRecordStudentId = request.ClassRecordStudentId,
+                CourseId = classRecordStudentLog.CourseId
             });
 
             if (classRecordStudentLog.EvaluateCount == 0) //之前未评价过

@@ -19,7 +19,7 @@ namespace ETMS.Entity.Enum
         public const int ClassEvaluate = 1;
 
         /// <summary>
-        /// 电子相册
+        /// 电子相册(分享链接)
         /// </summary>
         public const int StudentPhoto = 2;
 

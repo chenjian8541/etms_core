@@ -20,6 +20,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.Entity.Dto.Parent2.Output;
+using ETMS.IDataAccess.ShareTemplate;
 
 namespace ETMS.Business
 {
@@ -71,13 +72,15 @@ namespace ETMS.Business
 
         private readonly IClassRecordDAL _classRecordDAL;
 
+        private readonly IShareTemplateUseTypeDAL _shareTemplateUseTypeDAL;
+
         public ParentDataBLL(IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IParentStudentDAL parentStudentDAL, IStudentDAL studentDAL,
             IStudentOperationLogDAL studentOperationLogDAL, IClassTimesDAL classTimesDAL, IClassRoomDAL classRoomDAL, IUserDAL userDAL,
             ICourseDAL courseDAL, IClassDAL classDAL, ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IGiftCategoryDAL giftCategoryDAL, IGiftDAL giftDAL, IActiveHomeworkDAL activeHomeworkDAL, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
            IStudentWechatDAL studentWechatDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL, IStudentGrowingTagDAL studentGrowingTagDAL,
            ISysTenantDAL sysTenantDAL, IStudentRelationshipDAL studentRelationshipDAL, IEventPublisher eventPublisher,
-           IClassRecordDAL classRecordDAL)
+           IClassRecordDAL classRecordDAL, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL)
         {
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._parentStudentDAL = parentStudentDAL;
@@ -102,6 +105,7 @@ namespace ETMS.Business
             this._studentRelationshipDAL = studentRelationshipDAL;
             this._eventPublisher = eventPublisher;
             this._classRecordDAL = classRecordDAL;
+            this._shareTemplateUseTypeDAL = shareTemplateUseTypeDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -109,7 +113,8 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _studentLeaveApplyLogDAL, _parentStudentDAL, _studentDAL,
                 _studentOperationLogDAL, _classTimesDAL, _classRoomDAL, _userDAL, _courseDAL, _classDAL,
                 _tenantConfigDAL, _giftCategoryDAL, _giftDAL, _activeHomeworkDAL, _activeHomeworkDetailDAL,
-                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL, _studentRelationshipDAL, _classRecordDAL);
+                _studentWechatDAL, _activeGrowthRecordDAL, _studentGrowingTagDAL, _studentRelationshipDAL, _classRecordDAL,
+                _shareTemplateUseTypeDAL);
         }
 
         public async Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request)
@@ -915,6 +920,14 @@ namespace ETMS.Business
             {
                 await _activeGrowthRecordDAL.GrowthRecordAddReadCount(growthRecordDetail.GrowthRecordId);
                 await _activeGrowthRecordDAL.SetActiveGrowthRecordIsRead(growthRecordDetail.GrowthRecordId, growthRecordDetail.Id);
+            }
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.Growth);
+            if (shareTemplateBucket != null)
+            {
+                output.ShareContent = ShareTemplateHandler.TemplateLinkGrowth(shareTemplateBucket.MyShareTemplateLink,
+                    output.StudentName, output.GrowthContent, output.GrowingTagDesc, output.OtDesc);
+                output.ShowContent = ShareTemplateHandler.TemplateShowGrowth(shareTemplateBucket.MyShareTemplateShow,
+                    output.StudentName, output.GrowthContent, output.GrowingTagDesc, output.OtDesc);
             }
             return ResponseBase.Success(output);
         }

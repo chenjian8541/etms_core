@@ -1,6 +1,7 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Open2.Output;
 using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Enum;
@@ -11,6 +12,7 @@ using ETMS.IBusiness;
 using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IDataAccess.ShareTemplate;
 using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
@@ -45,10 +47,14 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IShareTemplateUseTypeDAL _shareTemplateUseTypeDAL;
+
+        private readonly ISysTenantDAL _sysTenantDAL;
+
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -61,12 +67,14 @@ namespace ETMS.Business
             this._sysPhoneSmsCodeDAL = sysPhoneSmsCodeDAL;
             this._smsService = smsService;
             this._eventPublisher = eventPublisher;
+            this._shareTemplateUseTypeDAL = shareTemplateUseTypeDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, this._studentDAL, this._userDAL, this._courseDAL, this._classDAL,
-                this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL);
+                this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL, _shareTemplateUseTypeDAL);
         }
 
         public async Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request)
@@ -198,6 +206,85 @@ namespace ETMS.Business
                 Type = NoticeManageType.TryApply,
                 TryApplyLog = log
             });
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request)
+        {
+            var p = await _classRecordEvaluateDAL.ClassRecordEvaluateStudentGet(request.Id);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("点评记录不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var className = string.Empty;
+            var teacherName = string.Empty;
+            var studentName = studentBucket.Student.Name;
+            var courseName = string.Empty;
+            var classBucket = await _classDAL.GetClassBucket(p.ClassId);
+            if (classBucket != null && classBucket.EtClass != null)
+            {
+                className = classBucket.EtClass.Name;
+            }
+            var myUser = await _userDAL.GetUser(p.TeacherId);
+            if (myUser != null)
+            {
+                teacherName = ComBusiness2.GetParentTeacherName(myUser);
+            }
+            var myCourse = await _courseDAL.GetCourse(p.CourseId);
+            if (myCourse != null && myCourse.Item1 != null)
+            {
+                courseName = myCourse.Item1.Name;
+            }
+            var output = new EvaluateStudentDetailOutput()
+            {
+                TeacherId = p.TeacherId,
+                ClassId = p.ClassId,
+                ClassName = className,
+                ClassOt = p.ClassOt.EtmsToDateString(),
+                StartTime = EtmsHelper.GetTimeDesc(p.StartTime),
+                EndTime = EtmsHelper.GetTimeDesc(p.EndTime),
+                EvaluateContent = p.EvaluateContent,
+                Evaluates = EtmsHelper2.GetMediasUrl(p.EvaluateImg),
+                Id = p.Id,
+                Ot = p.Ot,
+                StudentId = p.StudentId,
+                StudentName = studentName,
+                TeacherName = teacherName,
+                Week = p.Week
+            };
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.ClassEvaluate);
+            if (shareTemplateBucket != null)
+            {
+                output.ShareContent = ShareTemplateHandler.TemplateLinkClassEvaluate(shareTemplateBucket.MyShareTemplateLink,
+                    output.StudentName, className, courseName, output.ClassOt, output.EvaluateContent, output.TeacherName);
+                output.ShowContent = ShareTemplateHandler.TemplateShowClassEvaluate(shareTemplateBucket.MyShareTemplateShow,
+                   output.StudentName, className, courseName, output.ClassOt, output.EvaluateContent, output.TeacherName);
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ShareContentGet(ShareContentGetRequest request)
+        {
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(request.UseType);
+            if (shareTemplateBucket == null)
+            {
+                return ResponseBase.Success();
+            }
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            switch (request.UseType)
+            {
+                case EmShareTemplateUseType.StudentPhoto:
+                    return ResponseBase.Success(ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, "", ""));
+                case EmShareTemplateUseType.MicWebsite:
+                    return ResponseBase.Success(ShareTemplateHandler.TemplateLinkMicWebsite(shareTemplateBucket.MyShareTemplateLink, myTenant.Name));
+                case EmShareTemplateUseType.OnlineMall:
+                    return ResponseBase.Success(ShareTemplateHandler.TemplateLinkOnlineMall(shareTemplateBucket.MyShareTemplateLink, myTenant.Name));
+            }
             return ResponseBase.Success();
         }
     }

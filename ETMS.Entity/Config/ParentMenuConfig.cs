@@ -19,9 +19,14 @@ namespace ETMS.Entity.Config
         public const int GiftExchange = 2;
 
         /// <summary>
-        /// 作业
+        /// 课后作业
         /// </summary>
         public const int Homework = 3;
+
+        /// <summary>
+        /// 课后点评
+        /// </summary>
+        public const int EvaluateStudentLog = 8;
 
         /// <summary>
         /// 评价老师
@@ -114,7 +119,8 @@ namespace ETMS.Entity.Config
             AllConfig = new List<ParentMenuInfo>();
             AllConfig.Add(new ParentMenuInfo(LeaveApply, "请假审批", 5));
             AllConfig.Add(new ParentMenuInfo(GiftExchange, "礼品兑换", 10));
-            AllConfig.Add(new ParentMenuInfo(Homework, "作业", 15));
+            AllConfig.Add(new ParentMenuInfo(Homework, "课后作业", 15));
+            AllConfig.Add(new ParentMenuInfo(EvaluateStudentLog, "课后点评", 17));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));
             AllConfig.Add(new ParentMenuInfo(ReservationMgr, "在线预约", 25));
             AllConfig.Add(new ParentMenuInfo(MallGoods, "在线商城", 27));

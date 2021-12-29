@@ -59,12 +59,14 @@ namespace ETMS.Business.Parent
 
         private readonly IAgtPayServiceBLL _agtPayServiceBLL;
 
+        private readonly IClassRecordEvaluateDAL _classRecordEvaluateDAL;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
             IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
             IDistributedLockDAL distributedLockDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
-            IAgtPayServiceBLL agtPayServiceBLL)
+            IAgtPayServiceBLL agtPayServiceBLL, IClassRecordEvaluateDAL classRecordEvaluateDAL)
             : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
@@ -78,13 +80,14 @@ namespace ETMS.Business.Parent
             this._mallPrepayDAL = mallPrepayDAL;
             this._distributedLockDAL = distributedLockDAL;
             this._agtPayServiceBLL = agtPayServiceBLL;
+            this._classRecordEvaluateDAL = classRecordEvaluateDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._agtPayServiceBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL,
-                _mallOrderDAL, _mallPrepayDAL);
+                _mallOrderDAL, _mallPrepayDAL, _classRecordEvaluateDAL);
         }
 
         public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
@@ -562,7 +565,42 @@ namespace ETMS.Business.Parent
 
         public async Task<ResponseBase> TeacherEvaluateGetPaging(TeacherEvaluateGetPagingRequest request)
         {
-            return ResponseBase.Success();
+            var pagingData = await _classRecordEvaluateDAL.GetEvaluateStudentPaging(request);
+            var output = new List<TeacherEvaluateGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                var tempBoxClass = new DataTempBox<EtClass>();
+                var tempBoxTeacher = new DataTempBox<EtUser>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    var myUser = await ComBusiness.GetUser(tempBoxTeacher, _userDAL, p.TeacherId);
+                    var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
+                    output.Add(new TeacherEvaluateGetPagingOutput()
+                    {
+                        Ot = p.Ot,
+                        TeacherId = p.TeacherId,
+                        ClassName = myClass?.Name,
+                        ClassOt = p.ClassOt.EtmsToDateString(),
+                        ClassId = p.ClassId,
+                        StartTime = EtmsHelper.GetTimeDesc(p.StartTime),
+                        EndTime = EtmsHelper.GetTimeDesc(p.EndTime),
+                        EvaluateContent = p.EvaluateContent,
+                        Evaluates = EtmsHelper2.GetMediasUrl(p.EvaluateImg),
+                        StudentId = p.StudentId,
+                        StudentName = myStudent.Name,
+                        Week = p.Week,
+                        TeacherName = ComBusiness2.GetParentTeacherName(myUser),
+                        Id = p.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }
