@@ -46,5 +46,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 审核备注
         /// </summary>
         public string HandleRemark { get; set; }
+
+        public string HandleUserName { get; set; }
     }
 }

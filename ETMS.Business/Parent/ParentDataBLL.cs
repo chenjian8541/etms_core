@@ -342,6 +342,15 @@ namespace ETMS.Business
         {
             var p = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyLog(request.Id);
             var student = await _studentDAL.GetStudent(p.StudentId);
+            var handleUserName = string.Empty;
+            if (p.HandleStatus != EmStudentLeaveApplyHandleStatus.Unreviewed && p.HandleUser != null)
+            {
+                var handleUser = await _userDAL.GetUser(p.HandleUser.Value);
+                if (handleUser != null)
+                {
+                    handleUserName = ComBusiness2.GetParentTeacherName(handleUser);
+                }
+            }
             return ResponseBase.Success(new StudentLeaveApplyDetailGetOutput()
             {
                 TitleDesc = $"{student.Student.Name}的请假",
@@ -356,7 +365,8 @@ namespace ETMS.Business
                 Id = p.Id,
                 HandleOt = p.HandleOt.EtmsToString(),
                 LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias),
-                HandleRemark = p.HandleRemark
+                HandleRemark = p.HandleRemark,
+                HandleUserName = handleUserName
             });
         }
 
