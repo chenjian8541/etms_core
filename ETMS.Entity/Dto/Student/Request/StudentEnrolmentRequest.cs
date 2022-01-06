@@ -263,6 +263,13 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 return "购买数量必须大于0";
             }
+            if (!string.IsNullOrEmpty(ExOt))
+            {
+                if (!EtmsHelper3.IsEffectiveDate(ExOt))
+                {
+                    return "有效期格式不正确";
+                }
+            }
             return string.Empty;
         }
     }

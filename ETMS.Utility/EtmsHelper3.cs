@@ -12,5 +12,18 @@ namespace ETMS.Utility
         {
             return Convert.ToInt32(money * 100);
         }
+
+        public static bool IsEffectiveDate(string date)
+        {
+            if (string.IsNullOrEmpty(date))
+            {
+                return false;
+            }
+            if (DateTime.TryParse(date, out var tempDate))
+            {
+                return tempDate.IsEffectiveDate();
+            }
+            return false;
+        }
     }
 }

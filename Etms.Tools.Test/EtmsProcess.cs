@@ -9,6 +9,7 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational.Request;
 using ETMS.Entity.Dto.PaymentService.Request;
+using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Dto.User.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Pay.Lcsw.Dto;
@@ -18,6 +19,7 @@ using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.EventConsumer;
+using ETMS.IBusiness.IncrementLib;
 using ETMS.IBusiness.Wechart;
 using ETMS.ICache;
 using ETMS.IDataAccess;
@@ -59,10 +61,21 @@ namespace Etms.Tools.Test
                 appSettings = InitCustomIoc(p);
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitPayConfig(appSettings.PayConfig);
+                InitAliyunOssConfig(appSettings.AliyunOssConfig);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
             Console.WriteLine("[服务]处理服务业务成功...");
+        }
+
+        private void InitAliyunOssConfig(AliyunOssConfig config)
+        {
+            AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
+                config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
+                config.OssAccessUrlHttps, config.RootFolder);
+            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceBlacklist, 2);
+            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceStudentCheckOn, 7);
+            AliyunOssSTSUtil.InitAliyunSTSConfig(config.STSAccessKeyId, config.STSAccessKeySecret, config.STSRoleArn, config.STSEndpoint);
         }
 
         private void InitPayConfig(PayConfig payConfig)
@@ -133,6 +146,8 @@ namespace Etms.Tools.Test
         private IRoleDAL _roleDAL;
         private IClassRecordDAL _classRecordDAL;
         private IUserDAL _userDAL;
+        private IStudentDAL _studentDAL;
+        private IAiface _aiface;
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
@@ -192,6 +207,44 @@ namespace Etms.Tools.Test
             _classRecordDAL.ResetTenantId(tenantId);
             ProcessClassRecord(tenantId);
         }
+
+        private void ProcessStudent(int tenantId)
+        {
+            _aiface.InitTenantId(tenantId);
+            _studentDAL.InitTenantId(tenantId);
+            var query = new StudentGetPagingRequest()
+            {
+                LoginTenantId = tenantId,
+                PageCurrent = 1,
+                PageSize = 100,
+                IsHasFaceKey = 1
+            };
+            var pagingData = _studentDAL.GetStudentPaging(query).Result;
+            if (pagingData.Item2 == 0)
+            {
+                return;
+            }
+            HandleStudent(tenantId, pagingData.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+            query.PageCurrent++;
+            while (query.PageCurrent <= totalPage)
+            {
+                pagingData = _studentDAL.GetStudentPaging(query).Result;
+                HandleStudent(tenantId, pagingData.Item1);
+                query.PageCurrent++;
+            }
+        }
+
+        private void HandleStudent(int tenantId, IEnumerable<EtStudent> student)
+        {
+            foreach (var p in student)
+            {
+                var ss = AliyunOssUtil.GetAccessUrlHttps(p.FaceKey);
+                var a = _aiface.StudentInitFace(p.Id, ss).Result;
+                Console.WriteLine($"{p.Name}{a.Item2}:{ss}");
+            }
+        }
+
 
         private void ProcessUser(int tenantId)
         {

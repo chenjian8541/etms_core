@@ -19,6 +19,8 @@ namespace ETMS.IDataAccess.SysOp
 
         Task<bool> ClearClassRecordEvaluate();
 
+        Task<bool> ClearElectronicAlbum();
+
         #endregion
 
         #region 营销中心

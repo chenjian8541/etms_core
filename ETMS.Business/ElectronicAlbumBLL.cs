@@ -1,0 +1,288 @@
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Common;
+using ETMS.Entity.Database.Source;
+using ETMS.Entity.Dto.Interaction.Output;
+using ETMS.Entity.Dto.Interaction.Request;
+using ETMS.Entity.Enum;
+using ETMS.Event.DataContract;
+using ETMS.IBusiness;
+using ETMS.IDataAccess;
+using ETMS.IDataAccess.ElectronicAlbum;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
+using ETMS.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ETMS.Business
+{
+    public class ElectronicAlbumBLL : IElectronicAlbumBLL
+    {
+        private readonly IElectronicAlbumTempDAL _electronicAlbumTempDAL;
+
+        private readonly IElectronicAlbumDAL _electronicAlbumDAL;
+
+        private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
+
+        private readonly ISysElectronicAlbumDAL _sysElectronicAlbumDAL;
+
+        private readonly IStudentDAL _studentDAL;
+
+        private readonly IClassDAL _classDAL;
+
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        public ElectronicAlbumBLL(IElectronicAlbumTempDAL electronicAlbumTempDAL, IElectronicAlbumDAL electronicAlbumDAL,
+           IElectronicAlbumDetailDAL electronicAlbumDetailDAL, ISysElectronicAlbumDAL sysElectronicAlbumDAL,
+           IStudentDAL studentDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
+        {
+            this._electronicAlbumTempDAL = electronicAlbumTempDAL;
+            this._electronicAlbumDAL = electronicAlbumDAL;
+            this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
+            this._sysElectronicAlbumDAL = sysElectronicAlbumDAL;
+            this._studentDAL = studentDAL;
+            this._classDAL = classDAL;
+            this._userOperationLogDAL = userOperationLogDAL;
+            this._eventPublisher = eventPublisher;
+        }
+
+        public void InitTenantId(int tenantId)
+        {
+            this.InitDataAccess(tenantId, _electronicAlbumTempDAL, _electronicAlbumDAL, _electronicAlbumDetailDAL,
+                _studentDAL, _classDAL, _userOperationLogDAL);
+        }
+
+        public async Task<ResponseBase> SysElectronicAlbumGetPaging(SysElectronicAlbumGetPagingRequest request)
+        {
+            var pagingData = await _sysElectronicAlbumDAL.GetPaging(request);
+            var output = new List<SysElectronicAlbumGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new SysElectronicAlbumGetPagingOutput()
+                {
+                    CId = p.Id,
+                    CoverKey = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                    Name = p.Name,
+                    RenderData = p.RenderData,
+                    Type = p.Type
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<SysElectronicAlbumGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumGetPaging(ElectronicAlbumGetPagingRequest request)
+        {
+            var pagingData = await _electronicAlbumDAL.GetPaging(request);
+            var output = new List<ElectronicAlbumGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                var tempBoxClass = new DataTempBox<EtClass>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var relatedDesc = string.Empty;
+                    var typeDesc = string.Empty;
+                    if (p.Type == EmElectronicAlbumType.Student)
+                    {
+                        var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RelatedId);
+                        if (myStudent == null)
+                        {
+                            continue;
+                        }
+                        relatedDesc = myStudent.Name;
+                        typeDesc = "学员";
+                    }
+                    else
+                    {
+                        var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.RelatedId);
+                        if (myClass == null)
+                        {
+                            continue;
+                        }
+                        relatedDesc = myClass.Name;
+                        typeDesc = "班级";
+                    }
+                    output.Add(new ElectronicAlbumGetPagingOutput()
+                    {
+                        CId = p.Id,
+                        CIdNo = p.CIdNo,
+                        CoverKey = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                        CreateTime = p.CreateTime,
+                        Name = p.Name,
+                        ReadCount = p.ReadCount,
+                        RelatedDesc = relatedDesc,
+                        TypeDesc = typeDesc,
+                        Type = p.Type,
+                        RelatedId = p.RelatedId,
+                        RenderData = p.RenderData,
+                        ShareCount = p.ShareCount,
+                        Status = p.Status,
+                        TempId = p.TempId,
+                        TemplateId = p.TemplateId,
+                        UpdateTime = p.UpdateTime,
+                        UserId = p.UserId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ElectronicAlbumGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumCreateInit(ElectronicAlbumCreateInitRequest request)
+        {
+            var entity = new EtElectronicAlbumTemp()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                CreateTime = DateTime.Now,
+                Name = request.Name,
+                RelatedId = request.RelatedId,
+                TemplateId = request.TemplateId,
+                TenantId = request.LoginTenantId,
+                Type = request.Type.Value,
+                UserId = request.LoginUserId
+            };
+            await _electronicAlbumTempDAL.AddElectronicAlbumTemp(entity);
+
+            await _userOperationLogDAL.AddUserLog(request, $"创建电子相册-{request.Name}", EmUserOperationType.ElectronicAlbumMgr);
+            return ResponseBase.Success(new ElectronicAlbumCreateInitOutput()
+            {
+                TempIdNo = EtmsHelper2.GetIdEncrypt(entity.Id)
+            });
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumPageInit(ElectronicAlbumPageInitRequest request)
+        {
+            if (string.IsNullOrEmpty(request.CIdNo)) //编辑
+            {
+                var id = EtmsHelper2.GetIdDecrypt2(request.CIdNo);
+                var myElectronicAlbum = await _electronicAlbumDAL.GetElectronicAlbum(id);
+                if (myElectronicAlbum == null)
+                {
+                    return ResponseBase.CommonError("相册不存在");
+                }
+                return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
+                {
+                    RenderData = myElectronicAlbum.RenderData
+                });
+            }
+            else
+            {
+                var tempId = EtmsHelper2.GetIdDecrypt2(request.TempIdNo);
+                var myTempElectronicAlbum = await _electronicAlbumTempDAL.GetElectronicAlbumTemp(tempId);
+                if (myTempElectronicAlbum == null)
+                {
+                    return ResponseBase.CommonError("相册信息不存在");
+                }
+                var mySysElectronicAlbum = await _sysElectronicAlbumDAL.GetElectronicAlbum(myTempElectronicAlbum.TemplateId);
+                if (mySysElectronicAlbum == null)
+                {
+                    return ResponseBase.CommonError("相册不存在");
+                }
+                return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
+                {
+                    RenderData = mySysElectronicAlbum.RenderData
+                });
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumSave(ElectronicAlbumSaveRequest request)
+        {
+            return await ElectronicAlbumEditOrPublish(request, false);
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumPublish(ElectronicAlbumPublishRequest request)
+        {
+            return await ElectronicAlbumEditOrPublish(request, true);
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumEditOrPublish(ElectronicAlbumEditOrPublishRequest request, bool isPublish)
+        {
+            if (string.IsNullOrEmpty(request.CIdNo)) //编辑
+            {
+                var id = EtmsHelper2.GetIdDecrypt2(request.CIdNo);
+                var myElectronicAlbum = await _electronicAlbumDAL.GetElectronicAlbum(id);
+                if (myElectronicAlbum == null)
+                {
+                    return ResponseBase.CommonError("相册不存在");
+                }
+                return await ElectronicAlbumEdit(myElectronicAlbum, request, isPublish);
+            }
+            else
+            {
+                var tempId = EtmsHelper2.GetIdDecrypt2(request.TempIdNo);
+                var myTempElectronicAlbum = await _electronicAlbumTempDAL.GetElectronicAlbumTemp(tempId);
+                if (myTempElectronicAlbum == null)
+                {
+                    return ResponseBase.CommonError("相册信息不存在");
+                }
+                var oldEntity = await _electronicAlbumDAL.GetElectronicAlbumByTempId(tempId);
+                if (oldEntity != null)
+                {
+                    return await ElectronicAlbumEdit(oldEntity, request, isPublish);
+                }
+                var newEntity = new EtElectronicAlbum()
+                {
+                    CreateTime = myTempElectronicAlbum.CreateTime,
+                    CoverKey = request.CoverKey,
+                    CIdNo = string.Empty,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Name = myTempElectronicAlbum.Name,
+                    ReadCount = 0,
+                    RelatedId = myTempElectronicAlbum.RelatedId,
+                    RenderData = request.RenderData,
+                    ShareCount = 0,
+                    Status = EmElectronicAlbumStatus.Save,
+                    TempId = tempId,
+                    TemplateId = myTempElectronicAlbum.TemplateId,
+                    TenantId = request.LoginTenantId,
+                    Type = myTempElectronicAlbum.Type,
+                    UpdateTime = null,
+                    UserId = request.LoginUserId
+                };
+                if (isPublish)
+                {
+                    newEntity.Status = EmElectronicAlbumStatus.Push;
+                }
+                await _electronicAlbumDAL.AddElectronicAlbum(newEntity);
+                _eventPublisher.Publish(new ElectronicAlbumInitEvent(request.LoginTenantId)
+                {
+                    MyElectronicAlbum = newEntity
+                });
+                return ResponseBase.Success();
+            }
+        }
+
+        private async Task<ResponseBase> ElectronicAlbumEdit(EtElectronicAlbum myElectronicAlbum,
+            ElectronicAlbumEditOrPublishRequest request, bool isPublish)
+        {
+            if (isPublish)
+            {
+                myElectronicAlbum.Status = EmElectronicAlbumStatus.Push;
+            }
+            myElectronicAlbum.RenderData = request.RenderData;
+            myElectronicAlbum.CoverKey = request.CoverKey;
+            myElectronicAlbum.UpdateTime = DateTime.Now;
+            await _electronicAlbumDAL.EditElectronicAlbum(myElectronicAlbum);
+            await _electronicAlbumDetailDAL.EditElectronicAlbumDetail(myElectronicAlbum);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumDel(ElectronicAlbumDelRequest request)
+        {
+            var myElectronicAlbum = await _electronicAlbumDAL.GetElectronicAlbum(request.CId);
+            if (myElectronicAlbum == null)
+            {
+                return ResponseBase.CommonError("相册不存在");
+            }
+            await _electronicAlbumDAL.DelElectronicAlbum(request.CId);
+            await _electronicAlbumDetailDAL.DelElectronicAlbumDetail(request.CId);
+
+            await _userOperationLogDAL.AddUserLog(request, $"删除电子相册-{myElectronicAlbum.Name}", EmUserOperationType.ElectronicAlbumMgr);
+            return ResponseBase.Success();
+        }
+    }
+}

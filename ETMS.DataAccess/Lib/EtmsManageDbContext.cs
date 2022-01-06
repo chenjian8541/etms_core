@@ -85,5 +85,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantFubeiAccount> SysTenantFubeiAccounts { get; set; }
         public DbSet<SysTryApplyLog> SysTryApplyLogs { get; set; }
         public DbSet<SysDangerousIp> SysDangerousIps { get; set; }
+        public DbSet<SysElectronicAlbum> SysElectronicAlbums { get; set; }
     }
 }

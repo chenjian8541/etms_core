@@ -1,0 +1,23 @@
+﻿using ETMS.Entity.Common;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ETMS.Entity.Dto.Interaction.Request
+{
+    public class ElectronicAlbumPublishRequest : ElectronicAlbumEditOrPublishRequest
+    {
+        public override string Validate()
+        {
+            if (string.IsNullOrEmpty(TempIdNo) && string.IsNullOrEmpty(CIdNo))
+            {
+                return "请求数据格式错误";
+            }
+            if (string.IsNullOrEmpty(RenderData))
+            {
+                return "相册内容不能为空";
+            }
+            return string.Empty;
+        }
+    }
+}

@@ -170,6 +170,9 @@ namespace ETMS.Entity.Enum
         LcsMgr = 83,
 
         [Description("在线商城")]
-        MallGoodsMgr = 84
+        MallGoodsMgr = 84,
+
+        [Description("电子相册")]
+        ElectronicAlbumMgr = 85
     }
 }

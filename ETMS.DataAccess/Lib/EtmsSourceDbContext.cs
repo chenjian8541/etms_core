@@ -193,5 +193,10 @@ namespace ETMS.DataAccess.Lib
 
         public DbSet<EtActiveHomeworkStudent> EtActiveHomeworkStudents { get; set; }
         public DbSet<EtShareTemplate> EtShareTemplates { get; set; }
+        public DbSet<EtLibImages> EtLibImagess { get; set; }
+        public DbSet<EtLibAudios> EtLibAudioss { get; set; }
+        public DbSet<EtElectronicAlbum> EtElectronicAlbums { get; set; }
+        public DbSet<EtElectronicAlbumDetail> EtElectronicAlbumDetails { get; set; }
+        public DbSet<EtElectronicAlbumTemp> EtElectronicAlbumTemps { get; set; }
     }
 }

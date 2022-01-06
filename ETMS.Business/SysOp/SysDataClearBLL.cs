@@ -184,6 +184,10 @@ namespace ETMS.Business.SysOp
             {
                 await this.ClearWxMessage();
             }
+            if (request.IsClearElectronicAlbum)
+            {
+                await this.ClearElectronicAlbum();
+            }
             if (request.IsClearStudentSmsLog)
             {
                 await this.ClearStudentSmsLog();
@@ -272,6 +276,7 @@ namespace ETMS.Business.SysOp
             await this.ClearWxMessage();
             await this.ClearStudentSmsLog();
             await this.ClearClassRecordEvaluate();
+            await this.ClearElectronicAlbum();
 
             await _sysDataClearDAL.ClearStudentCheckLog();
             await _sysDataClearDAL.ClearStudentAccountRecharge();
@@ -554,6 +559,15 @@ namespace ETMS.Business.SysOp
             return true;
         }
 
+        /// <summary>
+        /// 电子相册
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ClearElectronicAlbum()
+        {
+            await _sysDataClearDAL.ClearElectronicAlbum();
+            return true;
+        }
         #endregion
     }
 }

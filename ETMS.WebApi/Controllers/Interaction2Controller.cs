@@ -21,10 +21,14 @@ namespace ETMS.WebApi.Controllers
 
         private readonly IMicroWebConfigBLL _microWebConfigBLL;
 
-        public Interaction2Controller(IMicroWebBLL microWebBLL, IMicroWebConfigBLL microWebConfigBLL)
+        private readonly IElectronicAlbumBLL _electronicAlbumBLL;
+
+        public Interaction2Controller(IMicroWebBLL microWebBLL, IMicroWebConfigBLL microWebConfigBLL,
+            IElectronicAlbumBLL electronicAlbumBLL)
         {
             this._microWebBLL = microWebBLL;
             this._microWebConfigBLL = microWebConfigBLL;
+            this._electronicAlbumBLL = electronicAlbumBLL;
         }
 
         public async Task<ResponseBase> MicroWebBannerGet(RequestBase request)
@@ -285,6 +289,104 @@ namespace ETMS.WebApi.Controllers
             {
                 _microWebBLL.InitTenantId(request.LoginTenantId);
                 return await _microWebBLL.MicroWebHomeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysElectronicAlbumGetPaging(SysElectronicAlbumGetPagingRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.SysElectronicAlbumGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumGetPaging(ElectronicAlbumGetPagingRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumCreateInit(ElectronicAlbumCreateInitRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumCreateInit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumPageInit(ElectronicAlbumPageInitRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumPageInit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumSave(ElectronicAlbumSaveRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumPublish(ElectronicAlbumPublishRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumPublish(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ElectronicAlbumDel(ElectronicAlbumDelRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumDel(request);
             }
             catch (Exception ex)
             {
