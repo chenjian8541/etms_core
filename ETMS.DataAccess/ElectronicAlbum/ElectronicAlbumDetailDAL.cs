@@ -43,7 +43,7 @@ namespace ETMS.DataAccess.ElectronicAlbum
         public async Task EditElectronicAlbumDetail(EtElectronicAlbum myElectronicAlbum)
         {
             await _dbWrapper.Execute(
-                $"UPDATE EtElectronicAlbumDetail SET Name = '{myElectronicAlbum.Name}',CoverKey = '{myElectronicAlbum.CoverKey}',[Status] = {myElectronicAlbum.Status} WHERE ElectronicAlbumId = {myElectronicAlbum.Id} AND TenantId = {_tenantId}");
+                $"UPDATE EtElectronicAlbumDetail SET Name = '{myElectronicAlbum.Name}',CoverKey = '{myElectronicAlbum.CoverKey}',RenderKey = '{myElectronicAlbum.RenderKey}',[Status] = {myElectronicAlbum.Status} WHERE ElectronicAlbumId = {myElectronicAlbum.Id} AND TenantId = {_tenantId}");
         }
 
         public async Task EditElectronicAlbumDetail(EtElectronicAlbumDetail entity)

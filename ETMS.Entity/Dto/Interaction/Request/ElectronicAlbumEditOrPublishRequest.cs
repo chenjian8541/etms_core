@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Interaction.Request
 {
-    public class ElectronicAlbumEditOrPublishRequest:RequestBase
+    public class ElectronicAlbumEditOrPublishRequest: OpenLinkBase
     {
         public string TempIdNo { get; set; }
 
         public string CIdNo { get; set; }
 
-        public string RenderData { get; set; }
+        public string RenderKey { get; set; }
 
         public string CoverKey { get; set; }
     }

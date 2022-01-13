@@ -509,6 +509,17 @@
         }
       },
       {
+        "Id": 105,
+        "Path": "album",
+        "Name": "album",
+        "Type": 1,
+        "Component": "@/views/Interaction/albumMgr",
+        "Meta": {
+          "Title": "电子相册",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 73,
         "Path": "notice",
         "Name": "notice",

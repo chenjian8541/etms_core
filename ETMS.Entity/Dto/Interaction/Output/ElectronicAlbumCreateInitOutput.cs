@@ -9,5 +9,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
     public class ElectronicAlbumCreateInitOutput
     {
         public string TempIdNo { get; set; }
+
+        public string VtNo { get; set; }
     }
 }

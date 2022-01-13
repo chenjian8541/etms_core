@@ -18,7 +18,7 @@ namespace ETMS.Entity.Database.Manage
 
         public string CoverKey { get; set; }
 
-        public string RenderData { get; set; }
+        public string RenderKey { get; set; }
 
         public DateTime Ot { get; set; }
 

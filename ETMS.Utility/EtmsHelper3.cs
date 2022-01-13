@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Utility.View;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,27 @@ namespace ETMS.Utility
                 return tempDate.IsEffectiveDate();
             }
             return false;
+        }
+
+        public static string OpenLinkGetVtNo(int tenantId, long userId)
+        {
+            var timestamp = DateTime.Now.AddDays(1).EtmsGetTimestamp();
+            var strEncrypt = $"{tenantId}_{userId}_{timestamp}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static OpenLinkAnalyzeView OpenLinkAnalyzeVtNo(string vtNo)
+        {
+            var bytes = Convert.FromBase64String(vtNo);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            var myData = strCode.Split('_');
+            return new OpenLinkAnalyzeView()
+            {
+                TenantId = myData[0].ToInt(),
+                UserId = myData[1].ToLong(),
+                ExTime = DataTimeExtensions.StampToDateTime(myData[2])
+            };
         }
     }
 }

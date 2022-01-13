@@ -8,6 +8,12 @@ namespace ETMS.Entity.Dto.Interaction.Output
 {
     public class ElectronicAlbumPageInitOutput
     {
-        public string RenderData { get; set; }
+        public string RenderKey { get; set; }
+
+        public string RenderUrl { get; set; }
+
+        public string NewRenderKey { get; set; }
+
+        public string NewCoverKey { get; set; }
     }
 }

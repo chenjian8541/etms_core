@@ -20,5 +20,9 @@ namespace ETMS.Entity.Dto.BasicData.Output
         public string AudioUrl { get; set; }
 
         public string Name { get; set; }
+
+        public DateTime CreateTime { get; set; }
+
+        public bool IsPlay { get; set; }
     }
 }

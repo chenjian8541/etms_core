@@ -66,9 +66,10 @@ namespace ETMS.Business
                 output.Add(new SysElectronicAlbumGetPagingOutput()
                 {
                     CId = p.Id,
-                    CoverKey = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                    CoverKey = p.CoverKey,
+                    CoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
                     Name = p.Name,
-                    RenderData = p.RenderData,
+                    RenderUrl = AliyunOssUtil.GetAccessUrlHttps(p.RenderKey),
                     Type = p.Type
                 });
             }
@@ -83,6 +84,7 @@ namespace ETMS.Business
             {
                 var tempBoxStudent = new DataTempBox<EtStudent>();
                 var tempBoxClass = new DataTempBox<EtClass>();
+                var vtNo = EtmsHelper3.OpenLinkGetVtNo(request.LoginTenantId, request.LoginUserId);
                 foreach (var p in pagingData.Item1)
                 {
                     var relatedDesc = string.Empty;
@@ -111,7 +113,8 @@ namespace ETMS.Business
                     {
                         CId = p.Id,
                         CIdNo = p.CIdNo,
-                        CoverKey = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                        CoverKey = p.CoverKey,
+                        CoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
                         CreateTime = p.CreateTime,
                         Name = p.Name,
                         ReadCount = p.ReadCount,
@@ -119,13 +122,14 @@ namespace ETMS.Business
                         TypeDesc = typeDesc,
                         Type = p.Type,
                         RelatedId = p.RelatedId,
-                        RenderData = p.RenderData,
+                        RenderUrl = AliyunOssUtil.GetAccessUrlHttps(p.RenderKey),
                         ShareCount = p.ShareCount,
                         Status = p.Status,
                         TempId = p.TempId,
                         TemplateId = p.TemplateId,
                         UpdateTime = p.UpdateTime,
-                        UserId = p.UserId
+                        UserId = p.UserId,
+                        VtNo = vtNo
                     });
                 }
             }
@@ -150,7 +154,8 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, $"创建电子相册-{request.Name}", EmUserOperationType.ElectronicAlbumMgr);
             return ResponseBase.Success(new ElectronicAlbumCreateInitOutput()
             {
-                TempIdNo = EtmsHelper2.GetIdEncrypt(entity.Id)
+                TempIdNo = EtmsHelper2.GetIdEncrypt(entity.Id),
+                VtNo = EtmsHelper3.OpenLinkGetVtNo(request.LoginTenantId, request.LoginUserId)
             });
         }
 
@@ -166,7 +171,10 @@ namespace ETMS.Business
                 }
                 return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
                 {
-                    RenderData = myElectronicAlbum.RenderData
+                    RenderKey = myElectronicAlbum.RenderKey,
+                    RenderUrl = AliyunOssUtil.GetAccessUrlHttps(myElectronicAlbum.RenderKey),
+                    NewRenderKey = myElectronicAlbum.RenderKey,
+                    NewCoverKey = myElectronicAlbum.CoverKey
                 });
             }
             else
@@ -182,9 +190,15 @@ namespace ETMS.Business
                 {
                     return ResponseBase.CommonError("相册不存在");
                 }
+                var strDate = DateTime.Now.ToString("yyyyMMdd");
+                var jsonKey = $"{strDate}/{tempId}.json";
+                var imgKey = $"{strDate}/{tempId}.png";
                 return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
                 {
-                    RenderData = mySysElectronicAlbum.RenderData
+                    RenderKey = mySysElectronicAlbum.RenderKey,
+                    RenderUrl = AliyunOssUtil.GetAccessUrlHttps(mySysElectronicAlbum.RenderKey),
+                    NewRenderKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, jsonKey, AliyunOssFileTypeEnum.AlbumLb),
+                    NewCoverKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, imgKey, AliyunOssFileTypeEnum.AlbumLb)
                 });
             }
         }
@@ -199,7 +213,7 @@ namespace ETMS.Business
             return await ElectronicAlbumEditOrPublish(request, true);
         }
 
-        public async Task<ResponseBase> ElectronicAlbumEditOrPublish(ElectronicAlbumEditOrPublishRequest request, bool isPublish)
+        private async Task<ResponseBase> ElectronicAlbumEditOrPublish(ElectronicAlbumEditOrPublishRequest request, bool isPublish)
         {
             if (string.IsNullOrEmpty(request.CIdNo)) //编辑
             {
@@ -233,7 +247,7 @@ namespace ETMS.Business
                     Name = myTempElectronicAlbum.Name,
                     ReadCount = 0,
                     RelatedId = myTempElectronicAlbum.RelatedId,
-                    RenderData = request.RenderData,
+                    RenderKey = request.RenderKey,
                     ShareCount = 0,
                     Status = EmElectronicAlbumStatus.Save,
                     TempId = tempId,
@@ -263,7 +277,7 @@ namespace ETMS.Business
             {
                 myElectronicAlbum.Status = EmElectronicAlbumStatus.Push;
             }
-            myElectronicAlbum.RenderData = request.RenderData;
+            myElectronicAlbum.RenderKey = request.RenderKey;
             myElectronicAlbum.CoverKey = request.CoverKey;
             myElectronicAlbum.UpdateTime = DateTime.Now;
             await _electronicAlbumDAL.EditElectronicAlbum(myElectronicAlbum);
@@ -280,7 +294,8 @@ namespace ETMS.Business
             }
             await _electronicAlbumDAL.DelElectronicAlbum(request.CId);
             await _electronicAlbumDetailDAL.DelElectronicAlbumDetail(request.CId);
-
+            AliyunOssUtil.DeleteObject(myElectronicAlbum.RenderKey);
+            AliyunOssUtil.DeleteObject(myElectronicAlbum.CoverKey);
             await _userOperationLogDAL.AddUserLog(request, $"删除电子相册-{myElectronicAlbum.Name}", EmUserOperationType.ElectronicAlbumMgr);
             return ResponseBase.Success();
         }

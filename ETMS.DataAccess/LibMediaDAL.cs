@@ -22,6 +22,20 @@ namespace ETMS.DataAccess
         {
         }
 
+        public async Task<int> GetImageCount(int type)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT COUNT(0) FROM EtLibImages WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Type] = {type}");
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetAudioCount(int type)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT COUNT(0) FROM EtLibAudios WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Type] = {type}");
+            return obj.ToInt();
+        }
+
         public async Task AddImage(EtLibImages entity)
         {
             await this._dbWrapper.Insert(entity);

@@ -93,7 +93,8 @@ namespace ETMS.Business
                     Type = p.Type,
                     AudioKey = p.AudioKey,
                     AudioUrl = p.AudioUrl,
-                    Name = p.Name
+                    Name = p.Name,
+                    CreateTime = p.CreateTime
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<AudioGetPagingOutput>(pagingData.Item2, output));

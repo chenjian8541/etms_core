@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Interaction.Request
 {
-    public class ElectronicAlbumPageInitRequest : RequestBase
+    public class ElectronicAlbumPageInitRequest : OpenLinkBase
     {
         public string TempIdNo { get; set; }
 
@@ -17,7 +17,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请求数据格式错误";
             }
-            return string.Empty;
+            return base.Validate();
         }
     }
 }

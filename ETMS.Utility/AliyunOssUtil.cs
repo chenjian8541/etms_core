@@ -55,6 +55,18 @@ namespace ETMS.Utility
         }
 
         /// <summary>
+        /// 获取完整的Key
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="key"></param>
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static string GetFullKey(int tenantId, string key, string fileType)
+        {
+            return $"{RootFolder}/{tenantId}/{fileType}/{key}";
+        }
+
+        /// <summary>
         /// 上传文件
         /// </summary>
         /// <param name="tenantId"></param>
@@ -330,6 +342,11 @@ namespace ETMS.Utility
         /// 学生人脸
         /// </summary>
         public const string ImageStudentFace = "image_s_face";
+
+        /// <summary>
+        /// 电子相册相关
+        /// </summary>
+        public const string AlbumLb = "album";
     }
 
     /// <summary>

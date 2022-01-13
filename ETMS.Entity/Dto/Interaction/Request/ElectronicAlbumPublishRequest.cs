@@ -13,11 +13,11 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请求数据格式错误";
             }
-            if (string.IsNullOrEmpty(RenderData))
+            if (string.IsNullOrEmpty(RenderKey))
             {
                 return "相册内容不能为空";
             }
-            return string.Empty;
+            return base.Validate();
         }
     }
 }

@@ -75,7 +75,8 @@ namespace ETMS.Business.EventConsumer
                             Status = p.Status,
                             StudentId = myItem.StudentId,
                             TenantId = p.TenantId,
-                            UserId = p.UserId
+                            UserId = p.UserId,
+                            RenderKey = p.RenderKey
                         });
                     }
                     _electronicAlbumDetailDAL.AddElectronicAlbumDetail(entitys);

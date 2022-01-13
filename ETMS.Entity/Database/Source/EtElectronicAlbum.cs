@@ -28,7 +28,7 @@ namespace ETMS.Entity.Database.Source
 
         public string CoverKey { get; set; }
 
-        public string RenderData { get; set; }
+        public string RenderKey { get; set; }
 
         public int ReadCount { get; set; }
 

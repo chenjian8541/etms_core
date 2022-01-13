@@ -18,6 +18,8 @@ namespace ETMS.Entity.Database.Source
 
         public string CoverKey { get; set; }
 
+        public string RenderKey { get; set; }
+
         public int ReadCount { get; set; }
 
         public int ShareCount { get; set; }

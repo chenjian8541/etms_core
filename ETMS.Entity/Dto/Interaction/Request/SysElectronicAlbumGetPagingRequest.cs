@@ -21,11 +21,11 @@ namespace ETMS.Entity.Dto.Interaction.Request
         /// <returns></returns>
         public override string ToString()
         {
-            var condition = new StringBuilder(DataFilterWhere);
+            var condition = new StringBuilder($" IsDeleted = {EmIsDeleted.Normal}");
             condition.Append($" AND [Status] = {EmElectronicAlbumSysStatus.Online}");
             if (!string.IsNullOrEmpty(Name))
             {
-                condition.Append($" AND LIKE '%{Name}%'");
+                condition.Append($" AND Name LIKE '%{Name}%'");
             }
             if (Type != null)
             {

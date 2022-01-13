@@ -11,6 +11,10 @@ namespace ETMS.IDataAccess
 {
     public interface ILibMediaDAL : IBaseDAL
     {
+        Task<int> GetImageCount(int type);
+
+        Task<int> GetAudioCount(int type);
+
         Task AddImage(EtLibImages entity);
 
         Task DelImage(long id);

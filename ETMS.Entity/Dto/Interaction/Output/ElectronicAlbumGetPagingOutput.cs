@@ -33,7 +33,9 @@ namespace ETMS.Entity.Dto.Interaction.Output
 
         public string CoverKey { get; set; }
 
-        public string RenderData { get; set; }
+        public string CoverUrl { get; set; }
+
+        public string RenderUrl { get; set; }
 
         public int ReadCount { get; set; }
 
@@ -49,5 +51,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public DateTime? UpdateTime { get; set; }
 
         public DateTime CreateTime { get; set; }
+
+        public string VtNo { get; set; }
     }
 }

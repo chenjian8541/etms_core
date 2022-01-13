@@ -325,6 +325,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ElectronicAlbumDel(ElectronicAlbumDelRequest request)
+        {
+            try
+            {
+                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
+                return await _electronicAlbumBLL.ElectronicAlbumDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ElectronicAlbumCreateInit(ElectronicAlbumCreateInitRequest request)
         {
             try
@@ -339,6 +353,7 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         public async Task<ResponseBase> ElectronicAlbumPageInit(ElectronicAlbumPageInitRequest request)
         {
             try
@@ -353,6 +368,7 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         public async Task<ResponseBase> ElectronicAlbumSave(ElectronicAlbumSaveRequest request)
         {
             try
@@ -367,26 +383,13 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         public async Task<ResponseBase> ElectronicAlbumPublish(ElectronicAlbumPublishRequest request)
         {
             try
             {
                 _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
                 return await _electronicAlbumBLL.ElectronicAlbumPublish(request);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(request, ex, this.GetType());
-                return ResponseBase.UnKnownError();
-            }
-        }
-
-        public async Task<ResponseBase> ElectronicAlbumDel(ElectronicAlbumDelRequest request)
-        {
-            try
-            {
-                _electronicAlbumBLL.InitTenantId(request.LoginTenantId);
-                return await _electronicAlbumBLL.ElectronicAlbumDel(request);
             }
             catch (Exception ex)
             {
