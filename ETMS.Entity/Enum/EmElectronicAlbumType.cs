@@ -16,6 +16,6 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 学员
         /// </summary>
-        public const byte Student = 0;
+        public const byte Student = 1;
     }
 }

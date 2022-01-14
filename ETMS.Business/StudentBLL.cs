@@ -1306,7 +1306,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentBindingCardNo(StudentBindingCardNoRequest request)
         {
             var newCardNo = request.NewCardNo.Trim();
-            var bindingCardNoStudent = await _studentDAL.GetStudent(newCardNo);
+            var bindingCardNoStudent = await _studentDAL.GetStudentByDb(newCardNo);
             if (bindingCardNoStudent != null)
             {
                 return ResponseBase.CommonError($"此卡已被学员[{bindingCardNoStudent.Name}]绑定，请先解绑卡片");

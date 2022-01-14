@@ -61,6 +61,8 @@ namespace ETMS.IDataAccess
 
         Task<EtStudent> GetStudent(string cardNo);
 
+        Task<EtStudent> GetStudentByDb(string cardNo);
+
         Task<bool> StudentRelieveCardNo(long id, string cardNo);
 
         Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo);

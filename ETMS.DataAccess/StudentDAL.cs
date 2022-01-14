@@ -358,6 +358,11 @@ namespace ETMS.DataAccess
             return await _student2DAL.GetStudent(cardNo);
         }
 
+        public async Task<EtStudent> GetStudentByDb(string cardNo)
+        {
+            return await _student2DAL.GetStudentByDb(cardNo);
+        }
+
         public async Task<bool> StudentRelieveCardNo(long id, string cardNo)
         {
             await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '' WHERE TenantId = {_tenantId} AND Id = {id}");

@@ -25,5 +25,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public string CoverUrl { get; set; }
 
         public string RenderUrl { get; set; }
+
+        public bool IsMaking { get; set; }
     }
 }

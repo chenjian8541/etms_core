@@ -29,7 +29,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (!string.IsNullOrEmpty(Name))
             {
-                condition.Append($" AND LIKE '%{Name}%'");
+                condition.Append($" AND Name LIKE '%{Name}%'");
             }
             if (Type != null)
             {

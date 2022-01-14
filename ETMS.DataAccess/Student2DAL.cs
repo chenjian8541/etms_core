@@ -52,5 +52,10 @@ namespace ETMS.DataAccess
             var bucket = await GetCache(_tenantId, cardNo);
             return bucket?.Student;
         }
+
+        public async Task<EtStudent> GetStudentByDb(string cardNo)
+        {
+            return await _dbWrapper.Find<EtStudent>(p => p.TenantId == _tenantId && p.CardNo == cardNo && p.IsDeleted == EmIsDeleted.Normal);
+        }
     }
 }

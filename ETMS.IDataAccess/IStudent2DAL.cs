@@ -13,5 +13,7 @@ namespace ETMS.IDataAccess
         bool RemoveCache(string cardNo);
 
         Task<EtStudent> GetStudent(string cardNo);
+
+        Task<EtStudent> GetStudentByDb(string cardNo);
     }
 }

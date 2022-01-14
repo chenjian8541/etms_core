@@ -53,5 +53,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public DateTime CreateTime { get; set; }
 
         public string VtNo { get; set; }
+
+        public bool IsDeling { get; set; }
     }
 }
