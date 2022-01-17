@@ -21,7 +21,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请选择模板";
             }
-            if (Type <= 0)
+            if (Type == null)
             {
                 return "请求数据格式错误";
             }
