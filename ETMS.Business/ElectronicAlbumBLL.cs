@@ -37,9 +37,12 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly ILibMediaDAL _libMediaDAL;
+
         public ElectronicAlbumBLL(IElectronicAlbumTempDAL electronicAlbumTempDAL, IElectronicAlbumDAL electronicAlbumDAL,
            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, ISysElectronicAlbumDAL sysElectronicAlbumDAL,
-           IStudentDAL studentDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher)
+           IStudentDAL studentDAL, IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher,
+           ILibMediaDAL libMediaDAL)
         {
             this._electronicAlbumTempDAL = electronicAlbumTempDAL;
             this._electronicAlbumDAL = electronicAlbumDAL;
@@ -49,12 +52,13 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
+            this._libMediaDAL = libMediaDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _electronicAlbumTempDAL, _electronicAlbumDAL, _electronicAlbumDetailDAL,
-                _studentDAL, _classDAL, _userOperationLogDAL);
+                _studentDAL, _classDAL, _userOperationLogDAL, _libMediaDAL);
         }
 
         public async Task<ResponseBase> SysElectronicAlbumGetPaging(SysElectronicAlbumGetPagingRequest request)
@@ -154,32 +158,34 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, $"创建电子相册-{request.Name}", EmUserOperationType.ElectronicAlbumMgr);
             return ResponseBase.Success(new ElectronicAlbumCreateInitOutput()
             {
-                TempIdNo = EtmsHelper2.GetIdEncrypt(entity.Id),
+                TempIdNo = EtmsHelper3.OpenLinkGetIdEncrypt(entity.Id),
                 VtNo = EtmsHelper3.OpenLinkGetVtNo(request.LoginTenantId, request.LoginUserId)
             });
         }
 
         public async Task<ResponseBase> ElectronicAlbumPageInit(ElectronicAlbumPageInitRequest request)
         {
-            if (string.IsNullOrEmpty(request.CIdNo)) //编辑
+            ElectronicAlbumPageInitOutput output = null;
+            if (!string.IsNullOrEmpty(request.CIdNo)) //编辑
             {
-                var id = EtmsHelper2.GetIdDecrypt2(request.CIdNo);
+                var id = EtmsHelper3.OpenLinkGetIdDecrypt(request.CIdNo);
                 var myElectronicAlbum = await _electronicAlbumDAL.GetElectronicAlbum(id);
                 if (myElectronicAlbum == null)
                 {
                     return ResponseBase.CommonError("相册不存在");
                 }
-                return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
+                output = new ElectronicAlbumPageInitOutput()
                 {
                     RenderKey = myElectronicAlbum.RenderKey,
                     RenderUrl = AliyunOssUtil.GetAccessUrlHttps(myElectronicAlbum.RenderKey),
                     NewRenderKey = myElectronicAlbum.RenderKey,
-                    NewCoverKey = myElectronicAlbum.CoverKey
-                });
+                    NewCoverKey = myElectronicAlbum.CoverKey,
+                    Name = myElectronicAlbum.Name
+                };
             }
             else
             {
-                var tempId = EtmsHelper2.GetIdDecrypt2(request.TempIdNo);
+                var tempId = EtmsHelper3.OpenLinkGetIdDecrypt(request.TempIdNo);
                 var myTempElectronicAlbum = await _electronicAlbumTempDAL.GetElectronicAlbumTemp(tempId);
                 if (myTempElectronicAlbum == null)
                 {
@@ -193,14 +199,41 @@ namespace ETMS.Business
                 var strDate = DateTime.Now.ToString("yyyyMMdd");
                 var jsonKey = $"{strDate}/{tempId}.json";
                 var imgKey = $"{strDate}/{tempId}.png";
-                return ResponseBase.Success(new ElectronicAlbumPageInitOutput()
+                output = new ElectronicAlbumPageInitOutput()
                 {
                     RenderKey = mySysElectronicAlbum.RenderKey,
                     RenderUrl = AliyunOssUtil.GetAccessUrlHttps(mySysElectronicAlbum.RenderKey),
                     NewRenderKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, jsonKey, AliyunOssFileTypeEnum.AlbumLb),
-                    NewCoverKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, imgKey, AliyunOssFileTypeEnum.AlbumLb)
-                });
+                    NewCoverKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, imgKey, AliyunOssFileTypeEnum.AlbumLb),
+                    Name = myTempElectronicAlbum.Name
+                };
             }
+            var myImages = await _libMediaDAL.GetImages(EmLibType.ElectronicAlbum);
+            output.ImgList = new List<AlbumLibImg>();
+            if (myImages.Any())
+            {
+                foreach (var p in myImages)
+                {
+                    output.ImgList.Add(new AlbumLibImg()
+                    {
+                        ImgUrl = p.ImgUrl
+                    });
+                }
+            }
+            var myAudios = await _libMediaDAL.GetAudios(EmLibType.ElectronicAlbum);
+            output.AudioList = new List<AlbumLibAudio>();
+            if (myAudios.Any())
+            {
+                foreach (var p in myAudios)
+                {
+                    output.AudioList.Add(new AlbumLibAudio()
+                    {
+                        AudioUrl = p.AudioUrl,
+                        Name = p.Name
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ElectronicAlbumSave(ElectronicAlbumSaveRequest request)
@@ -215,9 +248,9 @@ namespace ETMS.Business
 
         private async Task<ResponseBase> ElectronicAlbumEditOrPublish(ElectronicAlbumEditOrPublishRequest request, bool isPublish)
         {
-            if (string.IsNullOrEmpty(request.CIdNo)) //编辑
+            if (!string.IsNullOrEmpty(request.CIdNo)) //编辑
             {
-                var id = EtmsHelper2.GetIdDecrypt2(request.CIdNo);
+                var id = EtmsHelper3.OpenLinkGetIdDecrypt(request.CIdNo);
                 var myElectronicAlbum = await _electronicAlbumDAL.GetElectronicAlbum(id);
                 if (myElectronicAlbum == null)
                 {
@@ -227,7 +260,7 @@ namespace ETMS.Business
             }
             else
             {
-                var tempId = EtmsHelper2.GetIdDecrypt2(request.TempIdNo);
+                var tempId = EtmsHelper3.OpenLinkGetIdDecrypt(request.TempIdNo);
                 var myTempElectronicAlbum = await _electronicAlbumTempDAL.GetElectronicAlbumTemp(tempId);
                 if (myTempElectronicAlbum == null)
                 {
@@ -262,6 +295,9 @@ namespace ETMS.Business
                     newEntity.Status = EmElectronicAlbumStatus.Push;
                 }
                 await _electronicAlbumDAL.AddElectronicAlbum(newEntity);
+                newEntity.CIdNo = EtmsHelper3.OpenLinkGetIdEncrypt(newEntity.Id);
+                await _electronicAlbumDAL.EditElectronicAlbum(newEntity);
+
                 _eventPublisher.Publish(new ElectronicAlbumInitEvent(request.LoginTenantId)
                 {
                     MyElectronicAlbum = newEntity

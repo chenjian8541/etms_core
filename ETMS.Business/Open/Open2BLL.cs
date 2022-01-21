@@ -11,6 +11,7 @@ using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.ElectronicAlbum;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.ShareTemplate;
 using ETMS.IEventProvider;
@@ -51,10 +52,13 @@ namespace ETMS.Business
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
+        private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
+
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
-            IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL)
+            IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL,
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -69,12 +73,14 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._shareTemplateUseTypeDAL = shareTemplateUseTypeDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, this._studentDAL, this._userDAL, this._courseDAL, this._classDAL,
-                this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL, _shareTemplateUseTypeDAL);
+                this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL, _shareTemplateUseTypeDAL,
+                _electronicAlbumDetailDAL);
         }
 
         public async Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request)
@@ -278,14 +284,40 @@ namespace ETMS.Business
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             switch (request.UseType)
             {
-                case EmShareTemplateUseType.StudentPhoto:
-                    return ResponseBase.Success(ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, "", ""));
                 case EmShareTemplateUseType.MicWebsite:
                     return ResponseBase.Success(ShareTemplateHandler.TemplateLinkMicWebsite(shareTemplateBucket.MyShareTemplateLink, myTenant.Name));
                 case EmShareTemplateUseType.OnlineMall:
                     return ResponseBase.Success(ShareTemplateHandler.TemplateLinkOnlineMall(shareTemplateBucket.MyShareTemplateLink, myTenant.Name));
             }
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AlbumDetailGet(AlbumDetailGetRequest request)
+        {
+            var p = await _electronicAlbumDetailDAL.GetElectronicAlbumDetail(request.Id);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("相册不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            await _electronicAlbumDetailDAL.AddReadCount(request.Id, 1);
+            var output = new AlbumDetailGetOutput()
+            {
+                Id = p.Id,
+                Name = p.Name,
+                CoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                RenderUrl = AliyunOssUtil.GetAccessUrlHttps(p.RenderKey)
+            };
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.StudentPhoto);
+            if (shareTemplateBucket != null)
+            {
+                output.ShareContent = ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, studentBucket.Student.Name, p.Name);
+            }
+            return ResponseBase.Success(output);
         }
     }
 }

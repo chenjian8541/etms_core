@@ -19,5 +19,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request);
 
         Task<ResponseBase> ShareContentGet(ShareContentGetRequest request);
+
+        Task<ResponseBase> AlbumDetailGet(AlbumDetailGetRequest request);
     } 
 }

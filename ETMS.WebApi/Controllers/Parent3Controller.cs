@@ -112,5 +112,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> AlbumGetPaging(AlbumGetPagingRequest request)
+        {
+            try
+            {
+                _parentData4BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData4BLL.AlbumGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace ETMS.Entity.View.LibMedia
         public long Id { get; set; }
 
         public string AudioUrl { get; set; }
+
+        public string Name { get; set; }
     }
 }

@@ -19,6 +19,7 @@ using ETMS.IBusiness;
 using ETMS.IBusiness.Parent;
 using ETMS.IBusiness.Wechart;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.ElectronicAlbum;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IDataAccess.MallGoodsDAL;
@@ -61,12 +62,15 @@ namespace ETMS.Business.Parent
 
         private readonly IClassRecordEvaluateDAL _classRecordEvaluateDAL;
 
+        private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
             IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
             IDistributedLockDAL distributedLockDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
-            IAgtPayServiceBLL agtPayServiceBLL, IClassRecordEvaluateDAL classRecordEvaluateDAL)
+            IAgtPayServiceBLL agtPayServiceBLL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL)
             : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
@@ -81,13 +85,14 @@ namespace ETMS.Business.Parent
             this._distributedLockDAL = distributedLockDAL;
             this._agtPayServiceBLL = agtPayServiceBLL;
             this._classRecordEvaluateDAL = classRecordEvaluateDAL;
+            this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._agtPayServiceBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _mallGoodsDAL, _tenantLcsPayLogDAL, _classDAL, _userDAL, _studentDAL,
-                _mallOrderDAL, _mallPrepayDAL, _classRecordEvaluateDAL);
+                _mallOrderDAL, _mallPrepayDAL, _classRecordEvaluateDAL, _electronicAlbumDetailDAL);
         }
 
         public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
@@ -601,6 +606,26 @@ namespace ETMS.Business.Parent
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TeacherEvaluateGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> AlbumGetPaging(AlbumGetPagingRequest request)
+        {
+            var pagingData = await _electronicAlbumDetailDAL.GetPaging(request);
+            var output = new List<AlbumGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new AlbumGetPagingOutput()
+                    {
+                        CId = p.Id,
+                        CoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                        Name = p.Name,
+                        StudentId = p.StudentId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<AlbumGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

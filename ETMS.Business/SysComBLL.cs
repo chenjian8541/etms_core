@@ -176,20 +176,30 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
-        public ResponseBase UploadConfigGet(RequestBase request)
+        private UploadConfigGetOutput UploadConfigGet(int tenantId)
         {
-            var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(request.LoginTenantId);
-            return ResponseBase.Success(new UploadConfigGetOutput()
+            var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(tenantId);
+            return new UploadConfigGetOutput()
             {
                 AccessKeyId = aliyunOssSTS.Credentials.AccessKeyId,
                 AccessKeySecret = aliyunOssSTS.Credentials.AccessKeySecret,
                 Bucket = AliyunOssUtil.BucketName,
                 Region = AliyunOssSTSUtil.STSRegion,
-                Basckey = AliyunOssUtil.GetBascKeyPrefix(request.LoginTenantId, AliyunOssFileTypeEnum.STS),
+                Basckey = AliyunOssUtil.GetBascKeyPrefix(tenantId, AliyunOssFileTypeEnum.STS),
                 ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
                 BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
                 SecurityToken = aliyunOssSTS.Credentials.SecurityToken
-            });
+            };
+        }
+
+        public ResponseBase UploadConfigGet(RequestBase request)
+        {
+            return ResponseBase.Success(UploadConfigGet(request.LoginTenantId));
+        }
+
+        public ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
+        {
+            return ResponseBase.Success(UploadConfigGet(request.LoginTenantId));
         }
 
         public async Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request)

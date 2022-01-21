@@ -19,6 +19,8 @@ namespace ETMS.IBusiness
 
         ResponseBase UploadConfigGet(RequestBase request);
 
+        ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request);
+
         Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request);
     }
 }

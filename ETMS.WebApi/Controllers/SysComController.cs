@@ -91,6 +91,21 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return _sysComBLL.UploadConfigGetOpenLink(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request)
         {
             try

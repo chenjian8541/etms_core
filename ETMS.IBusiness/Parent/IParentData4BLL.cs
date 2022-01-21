@@ -25,5 +25,7 @@ namespace ETMS.IBusiness.Parent
         Task<ResponseBase> MallGoodsGetPaging(MallGoodsGetPagingRequest request);
 
         Task<ResponseBase> TeacherEvaluateGetPaging(TeacherEvaluateGetPagingRequest request);
+
+        Task<ResponseBase> AlbumGetPaging(AlbumGetPagingRequest request);
     }
 }

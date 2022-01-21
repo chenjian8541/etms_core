@@ -15,5 +15,23 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public string NewRenderKey { get; set; }
 
         public string NewCoverKey { get; set; }
+
+        public string Name { get; set; }
+
+        public List<AlbumLibImg> ImgList { get; set; }
+
+        public List<AlbumLibAudio> AudioList { get; set; }
+    }
+
+    public class AlbumLibImg
+    {
+        public string ImgUrl { get; set; }
+    }
+
+    public class AlbumLibAudio
+    {
+        public string AudioUrl { get; set; }
+
+        public string Name { get; set; }
     }
 }

@@ -27,16 +27,35 @@ namespace ETMS.Utility
             return false;
         }
 
+        public static string OpenLinkGetIdEncrypt(long id)
+        {
+            var strEncrypt = $"8104{id}";
+            var bytes = Encoding.UTF8.GetBytes(strEncrypt);
+            var s = Convert.ToBase64String(bytes);
+            return System.Web.HttpUtility.UrlEncode(s);
+        }
+
+        public static long OpenLinkGetIdDecrypt(string s)
+        {
+            var strEncrypt = System.Web.HttpUtility.UrlDecode(s);
+            var bytes = Convert.FromBase64String(strEncrypt);
+            var strCode = Encoding.UTF8.GetString(bytes);
+            strCode = strCode.Substring(4);
+            return strCode.ToLong();
+        }
+
         public static string OpenLinkGetVtNo(int tenantId, long userId)
         {
             var timestamp = DateTime.Now.AddDays(1).EtmsGetTimestamp();
             var strEncrypt = $"{tenantId}_{userId}_{timestamp}";
             var bytes = Encoding.UTF8.GetBytes(strEncrypt);
-            return Convert.ToBase64String(bytes);
+            var s = Convert.ToBase64String(bytes);
+            return System.Web.HttpUtility.UrlEncode(s);
         }
 
-        public static OpenLinkAnalyzeView OpenLinkAnalyzeVtNo(string vtNo)
+        public static OpenLinkAnalyzeView OpenLinkAnalyzeVtNo(string s)
         {
+            var vtNo = System.Web.HttpUtility.UrlDecode(s);
             var bytes = Convert.FromBase64String(vtNo);
             var strCode = Encoding.UTF8.GetString(bytes);
             var myData = strCode.Split('_');

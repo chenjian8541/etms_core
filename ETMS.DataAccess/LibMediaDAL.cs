@@ -69,13 +69,13 @@ namespace ETMS.DataAccess
         public async Task<IEnumerable<LibImageView>> GetImages(int type)
         {
             return await _dbWrapper.ExecuteObject<LibImageView>(
-                  $"SELECT TOP 200 Id,ImgUrl FROM EtLibImages WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Type] = {type}  ORDER BY Id DESC");
+                  $"SELECT TOP 100 Id,ImgUrl FROM EtLibImages WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Type] = {type}  ORDER BY Id DESC");
         }
 
         public async Task<IEnumerable<LibAudioView>> GetAudios(int type)
         {
             return await _dbWrapper.ExecuteObject<LibAudioView>(
-                $"SELECT TOP 200 Id,AudioUrl FROM LibAudioView WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Type] = {type}  ORDER BY Id DESC");
+                $"SELECT TOP 100 Id,AudioUrl,Name FROM EtLibAudios WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Type] = {type}  ORDER BY Id DESC");
         }
     }
 }

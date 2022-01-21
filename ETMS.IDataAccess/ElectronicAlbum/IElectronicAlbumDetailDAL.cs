@@ -23,5 +23,7 @@ namespace ETMS.IDataAccess.ElectronicAlbum
         Task EditElectronicAlbumDetail(EtElectronicAlbumDetail entity);
 
         Task<Tuple<IEnumerable<EtElectronicAlbumDetail>, int>> GetPaging(IPagingRequest request);
+
+        Task AddReadCount(long id, int addCount);
     }
 }

@@ -48,7 +48,6 @@ namespace ETMS.DataAccess.ElectronicAlbum
         public async Task AddElectronicAlbum(EtElectronicAlbum entity)
         {
             await _dbWrapper.Insert(entity);
-            await UpdateCache(_tenantId, entity.Id);
         }
 
         public async Task EditElectronicAlbum(EtElectronicAlbum entity)

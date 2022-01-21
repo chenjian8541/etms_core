@@ -55,5 +55,10 @@ namespace ETMS.DataAccess.ElectronicAlbum
         {
             return await _dbWrapper.ExecutePage<EtElectronicAlbumDetail>("EtElectronicAlbumDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task AddReadCount(long id, int addCount)
+        {
+            await _dbWrapper.Execute($"UPDATE EtElectronicAlbumDetail SET ReadCount = ReadCount + {addCount} WHERE Id = {id}");
+        }
     }
 }
