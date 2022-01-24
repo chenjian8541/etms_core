@@ -86,5 +86,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTryApplyLog> SysTryApplyLogs { get; set; }
         public DbSet<SysDangerousIp> SysDangerousIps { get; set; }
         public DbSet<SysElectronicAlbum> SysElectronicAlbums { get; set; }
+        public DbSet<SysExternalConfig> SysExternalConfigs { get; set; }
     }
 }

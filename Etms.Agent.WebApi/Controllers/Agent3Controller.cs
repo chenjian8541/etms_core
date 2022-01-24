@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.Dto.Agent.Request;
+using ETMS.Entity.EtmsManage.Dto.Agent3.Request;
 using ETMS.Entity.EtmsManage.Dto.DataLog.Request;
 using ETMS.Entity.EtmsManage.Dto.Explain.Request;
 using ETMS.Entity.EtmsManage.Dto.SysCommon.Request;
@@ -26,10 +27,14 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly ISysTryApplyLogBLL _sysTryApplyLogBLL;
 
-        public Agent3Controller(ISysSmsTemplateBLL sysSmsTemplateBLL, ISysTryApplyLogBLL sysTryApplyLogBLL)
+        private readonly ISysExternalConfigBLL _sysExternalConfigBLL;
+
+        public Agent3Controller(ISysSmsTemplateBLL sysSmsTemplateBLL, ISysTryApplyLogBLL sysTryApplyLogBLL,
+            ISysExternalConfigBLL sysExternalConfigBLL)
         {
             this._sysSmsTemplateBLL = sysSmsTemplateBLL;
             this._sysTryApplyLogBLL = sysTryApplyLogBLL;
+            this._sysExternalConfigBLL = sysExternalConfigBLL;
         }
 
         public async Task<ResponseBase> SysSmsTemplateGetPaging(SysSmsTemplateGetPagingRequest request)
@@ -76,6 +81,71 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysTryApplyLogBLL.TryApplyLogHandle(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExternalConfigAdd(SysExternalConfigAddRequest request)
+        {
+            try
+            {
+                return await _sysExternalConfigBLL.SysExternalConfigAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExternalConfigEdit(SysExternalConfigEditRequest request)
+        {
+            try
+            {
+                return await _sysExternalConfigBLL.SysExternalConfigEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExternalConfigDel(SysExternalConfigDelRequest request)
+        {
+            try
+            {
+                return await _sysExternalConfigBLL.SysExternalConfigDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExternalConfigPaging(SysExternalConfigPagingRequest request)
+        {
+            try
+            {
+                return await _sysExternalConfigBLL.SysExternalConfigPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysExternalConfigGetList(AgentRequestBase request)
+        {
+            try
+            {
+                return await _sysExternalConfigBLL.SysExternalConfigGetList(request);
             }
             catch (Exception ex)
             {

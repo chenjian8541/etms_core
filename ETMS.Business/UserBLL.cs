@@ -56,11 +56,13 @@ namespace ETMS.Business
 
         private readonly ITeacherSalaryMonthStatisticsDAL _teacherSalaryMonthStatisticsDAL;
 
+        private readonly ISysExternalConfigDAL _sysExternalConfigDAL;
         public UserBLL(IHttpContextAccessor httpContextAccessor, IUserChangePwdSmsCodeDAL userChangePwdSmsCodeDAL,
             IAppConfigurtaionServices appConfigurtaionServices, IUserDAL etUserDAL, IUserOperationLogDAL userOperationLogDAL,
             IRoleDAL roleDAL, ISubjectDAL subjectDAL, ISysTenantDAL sysTenantDAL, IAppAuthorityDAL appAuthorityDAL,
             IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ISysTenantOtherInfoDAL sysTenantOtherInfoDAL,
-            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL, ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL)
+            ISysTenantUserFeedbackDAL sysTenantUserFeedbackDAL, ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL,
+            ISysExternalConfigDAL sysExternalConfigDAL)
         {
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
@@ -76,6 +78,7 @@ namespace ETMS.Business
             this._sysTenantOtherInfoDAL = sysTenantOtherInfoDAL;
             this._sysTenantUserFeedbackDAL = sysTenantUserFeedbackDAL;
             this._teacherSalaryMonthStatisticsDAL = teacherSalaryMonthStatisticsDAL;
+            this._sysExternalConfigDAL = sysExternalConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -124,6 +127,20 @@ namespace ETMS.Business
             var tenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var myAllRouteConfigs = await _appAuthorityDAL.GetTenantRouteConfig(request.LoginTenantId);
             var config = await _tenantConfigDAL.GetTenantConfig();
+            var myExternalConfigList = new List<ExternalConfigOutput>();
+            var externalConfigList = await _sysExternalConfigDAL.GetSysExternalConfigs();
+            if (externalConfigList != null && externalConfigList.Any())
+            {
+                foreach (var p in externalConfigList)
+                {
+                    myExternalConfigList.Add(new ExternalConfigOutput()
+                    {
+                        Data1 = p.Data1,
+                        Data2 = p.Data2,
+                        Type = p.Type
+                    });
+                }
+            }
             return ResponseBase.Success(new GetLoginInfoOutput()
             {
                 Name = userInfo.Name,
@@ -137,7 +154,8 @@ namespace ETMS.Business
                 TenantConfig = config,
                 TenantOEMInfo = await GetTenantOEMInfoOutput(request.LoginTenantId),
                 TenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId),
-                TenantName = tenant.Name
+                TenantName = tenant.Name,
+                ExternalConfigList = myExternalConfigList
             });
         }
 
