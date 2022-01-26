@@ -299,12 +299,21 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("相册不存在");
             }
+            if (p.Status == EmElectronicAlbumStatus.Save)
+            {
+                return ResponseBase.CommonError("相册未开放");
+            }
             var studentBucket = await _studentDAL.GetStudent(p.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
                 return ResponseBase.CommonError("学员不存在");
             }
-            await _electronicAlbumDetailDAL.AddReadCount(request.Id, 1);
+            _eventPublisher.Publish(new ElectronicAlbumStatisticsEvent(request.LoginTenantId)
+            {
+                ElectronicAlbumDetailId = request.Id,
+                OpType = ElectronicAlbumStatisticsOpType.Read,
+                Ot = DateTime.Now
+            });
             var output = new AlbumDetailGetOutput()
             {
                 Id = p.Id,
@@ -318,6 +327,17 @@ namespace ETMS.Business
                 output.ShareContent = ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, studentBucket.Student.Name, p.Name);
             }
             return ResponseBase.Success(output);
+        }
+
+        public ResponseBase AlbumShare(AlbumShareRequest request)
+        {
+            _eventPublisher.Publish(new ElectronicAlbumStatisticsEvent(request.LoginTenantId)
+            {
+                ElectronicAlbumDetailId = request.Id,
+                OpType = ElectronicAlbumStatisticsOpType.Share,
+                Ot = DateTime.Now
+            });
+            return ResponseBase.Success();
         }
     }
 }

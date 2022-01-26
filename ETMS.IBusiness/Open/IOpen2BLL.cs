@@ -21,5 +21,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ShareContentGet(ShareContentGetRequest request);
 
         Task<ResponseBase> AlbumDetailGet(AlbumDetailGetRequest request);
-    } 
+
+        ResponseBase AlbumShare(AlbumShareRequest request);
+    }
 }

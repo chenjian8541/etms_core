@@ -350,5 +350,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase AlbumShare(AlbumShareRequest request)
+        {
+            try
+            {
+                _open2BLL.InitTenantId(request.LoginTenantId);
+                return _open2BLL.AlbumShare(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

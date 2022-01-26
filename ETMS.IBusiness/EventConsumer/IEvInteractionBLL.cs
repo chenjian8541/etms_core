@@ -10,5 +10,7 @@ namespace ETMS.IBusiness.EventConsumer
     public interface IEvInteractionBLL : IBaseBLL
     {
         Task ElectronicAlbumInitConsumerEvent(ElectronicAlbumInitEvent request);
+
+        Task ElectronicAlbumStatisticsConsumerEvent(ElectronicAlbumStatisticsEvent request);
     }
 }

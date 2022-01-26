@@ -20,16 +20,21 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IElectronicAlbumStatisticsDAL _electronicAlbumStatisticsDAL;
+
         public EvInteractionBLL(IElectronicAlbumDAL electronicAlbumDAL, IElectronicAlbumDetailDAL electronicAlbumDetailDAL,
-            IClassDAL classDAL)
+            IClassDAL classDAL, IElectronicAlbumStatisticsDAL electronicAlbumStatisticsDAL)
         {
             this._electronicAlbumDAL = electronicAlbumDAL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
             this._classDAL = classDAL;
+            this._electronicAlbumStatisticsDAL = electronicAlbumStatisticsDAL;
         }
+
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _electronicAlbumDAL, _electronicAlbumDetailDAL, _classDAL);
+            this.InitDataAccess(tenantId, _electronicAlbumDAL, _electronicAlbumDetailDAL, _classDAL,
+                _electronicAlbumStatisticsDAL);
         }
 
         public async Task ElectronicAlbumInitConsumerEvent(ElectronicAlbumInitEvent request)
@@ -81,6 +86,27 @@ namespace ETMS.Business.EventConsumer
                     }
                     _electronicAlbumDetailDAL.AddElectronicAlbumDetail(entitys);
                 }
+            }
+        }
+
+        public async Task ElectronicAlbumStatisticsConsumerEvent(ElectronicAlbumStatisticsEvent request)
+        {
+            var p = await _electronicAlbumDetailDAL.GetElectronicAlbumDetail(request.ElectronicAlbumDetailId);
+            if (p == null)
+            {
+                return;
+            }
+            if (request.OpType == ElectronicAlbumStatisticsOpType.Read)
+            {
+                await _electronicAlbumDetailDAL.AddReadCount(request.ElectronicAlbumDetailId, 1);
+                await _electronicAlbumDAL.AddReadCount(p.ElectronicAlbumId, 1);
+                await _electronicAlbumStatisticsDAL.AddReadCount(p.ElectronicAlbumId, request.Ot);
+            }
+            else
+            {
+                await _electronicAlbumDetailDAL.AddShareCount(request.ElectronicAlbumDetailId, 1);
+                await _electronicAlbumDAL.AddShareCount(p.ElectronicAlbumId, 1);
+                await _electronicAlbumStatisticsDAL.AddShareCount(p.ElectronicAlbumId, request.Ot);
             }
         }
     }

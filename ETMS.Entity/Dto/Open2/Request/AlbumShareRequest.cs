@@ -1,11 +1,13 @@
 ﻿using ETMS.Entity.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.Interaction.Request
+namespace ETMS.Entity.Dto.Open2.Request
 {
-    public class ElectronicAlbumGetRequest : RequestBase
+    public class AlbumShareRequest : Open2Base
     {
         public long Id { get; set; }
 
@@ -15,7 +17,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 return "请求数据格式错误";
             }
-            return string.Empty;
+            return base.Validate();
         }
     }
 }

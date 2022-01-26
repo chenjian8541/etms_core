@@ -520,6 +520,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "albumSta/:cid",
+        "Name": "albumSta",
+        "Type": 1,
+        "Component": "@/components/Electronic/op/statistics",
+        "Meta": {
+          "Title": "电子相册统计详情",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 73,
         "Path": "notice",
         "Name": "notice",

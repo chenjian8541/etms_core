@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Interaction.Output
 {
-    public class ElectronicAlbumGetPagingOutput
+    public class ElectronicAlbumGetOutput
     {
         public long CId { get; set; }
 
@@ -51,11 +51,5 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public DateTime? UpdateTime { get; set; }
 
         public DateTime CreateTime { get; set; }
-
-        public string VtNo { get; set; }
-
-        public bool IsDeling { get; set; }
-
-        public string UserName { get; set; }
     }
 }

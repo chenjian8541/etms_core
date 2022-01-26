@@ -75,6 +75,8 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtElectronicAlbum SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtElectronicAlbumDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtElectronicAlbumTemp SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtElectronicAlbumReadLogDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtElectronicAlbumShareLogDay SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} ;");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }

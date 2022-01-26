@@ -23,5 +23,15 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ElectronicAlbumPublish(ElectronicAlbumPublishRequest request);
 
         Task<ResponseBase> ElectronicAlbumDel(ElectronicAlbumDelRequest request);
+
+        Task<ResponseBase> ElectronicAlbumEditSimple(ElectronicAlbumEditSimpleRequest request);
+
+        Task<ResponseBase> ElectronicAlbumGet(ElectronicAlbumGetRequest request);
+
+        Task<ResponseBase> ElectronicAlbumDetailGetPaging(ElectronicAlbumDetailGetPagingRequest request);
+
+        Task<ResponseBase> ElectronicAlbumStatisticsRead(ElectronicAlbumStatisticsReadRequest request);
+
+        Task<ResponseBase> ElectronicAlbumStatisticShare(ElectronicAlbumStatisticShareRequest request);
     }
 }

@@ -60,5 +60,10 @@ namespace ETMS.DataAccess.ElectronicAlbum
         {
             await _dbWrapper.Execute($"UPDATE EtElectronicAlbumDetail SET ReadCount = ReadCount + {addCount} WHERE Id = {id}");
         }
+
+        public async Task AddShareCount(long id, int addCount)
+        {
+            await _dbWrapper.Execute($"UPDATE EtElectronicAlbumDetail SET ShareCount = ShareCount + {addCount} WHERE Id = {id}");
+        }
     }
 }

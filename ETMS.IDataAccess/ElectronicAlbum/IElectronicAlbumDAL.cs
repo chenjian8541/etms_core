@@ -23,5 +23,9 @@ namespace ETMS.IDataAccess.ElectronicAlbum
         Task DelElectronicAlbum(long id);
 
         Task<Tuple<IEnumerable<EtElectronicAlbum>, int>> GetPaging(RequestPagingBase request);
+
+        Task AddReadCount(long id, int addCount);
+
+        Task AddShareCount(long id, int addCount);
     }
 }

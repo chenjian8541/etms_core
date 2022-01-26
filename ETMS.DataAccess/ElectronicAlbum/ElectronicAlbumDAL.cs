@@ -72,5 +72,17 @@ namespace ETMS.DataAccess.ElectronicAlbum
         {
             return await _dbWrapper.ExecutePage<EtElectronicAlbum>("EtElectronicAlbum", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task AddReadCount(long id, int addCount)
+        {
+            await _dbWrapper.Execute($"UPDATE EtElectronicAlbum SET ReadCount = ReadCount + {addCount} WHERE Id = {id}");
+            await UpdateCache(_tenantId, id);
+        }
+
+        public async Task AddShareCount(long id, int addCount)
+        {
+            await _dbWrapper.Execute($"UPDATE EtElectronicAlbum SET ShareCount = ShareCount + {addCount} WHERE Id = {id}");
+            await UpdateCache(_tenantId, id);
+        }
     }
 }
