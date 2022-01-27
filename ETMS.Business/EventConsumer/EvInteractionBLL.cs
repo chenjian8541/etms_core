@@ -4,6 +4,7 @@ using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.ElectronicAlbum;
+using ETMS.IEventProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +23,16 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IElectronicAlbumStatisticsDAL _electronicAlbumStatisticsDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public EvInteractionBLL(IElectronicAlbumDAL electronicAlbumDAL, IElectronicAlbumDetailDAL electronicAlbumDetailDAL,
-            IClassDAL classDAL, IElectronicAlbumStatisticsDAL electronicAlbumStatisticsDAL)
+            IClassDAL classDAL, IElectronicAlbumStatisticsDAL electronicAlbumStatisticsDAL, IEventPublisher eventPublisher)
         {
             this._electronicAlbumDAL = electronicAlbumDAL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
             this._classDAL = classDAL;
             this._electronicAlbumStatisticsDAL = electronicAlbumStatisticsDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -40,7 +44,7 @@ namespace ETMS.Business.EventConsumer
         public async Task ElectronicAlbumInitConsumerEvent(ElectronicAlbumInitEvent request)
         {
             var p = request.MyElectronicAlbum;
-            if (p.Type == EmElectronicAlbumType.Student)
+            if (p.Type == EmElectronicAlbumMyType.Student)
             {
                 await _electronicAlbumDetailDAL.AddElectronicAlbumDetail(new EtElectronicAlbumDetail()
                 {
@@ -86,6 +90,17 @@ namespace ETMS.Business.EventConsumer
                     }
                     _electronicAlbumDetailDAL.AddElectronicAlbumDetail(entitys);
                 }
+            }
+            if (p.Status == EmElectronicAlbumStatus.Push)
+            {
+                _eventPublisher.Publish(new NoticeStudentAlbumEvent(request.TenantId)
+                {
+                    AlbumId = p.Id,
+                    Name = p.Name,
+                    Type = p.Type,
+                    RelatedId = p.RelatedId,
+                    Time = p.CreateTime
+                });
             }
         }
 

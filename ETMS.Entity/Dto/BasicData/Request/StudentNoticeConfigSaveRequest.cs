@@ -113,5 +113,10 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员课时变动提醒
         /// </summary>
         public bool StudentCourseSurplusChangedSms { get; set; }
+
+        /// <summary>
+        /// 电子相册发布提醒
+        /// </summary>
+        public bool StudentAlbumPublishWeChat { get; set; }
     }
 }

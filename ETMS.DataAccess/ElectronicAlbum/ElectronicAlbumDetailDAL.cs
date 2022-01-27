@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket.ElectronicAlbum;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View;
 using ETMS.ICache;
 using ETMS.IDataAccess.ElectronicAlbum;
 using ETMS.Utility;
@@ -64,6 +65,12 @@ namespace ETMS.DataAccess.ElectronicAlbum
         public async Task AddShareCount(long id, int addCount)
         {
             await _dbWrapper.Execute($"UPDATE EtElectronicAlbumDetail SET ShareCount = ShareCount + {addCount} WHERE Id = {id}");
+        }
+
+        public async Task<IEnumerable<ElectronicAlbumDetailSimpleView>> GetElectronicAlbumDetailSimple(long electronicAlbumId)
+        {
+            return await _dbWrapper.ExecuteObject<ElectronicAlbumDetailSimpleView>(
+                $"SELECT Id,StudentId FROM EtElectronicAlbumDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ElectronicAlbumId = {electronicAlbumId}");
         }
     }
 }

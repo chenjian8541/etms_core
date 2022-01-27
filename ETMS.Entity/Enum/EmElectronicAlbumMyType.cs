@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Enum
 {
-    public struct EmElectronicAlbumType
+    public struct EmElectronicAlbumMyType
     {
         /// <summary>
         /// 班级

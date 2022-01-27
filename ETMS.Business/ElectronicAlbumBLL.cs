@@ -102,7 +102,7 @@ namespace ETMS.Business
                     var relatedDesc = string.Empty;
                     var typeDesc = string.Empty;
                     var userName = string.Empty;
-                    if (p.Type == EmElectronicAlbumType.Student)
+                    if (p.Type == EmElectronicAlbumMyType.Student)
                     {
                         var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RelatedId);
                         if (myStudent == null)
@@ -324,6 +324,7 @@ namespace ETMS.Business
         private async Task<ResponseBase> ElectronicAlbumEdit(EtElectronicAlbum myElectronicAlbum,
             ElectronicAlbumEditOrPublishRequest request, bool isPublish)
         {
+            var oldStatus = myElectronicAlbum.Status;
             if (isPublish)
             {
                 myElectronicAlbum.Status = EmElectronicAlbumStatus.Push;
@@ -333,6 +334,18 @@ namespace ETMS.Business
             myElectronicAlbum.UpdateTime = DateTime.Now;
             await _electronicAlbumDAL.EditElectronicAlbum(myElectronicAlbum);
             await _electronicAlbumDetailDAL.EditElectronicAlbumDetail(myElectronicAlbum);
+
+            if (isPublish && oldStatus != EmElectronicAlbumStatus.Push) //重新发布
+            {
+                _eventPublisher.Publish(new NoticeStudentAlbumEvent(myElectronicAlbum.TenantId)
+                {
+                    AlbumId = myElectronicAlbum.Id,
+                    Name = myElectronicAlbum.Name,
+                    Type = myElectronicAlbum.Type,
+                    RelatedId = myElectronicAlbum.RelatedId,
+                    Time = DateTime.Now
+                });
+            }
             return ResponseBase.Success();
         }
 
@@ -358,10 +371,23 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("相册不存在");
             }
+            var oldStatus = myElectronicAlbum.Status;
             myElectronicAlbum.Name = request.Name;
             myElectronicAlbum.Status = request.NewStatus;
             await _electronicAlbumDAL.EditElectronicAlbum(myElectronicAlbum);
             await _electronicAlbumDetailDAL.EditElectronicAlbumDetail(myElectronicAlbum);
+
+            if (request.NewStatus == EmElectronicAlbumStatus.Push && oldStatus != EmElectronicAlbumStatus.Push) //重新发布
+            {
+                _eventPublisher.Publish(new NoticeStudentAlbumEvent(myElectronicAlbum.TenantId)
+                {
+                    AlbumId = myElectronicAlbum.Id,
+                    Name = myElectronicAlbum.Name,
+                    Type = myElectronicAlbum.Type,
+                    RelatedId = myElectronicAlbum.RelatedId,
+                    Time = DateTime.Now
+                });
+            }
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑电子相册-{request.Name}", EmUserOperationType.ElectronicAlbumMgr);
             return ResponseBase.Success();
@@ -376,7 +402,7 @@ namespace ETMS.Business
             }
             var relatedDesc = string.Empty;
             var typeDesc = string.Empty;
-            if (p.Type == EmElectronicAlbumType.Student)
+            if (p.Type == EmElectronicAlbumMyType.Student)
             {
                 var myStudentBucket = await _studentDAL.GetStudent(p.RelatedId);
                 if (myStudentBucket != null && myStudentBucket.Student != null)

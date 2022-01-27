@@ -77,5 +77,10 @@ namespace ETMS.Entity.Enum
         /// 学员课时变动提醒
         /// </summary>
         public const int StudentCourseSurplusChanged = 13;
+
+        /// <summary>
+        /// 电子相册发布
+        /// </summary>
+        public const int StudentAlbumPublish = 14;
     }
 }

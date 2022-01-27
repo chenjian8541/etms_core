@@ -18,7 +18,7 @@ namespace ETMS.Entity.Database.Source
         public long TemplateId { get; set; }
 
         /// <summary>
-        /// <see cref="ETMS.Entity.Enum.EmElectronicAlbumType"/>
+        /// <see cref="ETMS.Entity.Enum.EmElectronicAlbumMyType"/>
         /// </summary>
         public byte Type { get; set; }
 

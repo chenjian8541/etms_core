@@ -309,6 +309,8 @@ namespace ETMS.Entity.Config
         public string TeacherSalaryListUrl { get; set; }
 
         public string TeacherSalaryDetailUrl { get; set; }
+
+        public string StudentAlbumDetailUrl { get; set; }
     }
 
     public class ServerConfig

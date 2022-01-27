@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,7 @@ namespace ETMS.IDataAccess.ElectronicAlbum
         Task AddReadCount(long id, int addCount);
 
         Task AddShareCount(long id, int addCount);
+
+        Task<IEnumerable<ElectronicAlbumDetailSimpleView>> GetElectronicAlbumDetailSimple(long electronicAlbumId);
     }
 }
