@@ -55,7 +55,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<Tuple<IEnumerable<SysElectronicAlbum>, int>> GetPaging(IPagingRequest request)
         {
-            return await this.ExecutePage<SysElectronicAlbum>("SysElectronicAlbum", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await this.ExecutePage<SysElectronicAlbum>("SysElectronicAlbum", "*", request.PageSize, request.PageCurrent, "OrderIndex ASC", request.ToString());
         }
     }
 }

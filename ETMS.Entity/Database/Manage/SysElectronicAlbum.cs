@@ -26,5 +26,7 @@ namespace ETMS.Entity.Database.Manage
         /// <see cref="EmElectronicAlbumSysStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        public int OrderIndex { get; set; }
     }
 }
