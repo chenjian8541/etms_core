@@ -340,7 +340,7 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task RemoveStudent(long studentId)
+        public async Task<IEnumerable<OnlyClassId>> RemoveStudent(long studentId)
         {
             var sql = $"SELECT ClassId FROM EtClassStudent WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}";
             var ids = await _dbWrapper.ExecuteObject<OnlyClassId>(sql);
@@ -353,6 +353,7 @@ namespace ETMS.DataAccess
                     UpdateCache(_tenantId, p.ClassId).Wait();
                 }
             }
+            return ids;
         }
 
         public async Task<List<EtClass>> GetEtClassByOrderId(long orderId)

@@ -417,7 +417,8 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Remark = string.Empty,
                 StudentId = studentId,
-                TenantId = tenantId
+                TenantId = tenantId,
+                Type = myClass.Type
             };
             _eventPublisher.Publish(new SyncStudentClassInfoEvent(tenantId)
             {

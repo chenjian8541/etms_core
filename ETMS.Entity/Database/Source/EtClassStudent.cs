@@ -12,6 +12,11 @@ namespace ETMS.Entity.Database.Source
     public class EtClassStudent : Entity<long>
     {
         /// <summary>
+        /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
+        /// </summary>
+        public byte Type { get; set; }
+
+        /// <summary>
 		/// 班级ID
 		/// </summary>
 		public long ClassId { get; set; }

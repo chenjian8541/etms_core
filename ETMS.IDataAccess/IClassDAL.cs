@@ -79,7 +79,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> UpdateClassTeachers(List<long> ids, string teachers, int teacherNum);
 
-        Task RemoveStudent(long studentId);
+        Task<IEnumerable<OnlyClassId>> RemoveStudent(long studentId);
 
         Task<List<EtClass>> GetEtClassByOrderId(long orderId);
 

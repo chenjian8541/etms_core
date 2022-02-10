@@ -1149,7 +1149,14 @@ namespace ETMS.Business
             }
             await _studentDAL.EditStudentType(request.CId, EmStudentType.HistoryStudent, DateTime.Now);
             await _studentCourseDAL.StudentMarkGraduation(request.CId);
-            await _classDAL.RemoveStudent(request.CId);
+            var affectClassList = await _classDAL.RemoveStudent(request.CId);
+            if (affectClassList != null && affectClassList.Any())
+            {
+                foreach (var myClass in affectClassList)
+                {
+                    _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, myClass.ClassId));
+                }
+            }
             _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
             {
                 StudentId = request.CId

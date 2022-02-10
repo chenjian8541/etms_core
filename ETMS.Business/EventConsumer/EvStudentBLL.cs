@@ -242,10 +242,21 @@ namespace ETMS.Business.EventConsumer
                 if (notEndClass == null) //没有未结课的课程
                 {
                     await _studentDAL.EditStudentType(request.StudentId, EmStudentType.HistoryStudent, DateTime.Now);
-                    await _classDAL.RemoveStudent(request.StudentId);
+                    var affectClassList = await _classDAL.RemoveStudent(request.StudentId);
+                    if (affectClassList != null && affectClassList.Any())
+                    {
+                        foreach (var myClass in affectClassList)
+                        {
+                            _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myClass.ClassId));
+                        }
+                    }
                     _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId)
                     {
                         OpType = EmStatisticsStudentType.StudentType
+                    });
+                    _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.TenantId)
+                    {
+                        StudentId = request.StudentId
                     });
                 }
             }

@@ -626,7 +626,8 @@ namespace ETMS.Business
                     IsDeleted = EmIsDeleted.Normal,
                     Remark = string.Empty,
                     StudentId = myStudentId,
-                    TenantId = request.LoginTenantId
+                    TenantId = request.LoginTenantId,
+                    Type = myClass.Type
                 });
                 _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
                 {
@@ -1730,7 +1731,8 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Remark = string.Empty,
                 StudentId = request.StudentId,
-                TenantId = request.LoginTenantId
+                TenantId = request.LoginTenantId,
+                Type = newClass.EtClass.Type
             });
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.NewClassId));
             _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
@@ -1782,7 +1784,8 @@ namespace ETMS.Business
                         IsDeleted = EmIsDeleted.Normal,
                         Remark = string.Empty,
                         StudentId = request.StudentId,
-                        TenantId = request.LoginTenantId
+                        TenantId = request.LoginTenantId,
+                        Type = myClass.EtClass.Type
                     });
                 }
                 else
