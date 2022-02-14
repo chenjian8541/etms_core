@@ -24,11 +24,6 @@ namespace ETMS.Entity.Config
         public const int Homework = 3;
 
         /// <summary>
-        /// 课后点评
-        /// </summary>
-        public const int EvaluateStudentLog = 8;
-
-        /// <summary>
         /// 评价老师
         /// </summary>
         public const int EvaluateTeacher = 4;
@@ -47,6 +42,11 @@ namespace ETMS.Entity.Config
         /// 在线商城
         /// </summary>
         public const int MallGoods = 7;
+
+        /// <summary>
+        /// 电子相册
+        /// </summary>
+        public const int AlbumLog = 8;
 
         /// <summary>
         /// 余额
@@ -108,6 +108,11 @@ namespace ETMS.Entity.Config
         /// </summary>
         public const int CheckOnLog = 31;
 
+        /// <summary>
+        /// 点评记录
+        /// </summary>
+        public const int EvaluateStudentLog = 32;
+
         public static List<ParentMenuInfo> AllConfig
         {
             get;
@@ -120,18 +125,20 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(LeaveApply, "请假审批", 5));
             AllConfig.Add(new ParentMenuInfo(GiftExchange, "礼品兑换", 10));
             AllConfig.Add(new ParentMenuInfo(Homework, "课后作业", 15));
-            AllConfig.Add(new ParentMenuInfo(EvaluateStudentLog, "课后点评", 17));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));
+            AllConfig.Add(new ParentMenuInfo(AlbumLog, "电子相册", 22));
             AllConfig.Add(new ParentMenuInfo(ReservationMgr, "在线预约", 25));
             AllConfig.Add(new ParentMenuInfo(MallGoods, "在线商城", 27));
             AllConfig.Add(new ParentMenuInfo(MicroWeb, "微官网", 30));
 
             AllConfig.Add(new ParentMenuInfo(Balance, "余额", 35));
             AllConfig.Add(new ParentMenuInfo(GrowingCollect, "我的收藏", 40));
-            AllConfig.Add(new ParentMenuInfo(ClassRecord, "上课记录", 45));
             AllConfig.Add(new ParentMenuInfo(MyBuyCourse, "报读课程", 50));
             AllConfig.Add(new ParentMenuInfo(MallOrder, "商城订单", 53));
             AllConfig.Add(new ParentMenuInfo(ConsumeOrderLog, "消费记录", 55));
+            AllConfig.Add(new ParentMenuInfo(ClassRecord, "上课记录", 56));
+            AllConfig.Add(new ParentMenuInfo(EvaluateStudentLog, "点评记录", 57));
+
             AllConfig.Add(new ParentMenuInfo(ExchangeLog, "兑换记录", 60));
             AllConfig.Add(new ParentMenuInfo(PointsLog, "积分记录", 65));
             AllConfig.Add(new ParentMenuInfo(CheckOnLog, "考勤记录", 67));
