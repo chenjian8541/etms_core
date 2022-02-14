@@ -54,11 +54,13 @@ namespace ETMS.Business
 
         private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
 
+        private readonly IElectronicAlbumDAL _electronicAlbumDAL;
+
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
             IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL,
-            IElectronicAlbumDetailDAL electronicAlbumDetailDAL)
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IElectronicAlbumDAL electronicAlbumDAL)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -74,13 +76,14 @@ namespace ETMS.Business
             this._shareTemplateUseTypeDAL = shareTemplateUseTypeDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
+            this._electronicAlbumDAL = electronicAlbumDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, this._studentDAL, this._userDAL, this._courseDAL, this._classDAL,
                 this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL, _shareTemplateUseTypeDAL,
-                _electronicAlbumDetailDAL);
+                _electronicAlbumDetailDAL, _electronicAlbumDAL);
         }
 
         public async Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request)
@@ -339,6 +342,32 @@ namespace ETMS.Business
                 Ot = DateTime.Now
             });
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AlbumInfoGet(AlbumInfoGetRequest request)
+        {
+            var p = await _electronicAlbumDAL.GetElectronicAlbum(request.Id);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("相册不存在");
+            }
+            if (p.Status == EmElectronicAlbumStatus.Save)
+            {
+                return ResponseBase.CommonError("相册未开放");
+            }
+            var output = new AlbumDetailGetOutput()
+            {
+                Id = p.Id,
+                Name = p.Name,
+                CoverUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverKey),
+                RenderUrl = AliyunOssUtil.GetAccessUrlHttps(p.RenderKey)
+            };
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.StudentPhoto);
+            if (shareTemplateBucket != null)
+            {
+                output.ShareContent = ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, string.Empty, p.Name);
+            }
+            return ResponseBase.Success(output);
         }
     }
 }

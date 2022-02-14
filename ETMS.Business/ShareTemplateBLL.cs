@@ -155,7 +155,9 @@ namespace ETMS.Business
                         TypeDesc = EmShareTemplateType.GetShareTemplateTypeDesc(p.Type),
                         UseType = p.UseType,
                         UseTypeDesc = EmShareTemplateUseType.GetShareTemplateUseTypeDesc(p.UseType),
-                        UpdateTime = p.UpdateTime
+                        UpdateTime = p.UpdateTime,
+                        Title = p.Title,
+                        Summary = p.Summary
                     });
                 }
             }

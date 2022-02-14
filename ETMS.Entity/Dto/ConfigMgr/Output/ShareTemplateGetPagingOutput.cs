@@ -39,5 +39,9 @@ namespace ETMS.Entity.Dto.ConfigMgr.Output
         public byte IsSystem { get; set; }
 
         public DateTime? UpdateTime { get; set; }
+
+        public string Title { get; set; }
+
+        public string Summary { get; set; }
     }
 }

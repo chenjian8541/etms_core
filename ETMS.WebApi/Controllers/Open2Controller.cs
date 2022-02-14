@@ -364,5 +364,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> AlbumInfoGet(AlbumInfoGetRequest request)
+        {
+            try
+            {
+                _open2BLL.InitTenantId(request.LoginTenantId);
+                return await _open2BLL.AlbumInfoGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
