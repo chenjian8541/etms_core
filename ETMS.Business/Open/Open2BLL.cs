@@ -261,6 +261,7 @@ namespace ETMS.Business
                 StudentId = p.StudentId,
                 StudentName = studentName,
                 TeacherName = teacherName,
+                StudentAvatar = AliyunOssUtil.GetAccessUrlHttps(studentBucket.Student.Avatar),
                 Week = p.Week
             };
             var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.ClassEvaluate);

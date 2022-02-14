@@ -23,6 +23,8 @@ namespace ETMS.Entity.Dto.Open2.Output
 
         public string StudentName { get; set; }
 
+        public string StudentAvatar { get; set; }
+
         /// <summary>
         /// 老师ID
         /// </summary>
