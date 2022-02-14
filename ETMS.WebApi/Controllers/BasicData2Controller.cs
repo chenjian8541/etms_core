@@ -146,6 +146,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public ResponseBase AppConfigGet(RequestBase request)
+        {
+            try
+            {
+                this._tenantBLL.InitTenantId(request.LoginTenantId);
+                return _tenantBLL.AppConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ImageGetPaging(ImageGetPagingRequest request)
         {
             try

@@ -17,6 +17,7 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Database.Source;
 using ETMS.Business.Common;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business
 {
@@ -42,9 +43,12 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         public TenantBLL(ISysTenantDAL sysTenantDAL, ISmsLogDAL studentSmsLogDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
             ISysVersionDAL sysVersionDAL, ISysSmsLogDAL sysSmsLogDAL, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL,
-            INoticeConfigDAL noticeConfigDAL, IUserOperationLogDAL userOperationLogDAL)
+            INoticeConfigDAL noticeConfigDAL, IUserOperationLogDAL userOperationLogDAL,
+            IAppConfigurtaionServices appConfigurtaionServices)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._smsLogDAL = studentSmsLogDAL;
@@ -56,6 +60,7 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._noticeConfigDAL = noticeConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
         public void InitTenantId(int tenantId)
@@ -268,6 +273,16 @@ namespace ETMS.Business
                 AgtPayDesc2 = myTenantAgtPayInfo.AgtPayDesc2
             };
             return ResponseBase.Success(output);
+        }
+
+        public ResponseBase AppConfigGet(RequestBase request)
+        {
+            var appConfig = _appConfigurtaionServices.AppSettings;
+            var tenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
+            return ResponseBase.Success(new AppConfigGetOutput()
+            {
+                StudentAlbumDetailUrl = string.Format(appConfig.WxConfig.WeChatEntranceConfig.StudentAlbumDetailUrl, tenantNo)
+            });
         }
     }
 }

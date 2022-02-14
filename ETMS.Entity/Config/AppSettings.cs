@@ -224,6 +224,8 @@ namespace ETMS.Entity.Config
         public string MallGoodsHomeUrl { get; set; }
 
         public string MallGoodsDetailUrl { get; set; }
+
+        public string StudentAlbumDetailUrl { get; set; }
     }
 
     public class TemplateNoticeConfig
