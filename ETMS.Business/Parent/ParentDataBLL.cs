@@ -133,6 +133,14 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次不存在");
             }
+            if (classTimes.Status == EmClassTimesStatus.BeRollcall)
+            {
+                return ResponseBase.CommonError("该课次已点名");
+            }
+            if (classTimes.ClassOt < DateTime.Now.Date)
+            {
+                return ResponseBase.CommonError("请假日期不能小于当前日期");
+            }
             var startFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.StartTime);
             var endFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.EndTime);
             var myDate = classTimes.ClassOt.Date;

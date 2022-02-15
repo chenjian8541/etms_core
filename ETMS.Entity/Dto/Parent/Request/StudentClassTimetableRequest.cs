@@ -58,6 +58,11 @@ namespace ETMS.Entity.Dto.Parent.Request
             }
         }
 
+        /// <summary>
+        /// 是否为请假
+        /// </summary>
+        public bool IsReqLeave { get; set; }
+
         protected override string DataFilterWhere(string studentFieldName = "StudentId")
         {
             if (ParentStudentIds.Count == 0)
@@ -93,6 +98,10 @@ namespace ETMS.Entity.Dto.Parent.Request
             if (EndOt != null)
             {
                 condition.Append($" AND ClassOt < '{EndOt.Value.EtmsToDateString()}'");
+            }
+            if (IsReqLeave)
+            {
+                condition.Append($" AND ClassOt >= '{DateTime.Now.EtmsToDateString()}' AND [Status] = {EmClassTimesStatus.UnRollcall}");
             }
             return condition.ToString();
         }
