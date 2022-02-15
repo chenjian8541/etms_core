@@ -126,10 +126,5 @@ namespace ETMS.DataAccess.ShareTemplate
         {
             return await _dbWrapper.ExecutePage<EtShareTemplate>("EtShareTemplate", "*", request.PageSize, request.PageCurrent, "Status DESC,Id DESC", request.ToString());
         }
-
-        public async Task<ShareTemplateUseTypeBucket> GetShareTemplateUseTypeBucket(int useType)
-        {
-            return await this._shareTemplateUseTypeDAL.GetShareTemplate(useType);
-        }
     }
 }

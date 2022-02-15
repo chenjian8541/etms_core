@@ -26,7 +26,5 @@ namespace ETMS.IDataAccess.ShareTemplate
         Task ChangeShareTemplateStatus(EtShareTemplate entity, byte newStatus);
 
         Task<Tuple<IEnumerable<EtShareTemplate>, int>> GetPaging(RequestPagingBase request);
-
-        Task<ShareTemplateUseTypeBucket> GetShareTemplateUseTypeBucket(int useType);
     }
 }

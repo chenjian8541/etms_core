@@ -1,4 +1,5 @@
 ﻿using ETMS.DataAccess.Core;
+using ETMS.DataAccess.Lib;
 using ETMS.Entity.CacheBucket.ShareTemplate;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
@@ -42,7 +43,12 @@ namespace ETMS.DataAccess.ShareTemplate
 
         public async Task<ShareTemplateUseTypeBucket> GetShareTemplate(int useType)
         {
-            return await GetCache(_tenantId, useType);
+            var bucket = await GetCache(_tenantId, useType);
+            if (bucket == null || bucket.MyShareTemplateLink == null)
+            {
+                return ShareTemplateLib.GetShareTemplate(useType);
+            }
+            return bucket;
         }
 
         public async Task UpdateShareTemplate(int useType)
