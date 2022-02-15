@@ -220,6 +220,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
             var p = await _classRecordEvaluateDAL.ClassRecordEvaluateStudentGet(request.Id);
             if (p == null)
             {
@@ -265,7 +270,8 @@ namespace ETMS.Business
                 StudentName = studentName,
                 TeacherName = teacherName,
                 StudentAvatar = AliyunOssUtil.GetAccessUrlHttps(studentBucket.Student.Avatar),
-                Week = p.Week
+                Week = p.Week,
+                TenantName = myTenant.Name
             };
             var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.ClassEvaluate);
             if (shareTemplateBucket != null)

@@ -66,5 +66,7 @@ namespace ETMS.Entity.Dto.Open2.Output
         /// 评价时间
         /// </summary>
         public DateTime Ot { get; set; }
+
+        public string TenantName { get; set; }
     }
 }
