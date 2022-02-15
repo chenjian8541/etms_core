@@ -10,5 +10,7 @@ namespace ETMS.Event.DataContract
         { }
 
         public long ClassRecordStudentId { get; set; }
+
+        public long EvaluateLogId { get; set; }
     }
 }

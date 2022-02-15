@@ -201,7 +201,7 @@ namespace ETMS.Business
             {
                 evaluateMedias = string.Join('|', request.EvaluateMediasKeys);
             }
-            await _classRecordEvaluateDAL.AddClassRecordEvaluateStudent(new EtClassRecordEvaluateStudent()
+            var newEntity = new EtClassRecordEvaluateStudent()
             {
                 ClassRecordId = classRecordStudentLog.Id,
                 CheckUserId = classRecordStudentLog.CheckUserId,
@@ -224,7 +224,8 @@ namespace ETMS.Business
                 Week = classRecordStudentLog.Week,
                 ClassRecordStudentId = request.ClassRecordStudentId,
                 CourseId = classRecordStudentLog.CourseId
-            });
+            };
+            await _classRecordEvaluateDAL.AddClassRecordEvaluateStudent(newEntity);
 
             if (classRecordStudentLog.EvaluateCount == 0) //之前未评价过
             {
@@ -236,7 +237,8 @@ namespace ETMS.Business
 
             _eventPublisher.Publish(new NoticeStudentsOfStudentEvaluateEvent(request.LoginTenantId)
             {
-                ClassRecordStudentId = request.ClassRecordStudentId
+                ClassRecordStudentId = request.ClassRecordStudentId,
+                EvaluateLogId = newEntity.Id
             });
             await _userOperationLogDAL.AddUserLog(request, $"点评学员-{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();

@@ -313,6 +313,8 @@ namespace ETMS.Entity.Config
         public string TeacherSalaryDetailUrl { get; set; }
 
         public string StudentAlbumDetailUrl { get; set; }
+
+        public string ClassRecordEvaluateFrontUrl { get; set; }
     }
 
     public class ServerConfig

@@ -402,7 +402,7 @@ namespace ETMS.Business.SendNotice
             req.Url = string.Empty;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
-            var url = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordDetailFrontUrl, tenantNo, classRecordStudentLog.Id);
+            var url = string.Format(wxConfig.TemplateNoticeConfig.ClassRecordEvaluateFrontUrl, tenantNo, request.EvaluateLogId);
             req.Students.Add(new StudentEvaluateItem()
             {
                 Name = student.Name,
