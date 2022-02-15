@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +17,7 @@ namespace ETMS.Entity.Dto.Open2.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
-            condition.Append($" AND ColumnId = {ColumnId}");
+            condition.Append($" AND [Status] = {EmMicroWebStatus.Enable} AND ColumnId = {ColumnId}");
             return condition.ToString();
         }
 
