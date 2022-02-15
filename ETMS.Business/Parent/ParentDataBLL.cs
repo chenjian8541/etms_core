@@ -122,6 +122,26 @@ namespace ETMS.Business
             //判断是否重复请假
             var startFullTime = EtmsHelper.GetTime(request.StartDate, request.StartTime);
             var endFullTime = EtmsHelper.GetTime(request.EndDate, request.EndTime);
+            return await StudentLeaveApplyProcess(request.StartDate, request.EndDate,
+                request.StartTime, request.EndTime, startFullTime, endFullTime, request);
+        }
+
+        public async Task<ResponseBase> StudentLeaveApplyAddClassTimes(StudentLeaveApplyAddClassTimesRequest request)
+        {
+            var classTimes = await _classTimesDAL.GetClassTimes(request.ClassTimesId);
+            if (classTimes == null)
+            {
+                return ResponseBase.CommonError("课次不存在");
+            }
+            var startFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.StartTime);
+            var endFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.EndTime);
+            var myDate = classTimes.ClassOt.Date;
+            return await StudentLeaveApplyProcess(myDate, myDate, classTimes.StartTime, classTimes.EndTime, startFullTime, endFullTime, request);
+        }
+
+        private async Task<ResponseBase> StudentLeaveApplyProcess(DateTime myStartDate, DateTime myEndDate, int myStartTime, int myEndTime,
+            DateTime startFullTime, DateTime endFullTime, StudentLeaveApplyRequest request)
+        {
             var isExistApplyLog = await _studentLeaveApplyLogDAL.ExistStudentLeaveApplyLog(request.StudentId, startFullTime, endFullTime);
             if (isExistApplyLog)
             {
@@ -140,17 +160,17 @@ namespace ETMS.Business
                     switch (config.TenantOtherConfig.StudentLeaveApplyMonthLimitType)
                     {
                         case EmStudentLeaveApplyMonthLimitType.Week:
-                            var re1 = EtmsHelper2.GetThisWeek(request.StartDate);
+                            var re1 = EtmsHelper2.GetThisWeek(myStartDate);
                             startDate = re1.Item1;
                             endDate = re1.Item2;
                             break;
                         case EmStudentLeaveApplyMonthLimitType.Month:
-                            var re2 = EtmsHelper2.GetThisMonth(request.StartDate);
+                            var re2 = EtmsHelper2.GetThisMonth(myStartDate);
                             startDate = re2.Item1;
                             endDate = re2.Item2;
                             break;
                         case EmStudentLeaveApplyMonthLimitType.Year:
-                            var re3 = EtmsHelper2.GetThisYear(request.StartDate);
+                            var re3 = EtmsHelper2.GetThisYear(myStartDate);
                             startDate = re3.Item1;
                             endDate = re3.Item2;
                             break;
@@ -163,7 +183,7 @@ namespace ETMS.Business
                             var overtakeLimitCourse = classRecordStudentCourseIsLeaveCount.Where(p => p.TotalCount >= config.TenantOtherConfig.StudentLeaveApplyMonthLimitCount);
                             if (overtakeLimitCourse.Any())
                             {
-                                myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, request.StartDate, request.EndDate);
+                                myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, myStartDate, myEndDate);
                                 if (myClassTimes.Any())
                                 {
                                     var allCourseList = myClassTimes.Select(p => p.CourseList).Distinct();
@@ -190,17 +210,17 @@ namespace ETMS.Business
                 {
                     if (myClassTimes == null)
                     {
-                        myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, request.StartDate, request.EndDate, 20);
+                        myClassTimes = await _classTimesDAL.GetStudentClassTimes(request.StudentId, myStartDate, myEndDate, 20);
                     }
                     if (myClassTimes.Any())
                     {
                         foreach (var itemClassTime in myClassTimes)
                         {
-                            if (itemClassTime.ClassOt == request.StartDate && itemClassTime.EndTime <= request.StartTime) //同一天，课程已结束
+                            if (itemClassTime.ClassOt == myStartDate && itemClassTime.EndTime <= myStartTime) //同一天，课程已结束
                             {
                                 continue;
                             }
-                            if (itemClassTime.ClassOt == request.EndDate && itemClassTime.StartTime >= request.EndTime)  //同一天，课程已结束
+                            if (itemClassTime.ClassOt == myEndDate && itemClassTime.StartTime >= myEndTime)  //同一天，课程已结束
                             {
                                 continue;
                             }
@@ -219,16 +239,16 @@ namespace ETMS.Business
             var log = new EtStudentLeaveApplyLog()
             {
                 ApplyOt = now,
-                EndDate = request.EndDate,
-                EndTime = request.EndTime,
+                EndDate = myEndDate,
+                EndTime = myEndTime,
                 HandleOt = null,
                 HandleRemark = string.Empty,
                 HandleStatus = EmStudentLeaveApplyHandleStatus.Unreviewed,
                 HandleUser = null,
                 IsDeleted = EmIsDeleted.Normal,
                 LeaveContent = request.LeaveContent,
-                StartDate = request.StartDate,
-                StartTime = request.StartTime,
+                StartDate = myStartDate,
+                StartTime = myStartTime,
                 StudentId = request.StudentId,
                 TenantId = request.LoginTenantId,
                 StartFullTime = startFullTime,

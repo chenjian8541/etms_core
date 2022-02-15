@@ -335,6 +335,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentLeaveApplyAddClassTimes(StudentLeaveApplyAddClassTimesRequest request)
+        {
+            try
+            {
+                _parentDataBLL.InitTenantId(request.LoginTenantId);
+                return await _parentDataBLL.StudentLeaveApplyAddClassTimes(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request)
         {
             try

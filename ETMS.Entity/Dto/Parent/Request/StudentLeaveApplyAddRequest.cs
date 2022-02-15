@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Parent.Request
 {
-    public class StudentLeaveApplyAddRequest : ParentRequestBase
+    public class StudentLeaveApplyAddRequest : StudentLeaveApplyRequest
     {
         public DateTime StartDate { get; set; }
 
@@ -17,14 +17,12 @@ namespace ETMS.Entity.Dto.Parent.Request
 
         public int EndTime { get; set; }
 
-        public string LeaveContent { get; set; }
-
-        public List<string> LeaveMediasKeys { get; set; }
-
-        public long StudentId { get; set; }
-
         public override string Validate()
         {
+            if (StudentId <= 0)
+            {
+                return "请选择请假人";
+            }
             if (EndDate < StartDate)
             {
                 return "请假日期格式不正确";

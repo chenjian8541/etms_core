@@ -11,6 +11,8 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> StudentLeaveApplyAdd(StudentLeaveApplyAddRequest request);
 
+        Task<ResponseBase> StudentLeaveApplyAddClassTimes(StudentLeaveApplyAddClassTimesRequest request);
+
         Task<ResponseBase> StudentLeaveApplyGet(StudentLeaveApplyGetRequest request);
 
         Task<ResponseBase> StudentListGet(StudentListGetRequest request);
