@@ -24,6 +24,11 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string LeaveContent { get; set; }
 
         /// <summary>
+        /// 请假备注
+        /// </summary>
+        public string LeaveRemark { get; set; }
+
+        /// <summary>
         /// 状态  <see cref="ETMS.Entity.Enum.EmStudentLeaveApplyHandleStatus"/>
         /// </summary>
         public byte HandleStatus { get; set; }

@@ -47,6 +47,11 @@ namespace ETMS.Entity.Database.Source
         public string LeaveContent { get; set; }
 
         /// <summary>
+        /// 请假备注
+        /// </summary>
+        public string LeaveRemark { get; set; }
+
+        /// <summary>
         /// 请假图片或者视频
         /// </summary>
         public string LeaveMedias { get; set; }

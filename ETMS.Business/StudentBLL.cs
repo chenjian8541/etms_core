@@ -996,7 +996,8 @@ namespace ETMS.Business
                 StudentName = student.Name,
                 StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
                 LeaveMediasUrl = EtmsHelper2.GetMediasUrl(applyLog.LeaveMedias),
-                StudentAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(student.Avatar)
+                StudentAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(student.Avatar),
+                LeaveRemark = applyLog.LeaveRemark
             });
         }
 
@@ -1023,7 +1024,8 @@ namespace ETMS.Business
                     HandleUserDesc = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
                     LeaveContent = p.LeaveContent,
                     StudentName = p.StudentName,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                    LeaveRemark = p.LeaveRemark
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentLeaveApplyLogPagingOutput>(pagingData.Item2, output));

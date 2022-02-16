@@ -144,11 +144,17 @@ namespace ETMS.Business
             var startFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.StartTime);
             var endFullTime = EtmsHelper.GetTime(classTimes.ClassOt, classTimes.EndTime);
             var myDate = classTimes.ClassOt.Date;
-            return await StudentLeaveApplyProcess(myDate, myDate, classTimes.StartTime, classTimes.EndTime, startFullTime, endFullTime, request);
+            var leaveRemark = string.Empty;
+            var myClassBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (myClassBucket != null && myClassBucket.EtClass != null)
+            {
+                leaveRemark = $"班级({myClassBucket.EtClass.Name})在{myDate.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}){EtmsHelper.GetTimeDesc(classTimes.StartTime)}~{EtmsHelper.GetTimeDesc(classTimes.EndTime)}的上课";
+            }
+            return await StudentLeaveApplyProcess(myDate, myDate, classTimes.StartTime, classTimes.EndTime, startFullTime, endFullTime, request, leaveRemark);
         }
 
         private async Task<ResponseBase> StudentLeaveApplyProcess(DateTime myStartDate, DateTime myEndDate, int myStartTime, int myEndTime,
-            DateTime startFullTime, DateTime endFullTime, StudentLeaveApplyRequest request)
+            DateTime startFullTime, DateTime endFullTime, StudentLeaveApplyRequest request, string leaveRemark = "")
         {
             var isExistApplyLog = await _studentLeaveApplyLogDAL.ExistStudentLeaveApplyLog(request.StudentId, startFullTime, endFullTime);
             if (isExistApplyLog)
@@ -261,7 +267,8 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 StartFullTime = startFullTime,
                 EndFullTime = endFullTime,
-                LeaveMedias = EtmsHelper2.GetMediasKeys(request.LeaveMediasKeys)
+                LeaveMedias = EtmsHelper2.GetMediasKeys(request.LeaveMediasKeys),
+                LeaveRemark = leaveRemark
             };
             await _studentLeaveApplyLogDAL.AddStudentLeaveApplyLog(log);
             await _studentOperationLogDAL.AddStudentLog(new EtStudentOperationLog()
@@ -302,7 +309,8 @@ namespace ETMS.Business
                     HandleStatus = p.HandleStatus,
                     LeaveContent = p.LeaveContent,
                     HandleStatusDesc = EmStudentLeaveApplyHandleStatus.GetStudentLeaveApplyHandleStatusDescParent(p.HandleStatus),
-                    Id = p.Id
+                    Id = p.Id,
+                    LeaveRemark = p.LeaveRemark
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentLeaveApplyGetOutput>(pagingData.Item2, output));
@@ -394,7 +402,8 @@ namespace ETMS.Business
                 HandleOt = p.HandleOt.EtmsToString(),
                 LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias),
                 HandleRemark = p.HandleRemark,
-                HandleUserName = handleUserName
+                HandleUserName = handleUserName,
+                LeaveRemark = p.LeaveRemark
             });
         }
 
