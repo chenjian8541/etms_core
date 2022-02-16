@@ -29,12 +29,15 @@ namespace Etms.Agent.WebApi.Controllers
 
         private readonly ISysExternalConfigBLL _sysExternalConfigBLL;
 
+        private readonly ISysNoticeBulletinBLL _sysNoticeBulletinBLL;
+
         public Agent3Controller(ISysSmsTemplateBLL sysSmsTemplateBLL, ISysTryApplyLogBLL sysTryApplyLogBLL,
-            ISysExternalConfigBLL sysExternalConfigBLL)
+            ISysExternalConfigBLL sysExternalConfigBLL, ISysNoticeBulletinBLL sysNoticeBulletinBLL)
         {
             this._sysSmsTemplateBLL = sysSmsTemplateBLL;
             this._sysTryApplyLogBLL = sysTryApplyLogBLL;
             this._sysExternalConfigBLL = sysExternalConfigBLL;
+            this._sysNoticeBulletinBLL = sysNoticeBulletinBLL;
         }
 
         public async Task<ResponseBase> SysSmsTemplateGetPaging(SysSmsTemplateGetPagingRequest request)
@@ -146,6 +149,45 @@ namespace Etms.Agent.WebApi.Controllers
             try
             {
                 return await _sysExternalConfigBLL.SysExternalConfigGetList(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysSysNoticeBulletinAdd(SysSysNoticeBulletinAddRequest request)
+        {
+            try
+            {
+                return await _sysNoticeBulletinBLL.SysSysNoticeBulletinAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysSysNoticeBulletinDel(SysSysNoticeBulletinDelRequest request)
+        {
+            try
+            {
+                return await _sysNoticeBulletinBLL.SysSysNoticeBulletinDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysSysNoticeBulletinPaging(SysSysNoticeBulletinPagingRequest request)
+        {
+            try
+            {
+                return await _sysNoticeBulletinBLL.SysSysNoticeBulletinPaging(request);
             }
             catch (Exception ex)
             {

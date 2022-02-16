@@ -179,6 +179,11 @@
             "Id": 30,
             "Name": "外部配置",
             "Type": 0
+          },
+          {
+            "Id": 31,
+            "Name": "系统公告",
+            "Type": 0
           }
         ],
         "ChildrenAction": [

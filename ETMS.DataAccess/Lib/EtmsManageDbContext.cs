@@ -87,5 +87,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysDangerousIp> SysDangerousIps { get; set; }
         public DbSet<SysElectronicAlbum> SysElectronicAlbums { get; set; }
         public DbSet<SysExternalConfig> SysExternalConfigs { get; set; }
+        public DbSet<SysNoticeBulletin> SysNoticeBulletins { get; set; }
+        public DbSet<SysNoticeBulletinRead> SysNoticeBulletinReads { get; set; }
     }
 }
