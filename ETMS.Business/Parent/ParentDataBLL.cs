@@ -399,7 +399,7 @@ namespace ETMS.Business
                 LeaveContent = p.LeaveContent,
                 HandleStatusDesc = EmStudentLeaveApplyHandleStatus.GetStudentLeaveApplyHandleStatusDescParent(p.HandleStatus),
                 Id = p.Id,
-                HandleOt = p.HandleOt.EtmsToString(),
+                HandleOt = p.HandleOt.EtmsToMinuteString(),
                 LeaveMediasUrl = EtmsHelper2.GetMediasUrl(p.LeaveMedias),
                 HandleRemark = p.HandleRemark,
                 HandleUserName = handleUserName,
