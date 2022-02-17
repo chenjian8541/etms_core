@@ -28,8 +28,11 @@ namespace ETMS.Business
 
         private readonly ISysClientUpgradeDAL _sysClientUpgradeDAL;
 
+        private readonly ISysNoticeBulletinDAL _sysNoticeBulletinDAL;
+
         public SysComBLL(ISysUpgradeMsgDAL sysUpgradeMsgDAL, ISysTenantDAL sysTenantDAL, ISysExplainDAL sysExplainDAL,
-            ISysAgentDAL sysAgentDAL, ISysAppsettingsBLL sysAppsettingsBLL, ISysClientUpgradeDAL sysClientUpgradeDAL)
+            ISysAgentDAL sysAgentDAL, ISysAppsettingsBLL sysAppsettingsBLL, ISysClientUpgradeDAL sysClientUpgradeDAL,
+            ISysNoticeBulletinDAL sysNoticeBulletinDAL)
         {
             this._sysUpgradeMsgDAL = sysUpgradeMsgDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -37,6 +40,7 @@ namespace ETMS.Business
             this._sysAgentDAL = sysAgentDAL;
             this._sysAppsettingsBLL = sysAppsettingsBLL;
             this._sysClientUpgradeDAL = sysClientUpgradeDAL;
+            this._sysNoticeBulletinDAL = sysNoticeBulletinDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -217,6 +221,47 @@ namespace ETMS.Business
                 UpgradeType = log.UpgradeType,
                 VersionNo = log.VersionNo
             });
+        }
+
+        public async Task<ResponseBase> SysBulletinGet(RequestBase request)
+        {
+            var output = new SysBulletinGetOutput();
+            var log = await _sysNoticeBulletinDAL.GetUsableLog();
+            var myDate = DateTime.Now.Date;
+            if (log == null)
+            {
+                return ResponseBase.Success(log);
+            }
+            if (log.EndTime != null && log.EndTime < myDate)
+            {
+                return ResponseBase.Success(log);
+            }
+            if (await _sysNoticeBulletinDAL.GetUserIsRead(log.Id, request.LoginTenantId, request.LoginUserId))
+            {
+                return ResponseBase.Success(log);
+            }
+            if (log.IsAdvertise == EmBool.True)
+            {
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                if (myTenant.Ot > myDate.AddMonths(-1))  //注册时间大于一个月的才会展示广告
+                {
+                    return ResponseBase.Success(log);
+                }
+            }
+            output.IsHaveData = true;
+            output.BulletinInfo = new SysBulletinGetInfo()
+            {
+                Title = log.Title,
+                UrlLink = log.LinkUrl,
+                Id = log.Id
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> SysBulletinSetRead(SysBulletinSetReadRequest request)
+        {
+            await _sysNoticeBulletinDAL.SetUserRead(request.BulletinId, request.LoginTenantId, request.LoginUserId);
+            return ResponseBase.Success();
         }
     }
 }

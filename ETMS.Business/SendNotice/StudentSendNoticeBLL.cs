@@ -765,7 +765,7 @@ namespace ETMS.Business
                 req.Url = string.Format(wxConfig.TemplateNoticeConfig.StudentLeaveApplyDetailFrontUrl, request.StudentLeaveApplyLog.Id);
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
-            var handleStatusDesc = request.StudentLeaveApplyLog.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass ? "审核通过" : "审核未通过";
+            var handleStatusDesc = request.StudentLeaveApplyLog.HandleStatus == EmStudentLeaveApplyHandleStatus.Pass ? "审批通过" : "审批未通过";
             var handleUser = await ComBusiness2.GetParentTeacherName(_userDAL, request.StudentLeaveApplyLog.HandleUser);
             req.Students.Add(new NoticeStudentLeaveApplyStudent()
             {

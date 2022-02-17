@@ -54,7 +54,7 @@ namespace ETMS.DataAccess.EtmsManage
             return bucket?.NoticeBulletin;
         }
 
-        public async void SetUserRead(int id, int tenantId, long userId)
+        public async Task SetUserRead(int id, int tenantId, long userId)
         {
             await this.Insert(new SysNoticeBulletinRead()
             {

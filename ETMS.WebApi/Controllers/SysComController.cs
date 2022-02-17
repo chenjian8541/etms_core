@@ -119,5 +119,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> SysBulletinGet(RequestBase request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return await _sysComBLL.SysBulletinGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SysBulletinSetRead(SysBulletinSetReadRequest request)
+        {
+            try
+            {
+                _sysComBLL.InitTenantId(request.LoginTenantId);
+                return await _sysComBLL.SysBulletinSetRead(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -22,5 +22,9 @@ namespace ETMS.IBusiness
         ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request);
 
         Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request);
+
+        Task<ResponseBase> SysBulletinGet(RequestBase request);
+
+        Task<ResponseBase> SysBulletinSetRead(SysBulletinSetReadRequest request);
     }
 }

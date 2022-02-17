@@ -1083,7 +1083,7 @@ namespace ETMS.Business
             }
             if (applyLog.HandleStatus != EmStudentLeaveApplyHandleStatus.Unreviewed)
             {
-                return ResponseBase.CommonError("此记录已审核");
+                return ResponseBase.CommonError("此记录已审批");
             }
             applyLog.HandleStatus = request.NewHandleStatus;
             applyLog.HandleOt = DateTime.Now;
@@ -1096,7 +1096,7 @@ namespace ETMS.Business
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
 
-            await _userOperationLogDAL.AddUserLog(request, "审核请假记录", EmUserOperationType.StudentLeaveApplyManage);
+            await _userOperationLogDAL.AddUserLog(request, "审批请假记录", EmUserOperationType.StudentLeaveApplyManage);
             return ResponseBase.Success();
         }
 

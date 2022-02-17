@@ -18,7 +18,7 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task<SysNoticeBulletin> GetUsableLog();
 
-        void SetUserRead(int id, int tenantId, long userId);
+        Task SetUserRead(int id, int tenantId, long userId);
 
         Task<bool> GetUserIsRead(int id, int tenantId, long userId);
     }
