@@ -115,5 +115,15 @@ namespace ETMS.Entity.Database.Source
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte StudentCheckDefault { get; set; }
+
+        /// <summary>
+        /// 起始时间
+        /// </summary>
+        public DateTime? StartTime { get; set; }
+
+        /// <summary>
+        /// 截至时间
+        /// </summary>
+        public DateTime? EndTime { get; set; }
     }
 }

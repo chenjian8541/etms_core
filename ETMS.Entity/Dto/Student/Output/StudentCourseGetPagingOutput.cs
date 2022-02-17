@@ -107,5 +107,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public long? LearningManager { get; set; }
 
         public string LearningManagerDesc { get; set; }
+
+        public string ExTimeDesc { get; set; }
     }
 }

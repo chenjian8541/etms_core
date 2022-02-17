@@ -323,5 +323,35 @@ namespace ETMS.Business.Common
             }
             return status;
         }
+
+        internal static string GetStudentCourseExDateDesc(byte status, byte deType, DateTime? startTime, DateTime? endTime)
+        {
+            if (status == EmStudentCourseStatus.EndOfClass)
+            {
+                return string.Empty;
+            }
+            if (deType == EmDeClassTimesType.ClassTimes)
+            {
+                if (endTime == null)
+                {
+                    return "永久有效";
+                }
+                else
+                {
+                    return $"{endTime.EtmsToDateString()} 到期";
+                }
+            }
+            else
+            {
+                if (startTime == null || endTime == null)
+                {
+                    return "未设置";
+                }
+                else
+                {
+                    return $"{startTime.EtmsToDateString()} 到 {endTime.EtmsToDateString()}";
+                }
+            }
+        }
     }
 }

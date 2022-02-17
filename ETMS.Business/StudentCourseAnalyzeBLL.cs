@@ -130,6 +130,8 @@ namespace ETMS.Business
                 courseClassTimes.SurplusQuantity = 0;
                 courseClassTimes.SurplusSmallQuantity = 0;
                 courseClassTimes.UseQuantity = 0;
+                courseClassTimes.StartTime = null;
+                courseClassTimes.EndTime = null;
             }
             var courseDay = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
             if (courseDay == null)
@@ -145,6 +147,8 @@ namespace ETMS.Business
                 courseDay.SurplusQuantity = 0;
                 courseDay.SurplusSmallQuantity = 0;
                 courseDay.UseQuantity = 0;
+                courseDay.StartTime = null;
+                courseDay.EndTime = null;
             }
 
             //判断课程停课/复课状态
@@ -176,6 +180,7 @@ namespace ETMS.Business
             }
             courseClassTimes.Status = courseDay.Status = studentCourseStatus;
 
+            var classTimeEndTimeList = new List<DateTime?>();
             //按课时
             var myStudentCourseDetailClassTimes = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.ClassTimes);
             foreach (var myDetailClassTimes in myStudentCourseDetailClassTimes)
@@ -201,9 +206,12 @@ namespace ETMS.Business
                 myDetailClassTimes.Status = studentCourseStatus;
                 courseClassTimes.SurplusQuantity += myDetailClassTimes.SurplusQuantity;
                 surplusMoney += ComBusiness2.GetStudentCourseDetailSurplusMoney(myDetailClassTimes);
+                classTimeEndTimeList.Add(myDetailClassTimes.EndTime);
             }
 
             //按月
+            var dayTimeStartTime = new List<DateTime?>();
+            var dayTimeEndTime = new List<DateTime?>();
             var myStudentCourseDetailDay = myCourseDetail.Where(p => p.DeType == EmDeClassTimesType.Day);
             foreach (var myDetailDay in myStudentCourseDetailDay)
             {
@@ -244,6 +252,8 @@ namespace ETMS.Business
                 courseDay.SurplusQuantity += myDetailDay.SurplusQuantity;
                 courseDay.SurplusSmallQuantity += myDetailDay.SurplusSmallQuantity;
                 surplusMoney += ComBusiness2.GetStudentCourseDetailSurplusMoney(myDetailDay);
+                dayTimeStartTime.Add(myDetailDay.StartTime);
+                dayTimeEndTime.Add(myDetailDay.EndTime);
             }
 
             var newCourseDetail = new List<EtStudentCourseDetail>();
@@ -263,6 +273,33 @@ namespace ETMS.Business
                         CourseId = request.CourseId,
                         StudentId = request.StudentId
                     });
+                }
+            }
+
+            //处理过期时间
+            if (classTimeEndTimeList.Any())
+            {
+                var isHasNotExpired = classTimeEndTimeList.Exists(p => p == null); //不过期
+                if (!isHasNotExpired)
+                {
+                    var maxDate = classTimeEndTimeList.OrderByDescending(p => p).FirstOrDefault();
+                    courseClassTimes.EndTime = maxDate;
+                }
+            }
+            if (dayTimeStartTime.Any())
+            {
+                var minDate = dayTimeStartTime.Where(p => p != null).OrderBy(p => p).FirstOrDefault();
+                if (minDate != null)
+                {
+                    courseDay.StartTime = minDate;
+                }
+            }
+            if (dayTimeEndTime.Any())
+            {
+                var maxDate = dayTimeEndTime.Where(p => p != null).OrderByDescending(p => p).FirstOrDefault();
+                if (maxDate != null)
+                {
+                    courseDay.EndTime = maxDate;
                 }
             }
 

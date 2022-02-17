@@ -132,7 +132,8 @@ namespace ETMS.Business
                     NotEnoughRemindCount = p.NotEnoughRemindCount,
                     StudentId = p.StudentId,
                     Value = p.StudentId,
-                    Label = p.StudentName
+                    Label = p.StudentName,
+                    ExTimeDesc = ComBusiness4.GetStudentCourseExDateDesc(p.Status, p.DeType, p.StartTime, p.EndTime)
                 };
                 if (request.IsLoadRich)
                 {
