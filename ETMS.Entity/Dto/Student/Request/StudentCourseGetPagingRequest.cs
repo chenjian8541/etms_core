@@ -69,7 +69,7 @@ namespace ETMS.Entity.Dto.Student.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (!string.IsNullOrEmpty(StudentKey))
             {
-                condition.Append($" AND (StudentName LIKE '{StudentKey}%' OR StudentPhone LIKE '{StudentKey}%')");
+                condition.Append($" AND (StudentName LIKE '%{StudentKey}%' OR StudentPhone LIKE '{StudentKey}%')");
             }
             if (DeType != null)
             {

@@ -15,9 +15,13 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public override string Validate()
         {
-            if (StudentId <= 0 || CourseId <= 0)
+            if (StudentId <= 0)
             {
-                return "请求数据格式错误";
+                return "请选择学员";
+            }
+            if (CourseId <= 0)
+            {
+                return "请先选择课程";
             }
             return string.Empty;
         }
