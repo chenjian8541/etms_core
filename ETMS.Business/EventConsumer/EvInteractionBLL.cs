@@ -57,7 +57,8 @@ namespace ETMS.Business.EventConsumer
                     Status = p.Status,
                     StudentId = p.RelatedId,
                     TenantId = p.TenantId,
-                    UserId = p.UserId
+                    UserId = p.UserId,
+                    RenderKey = p.RenderKey
                 });
             }
             else
