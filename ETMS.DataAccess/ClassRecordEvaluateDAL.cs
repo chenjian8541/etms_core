@@ -48,10 +48,10 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecutePage<EtClassRecordEvaluateTeacher>("EtClassRecordEvaluateTeacher", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task<bool> ClassRecordEvaluateStudentSetRead(long classRecordStudentId, int readCount)
+        public async Task<bool> ClassRecordEvaluateStudentSetRead(long classRecordStudentId, int addCount)
         {
             var sql = new StringBuilder();
-            sql.Append($"update [EtClassRecordStudent] set EvaluateReadCount = {readCount} where TenantId = {_tenantId} and Id = {classRecordStudentId} ;");
+            sql.Append($"update [EtClassRecordStudent] set EvaluateReadCount = EvaluateReadCount + {addCount} where TenantId = {_tenantId} and Id = {classRecordStudentId} ;");
             sql.Append($"update EtClassRecordEvaluateStudent set IsRead = 1 where ClassRecordStudentId = {classRecordStudentId} and TenantId = {_tenantId} ;");
             await _dbWrapper.Execute(sql.ToString());
             return true;

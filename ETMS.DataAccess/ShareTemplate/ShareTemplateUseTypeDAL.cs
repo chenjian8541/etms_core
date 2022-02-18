@@ -32,7 +32,7 @@ namespace ETMS.DataAccess.ShareTemplate
             var myShareTemplatePoster = myEnabledLogs.FirstOrDefault(p => p.Type == EmShareTemplateType.ShowTemplate);
             if (myShareTemplatePoster == null)
             {
-                myShareTemplateLink = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UseType == useType && p.Type == EmShareTemplateType.ShowTemplate);
+                myShareTemplatePoster = await this._dbWrapper.Find<EtShareTemplate>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.UseType == useType && p.Type == EmShareTemplateType.ShowTemplate);
             }
             return new ShareTemplateUseTypeBucket()
             {

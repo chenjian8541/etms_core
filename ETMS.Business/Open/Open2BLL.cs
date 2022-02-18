@@ -145,7 +145,7 @@ namespace ETMS.Business
             var classRecordEvaluateStudents = await _classRecordEvaluateDAL.GetClassRecordEvaluateStudent(request.Id);
             if (classRecordEvaluateStudents.Count > 0)
             {
-                var isNeedUpdateEvaluateIsRead = false;
+                //var isNeedUpdateEvaluateIsRead = false;
                 foreach (var classRecordEvaluateStudent in classRecordEvaluateStudents)
                 {
                     var teacher = await ComBusiness.GetUser(tempBoxUser, _userDAL, classRecordEvaluateStudent.TeacherId);
@@ -163,15 +163,15 @@ namespace ETMS.Business
                         TeacherName = ComBusiness2.GetParentTeacherName(teacher),
                         EvaluateMedias = ComBusiness3.GetMediasUrl(classRecordEvaluateStudent.EvaluateImg)
                     });
-                    if (!classRecordEvaluateStudent.IsRead)
-                    {
-                        isNeedUpdateEvaluateIsRead = true;
-                    }
+                    //if (!classRecordEvaluateStudent.IsRead)
+                    //{
+                    //    isNeedUpdateEvaluateIsRead = true;
+                    //}
                 }
-                if (isNeedUpdateEvaluateIsRead)
-                {
-                    await _classRecordEvaluateDAL.ClassRecordEvaluateStudentSetRead(request.Id, classRecordEvaluateStudents.Count);
-                }
+                //if (isNeedUpdateEvaluateIsRead)
+                //{
+                //    await _classRecordEvaluateDAL.ClassRecordEvaluateStudentSetRead(request.Id, classRecordEvaluateStudents.Count);
+                //}
             }
             return ResponseBase.Success(output);
         }
@@ -280,6 +280,11 @@ namespace ETMS.Business
                     output.StudentName, className, courseName, output.ClassOt, output.EvaluateContent, output.TeacherName);
                 output.ShowContent = ShareTemplateHandler.TemplateShowClassEvaluate(shareTemplateBucket.MyShareTemplateShow,
                    output.StudentName, className, courseName, output.ClassOt, output.EvaluateContent, output.TeacherName);
+            }
+            //设置已读
+            if (!p.IsRead)
+            {
+                await _classRecordEvaluateDAL.ClassRecordEvaluateStudentSetRead(p.ClassRecordStudentId, 1);
             }
             return ResponseBase.Success(output);
         }
