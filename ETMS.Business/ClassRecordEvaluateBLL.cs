@@ -336,6 +336,7 @@ namespace ETMS.Business
             await _classRecordEvaluateDAL.ClassRecordEvaluateStudentDel(request.Id);
             await _classRecordDAL.ClassRecordStudentDeEvaluateCount(log.ClassRecordStudentId, 1);
 
+            AliyunOssUtil.DeleteObject2(log.EvaluateImg);
             await _userOperationLogDAL.AddUserLog(request, "删除课后点评", EmUserOperationType.ClassEvaluate);
             return ResponseBase.Success();
         }

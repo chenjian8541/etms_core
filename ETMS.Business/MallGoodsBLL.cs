@@ -337,6 +337,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("商品不存在");
             }
             await _mallGoodsDAL.DelMallGoods(request.Id);
+            AliyunOssUtil.DeleteObject(myMallGoodsBucket.MallGoods.ImgCover);
 
             await _userOperationLogDAL.AddUserLog(request, $"移除商品-{myMallGoodsBucket.MallGoods.Name}", EmUserOperationType.MallGoodsMgr);
             return ResponseBase.Success();

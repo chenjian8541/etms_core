@@ -162,6 +162,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("此礼品存在兑换记录，无法删除");
             }
             await _giftDAL.DelGift(request.CId);
+            AliyunOssUtil.DeleteObject2(gift.ImgPath);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除礼品-{gift.Name}", EmUserOperationType.GiftManage);
             return ResponseBase.Success();
         }

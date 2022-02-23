@@ -165,6 +165,7 @@ namespace ETMS.Utility
         /// <param name="medias"></param>
         public static void DeleteObject2(string medias)
         {
+            LOG.Log.Debug($"oss删除:{medias}", typeof(AliyunOssUtil));
             var myMedias = medias.Split('|');
             if (myMedias.Length == 0)
             {

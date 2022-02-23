@@ -16,6 +16,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.CacheBucket.MicroWeb;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
 
 namespace ETMS.Business.MicroWeb
 {
@@ -31,14 +33,18 @@ namespace ETMS.Business.MicroWeb
 
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public MicroWebBLL(IMicroWebConfigBLL microWebConfigBLL, IMicroWebColumnDAL microWebColumnDAL,
-            IMicroWebColumnArticleDAL microWebColumnArticleDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL)
+            IMicroWebColumnArticleDAL microWebColumnArticleDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL,
+            IEventPublisher eventPublisher)
         {
             this._microWebConfigBLL = microWebConfigBLL;
             this._microWebColumnDAL = microWebColumnDAL;
             this._microWebColumnArticleDAL = microWebColumnArticleDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -226,6 +232,12 @@ namespace ETMS.Business.MicroWeb
                 return ResponseBase.CommonError("栏目不存在");
             }
             await _microWebColumnDAL.DelMicroWebColumn(request.Id);
+            AliyunOssUtil.DeleteObject(thisData.ShowInMenuIcon);
+            _eventPublisher.Publish(new CloudFileDelEvent(request.LoginTenantId)
+            {
+                SceneType = CloudFileScenes.MicroWebColumnArticle,
+                RelatedId = request.Id
+            });
 
             await _userOperationLogDAL.AddUserLog(request, $"删除栏目-{thisData.Name}", EmUserOperationType.MicroWebManage);
             RemoveMicroWebHomeBucket(request.LoginTenantId);
@@ -401,6 +413,7 @@ namespace ETMS.Business.MicroWeb
                 return ResponseBase.CommonError("内容记录不存在");
             }
             await _microWebColumnArticleDAL.DelMicroWebColumnArticle(request.Id);
+            AliyunOssUtil.DeleteObject(myData.ArCoverImg);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除栏目内容-{myData.ArTitile}", EmUserOperationType.MicroWebManage);
             RemoveMicroWebHomeBucket(request.LoginTenantId);

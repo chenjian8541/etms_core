@@ -911,6 +911,8 @@ namespace ETMS.Business
                 ChangeCount = 1,
                 OpType = StatisticsStudentTrackCountOpType.Deduction
             });
+            AliyunOssUtil.DeleteObject2(log.TrackImg);
+
             await _userOperationLogDAL.AddUserLog(request, $"删除跟进记录-跟进内容:{log.TrackContent}", EmUserOperationType.StudentTrackLog);
             return ResponseBase.Success();
         }

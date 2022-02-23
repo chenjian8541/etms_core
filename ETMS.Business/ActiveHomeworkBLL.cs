@@ -510,6 +510,11 @@ namespace ETMS.Business
             }
             await _activeHomeworkDAL.DelActiveHomework(request.CId);
             AliyunOssUtil.DeleteObject2(p.WorkMedias);
+            _eventPublisher.Publish(new CloudFileDelEvent(request.LoginTenantId)
+            {
+                SceneType = CloudFileScenes.ActiveHomework,
+                RelatedId = request.CId
+            });
 
             await _userOperationLogDAL.AddUserLog(request, $"删除作业-{p.Title}", EmUserOperationType.ActiveHomeworkMgr);
             return ResponseBase.Success();
