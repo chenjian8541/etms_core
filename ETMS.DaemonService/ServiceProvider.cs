@@ -52,6 +52,7 @@ namespace ETMS.DaemonService
                 InitSenparcWeixin(appSettings);
                 InitPayConfig(appSettings.PayConfig);
                 InitSytemInitializeData(appSettings);
+                InitAliyunOssConfig(appSettings.AliyunOssConfig);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
@@ -253,6 +254,14 @@ namespace ETMS.DaemonService
         private static void InitSytemInitializeData(AppSettings appSettings)
         {
             SysWebApiAddressConfig.InitConfig(appSettings.SysAddressConfig.WebApiUrl);
+        }
+
+        private static void InitAliyunOssConfig(AliyunOssConfig config)
+        {
+            AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
+                config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
+                config.OssAccessUrlHttps, config.RootFolder);
+            AliyunOssSTSUtil.InitAliyunSTSConfig(config.STSAccessKeyId, config.STSAccessKeySecret, config.STSRoleArn, config.STSEndpoint);
         }
     }
 }

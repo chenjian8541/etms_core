@@ -49,6 +49,11 @@ namespace ETMS.Utility
         /// </summary>
         private const string TempFolder = "temporary";
 
+        /// <summary>
+        /// 固定的正式环境 根文件夹
+        /// </summary>
+        private const string RootFolderProd = "etms_prod";
+
         public static string GetBascKeyPrefix(int tenantId, string fileType)
         {
             return $"{RootFolder}/{tenantId}/{fileType}/";
@@ -187,38 +192,71 @@ namespace ETMS.Utility
 
         public static void DelTenant(int tenantId)
         {
+            var id = $"{RootFolderProd}_{tenantId}";
+            var prefix = $"{RootFolderProd}/{tenantId}/";
+            AddBucketLifecycle(id, prefix, 1);
+        }
+
+        #region 生命周期管理
+
+        /// <summary>
+        /// 添加生命周期规则
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="prefix"></param>
+        /// <param name="expriationDays"></param>
+        private static void AddBucketLifecycle(string id, string prefix, int expriationDays)
+        {
+            var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+            var rules = client.GetBucketLifecycle(BucketName);
+            try
+            {
+                rules.Add(new LifecycleRule()
+                {
+                    ID = id,
+                    Prefix = prefix,
+                    Status = RuleStatus.Enabled,
+                    ExpriationDays = expriationDays
+                });
+                var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
+                setBucketLifecycleRequest.LifecycleRules = rules;
+                client.SetBucketLifecycle(setBucketLifecycleRequest);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"【OSS添加生命周期规则出错】==> 参数：prefix：{prefix}", ex, typeof(AliyunOssUtil));
+            }
+        }
+
+        /// <summary>
+        /// 设置生命周期
+        /// </summary>
+        public static void InitBucketLifecycle()
+        {
             var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
-            var id = $"{RootFolder}_{tenantId}";
+            //学员考勤照片 保留七天
+            var myFaceStudentCheckOnId = $"{RootFolderProd}_{TempFolder}_{AliyunOssTempFileTypeEnum.FaceStudentCheckOn}";
             setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
             {
-                ID = id,
-                Prefix = $"{RootFolder}/{tenantId}/",
+                ID = myFaceStudentCheckOnId,
+                Prefix = $"{RootFolderProd}/{TempFolder}/{AliyunOssTempFileTypeEnum.FaceStudentCheckOn}/",
                 Status = RuleStatus.Enabled,
                 ExpriationDays = 7
+            });
+            //学员人脸考勤黑名单 保留2天
+            var myFaceBlacklistId = $"{RootFolderProd}_{TempFolder}_{AliyunOssTempFileTypeEnum.FaceBlacklist}";
+            setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
+            {
+                ID = myFaceBlacklistId,
+                Prefix = $"{RootFolderProd}/{TempFolder}/{AliyunOssTempFileTypeEnum.FaceBlacklist}/",
+                Status = RuleStatus.Enabled,
+                ExpriationDays = 2
             });
             var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
             client.SetBucketLifecycle(setBucketLifecycleRequest);
         }
 
-        /// <summary>
-        /// 设置OSS生命周期
-        /// </summary>
-        /// <param name="fileType"></param>
-        /// <param name="expriationDays"></param>
-        public static void SetBucketLifecycle(string fileType, int expriationDays)
-        {
-            var setBucketLifecycleRequest = new SetBucketLifecycleRequest(BucketName);
-            var id = $"{RootFolder}_{TempFolder}_{fileType}";
-            setBucketLifecycleRequest.AddLifecycleRule(new LifecycleRule()
-            {
-                ID = id,
-                Prefix = $"{RootFolder}/{TempFolder}/{fileType}/",
-                Status = RuleStatus.Enabled,
-                ExpriationDays = expriationDays
-            });
-            var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
-            client.SetBucketLifecycle(setBucketLifecycleRequest);
-        }
+        #endregion
 
         /// <summary>
         /// 通过KEY获取外网访问地址（http）

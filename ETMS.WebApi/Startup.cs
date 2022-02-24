@@ -126,8 +126,7 @@ namespace ETMS.WebApi
             AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
                 config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
                 config.OssAccessUrlHttps, config.RootFolder);
-            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceBlacklist, 2);
-            AliyunOssUtil.SetBucketLifecycle(AliyunOssTempFileTypeEnum.FaceStudentCheckOn, 7);
+            AliyunOssUtil.InitBucketLifecycle();
             AliyunOssSTSUtil.InitAliyunSTSConfig(config.STSAccessKeyId, config.STSAccessKeySecret, config.STSRoleArn, config.STSEndpoint);
         }
 
