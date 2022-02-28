@@ -1,8 +1,12 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Entity.Config;
+using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +31,11 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
+        private readonly ISysTenantCloudStorageDAL _sysTenantCloudStorageDAL;
+
         public TenantLibBLL(IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL, INoticeConfigDAL noticeConfigDAL,
-            IComDAL comDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL)
+            IComDAL comDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL,
+            ISysTenantCloudStorageDAL sysTenantCloudStorageDAL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -37,6 +44,7 @@ namespace ETMS.Business.EventConsumer
             this._comDAL = comDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._sysTenantCloudStorageDAL = sysTenantCloudStorageDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -67,6 +75,52 @@ namespace ETMS.Business.EventConsumer
             {
                 await _sysTenantDAL.UpdateTenantLastOpTime(request.TenantId, lastOpTime.Value);
             }
+        }
+
+        public async Task CloudStorageAnalyzeConsumerEvent(CloudStorageAnalyzeEvent request)
+        {
+            var now = DateTime.Now;
+            var unitCvtGb = 1024;
+            var tenantId = request.TenantId;
+            var tenantCloudStorageList = new List<SysTenantCloudStorage>();
+            var aliyunOssCall = new AliyunOssCall();
+            var lastOldPrefix = $"{SystemConfig.ComConfig.OSSRootFolderProd}/{tenantId}/";
+            var lastOldSizeMb = aliyunOssCall.Process(lastOldPrefix);
+            var lastOldSizeGb = lastOldSizeMb / unitCvtGb;
+            tenantCloudStorageList.Add(new SysTenantCloudStorage()
+            {
+                IsDeleted = EmIsDeleted.Normal,
+                AgentId = request.AgentId,
+                LastModified = now,
+                Remark = null,
+                TenantId = tenantId,
+                Type = 0,
+                ValueMB = lastOldSizeMb,
+                ValueGB = lastOldSizeGb
+            });
+            var totalMb = lastOldSizeMb;
+            var totalGb = lastOldSizeGb;
+            foreach (var itemTag in EmTenantCloudStorageType.TenantCloudStorageTypeTags)
+            {
+                var itemPrefix = $"{SystemConfig.ComConfig.OSSRootNewFolder}/{itemTag.Tag}/{SystemConfig.ComConfig.OSSRootFolderProd}/{tenantId}/";
+                var itemSizeMb = aliyunOssCall.Process(itemPrefix);
+                var itemSizeGb = itemSizeMb / unitCvtGb;
+                tenantCloudStorageList.Add(new SysTenantCloudStorage()
+                {
+                    IsDeleted = EmIsDeleted.Normal,
+                    AgentId = request.AgentId,
+                    LastModified = now,
+                    Remark = null,
+                    TenantId = tenantId,
+                    Type = itemTag.Type,
+                    ValueMB = totalMb,
+                    ValueGB = itemSizeGb
+                });
+                totalMb += itemSizeMb;
+                totalGb += itemSizeGb;
+            }
+            await _sysTenantDAL.UpdateTenantCloudStorage(tenantId, totalMb, totalGb);
+            await _sysTenantCloudStorageDAL.SaveCloudStorage(tenantId, tenantCloudStorageList);
         }
     }
 }

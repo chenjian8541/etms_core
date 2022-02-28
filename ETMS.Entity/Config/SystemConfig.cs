@@ -237,5 +237,15 @@ namespace ETMS.Entity.Config
         /// 默认图片
         /// </summary>
         public string DefaultImgUrl = "https://xiaohebang.oss-cn-beijing.aliyuncs.com/system/default/xiaohebang.jpg";
+
+        /// <summary>
+        /// 固定的正式环境 根文件夹
+        /// </summary>
+        public string OSSRootFolderProd = "etms_prod";
+
+        /// <summary>
+        /// 固定的正式环境 新文件夹
+        /// </summary>
+        public string OSSRootNewFolder = "etms_lib";
     }
 }

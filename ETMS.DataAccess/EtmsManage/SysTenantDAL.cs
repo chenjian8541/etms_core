@@ -53,6 +53,11 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.ExecutePage<SysTenant>("SysTenant", "*", pageSize, pageCurrent, "Id DESC", $" IsDeleted = {EmIsDeleted.Normal} AND ExDate >= '{minDate.EtmsToDateString()}' ");
         }
 
+        public async Task<Tuple<IEnumerable<SysTenant>, int>> GetAllTenant(int pageSize, int pageCurrent)
+        {
+            return await this.ExecutePage<SysTenant>("SysTenant", "*", pageSize, pageCurrent, "Id DESC", $" IsDeleted = {EmIsDeleted.Normal} ");
+        }
+
         public async Task<int> AddTenant(SysTenant sysTenant, long userId)
         {
             sysTenant.UserId = userId;
@@ -136,6 +141,12 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task UpdateTenantLastOpTime(int id, DateTime lastOpTime)
         {
             await this.Execute($"UPDATE SysTenant SET LastOpTime = '{lastOpTime.EtmsToString()}' WHERE Id = {id} ");
+            await UpdateCache(id);
+        }
+
+        public async Task UpdateTenantCloudStorage(int id, decimal newValueMB, decimal newValueGB)
+        {
+            await this.Execute($"UPDATE SysTenant SET CloudStorageValueMB = '{newValueMB}',CloudStorageValueGB = '{newValueGB}' WHERE Id = {id} ");
             await UpdateCache(id);
         }
     }

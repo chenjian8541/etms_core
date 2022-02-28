@@ -131,5 +131,12 @@
     "Title": "作业分析(连续作业未交提醒)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "CloudStorageAnalyzeJob",
+    "Cron": "0 0 22 * * ?", //每天晚上22点执行
+    "Title": "定时分析OSS存储",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

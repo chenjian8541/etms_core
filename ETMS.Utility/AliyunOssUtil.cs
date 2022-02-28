@@ -17,22 +17,22 @@ namespace ETMS.Utility
         /// <summary>
         /// AccessKeyId
         /// </summary>
-        private static string AccessKeyId { get; set; }
+        internal static string AccessKeyId { get; set; }
 
         /// <summary>
         /// AccessKeySecret
         /// </summary>
-        private static string AccessKeySecret { get; set; }
+        internal static string AccessKeySecret { get; set; }
 
         /// <summary>
         /// Endpoint
         /// </summary>
-        private static string Endpoint { get; set; }
+        internal static string Endpoint { get; set; }
 
         /// <summary>
         /// 外网访问地址(http)
         /// </summary>
-        private static string OssAccessUrlHttp { get; set; }
+        internal static string OssAccessUrlHttp { get; set; }
 
         /// <summary>
         /// 外网访问地址(https)
@@ -42,17 +42,17 @@ namespace ETMS.Utility
         /// <summary>
         /// 根文件夹
         /// </summary>
-        private static string RootFolder { get; set; }
+        internal static string RootFolder { get; set; }
 
         /// <summary>
         /// 临时文件
         /// </summary>
-        private const string TempFolder = "temporary";
+        internal const string TempFolder = "temporary";
 
         /// <summary>
         /// 固定的正式环境 根文件夹
         /// </summary>
-        private const string RootFolderProd = "etms_prod";
+        internal const string RootFolderProd = "etms_prod";
 
         public static string GetBascKeyPrefix(int tenantId, string fileType)
         {

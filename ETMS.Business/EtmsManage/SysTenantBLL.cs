@@ -338,7 +338,8 @@ namespace ETMS.Business.EtmsManage
                 MaxUserCount = SystemConfig.TenantDefaultConfig.MaxUserCountDefault,
                 AICloudType = EmSysTenantAICloudType.BaiduCloud,
                 TencentCloudId = 0,
-                BaiduCloudId = biduCloudAccountId
+                BaiduCloudId = biduCloudAccountId,
+                CloudStorageLimitGB = 20
             }, request.LoginUserId);
             _etmsSourceDAL.InitTenantId(tenantId);
             _etmsSourceDAL.InitEtmsSourceData(tenantId, request.Name, request.LinkMan, request.Phone);

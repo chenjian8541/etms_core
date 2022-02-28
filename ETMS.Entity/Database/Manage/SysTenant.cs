@@ -133,5 +133,11 @@ namespace ETMS.Entity.Database.Manage
         /// 最后一次操作时间
         /// </summary>
         public DateTime? LastOpTime { get; set; }
+
+        public decimal CloudStorageLimitGB { get; set; }
+
+        public decimal CloudStorageValueGB { get; set; }
+
+        public decimal CloudStorageValueMB { get; set; }
     }
 }

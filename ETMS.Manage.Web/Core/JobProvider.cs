@@ -25,7 +25,8 @@ namespace ETMS.Manage.Web.Core
                 {
                     continue;
                 }
-                if (t.BaseType != typeof(BaseJob) && t.BaseType != typeof(BaseTenantHandle))
+                if (t.BaseType != typeof(BaseJob) && t.BaseType != typeof(BaseTenantHandle) &&
+                    t.BaseType != typeof(BaseTenantALLHandle))
                 {
                     continue;
                 }

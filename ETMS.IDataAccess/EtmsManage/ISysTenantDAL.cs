@@ -15,6 +15,8 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task<Tuple<IEnumerable<SysTenant>, int>> GetTenantsEffective(int pageSize, int pageCurrent);
 
+        Task<Tuple<IEnumerable<SysTenant>, int>> GetAllTenant(int pageSize, int pageCurrent);
+
         Task<int> AddTenant(SysTenant sysTenant, long userId);
 
         Task<bool> EditTenant(SysTenant sysTenant);
@@ -36,5 +38,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task UpdateTenantLcswInfo(int id, int newLcswApplyStatus, byte newLcswOpenStatus);
 
         Task UpdateTenantLastOpTime(int id, DateTime lastOpTime);
+
+        Task UpdateTenantCloudStorage(int id, decimal newValueMB, decimal newValueGB);
     }
 }

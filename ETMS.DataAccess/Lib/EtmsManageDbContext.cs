@@ -89,5 +89,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysExternalConfig> SysExternalConfigs { get; set; }
         public DbSet<SysNoticeBulletin> SysNoticeBulletins { get; set; }
         public DbSet<SysNoticeBulletinRead> SysNoticeBulletinReads { get; set; }
+        public DbSet<SysTenantCloudStorage> SysTenantCloudStorages { get; set; }
     }
 }

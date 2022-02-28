@@ -17,5 +17,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task ComSqlHandleConsumerEvent(ComSqlHandleEvent request);
 
         Task SyncTenantLastOpTimeConsumerEvent(SyncTenantLastOpTimeEvent request);
+
+        Task CloudStorageAnalyzeConsumerEvent(CloudStorageAnalyzeEvent request);
     }
 }
