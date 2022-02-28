@@ -110,5 +110,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         /// 最后一次操作时间
         /// </summary>
         public string LastOpTimeDesc { get; set; }
+
+        public decimal CloudStorageLimitGB { get; set; }
+
+        public decimal CloudStorageValueGB { get; set; }
+
+        public decimal CloudStorageValueMB { get; set; }
     }
 }

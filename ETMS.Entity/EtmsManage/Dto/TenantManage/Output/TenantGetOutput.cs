@@ -66,5 +66,11 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         /// (0:不限制)
         /// </summary>
         public int MaxUserCount { get; set; }
+
+        public decimal CloudStorageLimitGB { get; set; }
+
+        public decimal CloudStorageValueGB { get; set; }
+
+        public decimal CloudStorageValueMB { get; set; }
     }
 }

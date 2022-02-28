@@ -137,7 +137,10 @@ namespace ETMS.Business.EtmsManage
                     Value = p.Id,
                     Label = p.Name,
                     UserName = myUser?.Name,
-                    LastOpTimeDesc = p.LastOpTime.EtmsToString()
+                    LastOpTimeDesc = p.LastOpTime.EtmsToString(),
+                    CloudStorageLimitGB = p.CloudStorageLimitGB,
+                    CloudStorageValueGB = p.CloudStorageValueGB,
+                    CloudStorageValueMB = p.CloudStorageValueMB
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -413,7 +416,10 @@ namespace ETMS.Business.EtmsManage
                 VersionName = version?.Name,
                 SmsSignature = tenant.SmsSignature,
                 BuyStatus = tenant.BuyStatus,
-                MaxUserCount = tenant.MaxUserCount
+                MaxUserCount = tenant.MaxUserCount,
+                CloudStorageLimitGB = tenant.CloudStorageLimitGB,
+                CloudStorageValueMB = tenant.CloudStorageValueMB,
+                CloudStorageValueGB = tenant.CloudStorageValueGB
             };
             return ResponseBase.Success(output);
         }
@@ -475,7 +481,10 @@ namespace ETMS.Business.EtmsManage
                 BaiduCloudId = p.BaiduCloudId,
                 MaxUserCount = p.MaxUserCount,
                 TencentCloudId = p.TencentCloudId,
-                LastOpTimeDesc = p.LastOpTime.EtmsToString()
+                LastOpTimeDesc = p.LastOpTime.EtmsToString(),
+                CloudStorageLimitGB = p.CloudStorageLimitGB,
+                CloudStorageValueGB = p.CloudStorageValueGB,
+                CloudStorageValueMB = p.CloudStorageValueMB
             };
             return ResponseBase.Success(output);
         }
