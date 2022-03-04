@@ -212,14 +212,16 @@ namespace ETMS.Business
                     return ResponseBase.CommonError("相册不存在");
                 }
                 var strDate = DateTime.Now.ToString("yyyyMMdd");
-                var jsonKey = $"{strDate}/{tempId}.json";
-                var imgKey = $"{strDate}/{tempId}.png";
+                var root = EmTenantCloudStorageType.GetOssKeyPrefix(EmTenantCloudStorageType.album, AliyunOssUtil.RootFolder, request.LoginTenantId,
+                    DateTime.Now);
+                var jsonKey = $"{root}{tempId}.json";
+                var imgKey = $"{root}{tempId}.png";
                 output = new ElectronicAlbumPageInitOutput()
                 {
                     RenderKey = mySysElectronicAlbum.RenderKey,
                     RenderUrl = AliyunOssUtil.GetAccessUrlHttps(mySysElectronicAlbum.RenderKey),
-                    NewRenderKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, jsonKey, AliyunOssFileTypeEnum.AlbumLb),
-                    NewCoverKey = AliyunOssUtil.GetFullKey(request.LoginTenantId, imgKey, AliyunOssFileTypeEnum.AlbumLb),
+                    NewRenderKey = jsonKey,
+                    NewCoverKey = imgKey,
                     Name = myTempElectronicAlbum.Name
                 };
             }

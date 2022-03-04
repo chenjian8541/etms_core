@@ -41,6 +41,7 @@ namespace ETMS.Entity.Database.Source
 
         public string ImgCover { get; set; }
 
+        [Obsolete("未用")]
         public string ImgDetail { get; set; }
 
         public string GsContent { get; set; }

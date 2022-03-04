@@ -42,33 +42,21 @@ namespace ETMS.Utility
         /// <summary>
         /// 根文件夹
         /// </summary>
-        internal static string RootFolder { get; set; }
+        public static string RootFolder { get; set; }
 
         /// <summary>
         /// 临时文件
         /// </summary>
-        internal const string TempFolder = "temporary";
+        public const string TempFolder = "temporary";
 
         /// <summary>
         /// 固定的正式环境 根文件夹
         /// </summary>
-        internal const string RootFolderProd = "etms_prod";
+        public const string RootFolderProd = "etms_prod";
 
         public static string GetBascKeyPrefix(int tenantId, string fileType)
         {
             return $"{RootFolder}/{tenantId}/{fileType}/";
-        }
-
-        /// <summary>
-        /// 获取完整的Key
-        /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="key"></param>
-        /// <param name="fileType"></param>
-        /// <returns></returns>
-        public static string GetFullKey(int tenantId, string key, string fileType)
-        {
-            return $"{RootFolder}/{tenantId}/{fileType}/{key}";
         }
 
         /// <summary>
@@ -116,6 +104,15 @@ namespace ETMS.Utility
             using (var cutContent = new MemoryStream(bytes, 0, count))
             {
                 return PutObject(tenantId, key, fileType, cutContent);
+            }
+        }
+
+        public static void PutObject2(string fullKey, byte[] bytes, int count)
+        {
+            using (var cutContent = new MemoryStream(bytes, 0, count))
+            {
+                var client = new OssClient(Endpoint, AccessKeyId, AccessKeySecret);
+                client.PutObject(BucketName, fullKey, cutContent);
             }
         }
 

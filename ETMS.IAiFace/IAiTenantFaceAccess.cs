@@ -8,7 +8,7 @@ namespace ETMS.IAiFace
 
         void StudentDel(long studentId);
 
-        Tuple<bool, string> StudentInitFace(long studentId, string faceGreyKeyUrl);
+        Tuple<bool, string> StudentInitFace(long studentId, string imageBase64);
 
         bool StudentClearFace(long studentId);
 

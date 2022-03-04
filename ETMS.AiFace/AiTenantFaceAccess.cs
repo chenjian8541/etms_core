@@ -153,14 +153,14 @@ namespace ETMS.AiFace
             }
         }
 
-        private void StudentCreate(long studentId, string faceGreyKeyUrl)
+        private void StudentCreate(long studentId, string imageBase64)
         {
             var req = new CreatePersonRequest();
             var personId = GetPersonId(studentId);
             req.GroupId = _tenantGroupId;
             req.PersonName = personId;
             req.PersonId = personId;
-            req.Url = faceGreyKeyUrl;
+            req.Image = imageBase64;
             req.QualityControl = 4;
             _client.CreatePersonSync(req);
         }
@@ -216,14 +216,14 @@ namespace ETMS.AiFace
             return string.Empty;
         }
 
-        public string DetectFace(string faceGreyKeyUrl)
+        public string DetectFace(string imageBase64)
         {
             DetectFaceRequest req = new DetectFaceRequest();
             req.NeedFaceAttributes = 1;
             req.NeedQualityDetection = 1;
-            req.Url = faceGreyKeyUrl;
+            req.Image = imageBase64;
             var resp = _client.DetectFaceSync(req);
-            LOG.Log.Info($"[AiFaceAccess]人脸检测结果:{faceGreyKeyUrl}", resp, this.GetType());
+            LOG.Log.Info("[AiFaceAccess]人脸检测结果:", resp, this.GetType());
             if (resp.FaceInfos.Length != 1)
             {
                 return "人脸图像质量不符合要求，建议使用高清摄像头";
@@ -232,11 +232,11 @@ namespace ETMS.AiFace
             return CheckFaceQualityInfo(faceInfo);
         }
 
-        public Tuple<bool, string> StudentInitFace(long studentId, string faceGreyKeyUrl)
+        public Tuple<bool, string> StudentInitFace(long studentId, string imageBase64)
         {
             try
             {
-                var errMsg = DetectFace(faceGreyKeyUrl);
+                var errMsg = DetectFace(imageBase64);
                 if (!string.IsNullOrEmpty(errMsg))
                 {
                     return Tuple.Create(false, errMsg);
@@ -257,12 +257,12 @@ namespace ETMS.AiFace
                     StudentDel(studentId);
                 }
                 //创建人员 并设置人脸
-                StudentCreate(studentId, faceGreyKeyUrl);
+                StudentCreate(studentId, imageBase64);
                 return Tuple.Create(true, string.Empty); ;
             }
             catch (Exception ex)
             {
-                Log.Fatal($"[腾讯云人脸识别]人脸采集，{_tenantId}，{studentId},{faceGreyKeyUrl}", ex, this.GetType());
+                Log.Fatal($"[腾讯云人脸识别]人脸采集，{_tenantId}，{studentId}", ex, this.GetType());
                 return Tuple.Create(false, "人脸图像质量不符合要求，请重新采集"); ;
             }
         }

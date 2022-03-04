@@ -85,7 +85,7 @@ namespace ETMS.Business.EventConsumer
             var tenantCloudStorageList = new List<SysTenantCloudStorage>();
             var aliyunOssCall = new AliyunOssCall();
             var lastOldPrefix = $"{SystemConfig.ComConfig.OSSRootFolderProd}/{tenantId}/";
-            var lastOldSizeMb = aliyunOssCall.Process(lastOldPrefix);
+            var lastOldSizeMb = aliyunOssCall.Statistics(lastOldPrefix);
             var lastOldSizeGb = lastOldSizeMb / unitCvtGb;
             tenantCloudStorageList.Add(new SysTenantCloudStorage()
             {
@@ -103,7 +103,7 @@ namespace ETMS.Business.EventConsumer
             foreach (var itemTag in EmTenantCloudStorageType.TenantCloudStorageTypeTags)
             {
                 var itemPrefix = $"{SystemConfig.ComConfig.OSSRootNewFolder}/{itemTag.Tag}/{SystemConfig.ComConfig.OSSRootFolderProd}/{tenantId}/";
-                var itemSizeMb = aliyunOssCall.Process(itemPrefix);
+                var itemSizeMb = aliyunOssCall.Statistics(itemPrefix);
                 var itemSizeGb = itemSizeMb / unitCvtGb;
                 tenantCloudStorageList.Add(new SysTenantCloudStorage()
                 {

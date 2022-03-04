@@ -18,7 +18,7 @@ namespace ETMS.Utility
 
         //public event Action<List<AliyunOssObjectView>> FinishGetEvent;
 
-        public decimal Process(string prefix)
+        public decimal Statistics(string prefix)
         {
             var nextMarker = string.Empty;
             ObjectListing result = null;
@@ -53,6 +53,41 @@ namespace ETMS.Utility
                 nextMarker = result.NextMarker;
             } while (result.IsTruncated);
             return totalStorage;
+        }
+
+        public event Action<string> FinishEachFile;
+
+        public void ProcessEachFile(string prefix)
+        {
+            var nextMarker = string.Empty;
+            ObjectListing result = null;
+            do
+            {
+                var listObjectsRequest = new ListObjectsRequest(AliyunOssUtil.BucketName)
+                {
+                    Marker = nextMarker,
+                    MaxKeys = 500,
+                    Prefix = prefix,
+                };
+                result = client.ListObjects(listObjectsRequest);
+                foreach (var summary in result.ObjectSummaries)
+                {
+                    FinishEachFile(summary.Key);
+                }
+                nextMarker = result.NextMarker;
+            } while (result.IsTruncated);
+        }
+
+        public void DelObject(string key)
+        {
+            try
+            {
+                client.DeleteObject(AliyunOssUtil.BucketName, key);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"【定时删除OSS文件出错】==> 参数：key：{key}", ex, typeof(AliyunOssCall));
+            }
         }
     }
 }

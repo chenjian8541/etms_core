@@ -93,17 +93,17 @@ namespace ETMS.Business.IncrementLib
             }
         }
 
-        public async Task<Tuple<bool, string>> StudentInitFace(long studentId, string faceGreyKeyUrl)
+        public async Task<Tuple<bool, string>> StudentInitFace(long studentId, string imageBase64)
         {
             await InitTenantCloudConfig();
             Tuple<bool, string> result;
             if (this.AICloudType == EmSysTenantAICloudType.TencentCloud)
             {
-                result = _aiTenantFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
+                result = _aiTenantFaceAccess.StudentInitFace(studentId, imageBase64);
             }
             else
             {
-                result = _aiBaiduFaceAccess.StudentInitFace(studentId, faceGreyKeyUrl);
+                result = _aiBaiduFaceAccess.StudentInitFace(studentId, imageBase64);
             }
             if (result.Item1)
             {

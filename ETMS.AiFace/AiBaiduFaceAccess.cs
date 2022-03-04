@@ -171,19 +171,6 @@ namespace ETMS.AiFace
             return string.Empty;
         }
 
-        public string DetectFace(string faceGreyKeyUrl)
-        {
-            var paraList = new
-            {
-                image_type = "URL",
-                image = faceGreyKeyUrl,
-                face_field = "quality,beauty,face_shape,eye_status,emotion,face_type,mask,spoofing",
-                max_face_num = 1
-            };
-            var result = HttpLib.BaiduAPISendPost<OutputBase<DetectOutput>>(_cloudBaiduConfig.FaceDetect, paraList, this._access_token);
-            return CheckFace(result);
-        }
-
         public string DetectFace2(string base64Img)
         {
             var paraList = new
@@ -197,13 +184,13 @@ namespace ETMS.AiFace
             return CheckFace(result);
         }
 
-        public void ReplaceUser(long studentId, string faceGreyKeyUrl)
+        public void ReplaceUser(long studentId, string base64Img)
         {
             var userId = GetUserId(studentId);
             var paraList = new
             {
-                image_type = "URL",
-                image = faceGreyKeyUrl,
+                image_type = "BASE64",
+                image = base64Img,
                 group_id = this._tenantGroupId,
                 user_id = userId,
                 user_info = userId,
@@ -214,21 +201,21 @@ namespace ETMS.AiFace
             HttpLib.BaiduAPISendPost<OutputBase<UserUpdateOutput>>(_cloudBaiduConfig.FaceUserUpdate, paraList, this._access_token);
         }
 
-        public Tuple<bool, string> StudentInitFace(long studentId, string faceGreyKeyUrl)
+        public Tuple<bool, string> StudentInitFace(long studentId, string imageBase64)
         {
             try
             {
-                var errMsg = DetectFace(faceGreyKeyUrl);
+                var errMsg = DetectFace2(imageBase64);
                 if (!string.IsNullOrEmpty(errMsg))
                 {
                     return Tuple.Create(false, errMsg);
                 }
-                ReplaceUser(studentId, faceGreyKeyUrl);
+                ReplaceUser(studentId, imageBase64);
                 return Tuple.Create(true, string.Empty);
             }
             catch (Exception ex)
             {
-                Log.Fatal($"[百度云人脸识别]人脸采集，{_tenantId}，{studentId},{faceGreyKeyUrl}", ex, this.GetType());
+                Log.Fatal($"[百度云人脸识别]人脸采集，{_tenantId}，{studentId}", ex, this.GetType());
                 return Tuple.Create(false, "人脸图像质量不符合要求，请重新采集"); ;
             }
         }
@@ -243,7 +230,6 @@ namespace ETMS.AiFace
         {
             try
             {
-                imageBase64 = imageBase64.Substring(imageBase64.IndexOf(",") + 1);
                 var checkImg = DetectFace2(imageBase64);
                 if (!string.IsNullOrEmpty(checkImg))
                 {

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
 using Newtonsoft.Json;
+using ETMS.LOG;
 
 namespace ETMS.Business
 {
@@ -148,6 +149,7 @@ namespace ETMS.Business
         [Obsolete("合并到StudentBindingFace接口")]
         public async Task<ResponseBase> StudentBindingFaceCheck(StudentBindingFaceCheckRequest request)
         {
+            request.FaceImageBase64 = request.FaceImageBase64.Substring(request.FaceImageBase64.IndexOf(",") + 1);
             var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
             var output = new StudentBindingFaceCheckOutput();
             if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2)) //人脸图像模糊
@@ -184,6 +186,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员不存在");
             }
+            request.FaceImageBase64 = request.FaceImageBase64.Substring(request.FaceImageBase64.IndexOf(",") + 1);
             if (!request.IsIgnoreSameStudent) //检验是否有其他学员
             {
                 var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
@@ -218,9 +221,11 @@ namespace ETMS.Business
             }
             var student = studentBucket.Student;
             var imgOssKey = ImageLib.SaveStudentFace(request.LoginTenantId, request.FaceImageBase64);
-            var initFaceResult = await _aiface.StudentInitFace(request.CId, AliyunOssUtil.GetAccessUrlHttps(imgOssKey));
+            var initFaceResult = await _aiface.StudentInitFace(request.CId, request.FaceImageBase64);
             if (!initFaceResult.Item1)
             {
+                Log.Fatal($"[人脸识别]人脸采集，{imgOssKey}", this.GetType());
+                AliyunOssUtil.DeleteObject(imgOssKey);
                 return ResponseBase.Success(new StudentBindingFaceOutput(StudentBindingFaceOutputState.Fail, initFaceResult.Item2));
             }
             await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey);
@@ -511,6 +516,7 @@ namespace ETMS.Business
                 await _aiface.StudentDelete(request.StudentId);
                 return ResponseBase.CommonError("未找到此学员");
             }
+            request.FaceImageBase64 = request.FaceImageBase64.Substring(request.FaceImageBase64.IndexOf(",") + 1);
             var checkMedium = ImageLib.SaveStudentSearchFace(request.LoginTenantId, request.FaceImageBase64, AliyunOssTempFileTypeEnum.FaceStudentCheckOn);
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
             var studentUseFaceCheckInConfig = tenantConfig.StudentCheckInConfig.StudentUseFaceCheckIn;
@@ -547,6 +553,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCheckByFace2(StudentCheckByFace2Request request)
         {
+            request.FaceImageBase64 = request.FaceImageBase64.Substring(request.FaceImageBase64.IndexOf(",") + 1);
             var faceResult = await _aiface.SearchPerson(request.FaceImageBase64);
             if (faceResult.Item1 == 0 && !string.IsNullOrEmpty(faceResult.Item2))
             {

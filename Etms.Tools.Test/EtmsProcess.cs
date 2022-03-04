@@ -19,6 +19,7 @@ using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.EventConsumer;
+using ETMS.IBusiness.EventConsumer;
 using ETMS.IBusiness.IncrementLib;
 using ETMS.IBusiness.Wechart;
 using ETMS.ICache;
@@ -149,6 +150,14 @@ namespace Etms.Tools.Test
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
+            var _cloudFileAutoDelDayBLL = CustomServiceLocator.GetInstance<ICloudFileAutoDelDayBLL>();
+            _cloudFileAutoDelDayBLL.InitTenantId(1);
+            _cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
+            {
+                DelDate = DateTime.Now,
+                FileTag = EmTenantCloudStorageType.albumAudio
+            });
+            return;
             var firstDate = new DateTime(2020, 01, 01);
             var maxDate = new DateTime(2021, 10, 01);
             while (firstDate < maxDate)

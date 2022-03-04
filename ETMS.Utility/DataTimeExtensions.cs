@@ -76,6 +76,11 @@ namespace ETMS.Utility
             return @this.Value.ToString("yyyy.MM.dd");
         }
 
+        public static string EtmsToDateString3(this DateTime @this)
+        {
+            return @this.ToString("yyyyMMdd");
+        }
+
         public static Tuple<int, int> EtmsGetAge(this DateTime? @this)
         {
             if (@this == null)
