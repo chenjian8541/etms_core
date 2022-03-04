@@ -100,7 +100,8 @@ namespace ETMS.Business.Common
             return strDesc.ToString().TrimEnd(',');
         }
 
-        internal static string GetStudentCourseDesc(List<EtStudentCourse> studentCourse, bool isShowExceedTotalClassTimes = true)
+        internal static string GetStudentCourseDesc(List<EtStudentCourse> studentCourse, bool isShowExceedTotalClassTimes = true,
+            bool isStudentShowClassTimesUnit = false, decimal studentShowClassTimesUnitValue = 0)
         {
             var courseSurplusDesc = new StringBuilder();
             var exceedTotalClassTimes = 0M;
@@ -113,6 +114,11 @@ namespace ETMS.Business.Common
                     if (timesStudentCourse.SurplusQuantity > 0)
                     {
                         courseSurplusDesc.Append($"{timesStudentCourse.SurplusQuantity.EtmsToString()}课时 ");
+                        if (isStudentShowClassTimesUnit && studentShowClassTimesUnitValue > 0)
+                        {
+                            var totalClassCount = timesStudentCourse.SurplusQuantity / studentShowClassTimesUnitValue;
+                            courseSurplusDesc.Append($"({totalClassCount.EtmsToString()}节课)");
+                        }
                     }
                     exceedTotalClassTimes = timesStudentCourse.ExceedTotalClassTimes;
                 }

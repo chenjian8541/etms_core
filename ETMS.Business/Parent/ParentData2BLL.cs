@@ -269,6 +269,8 @@ namespace ETMS.Business
             var allStudent = await _parentStudentDAL.GetParentStudents(request.LoginTenantId, request.LoginPhone);
             var config = await _tenantConfigDAL.GetTenantConfig();
             var parentIsShowEndOfClass = config.TenantOtherConfig.ParentIsShowEndOfClass;
+            var isStudentShowClassTimesUnit = config.TenantOtherConfig.IsStudentShowClassTimesUnit;
+            var studentShowClassTimesUnitValue = config.TenantOtherConfig.StudentShowClassTimesUnitValue;
             foreach (var studentInfo in allStudent)
             {
                 var studentId = studentInfo.Id;
@@ -304,7 +306,8 @@ namespace ETMS.Business
                         }
                         myStudentCourseDetail.Status = myCourse.First().Status;
                         myStudentCourseDetail.StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(myCourse.First().Status);
-                        myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse);
+                        myStudentCourseDetail.SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse, true,
+                            isStudentShowClassTimesUnit, studentShowClassTimesUnitValue);
                         var myStudentCourseDetailList = studentCourseDetail.Where(p => p.CourseId == courseId).ToList();
                         myStudentCourseDetail.ExpireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetailList);
                         //foreach (var theCourse in myCourse)
@@ -356,7 +359,7 @@ namespace ETMS.Business
             {
                 PayOt = order.Ot.EtmsToDateString(),
                 PayType = EmPayType.PayAccountRecharge,
-                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge,0),
+                PayTypeDesc = EmPayType.GetPayType(EmPayType.PayAccountRecharge, 0),
                 ProjectType = 0,
                 ProjectTypeName = EmOrderType.GetOrderTypeDesc(order.OrderType),
                 Sum = order.PayAccountRechargeReal + order.PayAccountRechargeGive,

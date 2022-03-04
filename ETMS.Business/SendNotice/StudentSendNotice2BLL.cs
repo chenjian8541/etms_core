@@ -577,7 +577,8 @@ namespace ETMS.Business.SendNotice
                 return;
             }
             var myCourseName = myCourse.Item1.Name;
-            var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
+            var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse, true,
+                tenantConfig.TenantOtherConfig.IsStudentShowClassTimesUnit, tenantConfig.TenantOtherConfig.StudentShowClassTimesUnitValue);
 
             var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var expireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetail);
@@ -1041,7 +1042,8 @@ namespace ETMS.Business.SendNotice
                     var myStudentCourse = await _studentCourseDAL.GetStudentCourse(log.StudentId, log.CourseId.Value);
                     if (myStudentCourse != null && myStudentCourse.Count > 0)
                     {
-                        var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
+                        var mySurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse, true,
+                            tenantConfig.TenantOtherConfig.IsStudentShowClassTimesUnit, tenantConfig.TenantOtherConfig.StudentShowClassTimesUnitValue);
                         req.DeClassTimesDesc = $"课程({myCourse.Item1.Name})，消耗{log.DeClassTimes.EtmsToString()}课时，剩余{mySurplusQuantityDesc}";
                     }
                 }

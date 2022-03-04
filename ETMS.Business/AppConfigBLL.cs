@@ -428,6 +428,8 @@ namespace ETMS.Business
             config.TenantOtherConfig.AutoMarkGraduation = request.AutoMarkGraduation;
             config.TenantOtherConfig.TeacherIsShowSalary = request.TeacherIsShowSalary;
             config.TenantOtherConfig.IsOpenStudentRegister = request.IsOpenStudentRegister;
+            config.TenantOtherConfig.IsStudentShowClassTimesUnit = request.IsStudentShowClassTimesUnit;
+            config.TenantOtherConfig.StudentShowClassTimesUnitValue = request.StudentShowClassTimesUnitValue;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

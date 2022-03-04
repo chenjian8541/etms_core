@@ -140,6 +140,16 @@ namespace ETMS.Entity.Config
         /// 是否开放注册
         /// </summary>
         public bool IsOpenStudentRegister { get; set; } = true;
+
+        /// <summary>
+        /// 是否在学员端展示课时单位（节课）
+        /// </summary>
+        public bool IsStudentShowClassTimesUnit { get; set; }
+
+        /// <summary>
+        /// 学员端展示课时单位
+        /// </summary>
+        public decimal StudentShowClassTimesUnitValue { get; set; }
     }
 
     /// <summary>

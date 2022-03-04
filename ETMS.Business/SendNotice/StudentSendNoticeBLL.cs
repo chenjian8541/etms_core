@@ -617,6 +617,8 @@ namespace ETMS.Business
                 req.TemplateIdShort = wxConfig.TemplateNoticeConfig.ClassCheckSign;
                 req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
             }
+            var isStudentShowClassTimesUnit = tenantConfig.TenantOtherConfig.IsStudentShowClassTimesUnit;
+            var studentShowClassTimesUnitValue = tenantConfig.TenantOtherConfig.StudentShowClassTimesUnitValue;
             var tempBoxCourse = new DataTempBox<EtCourse>();
             foreach (var p in classRecordStudent)
             {
@@ -648,7 +650,8 @@ namespace ETMS.Business
                 }
                 var courseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId);
                 var myStudentCourse = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
-                var surplusClassTimesDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse);
+                var surplusClassTimesDesc = ComBusiness.GetStudentCourseDesc(myStudentCourse, true,
+                    isStudentShowClassTimesUnit, studentShowClassTimesUnitValue);
 
                 var myStudentCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(p.StudentId, p.CourseId);
                 var expireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetail);
