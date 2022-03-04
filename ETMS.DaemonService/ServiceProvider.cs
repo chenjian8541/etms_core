@@ -48,11 +48,11 @@ namespace ETMS.DaemonService
                 appSettings = InitCustomIoc(p);
             }, p =>
             {
-                InitRabbitMq(p, appSettings.RabbitMqConfig);
-                InitSenparcWeixin(appSettings);
-                InitPayConfig(appSettings.PayConfig);
                 InitSytemInitializeData(appSettings);
                 InitAliyunOssConfig(appSettings.AliyunOssConfig);
+                InitPayConfig(appSettings.PayConfig);
+                InitSenparcWeixin(appSettings);
+                InitRabbitMq(p, appSettings.RabbitMqConfig);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));

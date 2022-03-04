@@ -21,15 +21,9 @@ namespace ETMS.Manage.Jobs
     {
         private readonly IEventPublisher _eventPublisher;
 
-        private readonly IJobAnalyzeBLL _jobAnalyzeBLL;
-
-        private const int _pageSize = 100;
-
-        public CloudFileAutoClearJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher,
-            IJobAnalyzeBLL jobAnalyzeBLL) : base(sysTenantDAL)
+        public CloudFileAutoClearJob(ISysTenantDAL sysTenantDAL, IEventPublisher eventPublisher) : base(sysTenantDAL)
         {
             this._eventPublisher = eventPublisher;
-            this._jobAnalyzeBLL = jobAnalyzeBLL;
         }
 
         public override async Task ProcessTenant(SysTenant tenant)
