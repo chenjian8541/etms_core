@@ -155,15 +155,31 @@ namespace ETMS.DataAccess.SysOp
             return obj != null;
         }
 
-        public async Task<bool> ExistAlbumAudio(string key) {
+        public async Task<bool> ExistAlbumAudio(string key)
+        {
             var obj = await _dbWrapper.ExecuteScalar(
                 $"SELECT TOP 1 0 FROM EtLibAudios WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND AudioKey = '{key}'");
             return obj != null;
         }
 
-        public async Task<bool> ExistFaceKey(string key) {
+        public async Task<bool> ExistFaceKey(string key)
+        {
             var obj = await _dbWrapper.ExecuteScalar(
                 $"SELECT TOP 1 0 FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND FaceKey = '{key}'");
+            return obj != null;
+        }
+
+        public async Task<bool> ExistAppConfig(string key)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtAppConfig WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ConfigValue LIKE '%{key}%'");
+            return obj != null;
+        }
+
+        public async Task<bool> ExistMicroWebConfig(string key)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtMicroWebConfig WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ConfigValue LIKE '%{key}%'");
             return obj != null;
         }
     }

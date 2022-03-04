@@ -40,6 +40,9 @@ namespace ETMS.Entity.Enum
         public const string micwebArticleContent = "micwebArticleContent";
         public const string albumImg = "albumImg";
         public const string albumAudio = "albumAudio";
+        public const string appConfig = "appConfig";
+        public const string microWebConfig = "microWebConfig";
+
         public static string GetOssKeyPrefix(string fileTag, string rootFolder, int tenantId, DateTime now)
         {
             return $"{SystemConfig.ComConfig.OSSRootNewFolder}/{fileTag}/{rootFolder}/{tenantId}/{AliyunOssFileTypeEnum.STS}/{now.EtmsToDateString3()}/";
@@ -72,6 +75,8 @@ namespace ETMS.Entity.Enum
             TenantCloudStorageTypeTags.Add(new TenantCloudStorageTypeTag(micwebArticleContent, 22));
             TenantCloudStorageTypeTags.Add(new TenantCloudStorageTypeTag(albumImg, 23));
             TenantCloudStorageTypeTags.Add(new TenantCloudStorageTypeTag(albumAudio, 24));
+            TenantCloudStorageTypeTags.Add(new TenantCloudStorageTypeTag(appConfig, 25));
+            TenantCloudStorageTypeTags.Add(new TenantCloudStorageTypeTag(microWebConfig, 26));
         }
     }
 

@@ -155,7 +155,7 @@ namespace Etms.Tools.Test
             _cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
             {
                 DelDate = DateTime.Now,
-                FileTag = EmTenantCloudStorageType.albumAudio
+                FileTag = EmTenantCloudStorageType.microWebConfig
             });
             return;
             var firstDate = new DateTime(2020, 01, 01);

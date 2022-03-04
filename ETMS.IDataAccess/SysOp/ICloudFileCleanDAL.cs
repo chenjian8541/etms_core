@@ -52,5 +52,9 @@ namespace ETMS.IDataAccess.SysOp
         Task<bool> ExistAlbumAudio(string key);
 
         Task<bool> ExistFaceKey(string key);
+
+        Task<bool> ExistAppConfig(string key);
+
+        Task<bool> ExistMicroWebConfig(string key);
     }
 }

@@ -108,6 +108,12 @@ namespace ETMS.Business.EventConsumer
                 case EmTenantCloudStorageType.albumAudio:
                     ProcessAlbumAudio(itemPrefix);
                     break;
+                case EmTenantCloudStorageType.appConfig:
+                    ProcessAppConfig(itemPrefix);
+                    break;
+                case EmTenantCloudStorageType.microWebConfig:
+                    ProcessMicroWebConfig(itemPrefix);
+                    break;
             }
         }
 
@@ -437,6 +443,34 @@ namespace ETMS.Business.EventConsumer
             aliyunOssCall.FinishEachFile += (fileKey) =>
             {
                 var isExist = _cloudFileCleanDAL.ExistFaceKey(fileKey).Result;
+                if (!isExist)
+                {
+                    aliyunOssCall.DelObject(fileKey);
+                }
+            };
+            aliyunOssCall.ProcessEachFile(itemPrefix);
+        }
+
+        private void ProcessAppConfig(string itemPrefix)
+        {
+            var aliyunOssCall = new AliyunOssCall();
+            aliyunOssCall.FinishEachFile += (fileKey) =>
+            {
+                var isExist = _cloudFileCleanDAL.ExistAppConfig(fileKey).Result;
+                if (!isExist)
+                {
+                    aliyunOssCall.DelObject(fileKey);
+                }
+            };
+            aliyunOssCall.ProcessEachFile(itemPrefix);
+        }
+
+        private void ProcessMicroWebConfig(string itemPrefix)
+        {
+            var aliyunOssCall = new AliyunOssCall();
+            aliyunOssCall.FinishEachFile += (fileKey) =>
+            {
+                var isExist = _cloudFileCleanDAL.ExistMicroWebConfig(fileKey).Result;
                 if (!isExist)
                 {
                     aliyunOssCall.DelObject(fileKey);
