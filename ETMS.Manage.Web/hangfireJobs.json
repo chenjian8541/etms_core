@@ -138,5 +138,12 @@
     "Title": "定时分析OSS存储",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "CloudFileAutoClearJob",
+    "Cron": "0 0 5 * * ?", //每天凌晨5点执行
+    "Title": "定时清除无效的云存储",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]
