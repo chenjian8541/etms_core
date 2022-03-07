@@ -104,14 +104,14 @@ namespace ETMS.WebApi
 
         private void InitRateLimit(IServiceCollection services, RedisConfig redisConfig)
         {
-            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
-            services.AddDistributedRedisCache(options =>
-            {
-                options.Configuration = redisConfig.ServerConStrDefault;
-                options.InstanceName = "ETMSRatelimit";
-            });
-            services.AddSingleton<IIpPolicyStore, DistributedCacheIpPolicyStore>();
-            services.AddSingleton<IRateLimitCounterStore, DistributedCacheRateLimitCounterStore>();
+            //services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            //services.AddDistributedRedisCache(options =>
+            //{
+            //    options.Configuration = redisConfig.ServerConStrDefault;
+            //    options.InstanceName = "ETMSRatelimit";
+            //});
+            //services.AddSingleton<IIpPolicyStore, DistributedCacheIpPolicyStore>();
+            //services.AddSingleton<IRateLimitCounterStore, DistributedCacheRateLimitCounterStore>();
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
@@ -154,7 +154,7 @@ namespace ETMS.WebApi
             app.UseSession();
             app.UseResponseCompression();
             app.UseResponseCaching();
-            app.UseMiddleware<EtmsIpRateLimitMiddleware>();
+            //app.UseMiddleware<EtmsIpRateLimitMiddleware>();
             app.UseCors(PolicyName);
 
             app.UseRouting();
