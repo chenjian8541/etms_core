@@ -62,5 +62,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> UserAccountResign(RequestBase request)
+        {
+            try
+            {
+                _user2BLL.InitTenantId(request.LoginTenantId);
+                return await _user2BLL.UserAccountResign(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

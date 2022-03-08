@@ -43,5 +43,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public string ClassContent { get; set; }
 
         public string WeekDesc { get; set; }
+
+        public string ClassCategoryName { get; set; }
     }
 }

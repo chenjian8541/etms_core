@@ -10,6 +10,10 @@ namespace ETMS.Entity.Dto.HisData.Request
     {
         public long? TeacherId { get; set; }
 
+        public long? ClassId { get; set; }
+
+        public long? ClassCategoryId { get; set; }
+
         public int Year { get; set; }
 
         public int Month { get; set; }
@@ -24,6 +28,14 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (TeacherId != null)
             {
                 condition.Append($" AND TeacherId = {TeacherId}");
+            }
+            if (ClassId != null)
+            {
+                condition.Append($" AND ClassId = {ClassId}");
+            }
+            if (ClassCategoryId != null)
+            {
+                condition.Append($" AND ClassCategoryId = {ClassCategoryId}");
             }
             var firstDate = new DateTime(Year, Month, 1);
             condition.Append($" AND Ot = '{firstDate.EtmsToDateString()}'");

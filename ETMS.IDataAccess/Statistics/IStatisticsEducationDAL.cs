@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess.Statistics
         Task<Tuple<IEnumerable<EtStatisticsEducationCourseMonth>, int>> GetEtStatisticsEducationCourseMonthPaging(RequestPagingBase request);
 
         Task<Tuple<IEnumerable<EtStatisticsEducationStudentMonth>, int>> GetEtStatisticsEducationStudentMonthPaging(RequestPagingBase request);
+
+        Task SyncClassCategoryId(long classId, long? classCategoryId);
     }
 }

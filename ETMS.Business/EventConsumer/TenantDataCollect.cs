@@ -55,6 +55,7 @@ namespace ETMS.Business.EventConsumer
                 UserId = p.UserId
             };
             await _sysTenantOperationLogDAL.AddSysTenantOperationLog(sysTenantOperationLog);
+            await _sysTenantDAL.UpdateTenantLastOpTime(request.TenantId, p.Ot);
         }
 
         public async Task TenantAgentStatisticsConsumerEvent(TenantAgentStatisticsEvent request)

@@ -15,5 +15,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GetEditMenusH5(RequestBase request);
 
         Task<ResponseBase> SaveHomeMenusH5(SaveHomeMenusH5Request request);
+
+        Task<ResponseBase> UserAccountResign(RequestBase request);
     }
 }

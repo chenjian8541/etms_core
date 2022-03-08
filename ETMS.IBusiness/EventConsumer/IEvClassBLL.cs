@@ -24,5 +24,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncClassInfoAboutDelStudentProcessEvent(SyncClassInfoAboutDelStudentEvent request);
 
         Task StudentCourseMarkExceedConsumerEvent(StudentCourseMarkExceedEvent request);
+
+        Task SyncClassCategoryIdConsumerEvent(SyncClassCategoryIdEvent request);
     }
 }

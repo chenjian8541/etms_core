@@ -35,9 +35,11 @@ namespace ETMS.Business
 
         private readonly IClassRecordDAL _classRecordDAL;
 
+        private readonly IClassCategoryDAL _classCategoryDAL;
+
         public StatisticsClassBLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
-            IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL)
+            IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -47,12 +49,14 @@ namespace ETMS.Business
             this._classDAL = classDAL;
             this._studentDAL = studentDAL;
             this._classRecordDAL = classRecordDAL;
+            this._classCategoryDAL = classCategoryDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsClassDAL, _courseDAL, _userDAL,
-                _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL, _classRecordDAL);
+                _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL, _classRecordDAL,
+                _classCategoryDAL);
         }
 
         public async Task StatisticsClassConsumeEvent(StatisticsClassEvent request)
@@ -286,6 +290,7 @@ namespace ETMS.Business
             var tempBoxClass = new DataTempBox<EtClass>();
             if (pagingData.Item1.Any())
             {
+                var allClassCategory = await _classCategoryDAL.GetAllClassCategory();
                 foreach (var p in pagingData.Item1)
                 {
                     var className = string.Empty;
@@ -305,6 +310,15 @@ namespace ETMS.Business
                     {
                         teacherName = myTeacher.Name;
                     }
+                    var classCategoryName = string.Empty;
+                    if (p.ClassCategoryId != null)
+                    {
+                        var myClassCategory = allClassCategory.FirstOrDefault(j => j.Id == p.ClassCategoryId);
+                        if (myClassCategory != null)
+                        {
+                            classCategoryName = myClassCategory.Name;
+                        }
+                    }
                     output.Add(new StatisticsEducationTeacherMonthGetPagingOutput()
                     {
                         TeacherId = p.TeacherId,
@@ -316,7 +330,8 @@ namespace ETMS.Business
                         TeacherName = teacherName,
                         TeacherTotalClassCount = p.TeacherTotalClassCount,
                         TeacherTotalClassTimes = p.TeacherTotalClassTimes,
-                        TotalDeSum = p.TotalDeSum
+                        TotalDeSum = p.TotalDeSum,
+                        ClassCategoryName = classCategoryName
                     });
                 }
             }
@@ -330,6 +345,7 @@ namespace ETMS.Business
             var tempBoxClass = new DataTempBox<EtClass>();
             if (pagingData.Item1.Any())
             {
+                var allClassCategory = await _classCategoryDAL.GetAllClassCategory();
                 foreach (var p in pagingData.Item1)
                 {
                     decimal attendance = 0;
@@ -343,6 +359,15 @@ namespace ETMS.Business
                     {
                         className = myClass.Name;
                     }
+                    var classCategoryName = string.Empty;
+                    if (p.ClassCategoryId != null)
+                    {
+                        var myClassCategory = allClassCategory.FirstOrDefault(j => j.Id == p.ClassCategoryId);
+                        if (myClassCategory != null)
+                        {
+                            classCategoryName = myClassCategory.Name;
+                        }
+                    }
                     output.Add(new StatisticsEducationClassMonthGetPagingOutput()
                     {
                         TotalDeSum = p.TotalDeSum,
@@ -352,7 +377,8 @@ namespace ETMS.Business
                         ClassName = className,
                         NeedAttendNumber = p.NeedAttendNumber,
                         TeacherTotalClassCount = p.TeacherTotalClassCount,
-                        TeacherTotalClassTimes = p.TeacherTotalClassTimes
+                        TeacherTotalClassTimes = p.TeacherTotalClassTimes,
+                        ClassCategoryName = classCategoryName
                     });
                 }
             }

@@ -303,5 +303,11 @@ namespace ETMS.Business.EventConsumer
                 await _classRecordDAL.UpdateClassRecordStudentIsExceedProcessed(request.StudentId, request.CourseId);
             }
         }
+
+        public async Task SyncClassCategoryIdConsumerEvent(SyncClassCategoryIdEvent request)
+        {
+            await _statisticsEducationDAL.SyncClassCategoryId(request.ClassId, request.NewClassCategoryId);
+            await _classRecordDAL.SyncClassCategoryId(request.ClassId, request.NewClassCategoryId);
+        }
     }
 }

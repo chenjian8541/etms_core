@@ -25,5 +25,7 @@ namespace ETMS.Entity.Dto.HisData.Output
         public int NeedAttendNumber { get; set; }
 
         public string Attendance { get; set; }
+
+        public string ClassCategoryName { get; set; }
     }
 }

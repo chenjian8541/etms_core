@@ -4,6 +4,7 @@ using ETMS.DataAccess.Lib;
 using ETMS.Entity.Common;
 using ETMS.Entity.Dto.User.Output;
 using ETMS.Entity.Dto.User.Request;
+using ETMS.Entity.Enum;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using System;
@@ -68,6 +69,22 @@ namespace ETMS.Business
             var weightSum = authorityCore.AuthoritySum(request.Ids);
             var newHomeMenu = weightSum.ToString();
             await _userDAL.UpdateUserHomeMenu(request.LoginUserId, newHomeMenu);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> UserAccountResign(RequestBase request)
+        {
+            var user = await _userDAL.GetUser(request.LoginUserId);
+            if (user == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            if (user.IsAdmin)
+            {
+                return ResponseBase.Success();
+            }
+            user.JobType = EmUserJobType.Resignation;
+            await _userDAL.EditUser(user);
             return ResponseBase.Success();
         }
     }

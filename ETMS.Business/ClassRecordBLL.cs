@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -51,10 +52,13 @@ namespace ETMS.Business
 
         private readonly ICommonHandlerBLL _commonHandlerBLL;
 
+        private readonly IClassCategoryDAL _classCategoryDAL;
+
         public ClassRecordBLL(IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IUserDAL userDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentPointsLogDAL studentPointsLogDAL,
             IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, ICommonHandlerBLL commonHandlerBLL)
+            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, ICommonHandlerBLL commonHandlerBLL,
+            IClassCategoryDAL classCategoryDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._classRoomDAL = classRoomDAL;
@@ -70,13 +74,14 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._commonHandlerBLL = commonHandlerBLL;
+            this._classCategoryDAL = classCategoryDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._commonHandlerBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classRecordDAL, this._classRoomDAL, this._courseDAL, _studentDAL, _classDAL, _userDAL, _userOperationLogDAL,
-                _studentPointsLogDAL, _studentCourseDAL, _studentCourseConsumeLogDAL);
+                _studentPointsLogDAL, _studentCourseDAL, _studentCourseConsumeLogDAL, _classCategoryDAL);
         }
 
         public async Task<ResponseBase> ClassRecordGetPaging(ClassRecordGetPagingRequest request)
@@ -87,42 +92,56 @@ namespace ETMS.Business
             var tempBoxCourse = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
             var tempBoxClass = new DataTempBox<EtClass>();
-            foreach (var classRecord in pagingData.Item1)
+            if (pagingData.Item1.Any())
             {
-                var classRoomIdsDesc = string.Empty;
-                var courseListDesc = string.Empty;
-                var courseStyleColor = string.Empty;
-                var className = string.Empty;
-                var teachersDesc = string.Empty;
-                var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
-                var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
-                classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds);
-                className = etClass.Name;
-                courseListDesc = courseInfo.Item1;
-                courseStyleColor = courseInfo.Item2;
-                teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);
-                output.Add(new ClassRecordGetPagingOutput()
+                var allClassCategory = await _classCategoryDAL.GetAllClassCategory();
+                foreach (var classRecord in pagingData.Item1)
                 {
-                    CId = classRecord.Id,
-                    ClassContent = classRecord.ClassContent,
-                    ClassId = classRecord.ClassId,
-                    ClassName = className,
-                    ClassOtDesc = classRecord.ClassOt.EtmsToDateString(),
-                    ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}",
-                    ClassRoomIdsDesc = classRoomIdsDesc,
-                    CourseListDesc = courseListDesc,
-                    Status = classRecord.Status,
-                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(classRecord.Week)}",
-                    TeachersDesc = teachersDesc,
-                    AttendNumber = classRecord.AttendNumber,
-                    CheckOt = classRecord.CheckOt,
-                    CheckUserId = classRecord.CheckUserId,
-                    NeedAttendNumber = classRecord.NeedAttendNumber,
-                    ClassTimes = classRecord.ClassTimes.EtmsToString(),
-                    DeSum = EmRoleSecrecyType.GetSecrecyValue(request.SecrecyType, classRecord.DeSum.EtmsToString2()),
-                    StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
-                    CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId)
-                });
+                    var classRoomIdsDesc = string.Empty;
+                    var courseListDesc = string.Empty;
+                    var courseStyleColor = string.Empty;
+                    var className = string.Empty;
+                    var teachersDesc = string.Empty;
+                    var classCategoryName = string.Empty;
+                    var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
+                    var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
+                    classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds);
+                    className = etClass.Name;
+                    courseListDesc = courseInfo.Item1;
+                    courseStyleColor = courseInfo.Item2;
+                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);
+                    if (classRecord.ClassCategoryId != null)
+                    {
+                        var myClassCategory = allClassCategory.FirstOrDefault(j => j.Id == classRecord.ClassCategoryId);
+                        if (myClassCategory != null)
+                        {
+                            classCategoryName = myClassCategory.Name;
+                        }
+                    }
+                    output.Add(new ClassRecordGetPagingOutput()
+                    {
+                        CId = classRecord.Id,
+                        ClassContent = classRecord.ClassContent,
+                        ClassId = classRecord.ClassId,
+                        ClassName = className,
+                        ClassOtDesc = classRecord.ClassOt.EtmsToDateString(),
+                        ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}",
+                        ClassRoomIdsDesc = classRoomIdsDesc,
+                        CourseListDesc = courseListDesc,
+                        Status = classRecord.Status,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(classRecord.Week)}",
+                        TeachersDesc = teachersDesc,
+                        AttendNumber = classRecord.AttendNumber,
+                        CheckOt = classRecord.CheckOt,
+                        CheckUserId = classRecord.CheckUserId,
+                        NeedAttendNumber = classRecord.NeedAttendNumber,
+                        ClassTimes = classRecord.ClassTimes.EtmsToString(),
+                        DeSum = EmRoleSecrecyType.GetSecrecyValue(request.SecrecyType, classRecord.DeSum.EtmsToString2()),
+                        StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
+                        CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
+                        ClassCategoryName = classCategoryName
+                    });
+                }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetPagingOutput>(pagingData.Item2, output));
         }

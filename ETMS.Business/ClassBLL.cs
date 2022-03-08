@@ -136,6 +136,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             var etClass = etClassBucket.EtClass;
+            var oldClassCategoryId = etClass.ClassCategoryId;
+
             etClass.Name = request.Name;
             etClass.LimitStudentNums = request.LimitStudentNums;
             etClass.LimitStudentNumsType = request.LimitStudentNumsType;
@@ -154,6 +156,15 @@ namespace ETMS.Business
             }
             await _classDAL.EditClass(etClass);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.CId));
+            if (etClass.ClassCategoryId != oldClassCategoryId)
+            {
+                _eventPublisher.Publish(new SyncClassCategoryIdEvent(request.LoginTenantId)
+                {
+                    ClassId = etClass.Id,
+                    NewClassCategoryId = etClass.ClassCategoryId
+                });
+            }
+
             await _userOperationLogDAL.AddUserLog(request, $"编辑班级-{request.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }

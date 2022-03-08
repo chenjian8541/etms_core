@@ -91,5 +91,7 @@ namespace ETMS.IDataAccess
         Task UpdateClassRecordStudentIsExceedProcessed(long studentId, long courseId);
 
         Task ClassRecordAddDeSum(long id,decimal addDeSum);
+
+        Task SyncClassCategoryId(long classId, long? classCategoryId);
     }
 }

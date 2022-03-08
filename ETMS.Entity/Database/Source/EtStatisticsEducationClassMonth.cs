@@ -10,6 +10,11 @@ namespace ETMS.Entity.Database.Source
     {
         public long ClassId { get; set; }
 
+        /// <summary>
+        /// 班级类别
+        /// </summary>
+        public long? ClassCategoryId { get; set; }
+
         public DateTime Ot { get; set; }
 
         public int Year { get; set; }

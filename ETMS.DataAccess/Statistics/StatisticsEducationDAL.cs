@@ -17,8 +17,23 @@ namespace ETMS.DataAccess.Statistics
 {
     public class StatisticsEducationDAL : DataAccessBase, IStatisticsEducationDAL
     {
-        public StatisticsEducationDAL(IDbWrapper dbWrapper) : base(dbWrapper)
+        private readonly IClassDAL _classDAL;
+
+        public StatisticsEducationDAL(IDbWrapper dbWrapper, IClassDAL classDAL) : base(dbWrapper)
         {
+            this._classDAL = classDAL;
+        }
+
+        public override void InitTenantId(int tenantId)
+        {
+            base.InitTenantId(tenantId);
+            this._classDAL.InitTenantId(tenantId);
+        }
+
+        public override void ResetTenantId(int tenantId)
+        {
+            base.ResetTenantId(tenantId);
+            this._classDAL.ResetTenantId(tenantId);
         }
 
         public async Task StatisticsEducationUpdate(DateTime time)
@@ -56,6 +71,7 @@ namespace ETMS.DataAccess.Statistics
             var obj = await _dbWrapper.ExecuteObject<StatisticsEducationClassAndTeacher>(sql);
             if (obj.Any())
             {
+                var tempClassList = new List<EtClass>();
                 var statisticsEducationMonth = new EtStatisticsEducationMonth()
                 {
                     IsDeleted = EmIsDeleted.Normal,
@@ -70,6 +86,22 @@ namespace ETMS.DataAccess.Statistics
                 var statisticsEducationCourseMonth = new List<EtStatisticsEducationCourseMonth>();
                 foreach (var p in obj)
                 {
+                    long? classCategoryId = null;
+                    var myClassInfoLog = tempClassList.FirstOrDefault(j => j.Id == p.ClassId);
+                    if (myClassInfoLog == null)
+                    {
+                        var myClassBucket = await _classDAL.GetClassBucket(p.ClassId);
+                        if (myClassBucket != null && myClassBucket.EtClass != null)
+                        {
+                            tempClassList.Add(myClassBucket.EtClass);
+                            classCategoryId = myClassBucket.EtClass.ClassCategoryId;
+                        }
+                    }
+                    else
+                    {
+                        classCategoryId = myClassInfoLog.ClassCategoryId;
+                    }
+
                     statisticsEducationMonth.TeacherTotalClassTimes += p.TotalClassTimes;
                     statisticsEducationMonth.TeacherTotalClassCount += p.TotalCount;
                     statisticsEducationMonth.TotalDeSum += p.TotalDeSum;
@@ -101,7 +133,8 @@ namespace ETMS.DataAccess.Statistics
                             NeedAttendNumber = p.TotalNeedAttendNumber,
                             TeacherTotalClassCount = p.TotalCount,
                             TeacherTotalClassTimes = p.TotalClassTimes,
-                            TotalDeSum = p.TotalDeSum
+                            TotalDeSum = p.TotalDeSum,
+                            ClassCategoryId = classCategoryId
                         });
                     }
 
@@ -136,7 +169,8 @@ namespace ETMS.DataAccess.Statistics
                                     NeedAttendNumber = p.TotalNeedAttendNumber,
                                     TeacherTotalClassCount = p.TotalCount,
                                     TeacherTotalClassTimes = p.TotalClassTimes,
-                                    TotalDeSum = p.TotalDeSum
+                                    TotalDeSum = p.TotalDeSum,
+                                    ClassCategoryId = classCategoryId
                                 });
                             }
                         }
@@ -292,6 +326,22 @@ namespace ETMS.DataAccess.Statistics
         public async Task<Tuple<IEnumerable<EtStatisticsEducationStudentMonth>, int>> GetEtStatisticsEducationStudentMonthPaging(RequestPagingBase request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsEducationStudentMonth>("EtStatisticsEducationStudentMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
+        }
+
+        public async Task SyncClassCategoryId(long classId, long? classCategoryId)
+        {
+            var sql = new StringBuilder();
+            if (classCategoryId == null)
+            {
+                sql.Append($"UPDATE EtStatisticsEducationClassMonth SET ClassCategoryId = NULL WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal};");
+                sql.Append($"UPDATE EtStatisticsEducationTeacherMonth SET ClassCategoryId = NULL WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal};");
+            }
+            else
+            {
+                sql.Append($"UPDATE EtStatisticsEducationClassMonth SET ClassCategoryId = {classCategoryId.Value} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal};");
+                sql.Append($"UPDATE EtStatisticsEducationTeacherMonth SET ClassCategoryId = {classCategoryId.Value} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal};");
+            }
+            await _dbWrapper.Execute(sql.ToString());
         }
     }
 }

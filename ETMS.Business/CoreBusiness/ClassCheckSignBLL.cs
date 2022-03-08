@@ -263,7 +263,8 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 Week = week,
                 StudentIds = EtmsHelper.GetMuIds(request.Students.Select(p => p.StudentId)),
-                EvaluateStudentCount = evaluateCount
+                EvaluateStudentCount = evaluateCount,
+                ClassCategoryId = etClassBucket.EtClass.ClassCategoryId
             };
             _eventPublisher.Publish(new ClassCheckSignEvent(request.LoginTenantId)
             {

@@ -366,7 +366,8 @@ namespace ETMS.Business
                 TenantId = _tenantId,
                 Week = _myClassTimes.Week,
                 StudentIds = EtmsHelper.GetMuIds(_classRecordStudents.Select(p => p.StudentId)),
-                EvaluateStudentCount = 0
+                EvaluateStudentCount = 0,
+                ClassCategoryId = etClassBucket.EtClass.ClassCategoryId
             };
             var recordId = await _classRecordDAL.AddEtClassRecord(classRecord, _classRecordStudents); //上课记录和详情
             if (_studentCourseConsumeLogs.Any())

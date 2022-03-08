@@ -245,5 +245,16 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE EtClassRecord SET DeSum = DeSum + {addDeSum} WHERE Id  = {id} AND TenantId = {_tenantId}");
         }
+
+        public async Task SyncClassCategoryId(long classId, long? classCategoryId)
+        {
+            if (classCategoryId == null)
+            {
+                await _dbWrapper.Execute($"UPDATE EtClassRecord SET ClassCategoryId = NULL WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}");
+            }
+            else {
+                await _dbWrapper.Execute($"UPDATE EtClassRecord SET ClassCategoryId = {classCategoryId.Value} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}");
+            }
+        }
     }
 }

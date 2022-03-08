@@ -8,6 +8,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 {
     public class ClassRecordGetPagingRequest : RequestPagingBase, IDataLimit
     {
+        public long? ClassCategoryId { get; set; }
+
         public long? ClassId { get; set; }
 
         public long? StudentId { get; set; }
@@ -112,6 +114,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (Status != null)
             {
                 condition.Append($" AND [Status] = {Status.Value}");
+            }
+            if (ClassCategoryId != null)
+            {
+                condition.Append($" AND [ClassCategoryId] = {ClassCategoryId.Value}");
             }
             if (IsDataLimit)
             {

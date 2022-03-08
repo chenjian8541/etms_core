@@ -141,7 +141,7 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task UpdateTenantLastOpTime(int id, DateTime lastOpTime)
         {
             await this.Execute($"UPDATE SysTenant SET LastOpTime = '{lastOpTime.EtmsToString()}' WHERE Id = {id} ");
-            await UpdateCache(id);
+            RemoveCache(id);
         }
 
         public async Task UpdateTenantCloudStorage(int id, decimal newValueMB, decimal newValueGB)
