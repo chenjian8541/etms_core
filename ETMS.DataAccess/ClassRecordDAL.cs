@@ -60,7 +60,7 @@ namespace ETMS.DataAccess
                     CourseId = j.CourseId,
                     StudentId = j.StudentId
                 })
-            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2));
+            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1));
             return etClassRecord.Id;
         }
 
@@ -155,7 +155,7 @@ namespace ETMS.DataAccess
                         CourseId = etClassRecordStudent.CourseId,
                         StudentId = etClassRecordStudent.StudentId
                     } }
-                }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2));
+                }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1));
             }
             return true;
         }

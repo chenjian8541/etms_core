@@ -35,7 +35,7 @@ namespace ETMS.DataAccess
                     CourseId = j.CourseId,
                     StudentId = j.StudentId
                 })
-            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2)).Wait();
+            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1)).Wait();
         }
 
         public async Task AddStudentCourseConsumeLog(EtStudentCourseConsumeLog studentCourseConsumeLogs)
@@ -50,7 +50,7 @@ namespace ETMS.DataAccess
                     CourseId = studentCourseConsumeLogs.CourseId,
                     StudentId = studentCourseConsumeLogs.StudentId
                 } }
-            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2)).Wait();
+            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1)).Wait();
         }
 
         public async Task<Tuple<IEnumerable<EtStudentCourseConsumeLog>, int>> GetPaging(RequestPagingBase request)
