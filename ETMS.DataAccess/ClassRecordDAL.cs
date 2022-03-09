@@ -12,13 +12,19 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Utility;
 using ETMS.Entity.View.OnlyOneFiled;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.Event.DataContract;
+using ETMS.Entity.Enum.EtmsManage;
 
 namespace ETMS.DataAccess
 {
     public class ClassRecordDAL : DataAccessBase, IClassRecordDAL
     {
-        public ClassRecordDAL(IDbWrapper dbWrapper) : base(dbWrapper)
+        private readonly ISysTenantMqScheduleDAL _sysTenantMqScheduleDAL;
+
+        public ClassRecordDAL(IDbWrapper dbWrapper, ISysTenantMqScheduleDAL sysTenantMqScheduleDAL) : base(dbWrapper)
         {
+            this._sysTenantMqScheduleDAL = sysTenantMqScheduleDAL;
         }
 
         public async Task<long> AddEtClassRecord(EtClassRecord etClassRecord, List<EtClassRecordStudent> classRecordStudents,
@@ -44,6 +50,17 @@ namespace ETMS.DataAccess
                 }
                 this._dbWrapper.InsertRange(evaluateStudents);
             }
+
+            await _sysTenantMqScheduleDAL.AddSysTenantMqSchedule(new SyncStudentLogOfSurplusCourseEvent(_tenantId)
+            {
+                Type = SyncStudentLogOfSurplusCourseEventType.ClassRecordStudent,
+                Logs = classRecordStudents.Select(j => new SyncStudentLogOfSurplusCourseView()
+                {
+                    Id = j.Id,
+                    CourseId = j.CourseId,
+                    StudentId = j.StudentId
+                })
+            }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2));
             return etClassRecord.Id;
         }
 
@@ -125,9 +142,21 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent)
+        public async Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent, bool isChangeDeClassTime = false)
         {
             await _dbWrapper.Update(etClassRecordStudent);
+            if (isChangeDeClassTime)
+            {
+                await _sysTenantMqScheduleDAL.AddSysTenantMqSchedule(new SyncStudentLogOfSurplusCourseEvent(_tenantId)
+                {
+                    Type = SyncStudentLogOfSurplusCourseEventType.ClassRecordStudent,
+                    Logs = new List<SyncStudentLogOfSurplusCourseView>() { new SyncStudentLogOfSurplusCourseView() {
+                        Id = etClassRecordStudent.Id,
+                        CourseId = etClassRecordStudent.CourseId,
+                        StudentId = etClassRecordStudent.StudentId
+                    } }
+                }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(2));
+            }
             return true;
         }
 
@@ -252,8 +281,35 @@ namespace ETMS.DataAccess
             {
                 await _dbWrapper.Execute($"UPDATE EtClassRecord SET ClassCategoryId = NULL WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}");
             }
-            else {
+            else
+            {
                 await _dbWrapper.Execute($"UPDATE EtClassRecord SET ClassCategoryId = {classCategoryId.Value} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}");
+            }
+        }
+
+        public async Task UpdateClassRecordStudentSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs)
+        {
+            if (upLogs.Count == 1)
+            {
+                var myLog = upLogs.First();
+                await _dbWrapper.Execute($"UPDATE EtClassRecordStudent SET SurplusCourseDesc = '{myLog.SurplusCourseDesc}' WHERE Id = {myLog.Id}");
+                return;
+            }
+            if (upLogs.Count <= 50)
+            {
+                var sql = new StringBuilder();
+                foreach (var p in upLogs)
+                {
+                    sql.Append($"UPDATE EtClassRecordStudent SET SurplusCourseDesc = '{p.SurplusCourseDesc}' WHERE Id = {p.Id} ;");
+                }
+                await _dbWrapper.Execute(sql.ToString());
+            }
+            else
+            {
+                foreach (var p in upLogs)
+                {
+                    await _dbWrapper.Execute($"UPDATE EtClassRecordStudent SET SurplusCourseDesc = '{p.SurplusCourseDesc}' WHERE Id = {p.Id}");
+                }
             }
         }
     }

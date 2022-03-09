@@ -51,5 +51,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public string DeClassTimesSmall { get; set; }
 
         public string DeClassTimesDesc { get; set; }
+
+        public string SurplusCourseDesc { get; set; }
     }
 }

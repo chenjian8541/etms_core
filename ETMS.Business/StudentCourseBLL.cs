@@ -976,7 +976,8 @@ namespace ETMS.Business
                     DeClassTimesDesc = GetDeClassTimesDesc(p.SourceType, p.DeType, p.DeClassTimes, p.DeClassTimesSmall),
                     CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId),
                     StudentName = student?.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType)
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType),
+                    SurplusCourseDesc = p.SurplusCourseDesc
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseConsumeLogGetPagingOutput>(pagingData.Item2, output));

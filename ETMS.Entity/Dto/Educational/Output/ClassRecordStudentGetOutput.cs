@@ -95,5 +95,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 点名或者考勤时默认赠送的积分
         /// </summary>
         public int CheckPointsDefault { get; set; }
+
+        public string SurplusCourseDesc { get; set; }
     }
 }

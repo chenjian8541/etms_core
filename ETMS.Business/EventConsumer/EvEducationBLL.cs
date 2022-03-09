@@ -1,6 +1,8 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
@@ -29,9 +31,13 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IMallGoodsDAL _mallGoodsDAL;
 
+        private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
+        private readonly IStudentCourseDAL _studentCourseDAL;
         public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
             ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL,
-            IUserDAL userDAL, IMallGoodsDAL mallGoodsDAL)
+            IUserDAL userDAL, IMallGoodsDAL mallGoodsDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
+            IStudentCourseDAL studentCourseDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._teacherSalaryClassDAL = teacherSalaryClassDAL;
@@ -39,12 +45,14 @@ namespace ETMS.Business.EventConsumer
             this._teacherSalaryPayrollDAL = teacherSalaryPayrollDAL;
             this._userDAL = userDAL;
             this._mallGoodsDAL = mallGoodsDAL;
+            this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._studentCourseDAL = studentCourseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL, _teacherSalaryMonthStatisticsDAL,
-                _teacherSalaryPayrollDAL, _userDAL, _mallGoodsDAL);
+                _teacherSalaryPayrollDAL, _userDAL, _mallGoodsDAL, _studentCourseConsumeLogDAL, _studentCourseDAL);
         }
 
         public async Task StatisticsTeacherSalaryClassTimesConsumerEvent(StatisticsTeacherSalaryClassTimesEvent request)
@@ -541,6 +549,55 @@ namespace ETMS.Business.EventConsumer
         public async Task SyncMallGoodsRelatedNameConsumerEvent(SyncMallGoodsRelatedNameEvent request)
         {
             await _mallGoodsDAL.UpdateRelatedName(request.ProductType, request.RelatedId, request.NewName);
+        }
+
+        public async Task SyncStudentLogOfSurplusCourseConsumerEvent(SyncStudentLogOfSurplusCourseEvent request)
+        {
+            if (request.Logs == null || !request.Logs.Any())
+            {
+                return;
+            }
+            switch (request.Type)
+            {
+                case SyncStudentLogOfSurplusCourseEventType.ClassRecordStudent:
+                    await SyncStudentLogSurplusCourseConsumerClassRecordStudent(request);
+                    break;
+                case SyncStudentLogOfSurplusCourseEventType.StudentCourseConsumeLog:
+                    await SyncStudentLogSurplusCourseConsumerStudentCourseConsumeLog(request);
+                    break;
+            }
+        }
+
+        private async Task SyncStudentLogSurplusCourseConsumerClassRecordStudent(SyncStudentLogOfSurplusCourseEvent request)
+        {
+            var upLogs = new List<UpdateStudentLogOfSurplusCourseView>();
+            foreach (var p in request.Logs)
+            {
+                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId);
+                var mySurplusCourseDesc = ComBusiness.GetStudentCourseDesc(myCourses);
+                upLogs.Add(new UpdateStudentLogOfSurplusCourseView()
+                {
+                    Id = p.Id,
+                    SurplusCourseDesc = mySurplusCourseDesc
+                });
+            }
+            await _classRecordDAL.UpdateClassRecordStudentSurplusCourseDesc(upLogs);
+        }
+
+        private async Task SyncStudentLogSurplusCourseConsumerStudentCourseConsumeLog(SyncStudentLogOfSurplusCourseEvent request)
+        {
+            var upLogs = new List<UpdateStudentLogOfSurplusCourseView>();
+            foreach (var p in request.Logs)
+            {
+                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId);
+                var mySurplusCourseDesc = ComBusiness.GetStudentCourseDesc(myCourses);
+                upLogs.Add(new UpdateStudentLogOfSurplusCourseView()
+                {
+                    Id = p.Id,
+                    SurplusCourseDesc = mySurplusCourseDesc
+                });
+            }
+            await _studentCourseConsumeLogDAL.UpdateStudentCourseConsumeLogSurplusCourseDesc(upLogs);
         }
     }
 }

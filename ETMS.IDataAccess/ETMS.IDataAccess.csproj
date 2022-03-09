@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.Event.DataContract\ETMS.Event.DataContract.csproj" />
   </ItemGroup>
 
 </Project>

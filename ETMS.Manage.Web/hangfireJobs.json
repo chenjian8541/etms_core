@@ -145,5 +145,12 @@
     "Title": "定时清除无效的云存储",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "TenantMqScheduleJob",
+    "Cron": "0 */2 * * * ?", //每隔2分钟执行
+    "Title": "MQ任务调度(延迟执行)",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
   }
 ]

@@ -173,5 +173,6 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public string Remark { get; set; }
 
+        public string SurplusCourseDesc { get; set; }
     }
 }

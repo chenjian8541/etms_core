@@ -247,6 +247,7 @@ namespace ETMS.Business
                     NewRemark = p.Remark,
                     NewStudentCheckStatus = p.StudentCheckStatus,
                     NewRewardPoints = p.RewardPoints,
+                    SurplusCourseDesc = p.SurplusCourseDesc,
                     StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar)
                 });
             }
@@ -561,8 +562,9 @@ namespace ETMS.Business
             var oldRemark = p.Remark;
             var oldPoints = p.RewardPoints;
             var now = DateTime.Now;
-            p = await ClassRecordStudentResetDeClassTimes(p, request, now);
-            await _classRecordDAL.EditClassRecordStudent(p);
+            var processReslut = await ClassRecordStudentResetDeClassTimes(p, request, now);
+            p = processReslut.Item1;
+            await _classRecordDAL.EditClassRecordStudent(processReslut.Item1, processReslut.Item2);
 
             if (oldPoints != request.NewRewardPoints)
             {
@@ -629,7 +631,7 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private async Task<EtClassRecordStudent> ClassRecordStudentResetDeClassTimes(EtClassRecordStudent p,
+        private async Task<Tuple<EtClassRecordStudent, bool>> ClassRecordStudentResetDeClassTimes(EtClassRecordStudent p,
             ClassRecordStudentChangeRequest request, DateTime now)
         {
             p.StudentCheckStatus = request.NewStudentCheckStatus;
@@ -638,7 +640,7 @@ namespace ETMS.Business
             p.IsRewardPoints = request.NewRewardPoints > 0;
             if (p.DeClassTimes + p.ExceedClassTimes == request.NewDeClassTimes)
             {
-                return p;
+                return Tuple.Create(p, false);
             }
             var studentCourseConsumeLogs = new List<EtStudentCourseConsumeLog>();
             if (p.DeType == EmDeClassTimesType.ClassTimes && p.DeClassTimes > 0)
@@ -728,7 +730,7 @@ namespace ETMS.Business
             {
                 _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogs); //课消记录
             }
-            return p;
+            return Tuple.Create(p, true);
         }
 
         private async Task ClassRecordStudentResetRewardPoints(EtClassRecordStudent p, int oldPoints, int newPoint, DateTime now)

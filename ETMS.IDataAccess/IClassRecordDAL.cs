@@ -44,7 +44,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditClassRecord(EtClassRecord classRecord);
 
-        Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent);
+        Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent, bool isChangeDeClassTime = false);
 
         Task<Tuple<IEnumerable<ClassRecordPointsApplyLogView>, int>> GetClassRecordPointsApplyLog(RequestPagingBase request);
 
@@ -86,12 +86,14 @@ namespace ETMS.IDataAccess
         /// <param name="studentId"></param>
         /// <param name="courseId"></param>
         /// <returns></returns>
-        Task<List<EtClassRecordStudent>> ClassRecordStudentHasUntreatedExceed(long studentId,long courseId);
+        Task<List<EtClassRecordStudent>> ClassRecordStudentHasUntreatedExceed(long studentId, long courseId);
 
         Task UpdateClassRecordStudentIsExceedProcessed(long studentId, long courseId);
 
-        Task ClassRecordAddDeSum(long id,decimal addDeSum);
+        Task ClassRecordAddDeSum(long id, decimal addDeSum);
 
         Task SyncClassCategoryId(long classId, long? classCategoryId);
+
+        Task UpdateClassRecordStudentSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
     }
 }

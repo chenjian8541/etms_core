@@ -90,5 +90,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysNoticeBulletin> SysNoticeBulletins { get; set; }
         public DbSet<SysNoticeBulletinRead> SysNoticeBulletinReads { get; set; }
         public DbSet<SysTenantCloudStorage> SysTenantCloudStorages { get; set; }
+        public DbSet<SysTenantMqSchedule> SysTenantMqSchedules { get; set; }
     }
 }

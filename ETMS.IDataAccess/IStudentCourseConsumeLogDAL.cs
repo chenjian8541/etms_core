@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.View;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,5 +15,7 @@ namespace ETMS.IDataAccess
         Task AddStudentCourseConsumeLog(EtStudentCourseConsumeLog studentCourseConsumeLogs);
 
         Task<Tuple<IEnumerable<EtStudentCourseConsumeLog>, int>> GetPaging(RequestPagingBase request);
+
+        Task UpdateStudentCourseConsumeLogSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
     }
 }
