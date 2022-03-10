@@ -144,19 +144,26 @@ namespace ETMS.DataAccess
 
         public async Task<bool> EditClassRecordStudent(EtClassRecordStudent etClassRecordStudent, bool isChangeDeClassTime = false)
         {
-            await _dbWrapper.Update(etClassRecordStudent);
             if (isChangeDeClassTime)
             {
-                await _sysTenantMqScheduleDAL.AddSysTenantMqSchedule(new SyncStudentLogOfSurplusCourseEvent(_tenantId)
+                if (etClassRecordStudent.CheckOt.Date != DateTime.Now.Date)
                 {
-                    Type = SyncStudentLogOfSurplusCourseEventType.ClassRecordStudent,
-                    Logs = new List<SyncStudentLogOfSurplusCourseView>() { new SyncStudentLogOfSurplusCourseView() {
+                    etClassRecordStudent.SurplusCourseDesc = string.Empty;
+                }
+                else
+                {
+                    await _sysTenantMqScheduleDAL.AddSysTenantMqSchedule(new SyncStudentLogOfSurplusCourseEvent(_tenantId)
+                    {
+                        Type = SyncStudentLogOfSurplusCourseEventType.ClassRecordStudent,
+                        Logs = new List<SyncStudentLogOfSurplusCourseView>() { new SyncStudentLogOfSurplusCourseView() {
                         Id = etClassRecordStudent.Id,
                         CourseId = etClassRecordStudent.CourseId,
                         StudentId = etClassRecordStudent.StudentId
                     } }
-                }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1));
+                    }, _tenantId, EmSysTenantMqScheduleType.SyncStudentLogOfSurplusCourse, TimeSpan.FromMinutes(1));
+                }
             }
+            await _dbWrapper.Update(etClassRecordStudent);
             return true;
         }
 
