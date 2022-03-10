@@ -17,5 +17,9 @@ namespace ETMS.IBusiness.EventConsumer
         Task UpdateStudentInfoConsumerEvent(UpdateStudentInfoEvent request);
 
         Task ImportExtendFieldExcelConsumerEvent(ImportExtendFieldExcelEvent request);
+
+        Task SyncStudentCourseStatusConsumerEvent(SyncStudentCourseStatusEvent request);
+
+        Task StudentCourseRestoreTimeBatchConsumerEvent(StudentCourseRestoreTimeBatchEvent request);
     }
 }

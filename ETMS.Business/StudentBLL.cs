@@ -625,6 +625,8 @@ namespace ETMS.Business
                 IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
                 IsClassSchedule = student.IsClassSchedule,
                 IsJoinClass = student.IsJoinClass,
+                CourseStatus = student.CourseStatus,
+                CourseStatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(student.CourseStatus),
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
             })));
         }

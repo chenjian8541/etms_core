@@ -23,6 +23,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseRestoreTime(StudentCourseRestoreTimeRequest request);
 
+        Task<ResponseBase> StudentCourseRestoreTimeBatch(StudentCourseRestoreTimeBatchRequest request);
+
         Task<ResponseBase> StudentCourseMarkExceedClassTimes(StudentCourseMarkExceedClassTimesRequest request);
 
         Task<ResponseBase> StudentCourseSetExpirationDate(StudentCourseSetExpirationDateRequest request);

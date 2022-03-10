@@ -333,6 +333,11 @@ namespace ETMS.Business
             await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse,
                 surplusMoney);
 
+            _eventPublisher.Publish(new SyncStudentCourseStatusEvent(request.TenantId)
+            {
+                StudentId = request.StudentId
+            });
+
             if (request.IsSendNoticeStudent)
             {
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
@@ -379,6 +384,7 @@ namespace ETMS.Business
                 isCourseNotEnough = ComBusiness2.CheckStudentCourseNeedRemind(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
             }
+
             return new CourseDetailAnalyzeRes()
             {
                 NewCourse = newCourse,

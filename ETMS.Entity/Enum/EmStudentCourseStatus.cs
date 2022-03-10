@@ -34,9 +34,9 @@ namespace ETMS.Entity.Enum
         {
             switch (type)
             {
-                case EmStudentCourseStatus.Normal:
+                case Normal:
                     return "正常";
-                case EmStudentCourseStatus.StopOfClass:
+                case StopOfClass:
                     return "已停课";
                 default:
                     return "已结课";

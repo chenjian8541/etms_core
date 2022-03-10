@@ -458,7 +458,13 @@ namespace ETMS.DataAccess
                 sql = $"UPDATE EtStudent SET Age = {age.Value},AgeMonth = {ageMonth.Value} WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
             }
             await _dbWrapper.Execute(sql);
-            await base.UpdateCache(_tenantId, studentId);
+            RemoveCache(_tenantId, studentId);
+        }
+
+        public async Task UpdateStudentCourseStatus(long studentId, byte newCourseStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CourseStatus = {newCourseStatus} WHERE Id = {studentId} AND TenantId = {_tenantId}");
+            RemoveCache(_tenantId, studentId);
         }
     }
 }

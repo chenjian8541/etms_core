@@ -353,5 +353,18 @@ namespace ETMS.Business.Common
                 }
             }
         }
+
+        internal static byte GetStudentCourseStatus(List<StudentCourseStatusView> myAllStatus)
+        {
+            if (myAllStatus.Exists(p => p.Status == EmStudentCourseStatus.StopOfClass))
+            {
+                return EmStudentCourseStatus.StopOfClass;
+            }
+            if (myAllStatus.Exists(p => p.Status == EmStudentCourseStatus.Normal))
+            {
+                return EmStudentCourseStatus.Normal;
+            }
+            return EmStudentCourseStatus.EndOfClass;
+        }
     }
 }

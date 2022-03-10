@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using ETMS.Business.Common;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -39,10 +40,12 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
 
+        private readonly IStudentCourseOpLogDAL _studentCourseOpLogDAL;
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
-            IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL)
+            IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL,
+            IStudentCourseOpLogDAL studentCourseOpLogDAL)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -55,13 +58,15 @@ namespace ETMS.Business.EventConsumer
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
+            this._studentCourseOpLogDAL = studentCourseOpLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
-               _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL);
+               _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL,
+               _studentCourseOpLogDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -330,6 +335,48 @@ namespace ETMS.Business.EventConsumer
             {
                 _studentDAL.AddStudentExtend(studentExtendInfos);
             }
+        }
+
+        public async Task SyncStudentCourseStatusConsumerEvent(SyncStudentCourseStatusEvent request)
+        {
+            var studentAllStatus = await _studentCourseDAL.StudentCourseStatusGet(request.StudentId);
+            var newCourseStatus = ComBusiness4.GetStudentCourseStatus(studentAllStatus);
+            await _studentDAL.UpdateStudentCourseStatus(request.StudentId, newCourseStatus);
+        }
+
+        public async Task StudentCourseRestoreTimeBatchConsumerEvent(StudentCourseRestoreTimeBatchEvent request)
+        {
+            var allStopCourseIds = await _studentCourseDAL.StudentStopCourseGet(request.StudentId);
+            if (!allStopCourseIds.Any())
+            {
+                return;
+            }
+            var restoreDate = DateTime.Now.Date;
+            var studentCourseOpLogs = new List<EtStudentCourseOpLog>();
+            foreach (var myCourse in allStopCourseIds)
+            {
+                await ComBusiness3.RestoreStudentCourse(_studentCourseDAL, request.TenantId, request.StudentId, myCourse.CourseId,
+                    restoreDate);
+                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.TenantId)
+                {
+                    CourseId = myCourse.CourseId,
+                    StudentId = request.StudentId,
+                    IsSendNoticeStudent = true
+                });
+                studentCourseOpLogs.Add(new EtStudentCourseOpLog()
+                {
+                    CourseId = myCourse.CourseId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OpTime = DateTime.Now,
+                    OpType = EmStudentCourseOpLogType.CourseRestore,
+                    OpUser = request.UserId,
+                    StudentId = request.StudentId,
+                    TenantId = request.TenantId,
+                    OpContent = "课程批量复课",
+                    Remark = string.Empty
+                });
+            }
+            _studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
         }
     }
 }

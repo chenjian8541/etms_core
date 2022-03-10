@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Entity.View.OnlyOneFiled;
 
 namespace ETMS.DataAccess
 {
@@ -350,6 +351,20 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE EtStudentCourseDetail SET [Status] = {newStatus} WHERE Id = {id} AND TenantId = {_tenantId} ");
             await UpdateCache(_tenantId, studentId);
+        }
+
+        public async Task<List<StudentCourseStatusView>> StudentCourseStatusGet(long studentId)
+        {
+            var logs = await _dbWrapper.ExecuteObject<StudentCourseStatusView>(
+                $"SELECT [Status] from EtStudentCourse WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} Group by [Status]");
+
+            return logs.ToList();
+        }
+
+        public async Task<IEnumerable<OnlyOneFiledCourseId>> StudentStopCourseGet(long studentId)
+        {
+            return await _dbWrapper.ExecuteObject<OnlyOneFiledCourseId>(
+                $"SELECT CourseId FROM EtStudentCourse WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted  = {EmIsDeleted.Normal} AND [Status] = {EmStudentCourseStatus.StopOfClass} GROUP BY CourseId");
         }
     }
 }

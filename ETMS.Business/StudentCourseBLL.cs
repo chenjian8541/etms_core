@@ -519,6 +519,21 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentCourseRestoreTimeBatch(StudentCourseRestoreTimeBatchRequest request)
+        {
+            foreach (var p in request.StudentIds)
+            {
+                _eventPublisher.Publish(new StudentCourseRestoreTimeBatchEvent(request.LoginTenantId)
+                {
+                    StudentId = p,
+                    UserId = request.LoginUserId
+                });
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, "学员批量复课", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> StudentCourseMarkExceedClassTimes(StudentCourseMarkExceedClassTimesRequest request)
         {
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);

@@ -154,6 +154,8 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public byte? IsHasFaceKey { get; set; }
 
+        public byte? CourseStatus { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -274,6 +276,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsJoinClass != null)
             {
                 condition.Append($" AND IsJoinClass = {IsJoinClass.Value}");
+            }
+            if (CourseStatus != null)
+            {
+                condition.Append($" AND CourseStatus = {CourseStatus.Value}");
             }
             if (IsHasFaceKey != null)
             {

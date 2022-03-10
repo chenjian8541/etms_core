@@ -195,5 +195,8 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public string FaceKeyUrl { get; set; }
 
+        public byte CourseStatus { get; set; }
+
+        public string CourseStatusDesc { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
 using ETMS.Entity.View;
+using ETMS.Entity.View.OnlyOneFiled;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -50,7 +51,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> AddClassTimesOfStudentCourseDetail(long studentCourseDetailId, decimal addClassTimes);
 
-        Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime,DateTime? restoreTime);
+        Task<bool> StudentCourseStop(long studentId, long courseId, DateTime stopTime, DateTime? restoreTime);
 
         Task<bool> StudentCourseRestoreTime(long studentId, long courseId);
 
@@ -81,5 +82,9 @@ namespace ETMS.IDataAccess
         Task StudentCourseSetCheckDefault(long studentId, long courseId);
 
         Task SetStudentCourseDetailNewStatus(long id, long studentId, byte newStatus);
+
+        Task<List<StudentCourseStatusView>> StudentCourseStatusGet(long studentId);
+
+        Task<IEnumerable<OnlyOneFiledCourseId>> StudentStopCourseGet(long studentId);
     }
 }

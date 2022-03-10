@@ -210,5 +210,10 @@ namespace ETMS.Entity.Database.Source
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        /// <summary>
+        /// 课程状态  <see cref="ETMS.Entity.Enum.EmStudentCourseStatus"/>
+        /// </summary>
+        public byte CourseStatus { get; set; }
     }
 }
