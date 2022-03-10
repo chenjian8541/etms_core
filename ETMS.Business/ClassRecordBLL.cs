@@ -464,7 +464,8 @@ namespace ETMS.Business
                     Week = p.Week,
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),
                     IsHasExceedClassTimes = p.ExceedClassTimes > 0,
-                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}"
+                    WeekDesc = $"周{EtmsHelper.GetWeekDesc(p.Week)}",
+                    SurplusCourseDesc = p.SurplusCourseDesc
                 };
                 if (request.IsGetStudent)
                 {

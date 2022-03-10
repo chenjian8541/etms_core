@@ -168,5 +168,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }
+
+        public string SurplusCourseDesc { get; set; }
     }
 }

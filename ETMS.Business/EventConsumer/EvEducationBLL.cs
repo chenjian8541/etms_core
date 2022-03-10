@@ -573,7 +573,7 @@ namespace ETMS.Business.EventConsumer
             var upLogs = new List<UpdateStudentLogOfSurplusCourseView>();
             foreach (var p in request.Logs)
             {
-                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId);
+                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
                 var mySurplusCourseDesc = ComBusiness.GetStudentCourseDesc(myCourses);
                 upLogs.Add(new UpdateStudentLogOfSurplusCourseView()
                 {
@@ -589,7 +589,7 @@ namespace ETMS.Business.EventConsumer
             var upLogs = new List<UpdateStudentLogOfSurplusCourseView>();
             foreach (var p in request.Logs)
             {
-                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId);
+                var myCourses = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
                 var mySurplusCourseDesc = ComBusiness.GetStudentCourseDesc(myCourses);
                 upLogs.Add(new UpdateStudentLogOfSurplusCourseView()
                 {
