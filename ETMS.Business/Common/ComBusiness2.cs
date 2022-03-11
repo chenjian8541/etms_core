@@ -114,8 +114,11 @@ namespace ETMS.Business.Common
             }
             else if (priceRule.PriceUnit != EmCourseUnit.ClassTimes && enrolmentCourse.ErangeOt != null && enrolmentCourse.ErangeOt.Count == 2)
             {
-                startTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[0]).Date;
-                endTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[1]).Date;
+                if (!string.IsNullOrEmpty(enrolmentCourse.ErangeOt[0]))
+                {
+                    startTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[0]).Date;
+                    endTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[1]).Date;
+                }
             }
             return new EtStudentCourseDetail()
             {
