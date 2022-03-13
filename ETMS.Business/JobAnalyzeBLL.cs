@@ -95,6 +95,7 @@ namespace ETMS.Business
             {
                 holidaySettings = await _holidaySettingDAL.GetAllHolidaySetting();
             }
+            var minDate = DateTime.Now.AddDays(30);
             while (true)
             {
                 currentDate = currentDate.AddDays(1);
@@ -172,7 +173,10 @@ namespace ETMS.Business
                         LimitStudentNumsIsAlone = false,
                         LimitStudentNumsType = etClass.EtClass.LimitStudentNumsType
                     });
-                    break;
+                    if (currentDate > minDate)
+                    {
+                        break;
+                    }
                 }
             }
             await _analyzeClassTimesDAL.UpdateClassTimesRule(request.ClassTimesRuleId, currentDate);
