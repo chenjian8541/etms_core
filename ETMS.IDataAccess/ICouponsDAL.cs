@@ -38,6 +38,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> ChangeCouponsStudentGetStatus(long id, byte newStatus);
 
+        Task DelCouponsStudentGet(long id);
+
         Task<bool> AddCouponsStudentUse(EtCouponsStudentUse etCouponsStudentUse);
 
         Task<Tuple<IEnumerable<CouponsStudentUseView>, int>> CouponsStudentUsePaging(RequestPagingBase request);

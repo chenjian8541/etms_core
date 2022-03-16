@@ -113,8 +113,13 @@ namespace ETMS.DataAccess
 
         public async Task<bool> ChangeCouponsStudentGetStatus(long id, byte newStatus)
         {
-            var count = await _dbWrapper.Execute($"UPDATE EtCouponsStudentGet SET [Status]  = {newStatus} WHERE id = {id}");
+            var count = await _dbWrapper.Execute($"UPDATE EtCouponsStudentGet SET [Status] = {newStatus} WHERE id = {id}");
             return count > 0;
+        }
+
+        public async Task DelCouponsStudentGet(long id)
+        {
+            await _dbWrapper.Execute($"UPDATE EtCouponsStudentGet SET [IsDeleted] = {EmIsDeleted.Deleted} WHERE id = {id}");
         }
 
         public async Task<bool> AddCouponsStudentUse(EtCouponsStudentUse etCouponsStudentUse)
@@ -143,5 +148,5 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecuteObject<EtCouponsStudentGet>($"select top 1000 * from EtCouponsStudentGet where TenantId = {_tenantId} and IsDeleted = {EmIsDeleted.Normal} and [Status] = {EmCouponsStudentStatus.Unused} and IsRemindExpired = {EmBool.False} and ExpiredTime >= '{minTime.EtmsToDateString()}' and ExpiredTime <= '{maxTime.EtmsToDateString()}'");
         }
-    } 
+    }
 }

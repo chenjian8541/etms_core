@@ -306,6 +306,22 @@ namespace ETMS.Business
             })));
         }
 
+        public async Task<ResponseBase> CouponsStudentRevoked(CouponsStudentRevokedRequest request)
+        {
+            var getLog = await _couponsDAL.CouponsStudentGet(request.CId);
+            if (getLog == null)
+            {
+                return ResponseBase.CommonError("未找到此优惠券");
+            }
+            if (getLog.Status == EmCouponsStudentStatus.Used)
+            {
+                return ResponseBase.CommonError("此优惠券已核销");
+            }
+            await _couponsDAL.DelCouponsStudentGet(request.CId);
+            await _userOperationLogDAL.AddUserLog(request, "撤销优惠券", EmUserOperationType.CouponsManage);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> CouponsStudentWriteOff(CouponsStudentWriteOffRequest request)
         {
             var getLog = await _couponsDAL.CouponsStudentGet(request.CId);

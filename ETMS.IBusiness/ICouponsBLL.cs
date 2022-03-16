@@ -25,6 +25,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> CouponsStudentGetPaging(CouponsStudentGetPagingRequest request);
 
+        Task<ResponseBase> CouponsStudentRevoked(CouponsStudentRevokedRequest request);
+
         Task<ResponseBase> CouponsStudentWriteOff(CouponsStudentWriteOffRequest request);
 
         Task<ResponseBase> CouponsStudentUsePaging(CouponsStudentUsrPagingRequest request);

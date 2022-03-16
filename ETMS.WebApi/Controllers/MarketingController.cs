@@ -257,6 +257,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> CouponsStudentRevoked(CouponsStudentRevokedRequest request)
+        {
+            try
+            {
+                _couponsBLL.InitTenantId(request.LoginTenantId);
+                return await _couponsBLL.CouponsStudentRevoked(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [HttpPost]
         public async Task<ResponseBase> CouponsStudentWriteOff(CouponsStudentWriteOffRequest request)
         {
