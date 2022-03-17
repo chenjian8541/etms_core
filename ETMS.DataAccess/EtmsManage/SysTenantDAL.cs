@@ -149,5 +149,10 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Execute($"UPDATE SysTenant SET CloudStorageValueMB = '{newValueMB}',CloudStorageValueGB = '{newValueGB}' WHERE Id = {id} ");
             await UpdateCache(id);
         }
+
+        public async Task<SysTenant> TenantGetByPhone(string phone)
+        {
+            return await this.Find<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
+        }
     }
 }

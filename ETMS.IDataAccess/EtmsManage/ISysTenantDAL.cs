@@ -40,5 +40,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task UpdateTenantLastOpTime(int id, DateTime lastOpTime);
 
         Task UpdateTenantCloudStorage(int id, decimal newValueMB, decimal newValueGB);
+
+        Task<SysTenant> TenantGetByPhone(string phone);
     }
 }

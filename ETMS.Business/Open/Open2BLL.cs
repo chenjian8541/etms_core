@@ -56,11 +56,13 @@ namespace ETMS.Business
 
         private readonly IElectronicAlbumDAL _electronicAlbumDAL;
 
+        private readonly ISysTenantUserDAL _sysTenantUserDAL;
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
             IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL,
-            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IElectronicAlbumDAL electronicAlbumDAL)
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IElectronicAlbumDAL electronicAlbumDAL,
+            ISysTenantUserDAL sysTenantUserDAL)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -77,6 +79,7 @@ namespace ETMS.Business
             this._sysTenantDAL = sysTenantDAL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
             this._electronicAlbumDAL = electronicAlbumDAL;
+            this._sysTenantUserDAL = sysTenantUserDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -200,21 +203,36 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("验证码错误");
             }
             _sysPhoneSmsCodeDAL.RemoveSysPhoneSmsCode(request.Phone);
+            var isExistTenant = await _sysTenantDAL.TenantGetByPhone(request.Phone);
+            if (isExistTenant != null)
+            {
+                return ResponseBase.CommonError("此手机号码已注册");
+            }
+            var isHasUser = false;
+            var isExistUsers = await _sysTenantUserDAL.GetTenantUser(request.Phone);
+            if (isExistUsers != null && isExistUsers.Any())
+            {
+                isHasUser = true;
+            }
+
             var log = new ETMS.Entity.Database.Manage.SysTryApplyLog()
             {
                 IsDeleted = EmIsDeleted.Normal,
                 LinkPhone = request.Phone,
                 Name = request.Name,
                 Ot = DateTime.Now,
-                Remark = null
+                Remark = isHasUser ? "机构员工" : null
             };
             await _sysTryApplyLogDAL.AddSysTryApplyLog(log);
 
-            _eventPublisher.Publish(new NoticeManageEvent()
+            if (!isHasUser)
             {
-                Type = NoticeManageType.TryApply,
-                TryApplyLog = log
-            });
+                _eventPublisher.Publish(new NoticeManageEvent()
+                {
+                    Type = NoticeManageType.TryApply,
+                    TryApplyLog = log
+                });
+            }
             return ResponseBase.Success();
         }
 
