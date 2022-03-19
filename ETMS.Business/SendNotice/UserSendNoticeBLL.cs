@@ -258,6 +258,7 @@ namespace ETMS.Business.SendNotice
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.NoticeUserOfHomeworkFinish;
             smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+            smsReq.Url = string.Format(wxConfig.TemplateNoticeConfig.TeacherHomeworkDetailUrl, activeHomeworkDetail.HomeworkId);
 
             var users = getUserIds.Split(',').Distinct();
             foreach (var p in users)

@@ -328,8 +328,18 @@ namespace ETMS.Business.Common
             }
             if (deCourseId == 0)
             {
-                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未设置学员“考勤记上课课程”");
-                return output;
+                var vaildEndCourse = myStudentCourse.FirstOrDefault(p => p.StudentCheckDefault == EmBool.True && p.Status == EmStudentCourseStatus.EndOfClass);
+                if (vaildEndCourse != null)
+                {
+                    output.IsCourseNotEnough = true;
+                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员课时不足");
+                    return output;
+                }
+                else
+                {
+                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未设置学员“考勤记上课课程”");
+                    return output;
+                }
             }
             var myDeCourse = await _courseDAL.GetCourse(deCourseId);
             if (myDeCourse == null || myDeCourse.Item1 == null)

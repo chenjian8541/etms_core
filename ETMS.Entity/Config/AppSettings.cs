@@ -315,6 +315,8 @@ namespace ETMS.Entity.Config
         public string StudentAlbumDetailUrl { get; set; }
 
         public string ClassRecordEvaluateFrontUrl { get; set; }
+
+        public string TeacherHomeworkDetailUrl { get; set; }
     }
 
     public class ServerConfig
