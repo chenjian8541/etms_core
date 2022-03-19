@@ -28,7 +28,7 @@ namespace ETMS.Entity.Dto.Teacher.Request
                 {
                     return _startOt;
                 }
-                if (Ot == null || Ot.Count == 0)
+                if (Ot == null || Ot.Count == 0 || string.IsNullOrEmpty(Ot[0]))
                 {
                     return null;
                 }
@@ -51,6 +51,10 @@ namespace ETMS.Entity.Dto.Teacher.Request
                     return _endOt;
                 }
                 if (Ot == null || Ot.Count < 2)
+                {
+                    return null;
+                }
+                if (string.IsNullOrEmpty(Ot[1]))
                 {
                     return null;
                 }
