@@ -1,0 +1,193 @@
+﻿[
+  {
+    "Id": 1,
+    "Path": "/edu",
+    "Name": "edu",
+    "Type": 0,
+    "Meta": {
+      "Title": "教务中心",
+      "Icon": "edu"
+    },
+    "Children": [
+      {
+        "Id": 5,
+        "Path": "studentMgr",
+        "Name": "studentMgr",
+        "Type": 1,
+        "Component": "@/views/edu/studentMgr",
+        "Meta": {
+          "Title": "学员管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 6,
+        "Path": "classMgr",
+        "Name": "classMgr",
+        "Type": 1,
+        "Component": "@/views/edu/classMgr",
+        "Meta": {
+          "Title": "班级管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 7,
+        "Path": "courseMgr",
+        "Name": "courseMgr",
+        "Type": 1,
+        "Component": "@/views/edu/courseMgr",
+        "Meta": {
+          "Title": "课程管理",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "Path": "/stas",
+    "Name": "stas",
+    "Type": 0,
+    "Meta": {
+      "Title": "数据中心",
+      "Icon": "stas"
+    },
+    "Children": [
+      {
+        "Id": 8,
+        "Path": "studentStas",
+        "Name": "studentStas",
+        "Type": 1,
+        "Component": "@/views/stas/studentStas",
+        "Meta": {
+          "Title": "招生数据",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 9,
+        "Path": "salesStas",
+        "Name": "salesStas",
+        "Type": 1,
+        "Component": "@/views/stas/salesStas",
+        "Meta": {
+          "Title": "销售数据",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 10,
+        "Path": "academicStas",
+        "Name": "academicStas",
+        "Type": 1,
+        "Component": "@/views/stas/academicStas",
+        "Meta": {
+          "Title": "教务数据",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 11,
+        "Path": "financeStas",
+        "Name": "financeStas",
+        "Type": 1,
+        "Component": "@/views/stas/financeStas",
+        "Meta": {
+          "Title": "财务数据",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "Path": "/ins",
+    "Name": "ins",
+    "Type": 0,
+    "Meta": {
+      "Title": "内部管理",
+      "Icon": "ins"
+    },
+    "Children": [
+      {
+        "Id": 12,
+        "Path": "orgMgr",
+        "Name": "orgMgr",
+        "Type": 1,
+        "Component": "@/views/ins/orgMgr",
+        "Meta": {
+          "Title": "组织架构",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 13,
+        "Path": "employeeMgr",
+        "Name": "employeeMgr",
+        "Type": 1,
+        "Component": "@/views/ins/employeeMgr",
+        "Meta": {
+          "Title": "员工管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 14,
+        "Path": "tenantLogs",
+        "Name": "tenantLogs",
+        "Type": 1,
+        "Component": "@/views/ins/tenantLogs",
+        "Meta": {
+          "Title": "校区日志",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
+    "Id": 4,
+    "Path": "/sys",
+    "Name": "sys",
+    "Type": 0,
+    "Meta": {
+      "Title": "系统信息",
+      "Icon": "sys"
+    },
+    "Children": [
+      {
+        "Id": 15,
+        "Path": "tenantMgr",
+        "Name": "tenantMgr",
+        "Type": 1,
+        "Component": "@/views/sys/tenantMgr",
+        "Meta": {
+          "Title": "校区管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 16,
+        "Path": "roleMgr",
+        "Name": "roleMgr",
+        "Type": 1,
+        "Component": "@/views/sys/roleMgr",
+        "Meta": {
+          "Title": "角色管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 17,
+        "Path": "sysLogs",
+        "Name": "sysLogs",
+        "Type": 1,
+        "Component": "@/views/sys/sysLogs",
+        "Meta": {
+          "Title": "操作日志",
+          "Icon": "item"
+        }
+      }
+    ]
+  }
+]

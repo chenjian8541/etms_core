@@ -109,6 +109,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public async Task<ResponseBase> UserLoginSendSmsCodeSafe(UserLoginSendSmsCodeSafeRequest request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserLoginSendSmsCodeSafe(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 短信登陆
         /// </summary>

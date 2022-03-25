@@ -25,5 +25,13 @@ namespace ETMS.IBusiness
         ResponseBase AlbumShare(AlbumShareRequest request);
 
         Task<ResponseBase> AlbumInfoGet(AlbumInfoGetRequest request);
+
+        ResponseBase PhoneVerificationCodeGet(PhoneVerificationCodeGetRequest request);
+
+        Task<ResponseBase> CheckPhoneSmsSafe(CheckPhoneSmsSafeRequest request);
+
+        Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request);
+
+        Task<ResponseBase> ChangeTenantUserPwd(ChangeTenantUserPwdRequest request);
     }
 }

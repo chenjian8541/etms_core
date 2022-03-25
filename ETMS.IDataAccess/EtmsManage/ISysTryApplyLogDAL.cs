@@ -17,5 +17,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task EditSysTryApplyLog(SysTryApplyLog entity);
 
         Task<Tuple<IEnumerable<SysTryApplyLog>, int>> GetPaging(AgentPagingBase request);
+
+        Task<SysTryApplyLog> SysTryApplyLogGet(string phone);
     }
 }

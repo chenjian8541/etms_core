@@ -37,5 +37,31 @@ namespace ETMS.Business.Common
                 signingCredentials: creds);
             return $"Bearer {new JwtSecurityTokenHandler().WriteToken(token)}";
         }
+
+        /// <summary>
+        /// alien创建一个访问Token
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="expiresTime"></param>
+        /// 
+        /// <returns></returns>
+        internal static string AlienGenerateToken(int headId, long userId, string nowTimestamp, out DateTime expiresTime)
+        {
+            var tokenValue = $"etmsAlien,{headId},{userId},{nowTimestamp}";
+            var claims = new[]
+               {
+                   new Claim(SystemConfig.AuthenticationConfig.ClaimType,tokenValue)
+               };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SystemConfig.AuthenticationConfig.IssuerSigningKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            expiresTime = DateTime.Now.AddDays(SystemConfig.AuthenticationConfig.ExpiresDay);
+            var token = new JwtSecurityToken(
+                issuer: SystemConfig.AuthenticationConfig.ValidIssuer,
+                audience: SystemConfig.AuthenticationConfig.ValidAudience,
+                claims: claims,
+                expires: expiresTime,
+                signingCredentials: creds);
+            return $"Bearer {new JwtSecurityTokenHandler().WriteToken(token)}";
+        }
     }
 }

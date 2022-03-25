@@ -134,5 +134,26 @@ namespace ETMS.DataAccess
         {
             _cacheProvider.Remove(tenantId, new MicroWebHomeBucket().GetKeyFormat(tenantId));
         }
+
+        public PhoneVerificationCodeBucket GetPhoneVerificationCodeBucket(string phone)
+        {
+            return _cacheProvider.Get<PhoneVerificationCodeBucket>(0, new PhoneVerificationCodeBucket().GetKeyFormat(phone));
+        }
+
+        public void SetPhoneVerificationCodeBucket(string phone, string verificationCode)
+        {
+            var bucket = new PhoneVerificationCodeBucket()
+            {
+                Phone = phone,
+                VerificationCode = verificationCode
+            };
+            var key = bucket.GetKeyFormat(phone);
+            _cacheProvider.Set(0, key, bucket, bucket.TimeOut);
+        }
+
+        public void RemovePhoneVerificationCodeBucket(string phone)
+        {
+            _cacheProvider.Remove(0, new PhoneVerificationCodeBucket().GetKeyFormat(phone));
+        }
     }
 }

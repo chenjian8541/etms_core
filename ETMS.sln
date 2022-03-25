@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETMS.WebApi", "ETMS.WebApi\ETMS.WebApi.csproj", "{C8E6780A-3DB3-4335-B884-B924D53BF6F3}"
 EndProject
@@ -74,6 +74,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETMS.Pay.Lcsw", "ETMS.Pay.Lcsw\ETMS.Pay.Lcsw.csproj", "{38E18D94-3946-434B-918A-32A7E0F9594A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FubeiOpenApi.CoreSdk", "FubeiOpenApi.CoreSdk\FubeiOpenApi.CoreSdk.csproj", "{2428B810-7EAD-4A37-B909-1B1FD66A3D1D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Alien", "Alien", "{48E8735E-C7B6-49B5-928F-99CF73CEF7AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETMS.Alien.Webapi", "ETMS.Alien.Webapi\ETMS.Alien.Webapi.csproj", "{47F685C6-F326-40B0-B0A4-FA57023B62B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,6 +205,10 @@ Global
 		{2428B810-7EAD-4A37-B909-1B1FD66A3D1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2428B810-7EAD-4A37-B909-1B1FD66A3D1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2428B810-7EAD-4A37-B909-1B1FD66A3D1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47F685C6-F326-40B0-B0A4-FA57023B62B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47F685C6-F326-40B0-B0A4-FA57023B62B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47F685C6-F326-40B0-B0A4-FA57023B62B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47F685C6-F326-40B0-B0A4-FA57023B62B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,6 +232,7 @@ Global
 		{475912F0-3AF2-4B4F-AAD8-1653CEA33015} = {9E2E975C-B883-4407-A544-CB639D535903}
 		{38E18D94-3946-434B-918A-32A7E0F9594A} = {9E2E975C-B883-4407-A544-CB639D535903}
 		{2428B810-7EAD-4A37-B909-1B1FD66A3D1D} = {9E2E975C-B883-4407-A544-CB639D535903}
+		{47F685C6-F326-40B0-B0A4-FA57023B62B0} = {48E8735E-C7B6-49B5-928F-99CF73CEF7AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {063C1971-F3D6-4A78-9886-EB9BC6D96CAC}

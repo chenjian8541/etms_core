@@ -125,7 +125,7 @@ namespace ETMS.Business
                 _userLoginFailedRecordDAL.AddUserLoginFailedRecord(request.Code, request.Phone);
                 return response;
             }
-            if (!CheckUserCanLogin(userInfo, out var msg))
+            if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))
             {
                 return response.GetResponseError(msg);
             }
@@ -134,7 +134,7 @@ namespace ETMS.Business
             var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
                 {
                     return response.GetResponseError(msgRoleLimit);
                 }
@@ -142,52 +142,6 @@ namespace ETMS.Business
             var userLoginOutput = await LoginSuccessProcess(userInfo, request.IpAddress, request.Code, request.Phone, request.ClientType,
                 role, roleSetting);
             return response.GetResponseSuccess(userLoginOutput);
-        }
-
-        private bool CheckUserCanLogin(EtUser user, out string msg)
-        {
-            msg = string.Empty;
-            if (user == null)
-            {
-                msg = "用户不存在,请重新登陆";
-                return false;
-            }
-            if (user.JobType == EmUserJobType.Resignation)
-            {
-                msg = "您已离职，无法登陆";
-                return false;
-            }
-            return true;
-        }
-
-        private bool CheckRoleCanLogin(RoleNoticeSettingOutput roleSetting, int clientType, out string msg)
-        {
-            msg = string.Empty;
-            switch (clientType)
-            {
-                case EmUserOperationLogClientType.PC:
-                    if (!roleSetting.IsAllowPCLogin)
-                    {
-                        msg = "您无权限登录，请联系管理员";
-                        return false;
-                    }
-                    break;
-                case EmUserOperationLogClientType.WeChat:
-                    if (!roleSetting.IsAllowWebchatLogin)
-                    {
-                        msg = "您无权限登录，请联系管理员";
-                        return false;
-                    }
-                    break;
-                case EmUserOperationLogClientType.Android:
-                    if (!roleSetting.IsAllowAppLogin)
-                    {
-                        msg = "您无权限登录，请联系管理员";
-                        return false;
-                    }
-                    break;
-            }
-            return true;
         }
 
         /// <summary>
@@ -242,6 +196,45 @@ namespace ETMS.Business
             return response.GetResponseSuccess();
         }
 
+        public async Task<ResponseBase> UserLoginSendSmsCodeSafe(UserLoginSendSmsCodeSafeRequest request)
+        {
+            var myVerificationCodeBucket = _tempDataCacheDAL.GetPhoneVerificationCodeBucket(request.Phone);
+            if (myVerificationCodeBucket == null || myVerificationCodeBucket.VerificationCode != request.VerificationCode)
+            {
+                return ResponseBase.CommonError("校验码错误");
+            }
+            var response = new ResponseBase().GetResponseBadRequest("账号信息错误");
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.Code);
+            if (sysTenantInfo == null)
+            {
+                return response;
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return response.GetResponseError(myMsg);
+            }
+            _etUserDAL.InitTenantId(sysTenantInfo.Id);
+            _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
+            var userInfo = await _etUserDAL.GetUser(request.Phone);
+            if (userInfo == null)
+            {
+                return response;
+            }
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.UserLogin(new SmsUserLoginRequest(sysTenantInfo.Id)
+            {
+                Phone = request.Phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return response.GetResponseError("发送短信失败,请稍后再试");
+            }
+            this._userLoginSmsCodeDAL.AddUserLoginSmsCode(request.Code, request.Phone, smsCode);
+            _tempDataCacheDAL.RemovePhoneVerificationCodeBucket(request.Phone);
+            return response.GetResponseSuccess();
+        }
+
         /// <summary>
         /// 使用短信验证码登陆
         /// </summary>
@@ -271,7 +264,7 @@ namespace ETMS.Business
             {
                 return response.GetResponseError("验证码错误");
             }
-            if (!CheckUserCanLogin(userInfo, out var msg))
+            if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))
             {
                 return response.GetResponseError(msg);
             }
@@ -280,7 +273,7 @@ namespace ETMS.Business
             var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.ClientType, out var msgRoleLimit))
                 {
                     return response.GetResponseError(msgRoleLimit);
                 }
@@ -417,7 +410,7 @@ namespace ETMS.Business
             }
             _etUserDAL.InitTenantId(request.LoginTenantId);
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
-            if (!CheckUserCanLogin(userInfo, out var msg))
+            if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))
             {
                 return ResponseBase.CommonError(msg);
             }
@@ -439,7 +432,7 @@ namespace ETMS.Business
             var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
                 {
                     return ResponseBase.CommonError(msgRoleLimit);
                 }
@@ -536,7 +529,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("用户不存在");
             }
-            if (!CheckUserCanLogin(thisUser, out var msg))
+            if (!ComBusiness2.CheckUserCanLogin(thisUser, out var msg))
             {
                 return ResponseBase.CommonError(msg);
             }
@@ -549,7 +542,7 @@ namespace ETMS.Business
             var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
             if (!userInfo.IsAdmin)
             {
-                if (!CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
                 {
                     return ResponseBase.CommonError(msgRoleLimit);
                 }

@@ -15,6 +15,11 @@ namespace ETMS.Entity.Dto.Open2.Request
 
         public string SmsCode { get; set; }
 
+        /// <summary>
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int ClientType { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Name))

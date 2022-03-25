@@ -19,6 +19,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> UserLoginSendSms(UserLoginSendSmsRequest request);
 
+        Task<ResponseBase> UserLoginSendSmsCodeSafe(UserLoginSendSmsCodeSafeRequest request);
+
         Task<ResponseBase> UserLoginBySms(UserLoginBySmsRequest request);
 
         Task<ResponseBase> UserLoginBySmsH5(UserLoginBySmsH5Request request);

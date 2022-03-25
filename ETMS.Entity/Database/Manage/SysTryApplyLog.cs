@@ -22,5 +22,10 @@ namespace ETMS.Entity.Database.Manage
         public string HandleRemark { get; set; }
 
         public long? HandleUserId { get; set; }
+
+        /// <summary>
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int ClientType { get; set; }
     }
 }

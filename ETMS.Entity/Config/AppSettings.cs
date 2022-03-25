@@ -405,6 +405,11 @@ namespace ETMS.Entity.Config
     public class DatabseConfig
     {
         /// <summary>
+        /// EtmsAlien库连接字符串
+        /// </summary>
+        public string EtmsAlienConnectionString { get; set; }
+
+        /// <summary>
         /// EtmsManage库连接字符串
         /// </summary>
         public string EtmsManageConnectionString { get; set; }

@@ -14,6 +14,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.CacheBucket;
 using ETMS.Entity.View;
+using ETMS.Entity.Dto.User.Output;
 
 namespace ETMS.Business.Common
 {
@@ -306,6 +307,52 @@ namespace ETMS.Business.Common
             {
                 msg = "机构已锁定,无法登陆";
                 return false;
+            }
+            return true;
+        }
+
+        internal static bool CheckUserCanLogin(EtUser user, out string msg)
+        {
+            msg = string.Empty;
+            if (user == null)
+            {
+                msg = "用户不存在,请重新登陆";
+                return false;
+            }
+            if (user.JobType == EmUserJobType.Resignation)
+            {
+                msg = "您已离职，无法登陆";
+                return false;
+            }
+            return true;
+        }
+
+        internal static bool CheckRoleCanLogin(RoleNoticeSettingOutput roleSetting, int clientType, out string msg)
+        {
+            msg = string.Empty;
+            switch (clientType)
+            {
+                case EmUserOperationLogClientType.PC:
+                    if (!roleSetting.IsAllowPCLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.WeChat:
+                    if (!roleSetting.IsAllowWebchatLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.Android:
+                    if (!roleSetting.IsAllowAppLogin)
+                    {
+                        msg = "您无权限登录，请联系管理员";
+                        return false;
+                    }
+                    break;
             }
             return true;
         }

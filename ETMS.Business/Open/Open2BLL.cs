@@ -1,10 +1,12 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Open2.Output;
 using ETMS.Entity.Dto.Open2.Request;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
@@ -57,12 +59,16 @@ namespace ETMS.Business
         private readonly IElectronicAlbumDAL _electronicAlbumDAL;
 
         private readonly ISysTenantUserDAL _sysTenantUserDAL;
+
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
+
+        private readonly IUserOperationLogDAL _userOperationLogDAL;
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
             IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL,
             IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IElectronicAlbumDAL electronicAlbumDAL,
-            ISysTenantUserDAL sysTenantUserDAL)
+            ISysTenantUserDAL sysTenantUserDAL, ITempDataCacheDAL tempDataCacheDAL, IUserOperationLogDAL userOperationLogDAL)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -80,13 +86,15 @@ namespace ETMS.Business
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
             this._electronicAlbumDAL = electronicAlbumDAL;
             this._sysTenantUserDAL = sysTenantUserDAL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
+            this._userOperationLogDAL = userOperationLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, this._studentDAL, this._userDAL, this._courseDAL, this._classDAL,
                 this._classRecordDAL, _classRoomDAL, _classRecordEvaluateDAL, _shareTemplateUseTypeDAL,
-                _electronicAlbumDetailDAL, _electronicAlbumDAL);
+                _electronicAlbumDetailDAL, _electronicAlbumDAL, _userOperationLogDAL);
         }
 
         public async Task<ResponseBase> ClassRecordDetailGet(ClassRecordDetailGetOpenRequest request)
@@ -208,6 +216,18 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此手机号码已注册");
             }
+            var phoneLog = await _sysTryApplyLogDAL.SysTryApplyLogGet(request.Phone);
+            if (phoneLog != null)
+            {
+                if (phoneLog.Status == EmSysTryApplyLogStatus.Processed)
+                {
+                    phoneLog.Status = EmSysTryApplyLogStatus.Untreated;
+                    phoneLog.HandleRemark = "重复提交";
+                    await _sysTryApplyLogDAL.EditSysTryApplyLog(phoneLog);
+                }
+                return ResponseBase.CommonError("已存在此手机号码的注册信息");
+            }
+
             var isHasUser = false;
             var isExistUsers = await _sysTenantUserDAL.GetTenantUser(request.Phone);
             if (isExistUsers != null && isExistUsers.Any())
@@ -221,6 +241,7 @@ namespace ETMS.Business
                 LinkPhone = request.Phone,
                 Name = request.Name,
                 Ot = DateTime.Now,
+                ClientType = request.ClientType,
                 Remark = isHasUser ? "机构员工" : null
             };
             await _sysTryApplyLogDAL.AddSysTryApplyLog(log);
@@ -397,6 +418,106 @@ namespace ETMS.Business
                 output.ShareContent = ShareTemplateHandler.TemplateLinkStudentPhoto(shareTemplateBucket.MyShareTemplateLink, string.Empty, p.Name);
             }
             return ResponseBase.Success(output);
+        }
+
+        public ResponseBase PhoneVerificationCodeGet(PhoneVerificationCodeGetRequest request)
+        {
+            var myVerificationCode = PhoneVerificationHelper.GetPhoneVerificationCode();
+            _tempDataCacheDAL.SetPhoneVerificationCodeBucket(request.Phone, myVerificationCode);
+            var imgBase64 = PhoneVerificationHelper.GetCaptcha(myVerificationCode, 80, 34);
+            return ResponseBase.Success(new PhoneVerificationCodeGetOutput()
+            {
+                PhoneVerificationCodeImg = imgBase64
+            });
+        }
+
+        public async Task<ResponseBase> CheckPhoneSmsSafe(CheckPhoneSmsSafeRequest request)
+        {
+            var myVerificationCodeBucket = _tempDataCacheDAL.GetPhoneVerificationCodeBucket(request.Phone);
+            if (myVerificationCodeBucket == null || myVerificationCodeBucket.VerificationCode != request.VerificationCode)
+            {
+                return ResponseBase.CommonError("校验码错误");
+            }
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.ComSendSmscode(new ComSendSmscodeRequest()
+            {
+                Phone = request.Phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+            }
+            _sysPhoneSmsCodeDAL.AddSysPhoneSmsCode(request.Phone, smsCode);
+            _tempDataCacheDAL.RemovePhoneVerificationCodeBucket(request.Phone);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request)
+        {
+            var safeSms = _sysPhoneSmsCodeDAL.GetSysPhoneSmsCode(request.Phone);
+            if (safeSms == null || safeSms.ExpireAtTime < DateTime.Now || safeSms.SmsCode != request.SmsCode)
+            {
+                return ResponseBase.CommonError("验证码错误");
+            }
+            _sysPhoneSmsCodeDAL.RemoveSysPhoneSmsCode(request.Phone);
+            var response = new ResponseBase().GetResponseBadRequest("账号信息错误");
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.TenantCode);
+            if (sysTenantInfo == null)
+            {
+                return response;
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return response.GetResponseError(myMsg);
+            }
+            _userDAL.InitTenantId(sysTenantInfo.Id);
+            var userInfo = await _userDAL.GetUser(request.Phone);
+            if (userInfo == null)
+            {
+                return response;
+            }
+            if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))
+            {
+                return response.GetResponseError(msg);
+            }
+            var exTime = DateTime.Now.AddMinutes(10);
+            return response.GetResponseSuccess(new CheckTenantAccountOutput()
+            {
+                TNo = TenantLib.GetTenantEncrypt(sysTenantInfo.Id),
+                UNo = EtmsHelper2.GetIdEncrypt(userInfo.Id),
+                CheckNo = EtmsHelper2.GetIdEncrypt(exTime.EtmsGetTimestamp())
+            });
+        }
+
+        public async Task<ResponseBase> ChangeTenantUserPwd(ChangeTenantUserPwdRequest request)
+        {
+            var exTimestamp = EtmsHelper2.GetIdDecrypt2(request.CheckNo);
+            var exTime = DataTimeExtensions.StampToDateTime(exTimestamp.ToString());
+            if (exTime <= DateTime.Now)
+            {
+                return ResponseBase.CommonError("此请求已超时，请重新尝试");
+            }
+            var tenantId = TenantLib.GetTenantDecrypt(request.TNo);
+            var userId = EtmsHelper2.GetIdDecrypt2(request.UNo);
+            _userDAL.InitTenantId(tenantId);
+            _userOperationLogDAL.InitTenantId(tenantId);
+            var userInfo = await _userDAL.GetUser(userId);
+            userInfo.Password = CryptogramHelper.Encrypt3DES(request.NewPwd, SystemConfig.CryptogramConfig.Key);
+            await _userDAL.EditUser(userInfo);
+            await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
+            {
+                ClientType = request.LoginClientType,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = $"用户:{userInfo.Name},手机号:{userInfo.Phone}修改密码",
+                Ot = DateTime.Now,
+                Remark = null,
+                TenantId = tenantId,
+                UserId = userId,
+                Type = (int)EmUserOperationType.UserChangePwd
+            });
+            return ResponseBase.Success();
         }
     }
 }

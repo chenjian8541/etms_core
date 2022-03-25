@@ -32,5 +32,10 @@ namespace ETMS.DataAccess.EtmsManage
         {
             return await this.ExecutePage<SysTryApplyLog>("SysTryApplyLog", "*", request.PageSize, request.PageCurrent, "[Status] ASC,Id DESC", request.ToString());
         }
+
+        public async Task<SysTryApplyLog> SysTryApplyLogGet(string phone)
+        {
+            return await this.Find<SysTryApplyLog>(p => p.LinkPhone == phone && p.IsDeleted == EmIsDeleted.Normal);
+        }
     }
 }

@@ -30,14 +30,18 @@ namespace ETMS.DataAccess.Core
                     {
                         if (string.IsNullOrEmpty(_connectionString))
                         {
-                            if (_tenantId == 0)
+                            if (_tenantId == -1)  //EtmsAlien
+                            {
+                                _connectionString = CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsAlienConnectionString;
+                                return _connectionString;
+                            }
+                            if (_tenantId == 0)   //EtmsManage
                             {
                                 _connectionString = CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsManageConnectionString;
+                                return _connectionString;
                             }
-                            else
-                            {
-                                _connectionString = CustomServiceLocator.GetInstance<ITenantConfigWrapper>().GetTenantConnectionString(_tenantId).Result;
-                            }
+                            _connectionString = CustomServiceLocator.GetInstance<ITenantConfigWrapper>().GetTenantConnectionString(_tenantId).Result;
+                            return _connectionString;
                         }
                     }
                 }

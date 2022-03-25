@@ -45,5 +45,11 @@ namespace ETMS.IDataAccess
         void SetMicroWebHomeBucket(int tenantId, MicroWebHomeBucket bucket);
 
         void RemoveMicroWebHomeBucket(int tenantId);
+
+        PhoneVerificationCodeBucket GetPhoneVerificationCodeBucket(string phone);
+
+        void SetPhoneVerificationCodeBucket(string phone, string verificationCode);
+
+        void RemovePhoneVerificationCodeBucket(string phone);
     }
 }

@@ -378,5 +378,57 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase PhoneVerificationCodeGet(PhoneVerificationCodeGetRequest request)
+        {
+            try
+            {
+                return _open2BLL.PhoneVerificationCodeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> CheckPhoneSmsSafe(CheckPhoneSmsSafeRequest request)
+        {
+            try
+            {
+                return await _open2BLL.CheckPhoneSmsSafe(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request)
+        {
+            try
+            {
+                return await _open2BLL.CheckTenantAccount(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ChangeTenantUserPwd(ChangeTenantUserPwdRequest request)
+        {
+            try
+            {
+                return await _open2BLL.ChangeTenantUserPwd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

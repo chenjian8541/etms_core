@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ETMS.Authority\ETMS.Authority.csproj" />
+    <ProjectReference Include="..\ETMS.Business\ETMS.Business.csproj" />
+    <ProjectReference Include="..\ETMS.Cache.Redis\ETMS.Cache.Redis.csproj" />
+    <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.Entity\ETMS.Entity.csproj" />
+    <ProjectReference Include="..\ETMS.IBusiness\ETMS.IBusiness.csproj" />
+    <ProjectReference Include="..\ETMS.ICache\ETMS.ICache.csproj" />
+    <ProjectReference Include="..\ETMS.IDataAccess\ETMS.IDataAccess.csproj" />
+    <ProjectReference Include="..\ETMS.IEventProvider\ETMS.IEventProvider.csproj" />
+    <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
+    <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
+    <ProjectReference Include="..\ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj" />
+    <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
+    <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
+  </ItemGroup>
+
+</Project>
