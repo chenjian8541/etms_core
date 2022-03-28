@@ -29,6 +29,7 @@ namespace ETMS.DataAccess.Alien
             allOrganizations = await _dbWrapper.FindList<MgOrganization>(p => p.HeadId == _headId && p.IsDeleted == EmIsDeleted.Normal);
             return new MgOrganizationBucket()
             {
+                AllOrganization = allOrganizations,
                 MgOrganizationView = GetChild(0)
             };
         }
@@ -82,6 +83,7 @@ namespace ETMS.DataAccess.Alien
         public async Task DelOrganization(long id)
         {
             await _dbWrapper.Execute($"UPDATE MgOrganization SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {id}");
+            await _dbWrapper.Execute($"UPDATE MgOrganization SET IsDeleted = {EmIsDeleted.Deleted} WHERE HeadId = {_headId} AND IsDeleted = {EmIsDeleted.Normal} AND ParentsAll LIKE '%,{id},%'");
             await UpdateCache(_headId);
         }
     }

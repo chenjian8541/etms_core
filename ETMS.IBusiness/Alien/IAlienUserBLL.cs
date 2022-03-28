@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.Alien.Dto.User.Request;
+using ETMS.Entity.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,22 +10,40 @@ namespace ETMS.IBusiness.Alien
 {
     public interface IAlienUserBLL: IAlienBaseBLL
     {
-        //Task<ResponseBase> ChangPwd();
+        Task<ResponseBase> ChangPwd(ChangPwdRequest request);
 
-        //Task<ResponseBase> ChangUserPwd();
+        Task<ResponseBase> ChangUserPwd(ChangUserPwdRequest request);
 
-        //Task<ResponseBase> RoleListGet();
+        Task<ResponseBase> RoleListGet(RoleListGetRequest request);
 
-        //Task<ResponseBase> RoleAdd();
+        Task<ResponseBase> RoleAdd(RoleAddRequest request);
 
-        //Task<ResponseBase> RoleEdit();
+        Task<ResponseBase> RoleEdit(RoleEditRequest request);
 
-        //Task<ResponseBase> RoleGet();
+        Task<ResponseBase> RoleGet(RoleGetRequest request);
 
-        //Task<ResponseBase> RoleDefaultGet();
+        ResponseBase RoleDefaultGet(RoleDefaultGetRequest request);
 
-        //Task<ResponseBase> RoleDel();
+        Task<ResponseBase> RoleDel(RoleDelRequest request);
 
+        Task<ResponseBase> OrgGetAll(OrgGetAllRequest request);
 
+        Task<ResponseBase> OrgAdd(OrgAddRequest request);
+
+        Task<ResponseBase> OrgEdit(OrgEditRequest request);
+
+        Task<ResponseBase> OrgDel(OrgDelRequest request);
+
+        Task<ResponseBase> UserGetPaging(UserGetPagingRequest request);
+
+        Task<ResponseBase> UserGet(UserGetRequest request);
+
+        Task<ResponseBase> UserAdd(UserAddRequest request);
+
+        Task<ResponseBase> UserDel(UserDelRequest request);
+
+        Task<ResponseBase> UserEdit(UserEditRequest request);
+
+        Task<ResponseBase> UserOperationLogGetPaging(UserOperationLogGetPagingRequest request);
     }
 }

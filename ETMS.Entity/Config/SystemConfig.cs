@@ -247,5 +247,10 @@ namespace ETMS.Entity.Config
         /// 固定的正式环境 新文件夹
         /// </summary>
         public string OSSRootNewFolder = "etms_lib";
+
+        /// <summary>
+        /// 默认密码
+        /// </summary>
+        public string DefaultPwd = "88888888";
     }
 }

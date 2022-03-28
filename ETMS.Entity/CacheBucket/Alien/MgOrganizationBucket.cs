@@ -12,6 +12,8 @@ namespace ETMS.Entity.CacheBucket.Alien
     {
         public List<MgOrganizationView> MgOrganizationView { get; set; }
 
+        public List<MgOrganization> AllOrganization { get; set; }
+
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.ComTimeOutDay);
 
         /// <summary>

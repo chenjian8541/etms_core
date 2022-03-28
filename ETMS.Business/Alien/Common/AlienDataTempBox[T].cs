@@ -1,22 +1,22 @@
-﻿using ETMS.Entity.Database.Manage;
+﻿using ETMS.Entity.Database.Alien;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETMS.Business.EtmsManage.Common
+namespace ETMS.Business.Alien.Common
 {
-    public class AgentDataTempBox<T> where T : EManageEntity<int>
+    internal class AlienDataTempBox<T> where T : EAlienEntityBase<long>
     {
-        internal AgentDataTempBox()
+        internal AlienDataTempBox()
         {
             ListTempData = new List<T>();
         }
 
         internal List<T> ListTempData { get; set; }
 
-        internal async Task<T> GetData(int id, Func<Task<T>> dataAccessProcess)
+        internal async Task<T> GetData(long id, Func<Task<T>> dataAccessProcess)
         {
             var myData = this.ListTempData.FirstOrDefault(p => p.Id == id);
             if (myData != null)

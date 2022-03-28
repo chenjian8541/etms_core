@@ -1,7 +1,10 @@
-﻿using ETMS.Entity.Database.Manage;
+﻿using ETMS.Authority;
+using ETMS.Entity.Config.Menu;
+using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Dto.Student.Request;
+using ETMS.Entity.Dto.User.Output;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.View;
@@ -366,5 +369,144 @@ namespace ETMS.Business.Common
             }
             return EmStudentCourseStatus.EndOfClass;
         }
+
+        internal static string GetAuthorityValueMenu(List<int> pageMenus, List<int> actionMenus, List<int> pageRouteIds)
+        {
+            return $"{GetAuthorityValue(pageMenus.ToArray())}|{GetAuthorityValue(actionMenus.ToArray())}|{GetAuthorityValue(pageRouteIds.ToArray())}";
+        }
+
+        /// <summary>
+        /// 通过选择的菜单ID，计算权值
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        internal static string GetAuthorityValue(int[] ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return string.Empty;
+            }
+            var authorityCore = new AuthorityCore();
+            var weightSum = authorityCore.AuthoritySum(ids);
+            return weightSum.ToString();
+        }
+
+        internal static void MenuConfigsHandle(List<MenuConfig> myMenuConfigs, AuthorityCore authorityCorePage, AuthorityCore authorityCoreAction)
+        {
+            foreach (var p in myMenuConfigs)
+            {
+                if (p.Type == MenuType.Page)
+                {
+                    p.IsOwner = authorityCorePage.Validation(p.Id);
+                }
+                else
+                {
+                    p.IsOwner = authorityCoreAction.Validation(p.ActionId);
+                }
+                if (p.ChildrenPage != null && p.ChildrenPage.Any())
+                {
+                    MenuConfigsHandle(p.ChildrenPage, authorityCorePage, authorityCoreAction);
+                }
+                if (p.ChildrenAction != null && p.ChildrenAction.Any())
+                {
+                    MenuConfigsHandle(p.ChildrenAction, authorityCorePage, authorityCoreAction);
+                }
+            }
+        }
+
+        internal static List<RoleMenuViewOutput> GetRoleMenuViewOutputs(List<MenuConfig> menuConfigs)
+        {
+            var output = new List<RoleMenuViewOutput>();
+            var index = 1;
+            foreach (var p in menuConfigs)
+            {
+                var item = new RoleMenuViewOutput()
+                {
+                    ActionCheck = new List<int>(),
+                    ActionItems = new List<RoleMenuItem>(),
+                    PageCheck = new List<int>(),
+                    PageItems = new List<RoleMenuItem>(),
+                    Index = index
+                };
+                index++;
+                var thisPageItem = new RoleMenuItem()
+                {
+                    Children = new List<RoleMenuItem>(),
+                    Id = p.Id,
+                    Label = p.Name,
+                    Type = p.Type
+                };
+                item.PageItems.Add(thisPageItem);
+                if (p.IsOwner)
+                {
+                    item.PageCheck.Add(p.Id);
+                }
+                if (p.ChildrenPage != null && p.ChildrenPage.Any())
+                {
+                    AddChildrenPage(p.ChildrenPage, thisPageItem, item);
+                }
+                if (p.ChildrenAction != null && p.ChildrenAction.Any())
+                {
+                    AddChildrenCheck(p.ChildrenAction, item);
+                }
+                output.Add(item);
+            }
+            return output;
+        }
+
+        internal static void AddChildrenCheck(List<MenuConfig> ChildrenAction, RoleMenuViewOutput itemOutput)
+        {
+            if (itemOutput.ActionItems.Count == 0)
+            {
+                itemOutput.ActionItems.Add(new RoleMenuItem()
+                {
+                    Children = new List<RoleMenuItem>(),
+                    Id = 0,
+                    Label = "全选",
+                    Type = MenuType.Action
+                });
+            }
+            foreach (var p in ChildrenAction)
+            {
+                itemOutput.ActionItems[0].Children.Add(new RoleMenuItem()
+                {
+                    Id = p.ActionId,
+                    Label = p.Name,
+                    Type = p.Type
+                });
+                if (p.IsOwner)
+                {
+                    itemOutput.ActionCheck.Add(p.ActionId);
+                }
+            }
+        }
+
+        internal static void AddChildrenPage(List<MenuConfig> childrenPage, RoleMenuItem item, RoleMenuViewOutput itemOutput)
+        {
+            foreach (var p in childrenPage)
+            {
+                var thisRoleMenuItem = new RoleMenuItem()
+                {
+                    Children = new List<RoleMenuItem>(),
+                    Id = p.Id,
+                    Label = p.Name,
+                    Type = p.Type
+                };
+                item.Children.Add(thisRoleMenuItem);
+                if (p.IsOwner)
+                {
+                    itemOutput.PageCheck.Add(p.Id);
+                }
+                if (p.ChildrenPage != null && p.ChildrenPage.Any())
+                {
+                    AddChildrenPage(p.ChildrenPage, thisRoleMenuItem, itemOutput);
+                }
+                if (p.ChildrenAction != null && p.ChildrenAction.Any())
+                {
+                    AddChildrenCheck(p.ChildrenAction, itemOutput);
+                }
+            }
+        }
+
     }
 }

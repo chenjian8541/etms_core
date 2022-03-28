@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Alien.Common
 {
-    public class AlienRequestPagingBase : AlienRequestBase
+    public class AlienRequestPagingBase : AlienRequestBase, IPagingRequest
     {
         /// <summary>
         /// 每页数

@@ -338,7 +338,7 @@ namespace ETMS.Business
             await _roleDAL.AddRole(new EtRole()
             {
                 AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit),
-                AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
+                AuthorityValueMenu = ComBusiness4.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds),
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
                 Remark = request.Remark,
@@ -359,34 +359,13 @@ namespace ETMS.Business
             }
             role.Name = request.Name;
             role.Remark = request.Remark;
-            role.AuthorityValueMenu = GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
+            role.AuthorityValueMenu = ComBusiness4.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
             role.NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting);
             role.SecrecyType = request.SecrecyType;
             await _roleDAL.EditRole(role);
             await _userOperationLogDAL.AddUserLog(request, $"编辑角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
-        }
-
-        private string GetAuthorityValueMenu(List<int> pageMenus, List<int> actionMenus, List<int> pageRouteIds)
-        {
-            return $"{GetAuthorityValue(pageMenus.ToArray())}|{GetAuthorityValue(actionMenus.ToArray())}|{GetAuthorityValue(pageRouteIds.ToArray())}";
-        }
-
-        /// <summary>
-        /// 通过选择的菜单ID，计算权值
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
-        private string GetAuthorityValue(int[] ids)
-        {
-            if (ids == null || !ids.Any())
-            {
-                return string.Empty;
-            }
-            var authorityCore = new AuthorityCore();
-            var weightSum = authorityCore.AuthoritySum(ids);
-            return weightSum.ToString();
         }
 
         public async Task<ResponseBase> RoleGet(RoleGetRequest request)
@@ -402,12 +381,12 @@ namespace ETMS.Business
             var authorityCorePage = new AuthorityCore(pageWeight);
             var authorityCoreAction = new AuthorityCore(actionWeight);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
-            MenuConfigsHandle(myAllMenus, authorityCorePage, authorityCoreAction);
+            ComBusiness4.MenuConfigsHandle(myAllMenus, authorityCorePage, authorityCoreAction);
             return ResponseBase.Success(new RoleGetOutput()
             {
                 Name = role.Name,
                 Remark = role.Remark,
-                Menus = GetRoleMenuViewOutputs(myAllMenus),
+                Menus = ComBusiness4.GetRoleMenuViewOutputs(myAllMenus),
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
                 RoleNoticeSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting),
                 SecrecyType = role.SecrecyType
@@ -417,124 +396,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> RoleDefaultGet(RoleDefaultGetRequest request)
         {
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
-            return ResponseBase.Success(GetRoleMenuViewOutputs(myAllMenus));
-        }
-
-        private List<RoleMenuViewOutput> GetRoleMenuViewOutputs(List<MenuConfig> menuConfigs)
-        {
-            var output = new List<RoleMenuViewOutput>();
-            var index = 1;
-            foreach (var p in menuConfigs)
-            {
-                var item = new RoleMenuViewOutput()
-                {
-                    ActionCheck = new List<int>(),
-                    ActionItems = new List<RoleMenuItem>(),
-                    PageCheck = new List<int>(),
-                    PageItems = new List<RoleMenuItem>(),
-                    Index = index
-                };
-                index++;
-                var thisPageItem = new RoleMenuItem()
-                {
-                    Children = new List<RoleMenuItem>(),
-                    Id = p.Id,
-                    Label = p.Name,
-                    Type = p.Type
-                };
-                item.PageItems.Add(thisPageItem);
-                if (p.IsOwner)
-                {
-                    item.PageCheck.Add(p.Id);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    AddChildrenPage(p.ChildrenPage, thisPageItem, item);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    AddChildrenCheck(p.ChildrenAction, item);
-                }
-                output.Add(item);
-            }
-            return output;
-        }
-
-        private void AddChildrenCheck(List<MenuConfig> ChildrenAction, RoleMenuViewOutput itemOutput)
-        {
-            if (itemOutput.ActionItems.Count == 0)
-            {
-                itemOutput.ActionItems.Add(new RoleMenuItem()
-                {
-                    Children = new List<RoleMenuItem>(),
-                    Id = 0,
-                    Label = "全选",
-                    Type = MenuType.Action
-                });
-            }
-            foreach (var p in ChildrenAction)
-            {
-                itemOutput.ActionItems[0].Children.Add(new RoleMenuItem()
-                {
-                    Id = p.ActionId,
-                    Label = p.Name,
-                    Type = p.Type
-                });
-                if (p.IsOwner)
-                {
-                    itemOutput.ActionCheck.Add(p.ActionId);
-                }
-            }
-        }
-
-        private void AddChildrenPage(List<MenuConfig> childrenPage, RoleMenuItem item, RoleMenuViewOutput itemOutput)
-        {
-            foreach (var p in childrenPage)
-            {
-                var thisRoleMenuItem = new RoleMenuItem()
-                {
-                    Children = new List<RoleMenuItem>(),
-                    Id = p.Id,
-                    Label = p.Name,
-                    Type = p.Type
-                };
-                item.Children.Add(thisRoleMenuItem);
-                if (p.IsOwner)
-                {
-                    itemOutput.PageCheck.Add(p.Id);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    AddChildrenPage(p.ChildrenPage, thisRoleMenuItem, itemOutput);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    AddChildrenCheck(p.ChildrenAction, itemOutput);
-                }
-            }
-        }
-
-        private void MenuConfigsHandle(List<MenuConfig> myMenuConfigs, AuthorityCore authorityCorePage, AuthorityCore authorityCoreAction)
-        {
-            foreach (var p in myMenuConfigs)
-            {
-                if (p.Type == MenuType.Page)
-                {
-                    p.IsOwner = authorityCorePage.Validation(p.Id);
-                }
-                else
-                {
-                    p.IsOwner = authorityCoreAction.Validation(p.ActionId);
-                }
-                if (p.ChildrenPage != null && p.ChildrenPage.Any())
-                {
-                    MenuConfigsHandle(p.ChildrenPage, authorityCorePage, authorityCoreAction);
-                }
-                if (p.ChildrenAction != null && p.ChildrenAction.Any())
-                {
-                    MenuConfigsHandle(p.ChildrenAction, authorityCorePage, authorityCoreAction);
-                }
-            }
+            return ResponseBase.Success(ComBusiness4.GetRoleMenuViewOutputs(myAllMenus));
         }
 
         public async Task<ResponseBase> RoleDel(RoleDelRequest request)

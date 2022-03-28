@@ -25,5 +25,7 @@ namespace ETMS.IDataAccess.Alien
         Task<bool> DelUser(long id);
 
         Task<Tuple<IEnumerable<MgUser>, int>> GetPaging(IPagingRequest request);
+
+        Task<bool> ExistRole(long roleId);
     }
 }

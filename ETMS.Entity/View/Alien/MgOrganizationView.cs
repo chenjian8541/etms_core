@@ -16,7 +16,7 @@ namespace ETMS.Entity.View.Alien
 
         public string ParentsAll { get; set; }
 
-        public string UserCount { get; set; }
+        public int UserCount { get; set; }
 
         public string Remark { get; set; }
 

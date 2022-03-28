@@ -158,14 +158,14 @@ namespace ETMS.Business.Alien
             var token = JwtHelper.AlienGenerateToken(userInfo.HeadId, userInfo.Id, nowTimestamp, out var exTime);
             await _mgUserDAL.UpdateUserLastLoginTime(userInfo.Id, time);
             _mgUserLoginFailedRecordDAL.RemoveUserLoginFailedRecord(code, phone);
-            await _mgUserOpLogDAL.AddMgUserOpLog(new MgUserOpLog()
+            await _mgUserOpLogDAL.AddUserOpLog(new MgUserOpLog()
             {
                 IpAddress = ipAddress,
                 Ot = time,
                 HeadId = userInfo.HeadId,
                 MgUserId = userInfo.Id,
                 OpContent = $"用户:{userInfo.Name},手机号:{userInfo.Phone}在{time.EtmsToString()}登录",
-                Type = (int)EmMgUserOperationType.Login,
+                Type = EmMgUserOperationType.Login,
                 ClientType = clientType,
                 IsDeleted = EmIsDeleted.Normal
             });

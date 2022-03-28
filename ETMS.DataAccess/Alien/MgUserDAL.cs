@@ -84,5 +84,11 @@ namespace ETMS.DataAccess.Alien
         {
             return await _dbWrapper.ExecutePage<MgUser>("MgUser", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<bool> ExistRole(long roleId)
+        {
+            var user = await _dbWrapper.Find<MgUser>(p => p.HeadId == _headId && p.MgRoleId == roleId && p.IsDeleted == EmIsDeleted.Normal);
+            return user != null;
+        }
     }
 }

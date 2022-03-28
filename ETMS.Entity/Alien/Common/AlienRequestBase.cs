@@ -30,6 +30,11 @@ namespace ETMS.Entity.Alien.Common
         /// </summary>
         public string IpAddress { get; set; }
 
+        /// <summary>
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int LoginClientType { get; set; }
+
         protected string DataFilterWhere
         {
             get
