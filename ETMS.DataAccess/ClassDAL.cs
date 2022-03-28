@@ -369,6 +369,12 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<EtClass>(sql);
         }
 
+        public async Task<IEnumerable<EtClass>> GetClassOfTeacher2(long teacherId)
+        {
+            var sql = $"SELECT TOP 200 * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND Teachers LIKE '%,{teacherId},%'";
+            return await _dbWrapper.ExecuteObject<EtClass>(sql);
+        }
+
         public async Task<IEnumerable<EtClass>> GetClassOfCourseIdOneToMore(long courseId, string queryClassName = "")
         {
             var sql = $"SELECT TOP 200 * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Type] = {EmClassType.OneToMany} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND CourseList LIKE '%,{courseId},%'";

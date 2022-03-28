@@ -209,5 +209,27 @@ namespace ETMS.Business.Alien
             var isAdmin = myUser.IsAdmin == EmBool.True;
             return ResponseBase.Success(ComBusiness.GetPermissionOutput(allMenus, myRole.AuthorityValueMenu, isAdmin));
         }
+
+        public async Task<ResponseBase> CheckUserCanLogin(AlienRequestBase request)
+        {
+            var myHead = await _mgHeadDAL.GetMgHead(request.LoginHeadId);
+            string myMsg;
+            if (!CheckHeadCanLogin(myHead, out myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            _mgUserDAL.InitHeadId(request.LoginHeadId);
+            var myUser = await _mgUserDAL.GetUser(request.LoginUserId);
+            if (!CheckUserCanLogin(myUser, out myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var userLoginOnlineBucket = _mgTempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginHeadId, request.LoginUserId, request.LoginClientType);
+            if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
+            {
+                return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
+            }
+            return ResponseBase.Success();
+        }
     }
 }

@@ -8,6 +8,10 @@ using ETMS.IBusiness;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.IBusiness.EtmsManage;
 using ETMS.Entity.EtmsManage.Dto.Agent.Output;
+using ETMS.Entity.Alien.Common;
+using ETMS.Alien.Webapi.Core;
+using ETMS.Business.Common;
+using ETMS.IBusiness.Alien;
 
 namespace ETMS.Alien.Webapi.FilterAttribute
 {
@@ -30,30 +34,23 @@ namespace ETMS.Alien.Webapi.FilterAttribute
                     return;
                 }
                 Log.Debug(validateRequest, this.GetType());
-                //if (context.ActionArguments.First().Value is AgentRequestBase)
-                //{
-                //    var request = context.ActionArguments.First().Value as AgentRequestBase;
-                //    var tokenInfoResult = context.HttpContext.Request.GetTokenInfo();
-                //    if (tokenInfoResult.Item1 == 0 || tokenInfoResult.Item2 == 0)
-                //    {
-                //        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                //        context.Result = new JsonResult(new { msg = "登录信息过期" });
-                //        return;
-                //    }
-                //    request.LoginAgentId = tokenInfoResult.Item1;
-                //    request.LoginUserId = tokenInfoResult.Item2;
-                //    var agentBLL = CustomServiceLocator.GetInstance<IAgentBLL>();
-                //    var checkAgentResult = agentBLL.CheckAgentLogin(request).Result;
-                //    if (!checkAgentResult.IsResponseSuccess())
-                //    {
-                //        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                //        context.Result = new JsonResult(new { msg = checkAgentResult.message });
-                //        return;
-                //    }
-                //    var output = (CheckAgentLoginOutput)checkAgentResult.resultData;
-                //    request.LoginAgentIsLimitData = output.IsRoleLimitData;
-                //    request.LoginUserIsLimitData = output.IsUserLimitData;
-                //}
+                if (context.ActionArguments.First().Value is AlienRequestBase)
+                {
+                    var request = context.ActionArguments.First().Value as AlienRequestBase;
+                    var tokenInfoResult = context.HttpContext.Request.GetTokenInfo();
+                    request.LoginHeadId = tokenInfoResult.Item1;
+                    request.LoginUserId = tokenInfoResult.Item2;
+                    request.LoginTimestamp = tokenInfoResult.Item3;
+                    request.LoginClientType = RequestLib.GetUserClientType(context.HttpContext.Request);
+                    var userLoginBLL = CustomServiceLocator.GetInstance<IAlienUserLoginBLL>();
+                    var checkUserResult = userLoginBLL.CheckUserCanLogin(request).Result;
+                    if (!checkUserResult.IsResponseSuccess())
+                    {
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
+                        context.Result = new JsonResult(new { msg = checkUserResult.message });
+                        return;
+                    }
+                }
             }
         }
     }

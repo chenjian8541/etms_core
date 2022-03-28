@@ -16,5 +16,7 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> UserLoginGet(AlienRequestBase request);
 
         Task<ResponseBase> UserLoginPermissionGet(AlienRequestBase request);
+
+        Task<ResponseBase> CheckUserCanLogin(AlienRequestBase request);
     }
 }

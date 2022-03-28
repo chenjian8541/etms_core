@@ -418,13 +418,7 @@ namespace ETMS.Business
             var userLoginOnlineBucket = _tempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginTenantId, request.LoginUserId, request.LoginClientType);
             if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
             {
-                var strLoginTenantUser = $"{request.LoginTenantId}_{request.LoginUserId}";
-                if (_appConfigurtaionServices.AppSettings.UserConfig == null
-                    || _appConfigurtaionServices.AppSettings.UserConfig.LoginWhitelistTenantUser == null
-                    || !_appConfigurtaionServices.AppSettings.UserConfig.LoginWhitelistTenantUser.Exists(p => p == strLoginTenantUser))
-                {
-                    return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
-                }
+                return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
             }
 
             _roleDAL.InitTenantId(userInfo.TenantId);

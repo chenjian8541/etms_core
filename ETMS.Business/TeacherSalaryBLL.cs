@@ -342,7 +342,7 @@ namespace ETMS.Business
         {
             var output = new List<TeacherSalaryContractPerformanceSet>();
             //绩效工资
-            var teacherAllClass = await _classDAL.GetClassOfTeacher(teacherId);
+            var teacherAllClass = await _classDAL.GetClassOfTeacher2(teacherId);
             decimal bascValue = 0M;
             switch (computeType)
             {
