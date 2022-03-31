@@ -39,6 +39,8 @@ namespace ETMS.IBusiness.Alien
 
         Task<ResponseBase> UserGet(UserGetRequest request);
 
+        Task<ResponseBase> UserGetSelf(AlienRequestBase request);
+
         Task<ResponseBase> UserAdd(UserAddRequest request);
 
         Task<ResponseBase> UserDel(UserDelRequest request);

@@ -85,7 +85,7 @@ namespace ETMS.Business.Alien
 
         public async Task<ResponseBase> HeadAllGetSimple(AlienRequestBase request)
         {
-            var output = new List<SelectItem>();
+            var output = new List<SelectItem2>();
             var allTenants = await _mgTenantsDAL.GetMgTenants();
             if (allTenants != null && allTenants.Any())
             {
@@ -96,7 +96,7 @@ namespace ETMS.Business.Alien
                     {
                         continue;
                     }
-                    output.Add(new SelectItem()
+                    output.Add(new SelectItem2()
                     {
                         Label = p.Name,
                         Value = p.Id

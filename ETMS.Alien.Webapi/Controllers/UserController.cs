@@ -261,6 +261,20 @@ namespace ETMS.Alien.Webapi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserGetSelf(AlienRequestBase request)
+        {
+            try
+            {
+                _alienUserBLL1.InitHeadId(request.LoginHeadId);
+                return await _alienUserBLL1.UserGetSelf(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> UserAdd(UserAddRequest request)
         {
             try

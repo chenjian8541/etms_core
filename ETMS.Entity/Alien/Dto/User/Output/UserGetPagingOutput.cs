@@ -65,6 +65,8 @@ namespace ETMS.Entity.Alien.Dto.User.Output
         public string Remark { get; set; }
 
         public List<JobAtTenantOutput> JobAtTenantList { get; set; }
+
+        public string JobAtTenantListDesc { get; set; }
     }
 
     public class JobAtTenantOutput

@@ -21,6 +21,7 @@ using System;
 using ETMS.Business.Alien.Common;
 using ETMS.Entity.Alien.Common;
 using ETMS.Entity.View.Alien;
+using System.Text;
 
 namespace ETMS.Business.Alien
 {
@@ -308,16 +309,17 @@ namespace ETMS.Business.Alien
                         Ot = p.Ot,
                         Phone = p.Phone,
                         Remark = p.Remark,
-                        JobAtTenantList = jobAtTenantList
-                    });
+                        JobAtTenantList = jobAtTenantList,
+                        JobAtTenantListDesc = jobAtTenantList.Any() ? string.Join(',', jobAtTenantList.Select(j => j.Name)) : ""
+                    }); ;
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<UserGetPagingOutput>(pagingData.Item2, output));
         }
 
-        public async Task<ResponseBase> UserGet(UserGetRequest request)
+        private async Task<ResponseBase> UserGetInfo(long userId)
         {
-            var myUser = await _mgUserDAL.GetUser(request.CId);
+            var myUser = await _mgUserDAL.GetUser(userId);
             if (myUser == null)
             {
                 return ResponseBase.CommonError("员工不存在");
@@ -373,6 +375,16 @@ namespace ETMS.Business.Alien
                 Remark = myUser.Remark,
                 RoleName = roleName
             });
+        }
+
+        public async Task<ResponseBase> UserGet(UserGetRequest request)
+        {
+            return await UserGetInfo(request.CId);
+        }
+
+        public async Task<ResponseBase> UserGetSelf(AlienRequestBase request)
+        {
+            return await UserGetInfo(request.LoginUserId);
         }
 
         public async Task<ResponseBase> UserAdd(UserAddRequest request)

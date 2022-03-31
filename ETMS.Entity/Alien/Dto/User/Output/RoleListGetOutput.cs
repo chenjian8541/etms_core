@@ -13,7 +13,7 @@ namespace ETMS.Entity.Alien.Dto.User.Output
 
     public class RoleListView
     {
-        public long CId { get; set; }
+        public int CId { get; set; }
 
         public string Name { get; set; }
 
@@ -21,7 +21,7 @@ namespace ETMS.Entity.Alien.Dto.User.Output
 
         public string DataLimitDesc { get; set; }
 
-        public long Value { get; set; }
+        public int Value { get; set; }
 
         public string Label { get; set; }
     }
