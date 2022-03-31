@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness.Alien
 {
-    public interface IAlienHeadBLL : IAlienBaseBLL
+    public interface IAlienBascBLL : IAlienBaseBLL
     {
-        Task<ResponseBase> HeadAllGet(AlienRequestBase request);
-
-        Task<ResponseBase> HeadAllGetSimple(AlienRequestBase request);
+        ResponseBase UploadConfigGet(AlienRequestBase request);
     }
 }

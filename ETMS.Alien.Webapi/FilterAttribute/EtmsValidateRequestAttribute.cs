@@ -12,6 +12,7 @@ using ETMS.Entity.Alien.Common;
 using ETMS.Alien.Webapi.Core;
 using ETMS.Business.Common;
 using ETMS.IBusiness.Alien;
+using ETMS.Entity.Alien.Dto.User.Output;
 
 namespace ETMS.Alien.Webapi.FilterAttribute
 {
@@ -50,6 +51,8 @@ namespace ETMS.Alien.Webapi.FilterAttribute
                         context.Result = new JsonResult(new { msg = checkUserResult.message });
                         return;
                     }
+                    var userLoginInfo = checkUserResult.resultData as CheckUserCanLoginOutput;
+                    request.AllTenants = userLoginInfo.AllTenants;
                 }
             }
         }

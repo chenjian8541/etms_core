@@ -57,6 +57,41 @@ namespace ETMS.Utility
             };
         }
 
+        public static STSAccessTokenRes GetSTSAccessToken2(int headId)
+        {
+            var config = new AlibabaCloud.OpenApiClient.Models.Config
+            {
+                AccessKeyId = STSAccessKeyId,
+                AccessKeySecret = STSAccessKeySecret,
+            };
+            config.Endpoint = STSEndpoint;
+            var assumeRoleRequest = new AlibabaCloud.SDK.Sts20150401.Models.AssumeRoleRequest
+            {
+                DurationSeconds = 3000,
+                Policy = "{ \"Version\": \"1\", \"Statement\": [  {    \"Effect\": \"Allow\",        \"Action\": [          \"oss:PutObject\"        ],    \"Resource\": [      \"acs:oss:*:*:*\"    ]  } ] }",
+                RoleArn = STSRoleArn,
+                RoleSessionName = $"etms_xiaohebang_head_{headId}"
+            };
+            var client = new AlibabaCloud.SDK.Sts20150401.Client(config);
+            var res = client.AssumeRole(assumeRoleRequest);
+            return new STSAccessTokenRes()
+            {
+                RequestId = res.Body.RequestId,
+                AssumedRoleUser = new STSAccessTokenAssumedRoleUserRes()
+                {
+                    Arn = res.Body.AssumedRoleUser.Arn,
+                    AssumedRoleId = res.Body.AssumedRoleUser.AssumedRoleId
+                },
+                Credentials = new STSAccessTokenCredentialsRes()
+                {
+                    AccessKeyId = res.Body.Credentials.AccessKeyId,
+                    AccessKeySecret = res.Body.Credentials.AccessKeySecret,
+                    Expiration = Convert.ToDateTime(res.Body.Credentials.Expiration).ToBeijingTime(),
+                    SecurityToken = res.Body.Credentials.SecurityToken
+                }
+            };
+        }
+
         public static void InitAliyunSTSConfig(string stsAccessKeyId, string stsAccessKeySecret, string stsRoleArn,
             string endpoint)
         {

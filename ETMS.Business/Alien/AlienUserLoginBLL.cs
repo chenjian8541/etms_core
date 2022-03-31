@@ -33,9 +33,11 @@ namespace ETMS.Business.Alien
 
         private readonly IMgTempDataCacheDAL _mgTempDataCacheDAL;
 
+        private readonly IMgTenantsDAL _mgTenantsDAL;
+
         public AlienUserLoginBLL(IMgHeadDAL mgHeadDAL, IMgUserDAL mgUserDAL, IMgUserOpLogDAL mgUserOpLogDAL,
             IMgUserLoginFailedRecordDAL mgUserLoginFailedRecordDAL, IMgRoleDAL mgRoleDAL,
-            IMgTempDataCacheDAL mgTempDataCacheDAL)
+            IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL)
         {
             this._mgHeadDAL = mgHeadDAL;
             this._mgUserDAL = mgUserDAL;
@@ -43,11 +45,12 @@ namespace ETMS.Business.Alien
             this._mgUserLoginFailedRecordDAL = mgUserLoginFailedRecordDAL;
             this._mgRoleDAL = mgRoleDAL;
             this._mgTempDataCacheDAL = mgTempDataCacheDAL;
+            this._mgTenantsDAL = mgTenantsDAL;
         }
 
         public void InitHeadId(int headId)
         {
-            this.InitDataAccess(headId, _mgUserDAL, _mgUserOpLogDAL, _mgRoleDAL);
+            this.InitDataAccess(headId, _mgUserDAL, _mgUserOpLogDAL, _mgRoleDAL, _mgTenantsDAL);
         }
 
         public async Task<ResponseBase> UserLogin(AlUserLoginRequest request)
@@ -229,7 +232,18 @@ namespace ETMS.Business.Alien
             {
                 return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
             }
-            return ResponseBase.Success();
+
+            _mgTenantsDAL.InitHeadId(request.LoginHeadId);
+            var allTenant = await _mgTenantsDAL.GetMgTenants();
+            if (allTenant.Count == 0)
+            {
+                return ResponseBase.CommonError("未查询到所关联的校区信息");
+            }
+            var output = new CheckUserCanLoginOutput()
+            {
+                AllTenants = allTenant.Select(j => j.TenantId).ToList()
+            };
+            return ResponseBase.Success(output);
         }
     }
 }

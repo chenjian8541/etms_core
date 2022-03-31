@@ -383,6 +383,11 @@ namespace ETMS.Utility
         /// 电子相册相关
         /// </summary>
         public const string AlbumLb = "album";
+
+        /// <summary>
+        /// 分校面板
+        /// </summary>
+        public const string Alien = "Alien";
     }
 
     /// <summary>

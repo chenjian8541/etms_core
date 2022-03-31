@@ -6,7 +6,7 @@
     "Type": 0,
     "Meta": {
       "Title": "教务中心",
-      "Icon": "edu"
+      "Icon": "educational"
     },
     "Children": [
       {
@@ -51,7 +51,7 @@
     "Type": 0,
     "Meta": {
       "Title": "数据中心",
-      "Icon": "stas"
+      "Icon": "data"
     },
     "Children": [
       {
@@ -174,6 +174,30 @@
         "Component": "@/views/sys/roleMgr",
         "Meta": {
           "Title": "角色管理",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "roleAdd",
+        "Name": "roleAdd",
+        "Type": 1,
+        "Component": "@/components/UserMgr/RoleEdit",
+        "Meta": {
+          "Title": "添加角色",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "roleEdit/:cid",
+        "Name": "roleEdit",
+        "Type": 1,
+        "Component": "@/components/UserMgr/RoleEdit",
+        "Meta": {
+          "Title": "编辑角色",
           "Icon": "item"
         }
       },

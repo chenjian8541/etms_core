@@ -1,4 +1,5 @@
-﻿using ETMS.DataAccess.Core;
+﻿using ETMS.DataAccess.Alien.Core;
+using ETMS.DataAccess.Core;
 using ETMS.DataAccess.Core.Alien;
 using ETMS.DataAccess.Lib;
 using ETMS.Entity.CacheBucket.Alien;
@@ -13,7 +14,7 @@ namespace ETMS.DataAccess.Alien
 {
     public class MgHeadDAL : DataAccessBaseAlien<MgHeadBucket>, IMgHeadDAL
     {
-        public MgHeadDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public MgHeadDAL(IDbWrapperAlien dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 

@@ -870,6 +870,9 @@ namespace ETMS.Business
                 var dffTime = EtmsHelper.GetDffTime(startTime, studentCourseDetail.EndTime.Value.AddDays(1));
                 studentCourseDetail.SurplusQuantity = dffTime.Item1;
                 studentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
+                //重新计算单价
+                studentCourseDetail.Price = ComBusiness2.GetOneClassDeSumByDay(studentCourseDetail.TotalMoney, studentCourseDetail.StartTime.Value,
+                    studentCourseDetail.EndTime.Value);
 
                 await AddStudentCourseConsumeLog(studentCourseDetail, (beforeSurplusQuantity - studentCourseDetail.SurplusQuantity),
                     (beforeSurplusSmallQuantity - studentCourseDetail.SurplusSmallQuantity), EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now);

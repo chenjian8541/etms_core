@@ -10,12 +10,13 @@ using ETMS.Utility;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.DataAccess.Alien.Core;
 
 namespace ETMS.DataAccess.Alien
 {
     public class MgTenantsDAL : DataAccessBaseAlien<MgTenantsBucket>, IMgTenantsDAL
     {
-        public MgTenantsDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public MgTenantsDAL(IDbWrapperAlien dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 

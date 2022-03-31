@@ -1,10 +1,11 @@
-﻿using System;
+﻿using ETMS.Entity.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ETMS.Entity.EtmsManage.Common
 {
-    public class AgentPagingBase : AgentRequestBase
+    public class AgentPagingBase : AgentRequestBase, IPagingRequest
     {
         /// <summary>
         /// 每页数

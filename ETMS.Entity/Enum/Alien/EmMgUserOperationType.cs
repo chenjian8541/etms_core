@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Dto.Common.Output;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Enum.Alien
 {
-    public struct EmMgUserOperationType
+    public class EmMgUserOperationType
     {
         /// <summary>
         /// 登录
@@ -50,6 +51,42 @@ namespace ETMS.Entity.Enum.Alien
                     return "组织管理";
             }
             return string.Empty;
+        }
+
+        public static List<SelectItem> AllOperationTypes
+        {
+            get;
+            private set;
+        }
+
+        static EmMgUserOperationType()
+        {
+            AllOperationTypes = new List<SelectItem>();
+            AllOperationTypes.Add(new SelectItem()
+            {
+                Label = "登录",
+                Value = Login
+            });
+            AllOperationTypes.Add(new SelectItem()
+            {
+                Label = "修改密码",
+                Value = UserChangePwd
+            });
+            AllOperationTypes.Add(new SelectItem()
+            {
+                Label = "员工管理",
+                Value = UserMgr
+            });
+            AllOperationTypes.Add(new SelectItem()
+            {
+                Label = "角色管理",
+                Value = RoleMgr
+            });
+            AllOperationTypes.Add(new SelectItem()
+            {
+                Label = "组织管理",
+                Value = OrgMgr
+            });
         }
     }
 }

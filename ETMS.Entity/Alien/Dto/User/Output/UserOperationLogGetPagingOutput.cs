@@ -28,6 +28,8 @@ namespace ETMS.Entity.Alien.Dto.User.Output
         /// </summary>
         public int ClientType { get; set; }
 
-        public string UserDesc { get; set; }
+        public string UserName { get; set; }
+
+        public string UserPhone { get; set; }
     }
 }

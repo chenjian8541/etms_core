@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ETMS.DataAccess.Alien.Core;
 using ETMS.IDataAccess.Alien;
 
 namespace ETMS.DataAccess.Core.Alien
@@ -11,14 +12,11 @@ namespace ETMS.DataAccess.Core.Alien
     {
         protected int _headId { get; set; }
 
-        private int _tenantId { get; set; } = -1;
+        protected readonly IDbWrapperAlien _dbWrapper;
 
-        protected readonly IDbWrapper _dbWrapper;
-
-        public DataAccessBaseAlien(IDbWrapper dbWrapper)
+        public DataAccessBaseAlien(IDbWrapperAlien dbWrapper)
         {
             this._dbWrapper = dbWrapper;
-            this._dbWrapper.InitTenant(_tenantId);
         }
 
         public virtual void InitHeadId(int headId)

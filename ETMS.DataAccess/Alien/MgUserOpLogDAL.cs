@@ -1,4 +1,5 @@
-﻿using ETMS.DataAccess.Core;
+﻿using ETMS.DataAccess.Alien.Core;
+using ETMS.DataAccess.Core;
 using ETMS.DataAccess.Core.Alien;
 using ETMS.Entity.Alien.Common;
 using ETMS.Entity.Common;
@@ -13,7 +14,7 @@ namespace ETMS.DataAccess.Alien
 {
     public class MgUserOpLogDAL : DataAccessBaseAlien, IMgUserOpLogDAL
     {
-        public MgUserOpLogDAL(IDbWrapper dbWrapper) : base(dbWrapper)
+        public MgUserOpLogDAL(IDbWrapperAlien dbWrapper) : base(dbWrapper)
         {
         }
 

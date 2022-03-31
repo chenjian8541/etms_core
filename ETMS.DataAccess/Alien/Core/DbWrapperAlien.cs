@@ -9,64 +9,22 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ETMS.Entity.Config;
 
-namespace ETMS.DataAccess.Core
+namespace ETMS.DataAccess.Alien.Core
 {
-    public class DbWrapper : IDbWrapper
+    public class DbWrapperAlien : IDbWrapperAlien
     {
         private string _connectionString;
 
-        private static object LockConStrObj = new object();
-
-        /// <summary>
-        /// 连接字符串
-        /// </summary>
-        private string ConnectionString
+        public string ConnectionString
         {
             get
             {
                 if (string.IsNullOrEmpty(_connectionString))
                 {
-                    lock (LockConStrObj)
-                    {
-                        if (string.IsNullOrEmpty(_connectionString))
-                        {
-                            if (_tenantId == 0)   //EtmsManage
-                            {
-                                _connectionString = CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsManageConnectionString;
-                                return _connectionString;
-                            }
-                            _connectionString = CustomServiceLocator.GetInstance<ITenantConfigWrapper>().GetTenantConnectionString(_tenantId).Result;
-                            return _connectionString;
-                        }
-                    }
+                    _connectionString = CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsAlienConnectionString;
                 }
                 return _connectionString;
             }
-        }
-
-        private int _tenantId;
-
-        /// <summary>
-        /// 初始化机构
-        /// </summary>
-        /// <param name="tenantId"></param>
-        public void InitTenant(int tenantId)
-        {
-            this._tenantId = tenantId;
-        }
-
-        /// <summary>
-        /// 重置机构
-        /// </summary>
-        /// <param name="tenantId"></param>
-        public void ResetTenant(int tenantId)
-        {
-            if (_tenantId == tenantId)
-            {
-                return;
-            }
-            _connectionString = string.Empty;
-            this._tenantId = tenantId;
         }
 
         /// <summary>
@@ -79,7 +37,7 @@ namespace ETMS.DataAccess.Core
         public async Task<bool> Insert<T>(T entity, Action finishWork = null) where T : class
         {
             var result = false;
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.Add(entity);
                 result = await content.SaveChangesAsync() > 0;
@@ -101,7 +59,7 @@ namespace ETMS.DataAccess.Core
         public bool InsertRange<T>(IEnumerable<T> entitys, Action finishWork = null) where T : class
         {
             var result = false;
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.AddRange(entitys);
                 result = content.SaveChanges() > 0;
@@ -121,7 +79,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<bool> InsertRangeAsync<T>(IEnumerable<T> entitys) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.AddRange(entitys);
                 return await content.SaveChangesAsync() > 0;
@@ -138,7 +96,7 @@ namespace ETMS.DataAccess.Core
         public async Task<bool> Delete<T>(T entity, Action finishWork = null) where T : class
         {
             var result = false;
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.Remove(entity);
                 result = await content.SaveChangesAsync() > 0;
@@ -160,7 +118,7 @@ namespace ETMS.DataAccess.Core
         public async Task<bool> Update<T>(T entity, Action finishWork = null) where T : class
         {
             var result = false;
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.Update(entity);
                 result = await content.SaveChangesAsync() > 0;
@@ -180,7 +138,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<bool> UpdateRange<T>(IEnumerable<T> entitys) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 content.UpdateRange(entitys);
                 return await content.SaveChangesAsync() > 0;
@@ -196,7 +154,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<T> Find<T>(long pk) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 return await content.Set<T>().FindAsync(pk);
             }
@@ -210,7 +168,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<T> Find<T>(Expression<Func<T, bool>> condition) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 return await content.Set<T>().FirstOrDefaultAsync(condition);
             }
@@ -223,7 +181,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<List<T>> FindList<T>() where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 return await content.Set<T>().ToListAsync();
             }
@@ -237,7 +195,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<List<T>> FindList<T>(Expression<Func<T, bool>> condition) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 return await content.Set<T>().Where(condition).Take(1000).ToListAsync();
             }
@@ -258,7 +216,7 @@ namespace ETMS.DataAccess.Core
         /// <returns></returns>
         public async Task<Tuple<List<T>, int>> FindPage<T, TOrderBy>(int pageIndex, int pageSize, Expression<Func<T, bool>> condition, Func<T, TOrderBy> orderby, bool isDesc = true) where T : class
         {
-            using (var content = new EtmsSourceDbContext(ConnectionString))
+            using (var content = new EtmsAlienDbContext())
             {
                 var total = await content.Set<T>().Where(condition).CountAsync();
                 List<T> data = null;

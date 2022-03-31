@@ -1,4 +1,5 @@
-﻿using ETMS.DataAccess.Core;
+﻿using ETMS.DataAccess.Alien.Core;
+using ETMS.DataAccess.Core;
 using ETMS.DataAccess.Core.Alien;
 using ETMS.DataAccess.Lib;
 using ETMS.Entity.CacheBucket.Alien;
@@ -16,14 +17,18 @@ namespace ETMS.DataAccess.Alien
 {
     public class MgUserDAL : DataAccessBaseAlien<MgUserBucket>, IMgUserDAL
     {
-        public MgUserDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public MgUserDAL(IDbWrapperAlien dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 
         protected override async Task<MgUserBucket> GetDb(params object[] keys)
         {
-            var id = keys[0].ToInt();
+            var id = keys[1].ToInt();
             var log = await _dbWrapper.Find<MgUser>(p => p.Id == id && p.HeadId == _headId && p.IsDeleted == EmIsDeleted.Normal);
+            if (log == null)
+            {
+                return null;
+            }
             return new MgUserBucket()
             {
                 MyMgUser = log

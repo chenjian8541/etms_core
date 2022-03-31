@@ -1,4 +1,5 @@
 ﻿using ETMS.DataAccess.Core;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.Entity.EtmsManage.Common;
@@ -23,7 +24,7 @@ namespace ETMS.DataAccess.EtmsManage
             await this.InsertRange(entitys);
         }
 
-        public async Task<Tuple<IEnumerable<SysTenantOperationLog>, int>> GetPaging(AgentPagingBase request)
+        public async Task<Tuple<IEnumerable<SysTenantOperationLog>, int>> GetPaging(IPagingRequest request)
         {
             return await this.ExecutePage<SysTenantOperationLog>("SysTenantOperationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

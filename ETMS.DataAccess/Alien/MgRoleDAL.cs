@@ -10,12 +10,13 @@ using ETMS.Utility;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.DataAccess.Alien.Core;
 
 namespace ETMS.DataAccess.Alien
 {
     public class MgRoleDAL : DataAccessBaseAlien<MgRoleBucket>, IMgRoleDAL
     {
-        public MgRoleDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public MgRoleDAL(IDbWrapperAlien dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 

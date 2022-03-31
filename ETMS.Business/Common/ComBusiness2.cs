@@ -18,7 +18,7 @@ using ETMS.Entity.Dto.User.Output;
 
 namespace ETMS.Business.Common
 {
-    internal static class ComBusiness2
+    public static class ComBusiness2
     {
         /// <summary>
         /// 为学员构建一对一班级
@@ -65,7 +65,12 @@ namespace ETMS.Business.Common
                     {
                         return 0;
                     }
-                    var diffDay = (detail.EndTime.Value - DateTime.Now.Date).TotalDays;
+                    var tempStartDate = DateTime.Now.Date;
+                    if (detail.StartTime > tempStartDate)
+                    {
+                        tempStartDate = detail.StartTime.Value;
+                    }
+                    var diffDay = (detail.EndTime.Value - tempStartDate).TotalDays;
                     return (int)diffDay * detail.Price;
                 }
                 else
@@ -189,7 +194,7 @@ namespace ETMS.Business.Common
             return price;
         }
 
-        internal static decimal GetOneClassDeSumByDay(decimal itemAptSum, DateTime startTime, DateTime endTime)
+        public static decimal GetOneClassDeSumByDay(decimal itemAptSum, DateTime startTime, DateTime endTime)
         {
             var price = 0M;
             var totalCount = (int)(endTime - startTime).TotalDays;

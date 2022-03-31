@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Alien.Dto.User.Request;
+﻿using ETMS.Entity.Alien.Common;
+using ETMS.Entity.Alien.Dto.User.Request;
 using ETMS.Entity.Common;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness.Alien
 {
-    public interface IAlienUserBLL: IAlienBaseBLL
+    public interface IAlienUserBLL : IAlienBaseBLL
     {
         Task<ResponseBase> ChangPwd(ChangPwdRequest request);
 
@@ -45,5 +46,7 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> UserEdit(UserEditRequest request);
 
         Task<ResponseBase> UserOperationLogGetPaging(UserOperationLogGetPagingRequest request);
+
+        ResponseBase UserLogTypeGet(AlienRequestBase request);
     }
 }

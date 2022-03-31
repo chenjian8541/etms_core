@@ -13,12 +13,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.DataAccess.Alien.Core;
 
 namespace ETMS.DataAccess.Alien
 {
     public class MgOrganizationDAL : DataAccessBaseAlien<MgOrganizationBucket>, IMgOrganizationDAL
     {
-        public MgOrganizationDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        public MgOrganizationDAL(IDbWrapperAlien dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
         {
         }
 
@@ -48,11 +49,12 @@ namespace ETMS.DataAccess.Alien
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    Label = p.Name,
                     ParentId = p.ParentId,
                     ParentsAll = p.ParentsAll,
                     Remark = p.Remark,
                     UserCount = p.UserCount,
-                    Child = GetChild(p.Id)
+                    Children = GetChild(p.Id)
                 });
             }
             return myViews;
@@ -60,7 +62,7 @@ namespace ETMS.DataAccess.Alien
 
         public async Task<MgOrganizationBucket> GetOrganizationBucket()
         {
-            return await GetCache();
+            return await GetCache(_headId);
         }
 
         public async Task<MgOrganization> GetOrganization(long id)

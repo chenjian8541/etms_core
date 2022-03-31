@@ -35,6 +35,11 @@ namespace ETMS.Entity.Alien.Common
         /// </summary>
         public int LoginClientType { get; set; }
 
+        /// <summary>
+        /// 机构ID集合
+        /// </summary>
+        public List<int> AllTenants { get; set; }
+
         protected string DataFilterWhere
         {
             get

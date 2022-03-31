@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,18 @@ namespace ETMS.Entity.Alien.Common
             else
             {
                 return "分页参数错误";
+            }
+        }
+
+        protected virtual string DataFilterWhereGetLimitOnlyTenant()
+        {
+            if (this.AllTenants.Count > 1)
+            {
+                return $"IsDeleted = {EmIsDeleted.Normal} AND TenantId IN ({string.Join(',', AllTenants)})";
+            }
+            else
+            {
+                return $"IsDeleted = {EmIsDeleted.Normal} AND TenantId = {AllTenants[0]}";
             }
         }
     }

@@ -19,6 +19,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using ETMS.Business.Alien.Common;
+using ETMS.Entity.Alien.Common;
+using ETMS.Entity.View.Alien;
 
 namespace ETMS.Business.Alien
 {
@@ -161,8 +163,24 @@ namespace ETMS.Business.Alien
 
         public async Task<ResponseBase> OrgGetAll(OrgGetAllRequest request)
         {
+            var myHead = await _mgHeadDAL.GetMgHead(request.LoginHeadId);
+            var firstHead = new MgOrganizationView()
+            {
+                Id = 0,
+                Label = myHead.Name,
+                Name = myHead.Name,
+                ParentId = 0,
+                ParentsAll = string.Empty,
+                Remark = string.Empty,
+                UserCount = 0,
+                Children = new List<MgOrganizationView>()
+            };
             var allOrgBucket = await _mgOrganizationDAL.GetOrganizationBucket();
-            return ResponseBase.Success(allOrgBucket?.MgOrganizationView);
+            if (allOrgBucket != null && allOrgBucket.MgOrganizationView != null)
+            {
+                firstHead.Children = allOrgBucket.MgOrganizationView;
+            }
+            return ResponseBase.Success(new List<MgOrganizationView>() { firstHead });
         }
 
         public async Task<ResponseBase> OrgAdd(OrgAddRequest request)
@@ -209,6 +227,7 @@ namespace ETMS.Business.Alien
             }
             myOrg.Name = request.Name;
             myOrg.Remark = request.Remark;
+            await _mgOrganizationDAL.EditOrganization(myOrg);
 
             await _mgUserOpLogDAL.AddUserLog(request, $"编辑组织-{request.Name}", EmMgUserOperationType.OrgMgr);
             return ResponseBase.Success();
@@ -456,18 +475,23 @@ namespace ETMS.Business.Alien
                 foreach (var p in pagingData.Item1)
                 {
                     var myUser = await AlienComBusiness.GetUser(tempBoxUser, _mgUserDAL, p.MgUserId);
-                    var userName = myUser?.Name;
                     output.Add(new UserOperationLogGetPagingOutput()
                     {
                         ClientType = p.ClientType,
                         OpContent = p.OpContent,
                         Ot = p.Ot,
                         TypeDesc = EmMgUserOperationType.GetMgUserOperationTypeDesc(p.Type),
-                        UserDesc = userName
+                        UserName = myUser?.Name,
+                        UserPhone = myUser?.Phone
                     });
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<UserOperationLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public ResponseBase UserLogTypeGet(AlienRequestBase request)
+        {
+            return ResponseBase.Success(EmMgUserOperationType.AllOperationTypes);
         }
     }
 }

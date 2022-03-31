@@ -316,5 +316,19 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase UserLogTypeGet(AlienRequestBase request)
+        {
+            try
+            {
+                _alienUserBLL1.InitHeadId(request.LoginHeadId);
+                return _alienUserBLL1.UserLogTypeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -20,6 +20,8 @@ namespace ETMS.Entity.View.Alien
 
         public string Remark { get; set; }
 
-        public List<MgOrganizationView> Child { get; set; }
+        public string Label { get; set; }
+
+        public List<MgOrganizationView> Children { get; set; }
     }
 }

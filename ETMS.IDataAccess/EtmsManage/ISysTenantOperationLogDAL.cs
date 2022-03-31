@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Database.Manage;
+﻿using ETMS.Entity.Common;
+using ETMS.Entity.Database.Manage;
 using ETMS.Entity.EtmsManage.Common;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,6 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task AddSysTenantOperationLog(List<SysTenantOperationLog> entitys);
 
-        Task<Tuple<IEnumerable<SysTenantOperationLog>, int>> GetPaging(AgentPagingBase request);
+        Task<Tuple<IEnumerable<SysTenantOperationLog>, int>> GetPaging(IPagingRequest request);
     }
 }

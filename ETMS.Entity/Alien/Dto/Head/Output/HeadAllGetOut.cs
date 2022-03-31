@@ -67,6 +67,12 @@ namespace ETMS.Entity.Alien.Dto.Head.Output
         /// </summary>
         public string SmsSignature { get; set; }
 
+        public byte BuyStatus { get; set; }
+
+        public string VersionDesc { get; set; }
+
+        public string ExDateDesc { get; set; }
+
         public long Value { get; set; }
 
         public string Label { get; set; }
