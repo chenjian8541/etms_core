@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Config.Router;
+using ETMS.Entity.Dto.Common.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,5 +29,7 @@ namespace ETMS.Entity.Alien.Dto.User.Output
         public byte? Gender { get; set; }
 
         public List<RouteConfig> RouteConfigs { get; set; }
+
+        public List<SelectItem2> Tenants { get; set; }
     }
 }

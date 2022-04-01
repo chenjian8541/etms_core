@@ -155,7 +155,7 @@ namespace ETMS.DataAccess
             _dbWrapper.InsertRange(rules);
             return true;
         }
-        public async Task<Tuple<IEnumerable<EtClass>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtClass>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtClass>("EtClass", "*", request.PageSize, request.PageCurrent, "CompleteStatus,Id DESC", request.ToString());
         }

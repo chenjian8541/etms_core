@@ -34,5 +34,47 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentGetPaging(AlStudentGetPagingRequest request)
+        {
+            try
+            {
+                _alienTenantBLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantBLL.StudentGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassGetPaging(AlClassGetPagingRequest request)
+        {
+            try
+            {
+                _alienTenantBLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantBLL.ClassGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> CourseGetPaging(AlCourseGetPagingRequest request)
+        {
+            try
+            {
+                _alienTenantBLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantBLL.CourseGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

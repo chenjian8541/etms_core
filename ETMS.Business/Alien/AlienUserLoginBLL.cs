@@ -16,6 +16,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ETMS.DataAccess.Alien.Lib;
 using ETMS.Entity.Alien.Common;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.Entity.Dto.Common.Output;
 
 namespace ETMS.Business.Alien
 {
@@ -35,9 +37,11 @@ namespace ETMS.Business.Alien
 
         private readonly IMgTenantsDAL _mgTenantsDAL;
 
+        private readonly ISysTenantDAL _sysTenantDAL;
+
         public AlienUserLoginBLL(IMgHeadDAL mgHeadDAL, IMgUserDAL mgUserDAL, IMgUserOpLogDAL mgUserOpLogDAL,
             IMgUserLoginFailedRecordDAL mgUserLoginFailedRecordDAL, IMgRoleDAL mgRoleDAL,
-            IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL)
+            IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL, ISysTenantDAL sysTenantDAL)
         {
             this._mgHeadDAL = mgHeadDAL;
             this._mgUserDAL = mgUserDAL;
@@ -46,6 +50,7 @@ namespace ETMS.Business.Alien
             this._mgRoleDAL = mgRoleDAL;
             this._mgTempDataCacheDAL = mgTempDataCacheDAL;
             this._mgTenantsDAL = mgTenantsDAL;
+            this._sysTenantDAL = sysTenantDAL;
         }
 
         public void InitHeadId(int headId)
@@ -192,6 +197,25 @@ namespace ETMS.Business.Alien
             var myRole = await _mgRoleDAL.GetRole(myUser.MgRoleId.Value);
             var allRoutes = EtmsHelper.DeepCopy(AlienPermissionData.RouteConfigs);
             var isAdmin = myUser.IsAdmin == EmBool.True;
+
+            var allTenantsOutput = new List<SelectItem2>();
+            var allTenants = await _mgTenantsDAL.GetMgTenants();
+            if (allTenants != null && allTenants.Any())
+            {
+                foreach (var item in allTenants)
+                {
+                    var p = await _sysTenantDAL.GetTenant(item.TenantId);
+                    if (p == null)
+                    {
+                        continue;
+                    }
+                    allTenantsOutput.Add(new SelectItem2()
+                    {
+                        Label = p.Name,
+                        Value = p.Id
+                    });
+                }
+            }
             return ResponseBase.Success(new UserLoginGetOutput()
             {
                 Name = myUser.Name,
@@ -200,7 +224,8 @@ namespace ETMS.Business.Alien
                 HeadCode = myHead.HeadCode,
                 TenantCount = myHead.TenantCount,
                 Gender = myUser.Gender,
-                RouteConfigs = ComBusiness.GetRouteConfigs(allRoutes, myRole.AuthorityValueMenu, isAdmin)
+                RouteConfigs = ComBusiness.GetRouteConfigs(allRoutes, myRole.AuthorityValueMenu, isAdmin),
+                Tenants = allTenantsOutput
             });
         }
 

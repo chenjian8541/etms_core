@@ -214,7 +214,7 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<Tuple<IEnumerable<EtStudent>, int>> GetStudentPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStudent>, int>> GetStudentPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStudent>("EtStudent", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

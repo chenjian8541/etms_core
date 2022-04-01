@@ -43,7 +43,7 @@ namespace ETMS.IDataAccess
 
         bool AddClassTimesRule(long classId, IEnumerable<EtClassTimesRule> rules);
 
-        Task<Tuple<IEnumerable<EtClass>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtClass>, int>> GetPaging(IPagingRequest request);
 
         Task<bool> IsClassCanNotBeDelete(long classId);
 

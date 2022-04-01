@@ -11,5 +11,11 @@ namespace ETMS.IBusiness.Alien
     public interface IAlienTenantBLL : IAlienBaseBLL
     {
         Task<ResponseBase> TenantOperationLogPaging(TenantOperationLogPagingRequest request);
+
+        Task<ResponseBase> StudentGetPaging(AlStudentGetPagingRequest request);
+
+        Task<ResponseBase> ClassGetPaging(AlClassGetPagingRequest request);
+
+        Task<ResponseBase> CourseGetPaging(AlCourseGetPagingRequest request);
     }
 }

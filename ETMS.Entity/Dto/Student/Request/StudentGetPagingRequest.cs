@@ -222,7 +222,7 @@ namespace ETMS.Entity.Dto.Student.Request
             }
             if (!string.IsNullOrEmpty(SchoolName))
             {
-                condition.Append($" AND SchoolName LIKE '{SchoolName}%'");
+                condition.Append($" AND SchoolName LIKE '%{SchoolName}%'");
             }
             if (GradeId != null)
             {
@@ -230,7 +230,7 @@ namespace ETMS.Entity.Dto.Student.Request
             }
             if (!string.IsNullOrEmpty(HomeAddress))
             {
-                condition.Append($" AND  HomeAddress LIKE '{HomeAddress}%'");
+                condition.Append($" AND  HomeAddress LIKE '%{HomeAddress}%'");
             }
             if (Tags != null && Tags.Any())
             {
