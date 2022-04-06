@@ -38,8 +38,12 @@ namespace ETMS.Business.Alien
         private readonly IMgOrganizationDAL _mgOrganizationDAL;
 
         private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly ISysTenantUserDAL _sysTenantUserDAL;
+
         public AlienUserBLL(IMgHeadDAL mgHeadDAL, IMgUserDAL mgUserDAL, IMgUserOpLogDAL mgUserOpLogDAL,
-            IMgRoleDAL mgRoleDAL, IMgOrganizationDAL mgOrganizationDAL, ISysTenantDAL sysTenantDAL)
+            IMgRoleDAL mgRoleDAL, IMgOrganizationDAL mgOrganizationDAL, ISysTenantDAL sysTenantDAL,
+            ISysTenantUserDAL sysTenantUserDAL)
         {
             this._mgHeadDAL = mgHeadDAL;
             this._mgUserDAL = mgUserDAL;
@@ -47,6 +51,7 @@ namespace ETMS.Business.Alien
             this._mgRoleDAL = mgRoleDAL;
             this._mgOrganizationDAL = mgOrganizationDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._sysTenantUserDAL = sysTenantUserDAL;
         }
 
         public void InitHeadId(int headId)
@@ -274,6 +279,7 @@ namespace ETMS.Business.Alien
                     var jobAtTenantList = new List<JobAtTenantOutput>();
                     if (!string.IsNullOrEmpty(p.JobAtTenants))
                     {
+                        var myPhoneALLTenant = await _sysTenantUserDAL.GetTenantUser(p.Phone);
                         var myAllTenants = p.JobAtTenants.Split(',');
                         foreach (var j in myAllTenants)
                         {
@@ -286,10 +292,16 @@ namespace ETMS.Business.Alien
                             {
                                 continue;
                             }
+                            var isRegister = false;
+                            if (myPhoneALLTenant != null && myPhoneALLTenant.Any())
+                            {
+                                isRegister = myPhoneALLTenant.Exists(a => a.TenantId == j.ToInt());
+                            }
                             jobAtTenantList.Add(new JobAtTenantOutput()
                             {
                                 Name = myTenant.Name,
-                                TenantId = myTenant.Id
+                                TenantId = myTenant.Id,
+                                IsRegister = isRegister
                             });
                         }
 
@@ -339,6 +351,7 @@ namespace ETMS.Business.Alien
             }
             if (!string.IsNullOrEmpty(myUser.JobAtTenants))
             {
+                var myPhoneALLTenant = await _sysTenantUserDAL.GetTenantUser(myUser.Phone);
                 var myAllTenants = myUser.JobAtTenants.Split(',');
                 foreach (var j in myAllTenants)
                 {
@@ -351,10 +364,16 @@ namespace ETMS.Business.Alien
                     {
                         continue;
                     }
+                    var isRegister = false;
+                    if (myPhoneALLTenant != null && myPhoneALLTenant.Any())
+                    {
+                        isRegister = myPhoneALLTenant.Exists(a => a.TenantId == j.ToInt());
+                    }
                     jobAtTenantList.Add(new JobAtTenantOutput()
                     {
                         Name = myTenant.Name,
-                        TenantId = myTenant.Id
+                        TenantId = myTenant.Id,
+                        IsRegister = isRegister
                     });
                 }
             }

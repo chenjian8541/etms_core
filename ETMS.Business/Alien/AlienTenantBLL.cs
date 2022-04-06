@@ -6,9 +6,12 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.Alien;
 using ETMS.IBusiness.Alien;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.Alien;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -32,8 +35,17 @@ namespace ETMS.Business.Alien
 
         private readonly IClassDAL _classDAL;
 
+        private readonly IRoleDAL _roleDAL;
+
+        private readonly IMgUserDAL _mgUserDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IMgUserOpLogDAL _mgUserOpLogDAL;
         public AlienTenantBLL(ISysTenantOperationLogDAL sysTenantOperationLogDAL, ISysTenantDAL sysTenantDAL,
-            IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL)
+            IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
+            IRoleDAL roleDAL, IMgUserDAL mgUserDAL, IEventPublisher eventPublisher,
+            IMgUserOpLogDAL mgUserOpLogDAL)
         {
             this._sysTenantOperationLogDAL = sysTenantOperationLogDAL;
             this._sysTenantDAL = sysTenantDAL;
@@ -41,15 +53,20 @@ namespace ETMS.Business.Alien
             this._userDAL = userDAL;
             this._courseDAL = courseDAL;
             this._classDAL = classDAL;
+            this._roleDAL = roleDAL;
+            this._mgUserDAL = mgUserDAL;
+            this._eventPublisher = eventPublisher;
+            this._mgUserOpLogDAL = mgUserOpLogDAL;
         }
 
         public void InitHeadId(int headId)
         {
+            this.InitDataAccess(headId, _mgUserDAL, _mgUserOpLogDAL);
         }
 
         public void InitTenant(int tenantId)
         {
-            this.InitTenantDataAccess(tenantId, _studentDAL, _userDAL, _courseDAL, _classDAL);
+            this.InitTenantDataAccess(tenantId, _studentDAL, _userDAL, _courseDAL, _classDAL, _roleDAL);
         }
 
         public async Task<ResponseBase> TenantOperationLogPaging(TenantOperationLogPagingRequest request)
@@ -198,6 +215,68 @@ namespace ETMS.Business.Alien
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<CourseGetPagingOutput>(pagingData.Item2, courseGetPagingOutput));
+        }
+
+        public async Task<ResponseBase> TenantRoleGet(TenantRoleGetRequest request)
+        {
+            this.InitTenant(request.TenantId);
+            var roles = await _roleDAL.GetRole();
+            var output = new List<AlTenantRoleGetOutput>();
+            if (roles != null && roles.Any())
+            {
+                foreach (var p in roles)
+                {
+                    output.Add(new AlTenantRoleGetOutput()
+                    {
+                        Id = p.Id,
+                        Name = p.Name
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantUserAdd(TenantUserAddRequest request)
+        {
+            var mgUser = await _mgUserDAL.GetUser(request.UserId);
+            if (mgUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            this.InitTenant(request.TenantId);
+            if (await _userDAL.ExistUserPhone(mgUser.Phone))
+            {
+                return ResponseBase.CommonError("手机号码已存在");
+            }
+
+            var tenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (tenant.MaxUserCount > 0)
+            {
+                var userCount = await _userDAL.GetUserCount();
+                if (userCount >= tenant.MaxUserCount)
+                {
+                    return ResponseBase.CommonError($"员工数量已达到最多{tenant.MaxUserCount}个的限制");
+                }
+            }
+
+            var user = new EtUser()
+            {
+                Address = mgUser.Address,
+                IsTeacher = false,
+                Name = mgUser.Name,
+                Phone = mgUser.Phone,
+                Remark = mgUser.Remark,
+                RoleId = request.RoleId,
+                TenantId = request.TenantId,
+                JobType = EmUserJobType.FullTime,
+                Password = mgUser.Password
+            };
+            await _userDAL.AddUser(user);
+
+            CoreBusiness.ProcessUserPhoneAboutAdd(user, _eventPublisher);
+
+            await _mgUserOpLogDAL.AddUserLog(request, $"绑定员工校区账号-{user.Name}", EmMgUserOperationType.UserMgr);
+            return ResponseBase.Success();
         }
     }
 }

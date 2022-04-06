@@ -39,9 +39,12 @@ namespace ETMS.Business.Alien
 
         private readonly ISysTenantDAL _sysTenantDAL;
 
+        private readonly ISysTenantUserDAL _sysTenantUserDAL;
+
         public AlienUserLoginBLL(IMgHeadDAL mgHeadDAL, IMgUserDAL mgUserDAL, IMgUserOpLogDAL mgUserOpLogDAL,
             IMgUserLoginFailedRecordDAL mgUserLoginFailedRecordDAL, IMgRoleDAL mgRoleDAL,
-            IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL, ISysTenantDAL sysTenantDAL)
+            IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL, ISysTenantDAL sysTenantDAL,
+            ISysTenantUserDAL sysTenantUserDAL)
         {
             this._mgHeadDAL = mgHeadDAL;
             this._mgUserDAL = mgUserDAL;
@@ -51,6 +54,7 @@ namespace ETMS.Business.Alien
             this._mgTempDataCacheDAL = mgTempDataCacheDAL;
             this._mgTenantsDAL = mgTenantsDAL;
             this._sysTenantDAL = sysTenantDAL;
+            this._sysTenantUserDAL = sysTenantUserDAL;
         }
 
         public void InitHeadId(int headId)
@@ -198,10 +202,11 @@ namespace ETMS.Business.Alien
             var allRoutes = EtmsHelper.DeepCopy(AlienPermissionData.RouteConfigs);
             var isAdmin = myUser.IsAdmin == EmBool.True;
 
-            var allTenantsOutput = new List<SelectItem2>();
+            var allTenantsOutput = new List<LoginTenantInfo>();
             var allTenants = await _mgTenantsDAL.GetMgTenants();
             if (allTenants != null && allTenants.Any())
             {
+                var allPhoneTenants = await _sysTenantUserDAL.GetTenantUser(myUser.Phone);
                 foreach (var item in allTenants)
                 {
                     var p = await _sysTenantDAL.GetTenant(item.TenantId);
@@ -209,10 +214,16 @@ namespace ETMS.Business.Alien
                     {
                         continue;
                     }
-                    allTenantsOutput.Add(new SelectItem2()
+                    var isRegister = false;
+                    if (allPhoneTenants != null && allPhoneTenants.Any())
+                    {
+                        isRegister = allPhoneTenants.Exists(a => a.TenantId == item.TenantId);
+                    }
+                    allTenantsOutput.Add(new LoginTenantInfo()
                     {
                         Label = p.Name,
-                        Value = p.Id
+                        Value = p.Id,
+                        IsRegister = isRegister
                     });
                 }
             }

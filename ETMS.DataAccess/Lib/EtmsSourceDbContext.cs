@@ -25,6 +25,11 @@ namespace ETMS.DataAccess.Lib
             optionsBuilder.UseSqlServer(_connectionString);
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EtStudentCourseDetail>().Property(x => x.Price).HasPrecision(24, 6);
+        }
+
         public DbSet<EtAppConfig> EtAppConfigs { get; set; }
         public DbSet<EtClass> EtClasss { get; set; }
         public DbSet<EtClassCategory> EtClassCategorys { get; set; }

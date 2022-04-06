@@ -17,5 +17,9 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> ClassGetPaging(AlClassGetPagingRequest request);
 
         Task<ResponseBase> CourseGetPaging(AlCourseGetPagingRequest request);
+
+        Task<ResponseBase> TenantRoleGet(TenantRoleGetRequest request);
+
+        Task<ResponseBase> TenantUserAdd(TenantUserAddRequest request);
     }
 }

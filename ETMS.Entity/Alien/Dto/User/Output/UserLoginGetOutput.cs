@@ -30,6 +30,15 @@ namespace ETMS.Entity.Alien.Dto.User.Output
 
         public List<RouteConfig> RouteConfigs { get; set; }
 
-        public List<SelectItem2> Tenants { get; set; }
+        public List<LoginTenantInfo> Tenants { get; set; }
+    }
+
+    public class LoginTenantInfo
+    {
+        public string Label { get; set; }
+
+        public int Value { get; set; }
+
+        public bool IsRegister { get; set; }
     }
 }

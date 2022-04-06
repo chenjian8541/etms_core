@@ -32,7 +32,7 @@ namespace ETMS.DataAccess
         public async Task<bool> AddStudentCourseOpLog(EtStudentCourseOpLog entity)
         {
             await _dbWrapper.Insert(entity);
-            await UpdateCache(_tenantId, entity.StudentId);
+            RemoveCache(_tenantId, entity.StudentId);
             return true;
         }
 

@@ -124,6 +124,37 @@ namespace ETMS.Business.Common
                 {
                     startTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[0]).Date;
                     endTime = Convert.ToDateTime(enrolmentCourse.ErangeOt[1]).Date;
+
+                    if (endTime < DateTime.Now.Date)
+                    {
+                        surplusQuantity = 0;
+                        surplusSmallQuantity = 0;
+                    }
+                    else
+                    {
+                        var testStart = DateTime.Now.Date;
+                        var testEnd = DateTime.Now.Date;
+                        if (surplusQuantity > 0)
+                        {
+                            testEnd = testEnd.AddMonths(surplusQuantity);
+                        }
+                        if (surplusSmallQuantity > 0)
+                        {
+                            testEnd = testEnd.AddDays(surplusSmallQuantity);
+                        }
+
+                        if (startTime != testStart || endTime != testEnd)
+                        {
+                            var jsStartDate = DateTime.Now.Date;
+                            if (startTime > DateTime.Now.Date)
+                            {
+                                jsStartDate = startTime.Value;
+                            }
+                            var dffTime = EtmsHelper.GetDffTime(jsStartDate, endTime.Value);
+                            surplusQuantity = dffTime.Item1;
+                            surplusSmallQuantity = dffTime.Item2;
+                        }
+                    }
                 }
             }
             return new EtStudentCourseDetail()
@@ -163,7 +194,7 @@ namespace ETMS.Business.Common
         /// <param name="startTime">按时间收费的起始时间</param>
         /// <param name="endTime">按时间收费的结束时间</param>
         /// <returns></returns>
-        internal static decimal GetOneClassDeSum(decimal itemAptSum, byte deType, int surplusQuantity, int surplusSmallQuantity,
+        public static decimal GetOneClassDeSum(decimal itemAptSum, byte deType, int surplusQuantity, int surplusSmallQuantity,
             DateTime? startTime, DateTime? endTime)
         {
             var price = 0M;
@@ -188,7 +219,7 @@ namespace ETMS.Business.Common
                 }
                 if (totalCount > 0)
                 {
-                    price = Math.Round(itemAptSum / totalCount, 2);
+                    price = Math.Round(itemAptSum / totalCount, 4);
                 }
             }
             return price;
@@ -200,7 +231,7 @@ namespace ETMS.Business.Common
             var totalCount = (int)(endTime - startTime).TotalDays;
             if (totalCount > 0)
             {
-                price = Math.Round(itemAptSum / totalCount, 2);
+                price = Math.Round(itemAptSum / totalCount, 4);
             }
             return price;
         }

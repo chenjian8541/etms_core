@@ -74,5 +74,7 @@ namespace ETMS.Entity.Alien.Dto.User.Output
         public int TenantId { get; set; }
 
         public string Name { get; set; }
+
+        public bool IsRegister { get; set; }
     }
 }

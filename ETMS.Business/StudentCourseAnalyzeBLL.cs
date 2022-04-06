@@ -198,7 +198,7 @@ namespace ETMS.Business
                     myDetailClassTimes.Status = EmStudentCourseStatus.EndOfClass;
                     continue;
                 }
-                if (myDetailClassTimes.EndTime != null && myDetailClassTimes.EndTime.Value < DateTime.Now.Date)
+                if (studentCourseStatus != EmStudentCourseStatus.StopOfClass && myDetailClassTimes.EndTime != null && myDetailClassTimes.EndTime.Value < DateTime.Now.Date)
                 {
                     myDetailClassTimes.Status = EmStudentCourseStatus.EndOfClass;
                     continue;
@@ -243,7 +243,7 @@ namespace ETMS.Business
                 //    myDetailDay.Status = EmStudentCourseStatus.EndOfClass;
                 //    continue;
                 //}
-                if (myDetailDay.EndTime != null && myDetailDay.EndTime.Value < DateTime.Now.Date)
+                if (studentCourseStatus != EmStudentCourseStatus.StopOfClass && myDetailDay.EndTime != null && myDetailDay.EndTime.Value < DateTime.Now.Date)
                 {
                     myDetailDay.Status = EmStudentCourseStatus.EndOfClass;
                     continue;

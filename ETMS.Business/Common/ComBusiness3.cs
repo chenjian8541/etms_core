@@ -472,6 +472,12 @@ namespace ETMS.Business.Common
                         p.EndTime = restoreTime.AddDays(diff);
                         isChanged = true;
                     }
+                    if (p.DeType == EmDeClassTimesType.Day && p.StartTime != null && p.EndTime != null)
+                    {
+                        var dffTime = EtmsHelper.GetDffTime(DateTime.Now.Date, p.EndTime.Value.AddDays(1));
+                        p.SurplusQuantity = dffTime.Item1;
+                        p.SurplusSmallQuantity = dffTime.Item2;
+                    }
                 }
                 if (isChanged)
                 {

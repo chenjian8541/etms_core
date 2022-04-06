@@ -619,10 +619,14 @@ namespace ETMS.Business
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
 
             //日志
+            var studentBucket = await _studentDAL.GetStudent(request.Order.StudentId);
+            var mystudent = studentBucket.Student;
+
             var opContent = new StringBuilder();
+            opContent.Append($"学员：{mystudent.Name}");
             if (!string.IsNullOrEmpty(request.Order.BuyCourse))
             {
-                opContent.Append($"课程：{request.Order.BuyCourse}；");
+                opContent.Append($"<br>课程：{request.Order.BuyCourse}；");
             }
             if (!string.IsNullOrEmpty(request.Order.BuyGoods))
             {

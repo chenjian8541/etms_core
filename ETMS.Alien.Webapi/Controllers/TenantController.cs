@@ -76,5 +76,33 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> TenantRoleGet(TenantRoleGetRequest request)
+        {
+            try
+            {
+                _alienTenantBLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantBLL.TenantRoleGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantUserAdd(TenantUserAddRequest request)
+        {
+            try
+            {
+                _alienTenantBLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantBLL.TenantUserAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }
