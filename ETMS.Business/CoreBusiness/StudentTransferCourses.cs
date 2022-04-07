@@ -724,6 +724,7 @@ namespace ETMS.Business
                             TenantId = request.TenantId,
                             Type = myClass.Type
                         });
+                        _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.TenantId, student.StudentId));
                     }
                 }
             }
@@ -763,7 +764,7 @@ namespace ETMS.Business
             {
                 StatisticsDate = request.TransferOrder.Ot
             });
-
+            _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.TransferOrder.StudentId));
 
             await _userOperationLogDAL.AddUserLog(request.Request, $"转课-{request.TransferOrder.BuyCourse}", EmUserOperationType.OrderMgr);
             if (request.ChangeCourseIds.Any())

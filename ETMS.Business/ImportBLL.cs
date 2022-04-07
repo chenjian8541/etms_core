@@ -569,6 +569,7 @@ namespace ETMS.Business
                 {
                     StudentId = student.Id
                 });
+                _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.LoginTenantId, student.Id));
             }
 
             if (studentExtendInfos.Any())
@@ -958,6 +959,7 @@ namespace ETMS.Business
                 {
                     StudentId = student.Id
                 });
+                _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.LoginTenantId, student.Id));
             }
 
             if (studentExtendInfos.Any())
@@ -1040,6 +1042,7 @@ namespace ETMS.Business
                 TenantId = tenantId,
                 Type = EmClassType.OneToOne
             });
+            _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(tenantId, studentId));
         }
     }
 }

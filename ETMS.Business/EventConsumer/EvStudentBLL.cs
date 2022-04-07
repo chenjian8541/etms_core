@@ -282,7 +282,9 @@ namespace ETMS.Business.EventConsumer
             {
                 return;
             }
-            await _studentDAL.UpdateStudentAgeInfo(student.Id, newAge, newAgeMonth);
+            var strClassIds = await GetStudentClassIds(student.Id);
+            var strCourseIds = await GetGetStudentCourseIds(student.Id);
+            await _studentDAL.UpdateStudentInfo(student.Id, newAge, newAgeMonth, strClassIds, strCourseIds);
         }
 
         public async Task ImportExtendFieldExcelConsumerEvent(ImportExtendFieldExcelEvent request)
@@ -377,6 +379,40 @@ namespace ETMS.Business.EventConsumer
                 });
             }
             //_studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
+        }
+
+        private async Task<string> GetStudentClassIds(long studentId)
+        {
+            var myClassStudentLog = await _classDAL.GetStudentClass2(studentId);
+            var strIds = string.Empty;
+            if (myClassStudentLog.Any())
+            {
+                strIds = EtmsHelper.GetMuIds(myClassStudentLog.Select(j => j.ClassId));
+            }
+            return strIds;
+        }
+
+        public async Task SyncStudentStudentClassIdsConsumerEvent(SyncStudentStudentClassIdsEvent request)
+        {
+            var strIds = await GetStudentClassIds(request.StudentId);
+            await _studentDAL.UpdateStudentClassIds(request.StudentId, strIds);
+        }
+
+        private async Task<string> GetGetStudentCourseIds(long studentId)
+        {
+            var myCourseIds = await _studentCourseDAL.GetStudentBuyCourseIdIsReading(studentId);
+            var strIds = string.Empty;
+            if (myCourseIds.Any())
+            {
+                strIds = EtmsHelper.GetMuIds(myCourseIds.Select(j => j.CourseId));
+            }
+            return strIds;
+        }
+
+        public async Task SyncStudentStudentCourseIdsConsumerEvent(SyncStudentStudentCourseIdsEvent request)
+        {
+            var strIds = await GetGetStudentCourseIds(request.StudentId);
+            await _studentDAL.UpdateStudentCourseIds(request.StudentId, strIds);
         }
     }
 }

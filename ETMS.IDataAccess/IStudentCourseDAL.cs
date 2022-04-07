@@ -28,6 +28,8 @@ namespace ETMS.IDataAccess
 
         Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId);
 
+        Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseIdIsReading(long studentId);
+
         Task<bool> EditStudentCourse(long studentId, IEnumerable<EtStudentCourse> courses,
             IEnumerable<EtStudentCourseDetail> details, List<EtStudentCourse> oldStudentCourse, bool isDelOldStudentCourse,
             decimal surplusMoney);

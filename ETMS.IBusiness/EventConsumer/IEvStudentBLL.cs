@@ -21,5 +21,9 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncStudentCourseStatusConsumerEvent(SyncStudentCourseStatusEvent request);
 
         Task StudentCourseRestoreTimeBatchConsumerEvent(StudentCourseRestoreTimeBatchEvent request);
+
+        Task SyncStudentStudentClassIdsConsumerEvent(SyncStudentStudentClassIdsEvent request);
+
+        Task SyncStudentStudentCourseIdsConsumerEvent(SyncStudentStudentCourseIdsEvent request);
     }
 }

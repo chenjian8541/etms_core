@@ -426,6 +426,7 @@ namespace ETMS.Business
             });
 
             await _classDAL.AddClassStudent(myEtClassStudent);
+            _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(tenantId, studentId));
             _eventPublisher.Publish(new SyncClassInfoEvent(tenantId, classId));
         }
 
@@ -639,6 +640,8 @@ namespace ETMS.Business
 
                 await this.ClassStudentAdd(request.ClassId.Value, order.StudentId, mallOrder.RelatedId);
             }
+
+            _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, order.StudentId));
         }
     }
 }

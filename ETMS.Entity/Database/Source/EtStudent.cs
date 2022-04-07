@@ -215,5 +215,15 @@ namespace ETMS.Entity.Database.Source
         /// 课程状态  <see cref="ETMS.Entity.Enum.EmStudentCourseStatus"/>
         /// </summary>
         public byte CourseStatus { get; set; }
+
+        /// <summary>
+        /// 所在班级
+        /// </summary>
+        public string ClassIds { get; set; }
+
+        /// <summary>
+        /// 报读课程
+        /// </summary>
+        public string CourseIds { get; set; }
     }
 }

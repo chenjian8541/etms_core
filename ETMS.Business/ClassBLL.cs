@@ -647,6 +647,10 @@ namespace ETMS.Business
             }
 
             await _classDAL.AddClassStudent(classStudents);
+            foreach (var p in classStudents)
+            {
+                _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, p.StudentId));
+            }
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
             await _userOperationLogDAL.AddUserLog(request, $"班级添加学员-班级[{etClassBucket.EtClass.Name}]添加学员[{string.Join(',', request.StudentIds.Select(p => p.Label))}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
@@ -671,6 +675,7 @@ namespace ETMS.Business
                     {
                         StudentId = myStudentLog.StudentId
                     });
+                    _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, myStudentLog.StudentId));
                 }
             }
 
@@ -1745,6 +1750,7 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId,
                 Type = newClass.EtClass.Type
             });
+            _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, request.StudentId));
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.NewClassId));
             _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
             {
@@ -1798,6 +1804,7 @@ namespace ETMS.Business
                         TenantId = request.LoginTenantId,
                         Type = myClass.EtClass.Type
                     });
+                    _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, request.StudentId));
                 }
                 else
                 {
@@ -1806,6 +1813,7 @@ namespace ETMS.Business
                         continue;
                     }
                     await _classDAL.DelClassStudentByStudentId(placementInfo.ClassId, request.StudentId);
+                    _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, request.StudentId));
                 }
                 _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, placementInfo.ClassId));
             }

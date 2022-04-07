@@ -112,6 +112,7 @@ namespace ETMS.Business.EventConsumer
             {
                 await _classDAL.DelClassStudentByStudentId(myClass.ClassId, request.StudentId);
                 _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myClass.ClassId));
+                _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.TenantId, request.StudentId));
             }
         }
 

@@ -1127,7 +1127,7 @@ namespace ETMS.Business
             }
 
             var allCourseId = usableCourse.Select(p => p.CourseId).Distinct();
-            var studentInClassInfo = await _classDAL.GetStudentCourseInClass(request.StudentId);
+            var studentInClassInfo = await _classDAL.GetStudentClass2(request.StudentId);
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var courseId in allCourseId)
             {

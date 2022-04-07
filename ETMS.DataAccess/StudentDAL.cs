@@ -446,16 +446,16 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {isClassSchedule} , IsJoinClass = {isJoinClass} WHERE Id = {studentId}");
         }
 
-        public async Task UpdateStudentAgeInfo(long studentId, int? age, int? ageMonth)
+        public async Task UpdateStudentInfo(long studentId, int? age, int? ageMonth, string classIds, string courseIds)
         {
             var sql = string.Empty;
             if (age == null || ageMonth == null)
             {
-                sql = $"UPDATE EtStudent SET Age = NULL,AgeMonth = NULL WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
+                sql = $"UPDATE EtStudent SET Age = NULL,AgeMonth = NULL,ClassIds = '{classIds}',CourseIds = '{courseIds}' WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
             }
             else
             {
-                sql = $"UPDATE EtStudent SET Age = {age.Value},AgeMonth = {ageMonth.Value} WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
+                sql = $"UPDATE EtStudent SET Age = {age.Value},AgeMonth = {ageMonth.Value},ClassIds = '{classIds}',CourseIds = '{courseIds}' WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
             }
             await _dbWrapper.Execute(sql);
             RemoveCache(_tenantId, studentId);
@@ -464,6 +464,18 @@ namespace ETMS.DataAccess
         public async Task UpdateStudentCourseStatus(long studentId, byte newCourseStatus)
         {
             await _dbWrapper.Execute($"UPDATE EtStudent SET CourseStatus = {newCourseStatus} WHERE Id = {studentId} AND TenantId = {_tenantId}");
+            RemoveCache(_tenantId, studentId);
+        }
+
+        public async Task UpdateStudentClassIds(long studentId, string classIds)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET ClassIds = '{classIds}' WHERE Id = {studentId}");
+            RemoveCache(_tenantId, studentId);
+        }
+
+        public async Task UpdateStudentCourseIds(long studentId, string courseIds)
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CourseIds = '{courseIds}' WHERE Id = {studentId}");
             RemoveCache(_tenantId, studentId);
         }
     }

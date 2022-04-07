@@ -385,6 +385,7 @@ namespace ETMS.Business
                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
             }
 
+            _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.StudentId));
             return new CourseDetailAnalyzeRes()
             {
                 NewCourse = newCourse,

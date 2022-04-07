@@ -592,6 +592,7 @@ namespace ETMS.Business
                             TenantId = request.TenantId,
                             Type = myClass.Type
                         });
+                        _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.TenantId, student.StudentId));
                         _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.TenantId)
                         {
                             StudentId = student.StudentId
@@ -617,6 +618,7 @@ namespace ETMS.Business
                 OrderDetails = request.OrderDetails
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
+            _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.Order.StudentId));
 
             //日志
             var studentBucket = await _studentDAL.GetStudent(request.Order.StudentId);

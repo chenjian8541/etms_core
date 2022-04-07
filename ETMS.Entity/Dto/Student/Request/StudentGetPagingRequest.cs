@@ -156,6 +156,10 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public byte? CourseStatus { get; set; }
 
+        public long? ClassId { get; set; }
+
+        public long? CourseId { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -280,6 +284,14 @@ namespace ETMS.Entity.Dto.Student.Request
             if (CourseStatus != null)
             {
                 condition.Append($" AND CourseStatus = {CourseStatus.Value}");
+            }
+            if (ClassId != null)
+            {
+                condition.Append($" AND ClassIds LIKE '%,{ClassId.Value},%'");
+            }
+            if (CourseId != null)
+            {
+                condition.Append($" AND CourseIds LIKE '%,{CourseId.Value},%'");
             }
             if (IsHasFaceKey != null)
             {

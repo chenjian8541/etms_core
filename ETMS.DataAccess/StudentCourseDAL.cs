@@ -96,7 +96,12 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId)
         {
-            return await _dbWrapper.ExecuteObject<StudentBuyCourse>($"SELECT DISTINCT CourseId FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND StudentId = {studentId} ");
+            return await _dbWrapper.ExecuteObject<StudentBuyCourse>($"SELECT DISTINCT CourseId FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}");
+        }
+
+        public async Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseIdIsReading(long studentId)
+        {
+            return await _dbWrapper.ExecuteObject<StudentBuyCourse>($"SELECT DISTINCT CourseId FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass}");
         }
 
         public async Task<bool> EditStudentCourse(long studentId, IEnumerable<EtStudentCourse> courses,

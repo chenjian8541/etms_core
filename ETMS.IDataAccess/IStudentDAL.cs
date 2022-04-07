@@ -83,8 +83,12 @@ namespace ETMS.IDataAccess
 
         Task UpdateStudentClassInfo(long studentId);
 
-        Task UpdateStudentAgeInfo(long studentId, int? age, int? ageMonth);
+        Task UpdateStudentInfo(long studentId, int? age, int? ageMonth, string classIds, string courseIds);
 
         Task UpdateStudentCourseStatus(long studentId, byte newCourseStatus);
+
+        Task UpdateStudentClassIds(long studentId, string classIds);
+
+        Task UpdateStudentCourseIds(long studentId, string courseIds);
     }
 }

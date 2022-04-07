@@ -397,7 +397,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<OnlyClassId>(sql);
         }
 
-        public async Task<IEnumerable<EtClassStudent>> GetStudentCourseInClass(long studentId)
+        public async Task<IEnumerable<EtClassStudent>> GetStudentClass2(long studentId)
         {
             var sql = $"SELECT TOP 200 * FROM EtClassStudent WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} ";
             return await _dbWrapper.ExecuteObject<EtClassStudent>(sql);
