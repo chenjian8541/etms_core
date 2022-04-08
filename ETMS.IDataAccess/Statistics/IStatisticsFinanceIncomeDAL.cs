@@ -20,7 +20,7 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStatisticsFinanceIncomeMonth>> GetStatisticsFinanceIncomeMonth(DateTime startTime, DateTime endTime, byte type);
 
-        Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(IPagingRequest request);
 
         Task<StatisticsFinanceIncomeYearBucket> GetStatisticsFinanceIncomeYear(int year);
     }

@@ -116,7 +116,7 @@ namespace ETMS.DataAccess
             && p.Ot >= startTime && p.Ot <= endTime && p.Type == type);
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsFinanceIncomeMonth>, int>> GetStatisticsFinanceIncomeMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsFinanceIncomeMonth>("EtStatisticsFinanceIncomeMonth", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
         }

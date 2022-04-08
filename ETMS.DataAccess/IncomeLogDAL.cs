@@ -31,7 +31,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtIncomeLog>(p => p.OrderId == orderId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
-        public async Task<Tuple<IEnumerable<EtIncomeLog>, int>> GetIncomeLogPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtIncomeLog>, int>> GetIncomeLogPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtIncomeLog>("EtIncomeLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
