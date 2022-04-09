@@ -354,7 +354,7 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             var restoreDate = DateTime.Now.Date;
-            //var studentCourseOpLogs = new List<EtStudentCourseOpLog>();
+            var studentCourseOpLogs = new List<EtStudentCourseOpLog>();
             foreach (var myCourse in allStopCourseIds)
             {
                 await ComBusiness3.RestoreStudentCourse(_studentCourseDAL, request.TenantId, request.StudentId, myCourse.CourseId,
@@ -365,7 +365,7 @@ namespace ETMS.Business.EventConsumer
                     StudentId = request.StudentId,
                     IsSendNoticeStudent = true
                 });
-                await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
+                studentCourseOpLogs.Add(new EtStudentCourseOpLog()
                 {
                     CourseId = myCourse.CourseId,
                     IsDeleted = EmIsDeleted.Normal,
@@ -378,7 +378,7 @@ namespace ETMS.Business.EventConsumer
                     Remark = string.Empty
                 });
             }
-            //_studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
+            _studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
         }
 
         private async Task<string> GetStudentClassIds(long studentId)

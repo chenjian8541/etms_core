@@ -13,12 +13,12 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStatisticsStudentCount>> GetStatisticsStudentCount(DateTime startTime, DateTime endTime);
 
-        Task<Tuple<IEnumerable<EtStatisticsStudentCount>, int>> GetStatisticsStudentCountPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtStatisticsStudentCount>, int>> GetStatisticsStudentCountPaging(IPagingRequest request);
 
         Task UpdateStatisticsStudentCountMonth(DateTime time);
 
         Task<List<EtStatisticsStudentCountMonth>> GetStatisticsStudentCountMonth(DateTime startTime, DateTime endTime);
 
-        Task<Tuple<IEnumerable<EtStatisticsStudentCountMonth>, int>> GetStatisticsStudentCountMonthPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtStatisticsStudentCountMonth>, int>> GetStatisticsStudentCountMonthPaging(IPagingRequest request);
     }
 }

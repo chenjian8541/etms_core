@@ -51,7 +51,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsStudentCount>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsStudentCount>, int>> GetStatisticsStudentCountPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsStudentCount>, int>> GetStatisticsStudentCountPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsStudentCount>("EtStatisticsStudentCount", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
         }
@@ -93,7 +93,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsStudentCountMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsStudentCountMonth>, int>> GetStatisticsStudentCountMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsStudentCountMonth>, int>> GetStatisticsStudentCountMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsStudentCountMonth>("EtStatisticsStudentCountMonth", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
         }

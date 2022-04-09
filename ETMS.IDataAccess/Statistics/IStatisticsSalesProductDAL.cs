@@ -17,6 +17,6 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStatisticsSalesProductMonth>> GetEtStatisticsSalesProductMonth(DateTime startTime, DateTime endTime);
 
-        Task<Tuple<IEnumerable<EtStatisticsSalesProductMonth>, int>> GetEtStatisticsSalesProductMonthPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtStatisticsSalesProductMonth>, int>> GetEtStatisticsSalesProductMonthPaging(IPagingRequest request);
     }
 }

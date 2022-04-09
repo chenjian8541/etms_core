@@ -77,6 +77,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "orderDetail/:t/:c",
+        "Name": "orderDetail",
+        "Type": 1,
+        "Component": "@/components/OrderDetail",
+        "Meta": {
+          "Title": "订单详情",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 10,
         "Path": "academicStas",
         "Name": "academicStas",

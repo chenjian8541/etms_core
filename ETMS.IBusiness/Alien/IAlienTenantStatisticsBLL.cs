@@ -21,5 +21,19 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> AlTenantStatisticsFinanceIncomeMonthGet(AlTenantStatisticsFinanceIncomeMonthGetRequest request);
 
         Task<ResponseBase> AlTenantIncomeLogGetPaging(AlTenantIncomeLogGetPagingRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentCountGet(AlTenantStatisticsStudentCountGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentTrackCountGet(AlTenantStatisticsStudentTrackCountGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentSourceGet(AlTenantStatisticsStudentSourceGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentTypeGet(AlTenantStatisticsStudentTypeGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentCountPagingGet(AlTenantStatisticsStudentCountPagingGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentCountMonthGet(AlTenantStatisticsStudentCountMonthGetRequest request);
+
+        Task<ResponseBase> AlTenantStatisticsStudentCountMonthPagingGet(AlTenantStatisticsStudentCountMonthPagingGetRequest request);
     }
 }

@@ -1,23 +1,17 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Entity.Alien.Common;
 using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Dto.HisData.Request
+namespace ETMS.Entity.Alien.Dto.TenantStatistics.Request
 {
-    public class OrderGetPagingRequest : RequestPagingBase, IDataLimit
+    public class AlTenantOrderGetPagingGetRequest : AlienTenantRequestPagingBase
     {
-        public long? StudentId { get; set; }
-
-        public long? StudentAccountRechargeId { get; set; }
-
         public string No { get; set; }
-
-        public long? UserId { get; set; }
-
-        public long? CommissionUser { get; set; }
 
         /// <summary>
         /// 支付状态
@@ -32,7 +26,6 @@ namespace ETMS.Entity.Dto.HisData.Request
         public byte? OrderType { get; set; }
 
         public int? OrderSource { get; set; }
-
 
         /// <summary>
         /// 查询时间
@@ -83,44 +76,16 @@ namespace ETMS.Entity.Dto.HisData.Request
             }
         }
 
-        public bool? IsQueryHasArrears { get; set; }
-
-        public string Remark { get; set; }
-
-        public string GetDataLimitFilterWhere()
-        {
-            return $" AND UserId = {LoginUserId}";
-        }
-
         /// <summary>
         /// 获取SQL语句
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            var condition = new StringBuilder(DataFilterWhere);
-            if (StudentId != null)
-            {
-                if (StudentAccountRechargeId != null)
-                {
-                    condition.Append($" AND (StudentId = {StudentId.Value} OR StudentAccountRechargeId = {StudentAccountRechargeId.Value})");
-                }
-                else
-                {
-                    condition.Append($" AND StudentId = {StudentId.Value}");
-                }
-            }
+            var condition = new StringBuilder(TenantDataFilterWhere());
             if (!string.IsNullOrEmpty(No))
             {
                 condition.Append($" AND No LIKE '%{No}%'");
-            }
-            if (UserId != null)
-            {
-                condition.Append($" AND UserId = {UserId.Value}");
-            }
-            if (CommissionUser != null)
-            {
-                condition.Append($" AND CommissionUser LIKE '%,{CommissionUser.Value},%'");
             }
             if (Status != null)
             {
@@ -152,18 +117,6 @@ namespace ETMS.Entity.Dto.HisData.Request
             if (EndOt != null)
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToString()}'");
-            }
-            if (!string.IsNullOrEmpty(Remark))
-            {
-                condition.Append($" AND Remark LIKE '%{Remark}%'");
-            }
-            if (IsQueryHasArrears != null && IsQueryHasArrears.Value)
-            {
-                condition.Append($" AND ArrearsSum > 0 AND [Status] <> {EmOrderStatus.Repeal}");
-            }
-            if (IsDataLimit)
-            {
-                condition.Append(GetDataLimitFilterWhere());
             }
             return condition.ToString();
         }

@@ -102,7 +102,7 @@ namespace ETMS.DataAccess
             return await _dbWrapper.FindList<EtStatisticsSalesProductMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot >= startTime && p.Ot <= endTime);
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsSalesProductMonth>, int>> GetEtStatisticsSalesProductMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsSalesProductMonth>, int>> GetEtStatisticsSalesProductMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsSalesProductMonth>("EtStatisticsSalesProductMonth", "*", request.PageSize, request.PageCurrent, "[Ot] DESC", request.ToString());
         }
