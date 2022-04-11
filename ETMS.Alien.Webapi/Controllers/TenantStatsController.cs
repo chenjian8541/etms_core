@@ -338,5 +338,65 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> AlTenantOrderReturnLogGet(AlTenantOrderReturnLogGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics2BLL.InitHeadId(request.LoginHeadId);
+                _alienTenantStatistics2BLL.InitTenant(request.TenantId.Value);
+                return await _alienTenantStatistics2BLL.AlTenantOrderReturnLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> AlTenantOrderTransferCoursesLogGet(AlTenantOrderTransferCoursesLogGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics2BLL.InitHeadId(request.LoginHeadId);
+                _alienTenantStatistics2BLL.InitTenant(request.TenantId.Value);
+                return await _alienTenantStatistics2BLL.AlTenantOrderTransferCoursesLogGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> AlTenantOrderTransferCoursesGetDetailGet(AlTenantOrderTransferCoursesGetDetailGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics2BLL.InitHeadId(request.LoginHeadId);
+                _alienTenantStatistics2BLL.InitTenant(request.TenantId.Value);
+                return await _alienTenantStatistics2BLL.AlTenantOrderTransferCoursesGetDetailGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> AlTenantOrderGetDetailAccountRechargeGet(AlTenantOrderGetDetailAccountRechargeGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics2BLL.InitHeadId(request.LoginHeadId);
+                _alienTenantStatistics2BLL.InitTenant(request.TenantId.Value);
+                return await _alienTenantStatistics2BLL.AlTenantOrderGetDetailAccountRechargeGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

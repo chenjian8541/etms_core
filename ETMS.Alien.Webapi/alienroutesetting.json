@@ -89,6 +89,54 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "orderReturnDetail/:t/:c",
+        "Name": "orderReturnDetail",
+        "Type": 1,
+        "Component": "@/components/OrderDetail/OrderReturnDetail",
+        "Meta": {
+          "Title": "退单详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "orderTransferDetail/:t/:c",
+        "Name": "orderTransferDetail",
+        "Type": 1,
+        "Component": "@/components/OrderDetail/OrderTransferDetail",
+        "Meta": {
+          "Title": "转课详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_add_detail/:t/:c",
+        "Name": "recharge_add_detail",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/addDetail",
+        "Meta": {
+          "Title": "账户充值详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "recharge_refund_detail/:t/:c",
+        "Name": "recharge_refund_detail",
+        "Type": 1,
+        "Component": "@/components/rechargeManage/refundDetail",
+        "Meta": {
+          "Title": "账户退款详情",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 10,
         "Path": "academicStas",
         "Name": "academicStas",

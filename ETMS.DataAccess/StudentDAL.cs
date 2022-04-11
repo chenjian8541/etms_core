@@ -446,19 +446,10 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {isClassSchedule} , IsJoinClass = {isJoinClass} WHERE Id = {studentId}");
         }
 
-        public async Task UpdateStudentInfo(long studentId, int? age, int? ageMonth, string classIds, string courseIds)
+        public async Task EditStudent2(EtStudent entity)
         {
-            var sql = string.Empty;
-            if (age == null || ageMonth == null)
-            {
-                sql = $"UPDATE EtStudent SET Age = NULL,AgeMonth = NULL,ClassIds = '{classIds}',CourseIds = '{courseIds}' WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
-            }
-            else
-            {
-                sql = $"UPDATE EtStudent SET Age = {age.Value},AgeMonth = {ageMonth.Value},ClassIds = '{classIds}',CourseIds = '{courseIds}' WHERE Id = {studentId} AND  TenantId = {_tenantId} ";
-            }
-            await _dbWrapper.Execute(sql);
-            RemoveCache(_tenantId, studentId);
+            await _dbWrapper.Update(entity);
+            RemoveCache(_tenantId, entity.Id);
         }
 
         public async Task UpdateStudentCourseStatus(long studentId, byte newCourseStatus)

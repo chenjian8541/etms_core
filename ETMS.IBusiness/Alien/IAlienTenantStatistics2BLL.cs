@@ -25,5 +25,13 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> AlTenantOrderGetPagingGet(AlTenantOrderGetPagingGetRequest request);
 
         Task<ResponseBase> AlTenantOrderGetDetailGet(AlTenantOrderGetDetailGetRequest request);
+
+        Task<ResponseBase> AlTenantOrderReturnLogGet(AlTenantOrderReturnLogGetRequest request);
+
+        Task<ResponseBase> AlTenantOrderTransferCoursesLogGet(AlTenantOrderTransferCoursesLogGetRequest request);
+
+        Task<ResponseBase> AlTenantOrderTransferCoursesGetDetailGet(AlTenantOrderTransferCoursesGetDetailGetRequest request);
+
+        Task<ResponseBase> AlTenantOrderGetDetailAccountRechargeGet(AlTenantOrderGetDetailAccountRechargeGetRequest request);
     }
 }

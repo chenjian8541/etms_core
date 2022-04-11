@@ -37,12 +37,23 @@ namespace ETMS.Business
 
         public async Task CourseAnalyze(StudentCourseAnalyzeEvent request)
         {
+            var myCourseIds = await _studentCourseDAL.GetStudentCourseId(request.StudentId);
             var studentCourseIds = await _studentCourseDAL.GetStudentBuyCourseId(request.StudentId);
-            foreach (var course in studentCourseIds)
+            var allCourseIds = new List<long>();
+            if (myCourseIds != null && myCourseIds.Any())
+            {
+                allCourseIds = myCourseIds;
+            }
+            if (studentCourseIds != null && studentCourseIds.Any())
+            {
+                allCourseIds.AddRange(studentCourseIds.Select(j => j.CourseId));
+            }
+            var vaildCourseIds = allCourseIds.Distinct();
+            foreach (var courseId in vaildCourseIds)
             {
                 _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.TenantId)
                 {
-                    CourseId = course.CourseId,
+                    CourseId = courseId,
                     StudentId = request.StudentId
                 });
             }

@@ -41,10 +41,12 @@ namespace ETMS.Business.EventConsumer
         private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
 
         private readonly IStudentCourseOpLogDAL _studentCourseOpLogDAL;
+
+        private readonly IStudentWechatDAL _studentWechatDAL;
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
-            IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL,
+            IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL, IStudentWechatDAL studentWechatDAL,
             IStudentCourseOpLogDAL studentCourseOpLogDAL)
         {
             this._studentDAL = studentDAL;
@@ -59,6 +61,7 @@ namespace ETMS.Business.EventConsumer
             this._eventPublisher = eventPublisher;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
             this._studentCourseOpLogDAL = studentCourseOpLogDAL;
+            this._studentWechatDAL = studentWechatDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -66,7 +69,7 @@ namespace ETMS.Business.EventConsumer
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
                _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL,
-               _studentCourseOpLogDAL);
+               _studentCourseOpLogDAL, _studentWechatDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -274,7 +277,13 @@ namespace ETMS.Business.EventConsumer
 
         public async Task UpdateStudentInfoConsumerEvent(UpdateStudentInfoEvent request)
         {
-            var student = request.MyStudent;
+            var studentBucket = await _studentDAL.GetStudent(request.MyStudent.Id);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                LOG.Log.Error("[UpdateStudentInfoConsumerEvent]未找到学员", request, this.GetType());
+                return;
+            }
+            var student = studentBucket.Student;
             var myAgeResut = student.Birthday.EtmsGetAge();
             var newAge = myAgeResut?.Item1;
             var newAgeMonth = myAgeResut?.Item2;
@@ -282,9 +291,14 @@ namespace ETMS.Business.EventConsumer
             {
                 return;
             }
-            var strClassIds = await GetStudentClassIds(student.Id);
-            var strCourseIds = await GetGetStudentCourseIds(student.Id);
-            await _studentDAL.UpdateStudentInfo(student.Id, newAge, newAgeMonth, strClassIds, strCourseIds);
+
+            var bindingWechatInfo = await _studentWechatDAL.GetStudentWechatByPhone(student.Phone);
+            student.Age = newAge;
+            student.AgeMonth = newAgeMonth;
+            student.ClassIds = await GetStudentClassIds(student.Id);
+            student.CourseIds = await GetGetStudentCourseIds(student.Id);
+            student.IsBindingWechat = bindingWechatInfo == null ? EmIsBindingWechat.No : EmIsBindingWechat.Yes;
+            await _studentDAL.EditStudent2(student);
         }
 
         public async Task ImportExtendFieldExcelConsumerEvent(ImportExtendFieldExcelEvent request)

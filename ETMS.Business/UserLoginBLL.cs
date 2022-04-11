@@ -549,5 +549,47 @@ namespace ETMS.Business
                 Token = result.Token
             });
         }
+
+        public async Task<ResponseBase> UserTenantEntrancePC(UserTenantEntrancePCRequest request)
+        {
+            var thisTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (thisTenant == null)
+            {
+                Log.Error($"[UserTenantEntrance]机构不存在，TenantId:{request.TenantId}", this.GetType());
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            _etUserDAL.InitTenantId(request.TenantId);
+
+            var userInfo = await _etUserDAL.GetUser(request.Phone);
+            if (userInfo == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))
+            {
+                return ResponseBase.CommonError(msg);
+            }
+
+            await _sysTenantUserDAL.UpdateTenantUserOpTime(thisTenant.Id, userInfo.Phone, DateTime.Now);
+            _etUserOperationLogDAL.InitTenantId(thisTenant.Id);
+
+            _roleDAL.InitTenantId(request.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
+            if (!userInfo.IsAdmin)
+            {
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
+                {
+                    return ResponseBase.CommonError(msgRoleLimit);
+                }
+            }
+            var result = await LoginSuccessProcess(userInfo, request.IpAddress, thisTenant.TenantCode, userInfo.Phone, request.LoginClientType, role,
+                roleSetting);
+            return ResponseBase.Success(result);
+        }
     }
 }
