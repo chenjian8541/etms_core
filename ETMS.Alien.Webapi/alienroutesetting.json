@@ -148,6 +148,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "classRecordDetail/:t/:c",
+        "Name": "classRecordDetail",
+        "Type": 1,
+        "Component": "@/components/ClassRecordDetail",
+        "Meta": {
+          "Title": "点名详情",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 11,
         "Path": "financeStas",
         "Name": "financeStas",
