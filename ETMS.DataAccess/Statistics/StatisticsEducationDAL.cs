@@ -308,22 +308,22 @@ namespace ETMS.DataAccess.Statistics
             return await _dbWrapper.Find<EtStatisticsEducationMonth>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Ot == firstDate);
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsEducationTeacherMonth>, int>> GetEtStatisticsEducationTeacherMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationTeacherMonth>, int>> GetEtStatisticsEducationTeacherMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsEducationTeacherMonth>("EtStatisticsEducationTeacherMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsEducationClassMonth>, int>> GetEtStatisticsEducationClassMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationClassMonth>, int>> GetEtStatisticsEducationClassMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsEducationClassMonth>("EtStatisticsEducationClassMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsEducationCourseMonth>, int>> GetEtStatisticsEducationCourseMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationCourseMonth>, int>> GetEtStatisticsEducationCourseMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsEducationCourseMonth>("EtStatisticsEducationCourseMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
         }
 
-        public async Task<Tuple<IEnumerable<EtStatisticsEducationStudentMonth>, int>> GetEtStatisticsEducationStudentMonthPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtStatisticsEducationStudentMonth>, int>> GetEtStatisticsEducationStudentMonthPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtStatisticsEducationStudentMonth>("EtStatisticsEducationStudentMonth", "*", request.PageSize, request.PageCurrent, "[TeacherTotalClassTimes] DESC", request.ToString());
         }

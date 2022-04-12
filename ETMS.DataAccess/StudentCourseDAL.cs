@@ -371,5 +371,19 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<OnlyOneFiledCourseId>(
                 $"SELECT CourseId FROM EtStudentCourse WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted  = {EmIsDeleted.Normal} AND [Status] = {EmStudentCourseStatus.StopOfClass} GROUP BY CourseId");
         }
+
+        public async Task DelStudentCourse(List<long> ids)
+        {
+            if (ids.Count == 0)
+            {
+                return;
+            }
+            if (ids.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND Id = {ids[0]}");
+                return;
+            }
+            await _dbWrapper.Execute($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND Id IN ({string.Join(',', ids)})");
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace ETMS.Alien.Webapi.Controllers
         private readonly IAlienTenantStatisticsBLL _alienTenantStatisticsBLL;
 
         private readonly IAlienTenantStatistics2BLL _alienTenantStatistics2BLL;
+
         public TenantStatsController(IAlienTenantStatisticsBLL alienTenantStatisticsBLL, IAlienTenantStatistics2BLL alienTenantStatistics2BLL)
         {
             this._alienTenantStatisticsBLL = alienTenantStatisticsBLL;

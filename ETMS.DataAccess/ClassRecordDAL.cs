@@ -81,7 +81,7 @@ namespace ETMS.DataAccess
             _dbWrapper.InsertRange(classRecordPointsApplyLog);
         }
 
-        public async Task<Tuple<IEnumerable<EtClassRecord>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtClassRecord>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtClassRecord>("EtClassRecord", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }

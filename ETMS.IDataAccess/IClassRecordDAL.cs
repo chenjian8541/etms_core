@@ -20,7 +20,7 @@ namespace ETMS.IDataAccess
 
         void AddClassRecordPointsApplyLog(List<EtClassRecordPointsApplyLog> classRecordPointsApplyLog);
 
-        Task<Tuple<IEnumerable<EtClassRecord>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtClassRecord>, int>> GetPaging(IPagingRequest request);
 
         Task<EtClassRecord> GetClassRecord(long classRecordId);
 

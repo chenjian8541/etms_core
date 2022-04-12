@@ -125,8 +125,29 @@ namespace ETMS.Business
         public async Task<CourseDetailAnalyzeRes> CourseDetailAnalyze(StudentCourseDetailAnalyzeEvent request)
         {
             var myCourse = await _studentCourseDAL.GetStudentCourseDb(request.StudentId, request.CourseId);
-            var myCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var courseClassTimes = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            var courseDay = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
+            if (myCourse.Count > 1)
+            {
+                var delIds = new List<long>();
+                foreach (var p in myCourse)
+                {
+                    if (p.DeType == EmDeClassTimesType.ClassTimes && p.Id != courseClassTimes.Id)
+                    {
+                        delIds.Add(p.Id);
+                    }
+                    if (p.DeType == EmDeClassTimesType.Day && p.Id != courseDay.Id)
+                    {
+                        delIds.Add(p.Id);
+                    }
+                }
+                if (delIds.Count > 0)
+                {
+                    await _studentCourseDAL.DelStudentCourse(delIds);
+                }
+            }
+
+            var myCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
             var surplusMoney = 0M;
             if (courseClassTimes == null)
             {
@@ -144,7 +165,7 @@ namespace ETMS.Business
                 courseClassTimes.StartTime = null;
                 courseClassTimes.EndTime = null;
             }
-            var courseDay = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
+
             if (courseDay == null)
             {
                 courseDay = GetCourseDayDefault(request.TenantId, request.StudentId, request.CourseId);
