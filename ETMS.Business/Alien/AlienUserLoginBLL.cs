@@ -18,6 +18,8 @@ using ETMS.DataAccess.Alien.Lib;
 using ETMS.Entity.Alien.Common;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.Entity.Dto.Common.Output;
+using ETMS.IBusiness;
+using ETMS.IDataAccess;
 
 namespace ETMS.Business.Alien
 {
@@ -41,10 +43,13 @@ namespace ETMS.Business.Alien
 
         private readonly ISysTenantUserDAL _sysTenantUserDAL;
 
+        private readonly IUserLoginBLL _userLoginBLL;
+
+        private readonly ITempDataCacheDAL _tempDataCacheDAL;
         public AlienUserLoginBLL(IMgHeadDAL mgHeadDAL, IMgUserDAL mgUserDAL, IMgUserOpLogDAL mgUserOpLogDAL,
             IMgUserLoginFailedRecordDAL mgUserLoginFailedRecordDAL, IMgRoleDAL mgRoleDAL,
             IMgTempDataCacheDAL mgTempDataCacheDAL, IMgTenantsDAL mgTenantsDAL, ISysTenantDAL sysTenantDAL,
-            ISysTenantUserDAL sysTenantUserDAL)
+            ISysTenantUserDAL sysTenantUserDAL, IUserLoginBLL userLoginBLL, ITempDataCacheDAL tempDataCacheDAL)
         {
             this._mgHeadDAL = mgHeadDAL;
             this._mgUserDAL = mgUserDAL;
@@ -55,6 +60,8 @@ namespace ETMS.Business.Alien
             this._mgTenantsDAL = mgTenantsDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._sysTenantUserDAL = sysTenantUserDAL;
+            this._userLoginBLL = userLoginBLL;
+            this._tempDataCacheDAL = tempDataCacheDAL;
         }
 
         public void InitHeadId(int headId)
@@ -280,6 +287,39 @@ namespace ETMS.Business.Alien
                 AllTenants = allTenant.Select(j => j.TenantId).ToList()
             };
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantLogin(TenantLoginRequest request)
+        {
+            var myUser = await _mgUserDAL.GetUser(request.LoginUserId);
+            var allTenants = await _mgTenantsDAL.GetMgTenants();
+            if (!allTenants.Exists(j => j.TenantId == request.TenantId))
+            {
+                return ResponseBase.CommonError("无法登录此校区");
+            }
+            var res = await this._userLoginBLL.UserTenantEntrancePC(new Entity.Dto.User.Request.UserTenantEntrancePCRequest()
+            {
+                IpAddress = request.IpAddress,
+                LoginClientType = request.LoginClientType,
+                Phone = myUser.Phone,
+                TenantId = request.TenantId
+            });
+            if (!res.IsResponseSuccess())
+            {
+                return res;
+            }
+            var output = (Entity.Dto.User.Output.UserLoginOutput)res.resultData;
+            var nowTimestamp = DateTime.Now.EtmsGetTimestamp();
+            var bucket = new Entity.CacheBucket.TempShortTime.UserTenantEntrancePCBucket()
+            {
+                LoginTimestamp = nowTimestamp,
+                MyUserLoginOutput = output
+            };
+            _tempDataCacheDAL.SetUserTenantEntrancePCBucket(output.TId, bucket);
+            return ResponseBase.Success(new TenantLoginOutput()
+            {
+                LoginNo = TenantLib.GetTenantEntranceEncrypt(output.TId, output.UId, nowTimestamp)
+            });
         }
     }
 }

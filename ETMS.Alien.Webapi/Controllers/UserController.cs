@@ -344,5 +344,19 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> TenantLogin(TenantLoginRequest request)
+        {
+            try
+            {
+                _alienUserBLL.InitHeadId(request.LoginHeadId);
+                return await _alienUserBLL.TenantLogin(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

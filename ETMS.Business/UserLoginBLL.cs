@@ -591,5 +591,21 @@ namespace ETMS.Business
                 roleSetting);
             return ResponseBase.Success(result);
         }
+
+        public ResponseBase UserTenantEntrancePCGate(UserTenantEntrancePCGateRequest request)
+        {
+            var loginNoDecrypt = TenantLib.GetTenantEntranceDecrypt(request.LoginNo);
+            var loginInfo = _tempDataCacheDAL.GetUserTenantEntrancePCBucket(loginNoDecrypt.TenantId, loginNoDecrypt.UserId);
+            if (loginInfo == null || loginInfo.MyUserLoginOutput == null)
+            {
+                return ResponseBase.CommonError("登录信息已过期");
+            }
+            if (loginInfo.LoginTimestamp != loginNoDecrypt.NowTimestamp)
+            {
+                return ResponseBase.CommonError("无效的登录");
+            }
+            _tempDataCacheDAL.RemoveUserTenantEntrancePCBucket(loginNoDecrypt.TenantId, loginNoDecrypt.UserId);
+            return ResponseBase.Success(loginInfo.MyUserLoginOutput);
+        }
     }
 }

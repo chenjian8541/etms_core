@@ -196,6 +196,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public ResponseBase UserTenantEntrancePCGate(UserTenantEntrancePCGateRequest request)
+        {
+            try
+            {
+                return _userLoginBLL.UserTenantEntrancePCGate(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         /// <summary>
         /// 短信登陆H5
         /// </summary>

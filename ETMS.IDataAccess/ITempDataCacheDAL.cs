@@ -51,5 +51,11 @@ namespace ETMS.IDataAccess
         void SetPhoneVerificationCodeBucket(string phone, string verificationCode);
 
         void RemovePhoneVerificationCodeBucket(string phone);
+
+        void SetUserTenantEntrancePCBucket(int tenantId, UserTenantEntrancePCBucket bucket);
+
+        void RemoveUserTenantEntrancePCBucket(int tenantId, long userId);
+
+        UserTenantEntrancePCBucket GetUserTenantEntrancePCBucket(int tenantId, long userId);
     }
 }

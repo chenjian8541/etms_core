@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 
 namespace ETMS.Utility
 {
@@ -245,6 +246,20 @@ namespace ETMS.Utility
                 }
             }
             return result;
+        }
+
+        public static string GetUrlEncrypt(string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+            var baseStr = Convert.ToBase64String(bytes);
+            return HttpUtility.UrlEncode(baseStr);
+        }
+
+        public static string GetUrlDecrypt(string strEncrypt)
+        {
+            var urlDecode = HttpUtility.UrlDecode(strEncrypt);
+            var bytes = Convert.FromBase64String(urlDecode);
+            return Encoding.UTF8.GetString(bytes);
         }
     }
 }

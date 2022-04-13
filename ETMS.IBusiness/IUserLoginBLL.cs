@@ -40,5 +40,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> UserTenantEntrance(UserTenantEntranceRequest request);
 
         Task<ResponseBase> UserTenantEntrancePC(UserTenantEntrancePCRequest request);
+
+        ResponseBase UserTenantEntrancePCGate(UserTenantEntrancePCGateRequest request);
     }
 }

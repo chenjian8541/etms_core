@@ -155,5 +155,21 @@ namespace ETMS.DataAccess
         {
             _cacheProvider.Remove(0, new PhoneVerificationCodeBucket().GetKeyFormat(phone));
         }
+
+        public void SetUserTenantEntrancePCBucket(int tenantId, UserTenantEntrancePCBucket bucket)
+        {
+            var key = bucket.GetKeyFormat(tenantId, bucket.MyUserLoginOutput.UId);
+            _cacheProvider.Set(tenantId, key, bucket, bucket.TimeOut);
+        }
+
+        public void RemoveUserTenantEntrancePCBucket(int tenantId, long userId)
+        {
+            _cacheProvider.Remove(tenantId, new UserTenantEntrancePCBucket().GetKeyFormat(tenantId, userId));
+        }
+
+        public UserTenantEntrancePCBucket GetUserTenantEntrancePCBucket(int tenantId, long userId)
+        {
+            return _cacheProvider.Get<UserTenantEntrancePCBucket>(tenantId, new UserTenantEntrancePCBucket().GetKeyFormat(tenantId, userId));
+        }
     }
 }

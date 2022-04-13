@@ -1,4 +1,5 @@
-﻿using ETMS.Utility;
+﻿using ETMS.Entity.View;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -42,6 +43,24 @@ namespace ETMS.Business.Common
         public static string GetPhoneDecrypt(string strEncrypt)
         {
             return EtmsHelper2.GetPhoneDecrypt(strEncrypt);
+        }
+
+        public static string GetTenantEntranceEncrypt(int tenantId, long userId, long nowTimestamp)
+        {
+            var str = $"8104_{tenantId}_{userId}_{nowTimestamp}";
+            return EtmsHelper2.GetUrlEncrypt(str);
+        }
+
+        public static TenantEntrancePCView GetTenantEntranceDecrypt(string strEncrypt)
+        {
+            var str = EtmsHelper2.GetUrlDecrypt(strEncrypt);
+            var values = str.Split('_');
+            return new TenantEntrancePCView()
+            {
+                TenantId = values[1].ToInt(),
+                UserId = values[2].ToLong(),
+                NowTimestamp = values[3].ToLong()
+            };
         }
     }
 }
