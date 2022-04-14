@@ -29,6 +29,11 @@ namespace ETMS.DataAccess.Alien
             };
         }
 
+        public async Task<MgTenants> GetMgTenant(int id)
+        {
+            return await this._dbWrapper.Find<MgTenants>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
         public async Task<bool> ExistTenant(int tenantId)
         {
             var allMgTenants = await GetMgTenants();
@@ -54,6 +59,12 @@ namespace ETMS.DataAccess.Alien
         public async Task DelMgTenant(int tenantId)
         {
             await _dbWrapper.Execute($"UPDATE [MgTenants] SET IsDeleted = {EmIsDeleted.Deleted} WHERE HeadId = {_headId} AND TenantId = {tenantId}");
+            await UpdateCache(_headId);
+        }
+
+        public async Task DelMgLog(int id)
+        {
+            await _dbWrapper.Execute($"UPDATE [MgTenants] SET IsDeleted = {EmIsDeleted.Deleted} WHERE HeadId = {_headId} AND Id = {id}");
             await UpdateCache(_headId);
         }
     }

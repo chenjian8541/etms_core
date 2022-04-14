@@ -9,6 +9,8 @@ namespace ETMS.IDataAccess.Alien
 {
     public interface IMgTenantsDAL : IBaseAlienDAL
     {
+        Task<MgTenants> GetMgTenant(int id);
+
         Task<bool> ExistTenant(int tenantId);
 
         Task AddMgTenant(MgTenants entity);
@@ -16,5 +18,7 @@ namespace ETMS.IDataAccess.Alien
         Task<List<MgTenants>> GetMgTenants();
 
         Task DelMgTenant(int tenantId);
+
+        Task DelMgLog(int id);
     }
 }

@@ -17,5 +17,10 @@ namespace ETMS.Entity.Enum.Alien
         /// 已锁定
         /// </summary>
         public const byte IsLock = 1;
+
+        public static string GetHeadStatusDesc(byte t)
+        {
+            return t == Normal ? "正常" : "已锁定";
+        }
     }
 }

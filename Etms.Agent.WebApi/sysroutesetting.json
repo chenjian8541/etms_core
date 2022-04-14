@@ -102,6 +102,52 @@
     ]
   },
   {
+    "Id": 32,
+    "Path": "/group",
+    "Name": "group",
+    "Type": 0,
+    "Meta": {
+      "Title": "校区管理",
+      "Icon": "group"
+    },
+    "Children": [
+      {
+        "Id": 33,
+        "Path": "groupList",
+        "Name": "groupList",
+        "Type": 1,
+        "Component": "@/views/headMgr/headList",
+        "Meta": {
+          "Title": "企业列表",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 34,
+        "Path": "groupLog",
+        "Name": "groupLog",
+        "Type": 1,
+        "Component": "@/views/headMgr/headLog",
+        "Meta": {
+          "Title": "企业日志",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "group_detail/:cid",
+        "Name": "group_detail",
+        "Type": 1,
+        "Component": "@/components/headMgr/headDetail",
+        "Meta": {
+          "Title": "企业详情",
+          "Icon": "item"
+        }
+      }
+    ]
+  },
+  {
     "Id": 5,
     "Path": "/agent",
     "Name": "agent",

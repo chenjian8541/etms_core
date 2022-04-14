@@ -49,6 +49,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("系统公告")]
         public const int SysNoticeBulletin = 14;
 
+        [Description("校区管理")]
+        public const int HeadMgr = 15;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -81,6 +84,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "外部配置管理";
                 case SysNoticeBulletin:
                     return "系统公告";
+                case HeadMgr:
+                    return "校区管理";
             }
             return string.Empty;
         }

@@ -99,6 +99,50 @@
     ]
   },
   {
+    "Id": 32,
+    "Name": "校区管理",
+    "Type": 0,
+    "ChildrenPage": [
+      {
+        "Id": 33,
+        "Name": "企业列表",
+        "Type": 0
+      },
+      {
+        "Id": 34,
+        "Name": "企业日志",
+        "Type": 0
+      }
+    ],
+    "ChildrenAction": [
+      {
+        "ActionId": 25,
+        "Name": "添加企业",
+        "Type": 1
+      },
+      {
+        "ActionId": 26,
+        "Name": "编辑企业",
+        "Type": 1
+      },
+      {
+        "ActionId": 27,
+        "Name": "删除企业",
+        "Type": 1
+      },
+      {
+        "ActionId": 28,
+        "Name": "添加校区",
+        "Type": 1
+      },
+      {
+        "ActionId": 29,
+        "Name": "移除校区",
+        "Type": 1
+      }
+    ]
+  },
+  {
     "Id": 5,
     "Name": "代理商",
     "Type": 0,

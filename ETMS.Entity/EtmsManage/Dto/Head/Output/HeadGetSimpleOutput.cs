@@ -1,27 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Alien
+namespace ETMS.Entity.EtmsManage.Dto.Head.Output
 {
-    [Table("MgHead")]
-    public class MgHead: EAlienEntityBase<int>
+    public class HeadGetSimpleOutput
     {
-        /// <summary>
-        /// 代理商ID
-        /// </summary>
-        public int AgentId { get; set; }
-
-        /// <summary>
-        /// 创建的用户ID
-        /// </summary>
-        public long UserId { get; set; }
-
-        /// <summary>
-        /// 总部机构ID
-        /// </summary>
-        public int TenantId { get; set; }
+        public long CId { get; set; }
 
         /// <summary>
         /// 机构数量
@@ -62,5 +49,6 @@ namespace ETMS.Entity.Database.Alien
         /// 状态  <see cref="ETMS.Entity.Enum.Alien.EmMgHeadStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
     }
 }
