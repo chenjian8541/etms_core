@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Alien.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Alien;
+using ETMS.Entity.View.Alien;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace ETMS.IDataAccess.Alien
         Task AddUserLog(AlienRequestBase request,string content,int opType);
 
         Task<Tuple<IEnumerable<MgUserOpLog>, int>> GetPaging(IPagingRequest request);
+
+        Task<Tuple<IEnumerable<MgUserOpLogView>, int>> GetViewPaging(IPagingRequest request);
     }
 }

@@ -26,5 +26,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> HeadAddTenant(HeadAddTenantRequest request);
 
         Task<ResponseBase> HeadRemoveTenant(HeadRemoveTenantRequest request);
+
+        Task<ResponseBase> HeadUserOpLogGetPaging(HeadUserOpLogGetPagingRequest request);
     }
 }

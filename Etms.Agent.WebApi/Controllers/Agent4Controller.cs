@@ -134,5 +134,18 @@ namespace Etms.Agent.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> HeadUserOpLogGetPaging(HeadUserOpLogGetPagingRequest request)
+        {
+            try
+            {
+                return await _headBLL.HeadUserOpLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

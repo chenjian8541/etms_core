@@ -37,8 +37,11 @@ namespace ETMS.Business.EtmsManage
 
         private readonly ISysAgentDAL _sysAgentDAL;
 
+        private readonly IMgUserOpLogDAL _mgUserOpLogDAL;
+
         public HeadBLL(ISysAgentLogDAL sysAgentLogDAL, IMgHeadDAL mgHeadDAL, IMgTenantsDAL mgTenantsDAL,
-            IMgUserDAL mgUserDAL, IMgRoleDAL mgRoleDAL, ISysTenantDAL sysTenantDAL, ISysAgentDAL sysAgentDAL)
+            IMgUserDAL mgUserDAL, IMgRoleDAL mgRoleDAL, ISysTenantDAL sysTenantDAL, ISysAgentDAL sysAgentDAL,
+            IMgUserOpLogDAL mgUserOpLogDAL)
         {
             this._sysAgentLogDAL = sysAgentLogDAL;
             this._mgHeadDAL = mgHeadDAL;
@@ -47,6 +50,7 @@ namespace ETMS.Business.EtmsManage
             this._mgRoleDAL = mgRoleDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._sysAgentDAL = sysAgentDAL;
+            this._mgUserOpLogDAL = mgUserOpLogDAL;
         }
 
         public void InitHeadId(int headId)
@@ -344,6 +348,31 @@ namespace ETMS.Business.EtmsManage
                 Type = EmSysAgentOpLogType.HeadMgr
             }, request.LoginUserId);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> HeadUserOpLogGetPaging(HeadUserOpLogGetPagingRequest request)
+        {
+            var pagingData = await _mgUserOpLogDAL.GetViewPaging(request);
+            var output = new List<HeadUserOpLogGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new HeadUserOpLogGetPagingOutput()
+                    {
+                        ClientType = p.ClientType,
+                        Id = p.Id,
+                        IpAddress = p.IpAddress,
+                        MgUserId = p.MgUserId,
+                        Name = p.Name,
+                        OpContent = p.OpContent,
+                        Ot = DateTime.Now,
+                        Phone = p.Phone,
+                        Remark = p.Remark,
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<HeadUserOpLogGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

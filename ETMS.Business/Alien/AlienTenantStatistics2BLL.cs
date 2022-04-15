@@ -81,7 +81,7 @@ namespace ETMS.Business.Alien
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitTenantDataAccess(tenantId, _statisticsSalesProductDAL, _statisticsSalesTenantDAL,
                 _orderDAL, _userDAL, _studentDAL, _studentAccountRechargeDAL, _studentCourseDAL,
-                _courseDAL, _incomeLogDAL, _studentAccountRechargeLogDAL);
+                _courseDAL, _goodsDAL, _costDAL, _couponsDAL, _incomeLogDAL, _studentAccountRechargeLogDAL);
         }
 
         public async Task<ResponseBase> AlTenantStatisticsSalesProductGet(AlTenantStatisticsSalesProductGetRequest request)

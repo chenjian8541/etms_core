@@ -5,6 +5,7 @@ using ETMS.Entity.Alien.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Alien;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View.Alien;
 using ETMS.IDataAccess.Alien;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,11 @@ namespace ETMS.DataAccess.Alien
         public async Task<Tuple<IEnumerable<MgUserOpLog>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<MgUserOpLog>("MgUserOpLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<MgUserOpLogView>, int>> GetViewPaging(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<MgUserOpLogView>("MgUserOpLogView", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
     }
 }
