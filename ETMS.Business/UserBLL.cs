@@ -23,6 +23,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IEventProvider;
 using ETMS.Entity.Database.Manage;
 using ETMS.IDataAccess.TeacherSalary;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -442,6 +443,8 @@ namespace ETMS.Business
             await _etUserDAL.AddUser(user);
 
             CoreBusiness.ProcessUserPhoneAboutAdd(user, _eventPublisher);
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"添加员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
@@ -469,6 +472,8 @@ namespace ETMS.Business
             await _etUserDAL.EditUser(user);
 
             CoreBusiness.ProcessUserPhoneAboutEdit(oldPhone, user, _eventPublisher);
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"编辑员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
@@ -496,6 +501,8 @@ namespace ETMS.Business
             AliyunOssUtil.DeleteObject(user.Avatar);
 
             CoreBusiness.ProcessUserPhoneAboutDel(user, _eventPublisher);
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"删除员工-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }
@@ -603,6 +610,8 @@ namespace ETMS.Business
             }
             user.IsTeacher = false;
             await _etUserDAL.EditUser(user);
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"移除老师-名称:{user.Name},昵称:{user.NickName},手机号码:{user.Phone}", EmUserOperationType.UserSetting);
             return ResponseBase.Success();
         }

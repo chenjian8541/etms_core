@@ -2,6 +2,7 @@
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Temp.View;
+using ETMS.Entity.View.Statis;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,10 +20,18 @@ namespace ETMS.IDataAccess
 
         Task<int> GetUserCount();
 
+        Task<int> GetTeahcerOfWork();
+
         Task<int> GetOrderCount();
 
         Task<int> GetClassRecordCount();
 
         Task<IEnumerable<TempClassCount>> GetClassCount();
+
+        Task<IEnumerable<IncomeLogGroupType>> GetIncomeLogGroupType(DateTime startDate,DateTime endDate);
+
+        Task<StatisticsClassTimesView> GetStatisticsClassTimes(DateTime startDate, DateTime endDate);
+
+        Task<int> GetStudentBuyCourseCount(DateTime startDate, DateTime endDate);
     }
 }

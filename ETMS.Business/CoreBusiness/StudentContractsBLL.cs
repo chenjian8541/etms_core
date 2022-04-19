@@ -15,6 +15,7 @@ using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Dto.Student.Output;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -619,7 +620,7 @@ namespace ETMS.Business
             });
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.TenantId));
             _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.Order.StudentId));
-
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId));
             //日志
             var studentBucket = await _studentDAL.GetStudent(request.Order.StudentId);
             var mystudent = studentBucket.Student;

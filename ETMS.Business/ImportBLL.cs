@@ -17,6 +17,7 @@ using System.Linq;
 using ETMS.Event.DataContract;
 using ETMS.IEventProvider;
 using ETMS.Entity.Dto.External.Output;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -232,6 +233,7 @@ namespace ETMS.Business
                 }
                 await _userOperationLogDAL.AddUserLog(request, $"导入潜在学员-成功导入了{studentList.Count}位学员", EmUserOperationType.StudentManage);
             }
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             return ResponseBase.Success(new ImportStudentOutput()
             {
                 SuccessCount = studentList.Count
@@ -605,6 +607,8 @@ namespace ETMS.Business
                 });
             }
 
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.LoginTenantId));
             return ResponseBase.Success(new ImportCourseOutput()
             {
                 SuccessCount = request.ImportCourseTimess.Count
@@ -994,6 +998,8 @@ namespace ETMS.Business
                 });
             }
 
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.LoginTenantId));
             return ResponseBase.Success(new ImportCourseOutput()
             {
                 SuccessCount = request.ImportCourseDays.Count

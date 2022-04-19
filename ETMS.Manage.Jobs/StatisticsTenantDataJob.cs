@@ -45,6 +45,8 @@ namespace ETMS.Manage.Jobs
                 StatisticsDate = _now
             });
             _eventPublisher.Publish(new SyncTenantLastOpTimeEvent(tenant.Id));
+            _eventPublisher.Publish(new SysTenantStatistics2Event(tenant.Id));
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(tenant.Id));
         }
     }
 }

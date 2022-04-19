@@ -47,6 +47,7 @@ namespace ETMS.Business
                     Time = request.StatisticsDate.Date
                 });
             }
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId, StatisticsWeekAndMonthType.Income));
         }
 
         public async Task<ResponseBase> GetStatisticsFinanceIn(GetStatisticsFinanceInRequest request)

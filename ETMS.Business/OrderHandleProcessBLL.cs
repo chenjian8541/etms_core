@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -233,6 +234,7 @@ namespace ETMS.Business
                 Order1 = order,
                 OpType = StatisticsSalesOrderOpType.Repeal
             });
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId));
         }
 
         public async Task OrderReturnProductEventProcess(OrderReturnProductEvent request)
@@ -320,6 +322,8 @@ namespace ETMS.Business
             {
                 StatisticsDate = request.NewOrder.Ot
             });
+
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId));
 
             if (changeCourseIds.Any())
             {

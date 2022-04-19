@@ -19,6 +19,7 @@ using ETMS.Event.DataContract;
 using ETMS.IBusiness.IncrementLib;
 using ETMS.Entity.Dto.Common.Output;
 using ETMS.Entity.View;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -238,6 +239,8 @@ namespace ETMS.Business
                     Type = StudentRecommendRewardType.Registered
                 });
             }
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"添加学员-姓名:{request.Name},手机号码:{request.Phone}", EmUserOperationType.StudentManage);
             return ResponseBase.Success(studentId);
         }
@@ -403,7 +406,9 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentDel(StudentDelRequest request)
         {
-            return await StudentDel(request, request.CId, request.IsIgnoreCheck);
+            var res = await StudentDel(request, request.CId, request.IsIgnoreCheck);
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
+            return res;
         }
 
         public async Task<ResponseBase> StudentDelList(StudentDelListRequest request)
@@ -419,6 +424,8 @@ namespace ETMS.Business
                     await StudentDel(request, studentId, false, false);
                 }
             }
+
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));
             await _userOperationLogDAL.AddUserLog(request, $"批量删除{request.CIds.Count}个学员", EmUserOperationType.StudentManage);
             return ResponseBase.Success();
         }

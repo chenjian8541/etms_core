@@ -573,6 +573,7 @@ namespace ETMS.Business
             {
                 Time = request.ClassRecord.ClassOt
             });
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId, StatisticsWeekAndMonthType.ClassTimes));
         }
 
         private async Task<DeStudentClassTimesResult> DeStudentClassTimes(EtClassRecordStudent classRecordStudent, bool isLeaveCharge, bool isNotComeCharge)

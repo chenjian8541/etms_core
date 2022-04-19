@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,9 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncTenantLastOpTimeConsumerEvent(SyncTenantLastOpTimeEvent request);
 
         Task CloudStorageAnalyzeConsumerEvent(CloudStorageAnalyzeEvent request);
+
+        Task SysTenantStatistics2ConsumerEvent(SysTenantStatistics2Event request);
+
+        Task SysTenantStatisticsWeekAndMonthConsumerEvent(SysTenantStatisticsWeekAndMonthEvent request);
     }
 }

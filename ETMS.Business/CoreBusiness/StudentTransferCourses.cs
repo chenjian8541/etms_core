@@ -6,6 +6,7 @@ using ETMS.Entity.Dto.Student.Request;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
@@ -765,6 +766,7 @@ namespace ETMS.Business
                 StatisticsDate = request.TransferOrder.Ot
             });
             _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.TransferOrder.StudentId));
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId));
 
             await _userOperationLogDAL.AddUserLog(request.Request, $"转课-{request.TransferOrder.BuyCourse}", EmUserOperationType.OrderMgr);
             if (request.ChangeCourseIds.Any())

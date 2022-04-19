@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
@@ -103,6 +104,7 @@ namespace ETMS.Business
                     });
                 }
             }
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(_tenantId));
         }
     }
 }

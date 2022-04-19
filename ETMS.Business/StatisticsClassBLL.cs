@@ -5,9 +5,11 @@ using ETMS.Entity.Dto.HisData.Output;
 using ETMS.Entity.Dto.HisData.Request;
 using ETMS.Entity.Enum;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.Statistics;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -37,9 +39,12 @@ namespace ETMS.Business
 
         private readonly IClassCategoryDAL _classCategoryDAL;
 
+        private readonly IEventPublisher _eventPublisher;
+
         public StatisticsClassBLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
-            IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL)
+            IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL,
+            IEventPublisher eventPublisher)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -50,6 +55,7 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._classRecordDAL = classRecordDAL;
             this._classCategoryDAL = classCategoryDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -148,6 +154,8 @@ namespace ETMS.Business
             await _statisticsClassDAL.SaveStatisticsClass(classOt, myStatisticsClassTimes, myStatisticsClassAttendances,
                 myStatisticsClassCourse, myStatisticsClassTeacher);
             await StatisticsClassAttendanceTag(classOt);
+
+            _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId, StatisticsWeekAndMonthType.ClassTimes));
         }
 
         private async Task StatisticsClassAttendanceTag(DateTime ot)

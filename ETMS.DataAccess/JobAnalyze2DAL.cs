@@ -4,12 +4,14 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Temp.View;
+using ETMS.Entity.View.Statis;
 using ETMS.IDataAccess;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -42,6 +44,13 @@ namespace ETMS.DataAccess
             return obj.ToInt();
         }
 
+        public async Task<int> GetTeahcerOfWork()
+        {
+            var sql = $"SELECT COUNT(0) FROM EtUser WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND  IsTeacher = {EmBool.True} AND JobType <> {EmUserJobType.Resignation} ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
+
         public async Task<int> GetOrderCount()
         {
             var sql = $"SELECT COUNT(0) FROM EtOrder WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND OrderType = {EmOrderType.StudentEnrolment} AND [Status] <> {EmOrderStatus.Repeal} ";
@@ -60,6 +69,26 @@ namespace ETMS.DataAccess
         {
             var sql = $"SELECT COUNT([Type]) AS MyCount,[Type] FROM EtClass WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} GROUP BY [Type]";
             return await _dbWrapper.ExecuteObject<TempClassCount>(sql);
+        }
+
+        public async Task<IEnumerable<IncomeLogGroupType>> GetIncomeLogGroupType(DateTime startDate, DateTime endDate)
+        {
+            return await _dbWrapper.ExecuteObject<IncomeLogGroupType>
+                ($"SELECT [Type],SUM([Sum]) AS TotalSum FROM EtIncomeLog WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] = {EmIncomeLogStatus.Normal} AND Ot >= '{startDate.EtmsToDateString()}' AND Ot <= '{endDate.EtmsToDateString()}' GROUP BY [Type]");
+        }
+
+        public async Task<StatisticsClassTimesView> GetStatisticsClassTimes(DateTime startDate, DateTime endDate)
+        {
+            var log = await _dbWrapper.ExecuteObject<StatisticsClassTimesView>(
+                $"SELECT SUM(DeSum) as TotalDeSum,SUM(ClassTimes) as TotalClassTimes FROM EtStatisticsClassTimes WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND Ot >= '{startDate.EtmsToDateString()}' AND Ot <= '{endDate.EtmsToDateString()}'");
+            return log.FirstOrDefault();
+        }
+
+        public async Task<int> GetStudentBuyCourseCount(DateTime startDate, DateTime endDate)
+        {
+            var log = await _dbWrapper.ExecuteObject<StudentBuyCourseView>(
+                $"SELECT StudentId,ProductId FROM EtOrderDetail WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] <> {EmOrderStatus.Repeal} AND [OrderType] = {EmOrderType.StudentEnrolment} AND ProductType = {EmProductType.Course} AND Ot >= '{startDate.EtmsToDateString()}' AND Ot <= '{endDate.EtmsToDateString()}' group by StudentId,ProductId");
+            return log.Count();
         }
     }
 }
