@@ -392,7 +392,15 @@ namespace ETMS.Business.EventConsumer
                     Remark = string.Empty
                 });
             }
-            _studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
+
+            try
+            {
+                _studentCourseOpLogDAL.AddStudentCourseOpLog(studentCourseOpLogs);
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Error("[StudentCourseRestoreTimeBatchConsumerEvent]错误", ex, this.GetType());
+            }
         }
 
         private async Task<string> GetStudentClassIds(long studentId)
