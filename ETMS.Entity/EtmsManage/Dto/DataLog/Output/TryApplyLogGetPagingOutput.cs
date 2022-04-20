@@ -21,5 +21,12 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Output
         public byte Status { get; set; }
 
         public string HandleRemark { get; set; }
+
+        /// <summary>
+        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// </summary>
+        public int ClientType { get; set; }
+
+        public string ClientTypeDesc { get; set; }
     }
 }

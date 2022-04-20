@@ -39,7 +39,9 @@ namespace ETMS.Business.EtmsManage
                     LinkPhone = p.LinkPhone,
                     Name = p.Name,
                     Ot = p.Ot,
-                    Status = p.Status
+                    Status = p.Status,
+                    ClientType = p.ClientType,
+                    ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TryApplyLogGetPagingOutput>(pagingData.Item2, output));

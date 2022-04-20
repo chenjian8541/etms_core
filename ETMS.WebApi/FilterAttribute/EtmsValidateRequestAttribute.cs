@@ -91,6 +91,11 @@ namespace ETMS.WebApi.FilterAttribute
                     }
                     request.ParentStudentIds = myStudents.Select(p => p.Id).ToList();
                 }
+                if (context.ActionArguments.First().Value is OpenTouristBase)
+                {
+                    var request = context.ActionArguments.First().Value as OpenTouristBase;
+                    request.ClientType = RequestLib.GetUserClientType(context.HttpContext.Request);
+                }
             }
         }
     }

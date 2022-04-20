@@ -7,18 +7,13 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Open2.Request
 {
-    public class TryApplyLogAddRequest : IValidate
+    public class TryApplyLogAddRequest : OpenTouristBase
     {
         public string Name { get; set; }
 
         public string Phone { get; set; }
 
         public string SmsCode { get; set; }
-
-        /// <summary>
-        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
-        /// </summary>
-        public int ClientType { get; set; }
 
         public string Validate()
         {

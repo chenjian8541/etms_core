@@ -12,12 +12,17 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Request
     {
         public byte? HandleStatus { get; set; }
 
+        public byte? ClientType { get; set; }
         public override string ToString()
         {
             var condition = new StringBuilder($"IsDeleted = {EmIsDeleted.Normal}");
             if (HandleStatus != null)
             {
                 condition.Append($" AND Status = {HandleStatus.Value}");
+            }
+            if (ClientType != null)
+            {
+                condition.Append($" AND ClientType = {ClientType.Value}");
             }
             return condition.ToString();
         }
