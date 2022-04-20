@@ -11,6 +11,9 @@ using ETMS.Entity.View.Persistence;
 using ETMS.IBusiness;
 using ETMS.IBusiness.Alien;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.Alien;
+using ETMS.IDataAccess.EtmsManage;
+using ETMS.IDataAccess.EtmsManage.Statistics;
 using ETMS.IDataAccess.Statistics;
 using ETMS.Utility;
 using System;
@@ -42,10 +45,21 @@ namespace ETMS.Business.Alien
         private readonly IClassCategoryDAL _classCategoryDAL;
 
         private readonly IClassRoomDAL _classRoomDAL;
+
+        private readonly ISysTenantStatistics2DAL _sysTenantStatistics2DAL;
+
+        private readonly ISysTenantStatisticsMonthDAL _sysTenantStatisticsMonthDAL;
+
+        private readonly ISysTenantStatisticsWeekDAL _sysTenantStatisticsWeekDAL;
+
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly IMgTenantsDAL _mgTenantsDAL;
         public AlienTenantStatistics3BLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
             IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL,
-            IClassRoomDAL classRoomDAL)
+            IClassRoomDAL classRoomDAL, ISysTenantStatistics2DAL sysTenantStatistics2DAL, ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL,
+            ISysTenantStatisticsWeekDAL sysTenantStatisticsWeekDAL, ISysTenantDAL sysTenantDAL, IMgTenantsDAL mgTenantsDAL)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -57,10 +71,16 @@ namespace ETMS.Business.Alien
             this._classRecordDAL = classRecordDAL;
             this._classCategoryDAL = classCategoryDAL;
             this._classRoomDAL = classRoomDAL;
+            this._sysTenantStatistics2DAL = sysTenantStatistics2DAL;
+            this._sysTenantStatisticsMonthDAL = sysTenantStatisticsMonthDAL;
+            this._sysTenantStatisticsWeekDAL = sysTenantStatisticsWeekDAL;
+            this._sysTenantDAL = sysTenantDAL;
+            this._mgTenantsDAL = mgTenantsDAL;
         }
 
         public void InitHeadId(int headId)
         {
+            this.InitDataAccess(headId, _mgTenantsDAL);
         }
 
         public void InitTenant(int tenantId)
@@ -480,6 +500,122 @@ namespace ETMS.Business.Alien
                 });
             }
             return ResponseBase.Success(outPut);
+        }
+
+        public async Task<ResponseBase> AlienTenantStatisticsWeekGet(AlienTenantStatisticsWeekGetRequest request)
+        {
+            var output = new AlienTenantStatisticsWeekGetOutput()
+            {
+                Items = new List<AlienTenantStatisticsWeekItem>()
+            };
+            var allTenants = await _mgTenantsDAL.GetMgTenants();
+            if (allTenants != null && allTenants.Any())
+            {
+                foreach (var item in allTenants)
+                {
+                    var p = await _sysTenantDAL.GetTenant(item.TenantId);
+                    if (p == null)
+                    {
+                        continue;
+                    }
+                    var outputItem = new AlienTenantStatisticsWeekItem()
+                    {
+                        TenantName = p.Name,
+                        LinkMan = p.LinkMan
+                    };
+                    var itemTenantStatistics2 = await _sysTenantStatistics2DAL.GetSysTenantStatistics(item.TenantId);
+                    if (itemTenantStatistics2 != null)
+                    {
+                        outputItem.StudentReadCount = itemTenantStatistics2.StudentReadCount;
+                        outputItem.StudentPotentialCount = itemTenantStatistics2.StudentPotentialCount;
+                        outputItem.StudentHistoryCount = itemTenantStatistics2.StudentHistoryCount;
+                        outputItem.TeacherCount = itemTenantStatistics2.TeacherCount;
+                    }
+                    var itemTenantStatisticsWeek = await _sysTenantStatisticsWeekDAL.GetSysTenantStatisticsWeek(item.TenantId);
+                    if (itemTenantStatisticsWeek != null)
+                    {
+                        outputItem.IncomeThis = itemTenantStatisticsWeek.IncomeThis;
+                        outputItem.ExpensesThis = itemTenantStatisticsWeek.ExpensesThis;
+                        outputItem.ClassDeSumThis = itemTenantStatisticsWeek.ClassDeSumThis;
+                        outputItem.ClassDeTimesThisDesc = itemTenantStatisticsWeek.ClassDeTimesThis.EtmsToString();
+                        outputItem.BuyCourseCountThis = itemTenantStatisticsWeek.BuyCourseCountThis;
+                        outputItem.BuyCourseSumThis = itemTenantStatisticsWeek.BuyCourseSumThis;
+
+                        output.TotalIncomeThis += itemTenantStatisticsWeek.IncomeThis;
+                        output.TotalIncomeLast += itemTenantStatisticsWeek.IncomeLast;
+                        output.TotalExpensesThis += itemTenantStatisticsWeek.ExpensesThis;
+                        output.TotalExpensesLast += itemTenantStatisticsWeek.ExpensesLast;
+                        output.TotalClassDeSumThis += itemTenantStatisticsWeek.ClassDeSumThis;
+                        output.TotalClassDeSumLast += itemTenantStatisticsWeek.ClassDeSumLast;
+                        output.TotalBuyCourseCountThis += itemTenantStatisticsWeek.BuyCourseCountThis;
+                        output.TotalBuyCourseCountLast += itemTenantStatisticsWeek.BuyCourseCountLast;
+                    }
+                    output.Items.Add(outputItem);
+                }
+                output.TotalIncomeCompareValue = ComBusiness5.GetCompareValue(output.TotalIncomeLast, output.TotalIncomeThis);
+                output.TotalExpensesCompareValue = ComBusiness5.GetCompareValue(output.TotalExpensesLast, output.TotalExpensesThis);
+                output.TotalClassDeSumCompareValue = ComBusiness5.GetCompareValue(output.TotalClassDeSumLast, output.TotalClassDeSumThis);
+                output.TotalBuyCourseCountCompareValue = ComBusiness5.GetCompareValue(output.TotalBuyCourseCountLast, output.TotalBuyCourseCountThis);
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> AlienTenantStatisticsMonthGet(AlienTenantStatisticsMonthGetRequest request)
+        {
+            var output = new AlienTenantStatisticsMonthGetOutput()
+            {
+                Items = new List<AlienTenantStatisticsMonthItem>()
+            };
+            var allTenants = await _mgTenantsDAL.GetMgTenants();
+            if (allTenants != null && allTenants.Any())
+            {
+                foreach (var item in allTenants)
+                {
+                    var p = await _sysTenantDAL.GetTenant(item.TenantId);
+                    if (p == null)
+                    {
+                        continue;
+                    }
+                    var outputItem = new AlienTenantStatisticsMonthItem()
+                    {
+                        TenantName = p.Name,
+                        LinkMan = p.LinkMan
+                    };
+                    var itemTenantStatistics2 = await _sysTenantStatistics2DAL.GetSysTenantStatistics(item.TenantId);
+                    if (itemTenantStatistics2 != null)
+                    {
+                        outputItem.StudentReadCount = itemTenantStatistics2.StudentReadCount;
+                        outputItem.StudentPotentialCount = itemTenantStatistics2.StudentPotentialCount;
+                        outputItem.StudentHistoryCount = itemTenantStatistics2.StudentHistoryCount;
+                        outputItem.TeacherCount = itemTenantStatistics2.TeacherCount;
+                    }
+                    var itemTenantStatisticsWeek = await _sysTenantStatisticsMonthDAL.GetSysTenantStatisticsMonth(item.TenantId);
+                    if (itemTenantStatisticsWeek != null)
+                    {
+                        outputItem.IncomeThis = itemTenantStatisticsWeek.IncomeThis;
+                        outputItem.ExpensesThis = itemTenantStatisticsWeek.ExpensesThis;
+                        outputItem.ClassDeSumThis = itemTenantStatisticsWeek.ClassDeSumThis;
+                        outputItem.ClassDeTimesThisDesc = itemTenantStatisticsWeek.ClassDeTimesThis.EtmsToString();
+                        outputItem.BuyCourseCountThis = itemTenantStatisticsWeek.BuyCourseCountThis;
+                        outputItem.BuyCourseSumThis = itemTenantStatisticsWeek.BuyCourseSumThis;
+
+                        output.TotalIncomeThis += itemTenantStatisticsWeek.IncomeThis;
+                        output.TotalIncomeLast += itemTenantStatisticsWeek.IncomeLast;
+                        output.TotalExpensesThis += itemTenantStatisticsWeek.ExpensesThis;
+                        output.TotalExpensesLast += itemTenantStatisticsWeek.ExpensesLast;
+                        output.TotalClassDeSumThis += itemTenantStatisticsWeek.ClassDeSumThis;
+                        output.TotalClassDeSumLast += itemTenantStatisticsWeek.ClassDeSumLast;
+                        output.TotalBuyCourseCountThis += itemTenantStatisticsWeek.BuyCourseCountThis;
+                        output.TotalBuyCourseCountLast += itemTenantStatisticsWeek.BuyCourseCountLast;
+                    }
+                    output.Items.Add(outputItem);
+                }
+                output.TotalIncomeCompareValue = ComBusiness5.GetCompareValue(output.TotalIncomeLast, output.TotalIncomeThis);
+                output.TotalExpensesCompareValue = ComBusiness5.GetCompareValue(output.TotalExpensesLast, output.TotalExpensesThis);
+                output.TotalClassDeSumCompareValue = ComBusiness5.GetCompareValue(output.TotalClassDeSumLast, output.TotalClassDeSumThis);
+                output.TotalBuyCourseCountCompareValue = ComBusiness5.GetCompareValue(output.TotalBuyCourseCountLast, output.TotalBuyCourseCountThis);
+            }
+            return ResponseBase.Success(output);
         }
     }
 }

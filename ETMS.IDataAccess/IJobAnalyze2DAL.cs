@@ -33,5 +33,7 @@ namespace ETMS.IDataAccess
         Task<StatisticsClassTimesView> GetStatisticsClassTimes(DateTime startDate, DateTime endDate);
 
         Task<int> GetStudentBuyCourseCount(DateTime startDate, DateTime endDate);
+
+        Task<decimal> GetStudentBuyCourseSum(DateTime startDate, DateTime endDate);
     }
 }

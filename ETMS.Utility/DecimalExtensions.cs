@@ -31,6 +31,15 @@ namespace ETMS.Utility
             return @this.ToString("P0");
         }
 
+        public static string EtmsPercentage2(this decimal @this)
+        {
+            if (@this <= 0)
+            {
+                return "0";
+            }
+            return @this.ToString("P0");
+        }
+
         public static string EtmsToString2(this decimal @this)
         {
             return @this.ToString("F2");

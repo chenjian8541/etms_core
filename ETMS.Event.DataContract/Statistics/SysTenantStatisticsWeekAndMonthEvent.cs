@@ -8,6 +8,8 @@ namespace ETMS.Event.DataContract.Statistics
 {
     public class SysTenantStatisticsWeekAndMonthEvent : Event
     {
+        public SysTenantStatisticsWeekAndMonthEvent() { }
+
         public SysTenantStatisticsWeekAndMonthEvent(int tenantId) : base(tenantId)
         { }
 

@@ -90,5 +90,16 @@ namespace ETMS.DataAccess
                 $"SELECT StudentId,ProductId FROM EtOrderDetail WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] <> {EmOrderStatus.Repeal} AND [OrderType] = {EmOrderType.StudentEnrolment} AND ProductType = {EmProductType.Course} AND Ot >= '{startDate.EtmsToDateString()}' AND Ot <= '{endDate.EtmsToDateString()}' group by StudentId,ProductId");
             return log.Count();
         }
+
+        public async Task<decimal> GetStudentBuyCourseSum(DateTime startDate, DateTime endDate)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT SUM(ItemAptSum) FROM EtOrderDetail WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] <> {EmOrderStatus.Repeal} AND [OrderType] = {EmOrderType.StudentEnrolment} AND ProductType = {EmProductType.Course} AND Ot >= '{startDate.EtmsToDateString()}' AND Ot <= '{endDate.EtmsToDateString()}'");
+            if (obj == null)
+            {
+                return 0;
+            }
+            return Convert.ToDecimal(obj);
+        }
     }
 }

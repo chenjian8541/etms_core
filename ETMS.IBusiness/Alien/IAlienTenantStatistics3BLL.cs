@@ -31,5 +31,9 @@ namespace ETMS.IBusiness.Alien
         Task<ResponseBase> AlienTenantClassRecordGet(AlienTenantClassRecordGetRequest request);
 
         Task<ResponseBase> AlienTenantClassRecordStudentGet(AlienTenantClassRecordStudentGetRequest request);
+
+        Task<ResponseBase> AlienTenantStatisticsWeekGet(AlienTenantStatisticsWeekGetRequest request);
+
+        Task<ResponseBase> AlienTenantStatisticsMonthGet(AlienTenantStatisticsMonthGetRequest request);
     }
 }

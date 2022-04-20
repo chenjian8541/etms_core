@@ -253,6 +253,11 @@ namespace ETMS.Business.EventConsumer
                 var lastWeekBuyCourseCount = await _jobAnalyze2DAL.GetStudentBuyCourseCount(dateLastWeekStart, dateLastWeekEnd);
                 weekLog.BuyCourseCountThis = thisWeekBuyCourseCount;
                 weekLog.BuyCourseCountLast = lastWeekBuyCourseCount;
+
+                var thisWeekBuyCourseSum = await _jobAnalyze2DAL.GetStudentBuyCourseSum(dateThisWeekStart, dateThisWeekEnd);
+                var lastWeekBuyCourseSum = await _jobAnalyze2DAL.GetStudentBuyCourseSum(dateLastWeekStart, dateLastWeekEnd);
+                weekLog.BuyCourseSumThis = thisWeekBuyCourseSum;
+                weekLog.BuyCourseSumLast = lastWeekBuyCourseSum;
             }
 
             await _sysTenantStatisticsWeekDAL.SaveSysTenantStatisticsWeek(weekLog);
@@ -318,6 +323,11 @@ namespace ETMS.Business.EventConsumer
                 var lastMonthBuyCourseCount = await _jobAnalyze2DAL.GetStudentBuyCourseCount(dateLastMonthStart, dateLastMonthEnd);
                 monthLog.BuyCourseCountThis = thisMonthBuyCourseCount;
                 monthLog.BuyCourseCountLast = lastMonthBuyCourseCount;
+
+                var thisMonthBuyCourseSum = await _jobAnalyze2DAL.GetStudentBuyCourseSum(dateThisMonthStart, dateThisMonthEnd);
+                var lastMonthBuyCourseSum = await _jobAnalyze2DAL.GetStudentBuyCourseSum(dateLastMonthStart, dateLastMonthEnd);
+                monthLog.BuyCourseSumThis = thisMonthBuyCourseSum;
+                monthLog.BuyCourseSumLast = lastMonthBuyCourseSum;
             }
 
             await _sysTenantStatisticsMonthDAL.SaveSysTenantStatisticsMonth(monthLog);

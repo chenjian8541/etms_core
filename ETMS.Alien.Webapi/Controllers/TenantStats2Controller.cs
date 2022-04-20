@@ -186,5 +186,35 @@ namespace ETMS.Alien.Webapi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+
+        public async Task<ResponseBase> AlienTenantStatisticsWeekGet(AlienTenantStatisticsWeekGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics3BLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantStatistics3BLL.AlienTenantStatisticsWeekGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> AlienTenantStatisticsMonthGet(AlienTenantStatisticsMonthGetRequest request)
+        {
+            try
+            {
+                _alienTenantStatistics3BLL.InitHeadId(request.LoginHeadId);
+                return await _alienTenantStatistics3BLL.AlienTenantStatisticsMonthGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
     }
 }
