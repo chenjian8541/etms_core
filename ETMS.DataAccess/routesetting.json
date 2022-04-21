@@ -1051,6 +1051,17 @@
     },
     "Children": [
       {
+        "Id": 108,
+        "Path": "tenantSta",
+        "Name": "tenantSta",
+        "Type": 1,
+        "Component": "@/views/data/tenantSta",
+        "Meta": {
+          "Title": "经营汇总",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 51,
         "Path": "students",
         "Name": "students",

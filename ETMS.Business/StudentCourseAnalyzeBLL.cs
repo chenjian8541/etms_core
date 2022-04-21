@@ -12,6 +12,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.Utility;
 using ETMS.Business.Common;
 using ETMS.Entity.View;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -418,6 +419,10 @@ namespace ETMS.Business
             }
 
             _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.StudentId));
+            _eventPublisher.Publish(new SysTenantStatistics2Event(request.TenantId)
+            {
+                Type = SysTenantStatistics2Type.StudentCourse
+            });
             return new CourseDetailAnalyzeRes()
             {
                 NewCourse = newCourse,

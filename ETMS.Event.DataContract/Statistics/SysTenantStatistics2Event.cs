@@ -10,5 +10,17 @@ namespace ETMS.Event.DataContract.Statistics
     {
         public SysTenantStatistics2Event(int tenantId) : base(tenantId)
         { }
+
+        /// <summary>
+        /// <see cref="SysTenantStatistics2Type"/>
+        /// </summary>
+        public int Type { get; set; }
+    }
+
+    public struct SysTenantStatistics2Type
+    {
+        public const int Com = 0;
+
+        public const int StudentCourse = 1;
     }
 }

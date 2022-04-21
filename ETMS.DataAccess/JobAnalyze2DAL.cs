@@ -101,5 +101,27 @@ namespace ETMS.DataAccess
             }
             return Convert.ToDecimal(obj);
         }
+
+        public async Task<decimal> GetTenantSurplusClassTimes()
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT SUM(SurplusQuantity) FROM EtStudentCourse WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} AND [DeType] = {EmDeClassTimesType.ClassTimes}");
+            if (obj == null)
+            {
+                return 0;
+            }
+            return Convert.ToDecimal(obj);
+        }
+
+        public async Task<decimal> GetTenantSurplusSurplusMoney()
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT SUM(SurplusMoney) FROM EtStudentCourse WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] <> {EmStudentCourseStatus.EndOfClass} ");
+            if (obj == null)
+            {
+                return 0;
+            }
+            return Convert.ToDecimal(obj);
+        }
     }
 }

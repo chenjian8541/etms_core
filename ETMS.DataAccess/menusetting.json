@@ -860,6 +860,11 @@
     "Type": 0,
     "ChildrenPage": [
       {
+        "Id": 108,
+        "Name": "经营汇总",
+        "Type": 0
+      },
+      {
         "Id": 51,
         "Name": "招生数据",
         "Type": 0

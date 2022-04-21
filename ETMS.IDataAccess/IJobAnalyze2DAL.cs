@@ -35,5 +35,9 @@ namespace ETMS.IDataAccess
         Task<int> GetStudentBuyCourseCount(DateTime startDate, DateTime endDate);
 
         Task<decimal> GetStudentBuyCourseSum(DateTime startDate, DateTime endDate);
+
+        Task<decimal> GetTenantSurplusClassTimes();
+
+        Task<decimal> GetTenantSurplusSurplusMoney();
     }
 }

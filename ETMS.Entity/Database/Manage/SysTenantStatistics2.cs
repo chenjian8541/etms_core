@@ -17,5 +17,9 @@ namespace ETMS.Entity.Database.Manage
         public int StudentHistoryCount { get; set; }
 
         public int TeacherCount { get; set; }
+
+        public decimal TenantSurplusClassTimes { get; set; }
+
+        public decimal TenantSurplusSurplusMoney { get; set; }
     }
 }
