@@ -805,7 +805,8 @@ namespace ETMS.Business
                     Weeks = request.Weeks,
                     CourseIds = request.CourseIds,
                     ReservationType = request.ReservationType,
-                    IsJumpTeacherLimit = request.IsJumpTeacherLimit
+                    IsJumpTeacherLimit = request.IsJumpTeacherLimit,
+                    IsJumpStudentLimit = request.IsJumpStudentLimit
                 });
             }
             return await ProcessClassTimesRuleAddOfLimitCount(request);
@@ -869,6 +870,72 @@ namespace ETMS.Business
             }
 
             return preInfo;
+        }
+
+        private async Task<string> CheckClassTimesStudentTimeConflict(List<EtClassStudent> classStudents,
+            List<DateTime> myDateList, List<byte> weekDays, int startTime, int endTime)
+        {
+            if (classStudents == null || classStudents.Count == 0)
+            {
+                return null;
+            }
+            var endDate = myDateList.Max();
+            var startDate = myDateList.Min();
+            var limitStudent = new List<string>();
+            var tempStudents = classStudents.Take(2);
+            foreach (var itemStudentInfo in tempStudents)
+            {
+                var studentLimits = await _classDAL.GetClassTimesRuleStudent(itemStudentInfo.StudentId, startTime,
+                    endTime, weekDays, startDate, endDate, 100);
+                if (studentLimits != null && studentLimits.Any())
+                {
+                    foreach (var p in studentLimits)
+                    {
+                        if (myDateList.Exists(j => j == p.ClassOt))
+                        {
+                            var studentBucket = await _studentDAL.GetStudent(itemStudentInfo.StudentId);
+                            if (studentBucket != null && studentBucket.Student != null)
+                            {
+                                limitStudent.Add(studentBucket.Student.Name);
+                            }
+                        }
+                    }
+                }
+            }
+            if (limitStudent.Count > 0)
+            {
+                return string.Join(',', limitStudent);
+            }
+            return null;
+        }
+
+        private async Task<string> CheckClassTimesStudentTimeConflict2(List<EtClassStudent> classStudents,
+            List<byte> weekDays, int startTime, int endTime, DateTime startDate, DateTime? endDate)
+        {
+            if (classStudents == null || classStudents.Count == 0)
+            {
+                return null;
+            }
+            var tempStudents = classStudents.Take(2);
+            var limitStudents = new List<string>();
+            foreach (var itemStudentInfo in tempStudents)
+            {
+                var studentLimit = await _classDAL.GetClassTimesRuleStudent(itemStudentInfo.StudentId, startTime,
+                    endTime, weekDays, startDate, endDate, 1);
+                if (studentLimit != null && studentLimit.Any())
+                {
+                    var studentBucket = await _studentDAL.GetStudent(itemStudentInfo.StudentId);
+                    if (studentBucket != null && studentBucket.Student != null)
+                    {
+                        limitStudents.Add(studentBucket.Student.Name);
+                    }
+                }
+            }
+            if (limitStudents.Count > 0)
+            {
+                return string.Join(',', limitStudents);
+            }
+            return null;
         }
 
         private async Task<ResponseBase> ProcessClassTimesRuleAddOfTime(ProcessClassTimesRuleAddOfTimeRequest request)
@@ -1062,6 +1129,20 @@ namespace ETMS.Business
                             LimitTeacherName = string.Join(',', limitTeachers)
                         });
                     }
+                }
+            }
+
+            if (!request.IsJumpStudentLimit)
+            {
+                var strStudentConflict = await CheckClassTimesStudentTimeConflict2(etClassBucket.EtClassStudents, weekDays, request.StartTime,
+                    request.EndTime, startDate, endDate);
+                if (!string.IsNullOrEmpty(strStudentConflict))
+                {
+                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                    {
+                        IsLimitStudent = true,
+                        LimitStudentName = strStudentConflict
+                    });
                 }
             }
 
@@ -1313,6 +1394,20 @@ namespace ETMS.Business
                 }
             }
 
+            if (!request.IsJumpStudentLimit)
+            {
+                var strStudentConflict = await CheckClassTimesStudentTimeConflict2(etClassBucket.EtClassStudents, weekDays, request.StartTime,
+                    request.EndTime, startDate, endDate);
+                if (!string.IsNullOrEmpty(strStudentConflict))
+                {
+                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                    {
+                        IsLimitStudent = true,
+                        LimitStudentName = strStudentConflict
+                    });
+                }
+            }
+
             //插入排课规则
             foreach (var week in weekDays)
             {
@@ -1519,6 +1614,20 @@ namespace ETMS.Business
                             LimitTeacherName = string.Join(',', limitTeachers)
                         });
                     }
+                }
+            }
+
+            if (!request.IsJumpStudentLimit)
+            {
+                var strStudentConflict = await CheckClassTimesStudentTimeConflict(etClassBucket.EtClassStudents, myDateList, weekDays, request.StartTime,
+                    request.EndTime);
+                if (!string.IsNullOrEmpty(strStudentConflict))
+                {
+                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                    {
+                        IsLimitStudent = true,
+                        LimitStudentName = strStudentConflict
+                    });
                 }
             }
 
@@ -1858,6 +1967,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("排课信息未找到");
             }
             //判断老师上课时间是否有重叠
+            var weekDays = new List<byte>() { classRule.Week };
             if (!request.IsJumpTeacherLimit)
             {
                 if (request.TeacherIds != null && request.TeacherIds.Count > 0)
@@ -1866,7 +1976,7 @@ namespace ETMS.Business
                     foreach (var myTeacherId in request.TeacherIds)
                     {
                         var teacherLimit = await _classDAL.GetClassTimesRuleTeacher(myTeacherId, request.StartTime,
-                            request.EndTime, new List<byte>() { classRule.Week }, classRule.StartDate, classRule.EndDate, 1, request.ClassRuleId);
+                            request.EndTime, weekDays, classRule.StartDate, classRule.EndDate, 1, request.ClassRuleId);
                         if (teacherLimit != null && teacherLimit.Any())
                         {
                             var teacher = await _userDAL.GetUser(myTeacherId);
@@ -1884,6 +1994,25 @@ namespace ETMS.Business
                             LimitTeacherName = string.Join(',', limitTeachers)
                         });
                     }
+                }
+            }
+
+            var etClassBucket = await _classDAL.GetClassBucket(classRule.ClassId);
+            if (etClassBucket == null || etClassBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            if (!request.IsJumpStudentLimit)
+            {
+                var strStudentConflict = await CheckClassTimesStudentTimeConflict2(etClassBucket.EtClassStudents, weekDays, request.StartTime,
+                    request.EndTime, classRule.StartDate, classRule.EndDate);
+                if (!string.IsNullOrEmpty(strStudentConflict))
+                {
+                    return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                    {
+                        IsLimitStudent = true,
+                        LimitStudentName = strStudentConflict
+                    });
                 }
             }
 

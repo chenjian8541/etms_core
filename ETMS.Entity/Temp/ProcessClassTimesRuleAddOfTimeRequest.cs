@@ -38,5 +38,7 @@ namespace ETMS.Entity.Temp
         public byte ReservationType { get; set; }
 
         public bool IsJumpTeacherLimit { get; set; }
+
+        public bool IsJumpStudentLimit { get; set; }
     }
 }

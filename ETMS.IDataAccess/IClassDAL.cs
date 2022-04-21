@@ -59,7 +59,10 @@ namespace ETMS.IDataAccess
 
         Task<IEnumerable<EtClassTimesRule>> GetClassTimesRule(long classId, int startTime, int endTime, List<byte> weekDay);
 
-        Task<IEnumerable<EtClassTimes>> GetClassTimesRuleTeacher(long teacherId, int startTime,
+        Task<IEnumerable<EtClassTimes>> GetClassTimesRuleTeacher(long studentId, int startTime,
+           int endTime, List<byte> weekDay, DateTime startDate, DateTime? endDate, int topCount, long excRuleId = 0);
+
+        Task<IEnumerable<EtClassTimes>> GetClassTimesRuleStudent(long teacherId, int startTime,
            int endTime, List<byte> weekDay, DateTime startDate, DateTime? endDate, int topCount, long excRuleId = 0);
 
         Task<List<EtClassTimesRule>> GetClassTimesRule(long classId);
@@ -97,7 +100,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> UpdateClassFinishInfo(long classId, int finishCount, decimal finishClassTimes);
 
-        Task ChangeClassOnlineSelClassStatus(long classId,byte newIsCanOnlineSelClass);
+        Task ChangeClassOnlineSelClassStatus(long classId, byte newIsCanOnlineSelClass);
 
         Task ChangeClassOnlineSelClassStatus(List<long> ids, byte newIsCanOnlineSelClass);
 
