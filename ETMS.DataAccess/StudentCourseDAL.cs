@@ -315,8 +315,9 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<StudentCourseNotEnoughNeedRemind>> GetStudentCourseNotEnoughNeedRemind(int studentCourseNotEnoughCount, int limitClassTimes, int limitDay)
         {
+            var date = DateTime.Now.AddDays(limitDay);
             return await _dbWrapper.ExecuteObject<StudentCourseNotEnoughNeedRemind>(
-                $"SELECT TOP 200 StudentId,CourseId  from StudentCourseView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND NotEnoughRemindCount < {studentCourseNotEnoughCount} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {limitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={limitDay})) GROUP BY StudentId,CourseId");
+                $"SELECT TOP 200 StudentId,CourseId  from StudentCourseView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND NotEnoughRemindCount < {studentCourseNotEnoughCount} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {limitClassTimes}) OR (DeType={EmDeClassTimesType.ClassTimes} AND EndTime IS NOT NULL AND EndTime <= '{date.EtmsToDateString()}') OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={limitDay})) GROUP BY StudentId,CourseId");
         }
 
         public async Task UpdateStudentCourseNotEnoughRemindInfo(long studentId, long courseId)

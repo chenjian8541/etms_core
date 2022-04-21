@@ -787,7 +787,14 @@ namespace ETMS.Business.SendNotice
             if (deClassTimes != null && deClassTimes.SurplusQuantity <= tenantConfig.StudentCourseRenewalConfig.LimitClassTimes)
             {
                 notEnoughDesc = $"{tenantConfig.StudentCourseRenewalConfig.LimitClassTimes}课时";
-                surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时";
+                if (deClassTimes.EndTime != null)
+                {
+                    surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时 ({deClassTimes.EndTime.EtmsToDateString()}到期)";
+                }
+                else
+                {
+                    surplusDesc = $"{deClassTimes.SurplusQuantity.EtmsToString()}课时";
+                }
             }
             else
             {

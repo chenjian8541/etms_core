@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Enum;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -85,7 +86,8 @@ namespace ETMS.Entity.Dto.Student.Request
             }
             if (IsQueryShort != null && IsQueryShort.Value)
             {
-                condition.Append($" AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {LimitClassTimes}) OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={LimitDay}))");
+                var date = DateTime.Now.AddDays(LimitDay);
+                condition.Append($" AND BuyQuantity > 0 AND StudentType = {EmStudentType.ReadingStudent} AND ((DeType={EmDeClassTimesType.ClassTimes} AND SurplusQuantity <= {LimitClassTimes}) OR (DeType={EmDeClassTimesType.ClassTimes} AND EndTime IS NOT NULL AND EndTime <= '{date.EtmsToDateString()}') OR (DeType<>{EmDeClassTimesType.ClassTimes} AND SurplusQuantity=0 AND SurplusSmallQuantity <={LimitDay}))");
             }
             if (MyCourseIds != null && MyCourseIds.Count > 0)
             {

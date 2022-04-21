@@ -366,7 +366,7 @@ namespace ETMS.Business.EtmsManage
                         MgUserId = p.MgUserId,
                         Name = p.Name,
                         OpContent = p.OpContent,
-                        Ot = DateTime.Now,
+                        Ot = p.Ot,
                         Phone = p.Phone,
                         Remark = p.Remark,
                     });
