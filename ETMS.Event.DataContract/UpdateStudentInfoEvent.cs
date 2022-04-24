@@ -13,6 +13,8 @@ namespace ETMS.Event.DataContract
         { }
 
         public EtStudent MyStudent { get; set; }
+
+        public bool IsAnalyzeStudentClass { get; set; }
     }
 }
 

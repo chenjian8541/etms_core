@@ -93,6 +93,7 @@ namespace ETMS.IDataAccess.SysOp
 
         Task<bool> ClearUser();
 
+        Task<bool> ClearTeacherSchooltimeConfigExclude();
         #endregion
 
         #region 统计数据

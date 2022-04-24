@@ -419,10 +419,10 @@ namespace ETMS.Business
             }
 
             _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.StudentId));
-            _eventPublisher.Publish(new SysTenantStatistics2Event(request.TenantId)
+            if (EtmsHelper.CheckIsDaytime2(DateTime.Now))
             {
-                Type = SysTenantStatistics2Type.StudentCourse
-            });
+                _eventPublisher.Publish(new SysTenantStatistics2Event(request.TenantId));
+            }
             return new CourseDetailAnalyzeRes()
             {
                 NewCourse = newCourse,

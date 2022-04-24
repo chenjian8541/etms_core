@@ -106,7 +106,7 @@
   },
   {
     "Name": "AnalyzeStudentJob",
-    "Cron": "0 0 4 * * ?", //每天凌晨4点执行
+    "Cron": "0 0 1 * * ?", //每天凌晨4点执行
     "Title": "定时分析学员信息",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false

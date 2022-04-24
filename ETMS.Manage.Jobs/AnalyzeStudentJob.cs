@@ -55,14 +55,14 @@ namespace ETMS.Manage.Jobs
         {
             foreach (var p in students)
             {
-                _eventPublisher.Publish(new SyncStudentClassInfoEvent(tenantId)
-                {
-                    StudentId = p.Id
-                });
-
+                //_eventPublisher.Publish(new SyncStudentClassInfoEvent(tenantId)
+                //{
+                //    StudentId = p.Id
+                //});
                 _eventPublisher.Publish(new UpdateStudentInfoEvent(tenantId)
                 {
-                    MyStudent = p
+                    MyStudent = p,
+                    IsAnalyzeStudentClass = true
                 });
             }
         }

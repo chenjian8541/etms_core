@@ -34,13 +34,16 @@ namespace ETMS.EventConsumer.Lib
 
         private const int MaxErrTryCount = 10;
 
-        public LockTakeHandler(T lockKey, U request, string processName, Func<Task> process, bool isErrCanTryManyTime = true)
+        private bool _isDiscardTry;
+        public LockTakeHandler(T lockKey, U request, string processName, Func<Task> process, bool isErrCanTryManyTime = true,
+           bool isDiscardTry = false)
         {
             this._lockKey = lockKey;
             this._process = process;
             this._request = request;
             this._processName = processName;
             this._isErrCanTryManyTime = isErrCanTryManyTime;
+            this._isDiscardTry = isDiscardTry;
             _distributedLockDAL = CustomServiceLocator.GetInstance<IDistributedLockDAL>();
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
         }
@@ -80,6 +83,10 @@ namespace ETMS.EventConsumer.Lib
             }
             else
             {
+                if (_isDiscardTry)
+                {
+                    return;
+                }
                 _request.TryCount++;
                 Log.Warn($"【{_processName}】第{_request.TryCount}失败尝试，仍未获得执行锁,参数:{JsonConvert.SerializeObject(_request)}", this.GetType());
                 if (_request.TryCount > 100)

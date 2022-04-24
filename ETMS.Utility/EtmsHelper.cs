@@ -247,6 +247,12 @@ namespace ETMS.Utility
             return hour > 6 && hour < 23;
         }
 
+        public static bool CheckIsDaytime2(DateTime time)
+        {
+            var hour = time.Hour;
+            return hour >= 6 && hour <= 23;
+        }
+
         public static string DescPrefix(string desc, string prefix, string intervalStr = "：")
         {
             if (string.IsNullOrEmpty(desc))

@@ -151,6 +151,8 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtStatisticsClassCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTempStudentNeedCheckClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSchooltimeConfig SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtTeacherSchooltimeConfigDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             var tempSql = sql.ToString();
             LOG.Log.Info($"[DelCourseDepth]执行深度删除:{tempSql}", this.GetType());
             await _dbWrapper.Execute(tempSql);

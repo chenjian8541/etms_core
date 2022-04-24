@@ -221,6 +221,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearStatisticsSales();
             await _sysDataClearDAL.ClearStudentLeaveApplyLog();
             await _sysDataClearDAL.ClearTeacherSalary();
+            await _sysDataClearDAL.ClearTeacherSchooltimeConfigExclude();
             return true;
         }
 
@@ -295,6 +296,7 @@ namespace ETMS.Business.SysOp
             await _sysDataClearDAL.ClearUserOperationLog();
             await _sysDataClearDAL.ClearUserLog();
             await _sysDataClearDAL.ClearTeacherSalary();
+            await _sysDataClearDAL.ClearTeacherSchooltimeConfigExclude();
             return true;
         }
 

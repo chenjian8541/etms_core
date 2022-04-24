@@ -140,18 +140,6 @@ namespace ETMS.Business.EventConsumer
 
         public async Task SysTenantStatistics2ConsumerEvent(SysTenantStatistics2Event request)
         {
-            if (request.Type == SysTenantStatistics2Type.StudentCourse)
-            {
-                await SysTenantStatistics2ConsumerEvent2(request);
-            }
-            else
-            {
-                await SysTenantStatistics2ConsumerEvent1(request);
-            }
-        }
-
-        private async Task SysTenantStatistics2ConsumerEvent1(SysTenantStatistics2Event request)
-        {
             var studentTypeCountStatistics = await _jobAnalyze2DAL.GetStudentTypeCount();
             var teacherCount = await _jobAnalyze2DAL.GetTeahcerOfWork();
             var studentReadCount = 0;
@@ -176,6 +164,8 @@ namespace ETMS.Business.EventConsumer
                 }
             }
 
+            var tenantSurplusClassTimes = await _jobAnalyze2DAL.GetTenantSurplusClassTimes();
+            var tenantSurplusSurplusMoney = await _jobAnalyze2DAL.GetTenantSurplusSurplusMoney();
             var entity = await _sysTenantStatistics2DAL.GetSysTenantStatistics(request.TenantId);
             if (entity == null)
             {
@@ -185,6 +175,8 @@ namespace ETMS.Business.EventConsumer
                     StudentPotentialCount = studentPotentialCount,
                     StudentReadCount = studentReadCount,
                     StudentHistoryCount = studentHistoryCount,
+                    TenantSurplusClassTimes = tenantSurplusClassTimes,
+                    TenantSurplusSurplusMoney = tenantSurplusSurplusMoney,
                     TeacherCount = teacherCount,
                     TenantId = request.TenantId
                 };
@@ -195,27 +187,6 @@ namespace ETMS.Business.EventConsumer
                 entity.StudentReadCount = studentReadCount;
                 entity.StudentHistoryCount = studentHistoryCount;
                 entity.TeacherCount = teacherCount;
-            }
-            await _sysTenantStatistics2DAL.SaveSysTenantStatistics2(entity);
-        }
-
-        private async Task SysTenantStatistics2ConsumerEvent2(SysTenantStatistics2Event request)
-        {
-            var tenantSurplusClassTimes = await _jobAnalyze2DAL.GetTenantSurplusClassTimes();
-            var tenantSurplusSurplusMoney = await _jobAnalyze2DAL.GetTenantSurplusSurplusMoney();
-            var entity = await _sysTenantStatistics2DAL.GetSysTenantStatistics(request.TenantId);
-            if (entity == null)
-            {
-                entity = new SysTenantStatistics2()
-                {
-                    IsDeleted = EmIsDeleted.Normal,
-                    TenantId = request.TenantId,
-                    TenantSurplusClassTimes = tenantSurplusClassTimes,
-                    TenantSurplusSurplusMoney = tenantSurplusSurplusMoney
-                };
-            }
-            else
-            {
                 entity.TenantSurplusClassTimes = tenantSurplusClassTimes;
                 entity.TenantSurplusSurplusMoney = tenantSurplusSurplusMoney;
             }

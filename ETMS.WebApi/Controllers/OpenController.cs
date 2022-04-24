@@ -34,7 +34,7 @@ namespace ETMS.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        public ActionResult ComponentNotice([FromQuery]PostModel postModel)
+        public ActionResult ComponentNotice([FromQuery] PostModel postModel)
         {
             try
             {
@@ -61,27 +61,25 @@ namespace ETMS.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("{appId}")]
         [AllowAnonymous]
-        public async Task<ActionResult> ComponentCallback([FromQuery]Senparc.Weixin.MP.Entities.Request.PostModel postModel, string appId)
+        public async Task<ActionResult> ComponentCallback([FromQuery] Senparc.Weixin.MP.Entities.Request.PostModel postModel, string appId)
         {
             try
             {
-                Log.Debug($"[ComponentCallback]postModel:{JsonConvert.SerializeObject(postModel)}", this.GetType());
                 var appSettings = this._appConfigurtaionServices.AppSettings;
-                postModel.Token = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentToken;
-                postModel.EncodingAESKey = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentEncodingAESKey;
-                postModel.AppId = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
-
-                MessageHandler<EtmsCustomMessageContext> messageHandler = null;
                 if (appSettings.SenparcConfig.CheckPublish)
                 {
-                    messageHandler = new OpenCheckMessageHandler(Request.GetRequestMemoryStream(), postModel, appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig, 10);
+                    postModel.Token = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentToken;
+                    postModel.EncodingAESKey = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentEncodingAESKey;
+                    postModel.AppId = appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig.ComponentAppid;
+                    var messageHandler = new OpenCheckMessageHandler(Request.GetRequestMemoryStream(), postModel, appSettings.SenparcConfig.SenparcWeixinSetting.ComponentConfig, 10);
+                    await messageHandler.ExecuteAsync(new System.Threading.CancellationToken());
+                    return Content(messageHandler.TextResponseMessage);
                 }
                 else
                 {
-                    messageHandler = new EtmsCustomMessageHandler(Request.GetRequestMemoryStream(), postModel, 10);
+                    return Content("success");
+                    //messageHandler = new EtmsCustomMessageHandler(Request.GetRequestMemoryStream(), postModel, 10);
                 }
-                await messageHandler.ExecuteAsync(new System.Threading.CancellationToken());
-                return Content(messageHandler.TextResponseMessage);
             }
             catch (Exception ex)
             {

@@ -298,6 +298,14 @@ namespace ETMS.Business.EventConsumer
             student.ClassIds = await GetStudentClassIds(student.Id);
             student.CourseIds = await GetGetStudentCourseIds(student.Id);
             student.IsBindingWechat = bindingWechatInfo == null ? EmIsBindingWechat.No : EmIsBindingWechat.Yes;
+
+            if (request.IsAnalyzeStudentClass)
+            {
+                var studentClassInfo = await _studentDAL.GetStudentClassInfo(student.Id);
+                student.IsClassSchedule = studentClassInfo.IsClassSchedule;
+                student.IsJoinClass = studentClassInfo.IsJoinClass;
+            }
+
             await _studentDAL.EditStudent2(student);
         }
 

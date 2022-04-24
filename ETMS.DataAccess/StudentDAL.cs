@@ -432,6 +432,13 @@ namespace ETMS.DataAccess
 
         public async Task UpdateStudentClassInfo(long studentId)
         {
+            var studentClassInfo = await GetStudentClassInfo(studentId);
+            await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {studentClassInfo.IsClassSchedule} , IsJoinClass = {studentClassInfo.IsJoinClass} WHERE Id = {studentId}");
+            RemoveCache(_tenantId, studentId);
+        }
+
+        public async Task<StudentClassInfoView> GetStudentClassInfo(long studentId)
+        {
             var objClassSchedule = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassStudent INNER JOIN EtClassTimesRule ON EtClassStudent.ClassId = EtClassTimesRule.ClassId AND EtClassStudent.StudentId = {studentId} WHERE EtClassStudent.IsDeleted = {EmIsDeleted.Normal} AND EtClassTimesRule.IsDeleted = {EmIsDeleted.Normal} AND EtClassStudent.StudentId = {studentId}");
             var objJoinClass = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0  FROM EtClassStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId}");
             var isClassSchedule = EmBool.False;
@@ -444,7 +451,11 @@ namespace ETMS.DataAccess
             {
                 isJoinClass = EmBool.True;
             }
-            await _dbWrapper.Execute($"UPDATE EtStudent SET IsClassSchedule = {isClassSchedule} , IsJoinClass = {isJoinClass} WHERE Id = {studentId}");
+            return new StudentClassInfoView()
+            {
+                IsClassSchedule = isClassSchedule,
+                IsJoinClass = isJoinClass
+            };
         }
 
         public async Task EditStudent2(EtStudent entity)

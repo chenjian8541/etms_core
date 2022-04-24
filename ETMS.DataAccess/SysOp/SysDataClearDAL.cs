@@ -434,6 +434,16 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
+        public async Task<bool> ClearTeacherSchooltimeConfigExclude()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtTeacherSchooltimeConfig SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTeacherSchooltimeConfigDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtTeacherSchooltimeConfigExclude SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
         #endregion
 
         #region 统计数据

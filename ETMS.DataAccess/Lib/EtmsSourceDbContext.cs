@@ -205,5 +205,8 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtElectronicAlbumTemp> EtElectronicAlbumTemps { get; set; }
         public DbSet<EtElectronicAlbumReadLogDay> EtElectronicAlbumReadLogDays { get; set; }
         public DbSet<EtElectronicAlbumShareLogDay> EtElectronicAlbumShareLogDays { get; set; }
+        //public DbSet<EtTeacherSchooltimeConfig> EtTeacherSchooltimeConfigs { get; set; }
+        //public DbSet<EtTeacherSchooltimeConfigDetail> EtTeacherSchooltimeConfigDetails { get; set; }
+        //public DbSet<EtTeacherSchooltimeConfigExclude> EtTeacherSchooltimeConfigExcludes { get; set; }
     }
 }
