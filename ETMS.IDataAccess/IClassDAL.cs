@@ -19,6 +19,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditClass(EtClass etClass);
 
+        Task UpdateReservationInfo(List<long> classIds, byte newReservationType, int newDurationHour, int newDurationMinute);
+
         Task<bool> DelClass(long classId, bool isIgnoreCheck = false);
 
         Task<IEnumerable<OnlyOneFiledDateTime>> GetClassRecordAllDate(long classId);

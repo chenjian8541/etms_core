@@ -20,6 +20,6 @@ namespace ETMS.Entity.Database.Source
 
         public int EndTime { get; set; }
 
-        public byte IsJumpHoliday { get; set; }
+        public bool IsJumpHoliday { get; set; }
     }
 }

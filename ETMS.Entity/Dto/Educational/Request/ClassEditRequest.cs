@@ -39,6 +39,15 @@ namespace ETMS.Entity.Dto.Educational.Request
         public bool IsCanOnlineSelClass { get; set; }
         public List<MultiSelectValueRequest> CourseIds { get; set; }
 
+        /// <summary>
+        /// 一对一约课类型 <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
+        public int DurationHour { get; set; }
+
+        public int DurationMinute { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

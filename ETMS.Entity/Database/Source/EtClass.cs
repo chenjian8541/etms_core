@@ -135,6 +135,15 @@ namespace ETMS.Entity.Database.Source
         public DateTime Ot { get; set; }
 
         /// <summary>
+        /// 一对一约课类型 <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReservationType { get; set; }
+
+        public int DurationHour { get; set; }
+
+        public int DurationMinute { get; set; }
+
+        /// <summary>
         /// 数据类型   <see cref="ETMS.Entity.Enum.EmClassDataType"/>
         /// </summary>
         public byte DataType { get; set; }

@@ -242,6 +242,18 @@
         }
       },
       {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "teacherTimeConfig",
+        "Name": "teachertimeConfig",
+        "Type": 1,
+        "Component": "@/components/ClassEditDetail/teacherSchooltimeConfig",
+        "Meta": {
+          "Title": "1v1老师可约课时间设置",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 26,
         "Path": "courseMgr",
         "Name": "courseMgr",

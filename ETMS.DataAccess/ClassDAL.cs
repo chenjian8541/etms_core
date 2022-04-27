@@ -55,6 +55,26 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task UpdateReservationInfo(List<long> classIds, byte newReservationType, int newDurationHour, int newDurationMinute)
+        {
+            if (classIds == null || classIds.Count == 0)
+            {
+                return;
+            }
+            if (classIds.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtClass SET ReservationType = {newReservationType},DurationHour = {newDurationHour},DurationMinute = {newDurationMinute} WHERE TenantId = {_tenantId} AND Id = {classIds[0]}");
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtClass SET ReservationType = {newReservationType},DurationHour = {newDurationHour},DurationMinute = {newDurationMinute} WHERE TenantId = {_tenantId} AND Id IN ({string.Join(',', classIds)})");
+            }
+            foreach (var id in classIds)
+            {
+                RemoveCache(_tenantId, id);
+            }
+        }
+
         public async Task<bool> DelClass(long classId, bool isIgnoreCheck = false)
         {
             var classRecord = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassRecord WHERE ClassId = {classId}");

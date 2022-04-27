@@ -136,6 +136,14 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("班级不存在");
             }
             var etClass = etClassBucket.EtClass;
+            if (etClass.Type == EmClassType.OneToOne && request.ReservationType == EmBool.True)
+            {
+                if (request.DurationHour == 0 && request.DurationMinute == 0)
+                {
+                    return ResponseBase.CommonError("请设置老师上课时长");
+                }
+            }
+
             var oldClassCategoryId = etClass.ClassCategoryId;
 
             etClass.Name = request.Name;
@@ -150,6 +158,12 @@ namespace ETMS.Business
             etClass.IsLeaveCharge = request.IsLeaveCharge;
             etClass.IsNotComeCharge = request.IsNotComeCharge;
             etClass.IsCanOnlineSelClass = request.IsCanOnlineSelClass;
+            if (etClass.Type == EmClassType.OneToOne)
+            {
+                etClass.ReservationType = request.ReservationType;
+                etClass.DurationHour = request.DurationHour;
+                etClass.DurationMinute = request.DurationMinute;
+            }
             if (etClass.Type == EmClassType.OneToMany)
             {
                 etClass.CourseList = GetMuIds(request.CourseIds);
@@ -166,6 +180,14 @@ namespace ETMS.Business
             }
 
             await _userOperationLogDAL.AddUserLog(request, $"编辑班级-{request.Name}", EmUserOperationType.ClassManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassOneToOneSetReservationBatch(ClassOneToOneSetReservationBatchRequest request)
+        {
+            await _classDAL.UpdateReservationInfo(request.ClassIds, request.ReservationType, request.DurationHour, request.DurationMinute);
+
+            await _userOperationLogDAL.AddUserLog(request, "批量设置在线约课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
         }
 
@@ -214,6 +236,9 @@ namespace ETMS.Business
                 LimitStudentNumsType = etClass.LimitStudentNumsType,
                 IsCanOnlineSelClass = etClass.IsCanOnlineSelClass,
                 Type = etClass.Type,
+                DurationHour = etClass.DurationHour,
+                DurationMinute = etClass.DurationMinute,
+                ReservationType = etClass.ReservationType,
                 CourseIds = await ComBusiness.GetCourseMultiSelectValue(tempBoxCourse, _courseDAL, etClass.CourseList),
                 TeacherIds = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, etClass.Teachers)
             });
@@ -261,6 +286,11 @@ namespace ETMS.Business
                 OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType),
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
                 IsCanOnlineSelClass = etClass.IsCanOnlineSelClass,
+                ReservationType = etClass.ReservationType,
+                DurationHour = etClass.DurationHour,
+                DurationMinute = etClass.DurationMinute,
+                Label = etClass.Name,
+                Value = etClass.Id,
                 LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(etClass.StudentNums, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
             });
         }
@@ -560,7 +590,10 @@ namespace ETMS.Business
                     Label = p.Name,
                     Value = p.Id,
                     LimitStudentNumsType = p.LimitStudentNumsType,
-                    IsCanOnlineSelClass = p.IsCanOnlineSelClass
+                    IsCanOnlineSelClass = p.IsCanOnlineSelClass,
+                    ReservationType = p.ReservationType,
+                    DurationHour = p.DurationHour,
+                    DurationMinute = p.DurationMinute
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassViewOutput>(pagingData.Item2, classViewList));

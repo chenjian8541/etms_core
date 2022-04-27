@@ -319,6 +319,11 @@
             "ActionId": 25,
             "Name": "删除课次",
             "Type": 1
+          },
+          {
+            "ActionId": 83,
+            "Name": "批量设置在线约课",
+            "Type": 1
           }
         ]
       },
@@ -372,6 +377,11 @@
           {
             "ActionId": 66,
             "Name": "约课设置",
+            "Type": 1
+          },
+          {
+            "ActionId": 82,
+            "Name": "设置老师可约课时间(1v1)",
             "Type": 1
           }
         ]

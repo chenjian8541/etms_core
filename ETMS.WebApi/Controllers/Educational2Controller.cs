@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Educational.Request;
+using ETMS.Entity.Dto.Educational2.Request;
 using ETMS.IBusiness;
 using ETMS.LOG;
 using Microsoft.AspNetCore.Authorization;
@@ -18,9 +19,11 @@ namespace ETMS.WebApi.Controllers
     {
         private readonly IClassReservationBLL _classReservationBLL;
 
-        public Educational2Controller(IClassReservationBLL classReservationBLL)
+        private readonly ITeacherSchooltimeConfigBLL _teacherSchooltimeConfigBLL;
+        public Educational2Controller(IClassReservationBLL classReservationBLL, ITeacherSchooltimeConfigBLL teacherSchooltimeConfigBLL)
         {
             this._classReservationBLL = classReservationBLL;
+            this._teacherSchooltimeConfigBLL = teacherSchooltimeConfigBLL;
         }
 
         public async Task<ResponseBase> ClassReservationRuleGet(RequestBase request)
@@ -57,6 +60,90 @@ namespace ETMS.WebApi.Controllers
             {
                 _classReservationBLL.InitTenantId(request.LoginTenantId);
                 return await _classReservationBLL.ClassReservationLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeConfigGetPaging(TeacherSchooltimeConfigGetPagingRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeConfigGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeConfigGet(TeacherSchooltimeConfigGetRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeConfigAdd(TeacherSchooltimeConfigAddRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeConfigAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeConfigDel(TeacherSchooltimeConfigDelRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeConfigDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeConfigExcludeSave(TeacherSchooltimeConfigExcludeSaveRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeConfigExcludeSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TeacherSchooltimeSetBatch(TeacherSchooltimeSetBatchRequest request)
+        {
+            try
+            {
+                _teacherSchooltimeConfigBLL.InitTenantId(request.LoginTenantId);
+                return await _teacherSchooltimeConfigBLL.TeacherSchooltimeSetBatch(request);
             }
             catch (Exception ex)
             {

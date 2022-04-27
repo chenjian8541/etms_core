@@ -173,6 +173,9 @@ namespace ETMS.Entity.Enum
         MallGoodsMgr = 84,
 
         [Description("电子相册")]
-        ElectronicAlbumMgr = 85
+        ElectronicAlbumMgr = 85,
+
+        [Description("约课设置")]
+        ClassTimesReservationSetting = 86
     }
 }

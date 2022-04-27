@@ -66,5 +66,28 @@ namespace ETMS.Utility
                 ExTime = DataTimeExtensions.StampToDateTime(myData[2])
             };
         }
+
+        public static string GetWeeksDesc(List<byte> weeks)
+        {
+            if (weeks == null || weeks.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (weeks.Count == 7)
+            {
+                return "每天";
+            }
+            if (weeks.Count == 1)
+            {
+                return $"每周{EtmsHelper.GetWeekDesc(weeks[0])}";
+            }
+            var tempWeek = weeks.OrderBy(j => j);
+            var str = new StringBuilder("每");
+            foreach (var itemWeek in tempWeek)
+            {
+                str.Append($"周{EtmsHelper.GetWeekDesc(itemWeek)}、");
+            }
+            return str.ToString().TrimEnd('、');
+        }
     }
 }

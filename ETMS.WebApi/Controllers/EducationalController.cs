@@ -70,6 +70,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassOneToOneSetReservationBatch(ClassOneToOneSetReservationBatchRequest request)
+        {
+            try
+            {
+                _classBLL.InitTenantId(request.LoginTenantId);
+                return await _classBLL.ClassOneToOneSetReservationBatch(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassGet(ClassGetRequest request)
         {
             try

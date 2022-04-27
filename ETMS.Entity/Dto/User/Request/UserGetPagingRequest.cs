@@ -33,7 +33,7 @@ namespace ETMS.Entity.Dto.User.Request
             var condition = new StringBuilder(DataFilterWhere);
             if (!string.IsNullOrEmpty(Key))
             {
-                condition.Append($" AND (Name LIKE '{Key}%' OR Phone LIKE '{Key}%')");
+                condition.Append($" AND (Name LIKE '%{Key}%' OR Phone LIKE '{Key}%')");
             }
             if (OnlyShowTeacher)
             {

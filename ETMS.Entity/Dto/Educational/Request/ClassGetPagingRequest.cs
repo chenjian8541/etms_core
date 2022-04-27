@@ -28,6 +28,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public long? ExcludeId { get; set; }
 
+        public byte? ReservationType { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (UserId = {LoginUserId} OR Teachers LIKE '%,{LoginUserId},%')";
@@ -76,6 +78,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             if (ExcludeId != null && ExcludeId > 0)
             {
                 condition.Append($" AND Id <> {ExcludeId.Value}");
+            }
+            if (ReservationType != null)
+            {
+                condition.Append($" AND ReservationType = {ReservationType.Value}");
             }
             if (IsDataLimit)
             {

@@ -11,6 +11,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ClassEdit(ClassEditRequest request);
 
+        Task<ResponseBase> ClassOneToOneSetReservationBatch(ClassOneToOneSetReservationBatchRequest request);
+
         Task<ResponseBase> ClassGet(ClassGetRequest request);
 
         Task<ResponseBase> ClassViewGet(ClassViewGetRequest request);

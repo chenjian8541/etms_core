@@ -16,6 +16,8 @@ namespace ETMS.Entity.Database.Source
 
         public int EndTime { get; set; }
 
+        public string Weeks { get; set; }
+
         public bool IsJumpHoliday { get; set; }
 
         public string RuleDesc { get; set; }
