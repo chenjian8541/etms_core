@@ -105,6 +105,8 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public int DurationMinute { get; set; }
 
+        public int DunIntervalMinute { get; set; }
+
         public List<MultiSelectValueRequest> CourseIds { get; set; }
 
         public List<MultiSelectValueRequest> TeacherIds { get; set; }

@@ -13,6 +13,11 @@ namespace ETMS.Entity.Dto.Parent2.Output
         /// </summary>
         public long ClassId { get; set; }
 
+        /// <summary>
+        /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
+        /// </summary>
+        public byte ClassType { get; set; }
+
         public string ClassName { get; set; }
 
         /// <summary>

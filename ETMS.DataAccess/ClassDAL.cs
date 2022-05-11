@@ -485,5 +485,18 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<ClassCanChooseView>(
                 $"SELECT TOP 100 Id,Name,StudentNums,LimitStudentNums,LimitStudentNumsType,Teachers FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToMany} AND IsDeleted = {EmIsDeleted.Normal} AND IsCanOnlineSelClass = {EmBool.True} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND CourseList LIKE '%,{courseId},%' AND (StudentIds IS NULL OR StudentIds NOT LIKE '%,{studentId},%')");
         }
+
+        public async Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormalIsReservation(long studentId)
+        {
+            return await _dbWrapper.ExecuteObject<EtClass>(
+                $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToOne} AND DataType = {EmClassDataType.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND ReservationType = {EmBool.True} AND StudentIds LIKE ',{studentId},'");
+        }
+
+        public async Task<bool> CheckStudentHaveOneToOneClassNormalIsReservation(long studentId)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToOne} AND DataType = {EmClassDataType.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND ReservationType = {EmBool.True} AND StudentIds LIKE ',{studentId},'");
+            return obj != null;
+        }
     }
 }

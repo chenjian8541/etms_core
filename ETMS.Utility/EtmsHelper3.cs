@@ -89,5 +89,20 @@ namespace ETMS.Utility
             }
             return str.ToString().TrimEnd('、');
         }
+
+        public static DateTime GetTodayTime(int hourAndMinute)
+        {
+            var hour = hourAndMinute / 100;
+            var minute = hourAndMinute % 100;
+            var now = DateTime.Now;
+            return new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
+        }
+
+        public static DateTime GetDateTime(DateTime myDate, int hourAndMinute)
+        {
+            var hour = hourAndMinute / 100;
+            var minute = hourAndMinute % 100;
+            return new DateTime(myDate.Year, myDate.Month, myDate.Day, hour, minute, 0);
+        }
     }
 }

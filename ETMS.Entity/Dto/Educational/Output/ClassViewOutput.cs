@@ -136,5 +136,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public int DurationHour { get; set; }
 
         public int DurationMinute { get; set; }
+
+        public int DunIntervalMinute { get; set; }
     }
 }

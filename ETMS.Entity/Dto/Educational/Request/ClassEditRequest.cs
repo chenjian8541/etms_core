@@ -48,6 +48,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public int DurationMinute { get; set; }
 
+        public int DunIntervalMinute { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)

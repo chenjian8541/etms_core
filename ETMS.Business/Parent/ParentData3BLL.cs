@@ -1,4 +1,5 @@
 ﻿using ETMS.Business.Common;
+using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
@@ -804,6 +805,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             var output = new StudentReservationDetailOutput()
             {
+                ClassType = classTimes.ClassType,
                 ClassName = etClass.EtClass.Name,
                 CantReservationErrDesc = limitResult.CantReservationErrDesc,
                 ClassContent = classTimes.ClassContent,
@@ -882,6 +884,7 @@ namespace ETMS.Business
                     {
                         ClassContent = classTimes.ClassContent,
                         ClassId = classTimes.ClassId,
+                        ClassType = classTimes.ClassType,
                         ClassName = etClass?.Name,
                         ClassOt = classTimes.ClassOt.EtmsToDateString(),
                         ClassRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classTimes.ClassRoomIds),
@@ -900,6 +903,47 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentReservationLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentReservationLogGetPaging2(StudentReservationLogGetPaging2Request request)
+        {
+            var output = new List<StudentReservationLogGetPaging2Output>();
+            var pagingData = await _classTimesDAL.ReservationLogGetPaging(request);
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                var tempBoxClass = new DataTempBox<EtClass>();
+                var now = DateTime.Now.Date;
+                foreach (var log in pagingData.Item1)
+                {
+                    var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, log.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
+                    output.Add(new StudentReservationLogGetPaging2Output()
+                    {
+                        ClassId = log.ClassId,
+                        ClassName = etClass.Name,
+                        ClassType = etClass.Type,
+                        ClassOt = log.ClassOt.EtmsToDateString(),
+                        ClassTimesId = log.ClassTimesId,
+                        CourseId = log.CourseId,
+                        CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, log.CourseId),
+                        CreateOt = log.CreateOt,
+                        EndTime = log.EndTime,
+                        Id = log.Id,
+                        RuleId = log.RuleId,
+                        StartTime = log.StartTime,
+                        Status = EmClassTimesReservationLogStatus.GetClassTimesReservationLogStatus(log.Status, now, log.ClassOt),
+                        StatusDesc = EmClassTimesReservationLogStatus.GetClassTimesReservationLogStatusDesc(log.Status, now, log.ClassOt),
+                        TimeDesc = $"{EtmsHelper.GetTimeDesc(log.StartTime)}~{EtmsHelper.GetTimeDesc(log.EndTime)}",
+                        Week = log.Week,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(log.Week)}"
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentReservationLogGetPaging2Output>(pagingData.Item2, output));
         }
 
         public async Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request)
@@ -1020,11 +1064,24 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次不存在");
             }
-            var etClass = await _classDAL.GetClassBucket(classTimes.ClassId);
-            if (etClass == null || etClass.EtClass == null)
+            var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
             {
                 return ResponseBase.CommonError("班级不存在");
             }
+            if (classBucket.EtClass.Type == EmClassType.OneToMany)
+            {
+                return await StudentReservationCancel1vN(request, classBucket, classTimes);
+            }
+            else
+            {
+                return await StudentReservationCancel1v1(request, classBucket, classTimes);
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservationCancel1vN(StudentReservationCancelRequest request,
+            ClassBucket classBucket, EtClassTimes classTimes)
+        {
             var classTimesStudents = await _classTimesDAL.GetClassTimesStudent(request.ClassTimesId);
             var reservationLog = classTimesStudents.FirstOrDefault(p => p.StudentId == request.StudentId && p.IsReservation == EmBool.True);
             if (reservationLog == null)
@@ -1061,7 +1118,46 @@ namespace ETMS.Business
                 OpType = NoticeStudentReservationOpType.Cancel
             });
 
-            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{etClass.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
+            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{classBucket.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentReservationCancel1v1(StudentReservationCancelRequest request,
+            ClassBucket classBucket, EtClassTimes classTimes)
+        {
+            var now = DateTime.Now;
+            var limitResult = await GetCheckClassTimesReservationLimit2(classTimes, request.StudentId, now);
+            if (!limitResult.IsCanCancel)
+            {
+                return ResponseBase.CommonError("临近上课时间，无法取消预约课次");
+            }
+
+            await _classTimesDAL.DelClassTimes(classTimes.Id);
+
+            await _classTimesDAL.ClassTimesReservationLogSetCancel(request.ClassTimesId, request.StudentId);
+
+            var tempClassTimesStudent = new EtClassTimesStudent()
+            {
+                ClassOt = classTimes.ClassOt,
+                ClassId = classTimes.ClassId,
+                ClassTimesId = classTimes.Id,
+                CourseId = EtmsHelper.AnalyzeMuIds(classTimes.CourseList)[0],
+                IsDeleted = EmIsDeleted.Normal,
+                IsReservation = EmBool.True,
+                RuleId = 0,
+                Status = EmClassTimesStatus.UnRollcall,
+                StudentId = request.StudentId,
+                StudentTryCalssLogId = null,
+                StudentType = EmClassStudentType.ClassStudent,
+                TenantId = request.LoginTenantId
+            };
+            _eventPublisher.Publish(new NoticeStudentReservationEvent(request.LoginTenantId)
+            {
+                ClassTimesStudent = tempClassTimesStudent,
+                OpType = NoticeStudentReservationOpType.Cancel
+            });
+
+            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"取消约课-班级:{classBucket.EtClass.Name}，课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
         }
     }

@@ -163,6 +163,7 @@ namespace ETMS.Business
                 etClass.ReservationType = request.ReservationType;
                 etClass.DurationHour = request.DurationHour;
                 etClass.DurationMinute = request.DurationMinute;
+                etClass.DunIntervalMinute = request.DunIntervalMinute;
             }
             if (etClass.Type == EmClassType.OneToMany)
             {
@@ -239,6 +240,7 @@ namespace ETMS.Business
                 DurationHour = etClass.DurationHour,
                 DurationMinute = etClass.DurationMinute,
                 ReservationType = etClass.ReservationType,
+                DunIntervalMinute = etClass.DunIntervalMinute,
                 CourseIds = await ComBusiness.GetCourseMultiSelectValue(tempBoxCourse, _courseDAL, etClass.CourseList),
                 TeacherIds = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, etClass.Teachers)
             });
@@ -289,6 +291,7 @@ namespace ETMS.Business
                 ReservationType = etClass.ReservationType,
                 DurationHour = etClass.DurationHour,
                 DurationMinute = etClass.DurationMinute,
+                DunIntervalMinute = etClass.DunIntervalMinute,
                 Label = etClass.Name,
                 Value = etClass.Id,
                 LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc(etClass.StudentNums, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
@@ -593,7 +596,8 @@ namespace ETMS.Business
                     IsCanOnlineSelClass = p.IsCanOnlineSelClass,
                     ReservationType = p.ReservationType,
                     DurationHour = p.DurationHour,
-                    DurationMinute = p.DurationMinute
+                    DurationMinute = p.DurationMinute,
+                    DunIntervalMinute = p.DunIntervalMinute
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassViewOutput>(pagingData.Item2, classViewList));

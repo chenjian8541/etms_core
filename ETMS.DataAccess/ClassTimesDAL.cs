@@ -205,7 +205,7 @@ namespace ETMS.DataAccess
             return obj.ToInt();
         }
 
-        public async Task<Tuple<IEnumerable<EtClassTimesReservationLog>, int>> ReservationLogGetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtClassTimesReservationLog>, int>> ReservationLogGetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtClassTimesReservationLog>("EtClassTimesReservationLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
@@ -264,6 +264,18 @@ namespace ETMS.DataAccess
             }
             return await this._dbWrapper.ExecuteObject<GetClassTimesStudentView>(
                          $"SELECT ClassTimesId,StudentId,StudentType FROM EtClassTimesStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND ClassTimesId IN ({string.Join(',', classTimesIds)})");
+        }
+
+        public async Task<IEnumerable<EtClassTimes>> GetStudentOneToOneClassTimes(long classId, DateTime classOt)
+        {
+            return await _dbWrapper.FindList<EtClassTimes>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.ClassId == classId && p.ClassOt == classOt);
+        }
+
+        public async Task<IEnumerable<EtClassTimes>> GetClassTimes(long teacherId, long studentId, DateTime classOt)
+        {
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT TOP 50 * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{classOt.EtmsToDateString()}' AND (Teachers LIKE '%,{teacherId},%' OR StudentIdsClass LIKE '%,{studentId},%' OR StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')");
         }
     }
 }

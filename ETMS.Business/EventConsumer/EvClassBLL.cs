@@ -124,6 +124,7 @@ namespace ETMS.Business.EventConsumer
                 LOG.Log.Warn("[SyncClassTimesStudentConsumerEvent]课次不存在", request, this.GetType());
                 return;
             }
+            var oldStudentIdsReservation = classTimes.StudentIdsReservation;
             var classBucket = await _classDAL.GetClassBucket(classTimes.ClassId);
             if (classBucket == null || classBucket.EtClass == null)
             {
@@ -161,6 +162,10 @@ namespace ETMS.Business.EventConsumer
                 }
                 studentTempCount = classTimesStudent.Count;
                 studentCount += classTimesStudent.Count;
+            }
+            if (classBucket.EtClass.Type == EmClassType.OneToOne && !string.IsNullOrEmpty(oldStudentIdsReservation))
+            {
+                strStudentIdsReservation = oldStudentIdsReservation;
             }
             classTimes.StudentIdsClass = strStudentIdsClass;
             classTimes.StudentIdsTemp = strStudentIdsTemp;

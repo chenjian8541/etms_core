@@ -143,6 +143,8 @@ namespace ETMS.Entity.Database.Source
 
         public int DurationMinute { get; set; }
 
+        public int DunIntervalMinute { get; set; }
+
         /// <summary>
         /// 数据类型   <see cref="ETMS.Entity.Enum.EmClassDataType"/>
         /// </summary>

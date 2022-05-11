@@ -28,7 +28,6 @@ namespace ETMS.Entity.Dto.Parent2.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere());
-            condition.Append($" AND StudentIdsReservation LIKE '%,{StudentId},%'");
             var now = DateTime.Now.EtmsToDateString();
             if (LogStatus == EmStudentReservationLogOutputStatus.Normal)
             {
@@ -38,6 +37,7 @@ namespace ETMS.Entity.Dto.Parent2.Request
             {
                 condition.Append($" AND ([Status] = {EmClassTimesStatus.BeRollcall} OR ClassOt < '{now}')");
             }
+            condition.Append($" AND StudentIdsReservation LIKE '%,{StudentId},%'");
             return condition.ToString();
         }
 

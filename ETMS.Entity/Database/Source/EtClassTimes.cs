@@ -67,7 +67,7 @@ namespace ETMS.Entity.Database.Source
         public string StudentIdsClass { get; set; }
 
         /// <summary>
-        /// 学员(试听)
+        /// 学员(预约)
         /// </summary>
         public string StudentIdsReservation { get; set; }
 

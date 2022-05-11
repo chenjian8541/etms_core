@@ -56,23 +56,27 @@ namespace ETMS.Utility
             {
                 return string.Empty;
             }
-            var timeValue = time.ToString();
-            if (timeValue.Length == 4)
-            {
-                return $"{timeValue.Substring(0, 2)}:{timeValue.Substring(2, 2)}";
-            }
-            if (timeValue.Length < 3)
-            {
-                if (timeValue.Length == 1)
-                {
-                    return $"00:0{timeValue}";
-                }
-                else
-                {
-                    return $"00:{timeValue}";
-                }
-            }
-            return $"0{timeValue.Substring(0, 1)}:{timeValue.Substring(1, 2)}";
+            var hour = time / 100;
+            var minute = time % 100;
+            return $"{hour.ToString("00")}:{minute.ToString("00")}";
+
+            //var timeValue = time.ToString();
+            //if (timeValue.Length == 4)
+            //{
+            //    return $"{timeValue.Substring(0, 2)}:{timeValue.Substring(2, 2)}";
+            //}
+            //if (timeValue.Length < 3)
+            //{
+            //    if (timeValue.Length == 1)
+            //    {
+            //        return $"00:0{timeValue}";
+            //    }
+            //    else
+            //    {
+            //        return $"00:{timeValue}";
+            //    }
+            //}
+            //return $"0{timeValue.Substring(0, 1)}:{timeValue.Substring(1, 2)}";
         }
 
         public static string GetTimeDesc(int startTime, int endTime, string tag = "~")

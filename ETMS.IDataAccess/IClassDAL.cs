@@ -107,5 +107,9 @@ namespace ETMS.IDataAccess
         Task ChangeClassOnlineSelClassStatus(List<long> ids, byte newIsCanOnlineSelClass);
 
         Task<IEnumerable<ClassCanChooseView>> GetStudentClassCanChoose(long studentId, long courseId);
+
+        Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormalIsReservation(long studentId);
+
+        Task<bool> CheckStudentHaveOneToOneClassNormalIsReservation(long studentId);
     }
 }

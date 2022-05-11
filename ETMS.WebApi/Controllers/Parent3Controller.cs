@@ -4,6 +4,7 @@ using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Dto.Parent2.Request;
 using ETMS.Entity.Dto.Parent3.Request;
 using ETMS.Entity.Dto.Parent4.Request;
+using ETMS.Entity.Dto.Parent5.Request;
 using ETMS.IBusiness;
 using ETMS.IBusiness.Parent;
 using ETMS.LOG;
@@ -24,9 +25,11 @@ namespace ETMS.WebApi.Controllers
     {
         private readonly IParentData4BLL _parentData4BLL;
 
-        public Parent3Controller(IParentData4BLL parentData4BLL)
+        private readonly IParentData5BLL _parentData5BLL;
+        public Parent3Controller(IParentData4BLL parentData4BLL, IParentData5BLL parentData5BLL)
         {
             this._parentData4BLL = parentData4BLL;
+            this._parentData5BLL = parentData5BLL;
         }
 
         public async Task<ResponseBase> ClassCanChooseGet(ClassCanChooseGetRequest request)
@@ -119,6 +122,76 @@ namespace ETMS.WebApi.Controllers
             {
                 _parentData4BLL.InitTenantId(request.LoginTenantId);
                 return await _parentData4BLL.AlbumGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservation1v1Check(StudentReservation1v1CheckRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentReservation1v1Check(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservation1v1Init(StudentReservation1v1InitRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentReservation1v1Init(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservation1v1DateCheck(StudentReservation1v1DateCheckRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentReservation1v1DateCheck(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservation1v1LessonsGet(StudentReservation1v1LessonsGetRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentReservation1v1LessonsGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentReservation1v1LessonsSubmit(StudentReservation1v1LessonsSubmitRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentReservation1v1LessonsSubmit(request);
             }
             catch (Exception ex)
             {
