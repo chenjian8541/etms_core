@@ -827,7 +827,7 @@ namespace ETMS.Business.EtmsManage
             }
 
             var now = DateTime.Now;
-            var remeak = $"给机构[{tenant.Name}]充值授权点数";
+            var remeak = $"给机构[{tenant.Name}]充值授权点数：{request.Remark}";
             //扣除代理商授权点数
             await _sysAgentDAL.EtmsAccountDeduction(request.LoginAgentId, tenant.VersionId, request.AddChangeCount);
             await _sysAgentLogDAL.AddSysAgentEtmsAccountLog(new SysAgentEtmsAccountLog()
