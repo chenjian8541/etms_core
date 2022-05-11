@@ -248,24 +248,6 @@ namespace ETMS.Utility
             return $"{Math.Floor(time.TotalSeconds)}秒前";
         }
 
-        /// <summary>
-        /// 判断是否为白天(正常使用时间)
-        /// 排查JOB 执行时间
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static bool CheckIsDaytime(DateTime time)
-        {
-            var hour = time.Hour;
-            return hour > 6 && hour < 23;
-        }
-
-        public static bool CheckIsDaytime2(DateTime time)
-        {
-            var hour = time.Hour;
-            return hour >= 6 && hour <= 23;
-        }
-
         public static string DescPrefix(string desc, string prefix, string intervalStr = "：")
         {
             if (string.IsNullOrEmpty(desc))

@@ -56,7 +56,8 @@ namespace ETMS.Manage.Jobs
             {
                 _eventPublisher.Publish(new StudentCourseAnalyzeEvent(tenantId)
                 {
-                    StudentId = p.Id
+                    StudentId = p.Id,
+                    IsJobExecute = true
                 });
             }
         }

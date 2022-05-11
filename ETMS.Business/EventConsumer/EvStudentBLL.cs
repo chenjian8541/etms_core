@@ -299,12 +299,16 @@ namespace ETMS.Business.EventConsumer
             student.CourseIds = await GetGetStudentCourseIds(student.Id);
             student.IsBindingWechat = bindingWechatInfo == null ? EmIsBindingWechat.No : EmIsBindingWechat.Yes;
 
+            //班级
             if (request.IsAnalyzeStudentClass)
             {
                 var studentClassInfo = await _studentDAL.GetStudentClassInfo(student.Id);
                 student.IsClassSchedule = studentClassInfo.IsClassSchedule;
                 student.IsJoinClass = studentClassInfo.IsJoinClass;
             }
+
+            //课程状态
+            student.CourseStatus = await GetStudentBuyCourseStatus(student.Id);
 
             await _studentDAL.EditStudent2(student);
         }
@@ -361,10 +365,15 @@ namespace ETMS.Business.EventConsumer
             }
         }
 
+        private async Task<byte> GetStudentBuyCourseStatus(long studentId)
+        {
+            var studentAllStatus = await _studentCourseDAL.StudentCourseStatusGet(studentId);
+            return ComBusiness4.GetStudentCourseStatus(studentAllStatus);
+        }
+
         public async Task SyncStudentCourseStatusConsumerEvent(SyncStudentCourseStatusEvent request)
         {
-            var studentAllStatus = await _studentCourseDAL.StudentCourseStatusGet(request.StudentId);
-            var newCourseStatus = ComBusiness4.GetStudentCourseStatus(studentAllStatus);
+            var newCourseStatus = await GetStudentBuyCourseStatus(request.StudentId);
             await _studentDAL.UpdateStudentCourseStatus(request.StudentId, newCourseStatus);
         }
 

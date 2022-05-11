@@ -55,7 +55,8 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.TenantId)
                 {
                     CourseId = courseId,
-                    StudentId = request.StudentId
+                    StudentId = request.StudentId,
+                    IsJobExecute = request.IsJobExecute
                 });
             }
         }
@@ -366,11 +367,6 @@ namespace ETMS.Business
             await _studentCourseDAL.EditStudentCourse(request.StudentId, newCourse, newCourseDetail, myCourse, isDelOldStudentCourse,
                 surplusMoney);
 
-            _eventPublisher.Publish(new SyncStudentCourseStatusEvent(request.TenantId)
-            {
-                StudentId = request.StudentId
-            });
-
             if (request.IsSendNoticeStudent)
             {
                 _eventPublisher.Publish(new NoticeStudentCourseSurplusEvent(request.TenantId)
@@ -391,7 +387,7 @@ namespace ETMS.Business
             var now = DateTime.Now;
             var isCheckCourseIsNotEnough = false;
             var isCourseNotEnough = false;
-            if (EtmsHelper.CheckIsDaytime(now))
+            if (!request.IsJobExecute)
             {
                 //课程不足提醒
                 var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
@@ -418,11 +414,16 @@ namespace ETMS.Business
                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
             }
 
-            _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.StudentId));
-            if (EtmsHelper.CheckIsDaytime2(DateTime.Now))
+            if (!request.IsJobExecute)
             {
+                _eventPublisher.Publish(new SyncStudentStudentCourseIdsEvent(request.TenantId, request.StudentId));
                 _eventPublisher.Publish(new SysTenantStatistics2Event(request.TenantId));
+                _eventPublisher.Publish(new SyncStudentCourseStatusEvent(request.TenantId)
+                {
+                    StudentId = request.StudentId
+                });
             }
+
             return new CourseDetailAnalyzeRes()
             {
                 NewCourse = newCourse,

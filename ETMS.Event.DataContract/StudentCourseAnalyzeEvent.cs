@@ -10,5 +10,7 @@ namespace ETMS.Event.DataContract
         { }
 
         public long StudentId { get; set; }
+
+        public bool IsJobExecute { get; set; }
     }
 }
