@@ -251,25 +251,29 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<List<EtUser>> GetUserAboutNotice(int roleNoticeType)
+        public async Task<IEnumerable<NoticeUserView>> GetUserAboutNotice(int roleNoticeType)
         {
-            var sltRule = $"SELECT TOP 50 Id FROM EtRole WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND NoticeSetting LIKE '%,{roleNoticeType},%'";
-            var myRoleId = (await _dbWrapper.ExecuteObject<OnlyId>(sltRule)).ToList();
-            if (myRoleId.Count == 0)
+            var sql = $"SELECT TOP 100 Id,Name,NickName,Phone FROM UserView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND JobType <> {EmUserJobType.Resignation} AND NoticeSetting LIKE '%,{roleNoticeType},%'";
+            return await _dbWrapper.ExecuteObject<NoticeUserView>(sql);
+        }
+
+        public async Task<IEnumerable<NoticeUserView>> GetUserAboutNotice(int roleNoticeType, IEnumerable<long> relationUserIds)
+        {
+            if (relationUserIds == null || !relationUserIds.Any())
             {
                 return null;
             }
+            relationUserIds = relationUserIds.Distinct();
             var sql = string.Empty;
-            if (myRoleId.Count == 1)
+            if (relationUserIds.Count() == 1)
             {
-                sql = $"SELECT TOP 100 * FROM EtUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND RoleId = {myRoleId[0].Id} ";
+                sql = $"SELECT TOP 100 Id,Name,NickName,Phone FROM UserView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Id = {relationUserIds.First()} AND JobType <> {EmUserJobType.Resignation} AND NoticeSetting LIKE '%,{roleNoticeType},%'";
             }
             else
             {
-                var ids = myRoleId.Select(p => p.Id);
-                sql = $"SELECT TOP 100 * FROM EtUser WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND RoleId IN ({string.Join(',', ids)}) ";
+                sql = $"SELECT TOP 100 Id,Name,NickName,Phone FROM UserView WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Id IN ({SQLHelper.GetInIds(relationUserIds)}) AND JobType <> {EmUserJobType.Resignation} AND NoticeSetting LIKE '%,{roleNoticeType},%'";
             }
-            return (await _dbWrapper.ExecuteObject<EtUser>(sql)).ToList();
+            return await _dbWrapper.ExecuteObject<NoticeUserView>(sql);
         }
 
         public async Task UpdateUserHomeMenu(long userId, string homeMenus)

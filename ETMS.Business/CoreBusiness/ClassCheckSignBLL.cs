@@ -552,7 +552,6 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new NoticeUserContractsNotArrivedEvent(request.TenantId)
                 {
                     ClassRecordNotArrivedStudents = notArrivedStudents,
-                    ClassName = request.ClassName,
                     ClassRecord = request.ClassRecord
                 });
             }

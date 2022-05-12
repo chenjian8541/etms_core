@@ -43,6 +43,16 @@ namespace ETMS.Business.WxCore
             this._appConfigurtaionServices = appConfigurtaionServices;
         }
 
+        protected virtual async Task<bool> CheckIsBindWeChatOfficialAccount(int tenantId)
+        {
+            var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);
+            if (tenantWechartAuth == null)
+            {
+                return false;
+            }
+            return tenantWechartAuth.TenantId == tenantId;
+        }
+
         protected virtual async Task<ResponseBase> GetAuthorizeUrl(int tenantId, string sourceUrl, string state)
         {
             var tenantWechartAuth = await _componentAccessBLL.GetTenantWechartAuth(tenantId);

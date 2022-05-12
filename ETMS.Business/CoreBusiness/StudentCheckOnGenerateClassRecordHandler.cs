@@ -436,7 +436,6 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new NoticeUserContractsNotArrivedEvent(_tenantId)
                 {
                     ClassRecordNotArrivedStudents = notArrivedStudents,
-                    ClassName = etClassBucket.EtClass.Name,
                     ClassRecord = classRecord
                 });
             }

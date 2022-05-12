@@ -50,5 +50,25 @@ namespace ETMS.Entity.Config
         /// 接收学员考勤通知
         /// </summary>
         public const int StudentCheckOnWeChat = 9;
+
+        /// <summary>
+        /// 接收学员请假申请提醒
+        /// </summary>
+        public const int StudentLeaveApplyMy = 10;
+
+        /// <summary>
+        /// 接收上课点名未到学员提醒
+        /// </summary>
+        public const int StudentContractsNotArrivedMy = 11;
+
+        /// <summary>
+        /// 接收学员互动提醒
+        /// </summary>
+        public const int ReceiveInteractiveStudentMy = 12;
+
+        /// <summary>
+        /// 接收学员考勤通知
+        /// </summary>
+        public const int StudentCheckOnWeChatMy = 13;
     }
 }

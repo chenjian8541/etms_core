@@ -50,5 +50,41 @@ namespace ETMS.Entity.Dto.User.Output
         /// 接收学员考勤通知
         /// </summary>
         public bool IsStudentCheckOnWeChat { get; set; }
+
+        /// <summary>
+        /// 接收学员请假申请提醒
+        /// </summary>
+        public bool IsStudentLeaveApplyMy { get; set; }
+
+        /// <summary>
+        /// 接收上课点名未到学员提醒
+        /// </summary>
+        public bool IsStudentContractsNotArrivedMy { get; set; }
+
+        /// <summary>
+        /// 接收学员互动提醒
+        /// </summary>
+        public bool IsReceiveInteractiveStudentMy { get; set; }
+
+        /// <summary>
+        /// 接收学员考勤通知
+        /// </summary>
+        public bool IsStudentCheckOnWeChatMy { get; set; }
+
+        public bool IsOpenStudentLeaveApply { get; set; }
+
+        public int OpenStudentLeaveApplyType { get; set; }
+
+        public bool IsOpenStudentContractsNotArrived { get; set; }
+
+        public int OpenStudentContractsNotArrivedType { get; set; }
+
+        public bool IsOpenReceiveInteractiveStudent { get; set; }
+
+        public int OpenReceiveInteractiveStudentType { get; set; }
+
+        public bool IsOpenStudentCheckOnWeChat { get; set; }
+
+        public int OpenStudentCheckOnWeChatType { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Entity.Temp.Compare;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness.EventConsumer;
@@ -87,13 +88,21 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return;
+            }
 
-            var myNoticeUsers = new List<EtUser>();
-            if (activeGrowthRecord.Type == EmActiveGrowthRecordType.Class)   //通知班级老师
+            var noticeUser = new List<NoticeUserView>();
+            //老师和学管师
+            var relationUserIds = new List<long>();
+            if (activeGrowthRecord.Type == EmActiveGrowthRecordType.Class)   
             {
                 var classIds = EtmsHelper.AnalyzeMuIds(activeGrowthRecord.RelatedIds);
                 if (classIds.Any())
                 {
+                    var strAllTeachers = new StringBuilder();
                     foreach (var classId in classIds)
                     {
                         var classBucket = await _classDAL.GetClassBucket(classId);
@@ -101,35 +110,30 @@ namespace ETMS.Business.SendNotice
                         {
                             continue;
                         }
-                        var teachers = EtmsHelper.AnalyzeMuIds(classBucket.EtClass.Teachers);
-                        if (teachers.Any())
-                        {
-                            foreach (var p in teachers)
-                            {
-                                var user = await _userDAL.GetUser(p);
-                                if (user != null)
-                                {
-                                    myNoticeUsers.Add(user);
-                                }
-                            }
-                        }
+                        strAllTeachers.Append(classBucket.EtClass.Teachers);
                     }
+                    relationUserIds = EtmsHelper.AnalyzeMuIds(strAllTeachers.ToString());
+                }
+            }
+            if (studentBucket.Student.LearningManager != null)
+            {
+                relationUserIds.Add(studentBucket.Student.LearningManager.Value);
+            }
+            if (relationUserIds.Any())
+            {
+                var trelationUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.ReceiveInteractiveStudentMy, relationUserIds);
+                if (trelationUsers != null && trelationUsers.Any())
+                {
+                    noticeUser.AddRange(trelationUsers);
                 }
             }
 
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.ReceiveInteractiveStudent);
-            if (noticeUser == null || noticeUser.Count == 0)
+            var noticeAllUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.ReceiveInteractiveStudent);
+            if (noticeAllUsers.Any())
             {
-                if (myNoticeUsers.Count == 0)
-                {
-                    return;
-                }
+                noticeUser.AddRange(noticeAllUsers);
             }
-            else
-            {
-                myNoticeUsers.AddRange(noticeUser);
-            }
-            myNoticeUsers = myNoticeUsers.Distinct(new ComparerEtUser()).ToList();
+            noticeUser = noticeUser.Distinct(new ComparerNoticeUserView()).ToList();
 
             var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
             {
@@ -144,7 +148,7 @@ namespace ETMS.Business.SendNotice
             smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
 
             var url = string.Format(wxConfig.TemplateNoticeConfig.TeacherActiveGrowthRecordDetailUrl, activeGrowthRecord.Id);
-            foreach (var user in myNoticeUsers)
+            foreach (var user in noticeUser)
             {
                 smsReq.Users.Add(new NoticeUserMessageUser()
                 {
@@ -179,54 +183,45 @@ namespace ETMS.Business.SendNotice
             }
 
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            var myNoticeUsers = new List<EtUser>();
-            if (tenantConfig.UserNoticeConfig.StudentCheckOnWeChat)
+            if (!tenantConfig.UserNoticeConfig.StudentCheckOnWeChat)
             {
-                if (log.ClassTimesId != null)
+                return;
+            }
+
+            var noticeUser = new List<NoticeUserView>();
+            //关联班级
+            var relationUserIds = new List<long>();
+            if (log.ClassTimesId != null)
+            {
+                var myClassTimes = await _classTimesDAL.GetClassTimes(log.ClassTimesId.Value);
+                if (myClassTimes != null)
                 {
-                    var myClassTimes = await _classTimesDAL.GetClassTimes(log.ClassTimesId.Value);
-                    if (myClassTimes != null)
+                    var myClassBucket = await _classDAL.GetClassBucket(myClassTimes.ClassId);
+                    if (myClassBucket != null && myClassBucket.EtClass != null)
                     {
-                        var myTeachers = string.Empty;
-                        if (!string.IsNullOrEmpty(myClassTimes.Teachers))
-                        {
-                            myTeachers = myClassTimes.Teachers;
-                        }
-                        else
-                        {
-                            var myClass = await _classDAL.GetClassBucket(myClassTimes.ClassId);
-                            myTeachers = myClass.EtClass.Teachers;
-                        }
-                        var teacherIds = EtmsHelper.AnalyzeMuIds(myTeachers);
-                        if (teacherIds.Any())
-                        {
-                            foreach (var p in teacherIds)
-                            {
-                                var user = await _userDAL.GetUser(p);
-                                if (user != null)
-                                {
-                                    myNoticeUsers.Add(user);
-                                }
-                            }
-                        }
+                        relationUserIds = EtmsHelper.AnalyzeMuIds(myClassBucket.EtClass.Teachers);
                     }
                 }
             }
-
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentCheckOnWeChat);
-            if (noticeUser == null || noticeUser.Count == 0)
+            if (studentBucket.Student.LearningManager != null)
             {
-                if (myNoticeUsers.Count == 0)
+                relationUserIds.Add(studentBucket.Student.LearningManager.Value);
+            }
+            if (relationUserIds.Any())
+            {
+                var trelationUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentCheckOnWeChatMy, relationUserIds);
+                if (trelationUsers != null && trelationUsers.Any())
                 {
-                    return;
+                    noticeUser.AddRange(trelationUsers);
                 }
             }
-            else
-            {
-                myNoticeUsers.AddRange(noticeUser);
-            }
 
-            myNoticeUsers = myNoticeUsers.Distinct(new ComparerEtUser()).ToList();
+            var noticeAllUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentCheckOnWeChat);
+            if (noticeAllUsers.Any())
+            {
+                noticeUser.AddRange(noticeAllUsers);
+            }
+            noticeUser = noticeUser.Distinct(new ComparerNoticeUserView()).ToList();
 
             var title = "学员考勤提醒—签到成功";
             if (log.CheckType == EmStudentCheckOnLogCheckType.CheckOut)
@@ -249,7 +244,7 @@ namespace ETMS.Business.SendNotice
             {
                 url = string.Format(wxConfig.TemplateNoticeConfig.TeacherStudentCheckLogUrl, log.Id);
             }
-            foreach (var user in myNoticeUsers)
+            foreach (var user in noticeUser)
             {
                 smsReq.Users.Add(new NoticeUserMessageUser()
                 {

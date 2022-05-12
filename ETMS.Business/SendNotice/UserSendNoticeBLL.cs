@@ -6,6 +6,7 @@ using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Entity.ExternalService.Dto.Request.User;
 using ETMS.Entity.Temp.Compare;
+using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
@@ -387,43 +388,17 @@ namespace ETMS.Business.SendNotice
                 return;
             }
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            var noticeUser = new List<EtUser>();
-            if (tenantConfig.UserNoticeConfig.StudentLeaveApplyWeChat)
-            {
-                var myClass = await _classDAL.GetStudentClass(studentLeaveApplyLog.StudentId);
-                if (myClass != null && myClass.Any())
-                {
-                    var strUserIds = new StringBuilder();
-                    foreach (var p in myClass)
-                    {
-                        strUserIds.Append(p.Teachers);
-                    }
-                    var myUserIds = EtmsHelper.AnalyzeMuIds(strUserIds.ToString());
-                    if (myUserIds.Count > 0)
-                    {
-                        var tempUser = new DataTempBox<EtUser>();
-                        var myUserIds2 = myUserIds.Distinct();
-                        foreach (var myId in myUserIds2)
-                        {
-                            var myTempUser = await ComBusiness.GetUser(tempUser, _userDAL, myId);
-                            if (myTempUser != null)
-                            {
-                                noticeUser.Add(myTempUser);
-                            }
-                        }
-                    }
-                }
-            }
-            var myUser2 = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentLeaveApply);
-            if (myUser2 != null && myUser2.Count > 0)
-            {
-                noticeUser.AddRange(myUser2);
-            }
-            if (noticeUser.Count == 0)
+            if (!tenantConfig.UserNoticeConfig.StudentLeaveApplyWeChat)
             {
                 return;
             }
-            noticeUser = noticeUser.Distinct(new ComparerEtUser()).ToList();
+
+            var noticeUser = await ComBusiness5.GetNoticeUser(_classDAL, _userDAL, studentBucket.Student,
+                RoleOtherSetting.StudentLeaveApplyMy, RoleOtherSetting.StudentLeaveApply);
+            if (!noticeUser.Any())
+            {
+                return;
+            }
 
             var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
             {
@@ -477,11 +452,47 @@ namespace ETMS.Business.SendNotice
             {
                 return;
             }
-            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentContractsNotArrived);
-            if (noticeUser == null || noticeUser.Count == 0)
+            var classBucket = await _classDAL.GetClassBucket(request.ClassRecord.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
             {
                 return;
             }
+            var myClass = classBucket.EtClass;
+            var relationUserIds = EtmsHelper.AnalyzeMuIds(myClass.Teachers);
+            var studentNames = new StringBuilder();
+            foreach (var p in request.ClassRecordNotArrivedStudents)
+            {
+                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                studentNames.Append($"{studentBucket.Student.Name},");
+                if (studentBucket.Student.LearningManager != null)
+                {
+                    relationUserIds.Add(studentBucket.Student.LearningManager.Value);
+                }
+            }
+
+            var noticeUser = new List<NoticeUserView>();
+            if (relationUserIds.Any())
+            {
+                var trelationUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentContractsNotArrivedMy, relationUserIds);
+                if (trelationUsers != null && trelationUsers.Any())
+                {
+                    noticeUser.AddRange(trelationUsers);
+                }
+            }
+            var noticeAllUsers = await _userDAL.GetUserAboutNotice(RoleOtherSetting.StudentContractsNotArrived);
+            if (noticeAllUsers.Any())
+            {
+                noticeUser.AddRange(noticeAllUsers);
+            }
+            if (!noticeUser.Any())
+            {
+                return;
+            }
+            noticeUser = noticeUser.Distinct(new ComparerNoticeUserView()).ToList();
 
             var classRecord = request.ClassRecord;
             var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
@@ -494,18 +505,7 @@ namespace ETMS.Business.SendNotice
             var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
             smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
             smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
-
-            var studentNames = new StringBuilder();
-            foreach (var p in request.ClassRecordNotArrivedStudents)
-            {
-                var studentBucket = await _studentDAL.GetStudent(p.StudentId);
-                if (studentBucket == null || studentBucket.Student == null)
-                {
-                    continue;
-                }
-                studentNames.Append($"{studentBucket.Student.Name},");
-            }
-            smsReq.Content = $"班级[{request.ClassName}]在{classRecord.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classRecord.Week)}) {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}上课时，学员[{studentNames.ToString().TrimEnd(',')}]未到";
+            smsReq.Content = $"班级[{myClass.Name}]在{classRecord.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classRecord.Week)}) {EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}上课时，学员[{studentNames.ToString().TrimEnd(',')}]未到";
 
             var url = string.Format(wxConfig.TemplateNoticeConfig.UserClassRecordDetailUrl, classRecord.Id);
             foreach (var user in noticeUser)
@@ -529,7 +529,7 @@ namespace ETMS.Business.SendNotice
         public async Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request)
         {
             var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.TryCalssApply);
-            if (noticeUser == null || noticeUser.Count == 0)
+            if (!noticeUser.Any())
             {
                 return;
             }

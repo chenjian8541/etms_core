@@ -12,5 +12,7 @@ namespace ETMS.Entity.Dto.User.Output
         public string Token { get; set; }
 
         public DateTime ExpiresTime { get; set; }
+
+        public bool IsBindWeChatOfficialAccount { get; set; }
     }
 }

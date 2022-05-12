@@ -367,7 +367,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<EtClass>> GetStudentClass(long studentId)
         {
-            var sql = $"SELECT * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND StudentIds LIKE '%,{studentId},%'";
+            var sql = $"SELECT TOP 100 * FROM EtClass WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassDataType.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND StudentIds LIKE '%,{studentId},%'";
             return await _dbWrapper.ExecuteObject<EtClass>(sql);
         }
 

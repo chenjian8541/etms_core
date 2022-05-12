@@ -22,6 +22,15 @@ namespace ETMS.Utility
             return true;
         }
 
+        public static string GetInIds(IEnumerable<long> ids)
+        {
+            if (ids.Count() > 50)
+            {
+                ids = ids.Take(50);
+            }
+            return string.Join(',', ids);
+        }
+
         static SQLHelper()
         {
             _dangerStrList = new List<string>();

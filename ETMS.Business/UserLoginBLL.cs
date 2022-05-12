@@ -303,7 +303,8 @@ namespace ETMS.Business
                 return ResponseBase.Success(new UserLoginBySmsH5Output()
                 {
                     ExpiresTime = result.ExpiresTime,
-                    Token = result.Token
+                    Token = result.Token,
+                    IsBindWeChatOfficialAccount = await CheckIsBindWeChatOfficialAccount(result.TId)
                 });
             }
             return res;
@@ -329,7 +330,8 @@ namespace ETMS.Business
                 return ResponseBase.Success(new UserLoginBySmsH5Output()
                 {
                     ExpiresTime = result.ExpiresTime,
-                    Token = result.Token
+                    Token = result.Token,
+                    IsBindWeChatOfficialAccount = await CheckIsBindWeChatOfficialAccount(result.TId)
                 });
             }
             return res;
@@ -546,7 +548,8 @@ namespace ETMS.Business
             return ResponseBase.Success(new UserLoginBySmsH5Output()
             {
                 ExpiresTime = result.ExpiresTime,
-                Token = result.Token
+                Token = result.Token,
+                IsBindWeChatOfficialAccount = await CheckIsBindWeChatOfficialAccount(thisTenant.Id)
             });
         }
 

@@ -299,6 +299,19 @@ namespace ETMS.Business.Common
             return user.NickName;
         }
 
+        internal static string GetParentTeacherName(NoticeUserView user)
+        {
+            if (user == null)
+            {
+                return string.Empty;
+            }
+            if (string.IsNullOrEmpty(user.NickName))
+            {
+                return user.Name;
+            }
+            return user.NickName;
+        }
+
         internal static string GetParentTeacherName(string name, string nickName)
         {
             if (string.IsNullOrEmpty(nickName))

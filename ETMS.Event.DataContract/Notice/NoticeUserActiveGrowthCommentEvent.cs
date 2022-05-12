@@ -11,5 +11,7 @@ namespace ETMS.Event.DataContract
         { }
 
         public EtActiveGrowthRecordDetailComment ActiveGrowthRecordDetailComment { get; set; }
+
+        public long StudentId { get; set; }
     }
 }

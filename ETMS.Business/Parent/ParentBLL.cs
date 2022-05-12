@@ -287,7 +287,8 @@ namespace ETMS.Business
             {
                 L = signatureInfo.Item1,
                 S = signatureInfo.Item2,
-                ExpiresIn = exTime
+                ExpiresIn = exTime,
+                IsBindWeChatOfficialAccount = await CheckIsBindWeChatOfficialAccount(tenantId)
             });
         }
 

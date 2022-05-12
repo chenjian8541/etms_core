@@ -295,21 +295,53 @@ namespace ETMS.Business
         private string GetNoticeSetting(RoleNoticeSettingRequest request)
         {
             var mySetting = new List<int>();
-            if (request.IsStudentLeaveApply)
+            if (request.IsOpenStudentLeaveApply)
             {
-                mySetting.Add(RoleOtherSetting.StudentLeaveApply);
+                if (request.OpenStudentLeaveApplyType == 0)
+                {
+                    mySetting.Add(RoleOtherSetting.StudentLeaveApply);
+                }
+                else
+                {
+                    mySetting.Add(RoleOtherSetting.StudentLeaveApplyMy);
+                }
             }
-            if (request.IsStudentContractsNotArrived)
+            if (request.IsOpenStudentContractsNotArrived)
             {
-                mySetting.Add(RoleOtherSetting.StudentContractsNotArrived);
+                if (request.OpenStudentContractsNotArrivedType == 0)
+                {
+                    mySetting.Add(RoleOtherSetting.StudentContractsNotArrived);
+                }
+                else
+                {
+                    mySetting.Add(RoleOtherSetting.StudentContractsNotArrivedMy);
+                }
+            }
+            if (request.IsOpenReceiveInteractiveStudent)
+            {
+                if (request.OpenReceiveInteractiveStudentType == 0)
+                {
+                    mySetting.Add(RoleOtherSetting.ReceiveInteractiveStudent);
+                }
+                else
+                {
+                    mySetting.Add(RoleOtherSetting.ReceiveInteractiveStudentMy);
+                }
+            }
+            if (request.IsOpenStudentCheckOnWeChat)
+            {
+                if (request.OpenStudentCheckOnWeChatType == 0)
+                {
+                    mySetting.Add(RoleOtherSetting.StudentCheckOnWeChat);
+                }
+                else
+                {
+                    mySetting.Add(RoleOtherSetting.StudentCheckOnWeChatMy);
+                }
             }
             if (request.IsTryCalssApply)
             {
                 mySetting.Add(RoleOtherSetting.TryCalssApply);
-            }
-            if (request.IsReceiveInteractiveStudent)
-            {
-                mySetting.Add(RoleOtherSetting.ReceiveInteractiveStudent);
             }
             if (request.IsAllowAppLogin)
             {
@@ -326,10 +358,6 @@ namespace ETMS.Business
             if (request.IsAllowWebchatLogin)
             {
                 mySetting.Add(RoleOtherSetting.AllowWebchatLogin);
-            }
-            if (request.IsStudentCheckOnWeChat)
-            {
-                mySetting.Add(RoleOtherSetting.StudentCheckOnWeChat);
             }
             return EtmsHelper.GetMuIds(mySetting);
         }

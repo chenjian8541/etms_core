@@ -117,5 +117,7 @@ namespace ETMS.Entity.View
         public string Remark { get; set; }
 
         public string RoleName { get; set; }
+
+        public string NoticeSetting { get; set; }
     }
 }

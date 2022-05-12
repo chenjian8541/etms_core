@@ -10,8 +10,6 @@ namespace ETMS.Event.DataContract
         public NoticeUserContractsNotArrivedEvent(int tenantId) : base(tenantId)
         { }
 
-        public string ClassName { get; set; }
-
         public EtClassRecord ClassRecord { get; set; }
 
         public List<EtClassRecordStudent> ClassRecordNotArrivedStudents { get; set; }

@@ -11,5 +11,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public string L { get; set; }
 
         public string ExpiresIn { get; set; }
+
+        public bool IsBindWeChatOfficialAccount { get; set; }
     }
 }

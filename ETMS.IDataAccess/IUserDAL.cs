@@ -50,7 +50,9 @@ namespace ETMS.IDataAccess
 
         Task<bool> UserEditWx(long userId, string wechatOpenid, string wechatUnionid);
 
-        Task<List<EtUser>> GetUserAboutNotice(int roleNoticeType);
+        Task<IEnumerable<NoticeUserView>> GetUserAboutNotice(int roleNoticeType);
+
+        Task<IEnumerable<NoticeUserView>> GetUserAboutNotice(int roleNoticeType, IEnumerable<long> relationUserIds);
 
         Task UpdateUserHomeMenu(long userId, string homeMenus);
     }

@@ -263,7 +263,39 @@ namespace ETMS.Business.Common
                     case RoleOtherSetting.StudentCheckOnWeChat:
                         output.IsStudentCheckOnWeChat = true;
                         break;
+                    case RoleOtherSetting.StudentLeaveApplyMy:
+                        output.IsStudentLeaveApplyMy = true;
+                        break;
+                    case RoleOtherSetting.StudentContractsNotArrivedMy:
+                        output.IsStudentContractsNotArrivedMy = true;
+                        break;
+                    case RoleOtherSetting.ReceiveInteractiveStudentMy:
+                        output.IsReceiveInteractiveStudentMy = true;
+                        break;
+                    case RoleOtherSetting.StudentCheckOnWeChatMy:
+                        output.IsStudentCheckOnWeChatMy = true;
+                        break;
                 }
+            }
+            if (output.IsStudentLeaveApply || output.IsStudentLeaveApplyMy)
+            {
+                output.IsOpenStudentLeaveApply = true;
+                output.OpenStudentLeaveApplyType = output.IsStudentLeaveApply ? 0 : 1;
+            }
+            if (output.IsStudentContractsNotArrived || output.IsStudentContractsNotArrivedMy)
+            {
+                output.IsOpenStudentContractsNotArrived = true;
+                output.OpenStudentContractsNotArrivedType = output.IsStudentContractsNotArrived ? 0 : 1;
+            }
+            if (output.IsReceiveInteractiveStudent || output.IsReceiveInteractiveStudentMy)
+            {
+                output.IsOpenReceiveInteractiveStudent = true;
+                output.OpenReceiveInteractiveStudentType = output.IsReceiveInteractiveStudent ? 0 : 1;
+            }
+            if (output.IsStudentCheckOnWeChat || output.IsStudentCheckOnWeChatMy)
+            {
+                output.IsOpenStudentCheckOnWeChat = true;
+                output.OpenStudentCheckOnWeChatType = output.IsStudentCheckOnWeChat ? 0 : 1;
             }
             return output;
         }
