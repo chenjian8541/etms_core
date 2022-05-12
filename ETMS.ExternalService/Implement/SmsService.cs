@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.ExternalService.ZhuTong.Response;
 
 namespace ETMS.ExternalService.Implement
 {
@@ -1175,6 +1176,50 @@ namespace ETMS.ExternalService.Implement
                 Log.Error($"[CommonSms]发送短信失败:{EtmsHelper.EtmsSerializeObject(request)}", ex, this.GetType());
                 return SmsOutput.Fail();
             }
+        }
+
+        public async Task<SmsOutput<int>> SmsBatchSend(SmsBatchSendRequest request)
+        {
+            var now = DateTime.Now;
+            var tKeyAndPwd = GetTKeyAndPwd();
+            var smsSignature = _smsConfig.ZhuTong.Signature;
+            var sendSmsRequest = new SendSmsPaRequest()
+            {
+                tKey = tKeyAndPwd.Item1,
+                time = string.Empty,
+                username = _smsConfig.ZhuTong.UserName,
+                password = tKeyAndPwd.Item2,
+                records = new List<SendSmsPaItem>()
+            };
+            foreach (var item in request.SmsBatch)
+            {
+                sendSmsRequest.records.Add(new SendSmsPaItem()
+                {
+                    content = item.SmsContent,
+                    mobile = item.Phone
+                });
+            }
+            var res = await _httpClient.PostAsync<SendSmsPaRequest, SendSmsPaRes>(_smsConfig.ZhuTong.SendSmsPa, sendSmsRequest);
+            if (!SendSmsPaRes.IsSuccess(res))
+            {
+                return SmsOutput<int>.Fail();
+            }
+            var deTotalCount = 0;
+            if (res.successList != null && res.successList.Count > 0)
+            {
+                deTotalCount += res.successList.Sum(j => j.contNum);
+            }
+            if (res.invalidList != null && res.invalidList.Count > 0)
+            {
+                deTotalCount += res.invalidList.Sum(j => j.contNum);
+            }
+            _eventPublisher.Publish(new SmsBatchSendEvent(request.LoginTenantId)
+            {
+                SendSmsPaRes = res,
+                SmsBatchSendRequest = request,
+                SendTime = now
+            });
+            return SmsOutput<int>.Success(deTotalCount);
         }
     }
 }

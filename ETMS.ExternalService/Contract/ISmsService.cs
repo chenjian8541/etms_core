@@ -45,5 +45,7 @@ namespace ETMS.ExternalService.Contract
         Task<SmsOutput> TenantOpenApi99SendSms(TenantOpenApi99SendSmsRequest request);
 
         Task<SmsOutput> CommonSms(CommonSmsRequest request);
+
+        Task<SmsOutput<int>> SmsBatchSend(SmsBatchSendRequest request);
     }
 }

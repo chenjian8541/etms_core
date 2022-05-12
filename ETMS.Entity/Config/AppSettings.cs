@@ -370,6 +370,8 @@ namespace ETMS.Entity.Config
 
         public string SendSms { get; set; }
 
+        public string SendSmsPa { get; set; }
+
         public string SmsSign { get; set; }
 
         public string UserName { get; set; }

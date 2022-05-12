@@ -42,11 +42,14 @@ namespace ETMS.Business.EventConsumer
         private readonly ISysTenantStatisticsWeekDAL _sysTenantStatisticsWeekDAL;
 
         private readonly ISysTenantStatisticsMonthDAL _sysTenantStatisticsMonthDAL;
+
+        private readonly ISmsLogDAL _studentSmsLogDAL;
+
         public TenantLibBLL(IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL, INoticeConfigDAL noticeConfigDAL,
             IComDAL comDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantCloudStorageDAL sysTenantCloudStorageDAL, IJobAnalyze2DAL jobAnalyze2DAL,
             ISysTenantStatistics2DAL sysTenantStatistics2DAL, ISysTenantStatisticsWeekDAL sysTenantStatisticsWeekDAL,
-            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL)
+            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL, ISmsLogDAL smsLogDAL)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -60,12 +63,13 @@ namespace ETMS.Business.EventConsumer
             this._sysTenantStatistics2DAL = sysTenantStatistics2DAL;
             this._sysTenantStatisticsWeekDAL = sysTenantStatisticsWeekDAL;
             this._sysTenantStatisticsMonthDAL = sysTenantStatisticsMonthDAL;
+            this._studentSmsLogDAL = smsLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _studentDAL, _courseDAL, _classDAL, _noticeConfigDAL, _comDAL,
-                _userOperationLogDAL, _jobAnalyze2DAL);
+                _userOperationLogDAL, _jobAnalyze2DAL, _studentSmsLogDAL);
         }
 
         public async Task<EtNoticeConfig> NoticeConfigGet(int type, byte peopleType, int scenesType)
@@ -337,6 +341,71 @@ namespace ETMS.Business.EventConsumer
             }
 
             await _sysTenantStatisticsMonthDAL.SaveSysTenantStatisticsMonth(monthLog);
+        }
+
+        public async Task SmsBatchSendConsumerEvent(SmsBatchSendEvent request)
+        {
+            var smsLog = new List<EtStudentSmsLog>();
+            var smsBatch = request.SmsBatchSendRequest.SmsBatch;
+            var sendTime = request.SendTime;
+            var successList = request.SendSmsPaRes.successList;
+            if (successList != null && successList.Count > 0)
+            {
+                foreach (var item in successList)
+                {
+                    var smsContent = string.Empty;
+                    long? studentId = null;
+                    var myLog = smsBatch.FirstOrDefault(p => p.Phone == item.mobile);
+                    if (myLog != null)
+                    {
+                        smsContent = myLog.SmsContent;
+                        studentId = myLog.StudentId;
+                    }
+                    smsLog.Add(new EtStudentSmsLog()
+                    {
+                        DeCount = item.contNum,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Ot = sendTime,
+                        Phone = item.mobile,
+                        SmsContent = smsContent,
+                        Status = EmSmsLogStatus.Finish,
+                        StudentId = studentId,
+                        TenantId = request.TenantId,
+                        Type = EmStudentSmsLogType.StudentBatchSend
+                    });
+                }
+            }
+            var invalidList = request.SendSmsPaRes.invalidList;
+            if (invalidList != null && invalidList.Count > 0)
+            {
+                foreach (var item in invalidList)
+                {
+                    var smsContent = string.Empty;
+                    long? studentId = null;
+                    var myLog = smsBatch.FirstOrDefault(p => p.Phone == item.mobile);
+                    if (myLog != null)
+                    {
+                        smsContent = myLog.SmsContent;
+                        studentId = myLog.StudentId;
+                    }
+                    smsLog.Add(new EtStudentSmsLog()
+                    {
+                        DeCount = item.contNum,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Ot = sendTime,
+                        Phone = item.mobile,
+                        SmsContent = smsContent,
+                        Status = EmSmsLogStatus.Fail,
+                        StudentId = studentId,
+                        TenantId = request.TenantId,
+                        Type = EmStudentSmsLogType.StudentBatchSend
+                    });
+                }
+            }
+            if (smsLog.Any())
+            {
+                await _studentSmsLogDAL.AddStudentSmsLog(smsLog);
+            }
         }
     }
 }

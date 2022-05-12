@@ -176,6 +176,9 @@ namespace ETMS.Entity.Enum
         ElectronicAlbumMgr = 85,
 
         [Description("约课设置")]
-        ClassTimesReservationSetting = 86
+        ClassTimesReservationSetting = 86,
+
+        [Description("短信群发")]
+        StudentSmsBatchSend = 87
     }
 }

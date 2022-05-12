@@ -47,6 +47,11 @@ namespace ETMS.Entity.Enum
         public const int StudentAccountRechargeChanged = 7;
 
         /// <summary>
+        /// 短信群发
+        /// </summary>
+        public const int StudentBatchSend = 8;
+
+        /// <summary>
         /// 机构开放接口 短信通知
         /// </summary>
         public const int TenantOpenApi99SendSms = 99;
@@ -73,6 +78,8 @@ namespace ETMS.Entity.Enum
                     return "充值帐户变动提醒";
                 case TenantOpenApi99SendSms:
                     return "短信通知";
+                case StudentBatchSend:
+                    return "短信群发";
             }
             return string.Empty;
         }

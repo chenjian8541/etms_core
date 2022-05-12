@@ -104,5 +104,24 @@ namespace ETMS.Utility
             var minute = hourAndMinute % 100;
             return new DateTime(myDate.Year, myDate.Month, myDate.Day, hour, minute, 0);
         }
+
+        /// <summary>
+        /// 粗略计算消耗的短信条数
+        /// </summary>
+        /// <param name="smsContent"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static int SmsCountCalculate(string smsContent, int count)
+        {
+            var smsLength = smsContent.Length;
+            if (smsLength < 70)
+            {
+                return count;
+            }
+            var allCount = smsLength / 67;
+            var exceedNumCount = allCount % 67 > 0 ? 1 : 0;
+            var itemCount = allCount + exceedNumCount;
+            return itemCount * count;
+        }
     }
 }

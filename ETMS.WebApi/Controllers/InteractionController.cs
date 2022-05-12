@@ -427,6 +427,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentSmsSend(StudentSmsSendRequest request)
+        {
+            try
+            {
+                _smsLogBLL.InitTenantId(request.LoginTenantId);
+                return await _smsLogBLL.StudentSmsBatchSend(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TeacherClassRecordEvaluateGetPaging(TeacherClassRecordEvaluateGetPagingRequest request)
         {
             try

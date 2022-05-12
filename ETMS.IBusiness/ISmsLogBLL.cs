@@ -10,5 +10,7 @@ namespace ETMS.IBusiness
     public interface ISmsLogBLL: IBaseBLL
     {
         Task<ResponseBase> StudentSmsLogGetPaging(StudentSmsLogGetPagingRequest request);
+
+        Task<ResponseBase> StudentSmsBatchSend(StudentSmsSendRequest request);
     }
 }

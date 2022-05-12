@@ -16,13 +16,18 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte Finish = 1;
 
+        /// <summary>
+        /// 失败
+        /// </summary>
+        public const byte Fail = 3;
+
         public static string GetSmsLogStatusDesc(byte t)
         {
-            if (t == IsSending)
+            if (t == Finish)
             {
-                return "发送中";
+                return "已完成";
             }
-            return "已完成";
+            return t == Fail ? "发送失败" : "发送中";
         }
     }
 }

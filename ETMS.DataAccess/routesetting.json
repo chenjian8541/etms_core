@@ -601,6 +601,18 @@
           "Title": "发通知",
           "Icon": "item"
         }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "sendSms",
+        "Name": "sendSms",
+        "Type": 1,
+        "Component": "@/components/notice/smsBatchSend",
+        "Meta": {
+          "Title": "短信群发",
+          "Icon": "item"
+        }
       }
     ]
   },
