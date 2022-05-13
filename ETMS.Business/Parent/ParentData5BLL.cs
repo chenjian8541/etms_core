@@ -349,7 +349,7 @@ namespace ETMS.Business.Parent
             var myClassDate = request.ClassOt.Value;
             var details = teacherSchooltimeConfigBucket.EtTeacherSchooltimeConfigDetails;
             var exConfigDate = teacherSchooltimeConfigBucket.TeacherSchooltimeConfigExclude?.AllExcludeDate;
-            var thisDataConfig = details.Where(p => p.Week == (byte)myClassDate.DayOfWeek);
+            var thisDataConfig = details.Where(p => p.Week == (byte)myClassDate.DayOfWeek && (p.CourseId == null || p.CourseId == request.CourseId));
             if (!thisDataConfig.Any())
             {
                 return ResponseBase.Success(new StudentReservation1v1LessonsGetOutput("未查询到当天的课"));

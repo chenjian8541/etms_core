@@ -280,7 +280,7 @@ namespace ETMS.Business.EventConsumer
             var studentBucket = await _studentDAL.GetStudent(request.MyStudent.Id);
             if (studentBucket == null || studentBucket.Student == null)
             {
-                LOG.Log.Error("[UpdateStudentInfoConsumerEvent]未找到学员", request, this.GetType());
+                LOG.Log.Fatal("[UpdateStudentInfoConsumerEvent]未找到学员", request, this.GetType());
                 return;
             }
             var student = studentBucket.Student;

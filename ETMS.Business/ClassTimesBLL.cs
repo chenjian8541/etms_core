@@ -941,6 +941,10 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
             var classTimesStudent = await _classTimesDAL.GetClassTimesStudentById(request.ClassTimesStudentId);
+            if (classTimesStudent == null)
+            {
+                return ResponseBase.CommonError("学员信息不存在");
+            }
             var result = ResponseBase.CommonError("无法处理此请求");
             if (classTimesStudent.StudentType == EmClassStudentType.TempStudent)
             {

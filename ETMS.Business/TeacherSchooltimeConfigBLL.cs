@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Educational2.Output;
 using ETMS.Entity.Dto.Educational2.Request;
@@ -24,17 +25,20 @@ namespace ETMS.Business
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
+        private readonly ICourseDAL _courseDAL;
         public TeacherSchooltimeConfigBLL(IUserDAL userDAL, ITeacherSchooltimeConfigDAL teacherSchooltimeConfigDAL,
-            IUserOperationLogDAL userOperationLogDAL)
+            IUserOperationLogDAL userOperationLogDAL, ICourseDAL courseDAL)
         {
             this._userDAL = userDAL;
             this._teacherSchooltimeConfigDAL = teacherSchooltimeConfigDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._courseDAL = courseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _userDAL, _teacherSchooltimeConfigDAL, _userOperationLogDAL);
+            this.InitDataAccess(tenantId, _userDAL, _teacherSchooltimeConfigDAL, _userOperationLogDAL,
+                _courseDAL);
         }
 
         public async Task<ResponseBase> TeacherSchooltimeConfigGetPaging(TeacherSchooltimeConfigGetPagingRequest request)
@@ -114,6 +118,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("老师不存在");
             }
+            var myCourseName = string.Empty;
+            if (request.CourseId != null)
+            {
+                var setCourse = await _courseDAL.GetCourse(request.CourseId.Value);
+                if (setCourse == null || setCourse.Item1 == null)
+                {
+                    return ResponseBase.CommonError("课程不存在");
+                }
+                myCourseName = setCourse.Item1.Name;
+            }
             var teacherSchooltimeConfigBucket = await _teacherSchooltimeConfigDAL.TeacherSchooltimeConfigGet(request.TeacherId);
             if (teacherSchooltimeConfigBucket != null)
             {
@@ -136,7 +150,16 @@ namespace ETMS.Business
             }
 
             var timeDesc = EtmsHelper.GetTimeDesc(request.StartTime, request.EndTime);
-            var isJumpHolidayDesc = request.IsJumpHoliday ? "(跳过节假日)" : string.Empty;
+            var strRuleDesc = new StringBuilder();
+            if (request.CourseId != null)
+            {
+                strRuleDesc.Append($"{myCourseName}：");
+            }
+            strRuleDesc.Append($"{EtmsHelper3.GetWeeksDesc(request.Weeks)}{timeDesc}");
+            if (request.IsJumpHoliday)
+            {
+                strRuleDesc.Append("(跳过节假日)");
+            }
             var config = new EtTeacherSchooltimeConfig()
             {
                 CourseId = request.CourseId,
@@ -148,7 +171,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 IsJumpHoliday = request.IsJumpHoliday,
                 Weeks = EtmsHelper.GetMuIds(request.Weeks),
-                RuleDesc = $"{EtmsHelper3.GetWeeksDesc(request.Weeks)}{timeDesc}{isJumpHolidayDesc}"
+                RuleDesc = strRuleDesc.ToString()
             };
             var configDetail = new List<EtTeacherSchooltimeConfigDetail>();
             foreach (var myWeek in request.Weeks)
@@ -240,12 +263,30 @@ namespace ETMS.Business
             };
             var excludeDateContent = Newtonsoft.Json.JsonConvert.SerializeObject(data);
 
+            var tempBoxCourse = new DataTempBox<EtCourse>();
             foreach (var item in request.Items)
             {
-                var isJumpHolidayDesc = item.IsJumpHoliday ? "(跳过节假日)" : string.Empty;
                 item.TimeDesc = EtmsHelper.GetTimeDesc(item.NewIntStartTime, item.NewIntEndTime);
                 item.StrWeeks = EtmsHelper.GetMuIds(item.Weeks);
-                item.RuleDesc = $"{EtmsHelper3.GetWeeksDesc(item.Weeks)}{ item.TimeDesc}{isJumpHolidayDesc}";
+                var strRuleDesc = new StringBuilder();
+                if (item.CourseId != null)
+                {
+                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, item.CourseId.Value);
+                    if (myCourse == null)
+                    {
+                        item.CourseId = null;
+                    }
+                    else
+                    {
+                        strRuleDesc.Append($"{myCourse.Name}：");
+                    }
+                }
+                strRuleDesc.Append($"{EtmsHelper3.GetWeeksDesc(item.Weeks)}{ item.TimeDesc}");
+                if (item.IsJumpHoliday)
+                {
+                    strRuleDesc.Append("(跳过节假日)");
+                }
+                item.RuleDesc = strRuleDesc.ToString();
             }
 
             foreach (var teacherId in request.TeacherIds)
