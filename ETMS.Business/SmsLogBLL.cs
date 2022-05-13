@@ -89,6 +89,10 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentSmsBatchSend(StudentSmsSendRequest request)
         {
+            if (request.SecrecyType == EmRoleSecrecyType.Secrecy)
+            {
+                return ResponseBase.CommonError("您无法访问学员手机号码");
+            }
             var lockKey = new StudentSmsBatchSendToken(request.LoginTenantId);
             if (_distributedLockDAL.LockTake(lockKey))
             {
@@ -138,7 +142,7 @@ namespace ETMS.Business
                 {
                     Phone = p.Phone,
                     StudentId = p.CId,
-                    SmsContent = newSmsContent.Replace("{{学员名称}}", p.Name)
+                    SmsContent = newSmsContent.Replace("{{学员姓名}}", p.Name)
                 });
             }
             var res = await _smsService.SmsBatchSend(smsRequest);
