@@ -97,13 +97,33 @@ namespace ETMS.Business
             var checkImportStudentTemplateFileResult = ExcelLib.CheckImportStudentExcelTemplate(tenant.TenantCode, _appConfigurtaionServices.AppSettings.StaticFilesConfig.ServerPath);
             if (!checkImportStudentTemplateFileResult.IsExist)
             {
+                var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
+                if (studentRelationshipAll.Count > 100)
+                {
+                    studentRelationshipAll = studentRelationshipAll.Take(100).ToList();
+                }
+                var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+                if (studentSourceAll.Count > 100)
+                {
+                    studentSourceAll = studentSourceAll.Take(100).ToList();
+                }
+                var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
+                if (studentExtendFieldAll.Count > 100)
+                {
+                    studentExtendFieldAll = studentExtendFieldAll.Take(100).ToList();
+                }
+                var gradeAll = await _gradeDAL.GetAllGrade();
+                if (gradeAll.Count > 100)
+                {
+                    gradeAll = gradeAll.Take(100).ToList();
+                }
                 ExcelLib.GenerateImportStudentExcelTemplate(new ImportStudentExcelTemplateRequest()
                 {
                     CheckResult = checkImportStudentTemplateFileResult,
-                    GradeAll = await _gradeDAL.GetAllGrade(),
-                    StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
-                    StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
-                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
+                    GradeAll = gradeAll,
+                    StudentRelationshipAll = studentRelationshipAll,
+                    StudentSourceAll = studentSourceAll,
+                    StudentExtendFieldAll = studentExtendFieldAll
                 }); ;
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportStudentTemplateFileResult.UrlKey));
@@ -259,14 +279,34 @@ namespace ETMS.Business
             var checkImportCourseTimesExcelTemplate = ExcelLib.CheckImportCourseTimesExcelTemplate(tenant.TenantCode, _appConfigurtaionServices.AppSettings.StaticFilesConfig.ServerPath);
             if (!checkImportCourseTimesExcelTemplate.IsExist)
             {
+                var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
+                if (studentRelationshipAll.Count > 100)
+                {
+                    studentRelationshipAll = studentRelationshipAll.Take(100).ToList();
+                }
+                var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+                if (studentSourceAll.Count > 100)
+                {
+                    studentSourceAll = studentSourceAll.Take(100).ToList();
+                }
+                var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
+                if (studentExtendFieldAll.Count > 100)
+                {
+                    studentExtendFieldAll = studentExtendFieldAll.Take(100).ToList();
+                }
+                var gradeAll = await _gradeDAL.GetAllGrade();
+                if (gradeAll.Count > 100)
+                {
+                    gradeAll = gradeAll.Take(100).ToList();
+                }
                 ExcelLib.GenerateImportCourseTimesExcelTemplate(new ImportCourseHeadDescTimesExcelTemplateRequest()
                 {
                     CheckResult = checkImportCourseTimesExcelTemplate,
                     PayTypeAll = EmPayType.GetPayTypeAll(),
-                    GradeAll = await _gradeDAL.GetAllGrade(),
-                    StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
-                    StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
-                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
+                    GradeAll = gradeAll,
+                    StudentRelationshipAll = studentRelationshipAll,
+                    StudentSourceAll = studentSourceAll,
+                    StudentExtendFieldAll = studentExtendFieldAll
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseTimesExcelTemplate.UrlKey));
@@ -621,14 +661,34 @@ namespace ETMS.Business
             var checkImportCourseDayExcelTemplate = ExcelLib.CheckImportCourseDayExcelTemplate(tenant.TenantCode, _appConfigurtaionServices.AppSettings.StaticFilesConfig.ServerPath);
             if (!checkImportCourseDayExcelTemplate.IsExist)
             {
+                var studentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship();
+                if (studentRelationshipAll.Count > 100)
+                {
+                    studentRelationshipAll = studentRelationshipAll.Take(100).ToList();
+                }
+                var studentSourceAll = await _studentSourceDAL.GetAllStudentSource();
+                if (studentSourceAll.Count > 100)
+                {
+                    studentSourceAll = studentSourceAll.Take(100).ToList();
+                }
+                var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
+                if (studentExtendFieldAll.Count > 100)
+                {
+                    studentExtendFieldAll = studentExtendFieldAll.Take(100).ToList();
+                }
+                var gradeAll = await _gradeDAL.GetAllGrade();
+                if (gradeAll.Count > 100)
+                {
+                    gradeAll = gradeAll.Take(100).ToList();
+                }
                 ExcelLib.GenerateImportCourseDayExcelTemplate(new ImportCourseHeadDescDayExcelTemplateRequest()
                 {
                     CheckResult = checkImportCourseDayExcelTemplate,
                     PayTypeAll = EmPayType.GetPayTypeAll(),
-                    GradeAll = await _gradeDAL.GetAllGrade(),
-                    StudentRelationshipAll = await _studentRelationshipDAL.GetAllStudentRelationship(),
-                    StudentSourceAll = await _studentSourceDAL.GetAllStudentSource(),
-                    StudentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField()
+                    GradeAll = gradeAll,
+                    StudentRelationshipAll = studentRelationshipAll,
+                    StudentSourceAll = studentSourceAll,
+                    StudentExtendFieldAll = studentExtendFieldAll
                 });
             }
             return ResponseBase.Success(UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, checkImportCourseDayExcelTemplate.UrlKey));
