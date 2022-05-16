@@ -214,7 +214,7 @@ namespace ETMS.Business.Parent
             {
                 var myDate = currentDate;
                 currentDate = currentDate.AddDays(1);
-                var exWeek = details.FirstOrDefault(p => p.Week == (int)myDate.DayOfWeek);
+                var exWeek = details.FirstOrDefault(p => p.Week == (int)myDate.DayOfWeek && (p.CourseId == null || p.CourseId == request.CourseId));
                 if (exWeek == null)
                 {
                     continue;

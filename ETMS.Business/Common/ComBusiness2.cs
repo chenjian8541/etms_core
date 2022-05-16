@@ -460,7 +460,46 @@ namespace ETMS.Business.Common
             var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
             if (deClassTimes != null && deClassTimes.SurplusQuantity > limitClassTimes && deClassTimes.Status != EmStudentCourseStatus.EndOfClass)
             {
-                isHasEnoughDeClassTimes = true;
+                var date = DateTime.Now.AddDays(limitDay).Date;
+                if (deClassTimes.EndTime == null || deClassTimes.EndTime > date)
+                {
+                    isHasEnoughDeClassTimes = true;
+                }
+            }
+
+            var courseDay = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
+            if (courseDay != null && (courseDay.SurplusQuantity > 0 || courseDay.SurplusSmallQuantity > limitDay)
+                && courseDay.Status != EmStudentCourseStatus.EndOfClass)
+            {
+                isHasEnoughCourseDay = true;
+            }
+            if (!isHasEnoughDeClassTimes && !isHasEnoughCourseDay)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool CheckStudentCourseIsNotEnough(List<EtStudentCourse> myStudentCourses, int studentCourseNotEnoughCount, int limitClassTimes, int limitDay)
+        {
+            if (myStudentCourses == null || myStudentCourses.Count == 0)
+            {
+                return true;
+            }
+            if (!myStudentCourses.Where(p => p.Status != EmStudentCourseStatus.EndOfClass).Any())
+            {
+                return true;
+            }
+            var isHasEnoughDeClassTimes = false;
+            var isHasEnoughCourseDay = false;
+            var deClassTimes = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            if (deClassTimes != null && deClassTimes.SurplusQuantity > limitClassTimes && deClassTimes.Status != EmStudentCourseStatus.EndOfClass)
+            {
+                var date = DateTime.Now.AddDays(limitDay).Date;
+                if (deClassTimes.EndTime == null || deClassTimes.EndTime > date)
+                {
+                    isHasEnoughDeClassTimes = true;
+                }
             }
 
             var courseDay = myStudentCourses.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);

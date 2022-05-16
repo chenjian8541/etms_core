@@ -12,6 +12,8 @@ namespace ETMS.Entity.Dto.Parent5.Request
     {
         public long TeacherId { get; set; }
 
+        public long CourseId { get; set; }
+
         /// <summary>
         /// 查询时间
         /// </summary>
@@ -63,6 +65,10 @@ namespace ETMS.Entity.Dto.Parent5.Request
 
         public override string Validate()
         {
+            if (CourseId <= 0)
+            {
+                return "请选择课程";
+            }
             if (TeacherId <= 0)
             {
                 return "请选择老师";

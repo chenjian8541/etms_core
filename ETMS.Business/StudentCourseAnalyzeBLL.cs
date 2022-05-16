@@ -13,6 +13,7 @@ using ETMS.Utility;
 using ETMS.Business.Common;
 using ETMS.Entity.View;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.Entity.Config;
 
 namespace ETMS.Business
 {
@@ -385,19 +386,17 @@ namespace ETMS.Business
             }
 
             var now = DateTime.Now;
-            var isCheckCourseIsNotEnough = false;
-            var isCourseNotEnough = false;
+            TenantConfig tenantConfig = null;
             if (!request.IsJobExecute)
             {
                 //课程不足提醒
-                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                tenantConfig = await _tenantConfigDAL.GetTenantConfig();
                 if (tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughWeChat
                     || tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughSms)
                 {
-                    isCourseNotEnough = ComBusiness2.CheckStudentCourseNeedRemind(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
-                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
-                    isCheckCourseIsNotEnough = true;
-                    if (isCourseNotEnough)
+                    var isNeedRemindCourseNotEnough = ComBusiness2.CheckStudentCourseNeedRemind(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
+                         tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
+                    if (isNeedRemindCourseNotEnough)
                     {
                         _eventPublisher.Publish(new NoticeStudentCourseNotEnoughEvent(request.TenantId)
                         {
@@ -407,10 +406,15 @@ namespace ETMS.Business
                     }
                 }
             }
-            if (request.IsNeedCheckCourseIsNotEnough && !isCheckCourseIsNotEnough)
+
+            var isCourseNotEnough = false;
+            if (request.IsNeedCheckCourseIsNotEnough)
             {
-                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-                isCourseNotEnough = ComBusiness2.CheckStudentCourseNeedRemind(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
+                if (tenantConfig == null)
+                {
+                    tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                }
+                isCourseNotEnough = ComBusiness2.CheckStudentCourseIsNotEnough(newCourse, tenantConfig.StudentNoticeConfig.StudentCourseNotEnoughCount,
                        tenantConfig.StudentCourseRenewalConfig.LimitClassTimes, tenantConfig.StudentCourseRenewalConfig.LimitDay);
             }
 
