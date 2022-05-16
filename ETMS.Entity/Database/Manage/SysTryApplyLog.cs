@@ -23,6 +23,8 @@ namespace ETMS.Entity.Database.Manage
 
         public long? HandleUserId { get; set; }
 
+        public DateTime? HandleOt { get; set; }
+
         /// <summary>
         /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
         /// </summary>

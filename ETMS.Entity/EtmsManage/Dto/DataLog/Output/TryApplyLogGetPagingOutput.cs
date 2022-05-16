@@ -28,5 +28,7 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Output
         public int ClientType { get; set; }
 
         public string ClientTypeDesc { get; set; }
+
+        public DateTime? HandleOt { get; set; }
     }
 }

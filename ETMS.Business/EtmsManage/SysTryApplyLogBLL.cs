@@ -41,6 +41,7 @@ namespace ETMS.Business.EtmsManage
                     Ot = p.Ot,
                     Status = p.Status,
                     ClientType = p.ClientType,
+                    HandleOt = p.HandleOt,
                     ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType)
                 });
             }
@@ -57,6 +58,7 @@ namespace ETMS.Business.EtmsManage
             log.HandleRemark = request.HandleContent;
             log.Status = EmSysTryApplyLogStatus.Processed;
             log.HandleUserId = request.LoginUserId;
+            log.HandleOt = DateTime.Now;
             await _sysTryApplyLogDAL.EditSysTryApplyLog(log);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()

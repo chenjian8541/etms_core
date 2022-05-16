@@ -13,6 +13,8 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Request
         public byte? HandleStatus { get; set; }
 
         public byte? ClientType { get; set; }
+
+        public string HandleRemark { get; set; }
         public override string ToString()
         {
             var condition = new StringBuilder($"IsDeleted = {EmIsDeleted.Normal}");
@@ -23,6 +25,10 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Request
             if (ClientType != null)
             {
                 condition.Append($" AND ClientType = {ClientType.Value}");
+            }
+            if (!string.IsNullOrEmpty(HandleRemark))
+            {
+                condition.Append($" AND HandleRemark LIKE '%{HandleRemark}%'");
             }
             return condition.ToString();
         }
