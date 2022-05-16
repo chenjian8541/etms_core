@@ -184,5 +184,10 @@ namespace ETMS.DataAccess
             var sql = $"SELECT TOP 200 Id,Ot FROM EtOrder WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}";
             return await _dbWrapper.ExecuteObject<OrderStudentOt>(sql);
         }
+
+        public async Task UpdateOrderDetailStatus(long orderId, byte newStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtOrderDetail SET [Status] = {newStatus} WHERE TenantId = {_tenantId} AND OrderId = {orderId}");
+        }
     }
 }

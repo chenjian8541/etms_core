@@ -1022,6 +1022,7 @@ namespace ETMS.Business
                 order.PayAccountRechargeId = payAccountRechargeId;
             }
             await _orderDAL.UpdateOrder(order);
+            await _orderDAL.UpdateOrderDetailStatus(order.Id, newStatus);
             if (payAccountRechargeId != null)
             {
                 await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)

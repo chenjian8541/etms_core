@@ -59,5 +59,7 @@ namespace ETMS.IDataAccess
         Task<bool> ExistOrderProduct(byte productType, long productId);
 
         Task<IEnumerable<OrderStudentOt>> GetOrderStudentOt(long studentId);
+
+        Task UpdateOrderDetailStatus(long orderId, byte newStatus);
     }
 }
