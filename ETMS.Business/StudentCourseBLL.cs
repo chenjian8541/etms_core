@@ -684,6 +684,7 @@ namespace ETMS.Business
                 StudentId = studentCourseDetail.StudentId,
                 IsSendNoticeStudent = true
             });
+            _eventPublisher.Publish(new SyncStudentReadTypeEvent(request.LoginTenantId, studentCourseDetail.StudentId));
 
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
             {
@@ -905,6 +906,8 @@ namespace ETMS.Business
                 OpContent = $"修正课时,原剩余课时:{beforSurplusDesc},修正后剩余课时:{endSurplusDesc}",
                 Remark = request.Remark
             });
+            _eventPublisher.Publish(new SyncStudentReadTypeEvent(request.LoginTenantId, studentCourseDetail.StudentId));
+
             await _userOperationLogDAL.AddUserLog(request, $"修正课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }

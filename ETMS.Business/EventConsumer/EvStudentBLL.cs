@@ -307,10 +307,31 @@ namespace ETMS.Business.EventConsumer
                 student.IsJoinClass = studentClassInfo.IsJoinClass;
             }
 
+            var isChangedStudentType = false;
+            //在读学员处理
+            if (student.StudentType != EmStudentType.ReadingStudent)
+            {
+                var isHasEffectiveCourse = await _studentCourseDAL.CheckStudentIsHasEffectiveCourse(student.Id);
+                if (isHasEffectiveCourse)
+                {
+                    student.StudentType = EmStudentType.ReadingStudent;
+                    isChangedStudentType = true;
+                }
+            }
+
             //课程状态
             student.CourseStatus = await GetStudentBuyCourseStatus(student.Id);
 
             await _studentDAL.EditStudent2(student);
+
+            if (isChangedStudentType)
+            {
+                _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId)
+                {
+                    OpType = EmStatisticsStudentType.StudentType,
+                    StatisticsDate = DateTime.Now
+                });
+            }
         }
 
         public async Task ImportExtendFieldExcelConsumerEvent(ImportExtendFieldExcelEvent request)
@@ -452,6 +473,19 @@ namespace ETMS.Business.EventConsumer
         {
             var strIds = await GetGetStudentCourseIds(request.StudentId);
             await _studentDAL.UpdateStudentCourseIds(request.StudentId, strIds);
+        }
+
+        public async Task SyncStudentReadTypeConsumerEvent(SyncStudentReadTypeEvent request)
+        {
+            var isHasEffectiveCourse = await _studentCourseDAL.CheckStudentIsHasEffectiveCourse(request.StudentId);
+            if (isHasEffectiveCourse)
+            {
+                var isChanged = await _studentDAL.SetStudentTypeIsRead(request.StudentId);
+                if (isChanged)
+                {
+                    _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = DateTime.Now });
+                }
+            }
         }
     }
 }

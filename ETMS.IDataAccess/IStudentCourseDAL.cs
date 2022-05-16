@@ -90,5 +90,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<OnlyOneFiledCourseId>> StudentStopCourseGet(long studentId);
 
         Task DelStudentCourse(List<long> ids);
+
+        Task<bool> CheckStudentIsHasEffectiveCourse(long studentId);
     }
 }

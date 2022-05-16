@@ -481,5 +481,12 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtStudent SET CourseIds = '{courseIds}' WHERE Id = {studentId}");
             RemoveCache(_tenantId, studentId);
         }
+
+        public async Task<bool> SetStudentTypeIsRead(long studentId)
+        {
+            var exCount = await _dbWrapper.Execute(
+                $"UPDATE EtStudent SET StudentType = {EmStudentType.ReadingStudent} WHERE Id = {studentId} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} ");
+            return exCount > 0;
+        }
     }
 }

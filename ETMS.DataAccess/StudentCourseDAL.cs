@@ -386,5 +386,12 @@ namespace ETMS.DataAccess
             }
             await _dbWrapper.Execute($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND Id IN ({string.Join(',', ids)})");
         }
+
+        public async Task<bool> CheckStudentIsHasEffectiveCourse(long studentId)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND [Status] <> {EmStudentCourseStatus.EndOfClass} AND (EndTime IS NULL OR EndTime >= '{DateTime.Now.EtmsToDateString()}')");
+            return obj != null;
+        }
     }
 }
