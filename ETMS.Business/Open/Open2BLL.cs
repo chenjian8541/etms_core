@@ -222,7 +222,7 @@ namespace ETMS.Business
                 if (phoneLog.Status == EmSysTryApplyLogStatus.Processed)
                 {
                     phoneLog.Status = EmSysTryApplyLogStatus.Untreated;
-                    phoneLog.HandleRemark = "重复提交";
+                    phoneLog.HandleRemark = $"{ phoneLog.HandleRemark}_重复提交";
                     await _sysTryApplyLogDAL.EditSysTryApplyLog(phoneLog);
                 }
                 return ResponseBase.CommonError("已存在此手机号码的注册信息");
@@ -431,6 +431,23 @@ namespace ETMS.Business
             });
         }
 
+        private async Task<ResponseBase> SendSmsCode(string phone)
+        {
+            var smsCode = RandomHelper.GetSmsCode();
+            var sendSmsRes = await _smsService.ComSendSmscode(new ComSendSmscodeRequest()
+            {
+                Phone = phone,
+                ValidCode = smsCode
+            });
+            if (!sendSmsRes.IsSuccess)
+            {
+                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+            }
+            _sysPhoneSmsCodeDAL.AddSysPhoneSmsCode(phone, smsCode);
+            _tempDataCacheDAL.RemovePhoneVerificationCodeBucket(phone);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> CheckPhoneSmsSafe(CheckPhoneSmsSafeRequest request)
         {
             var myVerificationCodeBucket = _tempDataCacheDAL.GetPhoneVerificationCodeBucket(request.Phone);
@@ -438,19 +455,34 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("校验码错误");
             }
-            var smsCode = RandomHelper.GetSmsCode();
-            var sendSmsRes = await _smsService.ComSendSmscode(new ComSendSmscodeRequest()
+            return await SendSmsCode(request.Phone);
+        }
+
+        public async Task<ResponseBase> SendSmsCodeAboutRegister(SendSmsCodeAboutRegisterRequest request)
+        {
+            var myVerificationCodeBucket = _tempDataCacheDAL.GetPhoneVerificationCodeBucket(request.Phone);
+            if (myVerificationCodeBucket == null || myVerificationCodeBucket.VerificationCode != request.VerificationCode)
             {
-                Phone = request.Phone,
-                ValidCode = smsCode
-            });
-            if (!sendSmsRes.IsSuccess)
-            {
-                return ResponseBase.CommonError("发送短信失败,请稍后再试");
+                return ResponseBase.CommonError("校验码错误");
             }
-            _sysPhoneSmsCodeDAL.AddSysPhoneSmsCode(request.Phone, smsCode);
-            _tempDataCacheDAL.RemovePhoneVerificationCodeBucket(request.Phone);
-            return ResponseBase.Success();
+            var isExistTenant = await _sysTenantDAL.TenantGetByPhone(request.Phone);
+            if (isExistTenant != null)
+            {
+                return ResponseBase.CommonError("此手机号码已注册");
+            }
+            var phoneLog = await _sysTryApplyLogDAL.SysTryApplyLogGet(request.Phone);
+            if (phoneLog != null)
+            {
+                if (phoneLog.Status == EmSysTryApplyLogStatus.Processed)
+                {
+                    phoneLog.Status = EmSysTryApplyLogStatus.Untreated;
+                    phoneLog.HandleRemark = $"{ phoneLog.HandleRemark}_重复提交";
+                    await _sysTryApplyLogDAL.EditSysTryApplyLog(phoneLog);
+                }
+                return ResponseBase.CommonError("已存在此手机号码的注册信息");
+            }
+
+            return await SendSmsCode(request.Phone);
         }
 
         public async Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request)

@@ -405,6 +405,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> SendSmsCodeAboutRegister(SendSmsCodeAboutRegisterRequest request)
+        {
+            try
+            {
+                return await _open2BLL.SendSmsCodeAboutRegister(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request)
         {
             try

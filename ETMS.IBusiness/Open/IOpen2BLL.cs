@@ -30,6 +30,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> CheckPhoneSmsSafe(CheckPhoneSmsSafeRequest request);
 
+        Task<ResponseBase> SendSmsCodeAboutRegister(SendSmsCodeAboutRegisterRequest request);
+
         Task<ResponseBase> CheckTenantAccount(CheckTenantAccountRequest request);
 
         Task<ResponseBase> ChangeTenantUserPwd(ChangeTenantUserPwdRequest request);
