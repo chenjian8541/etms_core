@@ -14,11 +14,15 @@ namespace ETMS.IDataAccess.EtmsManage
 
         Task AddSysTenantSmsLog(SysTenantSmsLog entity, long userId);
 
+        Task<SysTenantEtmsAccountLog> GetTenantEtmsAccountLog(long id);
+
+        Task EditTenantEtmsAccountLog(SysTenantEtmsAccountLog entity);
+
         Task<Tuple<IEnumerable<SysTenantEtmsAccountLogView>, int>> GetTenantEtmsAccountLogPaging(AgentPagingBase request);
 
         Task<Tuple<IEnumerable<SysTenantSmsLogVew>, int>> GetTenantSmsLogPaging(AgentPagingBase request);
 
-        Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLog(int tenantId, int agentId, int versionId);
+        Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLogNormal(int tenantId, int agentId, int versionId);
 
         Task AddSysTenantExDateLog(SysTenantExDateLog entity);
 

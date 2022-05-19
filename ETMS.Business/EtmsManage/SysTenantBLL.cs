@@ -376,7 +376,8 @@ namespace ETMS.Business.EtmsManage
                     ChangeType = EmTenantEtmsAccountLogChangeType.Add,
                     IsDeleted = EmIsDeleted.Normal,
                     Ot = now,
-                    VersionId = request.VersionId
+                    VersionId = request.VersionId,
+                    SceneType = EmSysTenantEtmsAccountLogSceneType.RechargeAdd
                 }, request.LoginUserId);
             }
 
@@ -598,7 +599,7 @@ namespace ETMS.Business.EtmsManage
             }
             if (isNewTenant) //如果为近期添加的机构，则将授权点数返还给代理商
             {
-                var etmslog = await _sysTenantLogDAL.GetTenantEtmsAccountLog(tenant.Id, tenant.AgentId, tenant.VersionId);
+                var etmslog = await _sysTenantLogDAL.GetTenantEtmsAccountLogNormal(tenant.Id, tenant.AgentId, tenant.VersionId);
                 if (etmslog.Count > 0)
                 {
                     var tempAddCount = etmslog.Where(p => p.ChangeType == EmTenantEtmsAccountLogChangeType.Add).Sum(p => p.ChangeCount);
@@ -616,6 +617,7 @@ namespace ETMS.Business.EtmsManage
                             Ot = DateTime.Now,
                             Sum = 0,
                             VersionId = tenant.VersionId,
+                            SceneType = EmSysAgentEtmsAccountLogSceneType.TenantDel,
                             Remark = $"删除机构-名称:[{tenant.Name}],机构编码:[{tenant.TenantCode}],返还授权点数"
                         }, request.LoginUserId);
                     }
@@ -659,7 +661,9 @@ namespace ETMS.Business.EtmsManage
                         VersionId = p.VersionId,
                         VersionDesc = myVersion?.Name,
                         AgentName = agent?.Name,
-                        UserName = myUser?.Name
+                        UserName = myUser?.Name,
+                        Status = p.Status,
+                        StatusDesc = EmSysTenantEtmsAccountLogStatus.GetEtmsAccountLogStatusDesc(p.Status)
                     });
                 }
             }
@@ -861,7 +865,8 @@ namespace ETMS.Business.EtmsManage
                 Remark = remeak,
                 Sum = request.Sum,
                 TenantId = request.Id,
-                VersionId = tenant.VersionId
+                VersionId = tenant.VersionId,
+                SceneType = EmSysTenantEtmsAccountLogSceneType.RechargeAdd
             }, request.LoginUserId);
 
             await AddTenantExDateLog(tenant.Id, tenant.AgentId, oldDate, tenant.ExDate, remeak, $"{request.AddChangeCount}年");
@@ -1198,6 +1203,106 @@ namespace ETMS.Business.EtmsManage
 
             await this._sysAgentLogDAL.AddSysAgentOpLog(request,
                 $"修改机构最大员工数:{tenant.Name};机构编码:{tenant.TenantCode};原数量:{oldMaxCount},新数量:{request.NewMaxUserCount}", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantEtmsLogRepeal(TenantEtmsLogRepealRequest request)
+        {
+            var lockKey = new TenantEtmsLogRepealToken(request.Id);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await ProcessTenantEtmsLogRepeal(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"授权记录撤销错误:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("操作过于频繁，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> ProcessTenantEtmsLogRepeal(TenantEtmsLogRepealRequest request)
+        {
+            var log = await _sysTenantLogDAL.GetTenantEtmsAccountLog(request.Id);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("充值授权记录不存在");
+            }
+            if (log.Status == EmSysTenantEtmsAccountLogStatus.Revoked)
+            {
+                return ResponseBase.CommonError("充值授权记录已撤销");
+            }
+            if (log.ChangeType != EmTenantEtmsAccountLogChangeType.Add)
+            {
+                return ResponseBase.CommonError("此记录不支持撤销");
+            }
+            if (log.SceneType != EmSysTenantEtmsAccountLogSceneType.RechargeAdd)
+            {
+                return ResponseBase.CommonError("此记录不支持撤销");
+            }
+            var repealDateLimit = DateTime.Now.AddDays(-SystemConfig.TenantDefaultConfig.TenantEtmsAddLogRepealLimitDay);
+            if (log.Ot < repealDateLimit)
+            {
+                return ResponseBase.CommonError($"只允许撤销{SystemConfig.TenantDefaultConfig.TenantEtmsAddLogRepealLimitDay}天内的充值授权记录");
+            }
+            //处理机构
+            var myTenant = await _sysTenantDAL.GetTenant(log.TenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var oldExDate = myTenant.ExDate;
+            var remeak = $"撤销给机构[{myTenant.Name}]的充值授权：{request.Remark}";
+            myTenant.ExDate = myTenant.ExDate.AddYears(-log.ChangeCount);
+            if (myTenant.ExDate <= DateTime.Now.AddDays(20) && myTenant.Ot > DateTime.Now.AddDays(-30))
+            {
+                myTenant.BuyStatus = EmSysTenantBuyStatus.Test;
+            }
+            await _sysTenantDAL.EditTenant(myTenant);
+            var now = DateTime.Now;
+            await _sysTenantLogDAL.AddSysTenantEtmsAccountLog(new SysTenantEtmsAccountLog()
+            {
+                AgentId = log.AgentId,
+                ChangeCount = log.ChangeCount,
+                ChangeType = EmTenantEtmsAccountLogChangeType.Deduction,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                Remark = remeak,
+                Sum = 0,
+                TenantId = log.TenantId,
+                VersionId = log.VersionId,
+                SceneType = EmSysTenantEtmsAccountLogSceneType.RechargeRepeal,
+                RelatedId = log.Id,
+                Status = EmSysTenantEtmsAccountLogStatus.Normal
+            }, request.LoginUserId);
+            log.Status = EmSysTenantEtmsAccountLogStatus.Revoked;
+            await _sysTenantLogDAL.EditTenantEtmsAccountLog(log);
+
+            //返还给代理商
+            await _sysAgentDAL.EtmsAccountAdd(log.AgentId, log.VersionId, log.ChangeCount);
+            await _sysAgentLogDAL.AddSysAgentEtmsAccountLog(new SysAgentEtmsAccountLog()
+            {
+                AgentId = log.AgentId,
+                ChangeCount = log.ChangeCount,
+                ChangeType = EmSysAgentEtmsAccountLogChangeType.Add,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                Remark = remeak,
+                Sum = 0,
+                VersionId = log.VersionId,
+                SceneType = EmSysAgentEtmsAccountLogSceneType.TenantEtmsLogRepeal
+            }, request.LoginUserId);
+
+            await AddTenantExDateLog(log.TenantId, log.AgentId, oldExDate, myTenant.ExDate, remeak, $"撤销充值{log.ChangeCount}年");
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, remeak, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
     }

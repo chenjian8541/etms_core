@@ -49,5 +49,12 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string AgentName { get; set; }
 
         public string UserName { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
+
+        public string StatusDesc { get; set; }
     }
 }

@@ -43,5 +43,12 @@ namespace ETMS.Entity.EtmsManage.View
         public string TenantPhone { get; set; }
 
         public long UserId { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
+
+        public long? RelatedId { get; set; }
     }
 }

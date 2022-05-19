@@ -29,5 +29,18 @@ namespace ETMS.Entity.Database.Manage
         public decimal Sum { get; set; }
 
         public DateTime Ot { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogStatus"/>
+        /// </summary>
+        public byte Status { get; set; }
+
+        public long? RelatedId { get; set; }
+
+        /// <summary>
+        /// 场景类型
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogSceneType"/>
+        /// </summary>
+        public int SceneType { get; set; }
     }
 }

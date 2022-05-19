@@ -71,5 +71,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> TenantOtherInfoSave(TenantOtherInfoSaveRequest request);
 
         Task<ResponseBase> TenantChangeMaxUserCount(TenantChangeMaxUserCountRequest request);
+
+        Task<ResponseBase> TenantEtmsLogRepeal(TenantEtmsLogRepealRequest request);
     }
 }

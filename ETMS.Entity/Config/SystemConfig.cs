@@ -68,6 +68,11 @@ namespace ETMS.Entity.Config
         /// 默认限制机构用户数量100个
         /// </summary>
         public int MaxUserCountDefault = 100;
+
+        /// <summary>
+        /// 撤销授权记录 限制天数 
+        /// </summary>
+        public int TenantEtmsAddLogRepealLimitDay = 7;
     }
 
     /// <summary>

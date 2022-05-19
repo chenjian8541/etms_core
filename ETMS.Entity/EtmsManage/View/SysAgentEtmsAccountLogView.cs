@@ -41,5 +41,10 @@ namespace ETMS.Entity.EtmsManage.View
         public string AgentPhone { get; set; }
 
         public long UserId { get; set; }
+
+        /// <summary>
+        /// 场景
+        /// </summary>
+        public int SceneType { get; set; }
     }
 }

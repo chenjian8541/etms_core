@@ -46,5 +46,10 @@ namespace ETMS.Entity.Database.Manage
         /// 变动时间
         /// </summary>
         public DateTime Ot { get; set; }
+
+        /// <summary>
+        /// 场景
+        /// </summary>
+        public int SceneType { get; set; }
     }
 }

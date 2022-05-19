@@ -1,6 +1,7 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.EtmsManage.Common;
 using ETMS.Entity.EtmsManage.View;
 using ETMS.IDataAccess.EtmsManage;
@@ -25,6 +26,16 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Insert(entity);
         }
 
+        public async Task<SysTenantEtmsAccountLog> GetTenantEtmsAccountLog(long id)
+        {
+            return await this.Find<SysTenantEtmsAccountLog>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task EditTenantEtmsAccountLog(SysTenantEtmsAccountLog entity)
+        {
+            await this.Update(entity);
+        }
+
         public async Task<Tuple<IEnumerable<SysTenantEtmsAccountLogView>, int>> GetTenantEtmsAccountLogPaging(AgentPagingBase request)
         {
             return await this.ExecutePage<SysTenantEtmsAccountLogView>("SysTenantEtmsAccountLogView", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
@@ -35,10 +46,10 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.ExecutePage<SysTenantSmsLogVew>("SysTenantSmsLogVew", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLog(int tenantId, int agentId, int versionId)
+        public async Task<List<SysTenantEtmsAccountLog>> GetTenantEtmsAccountLogNormal(int tenantId, int agentId, int versionId)
         {
             return await this.FindList<SysTenantEtmsAccountLog>(p => p.TenantId == tenantId && p.AgentId == agentId
-            && p.VersionId == versionId && p.IsDeleted == EmIsDeleted.Normal);
+            && p.VersionId == versionId && p.IsDeleted == EmIsDeleted.Normal&&p.Status== EmSysTenantEtmsAccountLogStatus.Normal);
         }
 
         public async Task AddSysTenantExDateLog(SysTenantExDateLog entity)
