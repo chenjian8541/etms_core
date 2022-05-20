@@ -1920,26 +1920,38 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("课程不存在");
             }
 
+            var errMsg = string.Empty;
+            var isChanged = false;
             foreach (var placementInfo in request.ClassPlacementInfos)
             {
-                var myClass = await _classDAL.GetClassBucket(placementInfo.ClassId);
-                if (myClass == null || myClass.EtClass == null)
+                var myClassBucket = await _classDAL.GetClassBucket(placementInfo.ClassId);
+                if (myClassBucket == null || myClassBucket.EtClass == null)
                 {
                     LOG.Log.Error("[ClassPlacement]班级不存在", request, this.GetType());
                     continue;
                 }
-                var existStudent = myClass.EtClassStudents.FirstOrDefault(p => p.StudentId == request.StudentId);
+                var myClass = myClassBucket.EtClass;
+                var existStudent = myClassBucket.EtClassStudents.FirstOrDefault(p => p.StudentId == request.StudentId);
                 if (placementInfo.OpType == ClassPlacementInfoOpType.Add)
                 {
                     if (existStudent != null)
                     {
                         continue;
                     }
-                    if (myClass.EtClass.CourseList.IndexOf(request.CourseId.ToString()) == -1)
+                    if (myClassBucket.EtClass.CourseList.IndexOf(request.CourseId.ToString()) == -1)
                     {
                         LOG.Log.Error("[ClassPlacement]班级未关联课程", request, this.GetType());
                         continue;
                     }
+                    if (myClass.LimitStudentNums != null && myClass.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
+                    {
+                        if (myClassBucket.EtClassStudents.Count + 1 > myClass.LimitStudentNums.Value)
+                        {
+                            errMsg = "班级人数已超额";
+                            continue;
+                        }
+                    }
+                    isChanged = true;
                     await _classDAL.AddClassStudent(new EtClassStudent()
                     {
                         ClassId = placementInfo.ClassId,
@@ -1948,7 +1960,7 @@ namespace ETMS.Business
                         Remark = string.Empty,
                         StudentId = request.StudentId,
                         TenantId = request.LoginTenantId,
-                        Type = myClass.EtClass.Type
+                        Type = myClassBucket.EtClass.Type
                     });
                     _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, request.StudentId));
                 }
@@ -1958,6 +1970,7 @@ namespace ETMS.Business
                     {
                         continue;
                     }
+                    isChanged = true;
                     await _classDAL.DelClassStudentByStudentId(placementInfo.ClassId, request.StudentId);
                     _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.LoginTenantId, request.StudentId));
                 }
@@ -1967,6 +1980,11 @@ namespace ETMS.Business
             {
                 StudentId = request.StudentId
             });
+
+            if (!isChanged && !string.IsNullOrEmpty(errMsg))
+            {
+                return ResponseBase.CommonError(errMsg);
+            }
 
             await _userOperationLogDAL.AddUserLog(request, $"选班调班-学员名称[{studentBucket.Student.Name}],手机号码[{studentBucket.Student.Phone}]", EmUserOperationType.ClassManage);
             return ResponseBase.Success();

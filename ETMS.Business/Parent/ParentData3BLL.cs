@@ -948,6 +948,12 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentReservationSubmit(StudentReservationSubmitRequest request)
         {
+            //可以考虑加一把锁 ParentStudentReservationSubmitToken
+            return await ProcessStudentReservationSubmit(request);
+        }
+
+        private async Task<ResponseBase> ProcessStudentReservationSubmit(StudentReservationSubmitRequest request)
+        {
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);
             if (studentBucket == null || studentBucket.Student == null)
             {
