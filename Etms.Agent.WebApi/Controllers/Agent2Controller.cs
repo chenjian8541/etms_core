@@ -244,6 +244,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantEtmsLogRepeal(TenantEtmsLogRepealRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantEtmsLogRepeal(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
         {
             try

@@ -47,6 +47,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "studentBirthday",
+        "Name": "studentBirthday",
+        "Type": 1,
+        "Component": "@/components/StudentBirthdayList",
+        "Meta": {
+          "Title": "生日学员",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "studentClassPlacement/:sid",
         "Name": "studentClassPlacement",
         "Type": 1,

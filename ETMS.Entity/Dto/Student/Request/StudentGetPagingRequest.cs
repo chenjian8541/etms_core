@@ -160,6 +160,11 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public long? CourseId { get; set; }
 
+        /// <summary>
+        /// 生日查询
+        /// </summary>
+        public int? BirthdayNearDay { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -302,6 +307,21 @@ namespace ETMS.Entity.Dto.Student.Request
                 else
                 {
                     condition.Append(" AND (FaceKey = '' OR FaceKey IS NULL)");
+                }
+            }
+            if (BirthdayNearDay != null)
+            {
+                var now = DateTime.Now;
+                if (BirthdayNearDay == 0)
+                {
+                    condition.Append($" AND BirthdayMonth = {now.Month} AND BirthdayDay = {now.Day}");
+                }
+                else
+                {
+                    var limitDay = now.AddDays(BirthdayNearDay.Value);
+                    var minTag = EtmsHelper3.GetBirthdayTag(now);
+                    var maxTag = EtmsHelper3.GetBirthdayTag(limitDay);
+                    condition.Append($" AND BirthdayTag >= {minTag} AND BirthdayTag <= {maxTag}");
                 }
             }
             return condition.ToString();

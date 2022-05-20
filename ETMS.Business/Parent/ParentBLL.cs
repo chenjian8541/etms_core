@@ -690,6 +690,7 @@ namespace ETMS.Business
             {
                 BirthdayMonth = null,
                 BirthdayDay = null,
+                BirthdayTag = null,
                 Age = null,
                 AgeMonth = null,
                 Name = request.StudentName,

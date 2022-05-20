@@ -95,6 +95,11 @@
         "ActionId": 22,
         "Name": "品牌定制",
         "Type": 1
+      },
+      {
+        "ActionId": 30,
+        "Name": "撤销充值授权点数",
+        "Type": 1
       }
     ]
   },

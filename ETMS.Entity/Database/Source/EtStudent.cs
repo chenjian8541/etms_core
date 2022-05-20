@@ -82,6 +82,11 @@ namespace ETMS.Entity.Database.Source
         public int? BirthdayDay { get; set; }
 
         /// <summary>
+        /// 生日标记
+        /// </summary>
+        public int? BirthdayTag { get; set; }
+
+        /// <summary>
         /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
         /// </summary>
         public byte? Gender { get; set; }

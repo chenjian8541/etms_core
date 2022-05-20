@@ -185,16 +185,19 @@ namespace ETMS.Business
                 }
                 int? birthdayMonth = null;
                 int? birthdayDay = null;
+                int? birthdayTag = null;
                 if (p.Birthday != null)
                 {
                     birthdayMonth = p.Birthday.Value.Month;
                     birthdayDay = p.Birthday.Value.Day;
+                    birthdayTag = EtmsHelper3.GetBirthdayTag(p.Birthday.Value);
                 }
                 var myAgeResult = p.Birthday.EtmsGetAge();
                 studentList.Add(new EtStudent()
                 {
                     BirthdayMonth = birthdayMonth,
                     BirthdayDay = birthdayDay,
+                    BirthdayTag = birthdayTag,
                     Age = myAgeResult?.Item1,
                     AgeMonth = myAgeResult?.Item2,
                     Name = p.StudentName,
@@ -369,16 +372,19 @@ namespace ETMS.Business
                     }
                     int? birthdayMonth = null;
                     int? birthdayDay = null;
+                    int? birthdayTag = null;
                     if (p.Birthday != null)
                     {
                         birthdayMonth = p.Birthday.Value.Month;
                         birthdayDay = p.Birthday.Value.Day;
+                        birthdayTag = EtmsHelper3.GetBirthdayTag(p.Birthday.Value);
                     }
                     var myAgeResult = p.Birthday.EtmsGetAge();
                     student = new EtStudent()
                     {
                         BirthdayMonth = birthdayMonth,
                         BirthdayDay = birthdayDay,
+                        BirthdayTag = birthdayTag,
                         Age = myAgeResult?.Item1,
                         AgeMonth = myAgeResult?.Item2,
                         Name = p.StudentName,
@@ -751,16 +757,19 @@ namespace ETMS.Business
                     }
                     int? birthdayMonth = null;
                     int? birthdayDay = null;
+                    int? birthdayTag = null;
                     if (p.Birthday != null)
                     {
                         birthdayMonth = p.Birthday.Value.Month;
                         birthdayDay = p.Birthday.Value.Day;
+                        birthdayTag = EtmsHelper3.GetBirthdayTag(p.Birthday.Value);
                     }
                     var myAgeResult = p.Birthday.EtmsGetAge();
                     student = new EtStudent()
                     {
                         BirthdayMonth = birthdayMonth,
                         BirthdayDay = birthdayDay,
+                        BirthdayTag = birthdayTag,
                         Age = myAgeResult?.Item1,
                         AgeMonth = myAgeResult?.Item2,
                         Name = p.StudentName,

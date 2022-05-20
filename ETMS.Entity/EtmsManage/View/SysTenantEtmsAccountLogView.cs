@@ -50,5 +50,11 @@ namespace ETMS.Entity.EtmsManage.View
         public byte Status { get; set; }
 
         public long? RelatedId { get; set; }
+
+        /// <summary>
+        /// 场景类型
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogSceneType"/>
+        /// </summary>
+        public int SceneType { get; set; }
     }
 }

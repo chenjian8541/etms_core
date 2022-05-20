@@ -56,5 +56,13 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public byte Status { get; set; }
 
         public string StatusDesc { get; set; }
+
+        /// <summary>
+        /// 场景类型
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTenantEtmsAccountLogSceneType"/>
+        /// </summary>
+        public int SceneType { get; set; }
+
+        public bool IsCanRepeal { get; set; }
     }
 }

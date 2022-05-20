@@ -123,5 +123,10 @@ namespace ETMS.Utility
             var itemCount = allCount + exceedNumCount;
             return itemCount * count;
         }
+
+        public static int GetBirthdayTag(DateTime birthday)
+        {
+            return birthday.ToString("MMdd").ToInt();
+        }
     }
 }

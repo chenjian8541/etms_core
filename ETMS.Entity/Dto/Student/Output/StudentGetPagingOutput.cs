@@ -198,5 +198,15 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte CourseStatus { get; set; }
 
         public string CourseStatusDesc { get; set; }
+
+        /// <summary>
+        /// 生日月份
+        /// </summary>
+        public int? BirthdayMonth { get; set; }
+
+        /// <summary>
+        /// 生日天
+        /// </summary>
+        public int? BirthdayDay { get; set; }
     }
 }

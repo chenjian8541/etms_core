@@ -154,10 +154,12 @@ namespace ETMS.Business
             }
             int? birthdayMonth = null;
             int? birthdayDay = null;
+            int? birthdayTag = null;
             if (request.Birthday != null)
             {
                 birthdayMonth = request.Birthday.Value.Month;
                 birthdayDay = request.Birthday.Value.Day;
+                birthdayTag = EtmsHelper3.GetBirthdayTag(request.Birthday.Value);
             }
             var pwd = string.Empty;
             var config = await _tenantConfigDAL.GetTenantConfig();
@@ -170,6 +172,7 @@ namespace ETMS.Business
             {
                 BirthdayMonth = birthdayMonth,
                 BirthdayDay = birthdayDay,
+                BirthdayTag = birthdayTag,
                 Age = myAgeResult?.Item1,
                 AgeMonth = myAgeResult?.Item2,
                 Name = request.Name,
@@ -289,10 +292,12 @@ namespace ETMS.Business
             }
             int? birthdayMonth = null;
             int? birthdayDay = null;
+            int? birthdayTag = null;
             if (request.Birthday != null)
             {
                 birthdayMonth = request.Birthday.Value.Month;
                 birthdayDay = request.Birthday.Value.Day;
+                birthdayTag = EtmsHelper3.GetBirthdayTag(request.Birthday.Value);
             }
 
             var etStudent = studentBucket.Student;
@@ -303,6 +308,7 @@ namespace ETMS.Business
 
             etStudent.BirthdayMonth = birthdayMonth;
             etStudent.BirthdayDay = birthdayDay;
+            etStudent.BirthdayTag = birthdayTag;
             etStudent.Name = request.Name;
             etStudent.Avatar = request.AvatarKey;
             etStudent.Birthday = request.Birthday;
@@ -499,6 +505,8 @@ namespace ETMS.Business
                 IsBindingFaceKey = !string.IsNullOrEmpty(student.FaceKey),
                 IsClassSchedule = student.IsClassSchedule,
                 IsJoinClass = student.IsJoinClass,
+                BirthdayMonth = student.BirthdayMonth,
+                BirthdayDay = student.BirthdayDay,
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
@@ -633,6 +641,8 @@ namespace ETMS.Business
                 IsClassSchedule = student.IsClassSchedule,
                 IsJoinClass = student.IsJoinClass,
                 CourseStatus = student.CourseStatus,
+                BirthdayDay = student.BirthdayDay,
+                BirthdayMonth = student.BirthdayMonth,
                 CourseStatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(student.CourseStatus),
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
             })));

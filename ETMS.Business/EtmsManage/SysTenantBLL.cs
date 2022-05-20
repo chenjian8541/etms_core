@@ -639,11 +639,18 @@ namespace ETMS.Business.EtmsManage
                 var versions = await _sysVersionDAL.GetVersions();
                 var tempBoxAgent = new AgentDataTempBox<SysAgent>();
                 var tempBoxUser = new AgentDataTempBox2<SysUser>();
+                var repealDateLimit = DateTime.Now.AddDays(-SystemConfig.TenantDefaultConfig.TenantEtmsAddLogRepealLimitDay);
                 foreach (var p in pagingData.Item1)
                 {
                     var myVersion = versions.FirstOrDefault(j => j.Id == p.VersionId);
                     var agent = await AgentComBusiness.GetAgent(tempBoxAgent, _sysAgentDAL, p.AgentId);
                     var myUser = await AgentComBusiness.GetUser(tempBoxUser, _sysUserDAL, p.UserId);
+                    var isCanRepeal = false;
+                    if (p.Status == EmSysTenantEtmsAccountLogStatus.Normal && p.ChangeType == EmTenantEtmsAccountLogChangeType.Add
+                        && p.SceneType == EmSysTenantEtmsAccountLogSceneType.RechargeAdd && p.Ot >= repealDateLimit)
+                    {
+                        isCanRepeal = true;
+                    }
                     output.Add(new TenantEtmsAccountLogPagingOutput()
                     {
                         AgentId = p.AgentId,
@@ -663,7 +670,9 @@ namespace ETMS.Business.EtmsManage
                         AgentName = agent?.Name,
                         UserName = myUser?.Name,
                         Status = p.Status,
-                        StatusDesc = EmSysTenantEtmsAccountLogStatus.GetEtmsAccountLogStatusDesc(p.Status)
+                        StatusDesc = EmSysTenantEtmsAccountLogStatus.GetEtmsAccountLogStatusDesc(p.Status),
+                        SceneType = p.SceneType,
+                        IsCanRepeal = isCanRepeal
                     });
                 }
             }

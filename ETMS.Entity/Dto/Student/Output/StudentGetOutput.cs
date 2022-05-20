@@ -196,5 +196,15 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte IsJoinClass { get; set; }
 
         public List<StudentExtendItemOutput> StudentExtendItems { get; set; }
+
+        /// <summary>
+        /// 生日月份
+        /// </summary>
+        public int? BirthdayMonth { get; set; }
+
+        /// <summary>
+        /// 生日天
+        /// </summary>
+        public int? BirthdayDay { get; set; }
     }
 }
