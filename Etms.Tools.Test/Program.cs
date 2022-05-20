@@ -97,11 +97,7 @@ namespace Etms.Tools.Test
 
             //new EtmsProcess().ProcessT();
             //GetPwd();
-
-            var startDate = Convert.ToDateTime("2020-11-24");
-            var startEnd = Convert.ToDateTime("2021-11-24");
-            var allDay = (startEnd - startDate).TotalDays;
-            Console.WriteLine(allDay);
+            //Encrypt3DESSqlConnection();
 
             Console.WriteLine("处理完成");
             Console.Read();
@@ -299,7 +295,7 @@ namespace Etms.Tools.Test
 
         private static void Encrypt3DESSqlConnection()
         {
-            var conStr = "server=iZsgar6gznjelyZ;user id=sa;password=Abc8594432<>?;database=EtmsSource007;min pool size=4;max pool size=512";
+            var conStr = "server=iZsgar6gznjelyZ;user id=sa;password=Abc8594432<>?;database=EtmsSource012;min pool size=4;max pool size=512";
             //Console.WriteLine(conStr);
             //try
             //{
