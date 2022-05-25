@@ -42,5 +42,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task UpdateTenantCloudStorage(int id, decimal newValueMB, decimal newValueGB);
 
         Task<SysTenant> TenantGetByPhone(string phone);
+
+        Task UpdateTenantLastRenewalTime(int id, DateTime? lastRenewalTime);
     }
 }

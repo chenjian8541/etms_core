@@ -72,5 +72,7 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public decimal CloudStorageValueGB { get; set; }
 
         public decimal CloudStorageValueMB { get; set; }
+
+        public DateTime? LastRenewalTime { get; set; }
     }
 }

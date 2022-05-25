@@ -140,7 +140,8 @@ namespace ETMS.Business.EtmsManage
                     LastOpTimeDesc = p.LastOpTime.EtmsToString(),
                     CloudStorageLimitGB = p.CloudStorageLimitGB,
                     CloudStorageValueGB = p.CloudStorageValueGB,
-                    CloudStorageValueMB = p.CloudStorageValueMB
+                    CloudStorageValueMB = p.CloudStorageValueMB,
+                    LastRenewalTime = p.LastRenewalTime
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -420,7 +421,8 @@ namespace ETMS.Business.EtmsManage
                 MaxUserCount = tenant.MaxUserCount,
                 CloudStorageLimitGB = tenant.CloudStorageLimitGB,
                 CloudStorageValueMB = tenant.CloudStorageValueMB,
-                CloudStorageValueGB = tenant.CloudStorageValueGB
+                CloudStorageValueGB = tenant.CloudStorageValueGB,
+                LastRenewalTime = tenant.LastRenewalTime
             };
             return ResponseBase.Success(output);
         }
@@ -485,7 +487,8 @@ namespace ETMS.Business.EtmsManage
                 LastOpTimeDesc = p.LastOpTime.EtmsToString(),
                 CloudStorageLimitGB = p.CloudStorageLimitGB,
                 CloudStorageValueGB = p.CloudStorageValueGB,
-                CloudStorageValueMB = p.CloudStorageValueMB
+                CloudStorageValueMB = p.CloudStorageValueMB,
+                LastRenewalTime = p.LastRenewalTime
             };
             return ResponseBase.Success(output);
         }
@@ -860,6 +863,11 @@ namespace ETMS.Business.EtmsManage
             if (tenant.ExDate < DateTime.Now.Date)
             {
                 startDate = DateTime.Now.Date;
+            }
+            if (tenant.BuyStatus == EmSysTenantBuyStatus.Official
+                && (now - tenant.Ot).TotalDays > 30)
+            {
+                tenant.LastRenewalTime = now;
             }
             tenant.ExDate = startDate.AddYears(request.AddChangeCount);
             tenant.BuyStatus = EmSysTenantBuyStatus.Official;

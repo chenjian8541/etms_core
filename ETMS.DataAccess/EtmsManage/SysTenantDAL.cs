@@ -154,5 +154,19 @@ namespace ETMS.DataAccess.EtmsManage
         {
             return await this.Find<SysTenant>(p => p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
         }
+
+        public async Task UpdateTenantLastRenewalTime(int id, DateTime? lastRenewalTime)
+        {
+            if (lastRenewalTime == null)
+            {
+                await this.Execute($"UPDATE SysTenant SET LastRenewalTime = null WHERE Id = {id} ");
+                await UpdateCache(id);
+            }
+            else
+            {
+                await this.Execute($"UPDATE SysTenant SET LastRenewalTime = {lastRenewalTime.EtmsToString()} WHERE Id = {id} ");
+                await UpdateCache(id);
+            }
+        }
     }
 }

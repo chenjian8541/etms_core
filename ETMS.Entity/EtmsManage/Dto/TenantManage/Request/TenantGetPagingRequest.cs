@@ -95,6 +95,56 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
         /// </summary>
         public string ExpiredYearMonth { get; set; }
 
+
+        /// <summary>
+        /// 查询时间
+        /// </summary>
+        public List<string> OtLastRenewalTime { get; set; }
+
+        private DateTime? _startLastRenewalTime;
+
+        /// <summary>
+        /// 开始时间
+        /// </summary>
+        public DateTime? StartLastRenewalTime
+        {
+            get
+            {
+                if (_startLastRenewalTime != null)
+                {
+                    return _startLastRenewalTime;
+                }
+                if (OtLastRenewalTime == null || OtLastRenewalTime.Count == 0)
+                {
+                    return null;
+                }
+                _startLastRenewalTime = Convert.ToDateTime(OtLastRenewalTime[0]);
+                return _startLastRenewalTime;
+            }
+        }
+
+        private DateTime? _endLastRenewalTime;
+
+        /// <summary>
+        /// 结束时间
+        /// </summary>
+        public DateTime? EndLastRenewalTime
+        {
+            get
+            {
+                if (_endLastRenewalTime != null)
+                {
+                    return _endLastRenewalTime;
+                }
+                if (OtLastRenewalTime == null || OtLastRenewalTime.Count < 2)
+                {
+                    return null;
+                }
+                _endLastRenewalTime = Convert.ToDateTime(OtLastRenewalTime[1]).AddDays(1); ;
+                return _endLastRenewalTime;
+            }
+        }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -180,6 +230,14 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (UserId != null)
             {
                 condition.Append($" AND UserId = {UserId.Value}");
+            }
+            if (StartLastRenewalTime != null)
+            {
+                condition.Append($" AND LastRenewalTime >= '{StartLastRenewalTime.Value.EtmsToDateString()}'");
+            }
+            if (EndLastRenewalTime != null)
+            {
+                condition.Append($" AND LastRenewalTime < '{EndLastRenewalTime.Value.EtmsToDateString()}'");
             }
             if (LastOpLimitMonth != null)
             {

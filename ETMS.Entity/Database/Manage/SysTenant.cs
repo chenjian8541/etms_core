@@ -139,5 +139,7 @@ namespace ETMS.Entity.Database.Manage
         public decimal CloudStorageValueGB { get; set; }
 
         public decimal CloudStorageValueMB { get; set; }
+
+        public DateTime? LastRenewalTime { get; set; }
     }
 }
