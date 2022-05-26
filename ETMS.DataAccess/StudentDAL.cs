@@ -488,5 +488,22 @@ namespace ETMS.DataAccess
                 $"UPDATE EtStudent SET StudentType = {EmStudentType.ReadingStudent} WHERE Id = {studentId} AND TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} ");
             return exCount > 0;
         }
+
+        public async Task UpdateStudentCourseRestoreTime(List<long> studentIds)
+        {
+            if (studentIds.Count == 1)
+            {
+                await _dbWrapper.Execute($"UPDATE EtStudent SET CourseStatus = {EmStudentCourseStatus.Normal} WHERE Id = {studentIds[0]} AND TenantId = {_tenantId} AND CourseStatus = {EmStudentCourseStatus.StopOfClass}");
+                RemoveCache(_tenantId, studentIds[0]);
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE EtStudent SET CourseStatus = {EmStudentCourseStatus.Normal} WHERE Id IN ({string.Join(',', studentIds)}) AND TenantId = {_tenantId} AND CourseStatus = {EmStudentCourseStatus.StopOfClass}");
+                foreach (var id in studentIds)
+                {
+                    RemoveCache(_tenantId, id);
+                }
+            }
+        }
     }
 }

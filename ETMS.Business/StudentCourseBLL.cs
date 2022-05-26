@@ -529,6 +529,7 @@ namespace ETMS.Business
                     UserId = request.LoginUserId
                 });
             }
+            await _studentDAL.UpdateStudentCourseRestoreTime(request.StudentIds);
 
             await _userOperationLogDAL.AddUserLog(request, "学员批量复课", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();

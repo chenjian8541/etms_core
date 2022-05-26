@@ -94,5 +94,7 @@ namespace ETMS.IDataAccess
         Task UpdateStudentCourseIds(long studentId, string courseIds);
 
         Task<bool> SetStudentTypeIsRead(long studentId);
+
+        Task UpdateStudentCourseRestoreTime(List<long> studentIds);
     }
 }
