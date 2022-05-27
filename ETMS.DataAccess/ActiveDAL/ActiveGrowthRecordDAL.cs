@@ -90,6 +90,11 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task AddActiveGrowthRecordDetail(EtActiveGrowthRecordDetail entity)
+        {
+            await this._dbWrapper.Insert(entity);
+        }
+
         public async Task<Tuple<IEnumerable<EtActiveGrowthRecordDetail>, int>> GetDetailPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtActiveGrowthRecordDetail>("EtActiveGrowthRecordDetail", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
@@ -135,6 +140,12 @@ namespace ETMS.DataAccess
         {
             var sql = $"SELECT Id,StudentId FROM EtActiveGrowthRecordDetail WHERE TenantId = {_tenantId} AND GrowthRecordId = {growthRecordId} AND IsDeleted = {EmIsDeleted.Normal} ";
             return await _dbWrapper.ExecuteObject<GrowthRecordDetailView>(sql);
+        }
+
+        public async Task DelActiveGrowthRecordDetailAboutRelatedInfo(int sceneType, long relatedId, long studentId)
+        {
+            var sql = $"UPDATE EtActiveGrowthRecordDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND SceneType = {sceneType} AND RelatedId = {relatedId} ";
+            await _dbWrapper.Execute(sql);
         }
     }
 }

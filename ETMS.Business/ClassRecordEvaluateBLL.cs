@@ -42,10 +42,12 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IActiveGrowthRecordDAL _activeGrowthRecordDAL;
+
         public ClassRecordEvaluateBLL(IClassRecordDAL classRecordDAL, IStudentDAL studentDAL, IUserDAL userDAL, IClassDAL classDAL,
             IClassRecordEvaluateDAL classRecordEvaluateDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL,
             IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IUserOperationLogDAL userOperationLogDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IActiveGrowthRecordDAL activeGrowthRecordDAL)
         {
             this._classRecordDAL = classRecordDAL;
             this._studentDAL = studentDAL;
@@ -58,12 +60,13 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._userOperationLogDAL = userOperationLogDAL;
             this._eventPublisher = eventPublisher;
+            this._activeGrowthRecordDAL = activeGrowthRecordDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _studentDAL, _userDAL, _classDAL, _classRecordEvaluateDAL,
-                _courseDAL, _classRoomDAL, _userOperationLogDAL);
+                _courseDAL, _classRoomDAL, _userOperationLogDAL, _activeGrowthRecordDAL);
         }
 
         public async Task<ResponseBase> TeacherClassRecordEvaluateGetPaging(TeacherClassRecordEvaluateGetPagingRequest request)
@@ -240,6 +243,26 @@ namespace ETMS.Business
                 ClassRecordStudentId = request.ClassRecordStudentId,
                 EvaluateLogId = newEntity.Id
             });
+
+            //课后点评在老师端成长档案中显示
+            await _activeGrowthRecordDAL.AddActiveGrowthRecordDetail(new EtActiveGrowthRecordDetail()
+            {
+                CreateUserId = request.LoginUserId,
+                FavoriteStatus = EmActiveGrowthRecordDetailFavoriteStatus.No,
+                GrowingTag = EmActiveGrowthRecordGrowingTagDefault.ClassRecordEvaluateStudent,
+                GrowthContent = newEntity.EvaluateContent,
+                GrowthMedias = newEntity.EvaluateImg,
+                GrowthRecordId = 0,
+                RelatedId = newEntity.Id,
+                IsDeleted = EmIsDeleted.Normal,
+                Ot = now,
+                ReadStatus = 0,
+                SceneType = EmActiveGrowthRecordDetailSceneType.EvaluateStudent,
+                SendType = EmActiveGrowthRecordSendType.Yes,
+                StudentId = newEntity.StudentId,
+                TenantId = request.LoginTenantId
+            });
+
             await _userOperationLogDAL.AddUserLog(request, $"点评学员-{request.EvaluateContent}", EmUserOperationType.ClassEvaluate, now);
             return ResponseBase.Success();
         }
@@ -335,6 +358,8 @@ namespace ETMS.Business
 
             await _classRecordEvaluateDAL.ClassRecordEvaluateStudentDel(request.Id);
             await _classRecordDAL.ClassRecordStudentDeEvaluateCount(log.ClassRecordStudentId, 1);
+            await _activeGrowthRecordDAL.DelActiveGrowthRecordDetailAboutRelatedInfo(EmActiveGrowthRecordDetailSceneType.EvaluateStudent
+                , log.Id, log.StudentId);
 
             AliyunOssUtil.DeleteObject2(log.EvaluateImg);
             await _userOperationLogDAL.AddUserLog(request, "删除课后点评", EmUserOperationType.ClassEvaluate);

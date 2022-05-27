@@ -48,5 +48,16 @@ namespace ETMS.Entity.Dto.Parent.Output
         public int Day { get; set; }
 
         public bool IsThisYear { get; set; }
+
+        /// <summary>
+        /// 场景类型
+        /// <see cref="ETMS.Entity.Enum.EmActiveGrowthRecordDetailSceneType"/>
+        /// </summary>
+        public int SceneType { get; set; }
+
+        /// <summary>
+        /// 非成长档案的情况下，所关联的ID
+        /// </summary>
+        public long? RelatedId { get; set; }
     }
 }

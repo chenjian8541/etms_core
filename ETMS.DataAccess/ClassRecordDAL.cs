@@ -49,6 +49,29 @@ namespace ETMS.DataAccess
                     }
                 }
                 this._dbWrapper.InsertRange(evaluateStudents);
+                //生成课后点评的成长档案
+                var activeGrowthRecordDetailList = new List<EtActiveGrowthRecordDetail>();
+                foreach (var item in evaluateStudents)
+                {
+                    activeGrowthRecordDetailList.Add(new EtActiveGrowthRecordDetail()
+                    {
+                        CreateUserId = item.CheckUserId,
+                        FavoriteStatus = EmActiveGrowthRecordDetailFavoriteStatus.No,
+                        GrowingTag = EmActiveGrowthRecordGrowingTagDefault.ClassRecordEvaluateStudent,
+                        GrowthContent = item.EvaluateContent,
+                        GrowthMedias = item.EvaluateImg,
+                        GrowthRecordId = 0,
+                        Ot = item.Ot,
+                        ReadStatus = EmBool.False,
+                        RelatedId = item.Id,
+                        IsDeleted = item.IsDeleted,
+                        SceneType = EmActiveGrowthRecordDetailSceneType.EvaluateStudent,
+                        SendType = EmActiveGrowthRecordSendType.Yes,
+                        StudentId = item.StudentId,
+                        TenantId = item.TenantId
+                    });
+                }
+                this._dbWrapper.InsertRange(activeGrowthRecordDetailList);
             }
 
             await _sysTenantMqScheduleDAL.AddSysTenantMqSchedule(new SyncStudentLogOfSurplusCourseEvent(_tenantId)

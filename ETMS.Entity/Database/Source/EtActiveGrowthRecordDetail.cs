@@ -14,6 +14,17 @@ namespace ETMS.Entity.Database.Source
         public long GrowthRecordId { get; set; }
 
         /// <summary>
+        /// 场景类型
+        /// <see cref="ETMS.Entity.Enum.EmActiveGrowthRecordDetailSceneType"/>
+        /// </summary>
+        public int SceneType { get; set; }
+
+        /// <summary>
+        /// 非成长档案的情况下，所关联的ID
+        /// </summary>
+        public long? RelatedId { get; set; }
+
+        /// <summary>
         /// 创建人
         /// </summary>
         public long CreateUserId { get; set; }
@@ -25,6 +36,7 @@ namespace ETMS.Entity.Database.Source
 
         /// <summary>
         /// 成长档案类型
+        /// <see cref="ETMS.Entity.Enum.EmActiveGrowthRecordGrowingTagDefault"/>
         /// </summary>
         public long GrowingTag { get; set; }
 

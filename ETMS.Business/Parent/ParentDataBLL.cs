@@ -892,7 +892,16 @@ namespace ETMS.Business
                     {
                         continue;
                     }
-                    var myGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
+                    var growingTagDesc = string.Empty;
+                    if (p.SceneType == EmActiveGrowthRecordDetailSceneType.ActiveGrowthRecord)
+                    {
+                        var myGrowingTag = allstudentGrowingTag.FirstOrDefault(j => j.Id == p.GrowingTag);
+                        growingTagDesc = myGrowingTag?.Name;
+                    }
+                    else
+                    {
+                        growingTagDesc = "课后点评";
+                    }
                     output.Add(new GrowthRecordGetPagingOutput()
                     {
                         Day = p.Ot.Day,
@@ -900,7 +909,7 @@ namespace ETMS.Business
                         IsThisYear = p.Ot.Year == thisYear,
                         FavoriteStatus = p.FavoriteStatus,
                         GrowingTag = p.GrowingTag,
-                        GrowingTagDesc = myGrowingTag?.Name,
+                        GrowingTagDesc = growingTagDesc,
                         GrowthContent = p.GrowthContent,
                         GrowthMediasUrl = GetMediasUrl(p.GrowthMedias),
                         GrowthRecordDetailId = p.Id,
@@ -908,7 +917,9 @@ namespace ETMS.Business
                         OtDesc = p.Ot.EtmsToDateString(),
                         StudentId = p.StudentId,
                         StudentName = student.Name,
-                        TenantId = p.TenantId
+                        TenantId = p.TenantId,
+                        RelatedId = p.RelatedId,
+                        SceneType = p.SceneType
                     });
                 }
             }

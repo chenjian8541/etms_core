@@ -28,6 +28,8 @@ namespace ETMS.IDataAccess
 
         bool AddActiveGrowthRecordDetail(List<EtActiveGrowthRecordDetail> entitys);
 
+        Task AddActiveGrowthRecordDetail(EtActiveGrowthRecordDetail entity);
+
         Task<Tuple<IEnumerable<EtActiveGrowthRecordDetail>, int>> GetDetailPaging(IPagingRequest request);
 
         Task<EtActiveGrowthRecordDetail> GetActiveGrowthRecordDetail(long growthRecordDetailId);
@@ -43,5 +45,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<ActiveGrowthRecordDetailSimpleView>> GetActiveGrowthRecordDetailSimpleView(long growthRecordId);
 
         Task<IEnumerable<GrowthRecordDetailView>> GetGrowthRecordDetailView(long growthRecordId);
+
+        Task DelActiveGrowthRecordDetailAboutRelatedInfo(int sceneType,long relatedId,long studentId);
     }
 }
