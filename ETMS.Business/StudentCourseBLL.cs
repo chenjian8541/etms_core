@@ -846,9 +846,14 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("不存在此学员");
             }
+            var exDesc = string.Empty;
             var beforSurplusDesc = ComBusiness.GetSurplusQuantityDesc(studentCourseDetail.SurplusQuantity, studentCourseDetail.SurplusSmallQuantity, studentCourseDetail.DeType);
             if (studentCourseDetail.DeType == EmDeClassTimesType.ClassTimes)
             {
+                if (studentCourseDetail.EndTime != request.EndTime)
+                {
+                    exDesc = $",有效期从{ComBusiness.GetClassTimesEndTimeDesc(studentCourseDetail.EndTime)}到{ComBusiness.GetClassTimesEndTimeDesc(request.EndTime)}";
+                }
                 var beforSurplusQuantity = studentCourseDetail.SurplusQuantity;
                 studentCourseDetail.StartTime = null;
                 studentCourseDetail.EndTime = request.EndTime;
@@ -859,8 +864,13 @@ namespace ETMS.Business
             }
             else
             {
+                var newEndTime = Convert.ToDateTime(request.Ot[1]);
+                if (studentCourseDetail.EndTime != newEndTime)
+                {
+                    exDesc = $",有效期从{ComBusiness.GetClassDeDayEndTimeDesc(studentCourseDetail.EndTime)}到{ComBusiness.GetClassDeDayEndTimeDesc(newEndTime)}";
+                }
                 studentCourseDetail.StartTime = Convert.ToDateTime(request.Ot[0]);
-                studentCourseDetail.EndTime = Convert.ToDateTime(request.Ot[1]);
+                studentCourseDetail.EndTime = newEndTime;
                 var startTime = studentCourseDetail.StartTime.Value;
                 if (studentCourseDetail.StartTime.Value < DateTime.Now.Date)
                 {
@@ -895,6 +905,7 @@ namespace ETMS.Business
             });
 
             var endSurplusDesc = ComBusiness.GetSurplusQuantityDesc(studentCourseDetail.SurplusQuantity, studentCourseDetail.SurplusSmallQuantity, studentCourseDetail.DeType);
+
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
             {
                 CourseId = studentCourseDetail.CourseId,
@@ -904,7 +915,7 @@ namespace ETMS.Business
                 OpUser = request.LoginUserId,
                 StudentId = studentCourseDetail.StudentId,
                 TenantId = request.LoginTenantId,
-                OpContent = $"修正课时,原剩余课时:{beforSurplusDesc},修正后剩余课时:{endSurplusDesc}",
+                OpContent = $"修正课时,原剩余课时:{beforSurplusDesc},修正后剩余课时:{endSurplusDesc}{exDesc}",
                 Remark = request.Remark
             });
             _eventPublisher.Publish(new SyncStudentReadTypeEvent(request.LoginTenantId, studentCourseDetail.StudentId));

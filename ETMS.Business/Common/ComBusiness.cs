@@ -642,6 +642,24 @@ namespace ETMS.Business.Common
             return $"{detail.StartTime.EtmsToDateString()} 到 {detail.EndTime.EtmsToDateString()}";
         }
 
+        internal static string GetClassTimesEndTimeDesc(DateTime? endTime)
+        {
+            if (endTime == null)
+            {
+                return "永久有效";
+            }
+            return endTime.EtmsToDateString();
+        }
+
+        internal static string GetClassDeDayEndTimeDesc(DateTime? endTime)
+        {
+            if (endTime == null)
+            {
+                return "未设置";
+            }
+            return endTime.EtmsToDateString();
+        }
+
         internal static string GetUseQuantityDesc(decimal useQuantity, byte useUnit)
         {
             if (useQuantity == 0)
