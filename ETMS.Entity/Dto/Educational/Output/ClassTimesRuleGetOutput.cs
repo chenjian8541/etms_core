@@ -33,5 +33,12 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 预约类型  <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte ReservationType { get; set; }
+
+        /// <summary>
+        /// 数据类型 <see cref="ETMS.Entity.Enum.EmClassTimesDataType"/>
+        /// </summary>
+        public byte DataType { get; set; }
+
+        public string DataTypeDesc { get; set; }
     }
 }

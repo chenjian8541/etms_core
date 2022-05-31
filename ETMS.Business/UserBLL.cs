@@ -496,7 +496,10 @@ namespace ETMS.Business
             user.Remark = request.Remark;
             user.Address = request.Address;
             user.IsTeacher = request.IsTeacher;
-            user.JobType = request.JobType;
+            if (!user.IsAdmin)
+            {
+                user.JobType = request.JobType;
+            }
             await _etUserDAL.EditUser(user);
 
             CoreBusiness.ProcessUserPhoneAboutEdit(oldPhone, user, _eventPublisher);

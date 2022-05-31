@@ -141,5 +141,10 @@ namespace ETMS.Entity.Database.Source
         /// 状态   <see cref="ETMS.Entity.Enum.EmClassTimesStatus"/>
         /// </summary>
         public byte Status { get; set; }
+
+        /// <summary>
+        /// 数据类型 <see cref="ETMS.Entity.Enum.EmClassTimesDataType"/>
+        /// </summary>
+        public byte DataType { get; set; }
     }
 }

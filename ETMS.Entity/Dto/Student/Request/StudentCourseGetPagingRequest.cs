@@ -56,9 +56,30 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public bool IsIgnoreNotEnoughRemind { get; set; }
 
+        public int? MinClassTimes { get; set; }
+
+        public int? MaxClassTime { get; set; }
+
+        public int? MinValidityDay { get; set; }
+
+        public int? MaxValidityDay { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
+        }
+
+        public override string Validate()
+        {
+            if (MinClassTimes != null && MaxClassTime != null && MinClassTimes >= MaxClassTime)
+            {
+                return "剩余课时最大值必须大于最小值";
+            }
+            if (MinValidityDay != null && MaxValidityDay != null && MinValidityDay >= MaxValidityDay)
+            {
+                return "有效期天数最大值必须大于最小值";
+            }
+            return base.Validate();
         }
 
         /// <summary>
@@ -107,6 +128,32 @@ namespace ETMS.Entity.Dto.Student.Request
             if (IsIgnoreNotEnoughRemind)
             {
                 condition.Append(" AND NotEnoughRemindCount <> -1 ");
+            }
+            if (MinClassTimes != null || MaxClassTime != null)
+            {
+                condition.Append($" AND DeType = {EmDeClassTimesType.ClassTimes}");
+                if (MinClassTimes != null)
+                {
+                    condition.Append($" AND SurplusQuantity >= {MinClassTimes.Value}");
+                }
+                if (MaxClassTime != null)
+                {
+                    condition.Append($" AND SurplusQuantity <= {MaxClassTime.Value}");
+                }
+            }
+            if (MinValidityDay != null || MaxValidityDay != null)
+            {
+                var now = DateTime.Now.Date;
+                if (MinValidityDay != null)
+                {
+                    var minEndDate = now.AddDays(MinValidityDay.Value);
+                    condition.Append($" AND (EndTime IS NULL OR EndTime >= '{minEndDate.EtmsToDateString()}')");
+                }
+                if (MaxValidityDay != null)
+                {
+                    var maxEndDate = now.AddDays(MaxValidityDay.Value);
+                    condition.Append($" AND (EndTime IS NOT NULL AND EndTime <= '{maxEndDate.EtmsToDateString()}')");
+                }
             }
             if (IsDataLimit)
             {

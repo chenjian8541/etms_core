@@ -58,5 +58,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesRuleEdit(ClassTimesRuleEditRequest request);
 
         Task<ResponseBase> ClassChangeOnlineSelStatus(ClassChangeOnlineSelStatusRequest request);
+
+        Task<ResponseBase> ClassTimesRuleChangeDataType(ClassTimesRuleChangeDataTypeRequest request);
+
+        Task<ResponseBase> ClassTimesRuleChangeDataTypeBatch(ClassTimesRuleChangeDataTypeBatchRequest request);
     }
 }

@@ -78,7 +78,7 @@ namespace ETMS.DataAccess
         /// <returns></returns>
         public async Task<bool> ExistClassTimes(DateTime dateTime, int startTime, int endTime, long classId, long exClassTimesId)
         {
-            var obj = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassTimes WHERE TenantId = {_tenantId} AND ClassId = {classId} AND ClassOt = '{dateTime.EtmsToDateString()}' AND IsDeleted = {EmIsDeleted.Normal} AND Id <> {exClassTimesId}  AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
+            var obj = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 0 FROM EtClassTimes WHERE TenantId = {_tenantId} AND ClassId = {classId} AND DataType = {EmClassTimesDataType.Normal} AND ClassOt = '{dateTime.EtmsToDateString()}' AND IsDeleted = {EmIsDeleted.Normal} AND Id <> {exClassTimesId}  AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
             return obj != null;
         }
 
@@ -112,7 +112,7 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<EtClassTimes>> GetList(IValidate request)
         {
-            var sql = $"SELECT * FROM EtClassTimes WHERE {request}";
+            var sql = $"SELECT * FROM EtClassTimes WHERE {request} AND DataType = {EmClassTimesDataType.Normal}";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
         }
 
@@ -169,7 +169,7 @@ namespace ETMS.DataAccess
             var minMime = checkOt.AddMinutes(-relationClassTimesLimitMinuteCard).ToString("HHmm").ToInt();
             var maxMime = checkOt.AddMinutes(relationClassTimesLimitMinuteCard).ToString("HHmm").ToInt();
             return await _dbWrapper.ExecuteObject<EtClassTimes>(
-                $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{checkOt.EtmsToDateString()}' AND StartTime >= {minMime} AND StartTime <= {maxMime} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%')");
+                $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND DataType = {EmClassTimesDataType.Normal} AND ClassOt = '{checkOt.EtmsToDateString()}' AND StartTime >= {minMime} AND StartTime <= {maxMime} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%')");
         }
 
         public async Task SyncClassTimesOfClassTimesRule(EtClassTimesRule rule)
@@ -229,25 +229,25 @@ namespace ETMS.DataAccess
 
         public async Task<IEnumerable<ClassTimesClassOtGroupCountView>> ClassTimesClassOtGroupCount(IValidate request)
         {
-            var sql = $"SELECT ClassOt,COUNT(ClassOt) AS TotalCount FROM EtClassTimes WHERE {request} GROUP BY ClassOt";
+            var sql = $"SELECT ClassOt,COUNT(ClassOt) AS TotalCount FROM EtClassTimes WHERE {request} AND DataType = {EmClassTimesDataType.Normal} GROUP BY ClassOt";
             return await _dbWrapper.ExecuteObject<ClassTimesClassOtGroupCountView>(sql);
         }
 
         public async Task<IEnumerable<EtClassTimes>> GetClassTimes(IValidate request)
         {
-            var sql = $"SELECT TOP 100 * FROM EtClassTimes WHERE {request}";
+            var sql = $"SELECT TOP 100 * FROM EtClassTimes WHERE {request} AND DataType = {EmClassTimesDataType.Normal}";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
         }
 
         public async Task<IEnumerable<OnlyId>> GetMyTempOrReservationClassTimes(long studentId)
         {
-            var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')";
+            var sql = $"SELECT TOP 500 Id FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')";
             return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
 
         public async Task<IEnumerable<EtClassTimes>> GetStudentClassTimes(long studentId, DateTime startDate, DateTime endDate, int topLimit = 50)
         {
-            var sql = $"SELECT TOP {topLimit} * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%') ORDER BY ClassOt,StartTime";
+            var sql = $"SELECT TOP {topLimit} * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt >= '{startDate.EtmsToDateString()}' AND ClassOt <= '{endDate.EtmsToDateString()}' AND (StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%' OR StudentIdsClass LIKE '%,{studentId},%') ORDER BY ClassOt,StartTime";
             return await _dbWrapper.ExecuteObject<EtClassTimes>(sql);
         }
 
@@ -269,13 +269,36 @@ namespace ETMS.DataAccess
         public async Task<IEnumerable<EtClassTimes>> GetStudentOneToOneClassTimes(long classId, DateTime classOt)
         {
             return await _dbWrapper.FindList<EtClassTimes>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
-            && p.ClassId == classId && p.ClassOt == classOt);
+            && p.ClassId == classId && p.ClassOt == classOt && p.DataType == EmClassTimesDataType.Normal);
         }
 
         public async Task<IEnumerable<EtClassTimes>> GetClassTimes(long teacherId, long studentId, DateTime classOt)
         {
             return await _dbWrapper.ExecuteObject<EtClassTimes>(
-                $"SELECT TOP 50 * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{classOt.EtmsToDateString()}' AND (Teachers LIKE '%,{teacherId},%' OR StudentIdsClass LIKE '%,{studentId},%' OR StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')");
+                $"SELECT TOP 50 * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{classOt.EtmsToDateString()}' AND (Teachers LIKE '%,{teacherId},%' OR StudentIdsClass LIKE '%,{studentId},%' OR StudentIdsTemp LIKE '%,{studentId},%' OR StudentIdsReservation LIKE '%,{studentId},%')");
+        }
+
+        public async Task UpdateClassTimesDataType(long ruleId, byte newDataType)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtClassTimes SET DataType = {newDataType} WHERE TenantId = {_tenantId} AND RuleId = {ruleId}");
+        }
+
+        public async Task UpdateClassTimesDataType(List<long> ruleIds, byte newDataType)
+        {
+            if (ruleIds == null || ruleIds.Count == 0)
+            {
+                return;
+            }
+            if (ruleIds.Count == 1)
+            {
+                await UpdateClassTimesDataType(ruleIds[0], newDataType);
+            }
+            else
+            {
+                await _dbWrapper.Execute(
+                    $"UPDATE EtClassTimes SET DataType = {newDataType} WHERE TenantId = {_tenantId} AND RuleId IN ({string.Join(',', ruleIds)})");
+            }
         }
     }
 }

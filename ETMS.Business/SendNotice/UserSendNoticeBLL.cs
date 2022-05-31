@@ -162,6 +162,10 @@ namespace ETMS.Business.SendNotice
                 Log.Warn($"[NoticeTeacherOfClassTodayClassTimesConsumerEvent]已点名,无需发送上课通知:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimesId}", this.GetType());
                 return;
             }
+            if (classTimes.DataType != EmClassTimesDataType.Normal)
+            {
+                return;
+            }
 
             var stringClassRoom = string.Empty;
             if (!string.IsNullOrEmpty(classTimes.ClassRoomIds))

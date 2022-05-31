@@ -111,5 +111,9 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClass>> GetStudentOneToOneClassNormalIsReservation(long studentId);
 
         Task<bool> CheckStudentHaveOneToOneClassNormalIsReservation(long studentId);
+
+        Task UpdateClassTimesRuleDataType(long id, byte newDataType);
+
+        Task UpdateClassTimesRuleDataType(List<long> ids, byte newDataType);
     }
 }

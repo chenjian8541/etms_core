@@ -98,5 +98,9 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClassTimes>> GetStudentOneToOneClassTimes(long classId, DateTime classOt);
 
         Task<IEnumerable<EtClassTimes>> GetClassTimes(long teacherId, long studentId, DateTime classOt);
+
+        Task UpdateClassTimesDataType(long ruleId, byte newDataType);
+
+        Task UpdateClassTimesDataType(List<long> ruleIds, byte newDataType);
     }
 }

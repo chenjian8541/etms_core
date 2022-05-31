@@ -106,5 +106,9 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public string Remark { get; set; }
 
+        /// <summary>
+        /// 数据类型 <see cref="ETMS.Entity.Enum.EmClassTimesDataType"/>
+        /// </summary>
+        public byte DataType { get; set; }
     }
 }

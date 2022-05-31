@@ -68,7 +68,8 @@ namespace ETMS.DataAccess
 
         public async Task<List<EtClassTimes>> GetClassTimesUnRollcall(DateTime classOt)
         {
-            return await _dbWrapper.FindList<EtClassTimes>(p => p.TenantId == _tenantId && p.ClassOt == classOt && p.Status == EmClassTimesStatus.UnRollcall && p.IsDeleted == EmIsDeleted.Normal);
+            return await _dbWrapper.FindList<EtClassTimes>(p => p.TenantId == _tenantId
+            && p.DataType == EmClassTimesDataType.Normal && p.ClassOt == classOt && p.Status == EmClassTimesStatus.UnRollcall && p.IsDeleted == EmIsDeleted.Normal);
         }
 
         public async Task<List<EtClassTimesStudent>> GetClassTimesStudent(long classTimesId)

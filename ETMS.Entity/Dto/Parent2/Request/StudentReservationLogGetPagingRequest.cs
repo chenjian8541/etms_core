@@ -28,6 +28,7 @@ namespace ETMS.Entity.Dto.Parent2.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere());
+            condition.Append($" AND DataType = {EmClassTimesDataType.Normal}");
             var now = DateTime.Now.EtmsToDateString();
             if (LogStatus == EmStudentReservationLogOutputStatus.Normal)
             {

@@ -498,5 +498,28 @@ namespace ETMS.DataAccess
                 $"SELECT TOP 1 0 FROM EtClass WHERE TenantId = {_tenantId} AND [Type] = {EmClassType.OneToOne} AND DataType = {EmClassDataType.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND CompleteStatus = {EmClassCompleteStatus.UnComplete} AND ReservationType = {EmBool.True} AND StudentIds LIKE ',{studentId},'");
             return obj != null;
         }
+
+        public async Task UpdateClassTimesRuleDataType(long id, byte newDataType)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtClassTimesRule SET DataType = {newDataType} WHERE Id = {id} AND TenantId = {_tenantId}");
+        }
+
+        public async Task UpdateClassTimesRuleDataType(List<long> ids, byte newDataType)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return;
+            }
+            if (ids.Count == 1)
+            {
+                await UpdateClassTimesRuleDataType(ids[0], newDataType);
+            }
+            else
+            {
+                await _dbWrapper.Execute(
+                    $"UPDATE EtClassTimesRule SET DataType = {newDataType} WHERE Id IN ({string.Join(',', ids)}) AND TenantId = {_tenantId}");
+            }
+        }
     }
 }

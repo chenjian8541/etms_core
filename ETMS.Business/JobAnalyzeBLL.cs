@@ -171,7 +171,8 @@ namespace ETMS.Business
                         StudentCount = etClass.EtClass.StudentNums,
                         ReservationType = classRule.ReservationType,
                         LimitStudentNumsIsAlone = false,
-                        LimitStudentNumsType = etClass.EtClass.LimitStudentNumsType
+                        LimitStudentNumsType = etClass.EtClass.LimitStudentNumsType,
+                        DataType = classRule.DataType
                     });
                     if (currentDate > minDate)
                     {

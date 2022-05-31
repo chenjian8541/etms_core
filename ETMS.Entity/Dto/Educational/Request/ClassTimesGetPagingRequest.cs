@@ -88,6 +88,7 @@ namespace ETMS.Entity.Dto.Educational.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
+            condition.Append($" AND DataType = {EmClassTimesDataType.Normal}");
             if (ClassId != null)
             {
                 condition.Append($" AND ClassId = {ClassId.Value}");

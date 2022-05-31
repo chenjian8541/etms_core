@@ -1816,7 +1816,9 @@ namespace ETMS.Business
                         ClassId = rule.ClassId,
                         RuleId = rule.Id,
                         IsJumpHoliday = rule.IsJumpHoliday,
-                        ReservationType = rule.ReservationType
+                        ReservationType = rule.ReservationType,
+                        DataType = rule.DataType,
+                        DataTypeDesc = EmClassTimesDataType.GetClassTimesDataTypeDesc(rule.DataType)
                     });
                 }
             }
@@ -2092,6 +2094,40 @@ namespace ETMS.Business
             await _classDAL.ChangeClassOnlineSelClassStatus(request.Ids, request.NewOnlineSelStatus);
             await _userOperationLogDAL.AddUserLog(request, "批量编辑在线选班", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleChangeDataType(ClassTimesRuleChangeDataTypeRequest request)
+        {
+            var classRule = await _classDAL.GetClassTimesRuleBuyId(request.ClassRuleId);
+            if (classRule == null)
+            {
+                return ResponseBase.CommonError("排课信息未找到");
+            }
+            byte newDataType = classRule.DataType == EmClassTimesDataType.Normal ? EmClassTimesDataType.Stop : EmClassTimesDataType.Normal;
+            await _classDAL.UpdateClassTimesRuleDataType(classRule.Id, newDataType);
+            await _classTimesDAL.UpdateClassTimesDataType(classRule.Id, newDataType);
+
+            var desc = newDataType == EmClassTimesDataType.Stop ? "班级排课-暂停课表" : "班级排课-恢复课表";
+            if (!string.IsNullOrEmpty(request.Remark))
+            {
+                desc = $"{desc}：{request.Remark}";
+            }
+            await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleChangeDataTypeBatch(ClassTimesRuleChangeDataTypeBatchRequest request)
+        {
+            await _classDAL.UpdateClassTimesRuleDataType(request.ClassRuleIds, request.NewDataType);
+            await _classTimesDAL.UpdateClassTimesDataType(request.ClassRuleIds, request.NewDataType);
+
+            var desc = request.NewDataType == EmClassTimesDataType.Stop ? "班级排课-批量暂停课表" : "班级排课-批量恢复课表";
+            if (!string.IsNullOrEmpty(request.Remark))
+            {
+                desc = $"{desc}：{request.Remark}";
+            }
+            await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
     }
 }
