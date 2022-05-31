@@ -42,5 +42,15 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// 学员端展示课时单位
         /// </summary>
         public decimal StudentShowClassTimesUnitValue { get; set; } = 1;
+
+        /// <summary>
+        /// 自动点名
+        /// </summary>
+        public bool IsAutoCheckSign { get; set; }
+
+        /// <summary>
+        /// 自动点名课次超时分钟
+        /// </summary>
+        public int AutoCheckSignLimitMinute { get; set; }
     }
 }

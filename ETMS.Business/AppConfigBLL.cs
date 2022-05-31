@@ -430,6 +430,8 @@ namespace ETMS.Business
             config.TenantOtherConfig.IsOpenStudentRegister = request.IsOpenStudentRegister;
             config.TenantOtherConfig.IsStudentShowClassTimesUnit = request.IsStudentShowClassTimesUnit;
             config.TenantOtherConfig.StudentShowClassTimesUnitValue = request.StudentShowClassTimesUnitValue;
+            config.TenantOtherConfig.IsAutoCheckSign = request.IsAutoCheckSign;
+            config.TenantOtherConfig.AutoCheckSignLimitMinute = request.AutoCheckSignLimitMinute;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
