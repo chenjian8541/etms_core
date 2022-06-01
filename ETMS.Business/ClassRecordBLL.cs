@@ -139,7 +139,8 @@ namespace ETMS.Business
                         DeSum = EmRoleSecrecyType.GetSecrecyValue(request.SecrecyType, classRecord.DeSum.EtmsToString2()),
                         StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                         CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
-                        ClassCategoryName = classCategoryName
+                        ClassCategoryName = classCategoryName,
+                        Remark = classRecord.Remark
                     });
                 }
             }
@@ -193,7 +194,8 @@ namespace ETMS.Business
                 StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                 CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
                 IsLeaveCharge = myClass.IsLeaveCharge,
-                IsNotComeCharge = myClass.IsNotComeCharge
+                IsNotComeCharge = myClass.IsNotComeCharge,
+                Remark = classRecord.Remark
             });
         }
 

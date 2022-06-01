@@ -53,5 +53,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 未到是否收费
         /// </summary>
         public bool IsNotComeCharge { get; set; }
+
+        public string Remark { get; set; }
     }
 }
