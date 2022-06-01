@@ -18,5 +18,13 @@ namespace ETMS.Entity.Database.Manage
         public string DetailInfo { get; set; }
 
         public string EtmsAuthorityValue { get; set; }
+
+        public bool IsLimitLoginPC { get; set; }
+
+        public bool IsLimitLoginWxParent { get; set; }
+
+        public bool IsLimitLoginWxTeacher { get; set; }
+
+        public bool IsLimitLoginAppTeacher { get; set; }
     }
 }

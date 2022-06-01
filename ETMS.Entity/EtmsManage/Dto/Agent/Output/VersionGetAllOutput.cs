@@ -17,5 +17,13 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public int Value { get; set; }
 
         public string Label { get; set; }
+
+        public bool IsLimitLoginPC { get; set; }
+
+        public bool IsLimitLoginWxParent { get; set; }
+
+        public bool IsLimitLoginWxTeacher { get; set; }
+
+        public bool IsLimitLoginAppTeacher { get; set; }
     }
 }

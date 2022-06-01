@@ -21,5 +21,13 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Output
         public bool IsDataLimit { get; set; }
 
         public List<SysMenuViewOutput> Menus { get; set; }
+
+        public bool IsLimitLoginPC { get; set; }
+
+        public bool IsLimitLoginWxParent { get; set; }
+
+        public bool IsLimitLoginWxTeacher { get; set; }
+
+        public bool IsLimitLoginAppTeacher { get; set; }
     }
 }

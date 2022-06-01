@@ -376,6 +376,38 @@ namespace ETMS.Business.Common
             return true;
         }
 
+        internal static bool CheckSysVersionCanLogin(SysVersion myVersion, int clientType)
+        {
+            switch (clientType)
+            {
+                case EmUserOperationLogClientType.PC:
+                    if (myVersion.IsLimitLoginPC)
+                    {
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.WeChat:
+                    if (myVersion.IsLimitLoginWxTeacher)
+                    {
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.Android:
+                    if (myVersion.IsLimitLoginAppTeacher)
+                    {
+                        return false;
+                    }
+                    break;
+                case EmUserOperationLogClientType.WxParent:
+                    if (myVersion.IsLimitLoginWxParent)
+                    {
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
         internal static bool CheckRoleCanLogin(RoleNoticeSettingOutput roleSetting, int clientType, out string msg)
         {
             msg = string.Empty;

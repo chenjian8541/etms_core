@@ -683,7 +683,11 @@ namespace ETMS.Business.EtmsManage
                 Name = request.Name,
                 Remark = request.Remark,
                 DetailInfo = request.DetailInfo,
-                Img = string.Empty
+                Img = string.Empty,
+                IsLimitLoginAppTeacher = request.IsLimitLoginAppTeacher,
+                IsLimitLoginPC = request.IsLimitLoginPC,
+                IsLimitLoginWxParent = request.IsLimitLoginWxParent,
+                IsLimitLoginWxTeacher = request.IsLimitLoginWxTeacher
             });
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"添加系统版本:{request.Name}", EmSysAgentOpLogType.VersionMange);
             return ResponseBase.Success();
@@ -696,6 +700,11 @@ namespace ETMS.Business.EtmsManage
             {
                 return ResponseBase.CommonError("系统版本不存在");
             }
+
+            version.IsLimitLoginAppTeacher = request.IsLimitLoginAppTeacher;
+            version.IsLimitLoginPC = request.IsLimitLoginPC;
+            version.IsLimitLoginWxParent = request.IsLimitLoginWxParent;
+            version.IsLimitLoginWxTeacher = request.IsLimitLoginWxTeacher;
             version.Name = request.Name;
             version.Remark = request.Remark;
             version.DetailInfo = request.DetailInfo;
@@ -741,6 +750,10 @@ namespace ETMS.Business.EtmsManage
                 Remark = version.Remark,
                 DetailInfo = version.DetailInfo,
                 Menus = AgentComBusiness.GetSysMenuViewOutputs(myMenuConfigs),
+                IsLimitLoginAppTeacher = version.IsLimitLoginAppTeacher,
+                IsLimitLoginPC = version.IsLimitLoginPC,
+                IsLimitLoginWxParent = version.IsLimitLoginWxParent,
+                IsLimitLoginWxTeacher = version.IsLimitLoginWxTeacher
             });
         }
 
@@ -762,7 +775,11 @@ namespace ETMS.Business.EtmsManage
                     Name = p.Name,
                     Remark = p.Remark,
                     DetailInfo = p.DetailInfo,
-                    Value = p.Id
+                    Value = p.Id,
+                    IsLimitLoginAppTeacher = p.IsLimitLoginAppTeacher,
+                    IsLimitLoginPC = p.IsLimitLoginPC,
+                    IsLimitLoginWxParent = p.IsLimitLoginWxParent,
+                    IsLimitLoginWxTeacher = p.IsLimitLoginWxTeacher
                 });
             }
             return ResponseBase.Success(output);

@@ -22,6 +22,12 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int Android = 2;
 
+        /// <summary>
+        /// 家长端 
+        /// 注：只是个标记
+        /// </summary>
+        public const int WxParent = 99;
+
         public static string GetClientTypeDesc(int type)
         {
             switch (type)

@@ -64,12 +64,15 @@ namespace ETMS.Business
         private readonly IUserDAL _userDAL;
 
         private readonly IEventPublisher _eventPublisher;
+
+        private readonly ISysVersionDAL _sysVersionDAL;
         public ParentBLL(IParentLoginSmsCodeDAL parentLoginSmsCodeDAL, ISysTenantDAL sysTenantDAL, IParentStudentDAL parentStudentDAL,
             IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService, IStudentOperationLogDAL studentOperationLogDAL,
             IStudentWechatDAL studentWechatDAL, ISysStudentWechartDAL sysStudentWechartDAL, IStudentDAL studentDAL, IComponentAccessBLL componentAccessBLL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, ISysTenantStudentDAL sysTenantStudentDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IParentMenusConfigDAL parentMenusConfigDAL,
-            ITenantConfig2DAL tenantConfig2DAL, IUserDAL userDAL, IEventPublisher eventPublisher)
+            ITenantConfig2DAL tenantConfig2DAL, IUserDAL userDAL, IEventPublisher eventPublisher,
+            ISysVersionDAL sysVersionDAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._parentLoginSmsCodeDAL = parentLoginSmsCodeDAL;
@@ -88,6 +91,7 @@ namespace ETMS.Business
             this._tenantConfig2DAL = tenantConfig2DAL;
             this._userDAL = userDAL;
             this._eventPublisher = eventPublisher;
+            this._sysVersionDAL = sysVersionDAL;
         }
 
         public async Task<IEnumerable<ParentStudentInfo>> GetMyStudent(ParentRequestBase request)
@@ -503,6 +507,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构无法登陆");
+            }
+
             var output = new CheckParentCanLoginOutput()
             {
                 AgtPayType = sysTenantInfo.AgtPayType

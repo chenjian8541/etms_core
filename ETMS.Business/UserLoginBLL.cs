@@ -48,11 +48,12 @@ namespace ETMS.Business
 
         private readonly ISysTenantUserDAL _sysTenantUserDAL;
 
+        private readonly ISysVersionDAL _sysVersionDAL;
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
             IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL, IComponentAccessBLL componentAccessBLL,
-            IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL)
+            IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL, ISysVersionDAL sysVersionDAL)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._sysTenantDAL = sysTenantDAL;
@@ -66,6 +67,7 @@ namespace ETMS.Business
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._userWechatDAL = userWechatDAL;
             this._sysTenantUserDAL = sysTenantUserDAL;
+            this._sysVersionDAL = sysVersionDAL;
         }
 
         public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
@@ -410,6 +412,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.LoginClientType))
+            {
+                return ResponseBase.CommonError("机构无法登陆");
+            }
+
             _etUserDAL.InitTenantId(request.LoginTenantId);
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
             if (!ComBusiness2.CheckUserCanLogin(userInfo, out var msg))

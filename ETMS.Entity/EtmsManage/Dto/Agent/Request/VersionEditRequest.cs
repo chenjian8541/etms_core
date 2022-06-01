@@ -21,6 +21,14 @@ namespace ETMS.Entity.EtmsManage.Dto.Agent.Request
 
         public string Remark { get; set; }
 
+        public bool IsLimitLoginPC { get; set; }
+
+        public bool IsLimitLoginWxParent { get; set; }
+
+        public bool IsLimitLoginWxTeacher { get; set; }
+
+        public bool IsLimitLoginAppTeacher { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)
