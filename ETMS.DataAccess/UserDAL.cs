@@ -51,8 +51,14 @@ namespace ETMS.DataAccess
 
         public async Task<EtUser> GetAdminUser()
         {
-            return await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            var adminUser = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
             && p.IsAdmin == true);
+            if (adminUser == null)
+            {
+                //防止admin账号被删除，正常情况下administrator是不允许被删除的
+                adminUser = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
+            }
+            return adminUser;
         }
 
         public async Task<EtUser> GetUser(long userId)

@@ -300,5 +300,11 @@ namespace ETMS.DataAccess
                     $"UPDATE EtClassTimes SET DataType = {newDataType} WHERE TenantId = {_tenantId} AND RuleId IN ({string.Join(',', ruleIds)})");
             }
         }
+
+        public async Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut(DateTime date, int minEndTime)
+        {
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{date.EtmsToDateString()}' AND EndTime <= {minEndTime}");
+        }
     }
 }

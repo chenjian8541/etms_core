@@ -730,6 +730,7 @@ namespace ETMS.Business
             var output = new List<ClassStudentGetOutput>();
             if (etClassBucket.EtClassStudents != null && etClassBucket.EtClassStudents.Any())
             {
+                var tempBoxCourse = new DataTempBox<EtCourse>();
                 foreach (var students in etClassBucket.EtClassStudents)
                 {
                     var myStudent = await _studentDAL.GetStudent(students.StudentId);
@@ -737,8 +738,8 @@ namespace ETMS.Business
                     {
                         continue;
                     }
-                    var myCourse = await _courseDAL.GetCourse(students.CourseId);
-                    if (myCourse == null || myCourse.Item1 == null)
+                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, students.CourseId);
+                    if (myCourse == null)
                     {
                         continue;
                     }
@@ -747,7 +748,7 @@ namespace ETMS.Business
                     {
                         CourseId = students.CourseId,
                         ClassId = students.ClassId,
-                        CourseName = myCourse.Item1.Name,
+                        CourseName = myCourse.Name,
                         Gender = myStudent.Student.Gender,
                         GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
                         StudentId = students.StudentId,

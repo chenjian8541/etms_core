@@ -152,5 +152,12 @@
     "Title": "MQ任务调度(延迟执行)",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "EveryTenMinutesJob",
+    "Cron": "0 */10 * * * ?", //每隔10分钟执行
+    "Title": "每隔10分钟执行的任务",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

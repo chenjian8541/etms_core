@@ -140,6 +140,7 @@ namespace ETMS.Business
             }
             var classStudent = etClass.EtClassStudents;
             var output = new List<ClassTimesStudentGetOutput>();
+            tempBoxCourse = new DataTempBox<EtCourse>();
             if (classStudent != null && classStudent.Any())
             {
                 foreach (var cMyStudent in classStudent)
@@ -180,6 +181,7 @@ namespace ETMS.Business
             var studentLeave = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(classOt);
             var studentLeaveCheck = new StudentIsLeaveCheck(studentLeave);
             studentLeave = studentLeaveCheck.GetStudentLeaveList(classTimes.StartTime, classTimes.EndTime, classOt);
+            tempBoxCourse = new DataTempBox<EtCourse>();
             if (classStudent != null && classStudent.Any())
             {
                 foreach (var cMyStudent in classStudent)
@@ -248,6 +250,7 @@ namespace ETMS.Business
             return ResponseBase.Success(output.OrderBy(p => p.IsCheckAttendance));
         }
 
+        DataTempBox<EtCourse> tempBoxCourse;
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
             long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, string defaultClassTimes,
             byte isReservation, int requestSecrecyType, DateTime? classOt = null)
@@ -257,8 +260,8 @@ namespace ETMS.Business
             {
                 return null;
             }
-            var myCourse = await _courseDAL.GetCourse(courseId);
-            if (myCourse == null || myCourse.Item1 == null)
+            var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, courseId);
+            if (myCourse == null)
             {
                 return null;
             }
@@ -272,7 +275,7 @@ namespace ETMS.Business
             {
                 CourseId = courseId,
                 ClassId = classId,
-                CourseName = myCourse.Item1.Name,
+                CourseName = myCourse.Name,
                 Gender = myStudent.Student.Gender,
                 GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
                 StudentId = studentId,
@@ -285,7 +288,7 @@ namespace ETMS.Business
                 StudentTryCalssLogId = studentTryCalssLogId,
                 StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(studentType),
                 DefaultClassTimes = defaultClassTimes,
-                Points = myCourse.Item1.CheckPoints,
+                Points = myCourse.CheckPoints,
                 IsReservation = isReservation,
                 IsStopCoure = stopCourseResult.Item1,
                 StopCoureDesc = stopCourseResult.Item2,

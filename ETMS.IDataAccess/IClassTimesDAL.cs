@@ -102,5 +102,7 @@ namespace ETMS.IDataAccess
         Task UpdateClassTimesDataType(long ruleId, byte newDataType);
 
         Task UpdateClassTimesDataType(List<long> ruleIds, byte newDataType);
+
+        Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut(DateTime date, int minEndTime);
     }
 }
