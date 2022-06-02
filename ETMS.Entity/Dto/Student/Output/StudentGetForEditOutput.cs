@@ -105,6 +105,16 @@ namespace ETMS.Entity.Dto.Student.Output
         /// </summary>
         public string Remark { get; set; }
 
+        /// <summary>
+        /// 学员类型   <see cref="ETMS.Entity.Enum.EmStudentType"/>
+        /// </summary>
+        public byte StudentType { get; set; }
+
+        /// <summary>
+        /// 跟进状态  <see cref="ETMS.Entity.Enum.EmStudentTrackStatus"/>
+        /// </summary>
+        public byte TrackStatus { get; set; }
+
         public List<StudentExtendItem> StudentExtendItems { get; set; }
     }
 }

@@ -101,6 +101,11 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public List<StudentExtendItem> StudentExtendItems { get; set; }
 
+        /// <summary>
+        /// 跟进状态  <see cref="ETMS.Entity.Enum.EmStudentTrackStatus"/>
+        /// </summary>
+        public byte TrackStatus { get; set; }
+
         public override string Validate()
         {
             Name = Name.Trim();

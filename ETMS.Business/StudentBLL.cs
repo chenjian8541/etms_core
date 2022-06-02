@@ -203,7 +203,7 @@ namespace ETMS.Business
                 StudentType = EmStudentType.HiddenStudent,
                 Tags = tags,
                 TenantId = request.LoginTenantId,
-                TrackStatus = EmStudentTrackStatus.NotTrack,
+                TrackStatus = request.TrackStatus,
                 TrackUser = trackUser,
                 NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
                 RecommendStudentId = request.RecommendStudentId,
@@ -328,6 +328,11 @@ namespace ETMS.Business
             etStudent.TrackUser = request.TrackUser;
             etStudent.RecommendStudentId = request.RecommendStudentId;
             etStudent.NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower();
+
+            if (etStudent.StudentType == EmStudentType.HiddenStudent)
+            {
+                etStudent.TrackStatus = request.TrackStatus;
+            }
 
             var myAgeResult = request.Birthday.EtmsGetAge();
             etStudent.Age = myAgeResult?.Item1;
@@ -569,7 +574,9 @@ namespace ETMS.Business
                 AvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.Avatar),
                 TrackUserName = await ComBusiness.GetUserName(tempBoxUser, _userDAL, student.TrackUser),
                 RecommendStudentId = student.RecommendStudentId,
-                RecommendStudentName = recommendStudentName
+                RecommendStudentName = recommendStudentName,
+                StudentType = student.StudentType,
+                TrackStatus = student.TrackStatus,
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var file in studentExtendFileds)
