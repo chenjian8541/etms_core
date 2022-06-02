@@ -2086,7 +2086,7 @@ namespace ETMS.Business
             await _classDAL.EditClassTimesRule(classRule);
             await _classTimesDAL.SyncClassTimesOfClassTimesRule(classRule);
 
-            await _userOperationLogDAL.AddUserLog(request, "编辑排课", EmUserOperationType.ClassManage);
+            await _userOperationLogDAL.AddUserLog(request, $"编辑排课-{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
 
