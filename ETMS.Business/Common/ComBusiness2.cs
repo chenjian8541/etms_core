@@ -344,17 +344,17 @@ namespace ETMS.Business.Common
             msg = string.Empty;
             if (sysTenant == null)
             {
-                msg = "机构不存在,无法登陆";
+                msg = "机构不存在,无法登录";
                 return false;
             }
             if (sysTenant.ExDate < DateTime.Now.Date)
             {
-                msg = "机构已过期,无法登陆";
+                msg = "机构已过期,无法登录";
                 return false;
             }
             if (sysTenant.Status == EmSysTenantStatus.IsLock)
             {
-                msg = "机构已锁定,无法登陆";
+                msg = "机构已锁定,无法登录";
                 return false;
             }
             return true;
@@ -365,12 +365,12 @@ namespace ETMS.Business.Common
             msg = string.Empty;
             if (user == null)
             {
-                msg = "用户不存在,请重新登陆";
+                msg = "用户不存在,请重新登录";
                 return false;
             }
             if (user.JobType == EmUserJobType.Resignation)
             {
-                msg = "您已离职，无法登陆";
+                msg = "您已离职，无法登录";
                 return false;
             }
             return true;

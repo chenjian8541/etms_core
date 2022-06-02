@@ -138,12 +138,12 @@ namespace ETMS.Business.Alien
             msg = string.Empty;
             if (myHead == null)
             {
-                msg = "企业不存在,无法登陆";
+                msg = "企业不存在,无法登录";
                 return false;
             }
             if (myHead.Status == EmMgHeadStatus.IsLock)
             {
-                msg = "企业已锁定,无法登陆";
+                msg = "企业已锁定,无法登录";
                 return false;
             }
             return true;
@@ -158,12 +158,12 @@ namespace ETMS.Business.Alien
             }
             if (user == null)
             {
-                msg = "账户不存在,请重新登陆";
+                msg = "账户不存在,请重新登录";
                 return false;
             }
             if (user.IsLock == EmBool.True)
             {
-                msg = "账户已锁定,无法登陆";
+                msg = "账户已锁定,无法登录";
                 return false;
             }
             return true;
@@ -273,7 +273,7 @@ namespace ETMS.Business.Alien
             var userLoginOnlineBucket = _mgTempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginHeadId, request.LoginUserId, request.LoginClientType);
             if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
             {
-                return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
+                return ResponseBase.CommonError("您的账号已在其他设备登录，请重新登录！");
             }
 
             _mgTenantsDAL.InitHeadId(request.LoginHeadId);

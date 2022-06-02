@@ -149,6 +149,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _parentStudentDAL.InitTenantId(sysTenantInfo.Id);
             var students = await _parentStudentDAL.UpdateCacheAndGetParentStudents(sysTenantInfo.Id, request.Phone);
             if (students == null || !students.Any())
@@ -182,6 +192,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             var smsCode = RandomHelper.GetSmsCode();
             var sendSmsRes = await _smsService.ParentLogin(new SmsParentLoginRequest(sysTenantInfo.Id)
             {
@@ -209,6 +229,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             var loginSms = _parentLoginSmsCodeDAL.GetParentLoginSmsCode(request.Code, request.Phone);
             if (loginSms == null || loginSms.ExpireAtTime < DateTime.Now || loginSms.SmsCode != request.SmsCode)
             {
@@ -230,6 +260,15 @@ namespace ETMS.Business
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
                 return ResponseBase.CommonError(myMsg);
+            }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
             }
 
             var pwd = CryptogramHelper.Encrypt3DES(request.Pwd, SystemConfig.CryptogramConfig.Key);
@@ -514,7 +553,7 @@ namespace ETMS.Business
             }
             if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
             {
-                return ResponseBase.CommonError("机构无法登陆");
+                return ResponseBase.CommonError("机构未开通此模块");
             }
 
             var output = new CheckParentCanLoginOutput()
@@ -592,6 +631,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentGetTenants(ParentRequestBase request)
         {
             var myTenants = await _sysTenantStudentDAL.GetTenantStudent(request.LoginPhone);
+            var sysVersionAll = await _sysVersionDAL.GetVersions();
             var output = new List<ParentGetTenantsOutput>();
             foreach (var p in myTenants)
             {
@@ -602,6 +642,15 @@ namespace ETMS.Business
                     continue;
                 }
                 if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+                {
+                    continue;
+                }
+                var myVersion = sysVersionAll.FirstOrDefault(j => j.Id == thisTenant.VersionId);
+                if (myVersion == null)
+                {
+                    continue;
+                }
+                if (!ComBusiness2.CheckSysVersionCanLogin(myVersion, EmUserOperationLogClientType.WxParent))
                 {
                     continue;
                 }
@@ -632,6 +681,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(thisTenant.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             return await GetParentLoginResult(thisTenant.Id, request.LoginPhone, null);
         }
 
@@ -676,6 +735,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             var loginSms = _parentLoginSmsCodeDAL.GetParentLoginSmsCode(request.Code, request.Phone);
             if (loginSms == null || loginSms.ExpireAtTime < DateTime.Now || loginSms.SmsCode != request.SmsCode)
             {

@@ -21,6 +21,7 @@ using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
 using ETMS.Business.WxCore;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -110,6 +111,16 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.ClientType))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
             var userInfo = await _etUserDAL.GetUser(request.Phone);
@@ -177,6 +188,16 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.PC))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
             var userInfo = await _etUserDAL.GetUser(request.Phone);
@@ -238,7 +259,7 @@ namespace ETMS.Business
         }
 
         /// <summary>
-        /// 使用短信验证码登陆
+        /// 使用短信验证码登录
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -254,6 +275,16 @@ namespace ETMS.Business
             {
                 return response.GetResponseError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.ClientType))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _etUserDAL.InitTenantId(sysTenantInfo.Id);
             _etUserOperationLogDAL.InitTenantId(sysTenantInfo.Id);
             var userInfo = await _etUserDAL.GetUser(request.Phone);
@@ -419,7 +450,7 @@ namespace ETMS.Business
             }
             if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.LoginClientType))
             {
-                return ResponseBase.CommonError("机构无法登陆");
+                return ResponseBase.CommonError("机构未开通此模块");
             }
 
             _etUserDAL.InitTenantId(request.LoginTenantId);
@@ -432,7 +463,7 @@ namespace ETMS.Business
             var userLoginOnlineBucket = _tempDataCacheDAL.GetUserLoginOnlineBucket(request.LoginTenantId, request.LoginUserId, request.LoginClientType);
             if (userLoginOnlineBucket != null && userLoginOnlineBucket.LoginTime != request.LoginTimestamp)
             {
-                return ResponseBase.CommonError("您的账号已在其他设备登陆，请重新登录！");
+                return ResponseBase.CommonError("您的账号已在其他设备登录，请重新登录！");
             }
 
             _roleDAL.InitTenantId(userInfo.TenantId);
@@ -488,6 +519,7 @@ namespace ETMS.Business
             _etUserDAL.InitTenantId(request.LoginTenantId);
             var user = await _etUserDAL.GetUser(request.LoginUserId);
             var myTenants = await _sysTenantUserDAL.GetTenantUser(user.Phone);
+            var allVersions = await _sysVersionDAL.GetVersions();
             var output = new List<UserGetTenantsOutput>();
             foreach (var p in myTenants)
             {
@@ -501,6 +533,16 @@ namespace ETMS.Business
                 {
                     continue;
                 }
+                var myVersion = allVersions.FirstOrDefault(j => j.Id == thisTenant.VersionId);
+                if (myVersion == null)
+                {
+                    continue;
+                }
+                if (!ComBusiness2.CheckSysVersionCanLogin(myVersion, request.LoginClientType))
+                {
+                    continue;
+                }
+
                 output.Add(new UserGetTenantsOutput()
                 {
                     TenantCode = thisTenant.TenantCode,
@@ -528,6 +570,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(thisTenant.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.LoginClientType))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _etUserDAL.InitTenantId(request.LoginTenantId);
             var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
 
@@ -577,6 +629,16 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError(myMsg);
             }
+            var sysVersion = await _sysVersionDAL.GetVersion(thisTenant.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.LoginClientType))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
             _etUserDAL.InitTenantId(request.TenantId);
 
             var userInfo = await _etUserDAL.GetUser(request.Phone);
