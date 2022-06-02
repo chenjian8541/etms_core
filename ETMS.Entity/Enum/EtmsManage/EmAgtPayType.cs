@@ -24,5 +24,17 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// https://www.yuque.com/51fubei/openapi
         /// </summary>
         public const int Fubei = 2;
+
+        public static string GetAgtPayTypeDesc(int t)
+        {
+            switch (t)
+            {
+                case Lcsw:
+                    return "扫呗";
+                case Fubei:
+                    return "付呗";
+            }
+            return string.Empty;
+        }
     }
 }

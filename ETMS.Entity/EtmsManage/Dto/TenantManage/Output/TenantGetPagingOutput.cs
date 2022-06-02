@@ -118,5 +118,12 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public decimal CloudStorageValueMB { get; set; }
 
         public DateTime? LastRenewalTime { get; set; }
+
+        /// <summary>
+        /// 聚合支付状态类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmAgtPayType"/>
+        /// </summary>
+        public int AgtPayType { get; set; }
+
+        public string AgtPayTypeDesc { get; set; }
     }
 }

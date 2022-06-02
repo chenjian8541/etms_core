@@ -145,6 +145,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             }
         }
 
+        public int? AgtPayType { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -238,6 +240,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
             if (EndLastRenewalTime != null)
             {
                 condition.Append($" AND LastRenewalTime < '{EndLastRenewalTime.Value.EtmsToDateString()}'");
+            }
+            if (AgtPayType != null)
+            {
+                condition.Append($" AND AgtPayType = {AgtPayType.Value}");
             }
             if (LastOpLimitMonth != null)
             {

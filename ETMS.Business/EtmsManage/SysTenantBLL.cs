@@ -141,7 +141,9 @@ namespace ETMS.Business.EtmsManage
                     CloudStorageLimitGB = p.CloudStorageLimitGB,
                     CloudStorageValueGB = p.CloudStorageValueGB,
                     CloudStorageValueMB = p.CloudStorageValueMB,
-                    LastRenewalTime = p.LastRenewalTime
+                    LastRenewalTime = p.LastRenewalTime,
+                    AgtPayType = p.AgtPayType,
+                    AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType)
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -488,7 +490,9 @@ namespace ETMS.Business.EtmsManage
                 CloudStorageLimitGB = p.CloudStorageLimitGB,
                 CloudStorageValueGB = p.CloudStorageValueGB,
                 CloudStorageValueMB = p.CloudStorageValueMB,
-                LastRenewalTime = p.LastRenewalTime
+                LastRenewalTime = p.LastRenewalTime,
+                AgtPayType = p.AgtPayType,
+                AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType),
             };
             return ResponseBase.Success(output);
         }
