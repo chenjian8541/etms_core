@@ -29,9 +29,9 @@ namespace ETMS.Entity.Dto.Educational2.Request
             {
                 return "请设置老师上课时间";
             }
-            if (Items.Count > 10)
+            if (Items.Count > 30)
             {
-                return "最多设置10条规则";
+                return "最多设置30条规则";
             }
             var tempWeekDatas = new List<TeacherSchooltimeSetBatchWeek>();
             foreach (var item in Items)

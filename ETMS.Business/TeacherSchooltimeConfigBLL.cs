@@ -131,9 +131,9 @@ namespace ETMS.Business
             var teacherSchooltimeConfigBucket = await _teacherSchooltimeConfigDAL.TeacherSchooltimeConfigGet(request.TeacherId);
             if (teacherSchooltimeConfigBucket != null)
             {
-                if (teacherSchooltimeConfigBucket.TeacherSchooltimeConfigs.Count >= 10)
+                if (teacherSchooltimeConfigBucket.TeacherSchooltimeConfigs.Count >= 30)
                 {
-                    return ResponseBase.CommonError("最多设置10条规则");
+                    return ResponseBase.CommonError("最多设置30条规则");
                 }
                 var details = teacherSchooltimeConfigBucket.EtTeacherSchooltimeConfigDetails;
                 if (details != null && details.Any())
