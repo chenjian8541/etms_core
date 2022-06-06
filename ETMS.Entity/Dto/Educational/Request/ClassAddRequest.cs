@@ -47,9 +47,9 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请选择关联课程";
             }
-            if (CourseIds.Count > 10)
+            if (CourseIds.Count > 50)
             {
-                return "最多设置10门关联的课程";
+                return "最多设置50门关联的课程";
             }
             if (LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
             {
