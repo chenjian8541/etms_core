@@ -117,5 +117,15 @@ namespace ETMS.Business.Common
             }
             return noticeUser;
         }
+
+        /// <summary>
+        /// 获取允许生成的课次 最大时间
+        /// 两年内的课次
+        /// </summary>
+        /// <returns></returns>
+        public static DateTime GetClassTimesMaxDate()
+        {
+            return DateTime.Now.AddYears(2);
+        }
     }
 }

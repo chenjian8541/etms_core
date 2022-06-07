@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Utility;
 using ETMS.IEventProvider;
+using ETMS.Business.Common;
 
 namespace ETMS.Business
 {
@@ -80,6 +81,11 @@ namespace ETMS.Business
                 return;
             }
             if (classRule.EndDate != null && classRule.LastJobProcessTime >= classRule.EndDate)
+            {
+                return;
+            }
+            var maxLimitTime = ComBusiness5.GetClassTimesMaxDate();
+            if (classRule.LastJobProcessTime > maxLimitTime)
             {
                 return;
             }

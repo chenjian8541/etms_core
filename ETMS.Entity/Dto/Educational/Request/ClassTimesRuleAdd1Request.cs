@@ -57,6 +57,11 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请选择开始日期";
             }
+            var maxDate = DateTime.Now.AddYears(2);
+            if (StartDate > maxDate)
+            {
+                return "开始日期距离现在不能超过2年";
+            }
             if (EndType == ClassTimesRuleEndType.DateTime)
             {
                 if (string.IsNullOrEmpty(EndValue) || !DateTime.TryParse(EndValue, out var tempTime) || tempTime <= StartDate)
