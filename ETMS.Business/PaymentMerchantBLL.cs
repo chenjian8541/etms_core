@@ -41,9 +41,12 @@ namespace ETMS.Business
 
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;
 
+        private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
+
         public PaymentMerchantBLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL, IPayLcswService payLcswService,
             IUserOperationLogDAL userOperationLogDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
-            IAgtPayServiceBLL agtPayServiceBLL, IAppConfigurtaionServices appConfigurtaionServices)
+            IAgtPayServiceBLL agtPayServiceBLL, IAppConfigurtaionServices appConfigurtaionServices,
+            ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
@@ -52,6 +55,7 @@ namespace ETMS.Business
             this._tenantFubeiAccountDAL = tenantFubeiAccountDAL;
             this._agtPayServiceBLL = agtPayServiceBLL;
             this._appConfigurtaionServices = appConfigurtaionServices;
+            this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
         }
 
         public async Task<ResponseBase> TenantPaymentSetGet(RequestBase request)
@@ -849,6 +853,47 @@ namespace ETMS.Business
                 return_msg = "处理成功",
                 trace_no = request.trace_no
             };
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountGet(RequestBase request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (myTenant.PayUnionType != EmPayUnionType.Suixing)
+            {
+                return ResponseBase.Success(new TenantSuixingAccountGetOutput()
+                {
+                    PayUnionType = myTenant.PayUnionType
+                });
+            }
+            var suixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(request.LoginTenantId);
+            if (suixingAccount == null)
+            {
+                return ResponseBase.CommonError("扫呗账户异常");
+            }
+            return ResponseBase.Success(new TenantSuixingAccountGetOutput()
+            {
+                PayUnionType = myTenant.PayUnionType,
+                AccountInfo = new TenantSuixingAccountInfo()
+                {
+                    HaveLicenseNo = suixingAccount.HaveLicenseNo,
+                    MblNo = suixingAccount.MblNo,
+                    MecDisNm = suixingAccount.MecDisNm,
+                    MecTypeFlag = suixingAccount.MecTypeFlag,
+                    MerName = suixingAccount.MerName,
+                    Mno = suixingAccount.Mno,
+                    OperationalType = suixingAccount.OperationalType,
+                    ParentMno = suixingAccount.ParentMno
+                }
+            });
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountBind(TenantSuixingAccountBindRequest request)
+        {
+            return ResponseBase.Success();
         }
     }
 }

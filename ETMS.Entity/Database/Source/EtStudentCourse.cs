@@ -125,5 +125,10 @@ namespace ETMS.Entity.Database.Source
         /// 截至时间
         /// </summary>
         public DateTime? EndTime { get; set; }
+
+        /// <summary>
+        /// 是否限制约课
+        /// </summary>
+        public bool IsLimitReserve { get; set; }
     }
 }

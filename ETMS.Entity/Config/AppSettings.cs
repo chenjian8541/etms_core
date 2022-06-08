@@ -69,6 +69,25 @@ namespace ETMS.Entity.Config
         public LcswConfig LcswConfig { get; set; }
 
         public FubeiConfig FubeiConfig { get; set; }
+
+        public SuixingConfig SuixingConfig { get; set; }
+    }
+
+    public class SuixingConfig
+    {
+        public string PrivateKeyPem { get; set; }
+
+        public string PublicKeyPem { get; set; }
+
+        public string MerchantInfoQuery { get; set; }
+
+        public string JsapiScan { get; set; }
+
+        public string TradeQuery { get; set; }
+
+        public string Refund { get; set; }
+
+        public string RefundQuery { get; set; }
     }
 
     public class FubeiConfig

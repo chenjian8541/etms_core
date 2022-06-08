@@ -18,6 +18,8 @@ namespace ETMS.IDataAccess
 
         Task<List<long>> GetStudentCourseId(long studentId);
 
+        Task<List<long>> GetStudentCourseIdAboutCanReserve(long studentId);
+
         Task<List<EtStudentCourse>> GetStudentCourseDb(long studentId, long courseId);
 
         Task<bool> SetStudentCourseOver(long studentId, long courseId);
@@ -92,5 +94,7 @@ namespace ETMS.IDataAccess
         Task DelStudentCourse(List<long> ids);
 
         Task<bool> CheckStudentIsHasEffectiveCourse(long studentId);
+
+        Task ChangeStudentCourseLimitReserve(long student, long courseId, bool isLimitReserve);
     }
 }

@@ -68,6 +68,20 @@ namespace ETMS.DataAccess
             return null;
         }
 
+        public async Task<List<long>> GetStudentCourseIdAboutCanReserve(long studentId)
+        {
+            var allCourseBucket = await base.GetCache(_tenantId, studentId);
+            if (allCourseBucket == null)
+            {
+                return null;
+            }
+            if (allCourseBucket.StudentCourses != null && allCourseBucket.StudentCourses.Count > 0)
+            {
+                return allCourseBucket.StudentCourses.Where(p => !p.IsLimitReserve).Select(p => p.CourseId).ToList();
+            }
+            return null;
+        }
+
         public async Task<List<EtStudentCourse>> GetStudentCourseDb(long studentId, long courseId)
         {
             return await _dbWrapper.FindList<EtStudentCourse>(p => p.TenantId == _tenantId && p.StudentId == studentId
@@ -392,6 +406,14 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(
                 $"SELECT TOP 1 0 FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentId = {studentId} AND [Status] <> {EmStudentCourseStatus.EndOfClass} AND (EndTime IS NULL OR EndTime >= '{DateTime.Now.EtmsToDateString()}')");
             return obj != null;
+        }
+
+        public async Task ChangeStudentCourseLimitReserve(long studentId, long courseId, bool isLimitReserve)
+        {
+            var limitType = isLimitReserve ? 1 : 0;
+            await _dbWrapper.Execute(
+                $"UPDATE EtStudentCourse SET IsLimitReserve = {limitType} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal}");
+            await UpdateCache(_tenantId, studentId);
         }
     }
 }

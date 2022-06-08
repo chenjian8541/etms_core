@@ -25,6 +25,12 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int Fubei = 2;
 
+        /// <summary>
+        /// 随行付
+        /// https://payapi-test.suixingpay.com/app/doc/api.html?limit_spec=1357
+        /// </summary>
+        public const int Suixing = 3;
+
         public static string GetAgtPayTypeDesc(int t)
         {
             switch (t)
@@ -33,6 +39,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "扫呗";
                 case Fubei:
                     return "付呗";
+                case Suixing:
+                    return "随行付";
             }
             return string.Empty;
         }

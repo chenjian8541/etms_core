@@ -383,5 +383,31 @@ namespace ETMS.WebApi.Controllers
                 return "FAIL";
             }
         }
+
+        public async Task<ResponseBase> TenantSuixingAccountGet(RequestBase request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantSuixingAccountGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountBind(TenantSuixingAccountBindRequest request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantSuixingAccountBind(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

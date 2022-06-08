@@ -31,5 +31,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> MerchantQueryH5(MerchantQueryH5Request request);
 
         Task<MerchantAuditCallbackOutput> MerchantAuditCallback(MerchantAuditCallbackRequest request);
+
+        Task<ResponseBase> TenantSuixingAccountGet(RequestBase request);
+
+        Task<ResponseBase> TenantSuixingAccountBind(TenantSuixingAccountBindRequest request);
     }
 }

@@ -141,5 +141,10 @@ namespace ETMS.Entity.Database.Manage
         public decimal CloudStorageValueMB { get; set; }
 
         public DateTime? LastRenewalTime { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EtmsManage.EmPayUnionType"/>
+        /// </summary>
+        public int PayUnionType { get; set; }
     }
 }

@@ -225,6 +225,7 @@ namespace ETMS.Business
                     myStudentCourseDetail.StopTimeDesc = myFirstCourseLog.StopTime.EtmsToDateString();
                     myStudentCourseDetail.RestoreTimeDesc = myFirstCourseLog.RestoreTime.EtmsToDateString();
                     myStudentCourseDetail.SurplusMoneyDesc = myFirstCourseLog.SurplusMoney.EtmsToString2();
+                    myStudentCourseDetail.IsLimitReserve = myFirstCourseLog.IsLimitReserve;
                     var myClassTimesCourseLog = myCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
                     if (myClassTimesCourseLog != null)
                     {
@@ -1167,6 +1168,14 @@ namespace ETMS.Business
             await _studentCourseDAL.StudentCourseSetCheckDefault(request.StudentId, request.CourseId);
 
             await _userOperationLogDAL.AddUserLog(request, "设置学员考勤记上课课程", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentCourseSetIsLimitReserve(StudentCourseSetIsLimitReserveRequest request)
+        {
+            await _studentCourseDAL.ChangeStudentCourseLimitReserve(request.StudentId, request.CourseId, request.IsLimitReserve);
+
+            await _userOperationLogDAL.AddUserLog(request, "设置学员课程是否允许约课", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
     }

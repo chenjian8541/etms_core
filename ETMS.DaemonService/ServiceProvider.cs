@@ -249,6 +249,11 @@ namespace ETMS.DaemonService
             var globalConfig = FubeiOpenApiGlobalConfig.Instance;
             globalConfig.Api_1_0 = payConfig.FubeiConfig.Api01;
             globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
+
+            var suixingConfig = payConfig.SuixingConfig;
+            ETMS.Pay.Suixing.Config.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem,
+               suixingConfig.MerchantInfoQuery, suixingConfig.JsapiScan, suixingConfig.TradeQuery,
+               suixingConfig.Refund, suixingConfig.RefundQuery);
         }
 
         private static void InitSytemInitializeData(AppSettings appSettings)

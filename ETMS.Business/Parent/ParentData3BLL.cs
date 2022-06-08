@@ -435,7 +435,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentReservationTimetable(StudentReservationTimetableRequest request)
         {
             var output = new List<StudentTimetableCountOutput>();
-            var studentCourseIds = await _studentCourseDAL.GetStudentCourseId(request.StudentId);
+            var studentCourseIds = await _studentCourseDAL.GetStudentCourseIdAboutCanReserve(request.StudentId);
             if (studentCourseIds == null || studentCourseIds.Count == 0)
             {
                 return ResponseBase.Success(output);
@@ -539,7 +539,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> StudentReservationTimetableDetail(StudentReservationTimetableDetailRequest request)
         {
             var output = new List<StudentReservationTimetableDetailOutput>();
-            var studentCourseIds = await _studentCourseDAL.GetStudentCourseId(request.StudentId);
+            var studentCourseIds = await _studentCourseDAL.GetStudentCourseIdAboutCanReserve(request.StudentId);
             if (studentCourseIds == null || studentCourseIds.Count == 0)
             {
                 return ResponseBase.Success(output);

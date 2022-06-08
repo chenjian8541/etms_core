@@ -30,6 +30,7 @@
     <ProjectReference Include="..\ETMS.IOC\ETMS.IOC.csproj" />
     <ProjectReference Include="..\ETMS.Log\ETMS.LOG.csproj" />
     <ProjectReference Include="..\ETMS.Pay.Lcsw\ETMS.Pay.Lcsw.csproj" />
+    <ProjectReference Include="..\ETMS.Pay.Suixing\ETMS.Pay.Suixing.csproj" />
     <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
     <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />

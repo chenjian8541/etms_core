@@ -40,6 +40,8 @@ namespace ETMS.Entity.Dto.Student.Output
         public List<OpLog> OpLogs { get; set; }
 
         public byte StudentCheckDefault { get; set; }
+
+        public bool IsLimitReserve { get; set; }
     }
 
     public class StudentCourseDetail
