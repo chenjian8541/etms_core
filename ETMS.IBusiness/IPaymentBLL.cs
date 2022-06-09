@@ -25,5 +25,9 @@ namespace ETMS.IBusiness
         Task<string> FubeiApiNotify(FubeiApiNotifyRequest request);
 
         Task<string> FubeiRefundApiNotify(FubeiApiNotifyRequest request);
+
+        Task<SuixingPayCallbackOutput> SuixingPayCallback(SuixingPayCallbackRequest request);
+
+        Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request);
     }
 }

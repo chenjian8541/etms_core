@@ -503,5 +503,15 @@ namespace ETMS.Business
             }
             return "FAIL";
         }
+
+        public async Task<SuixingPayCallbackOutput> SuixingPayCallback(SuixingPayCallbackRequest request)
+        {
+            return SuixingPayCallbackOutput.Success();
+        }
+
+        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        {
+            return SuixingRefundCallbackOutput.Success();
+        }
     }
 }

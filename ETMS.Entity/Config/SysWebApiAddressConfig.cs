@@ -18,6 +18,10 @@ namespace ETMS.Entity.Config
 
         public static string FubeiRefundApiNotify;
 
+        public static string SuixingPayCallbackUrl;
+
+        public static string SuixingRefundCallbackUrl;
+
         public static void InitConfig(string baseUrl)
         {
             BaseUrl = baseUrl;
@@ -25,6 +29,8 @@ namespace ETMS.Entity.Config
             LcsPayJspayCallbackUrl = $"{baseUrl}/pay/lcsPayJspayCallback";
             FubeiApiNotifyUrl = $"{baseUrl}/pay/FubeiApiNotify";
             FubeiRefundApiNotify = $"{baseUrl}/pay/FubeiRefundApiNotify";
+            SuixingPayCallbackUrl = $"{baseUrl}/pay/SuixingPayCallback";
+            SuixingRefundCallbackUrl = $"{baseUrl}/pay/SuixingRefundCallback";
         }
     }
 }

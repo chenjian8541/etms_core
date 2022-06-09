@@ -409,5 +409,35 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        [AllowAnonymous]
+        public async Task<SuixingPayCallbackOutput> SuixingPayCallback(SuixingPayCallbackRequest request)
+        {
+            try
+            {
+                LOG.Log.Info("[SuixingPayCallback]随行付支付回调", request, this.GetType());
+                return await _paymentBLL.SuixingPayCallback(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[SuixingPayCallback]随行付支付回调处理失败", request, ex, this.GetType());
+                return SuixingPayCallbackOutput.Fail();
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        {
+            try
+            {
+                LOG.Log.Info("[SuixingRefundCallback]随行付退款回调", request, this.GetType());
+                return await _paymentBLL.SuixingRefundCallback(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[SuixingRefundCallback]随行付退款回调处理失败", request, ex, this.GetType());
+                return SuixingRefundCallbackOutput.Fail();
+            }
+        }
     }
 }
