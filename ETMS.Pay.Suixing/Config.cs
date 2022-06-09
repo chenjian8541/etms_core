@@ -8,36 +8,50 @@ namespace ETMS.Pay.Suixing
 {
     public static class Config
     {
-        private static string _privateKeyPem;
+        internal const int TIME_OUT = 10000;
 
-        private static string _publicKeyPem;
+        internal static string _privateKeyPem;
 
-        private static string _merchantInfoQuery;
+        internal static string _publicKeyPem;
 
-        private static string _jsapiScan;
+        internal static string _orgId;
 
-        private static string _tradeQuery;
+        internal static string _merchantInfoQuery;
 
-        private static string _refund;
+        internal static string _jsapiScan;
 
-        private static string _refundQuery;
+        internal static string _tradeQuery;
+
+        internal static string _refund;
+
+        internal static string _refundQuery;
+
+        internal static string _subAppidWx;
+
+        internal static string _subAppidMiniProgram;
 
         public static void InitConfig(
             string privateKeyPem,
             string publicKeyPem,
+            string orgId,
             string merchantInfoQuery,
             string jsapiScan,
             string tradeQuery,
             string refund,
-            string refundQuery)
+            string refundQuery,
+            string subAppidWx,
+            string subAppidMiniProgram)
         {
             _privateKeyPem = privateKeyPem;
             _publicKeyPem = publicKeyPem;
+            _orgId = orgId;
             _merchantInfoQuery = merchantInfoQuery;
             _jsapiScan = jsapiScan;
             _tradeQuery = tradeQuery;
             _refund = refund;
             _refundQuery = refundQuery;
+            _subAppidWx = subAppidWx;
+            _subAppidMiniProgram = subAppidMiniProgram;
         }
     }
 }

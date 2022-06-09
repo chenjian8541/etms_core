@@ -66,6 +66,8 @@ namespace ETMS.Entity.Config
 
     public class PayConfig
     {
+        public WxPay WxPay { get; set; }
+
         public LcswConfig LcswConfig { get; set; }
 
         public FubeiConfig FubeiConfig { get; set; }
@@ -73,11 +75,20 @@ namespace ETMS.Entity.Config
         public SuixingConfig SuixingConfig { get; set; }
     }
 
+    public class WxPay
+    {
+        public string WxOfficialAccountAppid { get; set; }
+
+        public string WxMiniProgramAppid { get; set; }
+    }
+
     public class SuixingConfig
     {
         public string PrivateKeyPem { get; set; }
 
         public string PublicKeyPem { get; set; }
+
+        public string OrgId { get; set; }
 
         public string MerchantInfoQuery { get; set; }
 

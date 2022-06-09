@@ -251,9 +251,10 @@ namespace ETMS.DaemonService
             globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
 
             var suixingConfig = payConfig.SuixingConfig;
-            ETMS.Pay.Suixing.Config.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem,
+            var wxPay = payConfig.WxPay;
+            ETMS.Pay.Suixing.Config.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem, suixingConfig.OrgId,
                suixingConfig.MerchantInfoQuery, suixingConfig.JsapiScan, suixingConfig.TradeQuery,
-               suixingConfig.Refund, suixingConfig.RefundQuery);
+               suixingConfig.Refund, suixingConfig.RefundQuery, wxPay.WxOfficialAccountAppid, wxPay.WxMiniProgramAppid);
         }
 
         private static void InitSytemInitializeData(AppSettings appSettings)

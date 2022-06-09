@@ -30,6 +30,7 @@
     <ProjectReference Include="..\ETMS.Manage.Entity\ETMS.Manage.Entity.csproj" />
     <ProjectReference Include="..\ETMS.Manage.Jobs\ETMS.Manage.Jobs.csproj" />
     <ProjectReference Include="..\ETMS.OSS\sdk\aliyun-oss-sdk-dotnetcore.csproj" />
+    <ProjectReference Include="..\ETMS.Pay.Suixing\ETMS.Pay.Suixing.csproj" />
     <ProjectReference Include="..\ETMS.ServiceBus\ETMS.ServiceBus.csproj" />
     <ProjectReference Include="..\ETMS.Utility\ETMS.Utility.csproj" />
     <ProjectReference Include="..\ETMS.WxApi\ETMS.WxApi.csproj" />

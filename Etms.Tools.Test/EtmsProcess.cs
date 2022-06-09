@@ -29,6 +29,7 @@ using ETMS.IEventProvider;
 using ETMS.IOC;
 using ETMS.LOG;
 using ETMS.Pay.Lcsw;
+using ETMS.Pay.Suixing;
 using ETMS.ServiceBus;
 using ETMS.Utility;
 using MassTransit;
@@ -84,6 +85,12 @@ namespace Etms.Tools.Test
             var globalConfig = FubeiOpenApiGlobalConfig.Instance;
             globalConfig.Api_1_0 = payConfig.FubeiConfig.Api01;
             globalConfig.Api_2_0 = payConfig.FubeiConfig.Api02;
+
+            var suixingConfig = payConfig.SuixingConfig;
+            var wxPay = payConfig.WxPay;
+            ETMS.Pay.Suixing.Config.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem, suixingConfig.OrgId,
+               suixingConfig.MerchantInfoQuery, suixingConfig.JsapiScan, suixingConfig.TradeQuery,
+               suixingConfig.Refund, suixingConfig.RefundQuery, wxPay.WxOfficialAccountAppid, wxPay.WxMiniProgramAppid);
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)
@@ -150,6 +157,32 @@ namespace Etms.Tools.Test
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
+            var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
+            //var bb = paySuixingService.MerchantInfoQuery("399200623916234");
+            //var aa = paySuixingService.JsapiScanMiniProgram(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.JsapiScanMiniProgramReq()
+            //{
+            //    mno = "399200623916234",
+            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
+            //    subject = "跆拳道课程",
+            //    ordNo = "20112121111212",
+            //    amt = 1.25M,
+            //    openid = "2088100953812025",
+            //     extend ="121222121"
+            //});
+            //var cc = paySuixingService.TradeQuery("399200623916234", "20112121111212");
+            //var dd = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
+            //{
+            //    amt = 1.25M,
+            //    refundReason = "退货",
+            //    mno = "399200623916234",
+            //    ordNo = "TH32333232323232",
+            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
+            //    extend = "22222",
+            //    origOrderNo = "20112121111212"
+            //});
+
+            var ee = paySuixingService.RefundQuery("399200623916234", "TH32333232323232");
+            return;
             var _cloudFileAutoDelDayBLL = CustomServiceLocator.GetInstance<ICloudFileAutoDelDayBLL>();
             _cloudFileAutoDelDayBLL.InitTenantId(1);
             _cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
