@@ -22,7 +22,7 @@ namespace ETMS.Pay.Suixing.Utility
         /// <param name="useAjax">是否使用Ajax请求</param>
         /// <param name="timeOut">代理请求超时时间（毫秒）</param>
         /// <returns></returns>
-        public static T PostGetJson<T>(string url, object postData, bool useAjax = false, int timeOut = Config.TIME_OUT)
+        public static T PostGetJson<T>(string url, object postData, bool useAjax = false, int timeOut = SuiXingConfig.TIME_OUT)
         {
             var jsonString = JsonConvert.SerializeObject(postData);
             LOG.Log.Debug($"[随行付请求]rul:{url},postData:{jsonString}", typeof(Post));
@@ -38,7 +38,7 @@ namespace ETMS.Pay.Suixing.Utility
             }
         }
 
-        private static string HttpPost(string url, Stream postStream = null, bool useAjax = false, int timeOut = Config.TIME_OUT)
+        private static string HttpPost(string url, Stream postStream = null, bool useAjax = false, int timeOut = SuiXingConfig.TIME_OUT)
         {
             HttpWebResponse response = HttpResponsePost(url, postStream, useAjax, timeOut);
             using (Stream responseStream = response.GetResponseStream() ?? new MemoryStream())
@@ -51,7 +51,7 @@ namespace ETMS.Pay.Suixing.Utility
             }
         }
 
-        private static HttpWebResponse HttpResponsePost(string url, Stream postStream = null, bool useAjax = false, int timeOut = Config.TIME_OUT)
+        private static HttpWebResponse HttpResponsePost(string url, Stream postStream = null, bool useAjax = false, int timeOut = SuiXingConfig.TIME_OUT)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";

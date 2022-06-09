@@ -252,7 +252,7 @@ namespace ETMS.DaemonService
 
             var suixingConfig = payConfig.SuixingConfig;
             var wxPay = payConfig.WxPay;
-            ETMS.Pay.Suixing.Config.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem, suixingConfig.OrgId,
+            ETMS.Pay.Suixing.SuiXingConfig.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem, suixingConfig.OrgId,
                suixingConfig.MerchantInfoQuery, suixingConfig.JsapiScan, suixingConfig.TradeQuery,
                suixingConfig.Refund, suixingConfig.RefundQuery, wxPay.WxOfficialAccountAppid, wxPay.WxMiniProgramAppid);
         }

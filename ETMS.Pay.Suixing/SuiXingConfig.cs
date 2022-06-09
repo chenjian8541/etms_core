@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Pay.Suixing
 {
-    public static class Config
+    public static class SuiXingConfig
     {
         internal const int TIME_OUT = 10000;
 

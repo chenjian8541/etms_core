@@ -1,4 +1,5 @@
 ﻿using ETMS.Business.Common;
+using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
@@ -16,6 +17,9 @@ using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.Pay.Lcsw;
+using ETMS.Pay.Suixing;
+using ETMS.Pay.Suixing.Utility.Dto;
+using ETMS.Pay.Suixing.Utility.Dto.Response;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -43,10 +47,15 @@ namespace ETMS.Business
 
         private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
 
+        private readonly IPaySuixingService _paySuixingService;
+
+        private IDistributedLockDAL _distributedLockDAL;
+
         public PaymentMerchantBLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL, IPayLcswService payLcswService,
             IUserOperationLogDAL userOperationLogDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
             IAgtPayServiceBLL agtPayServiceBLL, IAppConfigurtaionServices appConfigurtaionServices,
-            ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL)
+            ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, IPaySuixingService paySuixingService,
+            IDistributedLockDAL distributedLockDAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
@@ -56,6 +65,8 @@ namespace ETMS.Business
             this._agtPayServiceBLL = agtPayServiceBLL;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
+            this._paySuixingService = paySuixingService;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public async Task<ResponseBase> TenantPaymentSetGet(RequestBase request)
@@ -872,7 +883,7 @@ namespace ETMS.Business
             var suixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(request.LoginTenantId);
             if (suixingAccount == null)
             {
-                return ResponseBase.CommonError("扫呗账户异常");
+                return ResponseBase.CommonError("随行付账户异常");
             }
             return ResponseBase.Success(new TenantSuixingAccountGetOutput()
             {
@@ -893,6 +904,101 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> TenantSuixingAccountBind(TenantSuixingAccountBindRequest request)
         {
+            var merchantInfo = _paySuixingService.MerchantInfoQuery(request.Mno);
+            if (merchantInfo == null)
+            {
+                return ResponseBase.CommonError("商户信息查询失败");
+            }
+            if (merchantInfo.bizCode != EmBizCode.Success)
+            {
+                return ResponseBase.CommonError($"绑定商户失败:{merchantInfo.bizMsg}");
+            }
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var lockKey = new TenantSuixingAccountBindToken(request.LoginTenantId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await this.TenantSuixingAccountBindProcess(request, merchantInfo, myTenant);
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            else
+            {
+                return ResponseBase.CommonError("服务器正在处理，请稍后再试");
+            }
+        }
+
+        private async Task<ResponseBase> TenantSuixingAccountBindProcess(TenantSuixingAccountBindRequest request,
+            MerchantInfoQueryResponse merchantInfo, SysTenant myTenant)
+        {
+            if (merchantInfo.merchantStatus == "01")
+            {
+                return ResponseBase.CommonError("商户已停用");
+            }
+            if (merchantInfo.merchantStatus == "02")
+            {
+                return ResponseBase.CommonError("商户已注销");
+            }
+            var hisLog = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(request.LoginTenantId);
+            if (hisLog == null)
+            {
+                await _sysTenantSuixingAccountDAL.AddTenantSuixingAccount(new SysTenantSuixingAccount()
+                {
+                    TenantId = request.LoginTenantId,
+                    AgentId = myTenant.AgentId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    ActNm = merchantInfo.actNm,
+                    CprRegAddr = merchantInfo.cprRegAddr,
+                    Email = merchantInfo.email,
+                    HaveLicenseNo = merchantInfo.haveLicenseNo,
+                    IdentityName = merchantInfo.identityName,
+                    IndependentModel = merchantInfo.independentModel,
+                    LbnkNm = merchantInfo.lbnkNm,
+                    MblNo = merchantInfo.mblNo,
+                    MecDisNm = merchantInfo.mecDisNm,
+                    MecTypeFlag = merchantInfo.mecTypeFlag,
+                    MerchantStatus = merchantInfo.merchantStatus,
+                    MerName = merchantInfo.merName,
+                    Mno = request.Mno,
+                    OnlineName = merchantInfo.onlineName,
+                    OperationalType = merchantInfo.operationalType,
+                    ParentMno = merchantInfo.parentMno,
+                    Status = EmTenantSuixingAccountStatus.Enable
+                });
+            }
+            else
+            {
+                hisLog.AgentId = myTenant.AgentId;
+                hisLog.IsDeleted = EmIsDeleted.Normal;
+                hisLog.ActNm = merchantInfo.actNm;
+                hisLog.CprRegAddr = merchantInfo.cprRegAddr;
+                hisLog.Email = merchantInfo.email;
+                hisLog.HaveLicenseNo = merchantInfo.haveLicenseNo;
+                hisLog.IdentityName = merchantInfo.identityName;
+                hisLog.IndependentModel = merchantInfo.independentModel;
+                hisLog.LbnkNm = merchantInfo.lbnkNm;
+                hisLog.MblNo = merchantInfo.mblNo;
+                hisLog.MecDisNm = merchantInfo.mecDisNm;
+                hisLog.MecTypeFlag = merchantInfo.mecTypeFlag;
+                hisLog.MerchantStatus = merchantInfo.merchantStatus;
+                hisLog.MerName = merchantInfo.merName;
+                hisLog.Mno = request.Mno;
+                hisLog.OnlineName = merchantInfo.onlineName;
+                hisLog.OperationalType = merchantInfo.operationalType;
+                hisLog.ParentMno = merchantInfo.parentMno;
+                hisLog.Status = EmTenantSuixingAccountStatus.Enable;
+                await _sysTenantSuixingAccountDAL.EditTenantSuixingAccount(hisLog);
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"绑定随行付：{merchantInfo.mecDisNm}", EmUserOperationType.LcsMgr);
             return ResponseBase.Success();
         }
     }

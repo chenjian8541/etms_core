@@ -12,7 +12,7 @@ namespace ETMS.Pay.Suixing
         {
             var req = new RequestBase<MerchantInfoQueryRequest>()
             {
-                orgId = Config._orgId,
+                orgId = SuiXingConfig._orgId,
                 reqId = Com.GetReqId(),
                 timestamp = Com.GetTimestamp(),
                 reqData = new MerchantInfoQueryRequest()
@@ -21,9 +21,9 @@ namespace ETMS.Pay.Suixing
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<MerchantInfoQueryRequest>>.GetEntityToString(req);
-            var strSignResult = RSAUtil.RSASign(strSignTemp, Config._privateKeyPem);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
-            var result = Post.PostGetJson<ResponseBase<MerchantInfoQueryResponse>>(Config._merchantInfoQuery, req);
+            var result = Post.PostGetJson<ResponseBase<MerchantInfoQueryResponse>>(SuiXingConfig._merchantInfoQuery, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;
@@ -35,7 +35,7 @@ namespace ETMS.Pay.Suixing
         {
             var req = new RequestBase<JsapiScanRequest>()
             {
-                orgId = Config._orgId,
+                orgId = SuiXingConfig._orgId,
                 reqId = Com.GetReqId(),
                 timestamp = Com.GetTimestamp(),
                 reqData = new JsapiScanRequest()
@@ -46,7 +46,7 @@ namespace ETMS.Pay.Suixing
                     notifyUrl = request.notifyUrl,
                     payType = EmPayType.WeChat,
                     payWay = "03",
-                    subAppid = Config._subAppidMiniProgram,
+                    subAppid = SuiXingConfig._subAppidMiniProgram,
                     subject = request.subject,
                     trmIp = request.trmIp,
                     userId = request.openid,
@@ -54,9 +54,9 @@ namespace ETMS.Pay.Suixing
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<JsapiScanRequest>>.GetEntityToString(req);
-            var strSignResult = RSAUtil.RSASign(strSignTemp, Config._privateKeyPem);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
-            var result = Post.PostGetJson<ResponseBase<JsapiScanResponse>>(Config._jsapiScan, req);
+            var result = Post.PostGetJson<ResponseBase<JsapiScanResponse>>(SuiXingConfig._jsapiScan, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;
@@ -68,7 +68,7 @@ namespace ETMS.Pay.Suixing
         {
             var req = new RequestBase<TradeQueryRequest>()
             {
-                orgId = Config._orgId,
+                orgId = SuiXingConfig._orgId,
                 reqId = Com.GetReqId(),
                 timestamp = Com.GetTimestamp(),
                 reqData = new TradeQueryRequest()
@@ -78,9 +78,9 @@ namespace ETMS.Pay.Suixing
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<TradeQueryRequest>>.GetEntityToString(req);
-            var strSignResult = RSAUtil.RSASign(strSignTemp, Config._privateKeyPem);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
-            var result = Post.PostGetJson<ResponseBase<TradeQueryResponse>>(Config._tradeQuery, req);
+            var result = Post.PostGetJson<ResponseBase<TradeQueryResponse>>(SuiXingConfig._tradeQuery, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;
@@ -92,7 +92,7 @@ namespace ETMS.Pay.Suixing
         {
             var req = new RequestBase<RefundRequest>()
             {
-                orgId = Config._orgId,
+                orgId = SuiXingConfig._orgId,
                 reqId = Com.GetReqId(),
                 timestamp = Com.GetTimestamp(),
                 reqData = new RefundRequest()
@@ -107,9 +107,9 @@ namespace ETMS.Pay.Suixing
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<RefundRequest>>.GetEntityToString(req);
-            var strSignResult = RSAUtil.RSASign(strSignTemp, Config._privateKeyPem);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
-            var result = Post.PostGetJson<ResponseBase<RefundResponse>>(Config._refund, req);
+            var result = Post.PostGetJson<ResponseBase<RefundResponse>>(SuiXingConfig._refund, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;
@@ -121,7 +121,7 @@ namespace ETMS.Pay.Suixing
         {
             var req = new RequestBase<RefundQueryRequest>()
             {
-                orgId = Config._orgId,
+                orgId = SuiXingConfig._orgId,
                 reqId = Com.GetReqId(),
                 timestamp = Com.GetTimestamp(),
                 reqData = new RefundQueryRequest()
@@ -131,9 +131,9 @@ namespace ETMS.Pay.Suixing
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<RefundQueryRequest>>.GetEntityToString(req);
-            var strSignResult = RSAUtil.RSASign(strSignTemp, Config._privateKeyPem);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
-            var result = Post.PostGetJson<ResponseBase<RefundQueryResponse>>(Config._merchantInfoQuery, req);
+            var result = Post.PostGetJson<ResponseBase<RefundQueryResponse>>(SuiXingConfig._merchantInfoQuery, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;
