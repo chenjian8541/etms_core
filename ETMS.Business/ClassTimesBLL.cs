@@ -226,6 +226,10 @@ namespace ETMS.Business
                         etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType, classOt);
                     if (tempTimesStudent != null)
                     {
+                        if (tempTimesStudent.StudentType == EmClassStudentType.TempStudent && tempTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
+                        {
+                            continue;
+                        }
                         var myCheck = checkInLog.FirstOrDefault(p => p.StudentId == tempTimesStudent.StudentId);
                         if (myCheck != null)
                         {

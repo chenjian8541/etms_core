@@ -95,5 +95,7 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantStatisticsWeek> SysTenantStatisticsWeeks { get; set; }
         public DbSet<SysTenantStatisticsMonth> SysTenantStatisticsMonths { get; set; }
         public DbSet<SysTenantSuixingAccount> SysTenantSuixingAccounts { get; set; }
+        public DbSet<SysWechatMiniPgmUser> SysWechatMiniPgmUsers { get; set; }
+        public DbSet<SysActivity> SysActivitys { get; set; }
     }
 }

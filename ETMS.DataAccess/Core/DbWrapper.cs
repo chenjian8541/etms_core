@@ -244,6 +244,34 @@ namespace ETMS.DataAccess.Core
         }
 
         /// <summary>
+        /// 通过查询提交获取记录集合,最多返回200条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public async Task<List<T>> FindListMiddle<T>(Expression<Func<T, bool>> condition) where T : class
+        {
+            using (var content = new EtmsSourceDbContext(ConnectionString))
+            {
+                return await content.Set<T>().Where(condition).Take(200).ToListAsync();
+            }
+        }
+
+        /// <summary>
+        /// 通过查询提交获取记录集合,最多返回100条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public async Task<List<T>> FindListShort<T>(Expression<Func<T, bool>> condition) where T : class
+        {
+            using (var content = new EtmsSourceDbContext(ConnectionString))
+            {
+                return await content.Set<T>().Where(condition).Take(100).ToListAsync();
+            }
+        }
+
+        /// <summary>
         /// 分页查询
         /// </summary>
         /// <typeparam name="U"></typeparam>

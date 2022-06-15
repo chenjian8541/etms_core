@@ -99,6 +99,22 @@ namespace ETMS.DataAccess.Core
         Task<List<T>> FindList<T>(Expression<Func<T, bool>> condition) where T : class;
 
         /// <summary>
+        /// 通过查询提交获取记录集合,最多返回200条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        Task<List<T>> FindListMiddle<T>(Expression<Func<T, bool>> condition) where T : class;
+
+        /// <summary>
+        /// 通过查询提交获取记录集合,最多返回100条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        Task<List<T>> FindListShort<T>(Expression<Func<T, bool>> condition) where T : class;
+
+        /// <summary>
         /// 分页查询
         /// </summary>
         /// <typeparam name="U"></typeparam>

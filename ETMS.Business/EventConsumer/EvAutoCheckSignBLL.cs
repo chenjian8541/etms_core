@@ -32,9 +32,13 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ICourseDAL _courseDAL;
 
+        private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
+
+        private readonly IStudentCourseDAL _studentCourseDAL;
+
         public EvAutoCheckSignBLL(IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassDAL classDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL,
-            ICourseDAL courseDAL)
+            ICourseDAL courseDAL, IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IStudentCourseDAL studentCourseDAL)
         {
             this._classTimesDAL = classTimesDAL;
             this._classRecordDAL = classRecordDAL;
@@ -44,12 +48,14 @@ namespace ETMS.Business.EventConsumer
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._userDAL = userDAL;
             this._courseDAL = courseDAL;
+            this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
+            this._studentCourseDAL = studentCourseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classTimesDAL, _classRecordDAL, _tenantConfigDAL, _classDAL,
-                _studentCheckOnLogDAL, _userDAL, _courseDAL);
+                _studentCheckOnLogDAL, _userDAL, _courseDAL, _studentLeaveApplyLogDAL, _studentCourseDAL);
         }
 
         public async Task AutoCheckSignTenantConsumerEvent(AutoCheckSignTenantEvent request)
@@ -137,6 +143,11 @@ namespace ETMS.Business.EventConsumer
             var teacherIds = EtmsHelper.AnalyzeMuIds(teachers);
             var teacherNum = teacherIds.Count;
 
+            //请假
+            var studentLeave = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(classOt);
+            var studentLeaveCheck = new StudentIsLeaveCheck(studentLeave);
+            studentLeave = studentLeaveCheck.GetStudentLeaveList(myClassTimes.StartTime, myClassTimes.EndTime, classOt);
+
             var classRecordStudents = new List<EtClassRecordStudent>();
             var tempBoxCouese = new DataTempBox<EtCourse>();
             if (myClassStudent != null && myClassStudent.Any())
@@ -148,6 +159,30 @@ namespace ETMS.Business.EventConsumer
                     {
                         continue;
                     }
+                    //判断是否停课
+                    var studentCourse = await _studentCourseDAL.GetStudentCourse(student.StudentId, student.CourseId);
+                    var stopCourseResult = ComBusiness3.IsStopOfClass2(studentCourse, classOt);
+                    if (stopCourseResult.Item1)
+                    {
+                        continue;
+                    }
+
+                    var isRewardPoints = myCourse.CheckPoints > 0;
+                    var rewardPoints = myCourse.CheckPoints;
+                    var remark = string.Empty;
+                    var studentCheckStatus1 = EmClassStudentCheckStatus.Arrived;
+                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                    {
+                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
+                        if (myLeaveLog != null)
+                        {
+                            studentCheckStatus1 = EmClassStudentCheckStatus.Leave;
+                            isRewardPoints = false;
+                            rewardPoints = 0;
+                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                        }
+                    }
+
                     var myClassRecordStudent = new EtClassRecordStudent()
                     {
                         CheckOt = checkOt,
@@ -163,16 +198,16 @@ namespace ETMS.Business.EventConsumer
                         StartTime = myClassTimes.StartTime,
                         EndTime = myClassTimes.EndTime,
                         StudentType = EmClassStudentType.ClassStudent,
-                        Remark = string.Empty,
+                        Remark = remark,
                         ExceedClassTimes = 0,
                         ClassRecordId = 0,
                         DeType = EmDeClassTimesType.NotDe,
                         IsBeEvaluate = false,
                         IsDeleted = EmIsDeleted.Normal,
-                        IsRewardPoints = myCourse.CheckPoints > 0,
-                        RewardPoints = myCourse.CheckPoints,
+                        IsRewardPoints = isRewardPoints,
+                        RewardPoints = rewardPoints,
                         Status = EmClassRecordStatus.Normal,
-                        StudentCheckStatus = EmClassStudentCheckStatus.Arrived,
+                        StudentCheckStatus = studentCheckStatus1,
                         StudentId = student.StudentId,
                         StudentTryCalssLogId = null,
                         TeacherNum = teacherNum,
@@ -197,6 +232,17 @@ namespace ETMS.Business.EventConsumer
                     {
                         continue;
                     }
+                    //判断是否停课
+                    if (student.StudentType == EmClassStudentType.TempStudent)
+                    {
+                        var studentCourse = await _studentCourseDAL.GetStudentCourse(student.StudentId, student.CourseId);
+                        var stopCourseResult = ComBusiness3.IsStopOfClass2(studentCourse, classOt);
+                        if (stopCourseResult.Item1)
+                        {
+                            continue;
+                        }
+                    }
+
                     var deClassTimes = myClass.DefaultClassTimes;
                     switch (student.StudentType)
                     {
@@ -214,6 +260,23 @@ namespace ETMS.Business.EventConsumer
                             }
                             break;
                     }
+
+                    var isRewardPoints = myCourse.CheckPoints > 0;
+                    var rewardPoints = myCourse.CheckPoints;
+                    var remark = string.Empty;
+                    var studentCheckStatus2 = EmClassStudentCheckStatus.Arrived;
+                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                    {
+                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
+                        if (myLeaveLog != null)
+                        {
+                            studentCheckStatus2 = EmClassStudentCheckStatus.Leave;
+                            isRewardPoints = false;
+                            rewardPoints = 0;
+                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                        }
+                    }
+
                     var myClassRecordStudent = new EtClassRecordStudent()
                     {
                         CheckOt = checkOt,
@@ -229,16 +292,16 @@ namespace ETMS.Business.EventConsumer
                         StartTime = myClassTimes.StartTime,
                         EndTime = myClassTimes.EndTime,
                         StudentType = student.StudentType,
-                        Remark = string.Empty,
+                        Remark = remark,
                         ExceedClassTimes = 0,
                         ClassRecordId = 0,
                         DeType = EmDeClassTimesType.NotDe,
                         IsBeEvaluate = false,
                         IsDeleted = EmIsDeleted.Normal,
-                        IsRewardPoints = myCourse.CheckPoints > 0,
-                        RewardPoints = myCourse.CheckPoints,
+                        IsRewardPoints = isRewardPoints,
+                        RewardPoints = rewardPoints,
                         Status = EmClassRecordStatus.Normal,
-                        StudentCheckStatus = EmClassStudentCheckStatus.Arrived,
+                        StudentCheckStatus = studentCheckStatus2,
                         StudentId = student.StudentId,
                         StudentTryCalssLogId = student.StudentTryCalssLogId,
                         TeacherNum = teacherNum,
@@ -250,9 +313,16 @@ namespace ETMS.Business.EventConsumer
                 }
             }
 
+            if (classRecordStudents.Count == 0)
+            {
+                return;
+            }
+
+            var attendStudent = classRecordStudents.Where(p => p.StudentCheckStatus == EmClassStudentCheckStatus.Arrived ||
+            p.StudentCheckStatus == EmClassStudentCheckStatus.BeLate);
             var classRecord = new EtClassRecord()
             {
-                AttendNumber = classRecordStudents.Count,
+                AttendNumber = attendStudent.Count(),
                 CheckOt = checkOt,
                 CheckUserId = checkUser.Id,
                 ClassContent = myClassTimes.ClassContent,

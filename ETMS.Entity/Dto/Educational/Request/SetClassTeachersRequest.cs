@@ -18,6 +18,10 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 return "请求数据格式错误";
             }
+            if (Teachers.Count > 20)
+            {
+                return "最多设置20位上课老师";
+            }
             return string.Empty;
         }
     }

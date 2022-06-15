@@ -208,5 +208,10 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtTeacherSchooltimeConfig> EtTeacherSchooltimeConfigs { get; set; }
         public DbSet<EtTeacherSchooltimeConfigDetail> EtTeacherSchooltimeConfigDetails { get; set; }
         public DbSet<EtTeacherSchooltimeConfigExclude> EtTeacherSchooltimeConfigExcludes { get; set; }
+        public DbSet<EtActivityMain> EtActivityMains { get; set; }
+        public DbSet<EtActivityRoute> EtActivityRoutes { get; set; }
+        public DbSet<EtActivityRouteItem> EtActivityRouteItems { get; set; }
+        public DbSet<EtActivityHaggleLog> EtActivityHaggleLogs { get; set; }
+        public DbSet<EtActivityVisitor> EtActivityVisitors { get; set; }
     }
 }
