@@ -218,6 +218,19 @@ namespace ETMS.Entity.Config
     public class SenparcWeixinSetting
     {
         public ComponentConfig ComponentConfig { get; set; }
+
+        public MiniProgramConfig MiniProgramConfig { get; set; }
+    }
+
+    public class MiniProgramConfig
+    {
+        public string WxOpenAppId { get; set; }
+
+        public string WxOpenAppSecret { get; set; }
+
+        public string WxOpenToken { get; set; }
+
+        public string WxOpenEncodingAESKey { get; set; }
     }
 
     public class ComponentConfig

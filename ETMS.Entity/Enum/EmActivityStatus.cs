@@ -27,5 +27,24 @@ namespace ETMS.Entity.Enum
         /// 已结束
         /// </summary>
         public const int Over = 3;
+
+        public static Tuple<int, string> GetActivityStatus(int activityStatus, DateTime endTime)
+        {
+            if (activityStatus == Processing && endTime < DateTime.Now)
+            {
+                return Tuple.Create(Over, "已结束");
+            }
+            switch (activityStatus)
+            {
+                case Unpublished:
+                    return Tuple.Create(Unpublished, "未发布");
+                case Processing:
+                    return Tuple.Create(Processing, "进行中");
+                case Over:
+                    return Tuple.Create(Over, "已结束");
+                default:
+                    return Tuple.Create(TakeDown, "已下架");
+            }
+        }
     }
 }

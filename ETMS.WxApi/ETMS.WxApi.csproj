@@ -6,12 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Senparc.CO2NET.AspNet" Version="0.4.400" />
-    <PackageReference Include="Senparc.CO2NET.Cache.CsRedis" Version="0.4.400" />
-    <PackageReference Include="Senparc.Weixin" Version="6.9.501" />
-    <PackageReference Include="Senparc.Weixin.Cache.CsRedis" Version="0.3.501" />
-    <PackageReference Include="Senparc.Weixin.MP" Version="16.12.501.1" />
-    <PackageReference Include="Senparc.Weixin.Open" Version="4.9.501" />
+    <PackageReference Include="Senparc.CO2NET.AspNet" Version="1.1.0" />
+    <PackageReference Include="Senparc.CO2NET.Cache.CsRedis" Version="1.1.0" />
+    <PackageReference Include="Senparc.Weixin" Version="6.15.1" />
+    <PackageReference Include="Senparc.Weixin.Cache.CsRedis" Version="0.8.1" />
+    <PackageReference Include="Senparc.Weixin.MP" Version="16.18.2.1" />
+    <PackageReference Include="Senparc.Weixin.Open" Version="4.14.3" />
+    <PackageReference Include="Senparc.Weixin.WxOpen" Version="3.15.3" />
   </ItemGroup>
 
   <ItemGroup>

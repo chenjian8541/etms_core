@@ -9,7 +9,7 @@ namespace ETMS.Entity.Enum.EtmsManage
     public struct EmActivityPayType
     {
         /// <summary>
-        /// 优惠价
+        /// 团购价
         /// </summary>
         public const int DiscountSum = 0;
 

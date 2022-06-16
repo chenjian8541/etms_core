@@ -52,5 +52,31 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 其他
         /// </summary>
         public const int Other = 8;
+
+        public static string GetActivityScenetypeDesc(int t)
+        {
+            switch (t)
+            {
+                case PopularActivities:
+                    return "热门活动";
+                case ExperienceClass:
+                    return "体验课";
+                case Holidays:
+                    return "节假日";
+                case SpringRecruit:
+                    return "春招";
+                case SummerRecruit:
+                    return "夏招";
+                case AutumnRecruit:
+                    return "秋招";
+                case WinterRecruit:
+                    return "冬招";
+                case AntiEpidemic:
+                    return "抗疫";
+                case Other:
+                    return "其他";
+            }
+            return string.Empty;
+        }
     }
 }

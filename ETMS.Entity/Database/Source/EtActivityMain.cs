@@ -79,7 +79,7 @@ namespace ETMS.Entity.Database.Source
 
         public string ActivityExplan { get; set; }
 
-        public string TenantLinkPhone { get; set; }
+        public string TenantLinkInfo { get; set; }
 
         public string TenantLinkQRcode { get; set; }
 
@@ -125,6 +125,8 @@ namespace ETMS.Entity.Database.Source
         public string StudentFieldName1 { get; set; }
 
         public string StudentFieldName2 { get; set; }
+
+        public DateTime? PublishTime { get; set; }
 
         public DateTime CreateTime { get; set; }
 

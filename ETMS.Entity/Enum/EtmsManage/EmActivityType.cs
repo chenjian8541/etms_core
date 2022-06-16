@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ETMS.Entity.Enum.EtmsManage
+﻿namespace ETMS.Entity.Enum.EtmsManage
 {
     public struct EmActivityType
     {
@@ -27,5 +21,21 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 分销
         /// </summary>
         public const int Distribution = 3;
+
+        public static string GetActivityTypeDesc(int t)
+        {
+            switch (t)
+            {
+                case GroupPurchase:
+                    return "团购";
+                case Haggling:
+                    return "砍价";
+                case Seckill:
+                    return "秒杀";
+                case Distribution:
+                    return "分销";
+            }
+            return string.Empty;
+        }
     }
 }

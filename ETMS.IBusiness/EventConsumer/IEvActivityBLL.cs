@@ -14,5 +14,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncActivityEffectCountConsumerEvent(SyncActivityEffectCountEvent request);
 
         Task SyncActivityRouteFinishCountConsumerEvent(SyncActivityRouteFinishCountEvent request);
+
+        Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request);
     }
 }

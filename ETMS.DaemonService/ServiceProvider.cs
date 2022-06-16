@@ -25,6 +25,7 @@ using Senparc.CO2NET.RegisterServices;
 using Senparc.Weixin;
 using Senparc.Weixin.Cache.CsRedis;
 using Senparc.Weixin.Open;
+using Senparc.Weixin.WxOpen;
 using System;
 using System.IO;
 using System.Linq;
@@ -142,12 +143,17 @@ namespace ETMS.DaemonService
                 IsDebug = mySenparcSetting.SenparcSetting.IsDebug,
                 SenparcUnionAgentKey = mySenparcSetting.SenparcSetting.SenparcUnionAgentKey
             };
+            var miniProgramConfig = mySenparcSetting.SenparcWeixinSetting.MiniProgramConfig;
             var senparcWeixinSetting = new Senparc.Weixin.Entities.SenparcWeixinSetting()
             {
                 Component_Appid = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentAppid,
                 Component_Secret = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentSecret,
                 Component_Token = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentToken,
-                Component_EncodingAESKey = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentEncodingAESKey
+                Component_EncodingAESKey = mySenparcSetting.SenparcWeixinSetting.ComponentConfig.ComponentEncodingAESKey,
+                WxOpenAppId = miniProgramConfig.WxOpenAppId,
+                WxOpenAppSecret = miniProgramConfig.WxOpenAppSecret,
+                WxOpenToken = miniProgramConfig.WxOpenToken,
+                WxOpenEncodingAESKey = miniProgramConfig.WxOpenEncodingAESKey
             };
             var register = RegisterService.Start(senparcSetting);
             register.ChangeDefaultCacheNamespace("ETMSDefaultCacheNamespace");
@@ -157,9 +163,10 @@ namespace ETMS.DaemonService
             Console.WriteLine("[服务]完成 Redis 设置");
             Log.Info("[服务]完成 Redis 设置...", typeof(ServiceProvider));
 
-            register.UseSenparcWeixin(senparcWeixinSetting, weixinRegister =>
+            register.UseSenparcWeixin(senparcWeixinSetting, (weixinRegister, registerService) =>
             {
                 weixinRegister.UseSenparcWeixinCacheCsRedis();
+                weixinRegister.RegisterWxOpenAccount(senparcWeixinSetting, "【小禾帮培训管理系统】小程序");
                 weixinRegister.RegisterOpenComponent(senparcWeixinSetting,
                     async componentAppId =>
                     {

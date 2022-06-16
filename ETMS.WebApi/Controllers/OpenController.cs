@@ -12,6 +12,7 @@ using Senparc.Weixin.Open.Containers;
 using Senparc.Weixin.Open.Entities.Request;
 using System;
 using System.Threading.Tasks;
+using Senparc.Weixin.MP;
 
 namespace ETMS.WebApi.Controllers
 {
@@ -85,6 +86,30 @@ namespace ETMS.WebApi.Controllers
             {
                 Log.Error(postModel, ex, this.GetType());
                 return Content("error：" + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// GET请求用于处理微信小程序后台的URL验证
+        /// </summary>
+        /// <param name="postModel"></param>
+        /// <param name="echostr"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        [ActionName("MiniProgramUrlCheck")]
+        public ActionResult MiniProgramUrlCheck(PostModel postModel, string echostr)
+        {
+            var appSettings = this._appConfigurtaionServices.AppSettings;
+            var miniProgramConfig = appSettings.SenparcConfig.SenparcWeixinSetting.MiniProgramConfig;
+            if (CheckSignature.Check(postModel.Signature, postModel.Timestamp, postModel.Nonce, miniProgramConfig.WxOpenToken))
+            {
+                return Content(echostr); //返回随机字符串则表示验证通过
+            }
+            else
+            {
+                return Content("failed:" + postModel.Signature + "," + CheckSignature.GetSignature(postModel.Timestamp, postModel.Nonce, miniProgramConfig.WxOpenToken) + "。" +
+                    "如果你在浏览器中看到这句话，说明此地址可以被作为微信小程序后台的Url，请注意保持Token一致。");
             }
         }
     }

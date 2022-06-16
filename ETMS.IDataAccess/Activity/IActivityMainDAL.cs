@@ -12,6 +12,10 @@ namespace ETMS.IDataAccess.Activity
     {
         Task AddActivityMain(EtActivityMain entity);
 
+        Task UpdateActivityMainShareQRCode(long id, string shareQRCode);
+
+        Task UpdateActivityMainStatus(long id, int newActivityStatus);
+
         Task EditActivityMain(EtActivityMain entity);
 
         Task<EtActivityMain> GetActivityMain(long id);

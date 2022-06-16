@@ -388,6 +388,16 @@ namespace ETMS.Utility
         /// 分校面板
         /// </summary>
         public const string Alien = "Alien";
+
+        /// <summary>
+        /// 活动主表
+        /// </summary>
+        public const string ActivityMainQrCode = "ActivityMainQrCode";
+
+        /// <summary>
+        /// 活动发起表
+        /// </summary>
+        public const string ActivityRouteQrCode = "ActivityRouteQrCode";
     }
 
     /// <summary>

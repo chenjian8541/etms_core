@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
-using ETMS.Entity.Enum.EtmsManage;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Manage
+namespace ETMS.Entity.Dto.Activity.Output
 {
-    [Table("SysActivity")]
-    public class SysActivity : EManageEntity<long>
+    public class ActivitySystemGetPagingOutput
     {
+        public long CId { get; set; }
+
         /// <summary>
         /// <see cref="EmActivityType"/>
         /// </summary>
@@ -27,41 +28,17 @@ namespace ETMS.Entity.Database.Manage
 
         public string CoverImage { get; set; }
 
-        public string ImageMain { get; set; }
-
         public string Title { get; set; }
 
         public string CourseName { get; set; }
-
-        public string CourseDesc { get; set; }
-
-        public string ImageCourse { get; set; }
-
-        public decimal OriginalPrice { get; set; }
-
-        public string RuleContent { get; set; }
-
-        public string RuleEx1 { get; set; }
-
-        public string RuleEx2 { get; set; }
-
-        public string RuleEx3 { get; set; }
-
-        public bool IsAllowPay { get; set; }
-
-        public int MaxCount { get; set; }
-
-        public string ActivityExplan { get; set; }
-
-        public string TenantLinkInfo { get; set; }
 
         /// <summary>
         /// <see cref="EmActivityStyleType"/>
         /// </summary>
         public int StyleType { get; set; }
 
-        public string StyleBackColor { get; set; }
-
         public string StyleColumnColor { get; set; }
+
+        public bool IsAllowPay { get; set; }
     }
 }

@@ -178,6 +178,19 @@ namespace ETMS.Business.Common
             return $"{classTimes.ClassOt.EtmsToDateString()}(周{EtmsHelper.GetWeekDesc(classTimes.Week)}){EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime, "-")}";
         }
 
+        internal static Img GetImg(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+            return new Img()
+            {
+                Key = key,
+                Url = AliyunOssUtil.GetAccessUrlHttps(key)
+            };
+        }
+
         internal static List<Img> GetImgs(string keys)
         {
             if (string.IsNullOrEmpty(keys))
@@ -194,6 +207,16 @@ namespace ETMS.Business.Common
                 }
             }
             return imgs;
+        }
+
+        internal static string GetMediasKey(List<Img> imgs)
+        {
+            if (imgs == null || imgs.Count == 0)
+            {
+                return string.Empty;
+            }
+            var temp = imgs.Select(j => j.Key);
+            return string.Join('|', temp);
         }
 
         internal static string GetSpecContent(List<MallGoodsSpecItem> specItems)

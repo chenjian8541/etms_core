@@ -42,7 +42,18 @@ namespace ETMS.DataAccess.Activity
         public async Task AddActivityMain(EtActivityMain entity)
         {
             await this._dbWrapper.Insert(entity);
-            await UpdateCache(_tenantId, entity.Id);
+        }
+
+        public async Task UpdateActivityMainShareQRCode(long id, string shareQRCode)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityMain SET ShareQRCode = '{shareQRCode}' WHERE Id = {id}");
+            await UpdateCache(_tenantId, id);
+        }
+
+        public async Task UpdateActivityMainStatus(long id, int newActivityStatus)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityMain SET ActivityStatus = {newActivityStatus} WHERE Id = {id}");
+            await UpdateCache(_tenantId, id);
         }
 
         public async Task EditActivityMain(EtActivityMain entity)

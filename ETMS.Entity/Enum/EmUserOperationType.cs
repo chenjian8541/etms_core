@@ -179,6 +179,9 @@ namespace ETMS.Entity.Enum
         ClassTimesReservationSetting = 86,
 
         [Description("短信群发")]
-        StudentSmsBatchSend = 87
+        StudentSmsBatchSend = 87,
+
+        [Description("小禾销课")]
+        Activity = 88
     }
 }

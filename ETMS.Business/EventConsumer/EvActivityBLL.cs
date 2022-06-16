@@ -75,5 +75,10 @@ namespace ETMS.Business.EventConsumer
             var countFinish = await _activityRouteDAL.GetActivityRouteFinishCount(request.ActivityRouteId, request.ActivityType);
             await _activityRouteDAL.SetFinishCount(request.ActivityRouteId, countFinish);
         }
+
+        public async Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request)
+        {
+            await _activityRouteDAL.SyncActivityBascInfo(request.NewActivityMain);
+        }
     }
 }

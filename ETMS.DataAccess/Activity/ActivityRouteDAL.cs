@@ -42,7 +42,7 @@ namespace ETMS.DataAccess.Activity
             List<EtActivityHaggleLog> activityHaggleLogs = null;
             if (activityRoute.ActivityType == EmActivityType.Haggling)
             {
-                activityHaggleLogs = await _dbWrapper.FindListShort<EtActivityHaggleLog>(
+                activityHaggleLogs = await _dbWrapper.FindListMiddle<EtActivityHaggleLog>(
                     p => p.ActivityRouteId == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
             }
             return new ActivityRouteBucket()
@@ -156,6 +156,14 @@ namespace ETMS.DataAccess.Activity
             }
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
+        }
+
+        public async Task SyncActivityBascInfo(EtActivityMain bascInfo)
+        {
+            var sql = $"UPDATE EtActivityRoute SET ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
+            await _dbWrapper.Execute(sql);
+            sql = $"UPDATE EtActivityRouteItem SET ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
+            await _dbWrapper.Execute(sql);
         }
     }
 }
