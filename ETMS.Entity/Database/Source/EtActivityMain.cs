@@ -128,6 +128,8 @@ namespace ETMS.Entity.Database.Source
 
         public string StyleColumnColor { get; set; }
 
+        public string StyleColumnImg { get; set; }
+
         public string StudentFieldName1 { get; set; }
 
         public string StudentFieldName2 { get; set; }

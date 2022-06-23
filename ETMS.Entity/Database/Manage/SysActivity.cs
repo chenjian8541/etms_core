@@ -67,5 +67,7 @@ namespace ETMS.Entity.Database.Manage
         public string StyleBackColor { get; set; }
 
         public string StyleColumnColor { get; set; }
+
+        public string StyleColumnImg { get; set; }
     }
 }

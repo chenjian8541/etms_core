@@ -9,12 +9,12 @@ namespace ETMS.Entity.Enum.EtmsManage
     public struct EmActivityStyleType
     {
         /// <summary>
-        /// 普通样式
+        /// 普通样式1
         /// </summary>
         public const int Style0 = 0;
 
         /// <summary>
-        /// 栏目图案
+        /// 普通样式2
         /// </summary>
         public const int Style1 = 1;
 

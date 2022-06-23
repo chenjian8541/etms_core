@@ -37,12 +37,12 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> ActivityMainCreateInitOfGroupPurchase(ActivityMainCreateInitOfGroupPurchaseRequest request)
+        public async Task<ResponseBase> ActivityMainCreateInit(ActivityMainCreateInitRequest request)
         {
             try
             {
                 _activityBLL.InitTenantId(request.LoginTenantId);
-                return await _activityBLL.ActivityMainCreateInitOfGroupPurchase(request);
+                return await _activityBLL.ActivityMainCreateInit(request);
             }
             catch (Exception ex)
             {
@@ -71,6 +71,34 @@ namespace ETMS.WebApi.Controllers
             {
                 _activityBLL.InitTenantId(request.LoginTenantId);
                 return await _activityBLL.ActivityMainSaveAndPublishOfGroupPurchase(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityMainSaveOfHaggle(ActivityMainSaveOrPublishOfHaggleRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityMainSaveOfHaggle(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityMainSaveAndPublishOfHaggle(ActivityMainSaveOrPublishOfHaggleRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityMainSaveAndPublishOfHaggle(request);
             }
             catch (Exception ex)
             {

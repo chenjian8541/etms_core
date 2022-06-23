@@ -1,15 +1,12 @@
-﻿using ETMS.Entity.Dto.Activity.Request;
-using ETMS.Entity.Dto.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static ETMS.Entity.Dto.Activity.Request.ActivityMainSaveOfGroupPurchaseRequest;
 
 namespace ETMS.Entity.Dto.Activity.Output
 {
-    public class ActivityMainCreateInitOfGroupPurchaseOutput
+    public class ActivityMainCreateInitOfHaggleOutput
     {
         /// <summary>
         /// <see cref="EmActivityType"/>
@@ -43,7 +40,11 @@ namespace ETMS.Entity.Dto.Activity.Output
 
         public decimal OriginalPrice { get; set; }
 
-        public List<GroupPurchaseRuleInput> GroupPurchaseRuleInputs { get; set; }
+        public decimal LowPrice { get; set; }
+
+        public int LimitMustCount { get; set; }
+
+        public int MyRepeatHaggleHour { get; set; }
 
         public bool IsAllowPay { get; set; }
 

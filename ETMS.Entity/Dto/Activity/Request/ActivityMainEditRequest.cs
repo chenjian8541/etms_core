@@ -54,6 +54,10 @@ namespace ETMS.Entity.Dto.Activity.Request
 
         public bool GlobalOpenStatistics { get; set; }
 
+        public DateTime? EndTime { get; set; }
+
+        public int MyRepeatHaggleHour { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)
@@ -63,6 +67,14 @@ namespace ETMS.Entity.Dto.Activity.Request
             if (string.IsNullOrEmpty(Name))
             {
                 return "请输入活动名称";
+            }
+            if (EndTime == null)
+            {
+                return "请选择活动结束时间";
+            }
+            if (EndTime <= DateTime.Now)
+            {
+                return "结束时间必须大于当前时间";
             }
             if (ImageMains == null || ImageMains.Count == 0)
             {

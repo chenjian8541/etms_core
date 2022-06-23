@@ -12,6 +12,16 @@ namespace ETMS.Entity.Dto.Activity.Output
     {
         public long ActivityMainId { get; set; }
 
+        /// <summary>
+        /// <see cref="EmActivityType"/>
+        /// </summary>
+        public int ActivityType { get; set; }
+
+        /// <summary>
+        /// <see cref="EmActivityScenetype"/>
+        /// </summary>
+        public int Scenetype { get; set; }
+
         public long SystemId { get; set; }
 
         public string Name { get; set; }
@@ -80,5 +90,16 @@ namespace ETMS.Entity.Dto.Activity.Output
         public bool IsOpenStudentFieldName1 { get; set; }
 
         public bool IsOpenStudentFieldName2 { get; set; }
+
+        /// <summary>
+        /// <see cref="EmActivityStyleType"/>
+        /// </summary>
+        public int StyleType { get; set; }
+
+        public string StyleBackColor { get; set; }
+
+        public string StyleColumnColor { get; set; }
+
+        public string StyleColumnImg { get; set; }
     }
 }

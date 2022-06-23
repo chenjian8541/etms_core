@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Activity.Request
 {
-    public class ActivityMainSaveOfGroupPurchaseRequest : RequestBase
+    public class ActivityMainSaveOrPublishOfHaggleRequest : RequestBase
     {
         public string SystemId { get; set; }
 
@@ -32,7 +32,11 @@ namespace ETMS.Entity.Dto.Activity.Request
 
         public decimal OriginalPrice { get; set; }
 
-        public List<GroupPurchaseRuleInput> GroupPurchaseRuleInputs { get; set; }
+        public decimal LowPrice { get; set; }
+
+        public int LimitMustCount { get; set; }
+
+        public int MyRepeatHaggleHour { get; set; }
 
         public bool IsOpenPay { get; set; }
 
@@ -115,69 +119,21 @@ namespace ETMS.Entity.Dto.Activity.Request
             {
                 return "请输入原价";
             }
-            if (GroupPurchaseRuleInputs == null || GroupPurchaseRuleInputs.Count == 0)
+            if (LowPrice < 0)
             {
-                return "请填写拼团方案";
+                return "请输入底价";
             }
-            string errMsg;
-            foreach (var item in GroupPurchaseRuleInputs)
+            if (LowPrice >= OriginalPrice)
             {
-                errMsg = item.Validate();
-                if (!string.IsNullOrEmpty(errMsg))
-                {
-                    return errMsg;
-                }
+                return "底价必须低于原价";
+            }
+            if (LimitMustCount <= 1 || LimitMustCount > 200)
+            {
+                return "活动难度在2~200之间，请重新输入";
             }
             if (MaxCount <= 0)
             {
-                return "支付人数上限必须大于0";
-            }
-            var maxLimitCount = GroupPurchaseRuleInputs.OrderByDescending(j => j.LimitCount).First().LimitCount;
-            if (MaxCount < maxLimitCount)
-            {
-                return "支付人数上线必须大于拼团人数";
-            }
-            if (GroupPurchaseRuleInputs.Count > 1)
-            {
-                if (IsOpenPay && PayType == Enum.EtmsManage.EmActivityPayType.Type0)
-                {
-                    return "多阶拼团模式下，则仅支持“定金”支付";
-                }
-            }
-            if (GroupPurchaseRuleInputs.Count > 5)
-            {
-                return "最多设置5组拼团方案";
-            }
-            if (IsOpenPay)
-            {
-                if (PayType == Enum.EtmsManage.EmActivityPayType.Type1 && PayValue <= 0)
-                {
-                    return "请输入支付金额";
-                }
-            }
-            return string.Empty;
-        }
-    }
-
-    public class GroupPurchaseRuleInput : IValidate
-    {
-        public int LimitCount { get; set; }
-
-        public decimal Money { get; set; }
-
-        public string Validate()
-        {
-            if (LimitCount <= 1)
-            {
-                return "拼团方案人数必须大于1";
-            }
-            if (LimitCount > 200)
-            {
-                return "拼团方案人数必须小于200人";
-            }
-            if (Money <= 0)
-            {
-                return "拼团价格必须大于0";
+                return "课程数量必须大于0";
             }
             return string.Empty;
         }

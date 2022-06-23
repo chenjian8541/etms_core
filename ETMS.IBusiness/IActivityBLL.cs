@@ -12,11 +12,15 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> ActivitySystemGetPaging(ActivitySystemGetPagingRequest request);
 
-        Task<ResponseBase> ActivityMainCreateInitOfGroupPurchase(ActivityMainCreateInitOfGroupPurchaseRequest request);
+        Task<ResponseBase> ActivityMainCreateInit(ActivityMainCreateInitRequest request);
 
         Task<ResponseBase> ActivityMainSaveOfGroupPurchase(ActivityMainSaveOfGroupPurchaseRequest request);
 
         Task<ResponseBase> ActivityMainSaveAndPublishOfGroupPurchase(ActivityMainSaveOfGroupPurchaseRequest request);
+
+        Task<ResponseBase> ActivityMainSaveOfHaggle(ActivityMainSaveOrPublishOfHaggleRequest request);
+
+        Task<ResponseBase> ActivityMainSaveAndPublishOfHaggle(ActivityMainSaveOrPublishOfHaggleRequest request);
 
         Task<ResponseBase> ActivityMainEdit(ActivityMainEditRequest request);
 

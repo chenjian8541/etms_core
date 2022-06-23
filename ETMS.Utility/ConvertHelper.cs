@@ -83,6 +83,11 @@ namespace ETMS.Utility
             return decimal.Round(@this, 2);
         }
 
+        public static decimal ToDecimal(this string @this)
+        {
+            return Convert.ToDecimal(@this);
+        }
+
         public static int EtmsToPoints(this string @this)
         {
             if (string.IsNullOrEmpty(@this))
