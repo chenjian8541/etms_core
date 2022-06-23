@@ -998,6 +998,8 @@ namespace ETMS.Business
                 await _sysTenantSuixingAccountDAL.EditTenantSuixingAccount(hisLog);
             }
 
+            await _sysTenantDAL.UpdateTenantSetPayUnionType(request.LoginTenantId, EmPayUnionType.Suixing);
+            _userOperationLogDAL.InitTenantId(request.LoginTenantId);
             await _userOperationLogDAL.AddUserLog(request, $"绑定随行付：{merchantInfo.mecDisNm}", EmUserOperationType.LcsMgr);
             return ResponseBase.Success();
         }

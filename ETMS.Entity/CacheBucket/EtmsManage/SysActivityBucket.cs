@@ -14,7 +14,7 @@ namespace ETMS.Entity.CacheBucket.EtmsManage
 
         public string GetKeyFormat(params object[] parms)
         {
-            return $"SysActivityBucket_{SysActivity.Id}";
+            return $"SysActivityBucket_{parms[0]}";
         }
     }
 }

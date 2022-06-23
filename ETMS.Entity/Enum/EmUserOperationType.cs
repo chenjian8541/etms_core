@@ -181,7 +181,7 @@ namespace ETMS.Entity.Enum
         [Description("短信群发")]
         StudentSmsBatchSend = 87,
 
-        [Description("小禾销课")]
+        [Description("小禾招生")]
         Activity = 88
     }
 }

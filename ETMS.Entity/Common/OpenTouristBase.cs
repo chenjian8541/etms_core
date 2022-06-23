@@ -9,7 +9,7 @@ namespace ETMS.Entity.Common
     public abstract class OpenTouristBase : IValidate
     {
         /// <summary>
-        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// 客户端类型  <see cref="ETMS.Entity.Enum.EmUserOperationLogClientType"/>
         /// </summary>
         public int ClientType { get; set; }
 

@@ -14,6 +14,10 @@ namespace ETMS.Entity.Database.Manage
         /// </summary>
         public int ActivityType { get; set; }
 
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
+
         public string ActivityTypeDesc { get; set; }
 
         /// <summary>

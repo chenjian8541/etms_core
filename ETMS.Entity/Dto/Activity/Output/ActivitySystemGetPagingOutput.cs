@@ -8,7 +8,7 @@ namespace ETMS.Entity.Dto.Activity.Output
 {
     public class ActivitySystemGetPagingOutput
     {
-        public long CId { get; set; }
+        public string CId { get; set; }
 
         /// <summary>
         /// <see cref="EmActivityType"/>
@@ -40,5 +40,9 @@ namespace ETMS.Entity.Dto.Activity.Output
         public string StyleColumnColor { get; set; }
 
         public bool IsAllowPay { get; set; }
+
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
     }
 }

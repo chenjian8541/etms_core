@@ -42,7 +42,8 @@ namespace ETMS.Business.EtmsManage
                     Status = p.Status,
                     ClientType = p.ClientType,
                     HandleOt = p.HandleOt,
-                    ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType)
+                    ClientTypeDesc = EmUserOperationLogClientType.GetClientTypeDesc(p.ClientType),
+                    Remark = p.Remark,
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TryApplyLogGetPagingOutput>(pagingData.Item2, output));

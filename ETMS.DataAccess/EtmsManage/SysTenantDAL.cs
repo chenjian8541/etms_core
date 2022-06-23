@@ -168,5 +168,11 @@ namespace ETMS.DataAccess.EtmsManage
                 await UpdateCache(id);
             }
         }
+
+        public async Task UpdateTenantSetPayUnionType(int id, int newPayUnionType)
+        {
+            await this.Execute($"UPDATE SysTenant SET PayUnionType = {newPayUnionType} WHERE Id = {id} ");
+            await UpdateCache(id);
+        }
     }
 }

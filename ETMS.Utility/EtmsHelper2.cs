@@ -248,6 +248,24 @@ namespace ETMS.Utility
             return result;
         }
 
+        public static List<string> GetMediasUrl2(string keys)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(keys))
+            {
+                return result;
+            }
+            var myMedias = keys.Split('|');
+            foreach (var p in myMedias)
+            {
+                if (!string.IsNullOrEmpty(p))
+                {
+                    result.Add(p);
+                }
+            }
+            return result;
+        }
+
         public static string GetUrlEncrypt(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);

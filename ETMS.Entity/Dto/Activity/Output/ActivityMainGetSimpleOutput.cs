@@ -70,5 +70,9 @@ namespace ETMS.Entity.Dto.Activity.Output
         public string StudentFieldName1 { get; set; }
 
         public string StudentFieldName2 { get; set; }
+
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
     }
 }

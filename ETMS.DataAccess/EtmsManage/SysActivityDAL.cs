@@ -23,7 +23,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         protected override async Task<SysActivityBucket> GetDb(params object[] keys)
         {
-            var id = keys.ToLong();
+            var id = keys[0].ToLong();
             var log = await this.Find<SysActivity>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
             if (log == null)
             {

@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Activity.Request
 {
-    public class ActivityMainCreateInitOfGroupPurchaseRequest : RequestBase
+    public class ActivityMainSetShowInParentRequest : RequestBase
     {
-        public string SystemId { get; set; }
+        public long ActivityMainId { get; set; }
+
+        public bool NewIsShowInParent { get; set; }
 
         public override string Validate()
         {
-            if (string.IsNullOrEmpty(SystemId))
+            if (ActivityMainId <= 0)
             {
                 return "请求数据格式错误";
             }

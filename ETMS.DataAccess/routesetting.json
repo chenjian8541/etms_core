@@ -668,7 +668,30 @@
         "Type": 1,
         "Component": "@/views/marketingMgr/giftMgr",
         "Meta": {
-          "Title": "礼品",
+          "Title": "礼品中心",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 109,
+        "Path": "activity",
+        "Name": "activity",
+        "Type": 1,
+        "Component": "@/views/marketingMgr/activity",
+        "Meta": {
+          "Title": "小禾招生",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "myActivityDetail/:cid",
+        "Name": "myActivityDetail",
+        "Type": 1,
+        "Component": "@/components/activity/myActivityDetail",
+        "Meta": {
+          "Title": "活动详情",
           "Icon": "item"
         }
       },

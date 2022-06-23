@@ -35,8 +35,8 @@ namespace ETMS.Business.WxCore
         {
             using (var ms = new MemoryStream())
             {
-                var lineColor = new LineColor(221, 51, 238);
-                var result = await WxAppApi.GetWxaCodeUnlimitAsync(_miniProgramConfig.WxOpenAppId, ms, scene, page, lineColor: lineColor);
+                //var lineColor = new LineColor(221, 51, 238);
+                var result = await WxAppApi.GetWxaCodeUnlimitAsync(_miniProgramConfig.WxOpenAppId, ms, scene, page);
                 ms.Position = 0;
                 return AliyunOssUtil.PutObject(tenantId, imgKey, imgTag, ms);
             }

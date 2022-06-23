@@ -26,7 +26,7 @@ namespace ETMS.Entity.Database.Manage
         public DateTime? HandleOt { get; set; }
 
         /// <summary>
-        /// 客户端类型  <see cref="EmUserOperationLogClientType"/>
+        /// 客户端类型  <see cref="ETMS.Entity.Enum.EtmsManage.EmSysTryApplyLogClientType"/>
         /// </summary>
         public int ClientType { get; set; }
     }

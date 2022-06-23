@@ -18,6 +18,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.ShareTemplate;
 using ETMS.IEventProvider;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,12 +64,15 @@ namespace ETMS.Business
         private readonly ITempDataCacheDAL _tempDataCacheDAL;
 
         private readonly IUserOperationLogDAL _userOperationLogDAL;
+
+        protected readonly IHttpContextAccessor _httpContextAccessor;
         public Open2BLL(IStudentDAL studentDAL, IUserDAL userDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IClassRecordDAL classRecordDAL, IClassRoomDAL classRoomDAL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
             ISysTryApplyLogDAL sysTryApplyLogDAL, ISysPhoneSmsCodeDAL sysPhoneSmsCodeDAL, ISmsService smsService,
             IEventPublisher eventPublisher, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL, ISysTenantDAL sysTenantDAL,
             IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IElectronicAlbumDAL electronicAlbumDAL,
-            ISysTenantUserDAL sysTenantUserDAL, ITempDataCacheDAL tempDataCacheDAL, IUserOperationLogDAL userOperationLogDAL)
+            ISysTenantUserDAL sysTenantUserDAL, ITempDataCacheDAL tempDataCacheDAL, IUserOperationLogDAL userOperationLogDAL,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._studentDAL = studentDAL;
             this._userDAL = userDAL;
@@ -88,6 +92,7 @@ namespace ETMS.Business
             this._sysTenantUserDAL = sysTenantUserDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._userOperationLogDAL = userOperationLogDAL;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public void InitTenantId(int tenantId)
@@ -235,6 +240,19 @@ namespace ETMS.Business
                 isHasUser = true;
             }
 
+            var remark = string.Empty;
+            if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("SceneTypeDesc", out var apiKeyHeaderValues))
+            {
+                var temp = apiKeyHeaderValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(temp))
+                {
+                    remark = temp;
+                }
+            }
+            if (string.IsNullOrEmpty(remark))
+            {
+                remark = isHasUser ? "机构员工" : null;
+            }
             var log = new ETMS.Entity.Database.Manage.SysTryApplyLog()
             {
                 IsDeleted = EmIsDeleted.Normal,
@@ -242,7 +260,7 @@ namespace ETMS.Business
                 Name = request.Name,
                 Ot = DateTime.Now,
                 ClientType = request.ClientType,
-                Remark = isHasUser ? "机构员工" : null
+                Remark = remark
             };
             await _sysTryApplyLogDAL.AddSysTryApplyLog(log);
 

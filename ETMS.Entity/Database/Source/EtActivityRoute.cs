@@ -14,6 +14,8 @@ namespace ETMS.Entity.Database.Source
 
         public long MiniPgmUserId { get; set; }
 
+        public long? StudentId { get; set; }
+
         public string OpenId { get; set; }
 
         public string Unionid { get; set; }
@@ -34,6 +36,10 @@ namespace ETMS.Entity.Database.Source
         /// <see cref="EmActivityType"/>
         /// </summary>
         public int ActivityType { get; set; }
+
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
 
         /// <summary>
         ///  <see cref="EmActivityScenetype"/>

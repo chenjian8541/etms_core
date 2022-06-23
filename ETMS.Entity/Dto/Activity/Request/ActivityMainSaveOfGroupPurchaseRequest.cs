@@ -10,11 +10,11 @@ namespace ETMS.Entity.Dto.Activity.Request
 {
     public class ActivityMainSaveOfGroupPurchaseRequest : RequestBase
     {
-        public long SystemId { get; set; }
+        public string SystemId { get; set; }
 
         public string Name { get; set; }
 
-        public List<Img> ImageMains { get; set; }
+        public List<string> ImageMains { get; set; }
 
         public string TenantName { get; set; }
 
@@ -28,7 +28,7 @@ namespace ETMS.Entity.Dto.Activity.Request
 
         public string CourseDesc { get; set; }
 
-        public List<Img> ImageCourse { get; set; }
+        public List<string> ImageCourse { get; set; }
 
         public decimal OriginalPrice { get; set; }
 
@@ -55,7 +55,7 @@ namespace ETMS.Entity.Dto.Activity.Request
 
         public string TenantIntroduceTxt { get; set; }
 
-        public string TenantIntroduceImg { get; set; }
+        public List<string> TenantIntroduceImg { get; set; }
 
         public string GlobalPhone { get; set; }
 
@@ -67,9 +67,11 @@ namespace ETMS.Entity.Dto.Activity.Request
 
         public string StudentFieldName2 { get; set; }
 
+        public bool GlobalOpenStatistics { get; set; }
+
         public override string Validate()
         {
-            if (SystemId <= 0)
+            if (string.IsNullOrEmpty(SystemId))
             {
                 return "请求数据格式错误";
             }
@@ -95,15 +97,15 @@ namespace ETMS.Entity.Dto.Activity.Request
             }
             if (EndTime == null)
             {
-                return "请选择活动截止时间";
+                return "请选择活动结束时间";
             }
             if (EndTime <= DateTime.Now)
             {
-                return "截止时间必须大于当前时间";
+                return "结束时间必须大于当前时间";
             }
             if (StartTime >= EndTime)
             {
-                return "截止时间必须大于开始时间";
+                return "结束时间必须大于开始时间";
             }
             if (string.IsNullOrEmpty(CourseName))
             {
@@ -129,6 +131,29 @@ namespace ETMS.Entity.Dto.Activity.Request
             if (MaxCount <= 0)
             {
                 return "支付人数上限必须大于0";
+            }
+            var maxLimitCount = GroupPurchaseRuleInputs.OrderByDescending(j => j.LimitCount).First().LimitCount;
+            if (MaxCount < maxLimitCount)
+            {
+                return "支付人数上线必须大于拼团人数";
+            }
+            if (GroupPurchaseRuleInputs.Count > 1)
+            {
+                if (IsOpenPay && PayType == Enum.EtmsManage.EmActivityPayType.DiscountSum)
+                {
+                    return "多阶拼团模式下，则仅支持“定金”支付";
+                }
+            }
+            if (GroupPurchaseRuleInputs.Count > 5)
+            {
+                return "最多设置5组拼团方案";
+            }
+            if (IsOpenPay)
+            {
+                if (PayType == Enum.EtmsManage.EmActivityPayType.Deposit && PayValue <= 0)
+                {
+                    return "请输入支付金额";
+                }
             }
             return string.Empty;
         }

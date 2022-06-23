@@ -29,6 +29,11 @@ namespace ETMS.Entity.EtmsManage.Dto.DataLog.Output
 
         public string ClientTypeDesc { get; set; }
 
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remark { get; set; }
+
         public DateTime? HandleOt { get; set; }
     }
 }

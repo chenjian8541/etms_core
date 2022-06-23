@@ -62,5 +62,17 @@ namespace ETMS.Business.Common
                 NowTimestamp = values[3].ToLong()
             };
         }
+
+        public static string GetIdEncryptUrl(long id)
+        {
+            var str = $"8104{id}";
+            return EtmsHelper2.GetUrlEncrypt(str);
+        }
+
+        public static long GetIdDecrypt(string str)
+        {
+            var newStr = EtmsHelper2.GetUrlDecrypt(str);
+            return newStr.Substring(4).ToLong();
+        }
     }
 }

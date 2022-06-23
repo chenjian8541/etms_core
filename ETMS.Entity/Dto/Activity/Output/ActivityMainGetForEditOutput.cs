@@ -16,7 +16,7 @@ namespace ETMS.Entity.Dto.Activity.Output
 
         public string Name { get; set; }
 
-        public List<Img> ImageMains { get; set; }
+        public List<string> ImageMains { get; set; }
 
         public string TenantName { get; set; }
 
@@ -30,7 +30,7 @@ namespace ETMS.Entity.Dto.Activity.Output
 
         public string CourseDesc { get; set; }
 
-        public List<Img> ImageCourse { get; set; }
+        public List<string> ImageCourse { get; set; }
 
         public decimal OriginalPrice { get; set; }
 
@@ -55,11 +55,11 @@ namespace ETMS.Entity.Dto.Activity.Output
 
         public string TenantLinkInfo { get; set; }
 
-        public Img TenantLinkQRcode { get; set; }
+        public string TenantLinkQRcode { get; set; }
 
         public string TenantIntroduceTxt { get; set; }
 
-        public Img TenantIntroduceImg { get; set; }
+        public List<string> TenantIntroduceImg { get; set; }
 
         public string GlobalPhone { get; set; }
 
@@ -70,5 +70,15 @@ namespace ETMS.Entity.Dto.Activity.Output
         public string StudentFieldName1 { get; set; }
 
         public string StudentFieldName2 { get; set; }
+
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
+
+        public bool GlobalOpenStatistics { get; set; }
+
+        public bool IsOpenStudentFieldName1 { get; set; }
+
+        public bool IsOpenStudentFieldName2 { get; set; }
     }
 }

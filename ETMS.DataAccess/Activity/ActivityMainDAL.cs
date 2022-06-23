@@ -56,6 +56,13 @@ namespace ETMS.DataAccess.Activity
             await UpdateCache(_tenantId, id);
         }
 
+        public async Task UpdateActivityMainIsShowInParent(long id, bool isShowInParent)
+        {
+            var newShowInParent = isShowInParent ? 1 : 0;
+            await _dbWrapper.Execute($"UPDATE EtActivityMain SET IsShowInParent = {newShowInParent} WHERE Id = {id}");
+            await UpdateCache(_tenantId, id);
+        }
+
         public async Task EditActivityMain(EtActivityMain entity)
         {
             await this._dbWrapper.Update(entity);
@@ -99,6 +106,16 @@ namespace ETMS.DataAccess.Activity
         {
             var sql = $"UPDATE EtActivityMain SET JoinCount = {joinCount},RouteCount = {routeCount}, FinishCount = {finishCount} WHERE Id = {activityId}";
             await _dbWrapper.Execute(sql);
+        }
+
+        public async Task DelActivityMain(long activityId)
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtActivityMain SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND Id = {activityId};");
+            sql.Append($"UPDATE EtActivityRoute SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ActivityId = {activityId};");
+            sql.Append($"UPDATE EtActivityRouteItem SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ActivityId = {activityId};");
+            await _dbWrapper.Execute(sql.ToString());
+            RemoveCache(_tenantId, activityId);
         }
     }
 }

@@ -17,6 +17,10 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public int ActivityType { get; set; }
 
+        public string ActivityTypeStyleClass { get; set; }
+
+        public string ScenetypeStyleClass { get; set; }
+
         /// <summary>
         /// <see cref="EmActivityScenetype"/>
         /// </summary>
@@ -91,6 +95,8 @@ namespace ETMS.Entity.Database.Source
 
         public bool GlobalOpenBullet { get; set; }
 
+        public bool GlobalOpenStatistics { get; set; }
+
         public bool IsOpenCheckPhone { get; set; }
 
         public int PVCount { get; set; }
@@ -127,6 +133,8 @@ namespace ETMS.Entity.Database.Source
         public string StudentFieldName2 { get; set; }
 
         public DateTime? PublishTime { get; set; }
+
+        public bool IsShowInParent { get; set; }
 
         public DateTime CreateTime { get; set; }
 

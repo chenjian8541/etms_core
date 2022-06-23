@@ -135,12 +135,54 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActivityMainSetOn(ActivityMainSetOnRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityMainSetOn(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityMainSetShowInParent(ActivityMainSetShowInParentRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityMainSetShowInParent(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActivityMainGetSimple(ActivityMainGetSimpleRequest request)
         {
             try
             {
                 _activityBLL.InitTenantId(request.LoginTenantId);
                 return await _activityBLL.ActivityMainGetSimple(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityMainDel(ActivityMainDelRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityMainDel(request);
             }
             catch (Exception ex)
             {

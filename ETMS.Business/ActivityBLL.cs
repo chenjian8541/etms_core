@@ -68,9 +68,9 @@ namespace ETMS.Business
                 {
                     ActivityType = p.ActivityType,
                     ActivityTypeDesc = p.ActivityTypeDesc,
-                    CId = p.Id,
+                    CId = TenantLib.GetIdEncryptUrl(p.Id),
                     CourseName = p.CourseName,
-                    CoverImage = AliyunOssUtil.GetAccessUrlHttps(p.CoverImage),
+                    CoverImage = p.CoverImage,
                     Name = p.Name,
                     Scenetype = p.Scenetype,
                     ScenetypeDesc = p.ScenetypeDesc,
@@ -78,6 +78,8 @@ namespace ETMS.Business
                     StyleType = p.StyleType,
                     Title = p.Title,
                     IsAllowPay = p.IsAllowPay,
+                    ScenetypeStyleClass = p.ScenetypeStyleClass,
+                    ActivityTypeStyleClass = p.ActivityTypeStyleClass,
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivitySystemGetPagingOutput>(pagingData.Item2, output));
@@ -85,7 +87,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ActivityMainCreateInitOfGroupPurchase(ActivityMainCreateInitOfGroupPurchaseRequest request)
         {
-            var activityMain = await _sysActivityDAL.GetSysActivity(request.SystemId);
+            var activityMain = await _sysActivityDAL.GetSysActivity(TenantLib.GetIdDecrypt(request.SystemId));
             if (activityMain == null)
             {
                 return ResponseBase.CommonError("活动模板不存在");
@@ -104,8 +106,8 @@ namespace ETMS.Business
                 EndTime = endTime.EtmsToMinuteString(),
                 GlobalOpenBullet = true,
                 GlobalPhone = tenantInfo.LinkPhone,
-                ImageCourse = ComBusiness4.GetImgs(activityMain.ImageCourse),
-                ImageMains = ComBusiness4.GetImgs(activityMain.ImageMain),
+                ImageCourse = EtmsHelper2.GetMediasUrl2(activityMain.ImageCourse),
+                ImageMains = EtmsHelper2.GetMediasUrl2(activityMain.ImageMain),
                 IsLimitStudent = false,
                 IsOpenCheckPhone = false,
                 IsAllowPay = activityMain.IsAllowPay,
@@ -119,9 +121,10 @@ namespace ETMS.Business
                 TenantLinkInfo = activityMain.TenantLinkInfo,
                 TenantLinkQRcode = null,
                 TenantIntroduceTxt = tenantInfo.Describe,
-                TenantIntroduceImg = null,
+                TenantIntroduceImg = new List<string>(),
                 TenantName = myTenant.Name,
                 Title = activityMain.Title,
+                GlobalOpenStatistics = true,
                 GroupPurchaseRuleInputs = new List<GroupPurchaseRuleInput>() {
                  new GroupPurchaseRuleInput(){
                      LimitCount = 2,
@@ -135,10 +138,18 @@ namespace ETMS.Business
         private async Task<ResponseBase> ActivityMainOfGroupPurchaseSave(ActivityMainSaveOfGroupPurchaseRequest request,
             int activityStatus)
         {
-            var activityMain = await _sysActivityDAL.GetSysActivity(request.SystemId);
+            var activityMain = await _sysActivityDAL.GetSysActivity(TenantLib.GetIdDecrypt(request.SystemId));
             if (activityMain == null)
             {
                 return ResponseBase.CommonError("活动模板不存在");
+            }
+            if (request.IsOpenPay)
+            {
+                var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+                if (myTenant.PayUnionType == EmPayUnionType.NotApplied)
+                {
+                    return ResponseBase.CommonError("请先绑定活动关联的支付账户，才能开启支付功能");
+                }
             }
             var now = DateTime.Now;
             var ruleContent = new ActivityOfGroupPurchaseRuleContentView()
@@ -180,8 +191,8 @@ namespace ETMS.Business
                 CourseDesc = request.CourseDesc,
                 ActivityExplan = request.ActivityExplan,
                 CourseName = request.CourseName,
-                ImageMain = ComBusiness4.GetMediasKey(request.ImageMains),
-                CoverImage = request.ImageMains[0].Key,
+                ImageMain = EtmsHelper2.GetMediasKeys(request.ImageMains),
+                CoverImage = request.ImageMains[0],
                 CreateTime = now,
                 StartTime = request.StartTime.Value,
                 EndTime = request.EndTime.Value,
@@ -203,11 +214,15 @@ namespace ETMS.Business
                 TenantLinkInfo = request.TenantLinkInfo,
                 TenantLinkQRcode = request.TenantLinkQRcode,
                 TenantIntroduceTxt = request.TenantIntroduceTxt,
-                TenantIntroduceImg = request.TenantIntroduceImg,
-                ImageCourse = ComBusiness4.GetMediasKey(request.ImageCourse),
+                TenantIntroduceImg = EtmsHelper2.GetMediasKeys(request.TenantIntroduceImg),
+                ImageCourse = EtmsHelper2.GetMediasKeys(request.ImageCourse),
                 RuleContent = strRuleContent,
                 ShareQRCode = string.Empty,
-                PublishTime = publishTime
+                PublishTime = publishTime,
+                ActivityTypeStyleClass = activityMain.ActivityTypeStyleClass,
+                ScenetypeStyleClass = activityMain.ScenetypeStyleClass,
+                GlobalOpenStatistics = request.GlobalOpenStatistics,
+                IsShowInParent = true
             };
             await _activityMainDAL.AddActivityMain(entity);
             var key = $"qr_main_{request.LoginTenantId}_{entity.Id}.png";
@@ -218,7 +233,13 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, $"新建活动-{request.Title}", EmUserOperationType.Activity, now);
 
-            return ResponseBase.Success();
+            var output = new ActivityMainOfGroupPurchaseSaveOutput()
+            {
+                MainShareQRCodeUrl = AliyunOssUtil.GetAccessUrlHttps(mainShareQRCodeKey),
+                Name = entity.Name,
+                CId = entity.Id
+            };
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ActivityMainSaveOfGroupPurchase(ActivityMainSaveOfGroupPurchaseRequest request)
@@ -239,13 +260,13 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("活动不存在");
             }
             activityMain.Name = request.Name;
-            activityMain.ImageMain = ComBusiness4.GetMediasKey(request.ImageMains);
-            activityMain.CoverImage = request.ImageMains[0].Key;
+            activityMain.ImageMain = EtmsHelper2.GetMediasKeys(request.ImageMains);
+            activityMain.CoverImage = request.ImageMains[0];
             activityMain.TenantName = request.TenantName;
             activityMain.Title = request.Title;
             activityMain.CourseName = request.CourseName;
             activityMain.CourseDesc = request.CourseDesc;
-            activityMain.ImageCourse = ComBusiness4.GetMediasKey(request.ImageCourse);
+            activityMain.ImageCourse = EtmsHelper2.GetMediasKeys(request.ImageCourse);
             activityMain.OriginalPrice = request.OriginalPrice;
             activityMain.MaxCount = request.MaxCount;
             activityMain.StudentHisLimitType = request.IsLimitStudent ? EmBool.True : EmBool.False;
@@ -255,10 +276,11 @@ namespace ETMS.Business
             activityMain.TenantLinkInfo = request.TenantLinkInfo;
             activityMain.TenantLinkQRcode = request.TenantLinkQRcode;
             activityMain.TenantIntroduceTxt = request.TenantIntroduceTxt;
-            activityMain.TenantIntroduceImg = request.TenantIntroduceImg;
+            activityMain.TenantIntroduceImg = EtmsHelper2.GetMediasKeys(request.TenantIntroduceImg);
             activityMain.GlobalPhone = request.GlobalPhone;
             activityMain.GlobalOpenBullet = request.GlobalOpenBullet;
             activityMain.IsOpenCheckPhone = request.IsOpenCheckPhone;
+            activityMain.GlobalOpenStatistics = request.GlobalOpenStatistics;
             await _activityMainDAL.EditActivityMain(activityMain);
 
             _eventPublisher.Publish(new SyncActivityBascInfoEvent(request.LoginTenantId)
@@ -281,16 +303,16 @@ namespace ETMS.Business
                 {
                     CreateTime = p.CreateTime,
                     ActivityStatus = activityStatusResult.Item1,
-                    ActivityTypeDesc = activityStatusResult.Item2,
+                    ActivityStatusDesc = activityStatusResult.Item2,
                     EndTime = p.EndTime.Value,
                     ActivityType = p.ActivityType,
-                    ActivityStatusDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
+                    ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
                     CId = p.Id,
                     Name = p.Name,
                     PublishTime = p.PublishTime,
                     Scenetype = p.Scenetype,
                     ScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.Scenetype),
-                    CoverImageUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverImage),
+                    CoverImageUrl = p.CoverImage,
                     StartTime = p.StartTime,
                     SystemActivityId = p.SystemActivityId,
                     Title = p.Title,
@@ -305,7 +327,10 @@ namespace ETMS.Business
                     UVCount = p.UVCount,
                     VisitCount = p.VisitCount,
                     StudentFieldName1 = p.StudentFieldName1,
-                    StudentFieldName2 = p.StudentFieldName2
+                    StudentFieldName2 = p.StudentFieldName2,
+                    ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                    ScenetypeStyleClass = p.ScenetypeStyleClass,
+                    IsShowInParent = p.IsShowInParent
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivityMainGetPagingOutput>(pagingData.Item2, output));
@@ -354,6 +379,53 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> ActivityMainSetOn(ActivityMainSetOnRequest request)
+        {
+            var activityMain = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            if (activityMain == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            if (activityMain.ActivityStatus == EmActivityStatus.Processing)
+            {
+                return ResponseBase.CommonError("活动已上架");
+            }
+            if (activityMain.EndTime <= DateTime.Now)
+            {
+                return ResponseBase.CommonError("活动已结束");
+            }
+            await _activityMainDAL.UpdateActivityMainStatus(request.ActivityMainId, EmActivityStatus.Processing);
+
+            await _userOperationLogDAL.AddUserLog(request, $"上架活动-{activityMain.Title}", EmUserOperationType.Activity);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ActivityMainSetShowInParent(ActivityMainSetShowInParentRequest request)
+        {
+            var activityMain = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            if (activityMain == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            if (activityMain.IsShowInParent == request.NewIsShowInParent)
+            {
+                return ResponseBase.Success();
+            }
+            await _activityMainDAL.UpdateActivityMainIsShowInParent(request.ActivityMainId, request.NewIsShowInParent);
+
+            var msg = string.Empty;
+            if (request.NewIsShowInParent)
+            {
+                msg = "设置学员端可见";
+            }
+            else
+            {
+                msg = "设置学员端不可见";
+            }
+            await _userOperationLogDAL.AddUserLog(request, $"{msg}-{activityMain.Title}", EmUserOperationType.Activity);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ActivityMainGetSimple(ActivityMainGetSimpleRequest request)
         {
             var p = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
@@ -375,7 +447,7 @@ namespace ETMS.Business
                 PublishTime = p.PublishTime,
                 Scenetype = p.Scenetype,
                 ScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.Scenetype),
-                CoverImageUrl = AliyunOssUtil.GetAccessUrlHttps(p.CoverImage),
+                CoverImageUrl = p.CoverImage,
                 StartTime = p.StartTime,
                 SystemActivityId = p.SystemActivityId,
                 Title = p.Title,
@@ -391,8 +463,28 @@ namespace ETMS.Business
                 VisitCount = p.VisitCount,
                 StudentFieldName1 = p.StudentFieldName1,
                 StudentFieldName2 = p.StudentFieldName2,
+                ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                ScenetypeStyleClass = p.ScenetypeStyleClass,
             };
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ActivityMainDel(ActivityMainDelRequest request)
+        {
+            var activityMain = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            if (activityMain == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            var isExistRoute = await _activityRouteDAL.ExistActivity(request.ActivityMainId);
+            if (isExistRoute)
+            {
+                return ResponseBase.CommonError("活动进行中，无法删除");
+            }
+            await _activityMainDAL.DelActivityMain(request.ActivityMainId);
+
+            await _userOperationLogDAL.AddUserLog(request, $"删除活动-{activityMain.Title}", EmUserOperationType.Activity);
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> ActivityMainGetForEdit(ActivityMainGetForEditRequest request)
@@ -419,8 +511,8 @@ namespace ETMS.Business
                 GlobalOpenBullet = p.GlobalOpenBullet,
                 GlobalPhone = p.GlobalPhone,
                 GroupPurchaseRuleInputs = ruleOutput,
-                ImageCourse = ComBusiness4.GetImgs(p.ImageCourse),
-                ImageMains = ComBusiness4.GetImgs(p.ImageMain),
+                ImageCourse = EtmsHelper2.GetMediasUrl2(p.ImageCourse),
+                ImageMains = EtmsHelper2.GetMediasUrl2(p.ImageMain),
                 IsAllowPay = p.IsAllowPay,
                 IsLimitStudent = p.StudentHisLimitType == EmBool.True,
                 IsOpenCheckPhone = p.IsOpenCheckPhone,
@@ -433,12 +525,17 @@ namespace ETMS.Business
                 StudentFieldName1 = p.StudentFieldName1,
                 StudentFieldName2 = p.StudentFieldName2,
                 SystemId = p.SystemActivityId,
-                TenantIntroduceImg = ComBusiness4.GetImg(p.TenantIntroduceImg),
+                TenantIntroduceImg = EtmsHelper2.GetMediasUrl2(p.TenantIntroduceImg),
                 TenantIntroduceTxt = p.TenantIntroduceTxt,
                 TenantLinkInfo = p.TenantLinkInfo,
-                TenantLinkQRcode = ComBusiness4.GetImg(p.TenantLinkQRcode),
+                TenantLinkQRcode = p.TenantLinkQRcode,
                 TenantName = p.TenantName,
-                Title = p.Title
+                Title = p.Title,
+                ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                ScenetypeStyleClass = p.ScenetypeStyleClass,
+                GlobalOpenStatistics = p.GlobalOpenStatistics,
+                IsOpenStudentFieldName1 = !string.IsNullOrEmpty(p.StudentFieldName1),
+                IsOpenStudentFieldName2 = !string.IsNullOrEmpty(p.StudentFieldName2),
             };
             return ResponseBase.Success(output);
         }
@@ -460,7 +557,7 @@ namespace ETMS.Business
                     NickName = p.NickName,
                     PayFinishTime = p.PayFinishTime,
                     PaySum = p.PaySum,
-                    ShareQRCode = p.ShareQRCode,
+                    ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                     StudentFieldValue1 = p.StudentFieldValue1,
                     StudentFieldValue2 = p.StudentFieldValue2,
                     StudentName = p.StudentName,

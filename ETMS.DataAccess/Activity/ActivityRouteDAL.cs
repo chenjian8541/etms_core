@@ -165,5 +165,12 @@ namespace ETMS.DataAccess.Activity
             sql = $"UPDATE EtActivityRouteItem SET ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
             await _dbWrapper.Execute(sql);
         }
+
+        public async Task<bool> ExistActivity(long activityId)
+        {
+            var sql = $"SELECT TOP 1 0 FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND IsDeleted = {EmIsDeleted.Normal} AND RouteStatus = {EmActivityRouteStatus.Normal}";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj != null;
+        }
     }
 }

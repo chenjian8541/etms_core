@@ -43,5 +43,7 @@ namespace ETMS.IDataAccess.Activity
         Task<int> GetActivityRouteFinishCount(long activityRouteId, int activityType);
 
         Task SyncActivityBascInfo(EtActivityMain bascInfo);
+
+        Task<bool> ExistActivity(long activityId);
     }
 }

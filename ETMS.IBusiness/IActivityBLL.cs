@@ -26,7 +26,13 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ActivityMainOff(ActivityMainOffRequest request);
 
+        Task<ResponseBase> ActivityMainSetOn(ActivityMainSetOnRequest request);
+
+        Task<ResponseBase> ActivityMainSetShowInParent(ActivityMainSetShowInParentRequest request);
+
         Task<ResponseBase> ActivityMainGetSimple(ActivityMainGetSimpleRequest request);
+
+        Task<ResponseBase> ActivityMainDel(ActivityMainDelRequest request);
 
         Task<ResponseBase> ActivityMainGetForEdit(ActivityMainGetForEditRequest request);
 

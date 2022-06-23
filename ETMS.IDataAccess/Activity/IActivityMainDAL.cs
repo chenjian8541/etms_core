@@ -16,6 +16,8 @@ namespace ETMS.IDataAccess.Activity
 
         Task UpdateActivityMainStatus(long id, int newActivityStatus);
 
+        Task UpdateActivityMainIsShowInParent(long id, bool isShowInParent);
+
         Task EditActivityMain(EtActivityMain entity);
 
         Task<EtActivityMain> GetActivityMain(long id);
@@ -25,5 +27,7 @@ namespace ETMS.IDataAccess.Activity
         Task AddBehaviorCount(long activityId, int addPVCount, int addUVCount, int addTranspondCount, int addVisitCount);
 
         Task SetEffectCount(long activityId, int joinCount, int routeCount, int finishCount);
+
+        Task DelActivityMain(long activityId);
     }
 }

@@ -44,5 +44,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<SysTenant> TenantGetByPhone(string phone);
 
         Task UpdateTenantLastRenewalTime(int id, DateTime? lastRenewalTime);
+
+        Task UpdateTenantSetPayUnionType(int id, int newPayUnionType);
     }
 }
