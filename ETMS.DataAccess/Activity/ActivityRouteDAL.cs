@@ -160,9 +160,9 @@ namespace ETMS.DataAccess.Activity
 
         public async Task SyncActivityBascInfo(EtActivityMain bascInfo)
         {
-            var sql = $"UPDATE EtActivityRoute SET ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
+            var sql = $"UPDATE EtActivityRoute SET ActivityTenantName='{bascInfo.TenantName}',ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
             await _dbWrapper.Execute(sql);
-            sql = $"UPDATE EtActivityRouteItem SET ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
+            sql = $"UPDATE EtActivityRouteItem SET ActivityTenantName='{bascInfo.TenantName}',ActivityName = '{bascInfo.Name}',ActivityCoverImage = '{bascInfo.CoverImage}',ActivityTitle = '{bascInfo.Title}' WHERE TenantId = {_tenantId} AND ActivityId = {bascInfo.Id} AND IsDeleted = {EmIsDeleted.Normal}";
             await _dbWrapper.Execute(sql);
         }
 
@@ -171,6 +171,16 @@ namespace ETMS.DataAccess.Activity
             var sql = $"SELECT TOP 1 0 FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND IsDeleted = {EmIsDeleted.Normal} AND RouteStatus = {EmActivityRouteStatus.Normal}";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj != null;
+        }
+
+        public async Task UpdateActivityRouteTag(long id, string newTag)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRoute SET Tag = '{newTag}' WHERE Id = {id}");
+        }
+
+        public async Task UpdateActivityRouteItemTag(long id, string newTag)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRouteItem SET Tag = '{newTag}' WHERE Id = {id}");
         }
     }
 }

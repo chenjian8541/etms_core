@@ -74,5 +74,7 @@ namespace ETMS.Entity.Dto.Activity.Output
         public string ActivityTypeStyleClass { get; set; }
 
         public string ScenetypeStyleClass { get; set; }
+
+        public bool IsOpenPay { get; set; }
     }
 }

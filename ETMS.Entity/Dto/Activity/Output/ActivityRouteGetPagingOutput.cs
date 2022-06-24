@@ -8,6 +8,8 @@ namespace ETMS.Entity.Dto.Activity.Output
 {
     public class ActivityRouteGetPagingOutput
     {
+        public int ActivityType { get; set; }
+
         public long ActivityRouteId { get; set; }
 
         public long ActivityId { get; set; }
@@ -35,5 +37,11 @@ namespace ETMS.Entity.Dto.Activity.Output
         public string ShareQRCode { get; set; }
 
         public DateTime CreateTime { get; set; }
+
+        public int Status { get; set; }
+
+        public string StatusDesc { get; set; }
+
+        public string Tag { get; set; }
     }
 }

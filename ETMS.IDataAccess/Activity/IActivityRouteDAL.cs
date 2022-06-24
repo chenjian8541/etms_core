@@ -34,7 +34,7 @@ namespace ETMS.IDataAccess.Activity
 
         Task AddActivityHaggleLog(EtActivityHaggleLog entity);
 
-        Task<int> GetJoinCount(long activityId,int activityType);
+        Task<int> GetJoinCount(long activityId, int activityType);
 
         Task<int> GetRouteCount(long activityId, int activityType);
 
@@ -45,5 +45,9 @@ namespace ETMS.IDataAccess.Activity
         Task SyncActivityBascInfo(EtActivityMain bascInfo);
 
         Task<bool> ExistActivity(long activityId);
+
+        Task UpdateActivityRouteTag(long id, string newTag);
+
+        Task UpdateActivityRouteItemTag(long id, string newTag);
     }
 }

@@ -114,7 +114,7 @@ namespace ETMS.Business
                         IsLimitStudent = false,
                         IsOpenCheckPhone = false,
                         IsAllowPay = activityMain.IsAllowPay,
-                        IsOpenPay = false,
+                        IsOpenPay = true,
                         PayValue = 0,
                         PayType = EmActivityPayType.Type0,
                         MaxCount = activityMain.MaxCount,
@@ -157,7 +157,7 @@ namespace ETMS.Business
                         IsLimitStudent = false,
                         IsOpenCheckPhone = false,
                         IsAllowPay = activityMain.IsAllowPay,
-                        IsOpenPay = false,
+                        IsOpenPay = true,
                         PayValue = 0,
                         PayType = EmActivityPayType.Type0,
                         MaxCount = activityMain.MaxCount,
@@ -616,10 +616,10 @@ namespace ETMS.Business
             {
                 CreateTime = p.CreateTime,
                 ActivityStatus = activityStatusResult.Item1,
-                ActivityTypeDesc = activityStatusResult.Item2,
+                ActivityStatusDesc = activityStatusResult.Item2,
                 EndTime = p.EndTime.Value,
                 ActivityType = p.ActivityType,
-                ActivityStatusDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
+                ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
                 CId = p.Id,
                 Name = p.Name,
                 PublishTime = p.PublishTime,
@@ -643,6 +643,7 @@ namespace ETMS.Business
                 StudentFieldName2 = p.StudentFieldName2,
                 ActivityTypeStyleClass = p.ActivityTypeStyleClass,
                 ScenetypeStyleClass = p.ScenetypeStyleClass,
+                IsOpenPay = p.IsOpenPay
             };
             return ResponseBase.Success(output);
         }
@@ -782,6 +783,17 @@ namespace ETMS.Business
             var output = new List<ActivityRouteGetPagingOutput>();
             foreach (var p in pagingData.Item1)
             {
+                var status = 0;
+                var statusDesc = string.Empty;
+                if (p.CountFinish >= p.CountLimit)
+                {
+                    status = 1;
+                    statusDesc = "已完成";
+                }
+                else
+                {
+                    statusDesc = "未完成";
+                }
                 output.Add(new ActivityRouteGetPagingOutput()
                 {
                     ActivityRouteId = p.Id,
@@ -797,12 +809,17 @@ namespace ETMS.Business
                     StudentFieldValue1 = p.StudentFieldValue1,
                     StudentFieldValue2 = p.StudentFieldValue2,
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone
+                    StudentPhone = p.StudentPhone,
+                    Status = status,
+                    StatusDesc = statusDesc,
+                    Tag = p.Tag,
+                    ActivityType = p.ActivityType
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivityRouteGetPagingOutput>(pagingData.Item2, output));
         }
 
+        [Obsolete("使用ActivityRouteItemGetPaging")]
         public async Task<ResponseBase> ActivityRouteItemGet(ActivityRouteItemGetRequest request)
         {
             var bucket = await _activityRouteDAL.GetActivityRouteBucket(request.ActivityRouteId);
@@ -832,10 +849,55 @@ namespace ETMS.Business
                     StudentFieldValue1 = p.StudentFieldValue1,
                     StudentFieldValue2 = p.StudentFieldValue2,
                     StudentName = p.StudentName,
-                    StudentPhone = p.StudentPhone
+                    StudentPhone = p.StudentPhone,
+                    Tag = p.Tag,
                 });
             }
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ActivityRouteItemGetPaging(ActivityRouteItemGetPagingRequest request)
+        {
+            var pagingData = await _activityRouteDAL.GetPagingRouteItem(request);
+            var output = new List<ActivityRouteItemGetPagingOutput>();
+            foreach (var p in pagingData.Item1)
+            {
+                output.Add(new ActivityRouteItemGetPagingOutput()
+                {
+                    ItemId = p.Id,
+                    ActivityId = p.ActivityId,
+                    ActivityRouteId = p.ActivityRouteId,
+                    MiniPgmUserId = p.MiniPgmUserId,
+                    AvatarUrl = p.AvatarUrl,
+                    CreateTime = p.CreateTime,
+                    NickName = p.NickName,
+                    PayFinishTime = p.PayFinishTime,
+                    PaySum = p.PaySum,
+                    StudentFieldValue1 = p.StudentFieldValue1,
+                    StudentFieldValue2 = p.StudentFieldValue2,
+                    StudentName = p.StudentName,
+                    StudentPhone = p.StudentPhone,
+                    Tag = p.Tag,
+                    ActivityType = p.ActivityType
+                });
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActivityRouteItemGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActivityRouteSetTag(ActivityRouteSetTagRequest request)
+        {
+            await _activityRouteDAL.UpdateActivityRouteTag(request.RouteId, request.Tag);
+
+            await _userOperationLogDAL.AddUserLog(request, $"标记活动参与详情：{request.Tag}", EmUserOperationType.Activity);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ActivityRouteItemSetTag(ActivityRouteItemSetTagRequest request)
+        {
+            await _activityRouteDAL.UpdateActivityRouteItemTag(request.RouteItemId, request.Tag);
+
+            await _userOperationLogDAL.AddUserLog(request, $"标记活动参与详情：{request.Tag}", EmUserOperationType.Activity);
+            return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> ActivityHaggleLogGet(ActivityHaggleLogGetRequest request)

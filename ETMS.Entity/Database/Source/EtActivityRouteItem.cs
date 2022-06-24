@@ -50,6 +50,8 @@ namespace ETMS.Entity.Database.Source
 
         public string ActivityName { get; set; }
 
+        public string ActivityTenantName { get; set; }
+
         public string ActivityCoverImage { get; set; }
 
         public string ActivityTitle { get; set; }
@@ -76,6 +78,8 @@ namespace ETMS.Entity.Database.Source
         public int RouteStatus { get; set; }
 
         public bool IsTeamLeader { get; set; }
+
+        public string Tag { get; set; }
 
         public DateTime CreateTime { get; set; }
     }

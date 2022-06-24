@@ -261,6 +261,48 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActivityRouteItemGetPaging(ActivityRouteItemGetPagingRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityRouteItemGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityRouteSetTag(ActivityRouteSetTagRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityRouteSetTag(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityRouteItemSetTag(ActivityRouteItemSetTagRequest request)
+        {
+            try
+            {
+                _activityBLL.InitTenantId(request.LoginTenantId);
+                return await _activityBLL.ActivityRouteItemSetTag(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActivityHaggleLogGet(ActivityHaggleLogGetRequest request)
         {
             try

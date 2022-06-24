@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.Activity.Output
 {
-    public class ActivityRouteItemGetOutput
+    public class ActivityRouteItemGetPagingOutput
     {
         public long ItemId { get; set; }
 
+        public int ActivityType { get; set; }
         public long ActivityRouteId { get; set; }
 
         public long ActivityId { get; set; }

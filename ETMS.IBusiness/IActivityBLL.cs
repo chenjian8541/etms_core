@@ -44,6 +44,12 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ActivityRouteItemGet(ActivityRouteItemGetRequest request);
 
+        Task<ResponseBase> ActivityRouteItemGetPaging(ActivityRouteItemGetPagingRequest request);
+
+        Task<ResponseBase> ActivityRouteSetTag(ActivityRouteSetTagRequest request);
+
+        Task<ResponseBase> ActivityRouteItemSetTag(ActivityRouteItemSetTagRequest request);
+
         Task<ResponseBase> ActivityHaggleLogGet(ActivityHaggleLogGetRequest request);
     }
 }

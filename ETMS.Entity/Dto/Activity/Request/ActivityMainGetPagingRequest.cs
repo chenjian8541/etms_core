@@ -9,7 +9,7 @@ namespace ETMS.Entity.Dto.Activity.Request
 {
     public class ActivityMainGetPagingRequest : RequestPagingBase
     {
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         public int? ActivityType { get; set; }
 
@@ -18,9 +18,9 @@ namespace ETMS.Entity.Dto.Activity.Request
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
-            if (!string.IsNullOrEmpty(Name))
+            if (!string.IsNullOrEmpty(Title))
             {
-                condition.Append($" AND Name LIKE '%{Name}%'");
+                condition.Append($" AND Title LIKE '%{Title}%'");
             }
             if (ActivityType != null)
             {
@@ -30,7 +30,7 @@ namespace ETMS.Entity.Dto.Activity.Request
             {
                 if (ActivityStatus == EmActivityStatus.Over)
                 {
-                    condition.Append($" AND ActivityStatus = {EmActivityStatus.Processing} AND EndTime < {DateTime.Now.EtmsToString()}");
+                    condition.Append($" AND ActivityStatus = {EmActivityStatus.Processing} AND EndTime < '{DateTime.Now.EtmsToString()}'");
                 }
                 else
                 {

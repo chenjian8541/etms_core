@@ -7,32 +7,25 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Activity.Request
 {
-    public class ActivityRouteGetPagingRequest : RequestPagingBase
+    public class ActivityRouteItemGetPagingRequest : RequestPagingBase
     {
         public long ActivityMainId { get; set; }
 
         public string Tag { get; set; }
 
-        public int? Status { get; set; }
+        public long? ActivityRouteId { get; set; }
 
         public override string ToString()
         {
             var condition = new StringBuilder(DataFilterWhere);
             condition.Append($" AND ActivityId = {ActivityMainId} AND RouteStatus = {EmActivityRouteStatus.Normal}");
+            if (ActivityRouteId != null)
+            {
+                condition.Append($" AND ActivityRouteId = {ActivityRouteId}");
+            }
             if (!string.IsNullOrEmpty(Tag))
             {
                 condition.Append($" AND Tag LIKE '%{Tag}%'");
-            }
-            if (Status != null)
-            {
-                if (Status == 0)
-                {
-                    condition.Append($" AND CountLimit > CountFinish");
-                }
-                else
-                {
-                    condition.Append($" AND CountLimit <= CountFinish");
-                }
             }
             return condition.ToString();
         }
