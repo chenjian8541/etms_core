@@ -9,7 +9,11 @@ namespace ETMS.IDataAccess.EtmsManage
 {
     public interface ISysWechatMiniPgmUserDAL
     {
-        Task SaveWechatMiniPgmUser(SysWechatMiniPgmUser entity);
+        Task<SysWechatMiniPgmUser> GetWechatMiniPgmUser(long id);
+
+        Task AddWechatMiniPgmUser(SysWechatMiniPgmUser entity);
+
+        Task EditWechatMiniPgmUser(SysWechatMiniPgmUser entity);
 
         Task<SysWechatMiniPgmUser> GetWechatMiniPgmUser(string openId);
     }

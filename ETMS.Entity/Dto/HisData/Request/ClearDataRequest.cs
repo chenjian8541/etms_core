@@ -153,6 +153,11 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// </summary>
         public bool IsClearCoupons { get; set; }
 
+        /// <summary>
+        /// 小禾招生
+        /// </summary>
+        public bool IsClearActivity { get; set; }
+
         #endregion
 
 

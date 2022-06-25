@@ -1,5 +1,6 @@
 ﻿using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
+using ETMS.Entity.Database.Source;
 using ETMS.IOC;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -97,5 +98,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysTenantSuixingAccount> SysTenantSuixingAccounts { get; set; }
         public DbSet<SysWechatMiniPgmUser> SysWechatMiniPgmUsers { get; set; }
         public DbSet<SysActivity> SysActivitys { get; set; }
+        public DbSet<SysActivityRouteItem> SysActivityRouteItems { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using ETMS.Entity.Enum;
 using ETMS.Event.DataContract.Activity;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess.Activity;
+using ETMS.IDataAccess.EtmsManage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +20,15 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IActivityVisitorDAL _activityVisitorDAL;
 
+        private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
+
         public EvActivityBLL(IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
-           IActivityVisitorDAL activityVisitorDAL)
+           IActivityVisitorDAL activityVisitorDAL, ISysActivityRouteItemDAL sysActivityRouteItemDAL)
         {
             this._activityMainDAL = activityMainDAL;
             this._activityRouteDAL = activityRouteDAL;
             this._activityVisitorDAL = activityVisitorDAL;
+            this._sysActivityRouteItemDAL = sysActivityRouteItemDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -79,6 +83,7 @@ namespace ETMS.Business.EventConsumer
         public async Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request)
         {
             await _activityRouteDAL.SyncActivityBascInfo(request.NewActivityMain);
+            await _sysActivityRouteItemDAL.SyncActivityBascInfo(request.NewActivityMain);
         }
     }
 }

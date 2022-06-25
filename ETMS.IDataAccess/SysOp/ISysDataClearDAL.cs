@@ -31,6 +31,8 @@ namespace ETMS.IDataAccess.SysOp
 
         Task<bool> ClearCoupons();
 
+        Task<bool> ClearActivity();
+
         #endregion
 
         #region 机构设置

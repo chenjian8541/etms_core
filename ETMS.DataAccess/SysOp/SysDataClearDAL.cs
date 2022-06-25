@@ -116,6 +116,18 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
+        public async Task<bool> ClearActivity()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtActivityMain SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtActivityRoute SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtActivityRouteItem SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtActivityHaggleLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtActivityVisitor SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
         #endregion
 
         #region 机构设置

@@ -38,6 +38,27 @@ namespace ETMS.Business.Common
         }
 
         /// <summary>
+        /// 获取open2的登录签名
+        /// </summary>
+        /// <param name="miniPgmUserId"></param>
+        /// <returns></returns>
+        public static string GetOpenParent2Signature(long miniPgmUserId)
+        {
+            return GetSignature(miniPgmUserId.ToString());
+        }
+
+        /// <summary>
+        /// 验证签名
+        /// </summary>
+        /// <param name="miniPgmUserId"></param>
+        /// <param name="strSignature"></param>
+        /// <returns></returns>
+        public static bool CheckOpenParent2Signature(long miniPgmUserId, string strSignature)
+        {
+            return GetSignature(miniPgmUserId.ToString()).Equals(strSignature);
+        }
+
+        /// <summary>
         /// 生成签名信息
         /// </summary>
         /// <param name="strLoginInfo"></param>

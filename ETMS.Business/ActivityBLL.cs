@@ -39,9 +39,10 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
         public ActivityBLL(IAppConfigurtaionServices appConfigurtaionServices, ISysActivityDAL sysActivityDAL, IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
             ITenantConfigDAL tenantConfigDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, ISysActivityRouteItemDAL sysActivityRouteItemDAL)
             : base(appConfigurtaionServices)
         {
             this._sysActivityDAL = sysActivityDAL;
@@ -51,6 +52,7 @@ namespace ETMS.Business
             this._userOperationLogDAL = userOperationLogDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._eventPublisher = eventPublisher;
+            this._sysActivityRouteItemDAL = sysActivityRouteItemDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -661,6 +663,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("活动进行中，无法删除");
             }
             await _activityMainDAL.DelActivityMain(request.ActivityMainId);
+            await _sysActivityRouteItemDAL.DelSysActivityRouteItemByActivityId(request.LoginTenantId, request.ActivityMainId);
 
             await _userOperationLogDAL.AddUserLog(request, $"删除活动-{activityMain.Title}", EmUserOperationType.Activity);
             return ResponseBase.Success();

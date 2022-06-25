@@ -15,7 +15,7 @@ namespace ETMS.Entity.CacheBucket.EtmsManage
 
         public string GetKeyFormat(params object[] parms)
         {
-            return $"SysWechatMiniPgmUserBucket_{WechatMiniPgmUser.OpenId}";
+            return $"SysWechatMiniPgmUserBucket_{parms[0]}";
         }
     }
 }

@@ -26,14 +26,17 @@ namespace ETMS.Business.SysOp
 
         private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
 
+        private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
         public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL
-            , ISysTenantDAL sysTenantDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL)
+            , ISysTenantDAL sysTenantDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
+            ISysActivityRouteItemDAL sysActivityRouteItemDAL)
         {
             this._sysDataClearDAL = sysDataClearDAL;
             this._userOperationLogDAL = userOperationLogDAL;
             this._tempDataCacheDAL = tempDataCacheDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
+            this._sysActivityRouteItemDAL = sysActivityRouteItemDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -195,6 +198,10 @@ namespace ETMS.Business.SysOp
             if (request.IsClearClassRecordEvaluate)
             {
                 await this.ClearClassRecordEvaluate();
+            }
+            if (request.IsClearActivity)
+            {
+                await this.ClearActivity(request.LoginTenantId);
             }
 
             var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
@@ -508,6 +515,17 @@ namespace ETMS.Business.SysOp
         public async Task<bool> ClearCoupons()
         {
             await _sysDataClearDAL.ClearCoupons();
+            return true;
+        }
+
+        /// <summary>
+        /// 小禾招生
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ClearActivity(int tenantId)
+        {
+            await _sysDataClearDAL.ClearActivity();
+            await _sysActivityRouteItemDAL.DelSysActivityRouteItemByTenantId(tenantId);
             return true;
         }
 

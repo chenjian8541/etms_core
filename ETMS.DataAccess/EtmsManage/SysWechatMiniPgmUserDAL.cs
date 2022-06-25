@@ -5,6 +5,7 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Enum;
 using ETMS.ICache;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Utility;
 using System;
 using System.Threading.Tasks;
 
@@ -18,8 +19,8 @@ namespace ETMS.DataAccess.EtmsManage
 
         protected override async Task<SysWechatMiniPgmUserBucket> GetDb(params object[] keys)
         {
-            var openId = keys[0].ToString();
-            var log = await this.Find<SysWechatMiniPgmUser>(p => p.OpenId == openId && p.IsDeleted == EmIsDeleted.Normal);
+            var id = keys[0].ToLong();
+            var log = await this.Find<SysWechatMiniPgmUser>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
             if (log == null)
             {
                 return null;
@@ -30,29 +31,25 @@ namespace ETMS.DataAccess.EtmsManage
             };
         }
 
-        public async Task SaveWechatMiniPgmUser(SysWechatMiniPgmUser entity)
+        public async Task<SysWechatMiniPgmUser> GetWechatMiniPgmUser(long id)
         {
-            var bucket = await GetCache(entity.OpenId);
-            var log = bucket?.WechatMiniPgmUser;
-            if (log == null)
-            {
-                await this.Insert(entity);
-            }
-            else
-            {
-                log.Phone = entity.Phone;
-                log.NickName = entity.NickName;
-                log.AvatarUrl = entity.AvatarUrl;
-                log.UpdateTime = DateTime.Now;
-                await this.Update(log);
-            }
-            await UpdateCache(entity.OpenId);
+            var bucket = await GetCache(id);
+            return bucket?.WechatMiniPgmUser;
+        }
+
+        public async Task AddWechatMiniPgmUser(SysWechatMiniPgmUser entity)
+        {
+            await this.Insert(entity);
+        }
+
+        public async Task EditWechatMiniPgmUser(SysWechatMiniPgmUser entity)
+        {
+            await this.Update(entity);
         }
 
         public async Task<SysWechatMiniPgmUser> GetWechatMiniPgmUser(string openId)
         {
-            var bucket = await GetCache(openId);
-            return bucket?.WechatMiniPgmUser;
+            return await this.Find<SysWechatMiniPgmUser>(p => p.OpenId == openId && p.IsDeleted == EmIsDeleted.Normal);
         }
     }
 }
