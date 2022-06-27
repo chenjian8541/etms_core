@@ -272,6 +272,20 @@ namespace ETMS.DataAccess.Core
         }
 
         /// <summary>
+        /// 通过查询提交获取记录集合,最多返回20条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public async Task<List<T>> FindListMini<T>(Expression<Func<T, bool>> condition) where T : class
+        {
+            using (var content = new EtmsSourceDbContext(ConnectionString))
+            {
+                return await content.Set<T>().Where(condition).Take(20).ToListAsync();
+            }
+        }
+
+        /// <summary>
         /// 分页查询
         /// </summary>
         /// <typeparam name="U"></typeparam>

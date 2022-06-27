@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,16 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.OpenParent2.Request
 {
-    public class WxMiniActivityDynamicBulletRequest: OpenParent2RequestBase
+    public class WxMiniActivityDynamicBulletGetPagingRequest : OpenParent2RequestPagingBase
     {
-        public long TenantId { get; set; }
+        public int TenantId { get; set; }
 
         public long ActivityMainId { get; set; }
+
+        public override string ToString()
+        {
+            return $"TenantId = {TenantId} AND ActivityId = {ActivityMainId} IsDeleted = {EmIsDeleted.Normal} AND RouteStatus = {EmActivityRouteStatus.Normal}";
+        }
 
         public override string Validate()
         {

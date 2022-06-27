@@ -97,6 +97,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> WxMiniActivityGroupPurchaseDiscount(WxMiniActivityGroupPurchaseDiscountRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.WxMiniActivityGroupPurchaseDiscount(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> WxMiniActivityGetSimple(WxMiniActivityGetSimpleRequest request)
         {
             try
@@ -110,11 +123,11 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public async Task<ResponseBase> WxMiniActivityDynamicBullet(WxMiniActivityDynamicBulletRequest request)
+        public async Task<ResponseBase> WxMiniActivityDynamicBulletGetPaging(WxMiniActivityDynamicBulletGetPagingRequest request)
         {
             try
             {
-                return await _openParentBLL.WxMiniActivityDynamicBullet(request);
+                return await _openParentBLL.WxMiniActivityDynamicBulletGetPaging(request);
             }
             catch (Exception ex)
             {
@@ -206,6 +219,32 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 return await _openParentBLL.WxMiniHagglingAssistGo(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public ResponseBase WxMiniActivityCall(WxMiniActivityCallRequest request)
+        {
+            try
+            {
+                return _openParentBLL.WxMiniActivityCall(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public ResponseBase WxMiniActivityShare(WxMiniActivityShareRequest request)
+        {
+            try
+            {
+                return _openParentBLL.WxMiniActivityShare(request);
             }
             catch (Exception ex)
             {

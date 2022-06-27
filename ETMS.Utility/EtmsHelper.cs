@@ -29,6 +29,31 @@ namespace ETMS.Utility
             return $"{name}({Regex.Replace(phone, "(\\d{3})\\d{4}(\\d{4})", "$1****$2")})";
         }
 
+        public static string GetNameSecrecy(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+            if (value.Length == 1)
+            {
+                return value;
+            }
+            if (value.Length == 2)
+            {
+                return $"{value.Substring(0, 1)}*";
+            }
+            if (value.Length == 3)
+            {
+                return $"{value.Substring(0, 1)}*{value.Substring(value.Length - 1, 1)}";
+            }
+            if (value.Length == 4)
+            {
+                return $"{value.Substring(0, 1)}*{value.Substring(value.Length - 2, 2)}";
+            }
+            return $"{value.Substring(0, 1)}**{value.Substring(value.Length - 2, 2)}";
+        }
+
         public static string GetWeekDesc(byte week)
         {
             switch (week)

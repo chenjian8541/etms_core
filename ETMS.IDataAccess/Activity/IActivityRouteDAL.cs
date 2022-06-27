@@ -11,9 +11,13 @@ namespace ETMS.IDataAccess.Activity
 {
     public interface IActivityRouteDAL : IBaseDAL
     {
-        Task<EtActivityRoute> GetActivityRouteDb(long activityRouteId);
+        Task<EtActivityRoute> GetActivityRoute(long id);
+
+        Task<EtActivityRouteItem> GetActivityRouteItem(long id);
 
         Task<ActivityRouteBucket> GetActivityRouteBucket(long activityRouteId);
+
+        Task<IEnumerable<EtActivityRoute>> ActivityRouteTop10(long activityId);
 
         Task<Tuple<IEnumerable<EtActivityRoute>, int>> GetPagingRoute(IPagingRequest request);
 
@@ -49,5 +53,21 @@ namespace ETMS.IDataAccess.Activity
         Task UpdateActivityRouteTag(long id, string newTag);
 
         Task UpdateActivityRouteItemTag(long id, string newTag);
+
+        Task<EtActivityRouteItem> GetEtActivityRouteItemByUserId(long activityId, long miniPgmUserId);
+
+        Task UpdateActivityRouteRouteStatus(long routeId, byte newRouteStatus);
+
+        Task UpdateActivityRouteItemRouteStatus(long routeId, long routeItemId, byte newRouteStatus);
+
+        Task<EtActivityHaggleLog> GetActivityHaggleLog(long activityId, long routeId, long miniPgmUserId);
+
+        Task UpdateActivityRouteShareQRCodeInfo(long id, string shareQRCode);
+
+        Task UpdateActivityRouteItemShareQRCodeInfo(long id, string shareQRCode);
+
+        Task UpdateActivityRoutePayOrder(long id, string payOrderNo, string payUuid);
+
+        Task UpdateActivityRouteItemPayOrder(long id, string payOrderNo, string payUuid);
     }
 }

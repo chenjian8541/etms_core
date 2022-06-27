@@ -20,5 +20,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task DelSysActivityRouteItemByActivityId(long tenantId,long activityId);
 
         Task<Tuple<IEnumerable<SysActivityRouteItem>, int>> GetPagingRouteItem(IPagingRequest request);
+
+        Task UpdateActivityRouteItemStatus(long tenantId, long activityId, long activityRouteId, int newStatus);
     }
 }

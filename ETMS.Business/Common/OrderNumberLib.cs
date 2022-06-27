@@ -81,5 +81,12 @@ namespace ETMS.Business.Common
             var strS = merchant_refund_sn.Split('_');
             return strS[0].TrimStart('R').ToInt();
         }
+
+        public static string SuixingPayOrder()
+        {
+            var strTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var strRandom = new Random().Next(100, 999);
+            return $"{strTime}{strRandom}";
+        }
     }
 }

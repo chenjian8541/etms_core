@@ -9,7 +9,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
 {
     public class WxMiniActivityHomeGet2Request : OpenParent2RequestBase
     {
-        public long TenantId { get; set; }
+        public int TenantId { get; set; }
 
         public long ActivityRouteItemId { get; set; }
 

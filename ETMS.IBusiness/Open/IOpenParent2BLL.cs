@@ -20,9 +20,11 @@ namespace ETMS.IBusiness.Open
 
         Task<ResponseBase> WxMiniActivityHomeGet2(WxMiniActivityHomeGet2Request request);
 
+        Task<ResponseBase> WxMiniActivityGroupPurchaseDiscount(WxMiniActivityGroupPurchaseDiscountRequest request);
+
         Task<ResponseBase> WxMiniActivityGetSimple(WxMiniActivityGetSimpleRequest request);
 
-        Task<ResponseBase> WxMiniActivityDynamicBullet(WxMiniActivityDynamicBulletRequest request);
+        Task<ResponseBase> WxMiniActivityDynamicBulletGetPaging(WxMiniActivityDynamicBulletGetPagingRequest  request);
 
         Task<ResponseBase> WxMiniGroupPurchaseStartCheck(WxMiniGroupPurchaseStartCheckRequest request);
 
@@ -37,5 +39,9 @@ namespace ETMS.IBusiness.Open
         Task<ResponseBase> WxMiniHagglingStartGo(WxMiniHagglingStartGoRequest request);
 
         Task<ResponseBase> WxMiniHagglingAssistGo(WxMiniHagglingAssistGoRequest request);
+
+        ResponseBase WxMiniActivityCall(WxMiniActivityCallRequest request);
+
+        ResponseBase WxMiniActivityShare(WxMiniActivityShareRequest request);
     }
 }

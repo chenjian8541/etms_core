@@ -416,6 +416,11 @@ namespace ETMS.DataAccess
             return await this._dbWrapper.FindList<EtStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
         }
 
+        public async Task<List<EtStudent>> GetStudentsByPhoneMini(string phone)
+        {
+            return await this._dbWrapper.FindListMini<EtStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
+        }
+
         public async Task<bool> ChangePwd(long studentId, string newPwd)
         {
             await _dbWrapper.Execute($"UPDATE EtStudent SET [Password] = '{newPwd}' WHERE Id = {studentId}");

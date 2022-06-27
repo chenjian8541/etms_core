@@ -7,21 +7,15 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.OpenParent2.Request
 {
-    public class WxMiniGroupPurchaseJoinCheckRequest : OpenParent2RequestBase
+    public class WxMiniActivityGroupPurchaseDiscountRequest: OpenParent2RequestBase
     {
         public int TenantId { get; set; }
-
-        public long ActivityMainId { get; set; }
 
         public long ActivityRouteId { get; set; }
 
         public override string Validate()
         {
             if (TenantId <= 0)
-            {
-                return "请求数据格式错误";
-            }
-            if (ActivityMainId <= 0)
             {
                 return "请求数据格式错误";
             }

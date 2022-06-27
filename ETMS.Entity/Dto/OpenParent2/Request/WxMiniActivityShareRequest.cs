@@ -7,19 +7,11 @@ using System.Threading.Tasks;
 
 namespace ETMS.Entity.Dto.OpenParent2.Request
 {
-    public class WxMiniGroupPurchaseStartGoRequest : OpenParent2RequestBase
+    public class WxMiniActivityShareRequest : OpenParent2RequestBase
     {
         public int TenantId { get; set; }
 
         public long ActivityMainId { get; set; }
-
-        public string StudentName { get; set; }
-
-        public string StudentPhone { get; set; }
-
-        public string StudentFieldValue1 { get; set; }
-
-        public string StudentFieldValue2 { get; set; }
 
         public override string Validate()
         {
@@ -30,14 +22,6 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
             if (ActivityMainId <= 0)
             {
                 return "请求数据格式错误";
-            }
-            if (string.IsNullOrEmpty(StudentName))
-            {
-                return "请输入姓名";
-            }
-            if (string.IsNullOrEmpty(StudentPhone))
-            {
-                return "请输入手机号码";
             }
             return base.Validate();
         }

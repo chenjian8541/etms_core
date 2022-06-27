@@ -1,8 +1,10 @@
 ﻿using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Common;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Temp.Compare;
 using ETMS.Entity.View;
+using ETMS.Entity.View.Activity;
 using ETMS.IDataAccess;
 using ETMS.Utility;
 using System;
@@ -126,6 +128,46 @@ namespace ETMS.Business.Common
         public static DateTime GetClassTimesMaxDate()
         {
             return DateTime.Now.AddYears(2);
+        }
+
+        public static Tuple<int, byte> GetActivityRouteLimit(int minCount, int maxCount, int finishCount)
+        {
+            if (finishCount >= maxCount)
+            {
+                return Tuple.Create(0, EmActivityRouteCountStatus.CompleteFull);
+            }
+            if (finishCount >= minCount)
+            {
+                return Tuple.Create(maxCount - finishCount, EmActivityRouteCountStatus.CompleteItem);
+            }
+            return Tuple.Create(minCount - finishCount, EmActivityRouteCountStatus.None);
+        }
+
+        public static Tuple<string, string> GetActivityPayInfo(EtActivityMain p
+            , ActivityOfGroupPurchaseRuleContentView ruleContent)
+        {
+            if (ruleContent.Item.Count > 1) //多阶拼团 支付定金
+            {
+                return Tuple.Create("定金", p.PayValue.EtmsToString2());
+            }
+            if (p.PayType == EmActivityPayType.Type1)
+            {
+                return Tuple.Create("定金", p.PayValue.EtmsToString2());
+            }
+            return Tuple.Create("团购价", ruleContent.Item.First().Money.EtmsToString2());
+        }
+
+        public static decimal GetActivityPayInfo2(EtActivityMain p, ActivityOfGroupPurchaseRuleContentView ruleContent)
+        {
+            if (ruleContent.Item.Count > 1) //多阶拼团 支付定金
+            {
+                return p.PayValue;
+            }
+            if (p.PayType == EmActivityPayType.Type1)
+            {
+                return p.PayValue;
+            }
+            return ruleContent.Item.First().Money;
         }
     }
 }

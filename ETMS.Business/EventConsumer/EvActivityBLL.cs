@@ -1,9 +1,13 @@
-﻿using ETMS.Entity.Database.Source;
+﻿using ETMS.Business.WxCore;
+using ETMS.Entity.Config;
+using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Event.DataContract.Activity;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess.Activity;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace ETMS.Business.EventConsumer
 {
-    public class EvActivityBLL : IEvActivityBLL
+    public class EvActivityBLL : MiniProgramAccessBll, IEvActivityBLL
     {
         private readonly IActivityMainDAL _activityMainDAL;
 
@@ -22,8 +26,9 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
 
-        public EvActivityBLL(IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
+        public EvActivityBLL(IAppConfigurtaionServices appConfigurtaionServices, IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
            IActivityVisitorDAL activityVisitorDAL, ISysActivityRouteItemDAL sysActivityRouteItemDAL)
+            : base(appConfigurtaionServices)
         {
             this._activityMainDAL = activityMainDAL;
             this._activityRouteDAL = activityRouteDAL;
@@ -58,7 +63,7 @@ namespace ETMS.Business.EventConsumer
                         CreateTime = DateTime.Now,
                         IsDeleted = EmIsDeleted.Normal,
                         MiniPgmUserId = request.MiniPgmUserId,
-                        OpenId = request.OpenId,
+                        OpenId = string.Empty,
                         TenantId = request.TenantId,
                         Unionid = string.Empty
                     });
@@ -78,12 +83,31 @@ namespace ETMS.Business.EventConsumer
         {
             var countFinish = await _activityRouteDAL.GetActivityRouteFinishCount(request.ActivityRouteId, request.ActivityType);
             await _activityRouteDAL.SetFinishCount(request.ActivityRouteId, countFinish);
+            if (countFinish >= request.CountLimit)
+            {
+                await _sysActivityRouteItemDAL.UpdateActivityRouteItemStatus(
+                    request.TenantId, request.ActivityId, request.ActivityRouteId, EmSysActivityRouteItemStatus.Finish);
+            }
         }
 
         public async Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request)
         {
             await _activityRouteDAL.SyncActivityBascInfo(request.NewActivityMain);
             await _sysActivityRouteItemDAL.SyncActivityBascInfo(request.NewActivityMain);
+        }
+
+        public async Task CalculateActivityRouteIInfoEvent(CalculateActivityRouteIInfoEvent request)
+        {
+            var id = request.MyActivityRouteItem.Id;
+            var key = $"qr_route_item_{request.TenantId}_{id}.png";
+            var scene = $"{request.TenantId}_{id}";
+            var routeShareQRCodeKey = await GenerateQrCode(request.TenantId,
+                AliyunOssFileTypeEnum.ActivityRouteQrCode, key, MiniProgramPathConfig.ActivityRoute, scene);
+            await _activityRouteDAL.UpdateActivityRouteItemShareQRCodeInfo(id, routeShareQRCodeKey);
+            if (request.MyActivityRouteItem.IsTeamLeader)
+            {
+                await _activityRouteDAL.UpdateActivityRouteShareQRCodeInfo(request.MyActivityRouteItem.ActivityRouteId, routeShareQRCodeKey);
+            }
         }
     }
 }

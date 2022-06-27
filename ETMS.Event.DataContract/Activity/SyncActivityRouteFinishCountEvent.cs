@@ -11,6 +11,10 @@ namespace ETMS.Event.DataContract.Activity
         public SyncActivityRouteFinishCountEvent(int tenantId) : base(tenantId)
         { }
 
+        public int ActivityId { get; set; }
+
+        public int CountLimit { get; set; }
+
         public long ActivityRouteId { get; set; }
 
         /// <summary>

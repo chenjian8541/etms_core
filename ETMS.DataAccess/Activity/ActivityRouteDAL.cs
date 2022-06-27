@@ -21,28 +21,45 @@ namespace ETMS.DataAccess.Activity
 {
     public class ActivityRouteDAL : DataAccessBase<ActivityRouteBucket>, IActivityRouteDAL
     {
-        public ActivityRouteDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        private readonly IActivityRoute2DAL _activityRoute2DAL;
+
+        public ActivityRouteDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider,
+            IActivityRoute2DAL activityRoute2DAL) : base(dbWrapper, cacheProvider)
         {
+            this._activityRoute2DAL = activityRoute2DAL;
+        }
+
+        public override void InitTenantId(int tenantId)
+        {
+            base.InitTenantId(tenantId);
+            this._activityRoute2DAL.InitTenantId(tenantId);
+        }
+
+        public override void ResetTenantId(int tenantId)
+        {
+            base.ResetTenantId(tenantId);
+            this._activityRoute2DAL.ResetTenantId(tenantId);
         }
 
         protected override async Task<ActivityRouteBucket> GetDb(params object[] keys)
         {
             var id = keys[1].ToLong();
             var activityRoute = await _dbWrapper.Find<EtActivityRoute>(
-                p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
+                p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+                && p.RouteStatus == EmActivityRouteStatus.Normal);
             if (activityRoute == null)
             {
                 return null;
             }
 
-            var activityRouteItems = await _dbWrapper.FindListMiddle<EtActivityRouteItem>(
+            var activityRouteItems = await _dbWrapper.FindListMini<EtActivityRouteItem>(
                 p => p.ActivityRouteId == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
                 && p.RouteStatus == EmActivityRouteStatus.Normal);
 
             List<EtActivityHaggleLog> activityHaggleLogs = null;
             if (activityRoute.ActivityType == EmActivityType.Haggling)
             {
-                activityHaggleLogs = await _dbWrapper.FindListMiddle<EtActivityHaggleLog>(
+                activityHaggleLogs = await _dbWrapper.FindListMini<EtActivityHaggleLog>(
                     p => p.ActivityRouteId == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
             }
             return new ActivityRouteBucket()
@@ -53,14 +70,26 @@ namespace ETMS.DataAccess.Activity
             };
         }
 
-        public async Task<EtActivityRoute> GetActivityRouteDb(long activityRouteId)
+        public async Task<EtActivityRoute> GetActivityRoute(long id)
         {
-            return await _dbWrapper.Find<EtActivityRoute>(p => p.Id == activityRouteId && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
+            return await this._activityRoute2DAL.GetActivityRoute(id);
+        }
+
+        public async Task<EtActivityRouteItem> GetActivityRouteItem(long id)
+        {
+            return await _dbWrapper.Find<EtActivityRouteItem>(p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.RouteStatus == EmActivityRouteStatus.Normal);
         }
 
         public async Task<ActivityRouteBucket> GetActivityRouteBucket(long activityRouteId)
         {
             return await GetCache(_tenantId, activityRouteId);
+        }
+
+        public async Task<IEnumerable<EtActivityRoute>> ActivityRouteTop10(long activityId)
+        {
+            var sql = $"SELECT TOP 10 * FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} ORDER BY CountFinish DESC";
+            return await _dbWrapper.ExecuteObject<EtActivityRoute>(sql);
         }
 
         public async Task<Tuple<IEnumerable<EtActivityRoute>, int>> GetPagingRoute(IPagingRequest request)
@@ -88,6 +117,7 @@ namespace ETMS.DataAccess.Activity
             await _dbWrapper.Execute(
                 $"UPDATE EtActivityRoute SET CountFinish = CountFinish + 1 WHERE Id = {activityRouteId} AND TenantId = {_tenantId}");
             RemoveCache(_tenantId, activityRouteId);
+            this._activityRoute2DAL.RemoveCache(activityRouteId);
         }
 
         public async Task SetFinishCount(long activityRouteId, int countFinish)
@@ -95,6 +125,7 @@ namespace ETMS.DataAccess.Activity
             await _dbWrapper.Execute(
                 $"UPDATE EtActivityRoute SET CountFinish = {countFinish} WHERE Id = {activityRouteId} AND TenantId = {_tenantId}");
             RemoveCache(_tenantId, activityRouteId);
+            this._activityRoute2DAL.RemoveCache(activityRouteId);
         }
 
         public async Task AddActivityRouteItem(EtActivityRouteItem entity)
@@ -181,6 +212,62 @@ namespace ETMS.DataAccess.Activity
         public async Task UpdateActivityRouteItemTag(long id, string newTag)
         {
             await _dbWrapper.Execute($"UPDATE EtActivityRouteItem SET Tag = '{newTag}' WHERE Id = {id}");
+        }
+
+        public async Task<EtActivityRouteItem> GetEtActivityRouteItemByUserId(long activityId, long miniPgmUserId)
+        {
+            return await _dbWrapper.Find<EtActivityRouteItem>(
+                p => p.TenantId == _tenantId && p.ActivityId == activityId && p.MiniPgmUserId == miniPgmUserId
+                && p.IsDeleted == EmIsDeleted.Normal && p.RouteStatus == EmActivityRouteStatus.Normal);
+        }
+
+        public async Task UpdateActivityRouteRouteStatus(long routeId, byte newRouteStatus)
+        {
+            var sql = $"UPDATE EtActivityRoute SET RouteStatus = {newRouteStatus} WHERE TenantId = {_tenantId} AND Id = {routeId}";
+            await _dbWrapper.Execute(sql);
+            RemoveCache(_tenantId, routeId);
+            this._activityRoute2DAL.RemoveCache(routeId);
+        }
+
+        public async Task UpdateActivityRouteItemRouteStatus(long routeId, long routeItemId, byte newRouteStatus)
+        {
+            var sql = $"UPDATE EtActivityRouteItem SET RouteStatus = {newRouteStatus} WHERE TenantId = {_tenantId} AND Id = {routeItemId}";
+            await _dbWrapper.Execute(sql);
+            RemoveCache(_tenantId, routeId);
+            this._activityRoute2DAL.RemoveCache(routeId);
+        }
+
+        public async Task<EtActivityHaggleLog> GetActivityHaggleLog(long activityId, long routeId, long miniPgmUserId)
+        {
+            var sql = $"SELECT TOP 1 * FROM EtActivityHaggleLog WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND ActivityRouteId = {routeId} AND MiniPgmUserId = {miniPgmUserId} AND IsDeleted = {EmIsDeleted.Normal} ORDER BY Id DESC";
+            var log = await _dbWrapper.ExecuteObject<EtActivityHaggleLog>(sql);
+            return log.FirstOrDefault();
+        }
+
+        public async Task UpdateActivityRouteShareQRCodeInfo(long id, string shareQRCode)
+        {
+            var sql = $"UPDATE EtActivityRoute SET ShareQRCode = '{shareQRCode}' WHERE Id = {id} AND TenantId = {_tenantId}";
+            await _dbWrapper.Execute(sql);
+            RemoveCache(_tenantId, id);
+            this._activityRoute2DAL.RemoveCache(id);
+        }
+
+        public async Task UpdateActivityRouteItemShareQRCodeInfo(long id, string shareQRCode)
+        {
+            var sql = $"UPDATE EtActivityRouteItem SET ShareQRCode = '{shareQRCode}' WHERE Id = {id} AND TenantId = {_tenantId}";
+            await _dbWrapper.Execute(sql);
+        }
+
+        public async Task UpdateActivityRoutePayOrder(long id, string payOrderNo, string payUuid)
+        {
+            var sql = $"UPDATE EtActivityRoute SET PayOrderNo = '{payOrderNo}',PayUuid = '{payUuid}' WHERE Id = {id} AND TenantId = {_tenantId}";
+            await _dbWrapper.Execute(sql);
+        }
+
+        public async Task UpdateActivityRouteItemPayOrder(long id, string payOrderNo, string payUuid)
+        {
+            var sql = $"UPDATE EtActivityRouteItem SET PayOrderNo = '{payOrderNo}',PayUuid = '{payUuid}' WHERE Id = {id} AND TenantId = {_tenantId}";
+            await _dbWrapper.Execute(sql);
         }
     }
 }

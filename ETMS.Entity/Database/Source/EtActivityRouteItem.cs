@@ -68,9 +68,20 @@ namespace ETMS.Entity.Database.Source
 
         public string ActivityRuleEx2 { get; set; }
 
+        public bool IsNeedPay { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmActivityRoutePayStatus"/>
+        /// </summary>
+        public int PayStatus { get; set; }
+
         public decimal PaySum { get; set; }
 
         public DateTime? PayFinishTime { get; set; }
+
+        public string PayOrderNo { get; set; }
+
+        public string PayUuid { get; set; }
 
         /// <summary>
         /// <see cref="EmActivityRouteStatus"/>
@@ -80,6 +91,8 @@ namespace ETMS.Entity.Database.Source
         public bool IsTeamLeader { get; set; }
 
         public string Tag { get; set; }
+
+        public string ShareQRCode { get; set; }
 
         public DateTime CreateTime { get; set; }
     }

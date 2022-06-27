@@ -80,6 +80,11 @@ namespace ETMS.Entity.Database.Manage
 
         public bool IsTeamLeader { get; set; }
 
+        /// <summary>
+        /// 拼团状态 <see cref="EmSysActivityRouteItemStatus"/>
+        /// </summary>
+        public int Status { get; set; }
+
         public DateTime CreateTime { get; set; }
     }
 }

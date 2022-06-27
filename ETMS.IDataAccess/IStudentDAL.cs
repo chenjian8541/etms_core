@@ -77,6 +77,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStudent>> GetStudentsByPhone(string phone);
 
+        Task<List<EtStudent>> GetStudentsByPhoneMini(string phone);
+
         Task<bool> ChangePwd(long studentId, string newPwd);
 
         Task<EtStudent> GetStudentByPwd(string phone, string pwd);

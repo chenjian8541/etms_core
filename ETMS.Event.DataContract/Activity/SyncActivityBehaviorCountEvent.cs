@@ -15,8 +15,6 @@ namespace ETMS.Event.DataContract.Activity
 
         public long MiniPgmUserId { get; set; }
 
-        public string OpenId { get; set; }
-
         public byte BehaviorType { get; set; }
     }
 
