@@ -120,10 +120,16 @@ namespace ETMS.DataAccess.Activity
             this._activityRoute2DAL.RemoveCache(activityRouteId);
         }
 
-        public async Task SetFinishCount(long activityRouteId, int countFinish)
+        public async Task SetActivityRouteItemStatus(long activityRouteId, int newStatus)
+        {
+            var sql = $"UPDATE EtActivityRouteItem SET [Status] = {newStatus} WHERE ActivityRouteId = {activityRouteId} AND TenantId = {_tenantId}";
+            await _dbWrapper.Execute(sql);
+        }
+
+        public async Task SetFinishCountAndStatus(long activityRouteId, int countFinish, int newStatus)
         {
             await _dbWrapper.Execute(
-                $"UPDATE EtActivityRoute SET CountFinish = {countFinish} WHERE Id = {activityRouteId} AND TenantId = {_tenantId}");
+                $"UPDATE EtActivityRoute SET CountFinish = {countFinish},[Status] = {newStatus}WHERE Id = {activityRouteId} AND TenantId = {_tenantId}");
             RemoveCache(_tenantId, activityRouteId);
             this._activityRoute2DAL.RemoveCache(activityRouteId);
         }

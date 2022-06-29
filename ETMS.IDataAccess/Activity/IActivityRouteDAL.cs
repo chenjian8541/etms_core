@@ -32,7 +32,9 @@ namespace ETMS.IDataAccess.Activity
         /// <returns></returns>
         Task TempAddActivityRouteCount(long activityRouteId);
 
-        Task SetFinishCount(long activityRouteId, int countFinish);
+        Task SetActivityRouteItemStatus(long activityRouteId, int newStatus);
+
+        Task SetFinishCountAndStatus(long activityRouteId, int countFinish, int newStatus);
 
         Task AddActivityRouteItem(EtActivityRouteItem entity);
 

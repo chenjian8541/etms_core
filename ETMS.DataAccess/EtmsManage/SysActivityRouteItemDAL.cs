@@ -14,9 +14,19 @@ namespace ETMS.DataAccess.EtmsManage
 {
     public class SysActivityRouteItemDAL : ISysActivityRouteItemDAL, IEtmsManage
     {
+        public async Task<SysActivityRouteItem> GetSysActivityRouteItem(long tenantId, long routeItemId)
+        {
+            return await this.Find<SysActivityRouteItem>(p => p.TenantId == tenantId && p.EtActivityRouteItemId == routeItemId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
         public async Task AddSysActivityRouteItem(SysActivityRouteItem entity)
         {
             await this.Insert(entity);
+        }
+
+        public async Task EdiSysActivityRouteItem(SysActivityRouteItem entity)
+        {
+            await this.Update(entity);
         }
 
         public async Task SyncActivityBascInfo(EtActivityMain bascInfo)
@@ -34,6 +44,12 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task DelSysActivityRouteItemByActivityId(long tenantId, long activityId)
         {
             var sql = $"UPDATE SysActivityRouteItem SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {tenantId} AND ActivityId = {activityId}";
+            await this.Execute(sql);
+        }
+
+        public async Task DelSysActivityRouteItemByRouteItemId(long tenantId, long routeItemId)
+        {
+            var sql = $"UPDATE SysActivityRouteItem SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {tenantId} AND EtActivityRouteItemId = {routeItemId}";
             await this.Execute(sql);
         }
 

@@ -43,7 +43,7 @@ namespace ETMS.DataAccess.EtmsManage
 
         public async Task<Tuple<IEnumerable<SysActivity>, int>> GetPaging(IPagingRequest request)
         {
-            return await this.ExecutePage<SysActivity>("SysActivity", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+            return await this.ExecutePage<SysActivity>("SysActivity", "*", request.PageSize, request.PageCurrent, "OrderIndex DESC,Id DESC", request.ToString());
         }
     }
 }

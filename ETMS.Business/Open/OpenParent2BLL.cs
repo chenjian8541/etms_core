@@ -1264,6 +1264,15 @@ namespace ETMS.Business.Open
                     ActivityId = p.Id,
                     ActivityType = EmActivityType.GroupPurchase
                 });
+                _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
+                {
+                    ActivityId = p.Id,
+                    CountLimit = myRoute.CountLimit,
+                    ActivityRouteId = myRoute.Id,
+                    ActivityRouteItemId = myRouteItem.Id,
+                    ActivityType = p.ActivityType,
+                    RuleContent = p.RuleContent
+                });
             }
             return ResponseBase.Success(output);
         }

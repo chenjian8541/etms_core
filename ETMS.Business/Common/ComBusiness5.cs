@@ -169,5 +169,18 @@ namespace ETMS.Business.Common
             }
             return ruleContent.Item.First().Money;
         }
+
+        public static int GetSysActivityRouteItemStatus(int minCount, int maxCount, int finishCount)
+        {
+            if (finishCount >= maxCount)
+            {
+                return EmSysActivityRouteItemStatus.FinishFull;
+            }
+            if (finishCount >= minCount)
+            {
+                return EmSysActivityRouteItemStatus.FinishItem;
+            }
+            return EmSysActivityRouteItemStatus.Going;
+        }
     }
 }

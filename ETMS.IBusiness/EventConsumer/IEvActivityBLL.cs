@@ -17,6 +17,8 @@ namespace ETMS.IBusiness.EventConsumer
 
         Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request);
 
-        Task CalculateActivityRouteIInfoEvent(CalculateActivityRouteIInfoEvent request);
+        Task CalculateActivityRouteIInfoConsumerEvent(CalculateActivityRouteIInfoEvent request);
+
+        Task SyncSysActivityRouteItemConsumerEvent(SyncSysActivityRouteItemEvent request);
     }
 }

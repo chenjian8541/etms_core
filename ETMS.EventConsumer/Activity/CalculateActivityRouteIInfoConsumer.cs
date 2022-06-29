@@ -19,7 +19,7 @@ namespace ETMS.EventConsumer.Activity
         {
             var evActivityBLL = CustomServiceLocator.GetInstance<IEvActivityBLL>();
             evActivityBLL.InitTenantId(eEvent.TenantId);
-            await evActivityBLL.CalculateActivityRouteIInfoEvent(eEvent);
+            await evActivityBLL.CalculateActivityRouteIInfoConsumerEvent(eEvent);
         }
     }
 }
