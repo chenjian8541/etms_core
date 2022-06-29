@@ -24,13 +24,15 @@ namespace ETMS.DataAccess.Lib
 
         protected override async Task<SysTenantConfigBucket> GetDb(params object[] keys)
         {
+            var tenantId = keys[0].ToLong();
             var tenantConfig = await DapperProvider.ExecuteObject<ViewTenantConfig>(CustomServiceLocator.GetInstance<IAppConfigurtaionServices>().AppSettings.DatabseConfig.EtmsManageConnectionString,
-                 $"SELECT SysTenant.Id AS Id,SysConnectionString.Value AS ConnectionString FROM SysTenant INNER JOIN SysConnectionString ON SysTenant.ConnectionId = SysConnectionString.Id WHERE SysTenant.IsDeleted = {EmIsDeleted.Normal}");
-            var myTenantConfig = tenantConfig.ToList();
-            foreach (var p in myTenantConfig)
+                 $"SELECT SysTenant.Id AS Id,SysConnectionString.Value AS ConnectionString FROM SysTenant INNER JOIN SysConnectionString ON SysTenant.ConnectionId = SysConnectionString.Id WHERE SysTenant.IsDeleted = {EmIsDeleted.Normal} AND SysTenant.Id = {tenantId}");
+            var myTenantConfig = tenantConfig.FirstOrDefault();
+            if (myTenantConfig == null)
             {
-                p.ConnectionString = CryptogramHelper.Decrypt3DES(p.ConnectionString, SystemConfig.CryptogramConfig.Key);
+                return null;
             }
+            myTenantConfig.ConnectionString = CryptogramHelper.Decrypt3DES(myTenantConfig.ConnectionString, SystemConfig.CryptogramConfig.Key);
             return new SysTenantConfigBucket()
             {
                 TenantConfigs = myTenantConfig
@@ -39,8 +41,8 @@ namespace ETMS.DataAccess.Lib
 
         public async Task<string> GetTenantConnectionString(int tenantId)
         {
-            var tenantConfigBucket = await base.GetCache();
-            return tenantConfigBucket.TenantConfigs.First(p => p.Id == tenantId).ConnectionString;
+            var tenantConfigBucket = await base.GetCache(tenantId);
+            return tenantConfigBucket.TenantConfigs.ConnectionString;
         }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace ETMS.DataAccess.Lib
         /// <returns></returns>
         public async Task TenantConnectionUpdate()
         {
-            await base.UpdateCache();
+            // await base.UpdateCache();
         }
     }
 }

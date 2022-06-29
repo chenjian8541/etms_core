@@ -15,13 +15,13 @@ namespace ETMS.Entity.CacheBucket
         /// <summary>
         /// 机构信息
         /// </summary>
-        public List<ViewTenantConfig> TenantConfigs { get; set; }
+        public ViewTenantConfig TenantConfigs { get; set; }
 
         public TimeSpan TimeOut { get; } = TimeSpan.FromDays(BucketTimeOutConfig.TenantDataTimeOutDay);
 
         public string GetKeyFormat(params object[] parms)
         {
-            return "SysTenantConfigBucket";
+            return $"SysTenantConfigBucket_{parms[0]}";
         }
     }
 }
