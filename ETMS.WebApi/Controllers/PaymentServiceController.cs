@@ -426,12 +426,12 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        public SuixingRefundCallbackOutput SuixingRefundCallback(SuixingRefundCallbackRequest request)
         {
             try
             {
                 LOG.Log.Info("[SuixingRefundCallback]随行付退款回调", request, this.GetType());
-                return await _paymentBLL.SuixingRefundCallback(request);
+                return _paymentBLL.SuixingRefundCallback(request);
             }
             catch (Exception ex)
             {

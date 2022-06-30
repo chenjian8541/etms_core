@@ -54,7 +54,7 @@ namespace ETMS.DataAccess.Activity
 
             var activityRouteItems = await _dbWrapper.FindListMini<EtActivityRouteItem>(
                 p => p.ActivityRouteId == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
-                && p.RouteStatus == EmActivityRouteStatus.Normal);
+                && p.RouteStatus == EmActivityRouteStatus.Normal && p.PayStatus != EmActivityRoutePayStatus.Refunded);
 
             List<EtActivityHaggleLog> activityHaggleLogs = null;
             if (activityRoute.ActivityType == EmActivityType.Haggling)

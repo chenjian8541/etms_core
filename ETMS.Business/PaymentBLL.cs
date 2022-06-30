@@ -535,9 +535,25 @@ namespace ETMS.Business
             }
         }
 
-        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        public SuixingRefundCallbackOutput SuixingRefundCallback(SuixingRefundCallbackRequest request)
         {
-            return SuixingRefundCallbackOutput.Success();
+            var strSp = request.extend.Split('_');
+            var tenantId = strSp[0].ToInt();
+            var myRouteItemId = strSp[1].ToLong();
+            this.InitTenantId(tenantId);
+            if (request.bizCode == EmBizCode.Success)
+            {
+                _eventPublisher.Publish(new SuixingRefundCallbackEvent(tenantId)
+                {
+                    ActivityRouteItemId = myRouteItemId,
+                    RefundTime = DateTime.Now
+                });
+                return SuixingRefundCallbackOutput.Success();
+            }
+            else
+            {
+                return SuixingRefundCallbackOutput.Fail();
+            }
         }
     }
 }
