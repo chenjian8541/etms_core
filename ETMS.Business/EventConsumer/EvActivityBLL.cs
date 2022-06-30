@@ -132,7 +132,11 @@ namespace ETMS.Business.EventConsumer
             {
                 ActivityRouteItemId = request.ActivityRouteItemId,
             });
-
+            _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
+            {
+                ActivityId = request.ActivityId,
+                ActivityType = request.ActivityType
+            });
         }
 
         public async Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request)
@@ -253,11 +257,6 @@ namespace ETMS.Business.EventConsumer
             {
                 await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, payTime);
             }
-            _eventPublisher.Publish(new SyncActivityEffectCountEvent(myActivityRouteItem.TenantId)
-            {
-                ActivityId = myActivityRouteItem.ActivityId,
-                ActivityType = myActivityRouteItem.ActivityType
-            });
             var myActivityRoute = await _activityRouteDAL.GetActivityRouteTemp(myActivityRouteItem.ActivityRouteId);
             var myActivity = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
             _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(myActivityRouteItem.TenantId)
@@ -329,11 +328,6 @@ namespace ETMS.Business.EventConsumer
             {
                 await _activityRouteDAL.UpdateActivityRouteAboutRefundTemp(myActivityRouteItem.ActivityRouteId);
             }
-            _eventPublisher.Publish(new SyncActivityEffectCountEvent(myActivityRouteItem.TenantId)
-            {
-                ActivityId = myActivityRouteItem.ActivityId,
-                ActivityType = myActivityRouteItem.ActivityType
-            });
             var myActivityRoute = await _activityRouteDAL.GetActivityRouteTemp(myActivityRouteItem.ActivityRouteId);
             var myActivity = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
             _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(myActivityRouteItem.TenantId)

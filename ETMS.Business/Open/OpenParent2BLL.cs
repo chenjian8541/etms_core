@@ -1263,11 +1263,6 @@ namespace ETMS.Business.Open
             }
             else
             {
-                _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
-                {
-                    ActivityId = p.Id,
-                    ActivityType = EmActivityType.GroupPurchase
-                });
                 _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
                 {
                     ActivityId = p.Id,
@@ -1455,11 +1450,6 @@ namespace ETMS.Business.Open
             else
             {
                 await _activityRouteDAL.TempAddActivityRouteCount(myActivityRoute.Id);
-                _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
-                {
-                    ActivityId = p.Id,
-                    ActivityType = EmActivityType.GroupPurchase
-                });
                 _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
                 {
                     ActivityId = p.Id,
@@ -1717,11 +1707,6 @@ namespace ETMS.Business.Open
             }
             else
             {
-                _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
-                {
-                    ActivityId = p.Id,
-                    ActivityType = EmActivityType.Haggling
-                });
                 _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
                 {
                     ActivityId = p.Id,
@@ -1840,11 +1825,6 @@ namespace ETMS.Business.Open
                 CreateDate = now.Date,
                 CreateTime = now,
                 TenantId = myActivityRouteItem.TenantId
-            });
-            _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
-            {
-                ActivityId = p.Id,
-                ActivityType = EmActivityType.Haggling
             });
             _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
             {
