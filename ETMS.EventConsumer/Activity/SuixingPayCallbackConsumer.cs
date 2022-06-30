@@ -17,9 +17,14 @@ namespace ETMS.EventConsumer.Activity
     {
         protected override async Task Receive(SuixingPayCallbackEvent eEvent)
         {
+            var _lockKey = new SuixingPayCallbackToken(eEvent.TenantId, eEvent.ActivityRouteItemId);
             var evActivityBLL = CustomServiceLocator.GetInstance<IEvActivityBLL>();
             evActivityBLL.InitTenantId(eEvent.TenantId);
-            await evActivityBLL.SuixingPayCallbackConsumerEvent(eEvent);
+            var lockTakeHandler = new LockTakeHandler<SuixingPayCallbackToken, SuixingPayCallbackEvent>(_lockKey, eEvent, this.ClassName,
+                async () =>
+                await evActivityBLL.SuixingPayCallbackConsumerEvent(eEvent)
+                );
+            await lockTakeHandler.Process();
         }
     }
 }

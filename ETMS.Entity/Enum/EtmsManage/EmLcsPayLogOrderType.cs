@@ -23,7 +23,10 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int StudentAccountRecharge = 3;
 
-
+        /// <summary>
+        /// 小禾招生
+        /// </summary>
+        public const int Activity = 4;
         public static string GetPayLogOrderTypeDesc(int t)
         {
             switch (t)
@@ -34,6 +37,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "转课";
                 case 3:
                     return "账户充值";
+                case Activity:
+                    return "小禾招生";
             }
             return string.Empty;
         }

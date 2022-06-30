@@ -18,9 +18,23 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int WeChat = 1;
 
+        /// <summary>
+        /// 小程序
+        /// </summary>
+        public const int MiniProgram = 2;
+
         public static string GetOrderSourceDesc(int t)
         {
-            return t == PC ? "PC端" : "微信端";
+            switch (t)
+            {
+                case PC:
+                    return "PC端";
+                case WeChat:
+                    return "微信端";
+                case MiniProgram:
+                    return "小程序";
+            }
+            return string.Empty;
         }
     }
 }

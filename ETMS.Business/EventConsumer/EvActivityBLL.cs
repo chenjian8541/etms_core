@@ -7,9 +7,11 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.View.Activity;
 using ETMS.Event.DataContract.Activity;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess.Activity;
 using ETMS.IDataAccess.EtmsManage;
+using ETMS.IDataAccess.Lcs;
 using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
@@ -31,8 +33,16 @@ namespace ETMS.Business.EventConsumer
         private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
 
         private readonly IEventPublisher _eventPublisher;
+
+        private readonly ITenantLcsPayLogDAL _tenantLcsPayLogDAL;
+
+        private readonly ISysTenantDAL _sysTenantDAL;
+
+        private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
+
         public EvActivityBLL(IAppConfigurtaionServices appConfigurtaionServices, IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
-           IActivityVisitorDAL activityVisitorDAL, ISysActivityRouteItemDAL sysActivityRouteItemDAL, IEventPublisher eventPublisher)
+           IActivityVisitorDAL activityVisitorDAL, ISysActivityRouteItemDAL sysActivityRouteItemDAL, IEventPublisher eventPublisher,
+           ITenantLcsPayLogDAL tenantLcsPayLogDAL, ISysTenantDAL sysTenantDAL, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL)
             : base(appConfigurtaionServices)
         {
             this._activityMainDAL = activityMainDAL;
@@ -40,11 +50,15 @@ namespace ETMS.Business.EventConsumer
             this._activityVisitorDAL = activityVisitorDAL;
             this._sysActivityRouteItemDAL = sysActivityRouteItemDAL;
             this._eventPublisher = eventPublisher;
+            this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
+            this._sysTenantDAL = sysTenantDAL;
+            this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _activityMainDAL, _activityRouteDAL, _activityVisitorDAL);
+            this.InitDataAccess(tenantId, _activityMainDAL, _activityRouteDAL, _activityVisitorDAL,
+                _tenantLcsPayLogDAL);
         }
 
         public async Task SyncActivityBehaviorCountConsumerEvent(SyncActivityBehaviorCountEvent request)
@@ -224,12 +238,13 @@ namespace ETMS.Business.EventConsumer
 
         public async Task SuixingPayCallbackConsumerEvent(SuixingPayCallbackEvent request)
         {
+            var payTime = request.PayTime;
             var myRouteItemId = request.ActivityRouteItemId;
             var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItemTemp(myRouteItemId);
-            await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myRouteItemId, request.PayTime);
+            await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myRouteItemId, payTime);
             if (myActivityRouteItem.IsTeamLeader)
             {
-                await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, request.PayTime);
+                await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, payTime);
             }
             _eventPublisher.Publish(new SyncActivityEffectCountEvent(myActivityRouteItem.TenantId)
             {
@@ -249,6 +264,49 @@ namespace ETMS.Business.EventConsumer
             });
 
             //聚会支付记录
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            var myTenantSuixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(request.TenantId);
+            await _tenantLcsPayLogDAL.AddTenantLcsPayLog(new EtTenantLcsPayLog()
+            {
+                AgentId = myTenant.AgentId,
+                TenantId = request.TenantId,
+                AgtPayType = EmAgtPayType.Suixing,
+                Attach = string.Empty,
+                AuthNo = string.Empty,
+                CreateOt = myActivityRouteItem.CreateTime,
+                PayFinishOt = payTime,
+                PayFinishDate = payTime.Date,
+                DataType = EmTenantLcsPayLogDataType.Normal,
+                IsDeleted = EmIsDeleted.Normal,
+                MerchantName = myTenantSuixingAccount.MerName,
+                MerchantNo = myTenantSuixingAccount.Mno,
+                MerchantType = EmLcsMerchanttype.Ordinary,
+                OpenId = myActivityRouteItem.OpenId,
+                OrderBody = $"参加活动：{myActivity.Title}",
+                OrderDesc = string.Empty,
+                OrderNo = myActivityRouteItem.PayOrderNo,
+                OutTradeNo = myActivityRouteItem.PayUuid,
+                OrderSource = EmLcsPayLogOrderSource.MiniProgram,
+                OrderType = EmLcsPayLogOrderType.Activity,
+                OutRefundNo = string.Empty,
+                PayType = EmLcsPayType.WeChat,
+                RefundDate = null,
+                RefundFee = string.Empty,
+                RefundOt = null,
+                RelationId = myActivityRouteItem.Id,
+                Status = EmLcsPayLogStatus.PaySuccess,
+                SubAppid = string.Empty,
+                TerminalId = string.Empty,
+                TerminalTrace = myActivityRouteItem.PayUuid,
+                TotalFee = (myActivityRouteItem.PaySum * 100).ToString(),
+                TotalFeeDesc = myActivityRouteItem.PaySum.EtmsToString2(),
+                TotalFeeValue = myActivityRouteItem.PaySum,
+                Remark = string.Empty
+            });
+            _eventPublisher.Publish(new StatisticsLcsPayEvent(request.TenantId)
+            {
+                StatisticsDate = payTime.Date
+            });
         }
     }
 }
