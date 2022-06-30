@@ -411,12 +411,12 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<SuixingPayCallbackOutput> SuixingPayCallback(SuixingPayCallbackRequest request)
+        public SuixingPayCallbackOutput SuixingPayCallback(SuixingPayCallbackRequest request)
         {
             try
             {
                 LOG.Log.Info("[SuixingPayCallback]随行付支付回调", request, this.GetType());
-                return await _paymentBLL.SuixingPayCallback(request);
+                return _paymentBLL.SuixingPayCallback(request);
             }
             catch (Exception ex)
             {

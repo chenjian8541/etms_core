@@ -221,5 +221,34 @@ namespace ETMS.Business.EventConsumer
                 await _sysActivityRouteItemDAL.EdiSysActivityRouteItem(log);
             }
         }
+
+        public async Task SuixingPayCallbackConsumerEvent(SuixingPayCallbackEvent request)
+        {
+            var myRouteItemId = request.ActivityRouteItemId;
+            var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItemTemp(myRouteItemId);
+            await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myRouteItemId, request.PayTime);
+            if (myActivityRouteItem.IsTeamLeader)
+            {
+                await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, request.PayTime);
+            }
+            _eventPublisher.Publish(new SyncActivityEffectCountEvent(myActivityRouteItem.TenantId)
+            {
+                ActivityId = myActivityRouteItem.ActivityId,
+                ActivityType = myActivityRouteItem.ActivityType
+            });
+            var myActivityRoute = await _activityRouteDAL.GetActivityRouteTemp(myActivityRouteItem.ActivityRouteId);
+            var myActivity = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
+            _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(myActivityRouteItem.TenantId)
+            {
+                ActivityId = myActivityRouteItem.ActivityId,
+                CountLimit = myActivityRoute.CountLimit,
+                ActivityRouteId = myActivityRoute.Id,
+                ActivityRouteItemId = myActivityRouteItem.Id,
+                ActivityType = myActivityRouteItem.ActivityType,
+                RuleContent = myActivity.RuleContent
+            });
+
+            //聚会支付记录
+        }
     }
 }

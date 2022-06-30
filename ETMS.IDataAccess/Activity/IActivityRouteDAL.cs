@@ -11,6 +11,18 @@ namespace ETMS.IDataAccess.Activity
 {
     public interface IActivityRouteDAL : IBaseDAL
     {
+        #region 无效数据处理
+
+        Task<EtActivityRouteItem> GetActivityRouteItemTemp(long id);
+
+        Task<EtActivityRoute> GetActivityRouteTemp(long routeId);
+
+        Task UpdateActivityRouteAboutPayFinishTemp(long routeId, DateTime payTime);
+
+        Task UpdateActivityRouteItemAboutPayFinishTemp(long itemId, DateTime payTime);
+
+        #endregion
+
         Task<EtActivityRoute> GetActivityRoute(long id);
 
         Task<EtActivityRouteItem> GetActivityRouteItem(long id);

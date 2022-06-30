@@ -20,5 +20,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task CalculateActivityRouteIInfoConsumerEvent(CalculateActivityRouteIInfoEvent request);
 
         Task SyncSysActivityRouteItemConsumerEvent(SyncSysActivityRouteItemEvent request);
+
+        Task SuixingPayCallbackConsumerEvent(SuixingPayCallbackEvent request);
     }
 }

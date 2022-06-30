@@ -16,13 +16,16 @@ using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Activity;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.Activity;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IEventProvider;
 using ETMS.Pay.Lcsw;
+using ETMS.Pay.Suixing.Utility.Dto;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -504,9 +507,30 @@ namespace ETMS.Business
             return "FAIL";
         }
 
-        public async Task<SuixingPayCallbackOutput> SuixingPayCallback(SuixingPayCallbackRequest request)
+        /// <summary>
+        /// 随行付支付回调
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public SuixingPayCallbackOutput SuixingPayCallback(SuixingPayCallbackRequest request)
         {
-            return SuixingPayCallbackOutput.Success();
+            var strSp = request.extend.Split('_');
+            var tenantId = strSp[0].ToInt();
+            var myRouteItemId = strSp[1].ToLong();
+            this.InitTenantId(tenantId);
+            if (request.bizCode == EmBizCode.Success)
+            {
+                _eventPublisher.Publish(new SuixingPayCallbackEvent(tenantId)
+                {
+                    ActivityRouteItemId = myRouteItemId,
+                    PayTime = DateTime.Now
+                });
+                return SuixingPayCallbackOutput.Success();
+            }
+            else
+            {
+                return SuixingPayCallbackOutput.Fail();
+            }
         }
 
         public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)

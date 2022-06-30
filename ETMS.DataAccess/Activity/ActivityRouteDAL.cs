@@ -70,6 +70,30 @@ namespace ETMS.DataAccess.Activity
             };
         }
 
+        #region 无效数据处理
+
+        public async Task<EtActivityRouteItem> GetActivityRouteItemTemp(long id)
+        {
+            return await this._dbWrapper.Find<EtActivityRouteItem>(p => p.Id == id);
+        }
+
+        public async Task<EtActivityRoute> GetActivityRouteTemp(long routeId)
+        {
+            return await this._dbWrapper.Find<EtActivityRoute>(p => p.Id == routeId);
+        }
+
+        public async Task UpdateActivityRouteAboutPayFinishTemp(long routeId, DateTime payTime)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRoute SET RouteStatus = {EmActivityRouteStatus.Normal},CountFinish = CountFinish + 1,PayStatus = {EmActivityRoutePayStatus.Paid},PayFinishTime = '{payTime.EtmsToString()}' WHERE Id = {routeId}");
+        }
+
+        public async Task UpdateActivityRouteItemAboutPayFinishTemp(long itemId, DateTime payTime)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRouteItem SET RouteStatus = {EmActivityRouteStatus.Normal},PayStatus = {EmActivityRoutePayStatus.Paid},PayFinishTime = '{payTime.EtmsToString()}' WHERE Id = {itemId}");
+        }
+
+        #endregion
+
         public async Task<EtActivityRoute> GetActivityRoute(long id)
         {
             return await this._activityRoute2DAL.GetActivityRoute(id);
