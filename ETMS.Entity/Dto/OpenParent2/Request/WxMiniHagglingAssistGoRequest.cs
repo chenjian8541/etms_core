@@ -9,9 +9,9 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
 {
     public class WxMiniHagglingAssistGoRequest : OpenParent2RequestBase
     {
-        public long TenantId { get; set; }
+        public int TenantId { get; set; }
 
-        public long ActivityRouteId { get; set; }
+        public long ActivityRouteItemId { get; set; }
 
         public override string Validate()
         {
@@ -19,7 +19,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
             {
                 return "请求数据格式错误";
             }
-            if (ActivityRouteId <= 0)
+            if (ActivityRouteItemId <= 0)
             {
                 return "请求数据格式错误";
             }

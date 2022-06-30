@@ -53,6 +53,7 @@ namespace ETMS.Pay.Suixing
                     extend = request.extend
                 }
             };
+            var s = Newtonsoft.Json.JsonConvert.SerializeObject(req);
             string strSignTemp = PackReflectionEntity<RequestBase<JsapiScanRequest>>.GetEntityToString(req);
             var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;

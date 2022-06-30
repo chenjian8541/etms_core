@@ -1010,13 +1010,17 @@ namespace ETMS.Business.Open
             {
                 return "活动已下架";
             }
+            if (DateTime.Now < p.StartTime)
+            {
+                return "活动未开始";
+            }
             if (DateTime.Now >= p.EndTime.Value)
             {
                 return "活动已结束";
             }
             if (p.FinishCount >= p.MaxCount)
             {
-                return "成团数已达到上限";
+                return "活动数量不足，无法参与";
             }
             if (myActivityRouteItem != null)
             {
@@ -1297,21 +1301,560 @@ namespace ETMS.Business.Open
 
         public async Task<ResponseBase> WxMiniGroupPurchaseJoin(WxMiniGroupPurchaseJoinRequest request)
         {
-            return ResponseBase.Success();
+            this.InitTenantId(request.TenantId);
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var myActivityRoute = await _activityRouteDAL.GetActivityRoute(request.ActivityRouteId);
+            if (myActivityRoute == null)
+            {
+                return ResponseBase.CommonError("开团记录不存在");
+            }
+            var myUser = await _sysWechatMiniPgmUserDAL.GetWechatMiniPgmUser(request.MiniPgmUserId);
+            if (myUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            var p = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
+            var myActivityRouteItem = await _activityRouteDAL.GetEtActivityRouteItemByUserId(p.Id, request.MiniPgmUserId);
+            var checkMsg = CheckGroupPurchase(p, myActivityRouteItem);
+            if (!string.IsNullOrEmpty(checkMsg))
+            {
+                return ResponseBase.CommonError(checkMsg);
+            }
+            var lockKey = new ActivityGoToken(request.MiniPgmUserId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await WxMiniGroupPurchaseJoinProcess(request, myTenant, p, myUser, myActivityRoute);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【WxMiniGroupPurchaseJoin】出错:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("操作过于频繁，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> WxMiniGroupPurchaseJoinProcess(WxMiniGroupPurchaseJoinRequest request,
+            SysTenant sysTenant, EtActivityMain p, SysWechatMiniPgmUser user, EtActivityRoute myActivityRoute)
+        {
+            SysTenantSuixingAccount tenantSuixingAccount = null;
+            if (p.IsOpenPay)
+            {
+                if (sysTenant.PayUnionType == EmPayUnionType.NotApplied)
+                {
+                    return ResponseBase.CommonError("机构未开通支付账户,操作失败");
+                }
+                tenantSuixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(sysTenant.Id);
+                if (tenantSuixingAccount == null)
+                {
+                    return ResponseBase.CommonError("机构支付账户异常，操作失败");
+                }
+            }
+            var student = await this.GetStudent(request.StudentPhone, request.StudentName);
+            var ruleContent = JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+            var routeStatus = EmActivityRouteStatus.Normal;
+            if (p.IsOpenPay)
+            {
+                routeStatus = EmActivityRouteStatus.Invalid;
+            }
+            var now = DateTime.Now;
+            var payValue = ComBusiness5.GetActivityPayInfo2(p, ruleContent);
+            var myRouteItem = new EtActivityRouteItem()
+            {
+                ActivityRouteId = myActivityRoute.Id,
+                ActivityTypeStyleClass = myActivityRoute.ActivityTypeStyleClass,
+                ActivityType = myActivityRoute.ActivityType,
+                ActivityTitle = myActivityRoute.ActivityTitle,
+                ActivityTenantName = myActivityRoute.ActivityTenantName,
+                ActivityCoverImage = myActivityRoute.ActivityCoverImage,
+                ActivityEndTime = myActivityRoute.ActivityEndTime,
+                ActivityStartTime = myActivityRoute.ActivityStartTime,
+                ActivityId = myActivityRoute.ActivityId,
+                ActivityName = myActivityRoute.ActivityName,
+                ActivityScenetype = myActivityRoute.ActivityScenetype,
+                ActivityOriginalPrice = myActivityRoute.ActivityOriginalPrice,
+                ActivityRuleItemContent = myActivityRoute.ActivityRuleItemContent,
+                ActivityRuleEx2 = myActivityRoute.ActivityRuleEx2,
+                ActivityRuleEx1 = myActivityRoute.ActivityRuleEx1,
+                ScenetypeStyleClass = myActivityRoute.ScenetypeStyleClass,
+                AvatarUrl = user.AvatarUrl,
+                NickName = user.NickName,
+                OpenId = user.OpenId,
+                MiniPgmUserId = user.Id,
+                Unionid = user.Unionid,
+                CreateTime = now,
+                IsDeleted = myActivityRoute.IsDeleted,
+                IsNeedPay = p.IsOpenPay,
+                IsTeamLeader = false,
+                PayFinishTime = null,
+                PayStatus = EmActivityRoutePayStatus.Unpaid,
+                PaySum = payValue,
+                RouteStatus = routeStatus,
+                StudentFieldValue1 = request.StudentFieldValue1,
+                StudentFieldValue2 = request.StudentFieldValue2,
+                StudentId = student?.Id,
+                StudentName = request.StudentName,
+                StudentPhone = request.StudentPhone,
+                Tag = string.Empty,
+                TenantId = myActivityRoute.TenantId,
+                ShareQRCode = string.Empty
+            };
+            await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
+
+            _eventPublisher.Publish(new CalculateActivityRouteIInfoEvent(request.TenantId)
+            {
+                MyActivityRouteItem = myRouteItem
+            });
+            var output = new WxMiniGroupPurchaseJoinProcessOutput()
+            {
+                IsMustPay = false
+            };
+            if (p.IsOpenPay) //如果需要支付，则支付完成后才算成功
+            {
+                var no = OrderNumberLib.SuixingPayOrder();
+                output.IsMustPay = true;
+                var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
+                {
+                    mno = tenantSuixingAccount.Mno,
+                    amt = myRouteItem.PaySum,
+                    extend = $"{myRouteItem.TenantId}_{myRouteItem.Id}",
+                    openid = myRouteItem.OpenId,
+                    ordNo = no,
+                    subject = "参加活动",
+                    notifyUrl = SysWebApiAddressConfig.SuixingPayCallbackUrl
+                });
+                if (res == null)
+                {
+                    return ResponseBase.CommonError("生成预支付订单失败");
+                }
+                await _activityRouteDAL.UpdateActivityRouteItemPayOrder(myRouteItem.Id, no, res.uuid);
+                output.PayInfo = new WxMiniGroupPurchasePayInfo()
+                {
+                    routeItemId = myRouteItem.Id,
+                    orderNo = no,
+                    uuid = res.uuid,
+                    appId = res.payAppId,
+                    nonceStr = res.paynonceStr,
+                    package_str = res.payPackage,
+                    paySign = res.paySign,
+                    signType = res.paySignType,
+                    timeStamp = res.payTimeStamp,
+                    token_id = string.Empty
+                };
+            }
+            else
+            {
+                await _activityRouteDAL.TempAddActivityRouteCount(myActivityRoute.Id);
+                _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
+                {
+                    ActivityId = p.Id,
+                    ActivityType = EmActivityType.GroupPurchase
+                });
+                _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
+                {
+                    ActivityId = p.Id,
+                    CountLimit = myActivityRoute.CountLimit,
+                    ActivityRouteId = myActivityRoute.Id,
+                    ActivityRouteItemId = myRouteItem.Id,
+                    ActivityType = p.ActivityType,
+                    RuleContent = p.RuleContent
+                });
+            }
+            return ResponseBase.Success(output);
+        }
+
+        private string CheckHaggling(EtActivityMain p, EtActivityRouteItem myActivityRouteItem)
+        {
+            if (p == null)
+            {
+                return "活动不存在";
+            }
+            if (p.ActivityStatus == EmActivityStatus.Unpublished)
+            {
+                return "活动未发布";
+            }
+            if (p.ActivityStatus == EmActivityStatus.TakeDown)
+            {
+                return "活动已下架";
+            }
+            if (DateTime.Now < p.StartTime)
+            {
+                return "活动未开始";
+            }
+            if (DateTime.Now >= p.EndTime.Value)
+            {
+                return "活动已结束";
+            }
+            if (p.FinishCount >= p.MaxCount)
+            {
+                return "活动数量不足，无法参与";
+            }
+            if (myActivityRouteItem != null)
+            {
+                return "您已发起砍价";
+            }
+            return string.Empty;
         }
 
         public async Task<ResponseBase> WxMiniHagglingStartCheck(WxMiniHagglingStartCheckRequest request)
         {
+            this.InitTenantId(request.TenantId);
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var p = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            var myActivityRouteItem = await _activityRouteDAL.GetEtActivityRouteItemByUserId(p.Id, request.MiniPgmUserId);
+            var checkMsg = CheckHaggling(p, myActivityRouteItem);
+            if (!string.IsNullOrEmpty(checkMsg))
+            {
+                return ResponseBase.CommonError(checkMsg);
+            }
             return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> WxMiniHagglingStartGo(WxMiniHagglingStartGoRequest request)
         {
-            return ResponseBase.Success();
+            this.InitTenantId(request.TenantId);
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var myUser = await _sysWechatMiniPgmUserDAL.GetWechatMiniPgmUser(request.MiniPgmUserId);
+            if (myUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            var p = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            var myActivityRouteItem = await _activityRouteDAL.GetEtActivityRouteItemByUserId(p.Id, request.MiniPgmUserId);
+            var checkMsg = CheckHaggling(p, myActivityRouteItem);
+            if (!string.IsNullOrEmpty(checkMsg))
+            {
+                return ResponseBase.CommonError(checkMsg);
+            }
+            var lockKey = new ActivityGoToken(request.MiniPgmUserId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await WxMiniHagglingStartGo(request, myTenant, p, myUser);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【WxMiniHagglingStartGo】出错:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("操作过于频繁，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> WxMiniHagglingStartGo(WxMiniHagglingStartGoRequest request,
+            SysTenant sysTenant, EtActivityMain p, SysWechatMiniPgmUser user)
+        {
+            SysTenantSuixingAccount tenantSuixingAccount = null;
+            if (p.IsOpenPay)
+            {
+                if (sysTenant.PayUnionType == EmPayUnionType.NotApplied)
+                {
+                    return ResponseBase.CommonError("机构未开通支付账户,操作失败");
+                }
+                tenantSuixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(sysTenant.Id);
+                if (tenantSuixingAccount == null)
+                {
+                    return ResponseBase.CommonError("机构支付账户异常，操作失败");
+                }
+            }
+            var student = await this.GetStudent(request.StudentPhone, request.StudentName);
+            var lowPrice = p.RuleEx1.ToDecimal();
+            var limitMustCount = p.RuleEx2.ToInt();
+            //var myRepeatHaggleHour = p.RuleEx3.ToInt();
+            var routeStatus = EmActivityRouteStatus.Normal;
+            if (p.IsOpenPay)
+            {
+                routeStatus = EmActivityRouteStatus.Invalid;
+            }
+            var now = DateTime.Now;
+            var myRoute = new EtActivityRoute()
+            {
+                ActivityId = p.Id,
+                ActivityCoverImage = p.CoverImage,
+                ActivityEndTime = p.EndTime.Value,
+                ActivityName = p.Name,
+                ActivityOriginalPrice = p.OriginalPrice,
+                ActivityRuleEx1 = p.RuleEx1,
+                ActivityRuleEx2 = p.RuleEx2,
+                ActivityRuleItemContent = p.RuleContent,
+                IsDeleted = EmIsDeleted.Normal,
+                ActivityScenetype = p.Scenetype,
+                ActivityStartTime = p.StartTime,
+                ActivityTenantName = p.TenantName,
+                ActivityTitle = p.Title,
+                ActivityType = p.ActivityType,
+                ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                ScenetypeStyleClass = p.ScenetypeStyleClass,
+                TenantId = p.TenantId,
+                Tag = string.Empty,
+                StudentFieldValue1 = request.StudentFieldValue1,
+                StudentFieldValue2 = request.StudentFieldValue2,
+                StudentName = request.StudentName,
+                StudentPhone = request.StudentPhone,
+                AvatarUrl = user.AvatarUrl,
+                CountFinish = 1,
+                CountLimit = limitMustCount,
+                CreateTime = now,
+                Unionid = user.Unionid,
+                NickName = user.NickName,
+                OpenId = user.OpenId,
+                MiniPgmUserId = request.MiniPgmUserId,
+                IsNeedPay = p.IsOpenPay,
+                PayStatus = EmActivityRoutePayStatus.Unpaid,
+                PaySum = lowPrice,
+                PayFinishTime = null,
+                RouteStatus = routeStatus,
+                StudentId = student?.Id,
+                ShareQRCode = string.Empty
+            };
+            await _activityRouteDAL.AddActivityRoute(myRoute);
+            var myRouteItem = new EtActivityRouteItem()
+            {
+                ActivityRouteId = myRoute.Id,
+                ActivityTypeStyleClass = myRoute.ActivityTypeStyleClass,
+                ActivityType = myRoute.ActivityType,
+                ActivityTitle = myRoute.ActivityTitle,
+                ActivityTenantName = myRoute.ActivityTenantName,
+                ActivityCoverImage = myRoute.ActivityCoverImage,
+                ActivityEndTime = myRoute.ActivityEndTime,
+                ActivityStartTime = myRoute.ActivityStartTime,
+                ActivityId = myRoute.ActivityId,
+                ActivityName = myRoute.ActivityName,
+                ActivityScenetype = myRoute.ActivityScenetype,
+                ActivityOriginalPrice = myRoute.ActivityOriginalPrice,
+                ActivityRuleItemContent = myRoute.ActivityRuleItemContent,
+                ActivityRuleEx2 = myRoute.ActivityRuleEx2,
+                ActivityRuleEx1 = myRoute.ActivityRuleEx1,
+                AvatarUrl = myRoute.AvatarUrl,
+                CreateTime = myRoute.CreateTime,
+                IsDeleted = myRoute.IsDeleted,
+                IsNeedPay = myRoute.IsNeedPay,
+                IsTeamLeader = true,
+                MiniPgmUserId = myRoute.MiniPgmUserId,
+                NickName = myRoute.NickName,
+                OpenId = myRoute.OpenId,
+                PayFinishTime = myRoute.PayFinishTime,
+                PayStatus = myRoute.PayStatus,
+                PaySum = myRoute.PaySum,
+                RouteStatus = myRoute.RouteStatus,
+                ScenetypeStyleClass = myRoute.ScenetypeStyleClass,
+                StudentFieldValue1 = myRoute.StudentFieldValue1,
+                StudentFieldValue2 = myRoute.StudentFieldValue2,
+                StudentId = myRoute.StudentId,
+                StudentName = myRoute.StudentName,
+                StudentPhone = myRoute.StudentPhone,
+                Tag = myRoute.Tag,
+                TenantId = myRoute.TenantId,
+                Unionid = myRoute.Unionid,
+                ShareQRCode = string.Empty
+            };
+            await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
+
+            _eventPublisher.Publish(new CalculateActivityRouteIInfoEvent(request.TenantId)
+            {
+                MyActivityRouteItem = myRouteItem
+            });
+            var output = new WxMiniHagglingStartGoOutput()
+            {
+                IsMustPay = false
+            };
+            if (p.IsOpenPay) //如果需要支付，则支付完成后才算成功
+            {
+                var no = OrderNumberLib.SuixingPayOrder();
+                output.IsMustPay = true;
+                var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
+                {
+                    mno = tenantSuixingAccount.Mno,
+                    amt = myRouteItem.PaySum,
+                    extend = $"{myRouteItem.TenantId}_{myRouteItem.Id}",
+                    openid = myRouteItem.OpenId,
+                    ordNo = no,
+                    subject = "参加活动",
+                    notifyUrl = SysWebApiAddressConfig.SuixingPayCallbackUrl
+                });
+                if (res == null)
+                {
+                    return ResponseBase.CommonError("生成预支付订单失败");
+                }
+                await _activityRouteDAL.UpdateActivityRoutePayOrder(myRoute.Id, no, res.uuid);
+                await _activityRouteDAL.UpdateActivityRouteItemPayOrder(myRouteItem.Id, no, res.uuid);
+                output.PayInfo = new WxMiniGroupPurchasePayInfo()
+                {
+                    routeItemId = myRouteItem.Id,
+                    orderNo = no,
+                    uuid = res.uuid,
+                    appId = res.payAppId,
+                    nonceStr = res.paynonceStr,
+                    package_str = res.payPackage,
+                    paySign = res.paySign,
+                    signType = res.paySignType,
+                    timeStamp = res.payTimeStamp,
+                    token_id = string.Empty
+                };
+            }
+            else
+            {
+                _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
+                {
+                    ActivityId = p.Id,
+                    ActivityType = EmActivityType.Haggling
+                });
+                _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
+                {
+                    ActivityId = p.Id,
+                    CountLimit = myRoute.CountLimit,
+                    ActivityRouteId = myRoute.Id,
+                    ActivityRouteItemId = myRouteItem.Id,
+                    ActivityType = p.ActivityType,
+                    RuleContent = p.RuleContent
+                });
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> WxMiniHagglingAssistGo(WxMiniHagglingAssistGoRequest request)
         {
+            this.InitTenantId(request.TenantId);
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var myUser = await _sysWechatMiniPgmUserDAL.GetWechatMiniPgmUser(request.MiniPgmUserId);
+            if (myUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItem(request.ActivityRouteItemId);
+            if (myActivityRouteItem == null)
+            {
+                return ResponseBase.CommonError("砍价记录不存在");
+            }
+            var myActivityRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
+            if (myActivityRoute == null)
+            {
+                return ResponseBase.CommonError("砍价记录不存在");
+            }
+            var p = await _activityMainDAL.GetActivityMain(myActivityRouteItem.ActivityId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            if (p.ActivityStatus == EmActivityStatus.Unpublished)
+            {
+                return ResponseBase.CommonError("活动未发布");
+            }
+            if (p.ActivityStatus == EmActivityStatus.TakeDown)
+            {
+                return ResponseBase.CommonError("活动已下架");
+            }
+            if (DateTime.Now < p.StartTime)
+            {
+                return ResponseBase.CommonError("活动未开始");
+            }
+            if (DateTime.Now >= p.EndTime.Value)
+            {
+                return ResponseBase.CommonError("活动已结束");
+            }
+            var lockKey = new ActivityGoToken(request.MiniPgmUserId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await WxMiniHagglingAssistGoProcess(request, myTenant, p, myActivityRouteItem, myActivityRoute, myUser);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【WxMiniGroupPurchaseStartGo】出错:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("操作过于频繁，请稍后再试...");
+        }
+
+        private async Task<ResponseBase> WxMiniHagglingAssistGoProcess(WxMiniHagglingAssistGoRequest request,
+            SysTenant sysTenant, EtActivityMain p, EtActivityRouteItem myActivityRouteItem, EtActivityRoute myActivityRoute, SysWechatMiniPgmUser user)
+        {
+            var now = DateTime.Now;
+            var haggleLog = await _activityRouteDAL.GetActivityHaggleLog(myActivityRouteItem.ActivityId, myActivityRouteItem.ActivityRouteId, request.MiniPgmUserId);
+            if (haggleLog != null)
+            {
+                if (haggleLog.MiniPgmUserId == myActivityRouteItem.MiniPgmUserId) //给自己砍价
+                {
+                    var myRepeatHaggleHour = p.RuleEx3.ToInt();
+                    if (myRepeatHaggleHour == 0)
+                    {
+                        return ResponseBase.CommonError("请勿重复操作");
+                    }
+                    else
+                    {
+                        var vaildTime = haggleLog.CreateTime.AddHours(myRepeatHaggleHour);
+                        if (now < vaildTime)
+                        {
+                            return ResponseBase.CommonError("距离上一次砍价间隔不足，请稍后再试...");
+                        }
+                    }
+                }
+                else
+                {
+                    return ResponseBase.CommonError("请勿重复操作");
+                }
+            }
+            await _activityRouteDAL.AddActivityHaggleLog(new EtActivityHaggleLog()
+            {
+                ActivityId = p.Id,
+                ActivityRouteId = myActivityRouteItem.ActivityRouteId,
+                AvatarUrl = user.AvatarUrl,
+                MiniPgmUserId = user.Id,
+                OpenId = user.OpenId,
+                Unionid = user.Unionid,
+                NickName = user.NickName,
+                IsDeleted = EmIsDeleted.Normal,
+                CreateDate = now.Date,
+                CreateTime = now,
+                TenantId = myActivityRouteItem.TenantId
+            });
+            _eventPublisher.Publish(new SyncActivityEffectCountEvent(request.TenantId)
+            {
+                ActivityId = p.Id,
+                ActivityType = EmActivityType.Haggling
+            });
+            _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(request.TenantId)
+            {
+                ActivityId = p.Id,
+                CountLimit = myActivityRoute.CountLimit,
+                ActivityRouteId = myActivityRouteItem.ActivityRouteId,
+                ActivityRouteItemId = myActivityRouteItem.Id,
+                ActivityType = p.ActivityType,
+                RuleContent = p.RuleContent
+            });
             return ResponseBase.Success();
         }
 
