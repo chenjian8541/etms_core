@@ -85,6 +85,8 @@ namespace ETMS.Entity.Database.Source
 
         public string PayUuid { get; set; }
 
+        public string PayMno { get; set; }
+
         /// <summary>
         /// <see cref="EmActivityRouteStatus"/>
         /// </summary>

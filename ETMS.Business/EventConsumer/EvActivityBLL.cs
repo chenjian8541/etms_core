@@ -5,14 +5,18 @@ using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
+using ETMS.Entity.Temp.Request;
 using ETMS.Entity.View.Activity;
 using ETMS.Event.DataContract.Activity;
 using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness.EventConsumer;
+using ETMS.IDataAccess;
 using ETMS.IDataAccess.Activity;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IEventProvider;
+using ETMS.Pay.Suixing;
+using ETMS.Pay.Suixing.Utility.ExternalDto.Request;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -40,9 +44,14 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
 
+        private readonly ITenantConfig2DAL _tenantConfig2DAL;
+
+        private readonly IPaySuixingService _paySuixingService;
+
         public EvActivityBLL(IAppConfigurtaionServices appConfigurtaionServices, IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL,
            IActivityVisitorDAL activityVisitorDAL, ISysActivityRouteItemDAL sysActivityRouteItemDAL, IEventPublisher eventPublisher,
-           ITenantLcsPayLogDAL tenantLcsPayLogDAL, ISysTenantDAL sysTenantDAL, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL)
+           ITenantLcsPayLogDAL tenantLcsPayLogDAL, ISysTenantDAL sysTenantDAL, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL,
+           ITenantConfig2DAL tenantConfig2DAL, IPaySuixingService paySuixingService)
             : base(appConfigurtaionServices)
         {
             this._activityMainDAL = activityMainDAL;
@@ -53,12 +62,14 @@ namespace ETMS.Business.EventConsumer
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
+            this._tenantConfig2DAL = tenantConfig2DAL;
+            this._paySuixingService = paySuixingService;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _activityMainDAL, _activityRouteDAL, _activityVisitorDAL,
-                _tenantLcsPayLogDAL);
+                _tenantLcsPayLogDAL, _tenantConfig2DAL);
         }
 
         public async Task SyncActivityBehaviorCountConsumerEvent(SyncActivityBehaviorCountEvent request)
@@ -342,6 +353,115 @@ namespace ETMS.Business.EventConsumer
                 RuleContent = myActivity.RuleContent
             });
             await _tenantLcsPayLogDAL.UpdateTenantLcsPayLogRefund(EmAgtPayType.Suixing, myRouteItemId);
+        }
+
+        public async Task ActivityAutoRefundTenantConsumerEvent(ActivityAutoRefundTenantEvent request)
+        {
+            var config = await _tenantConfig2DAL.GetTenantConfig();
+            var activityConfig = config.ActivityConfig;
+            if (!activityConfig.IsAutoRefund)
+            {
+                return;
+            }
+            var pagingRequest = new GetRouteMustRefundPagingRequest()
+            {
+                PageCurrent = 1,
+                PageSize = 100,
+                TenantId = request.TenantId
+            };
+            var itemResult = await _activityRouteDAL.GetPagingRoute(pagingRequest);
+            if (itemResult.Item2 == 0)
+            {
+                return;
+            }
+            ProcessAutoRefundTenantConsumerEvent(request.TenantId, itemResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(itemResult.Item2, pagingRequest.PageSize);
+            pagingRequest.PageCurrent++;
+            while (pagingRequest.PageCurrent <= totalPage)
+            {
+                itemResult = await _activityRouteDAL.GetPagingRoute(pagingRequest);
+                ProcessAutoRefundTenantConsumerEvent(request.TenantId, itemResult.Item1);
+                pagingRequest.PageCurrent++;
+            }
+        }
+
+        private void ProcessAutoRefundTenantConsumerEvent(int tenantId, IEnumerable<EtActivityRoute> items)
+        {
+            foreach (var item in items)
+            {
+                _eventPublisher.Publish(new ActivityAutoRefundRouteEvent(tenantId)
+                {
+                    ActivityRouteId = item.Id
+                });
+            }
+        }
+
+        public async Task ActivityAutoRefundRouteConsumerEvent(ActivityAutoRefundRouteEvent request)
+        {
+            var pagingRequest = new GetRouteItemMustRefundPagingRequest()
+            {
+                PageCurrent = 1,
+                PageSize = 100,
+                TenantId = request.TenantId,
+                ActivityRouteId = request.ActivityRouteId
+            };
+            var itemResult = await _activityRouteDAL.GetPagingRouteItem(pagingRequest);
+            if (itemResult.Item2 == 0)
+            {
+                return;
+            }
+            ProcessAutoRefundRouteConsumerEvent(request.TenantId, itemResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(itemResult.Item2, pagingRequest.PageSize);
+            pagingRequest.PageCurrent++;
+            while (pagingRequest.PageCurrent <= totalPage)
+            {
+                itemResult = await _activityRouteDAL.GetPagingRouteItem(pagingRequest);
+                ProcessAutoRefundRouteConsumerEvent(request.TenantId, itemResult.Item1);
+                pagingRequest.PageCurrent++;
+            }
+        }
+
+        private void ProcessAutoRefundRouteConsumerEvent(int tenantId, IEnumerable<EtActivityRouteItem> items)
+        {
+            foreach (var item in items)
+            {
+                _eventPublisher.Publish(new ActivityAutoRefundRouteItemEvent(tenantId)
+                {
+                    ActivityRouteItemId = item.Id
+                });
+            }
+        }
+
+        public async Task ActivityAutoRefundRouteItemConsumerEvent(ActivityAutoRefundRouteItemEvent request)
+        {
+            var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItem(request.ActivityRouteItemId);
+            var myActivityRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
+            if (myActivityRoute.CountFinish >= myActivityRoute.CountLimit)
+            {
+                return;
+            }
+            if (myActivityRouteItem.PayStatus != EmActivityRoutePayStatus.Paid)
+            {
+                return;
+            }
+            var refundResult = _paySuixingService.Refund(new RefundReq()
+            {
+                ordNo = OrderNumberLib.SuixingRefundOrder(),
+                mno = myActivityRouteItem.PayMno,
+                origUuid = myActivityRouteItem.PayUuid,
+                amt = myActivityRouteItem.PaySum,
+                notifyUrl = SysWebApiAddressConfig.SuixingRefundCallbackUrl,
+                refundReason = "活动失败",
+                extend = $"{myActivityRouteItem.TenantId}_{myActivityRouteItem.Id}"
+            });
+            if (refundResult != null)
+            {
+                _eventPublisher.Publish(new SuixingRefundCallbackEvent(myActivityRouteItem.TenantId)
+                {
+                    ActivityRouteItemId = myActivityRouteItem.Id,
+                    RefundTime = DateTime.Now
+                });
+            }
         }
     }
 }

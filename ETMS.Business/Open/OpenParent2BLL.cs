@@ -1174,7 +1174,8 @@ namespace ETMS.Business.Open
                 PayFinishTime = null,
                 RouteStatus = routeStatus,
                 StudentId = student?.Id,
-                ShareQRCode = string.Empty
+                ShareQRCode = string.Empty,
+                PayMno = tenantSuixingAccount.Mno
             };
             await _activityRouteDAL.AddActivityRoute(myRoute);
             var myRouteItem = new EtActivityRouteItem()
@@ -1215,7 +1216,8 @@ namespace ETMS.Business.Open
                 Tag = myRoute.Tag,
                 TenantId = myRoute.TenantId,
                 Unionid = myRoute.Unionid,
-                ShareQRCode = string.Empty
+                ShareQRCode = string.Empty,
+                PayMno = tenantSuixingAccount.Mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 
@@ -1402,7 +1404,8 @@ namespace ETMS.Business.Open
                 StudentPhone = request.StudentPhone,
                 Tag = string.Empty,
                 TenantId = myActivityRoute.TenantId,
-                ShareQRCode = string.Empty
+                ShareQRCode = string.Empty,
+                PayMno = tenantSuixingAccount.Mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 
@@ -1618,7 +1621,8 @@ namespace ETMS.Business.Open
                 PayFinishTime = null,
                 RouteStatus = routeStatus,
                 StudentId = student?.Id,
-                ShareQRCode = string.Empty
+                ShareQRCode = string.Empty,
+                PayMno = tenantSuixingAccount.Mno
             };
             await _activityRouteDAL.AddActivityRoute(myRoute);
             var myRouteItem = new EtActivityRouteItem()
@@ -1659,7 +1663,8 @@ namespace ETMS.Business.Open
                 Tag = myRoute.Tag,
                 TenantId = myRoute.TenantId,
                 Unionid = myRoute.Unionid,
-                ShareQRCode = string.Empty
+                ShareQRCode = string.Empty,
+                PayMno = tenantSuixingAccount.Mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 

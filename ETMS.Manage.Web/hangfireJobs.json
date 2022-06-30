@@ -159,5 +159,12 @@
     "Title": "每隔10分钟执行的任务",
     "IsCanTryAgain": false,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "EveryEvening19Job",
+    "Cron": "0 0 19 * * ?", //每天晚上7点执行
+    "Title": "每天晚上7点执行JOB",
+    "IsCanTryAgain": true,
+    "IsCanParallelProcess": false
   }
 ]
