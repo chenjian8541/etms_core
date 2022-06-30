@@ -11,8 +11,11 @@ namespace ETMS.Entity.Config
         public TenantConfig2()
         {
             MallGoodsConfig = new MallGoodsConfig();
+            ActivityConfig = new ActivityConfig();
         }
         public MallGoodsConfig MallGoodsConfig { get; set; }
+
+        public ActivityConfig ActivityConfig { get; set; }
     }
 
     public class MallGoodsConfig
@@ -25,5 +28,12 @@ namespace ETMS.Entity.Config
         /// <see cref="ETMS.Entity.Enum.EmMallGoodsStatus"/>
         /// </summary>
         public byte MallGoodsStatus { get; set; }
+    }
+
+    public class ActivityConfig
+    {
+        public bool IsAutoRefund { get; set; }
+
+        public string PayTp { get; set; } = "注：您将购买课程服务，购买之后不支持退订、转让、退款";
     }
 }

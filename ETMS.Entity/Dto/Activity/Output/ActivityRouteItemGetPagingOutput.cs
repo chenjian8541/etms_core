@@ -36,5 +36,14 @@ namespace ETMS.Entity.Dto.Activity.Output
         public DateTime CreateTime { get; set; }
 
         public string Tag { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmActivityRoutePayStatus"/>
+        /// </summary>
+        public int PayStatus { get; set; }
+
+        public string PayStatusDesc { get; set; }
+
+        public string PayOrderNo { get; set; }
     }
 }

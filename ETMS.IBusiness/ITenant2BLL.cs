@@ -12,5 +12,9 @@ namespace ETMS.IBusiness
     public interface ITenant2BLL: IBaseBLL
     {
         Task<ResponseBase> TenantStatisticsGet(RequestBase request);
+
+        Task<ResponseBase> ActivityConfigGet(RequestBase request);
+
+        Task<ResponseBase> ActivityConfigSave(ActivityConfigSaveRequest request);
     }
 }

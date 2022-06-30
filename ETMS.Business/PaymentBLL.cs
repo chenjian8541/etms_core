@@ -75,10 +75,16 @@ namespace ETMS.Business
                 var limitRefundDate = DateTime.Now.Date.AddDays(-SystemConfig.ComConfig.LcsRefundOrderLimitDay);
                 foreach (var p in pagingData.Item1)
                 {
-                    EtStudent myStudent = null;
-                    if (p.OrderType != EmLcsPayLogOrderType.StudentAccountRecharge)
+                    var studentName = p.StudentName;
+                    var studentPhone = p.StudentPhone;
+                    if (p.OrderType != EmLcsPayLogOrderType.StudentAccountRecharge && p.OrderType != EmLcsPayLogOrderType.Activity)
                     {
-                        myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RelationId);
+                        var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.RelationId);
+                        if (myStudent != null)
+                        {
+                            studentName = myStudent.Name;
+                            studentPhone = myStudent.Phone;
+                        }
                     }
                     var isCanRefund = false;
                     if (p.Status == EmLcsPayLogStatus.PaySuccess)
@@ -100,8 +106,8 @@ namespace ETMS.Business
                         RefundOt = p.RefundOt,
                         Status = p.Status,
                         StudentId = p.RelationId,
-                        StudentName = myStudent?.Name,
-                        StudentPhone = myStudent?.Phone,
+                        StudentName = studentName,
+                        StudentPhone = studentPhone,
                         OrderNo = p.OrderNo,
                         OrderSource = p.OrderSource,
                         OrderDesc = p.OrderDesc,
@@ -114,7 +120,7 @@ namespace ETMS.Business
                         IsLoading = false,
                         AgtPayType = p.AgtPayType,
                         AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType)
-                    }); ; ;
+                    });
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantLcsPayLogPagingOutput>(pagingData.Item2, output));

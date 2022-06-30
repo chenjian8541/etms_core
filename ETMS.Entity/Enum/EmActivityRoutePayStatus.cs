@@ -22,5 +22,19 @@ namespace ETMS.Entity.Enum
         /// 已退款
         /// </summary>
         public const int Refunded = 2;
+
+        public static string GetActivityRoutePayStatusDesc(int t)
+        {
+            switch (t)
+            {
+                case Unpaid:
+                    return "未支付";
+                case Paid:
+                    return "已支付";
+                case Refunded:
+                    return "已退款";
+            }
+            return string.Empty;
+        }
     }
 }

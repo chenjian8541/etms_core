@@ -307,7 +307,9 @@ namespace ETMS.Business.EventConsumer
                 TotalFee = (myActivityRouteItem.PaySum * 100).ToString(),
                 TotalFeeDesc = myActivityRouteItem.PaySum.EtmsToString2(),
                 TotalFeeValue = myActivityRouteItem.PaySum,
-                Remark = string.Empty
+                Remark = string.Empty,
+                StudentName = myActivityRouteItem.StudentName,
+                StudentPhone = myActivityRouteItem.StudentPhone,
             });
             _eventPublisher.Publish(new StatisticsLcsPayEvent(request.TenantId)
             {

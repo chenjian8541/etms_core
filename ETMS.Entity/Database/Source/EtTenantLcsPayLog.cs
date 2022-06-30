@@ -152,6 +152,10 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public DateTime? RefundDate { get; set; }
 
+        public string StudentName { get; set; }
+
+        public string StudentPhone { get; set; }
+
         /// <summary>
         /// 状态
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcsPayLogStatus"/>

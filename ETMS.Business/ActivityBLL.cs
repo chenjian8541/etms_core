@@ -782,6 +782,19 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ActivityRouteGetPaging(ActivityRouteGetPagingRequest request)
         {
+            var myActivity = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            if (myActivity == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            var minCount = 0;
+            var maxCount = 0;
+            if (myActivity.ActivityType == EmActivityType.GroupPurchase)
+            {
+                var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(myActivity.RuleContent);
+                minCount = ruleContent.Item.First().LimitCount;
+                maxCount = ruleContent.Item.Last().LimitCount;
+            }
             var pagingData = await _activityRouteDAL.GetPagingRoute(request);
             var output = new List<ActivityRouteGetPagingOutput>();
             foreach (var p in pagingData.Item1)
@@ -796,6 +809,16 @@ namespace ETMS.Business
                 else
                 {
                     statusDesc = "未完成";
+                }
+                var payStatusDesc = string.Empty;
+                if (p.IsNeedPay)
+                {
+                    payStatusDesc = EmActivityRoutePayStatus.GetActivityRoutePayStatusDesc(p.PayStatus);
+                }
+                var groupPurchaseFinishDesc = string.Empty;
+                if (myActivity.ActivityType == EmActivityType.GroupPurchase)
+                {
+                    groupPurchaseFinishDesc = ComBusiness5.GetSysActivityGroupPurchaseStatusDesc(minCount, maxCount, p.CountFinish);
                 }
                 output.Add(new ActivityRouteGetPagingOutput()
                 {
@@ -816,7 +839,11 @@ namespace ETMS.Business
                     Status = status,
                     StatusDesc = statusDesc,
                     Tag = p.Tag,
-                    ActivityType = p.ActivityType
+                    ActivityType = p.ActivityType,
+                    PayStatus = p.PayStatus,
+                    PayStatusDesc = payStatusDesc,
+                    GroupPurchaseFinishDesc = groupPurchaseFinishDesc,
+                    PayOrderNo = p.PayOrderNo
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivityRouteGetPagingOutput>(pagingData.Item2, output));
@@ -865,6 +892,11 @@ namespace ETMS.Business
             var output = new List<ActivityRouteItemGetPagingOutput>();
             foreach (var p in pagingData.Item1)
             {
+                var payStatusDesc = string.Empty;
+                if (p.IsNeedPay)
+                {
+                    payStatusDesc = EmActivityRoutePayStatus.GetActivityRoutePayStatusDesc(p.PayStatus);
+                }
                 output.Add(new ActivityRouteItemGetPagingOutput()
                 {
                     ItemId = p.Id,
@@ -881,7 +913,10 @@ namespace ETMS.Business
                     StudentName = p.StudentName,
                     StudentPhone = p.StudentPhone,
                     Tag = p.Tag,
-                    ActivityType = p.ActivityType
+                    ActivityType = p.ActivityType,
+                    PayStatus = p.PayStatus,
+                    PayStatusDesc = payStatusDesc,
+                    PayOrderNo = p.PayOrderNo
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivityRouteItemGetPagingOutput>(pagingData.Item2, output));

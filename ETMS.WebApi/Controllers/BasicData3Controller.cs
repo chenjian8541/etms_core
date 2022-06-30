@@ -37,5 +37,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ActivityConfigGet(RequestBase request)
+        {
+            try
+            {
+                this._tenant2BLL.InitTenantId(request.LoginTenantId);
+                return await _tenant2BLL.ActivityConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityConfigSave(ActivityConfigSaveRequest request)
+        {
+            try
+            {
+                this._tenant2BLL.InitTenantId(request.LoginTenantId);
+                return await _tenant2BLL.ActivityConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

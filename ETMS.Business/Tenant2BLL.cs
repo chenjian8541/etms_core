@@ -1,7 +1,9 @@
 ﻿using ETMS.Business.Common;
 using ETMS.Entity.Common;
 using ETMS.Entity.Dto.BasicData.Output;
+using ETMS.Entity.Dto.BasicData.Request;
 using ETMS.IBusiness;
+using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage.Statistics;
 using ETMS.Utility;
 using System;
@@ -20,17 +22,19 @@ namespace ETMS.Business
 
         private readonly ISysTenantStatisticsMonthDAL _sysTenantStatisticsMonthDAL;
 
+        private readonly ITenantConfig2DAL _tenantConfig2DAL;
         public Tenant2BLL(ISysTenantStatistics2DAL sysTenantStatistics2DAL, ISysTenantStatisticsWeekDAL sysTenantStatisticsWeekDAL,
-            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL)
+            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL, ITenantConfig2DAL tenantConfig2DAL)
         {
             this._sysTenantStatistics2DAL = sysTenantStatistics2DAL;
             this._sysTenantStatisticsWeekDAL = sysTenantStatisticsWeekDAL;
             this._sysTenantStatisticsMonthDAL = sysTenantStatisticsMonthDAL;
-
+            this._tenantConfig2DAL = tenantConfig2DAL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this.InitDataAccess(tenantId, _tenantConfig2DAL);
         }
 
         public async Task<ResponseBase> TenantStatisticsGet(RequestBase request)
@@ -111,6 +115,25 @@ namespace ETMS.Business
             }
 
             return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ActivityConfigGet(RequestBase request)
+        {
+            var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
+            return ResponseBase.Success(new ActivityConfigGetOutput()
+            {
+                IsAutoRefund = tenantConfig.ActivityConfig.IsAutoRefund,
+                PayTp = tenantConfig.ActivityConfig.PayTp,
+            });
+        }
+
+        public async Task<ResponseBase> ActivityConfigSave(ActivityConfigSaveRequest request)
+        {
+            var tenantConfig = await _tenantConfig2DAL.GetTenantConfig();
+            tenantConfig.ActivityConfig.IsAutoRefund = request.IsAutoRefund;
+            tenantConfig.ActivityConfig.PayTp = request.PayTp;
+            await _tenantConfig2DAL.SaveTenantConfig(tenantConfig);
+            return ResponseBase.Success();
         }
     }
 }

@@ -182,5 +182,23 @@ namespace ETMS.Business.Common
             }
             return EmSysActivityRouteItemStatus.Going;
         }
+
+        public static string GetSysActivityGroupPurchaseStatusDesc(int minCount, int maxCount, int finishCount)
+        {
+            if (finishCount >= maxCount)
+            {
+                return "已满团";
+            }
+            if (finishCount >= minCount)
+            {
+                return "已成团";
+            }
+            return "进行中";
+        }
+
+        public static string GetSysActivityHagglingStatusDesc(int limitCount, int finishCount)
+        {
+            return finishCount >= limitCount ? "已完成" : "进行中";
+        }
     }
 }
