@@ -28,5 +28,6 @@ namespace ETMS.IDataAccess.EtmsManage
         Task<Tuple<IEnumerable<SysActivityRouteItem>, int>> GetPagingRouteItem(IPagingRequest request);
 
         Task UpdateActivityRouteItemStatus(long tenantId, long activityId, long activityRouteId, int newStatus);
+
     }
 }

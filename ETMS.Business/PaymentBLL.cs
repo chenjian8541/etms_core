@@ -111,8 +111,10 @@ namespace ETMS.Business
                         OrderSourceDesc = EmLcsPayLogOrderSource.GetOrderSourceDesc(p.OrderSource),
                         PayTypeDesc = EmLcsPayType.GetPayTypeDesc(p.PayType),
                         IsCanRefund = isCanRefund,
-                        IsLoading = false
-                    }); ;
+                        IsLoading = false,
+                        AgtPayType = p.AgtPayType,
+                        AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType)
+                    }); ; ;
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantLcsPayLogPagingOutput>(pagingData.Item2, output));

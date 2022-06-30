@@ -8,11 +8,11 @@ namespace ETMS.Pay.Suixing.Utility.Dto.Request
 {
     public class RefundRequest
     {
-        public string ordNo { get; set; }
-
         public string mno { get; set; }
 
-        public string origOrderNo { get; set; }
+        public string ordNo { get; set; }
+
+        public string origUuid { get; set; }
 
         public string amt { get; set; }
 

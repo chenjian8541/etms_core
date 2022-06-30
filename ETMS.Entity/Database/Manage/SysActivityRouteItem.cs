@@ -86,5 +86,10 @@ namespace ETMS.Entity.Database.Manage
         public int Status { get; set; }
 
         public DateTime CreateTime { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmActivityRoutePayStatus"/>
+        /// </summary>
+        public int PayStatus { get; set; }
     }
 }

@@ -52,6 +52,7 @@ using System.Threading.Tasks;
 using Config = ETMS.Pay.Lcsw.Config;
 using Senparc.Weixin.WxOpen;
 using Senparc.Weixin.WxOpen.AdvancedAPIs.WxApp;
+using ETMS.Business.Common;
 
 namespace Etms.Tools.Test
 {
@@ -290,6 +291,16 @@ namespace Etms.Tools.Test
         public void ProcessT()
         {
             var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
+            var a = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
+            {
+                amt = 0.01M,
+                extend = "123",
+                mno = "399220617483310",
+                notifyUrl = "http://172.16.155.45:8080/order/test/call",
+                origUuid = "123123",
+                refundReason = "11",
+                ordNo = OrderNumberLib.SuixingRefundOrder()
+            });
             //var bb = paySuixingService.MerchantInfoQuery("399200623916234");
             //var aa = paySuixingService.JsapiScanMiniProgram(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.JsapiScanMiniProgramReq()
             //{

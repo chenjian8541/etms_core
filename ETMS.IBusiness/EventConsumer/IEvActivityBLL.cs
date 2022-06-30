@@ -22,5 +22,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncSysActivityRouteItemConsumerEvent(SyncSysActivityRouteItemEvent request);
 
         Task SuixingPayCallbackConsumerEvent(SuixingPayCallbackEvent request);
+
+        Task SuixingRefundCallbackConsumerEvent(SuixingRefundCallbackEvent request);
     }
 }

@@ -92,6 +92,20 @@ namespace ETMS.DataAccess.Activity
             await _dbWrapper.Execute($"UPDATE EtActivityRouteItem SET RouteStatus = {EmActivityRouteStatus.Normal},PayStatus = {EmActivityRoutePayStatus.Paid},PayFinishTime = '{payTime.EtmsToString()}' WHERE Id = {itemId}");
         }
 
+        public async Task UpdateActivityRouteAboutRefundTemp(long routeId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRoute SET CountFinish = CountFinish - 1,PayStatus = {EmActivityRoutePayStatus.Refunded} WHERE Id = {routeId}");
+            RemoveCache(_tenantId, routeId);
+            this._activityRoute2DAL.RemoveCache(routeId);
+        }
+
+        public async Task UpdateActivityRouteItemAboutRefundTemp(long itemId, long routeId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActivityRouteItem SET PayStatus = {EmActivityRoutePayStatus.Refunded} WHERE Id = {itemId}");
+            RemoveCache(_tenantId, routeId);
+            this._activityRoute2DAL.RemoveCache(routeId);
+        }
+
         #endregion
 
         public async Task<EtActivityRoute> GetActivityRoute(long id)
@@ -209,7 +223,7 @@ namespace ETMS.DataAccess.Activity
             var sql = string.Empty;
             if (activityType == EmActivityType.GroupPurchase)
             {
-                sql = $"SELECT COUNT(0) FROM EtActivityRouteItem WHERE TenantId = {_tenantId} AND ActivityRouteId = {activityRouteId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal}";
+                sql = $"SELECT COUNT(0) FROM EtActivityRouteItem WHERE TenantId = {_tenantId} AND ActivityRouteId = {activityRouteId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND PayStatus <> {EmActivityRoutePayStatus.Refunded} AND IsDeleted = {EmIsDeleted.Normal}";
             }
             else
             {

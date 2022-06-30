@@ -9,8 +9,12 @@ using ETMS.Entity.Dto.CoreBusiness.Request;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Pay.Lcsw.Dto.Request;
 using ETMS.Entity.Temp;
+using ETMS.Event.DataContract.Activity;
 using ETMS.IBusiness;
+using ETMS.IEventProvider;
 using ETMS.Pay.Lcsw;
+using ETMS.Pay.Suixing;
+using ETMS.Pay.Suixing.Utility.ExternalDto.Request;
 using ETMS.Utility;
 using FubeiOpenApi.CoreSdk.Models.Parameter.Agent;
 using FubeiOpenApi.CoreSdk.Models.Response.Agent;
@@ -28,9 +32,15 @@ namespace ETMS.Business
 
         private CheckTenantLcsAccountView _checkTenantAgtPayAccountResult;
 
-        public AgtPayServiceBLL(IPayLcswService payLcswService)
+        private readonly IPaySuixingService _paySuixingService;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        public AgtPayServiceBLL(IPayLcswService payLcswService, IPaySuixingService paySuixingService, IEventPublisher eventPublisher)
         {
             this._payLcswService = payLcswService;
+            this._paySuixingService = paySuixingService;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
@@ -498,6 +508,8 @@ namespace ETMS.Business
                     return RefundPay_Lcsw(request);
                 case EmAgtPayType.Fubei:
                     return await RefundPay_Fubei(request);
+                case EmAgtPayType.Suixing:
+                    return RefundPay_Suixing(request);
             }
             return GetErrResult<RefundPayOutput>("账户异常");
         }
@@ -597,6 +609,38 @@ namespace ETMS.Business
                 default:
                     return GetErrResult<RefundPayOutput>("退款失败");
             }
+        }
+
+        public RefundPayOutput RefundPay_Suixing(RefundPayRequest request)
+        {
+            var paylog = request.Paylog;
+            var refundResult = _paySuixingService.Refund(new RefundReq()
+            {
+                ordNo = OrderNumberLib.SuixingRefundOrder(),
+                mno = paylog.MerchantNo,
+                origUuid = paylog.OutTradeNo,
+                amt = paylog.TotalFeeValue,
+                notifyUrl = SysWebApiAddressConfig.SuixingRefundCallbackUrl,
+                refundReason = "活动失败",
+                extend = $"{paylog.TenantId}_{paylog.RelationId}"
+            });
+            if (refundResult != null)
+            {
+                _eventPublisher.Publish(new SuixingRefundCallbackEvent(paylog.TenantId)
+                {
+                    ActivityRouteItemId = paylog.RelationId,
+                    RefundTime = DateTime.Now
+                });
+                return new RefundPayOutput()
+                {
+                    IsSuccess = true,
+                    ErrMsg = string.Empty,
+                    out_refund_no = refundResult.sxfUuid,
+                    refund_fee = paylog.TotalFee,
+                    RefundStatus = EmLcsPayLogStatus.Refunded
+                };
+            }
+            return GetErrResult<RefundPayOutput>("退款失败");
         }
     }
 }

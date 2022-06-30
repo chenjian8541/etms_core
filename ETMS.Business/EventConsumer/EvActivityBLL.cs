@@ -132,6 +132,7 @@ namespace ETMS.Business.EventConsumer
             {
                 ActivityRouteItemId = request.ActivityRouteItemId,
             });
+
         }
 
         public async Task SyncActivityBascInfoConsumerEvent(SyncActivityBascInfoEvent request)
@@ -200,7 +201,8 @@ namespace ETMS.Business.EventConsumer
                     ActivityTypeStyleClass = item.ActivityTypeStyleClass,
                     AvatarUrl = item.AvatarUrl,
                     CreateTime = item.CreateTime,
-                    Status = item.Status
+                    Status = item.Status,
+                    PayStatus = item.PayStatus,
                 });
             }
             else
@@ -232,6 +234,7 @@ namespace ETMS.Business.EventConsumer
                 log.ActivityTypeStyleClass = item.ActivityTypeStyleClass;
                 log.AvatarUrl = item.AvatarUrl;
                 log.Status = item.Status;
+                log.PayStatus = item.PayStatus;
                 await _sysActivityRouteItemDAL.EdiSysActivityRouteItem(log);
             }
         }
@@ -241,6 +244,10 @@ namespace ETMS.Business.EventConsumer
             var payTime = request.PayTime;
             var myRouteItemId = request.ActivityRouteItemId;
             var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItemTemp(myRouteItemId);
+            if (myActivityRouteItem.PayStatus == EmActivityRoutePayStatus.Paid) //重复操作
+            {
+                return;
+            }
             await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myRouteItemId, payTime);
             if (myActivityRouteItem.IsTeamLeader)
             {
@@ -306,6 +313,37 @@ namespace ETMS.Business.EventConsumer
             _eventPublisher.Publish(new StatisticsLcsPayEvent(request.TenantId)
             {
                 StatisticsDate = payTime.Date
+            });
+        }
+
+        public async Task SuixingRefundCallbackConsumerEvent(SuixingRefundCallbackEvent request)
+        {
+            var myRouteItemId = request.ActivityRouteItemId;
+            var myActivityRouteItem = await _activityRouteDAL.GetActivityRouteItemTemp(myRouteItemId);
+            if (myActivityRouteItem.PayStatus == EmActivityRoutePayStatus.Refunded)
+            {
+                return;
+            }
+            await _activityRouteDAL.UpdateActivityRouteItemAboutRefundTemp(myRouteItemId, myActivityRouteItem.ActivityRouteId);
+            if (myActivityRouteItem.IsTeamLeader)
+            {
+                await _activityRouteDAL.UpdateActivityRouteAboutRefundTemp(myActivityRouteItem.ActivityRouteId);
+            }
+            _eventPublisher.Publish(new SyncActivityEffectCountEvent(myActivityRouteItem.TenantId)
+            {
+                ActivityId = myActivityRouteItem.ActivityId,
+                ActivityType = myActivityRouteItem.ActivityType
+            });
+            var myActivityRoute = await _activityRouteDAL.GetActivityRouteTemp(myActivityRouteItem.ActivityRouteId);
+            var myActivity = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
+            _eventPublisher.Publish(new SyncActivityRouteFinishCountEvent(myActivityRouteItem.TenantId)
+            {
+                ActivityId = myActivityRouteItem.ActivityId,
+                CountLimit = myActivityRoute.CountLimit,
+                ActivityRouteId = myActivityRoute.Id,
+                ActivityRouteItemId = myActivityRouteItem.Id,
+                ActivityType = myActivityRouteItem.ActivityType,
+                RuleContent = myActivity.RuleContent
             });
         }
     }

@@ -102,9 +102,9 @@ namespace ETMS.Pay.Suixing
                     extend = request.extend,
                     mno = request.mno,
                     notifyUrl = request.notifyUrl,
+                    refundReason = request.refundReason,
                     ordNo = request.ordNo,
-                    origOrderNo = request.origOrderNo,
-                    refundReason = request.refundReason
+                    origUuid = request.origUuid,
                 }
             };
             string strSignTemp = PackReflectionEntity<RequestBase<RefundRequest>>.GetEntityToString(req);

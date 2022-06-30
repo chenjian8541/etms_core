@@ -21,6 +21,10 @@ namespace ETMS.IDataAccess.Activity
 
         Task UpdateActivityRouteItemAboutPayFinishTemp(long itemId, DateTime payTime);
 
+        Task UpdateActivityRouteAboutRefundTemp(long routeId);
+
+        Task UpdateActivityRouteItemAboutRefundTemp(long itemId, long routeId);
+
         #endregion
 
         Task<EtActivityRoute> GetActivityRoute(long id);
