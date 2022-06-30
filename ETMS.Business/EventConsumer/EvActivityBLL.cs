@@ -341,6 +341,7 @@ namespace ETMS.Business.EventConsumer
                 ActivityType = myActivityRouteItem.ActivityType,
                 RuleContent = myActivity.RuleContent
             });
+            await _tenantLcsPayLogDAL.UpdateTenantLcsPayLogRefund(EmAgtPayType.Suixing, myRouteItemId);
         }
     }
 }

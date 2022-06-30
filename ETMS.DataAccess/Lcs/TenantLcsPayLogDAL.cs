@@ -1,8 +1,10 @@
 ﻿using ETMS.DataAccess.Core;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
+using ETMS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +48,11 @@ namespace ETMS.DataAccess.Lcs
         public async Task UpdateTenantLcsPayLog(long id, string outTradeNo, string payType, string subAppid, string totalFee)
         {
             await _dbWrapper.Execute($"UPDATE EtTenantLcsPayLog SET OutTradeNo = '{outTradeNo}',PayType = '{payType}',SubAppid = '{subAppid}',TotalFee = '{totalFee}' WHERE Id = {id} AND TenantId = {_tenantId}");
+        }
+
+        public async Task UpdateTenantLcsPayLogRefund(int agtPayType, long relationId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtTenantLcsPayLog SET [Status] = {EmLcsPayLogStatus.Refunded} WHERE TenantId = {_tenantId} AND AgtPayType = {agtPayType} AND RelationId = {relationId}");
         }
     }
 }

@@ -21,5 +21,7 @@ namespace ETMS.IDataAccess.Lcs
         Task<Tuple<IEnumerable<EtTenantLcsPayLog>, int>> GetTenantLcsPayLogPaging(IPagingRequest request);
 
         Task UpdateTenantLcsPayLog(long id, string outTradeNo, string payType, string subAppid, string totalFee);
+
+        Task UpdateTenantLcsPayLogRefund(int agtPayType, long relationId);
     }
 }
