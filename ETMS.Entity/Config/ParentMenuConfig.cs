@@ -49,6 +49,11 @@ namespace ETMS.Entity.Config
         public const int AlbumLog = 8;
 
         /// <summary>
+        /// 试听申请
+        /// </summary>
+        public const int TryClass = 9;
+
+        /// <summary>
         /// 余额
         /// </summary>
         public const int Balance = 20;
@@ -123,6 +128,7 @@ namespace ETMS.Entity.Config
         {
             AllConfig = new List<ParentMenuInfo>();
             AllConfig.Add(new ParentMenuInfo(LeaveApply, "请假审批", 5));
+            AllConfig.Add(new ParentMenuInfo(TryClass, "试听申请", 7));
             AllConfig.Add(new ParentMenuInfo(GiftExchange, "礼品兑换", 10));
             AllConfig.Add(new ParentMenuInfo(Homework, "课后作业", 15));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));

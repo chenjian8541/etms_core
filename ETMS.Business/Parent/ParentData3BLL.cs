@@ -237,7 +237,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Phone = request.Phone,
                 RecommandStudentId = log.StudentId,
-                SourceType = EmTryCalssSourceType.WeChat,
+                SourceType = EmTryCalssSourceType.Tourists,
                 StudentId = null,
                 TenantId = request.TenantId,
                 TouristName = request.Name,

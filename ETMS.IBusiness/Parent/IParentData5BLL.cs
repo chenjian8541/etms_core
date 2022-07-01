@@ -19,5 +19,13 @@ namespace ETMS.IBusiness.Parent
         Task<ResponseBase> StudentReservation1v1LessonsGet(StudentReservation1v1LessonsGetRequest request);
 
         Task<ResponseBase> StudentReservation1v1LessonsSubmit(StudentReservation1v1LessonsSubmitRequest request);
+
+        Task<ResponseBase> StudentTryClassGetPaging(StudentTryClassGetPagingRequest request);
+
+        Task<ResponseBase> StudentTryClassGet(StudentTryClassGetRequest request);
+
+        Task<ResponseBase> StudentTryClassSubmit(StudentTryClassSubmitRequest request);
+
+        Task<ResponseBase> StudentTryClassCancel(StudentTryClassCancelRequest request);
     }
 }

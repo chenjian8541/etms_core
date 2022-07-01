@@ -23,6 +23,18 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Find<EtTryCalssApplyLog>(id);
         }
 
+        public async Task DelTryCalssApplyLog(long id)
+        {
+            await _dbWrapper.Execute($"UPDATE EtTryCalssApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {id} AND TenantId = {_tenantId}");
+        }
+
+        public async Task<bool> ExistTryCalssApplyLog(long studentId, DateTime classOt)
+        {
+            var obj = await _dbWrapper.ExecuteScalar(
+                $"SELECT TOP 1 0 FROM EtTryCalssApplyLog WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND ClassOt = '{classOt.EtmsToDateString()}' AND HandleStatus <> {EmTryCalssApplyHandleStatus.NotPass} AND IsDeleted = {EmIsDeleted.Normal}");
+            return obj != null;
+        }
+
         public async Task<bool> AddTryCalssApplyLog(EtTryCalssApplyLog log)
         {
             return await _dbWrapper.Insert(log);
@@ -33,9 +45,14 @@ namespace ETMS.DataAccess
             return await _dbWrapper.Update(log);
         }
 
-        public async Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging(RequestPagingBase request)
+        public async Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtTryCalssApplyLog>("EtTryCalssApplyLog", "*", request.PageSize, request.PageCurrent, $"case when HandleStatus = {EmTryCalssApplyHandleStatus.Unreviewed} then 1 else 2 end,id desc", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging2(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtTryCalssApplyLog>("EtTryCalssApplyLog", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
     }
 }

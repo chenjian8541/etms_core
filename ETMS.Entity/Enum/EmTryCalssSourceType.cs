@@ -10,15 +10,24 @@ namespace ETMS.Entity.Enum
     public struct EmTryCalssSourceType
     {
         /// <summary>
-        /// 微信
+        /// 游客
         /// </summary>
-        public const byte WeChat = 0;
+        public const byte Tourists = 0;
+
+        /// <summary>
+        /// 学员
+        /// </summary>
+        public const byte Student = 1;
 
         public static string GetTryCalssSourceTypeDesc(byte b)
         {
-            if (b == WeChat)
+            if (b == Tourists)
             {
-                return "微信";
+                return "游客";
+            }
+            if (b == Student)
+            {
+                return "学员";
             }
             return string.Empty;
         }

@@ -243,7 +243,7 @@ namespace ETMS.Business
                 IsDeleted = EmIsDeleted.Normal,
                 Phone = request.Phone,
                 RecommandStudentId = recommandStudentId,
-                SourceType = EmTryCalssSourceType.WeChat,
+                SourceType = EmTryCalssSourceType.Tourists,
                 StudentId = null,
                 TenantId = request.LoginTenantId,
                 TouristName = string.Empty,

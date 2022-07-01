@@ -11,10 +11,16 @@ namespace ETMS.IDataAccess
     {
         Task<EtTryCalssApplyLog> GetTryCalssApplyLog(long id);
 
+        Task DelTryCalssApplyLog(long id);
+
+        Task<bool> ExistTryCalssApplyLog(long studentId, DateTime classOt);
+
         Task<bool> AddTryCalssApplyLog(EtTryCalssApplyLog log);
 
         Task<bool> EditTryCalssApplyLog(EtTryCalssApplyLog log);
 
-        Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging(RequestPagingBase request);
+        Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging(IPagingRequest request);
+
+        Task<Tuple<IEnumerable<EtTryCalssApplyLog>, int>> GetPaging2(IPagingRequest request);
     }
 }

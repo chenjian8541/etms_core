@@ -199,5 +199,61 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentTryClassGetPaging(StudentTryClassGetPagingRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentTryClassGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentTryClassGet(StudentTryClassGetRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentTryClassGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentTryClassSubmit(StudentTryClassSubmitRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentTryClassSubmit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentTryClassCancel(StudentTryClassCancelRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.StudentTryClassCancel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

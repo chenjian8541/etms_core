@@ -42,10 +42,12 @@ namespace ETMS.Business.Parent
 
         private readonly IStudentOperationLogDAL _studentOperationLogDAL;
 
+        private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
+
         public ParentData5BLL(IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             ITeacherSchooltimeConfigDAL teacherSchooltimeConfigDAL, ICourseDAL courseDAL,
             IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IAppConfig2BLL appConfig2BLL,
-            IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL)
+            IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL)
         {
             this._classDAL = classDAL;
             this._userDAL = userDAL;
@@ -57,13 +59,14 @@ namespace ETMS.Business.Parent
             this._appConfig2BLL = appConfig2BLL;
             this._eventPublisher = eventPublisher;
             this._studentOperationLogDAL = studentOperationLogDAL;
+            this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _userDAL, _studentDAL, _teacherSchooltimeConfigDAL,
-                _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL);
+                _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL, _tryCalssApplyLogDAL);
         }
 
         public async Task<ResponseBase> StudentReservation1v1Check(StudentReservation1v1CheckRequest request)
@@ -574,6 +577,109 @@ namespace ETMS.Business.Parent
 
             await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId,
                 $"预约上课(1v1)-班级:{myClass.Name},课次:{classTimes.ClassOt.EtmsToDateString()}({EtmsHelper.GetTimeDesc(classTimes.StartTime, classTimes.EndTime)})", EmStudentOperationLogType.StudentReservation);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentTryClassGetPaging(StudentTryClassGetPagingRequest request)
+        {
+            var pagingData = await _tryCalssApplyLogDAL.GetPaging2(request);
+            var output = new List<StudentTryClassGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                foreach (var p in pagingData.Item1)
+                {
+                    if (p.StudentId == null)
+                    {
+                        continue;
+                    }
+                    var student = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId.Value);
+                    if (student == null)
+                    {
+                        continue;
+                    }
+                    output.Add(new StudentTryClassGetPagingOutput()
+                    {
+                        Id = p.Id,
+                        TitleDesc = $"{student.Name}的申请",
+                        ApplyOt = p.ApplyOt,
+                        CourseDesc = p.CourseDesc,
+                        HandleStatus = p.HandleStatus,
+                        ClassOtDesc = p.ClassOt.EtmsToDateString()
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentTryClassGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> StudentTryClassGet(StudentTryClassGetRequest request)
+        {
+            var log = await _tryCalssApplyLogDAL.GetTryCalssApplyLog(request.Id);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("试听记录不存在");
+            }
+            var studentBucket = await _studentDAL.GetStudent(log.StudentId.Value);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var output = new StudentTryClassGetOutput()
+            {
+                Id = log.Id,
+                TitleDesc = $"{studentBucket.Student.Name}的申请",
+                ClassOt = log.ClassOt.EtmsToDateString(),
+                CourseDesc = log.CourseDesc,
+                HandleStatus = log.HandleStatus,
+                ApplyOt = log.ApplyOt
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentTryClassSubmit(StudentTryClassSubmitRequest request)
+        {
+            var isExist = await _tryCalssApplyLogDAL.ExistTryCalssApplyLog(request.StudentId, request.ClassOt.Value);
+            if (isExist)
+            {
+                return ResponseBase.CommonError("此日期已存在申请记录");
+            }
+            await _tryCalssApplyLogDAL.AddTryCalssApplyLog(new EtTryCalssApplyLog()
+            {
+                ApplyOt = DateTime.Now,
+                ClassOt = request.ClassOt,
+                ClassTime = string.Empty,
+                CourseDesc = request.CourseDesc,
+                CourseId = null,
+                HandleOt = null,
+                HandleRemark = string.Empty,
+                HandleStatus = EmTryCalssApplyHandleStatus.Unreviewed,
+                HandleUser = null,
+                IsDeleted = EmIsDeleted.Normal,
+                Phone = string.Empty,
+                RecommandStudentId = null,
+                SourceType = EmTryCalssSourceType.Student,
+                StudentId = request.StudentId,
+                TenantId = request.LoginTenantId
+            });
+
+            await _studentOperationLogDAL.AddStudentLog(request.StudentId, request.LoginTenantId, $"试听申请：{request.CourseDesc}", EmStudentOperationLogType.StudentReservation);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentTryClassCancel(StudentTryClassCancelRequest request)
+        {
+            var log = await _tryCalssApplyLogDAL.GetTryCalssApplyLog(request.Id);
+            if (log == null)
+            {
+                return ResponseBase.CommonError("试听记录不存在");
+            }
+            if (log.HandleStatus != EmTryCalssApplyHandleStatus.Unreviewed)
+            {
+                return ResponseBase.CommonError("已审核无法取消");
+            }
+            await _tryCalssApplyLogDAL.DelTryCalssApplyLog(request.Id);
+
+            await _studentOperationLogDAL.AddStudentLog(log.StudentId.Value, request.LoginTenantId, "取消试听申请", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
         }
     }
