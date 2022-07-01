@@ -17,5 +17,11 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ParentRegisterSendSms(ParentRegisterSendSmsRequest request);
 
         Task<ResponseBase> ParentRegister(ParentRegisterOpenRequest request);
+
+        Task<ResponseBase> StudentOpenRegisterInit(StudentOpenRegisterInitRequest request);
+
+        Task<ResponseBase> StudentOpenRegisterSendSms(StudentOpenRegisterSendSmsRequest request);
+
+        Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request);
     }
 }

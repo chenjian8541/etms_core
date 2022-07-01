@@ -179,15 +179,8 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        public async Task<ResponseBase> ParentLoginSendSms2(ParentLoginSendSmsRequest request)
+        private async Task<ResponseBase> MyParentLoginSendSms(SysTenant sysTenantInfo, string phone, string code)
         {
-            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
-            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
-            {
-                return ResponseBase.CommonError(loginTenantResult.Item1);
-            }
-            var sysTenantInfo = loginTenantResult.Item2;
-
             if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
             {
                 return ResponseBase.CommonError(myMsg);
@@ -205,15 +198,41 @@ namespace ETMS.Business
             var smsCode = RandomHelper.GetSmsCode();
             var sendSmsRes = await _smsService.ParentLogin(new SmsParentLoginRequest(sysTenantInfo.Id)
             {
-                Phone = request.Phone,
+                Phone = phone,
                 ValidCode = smsCode
             });
             if (!sendSmsRes.IsSuccess)
             {
                 return ResponseBase.CommonError("发送短信失败,请稍后再试");
             }
-            this._parentLoginSmsCodeDAL.AddParentLoginSmsCode(request.Code, request.Phone, smsCode);
+            this._parentLoginSmsCodeDAL.AddParentLoginSmsCode(code, phone, smsCode);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ParentLoginSendSms2(ParentLoginSendSmsRequest request)
+        {
+            var loginTenantResult = await GetLoginTenant(request.TenantNo, request.Code);
+            if (!string.IsNullOrEmpty(loginTenantResult.Item1) || loginTenantResult.Item2 == null)
+            {
+                return ResponseBase.CommonError(loginTenantResult.Item1);
+            }
+            var sysTenantInfo = loginTenantResult.Item2;
+
+            return await MyParentLoginSendSms(sysTenantInfo, request.Phone, request.Code);
+        }
+
+        public async Task<ResponseBase> ParentLoginSendSms3(ParentLoginSendSms3Request request)
+        {
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (sysTenantInfo == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            return await MyParentLoginSendSms(sysTenantInfo, request.Phone, request.Code);
         }
 
         public async Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request)
@@ -830,6 +849,117 @@ namespace ETMS.Business
                 _eventPublisher.Publish(new StatisticsStudentEvent(tenantId) { OpType = EmStatisticsStudentType.StudentSource, StatisticsDate = ot });
             }
             _eventPublisher.Publish(new StatisticsStudentEvent(tenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = ot });
+        }
+
+        public async Task<ResponseBase> ParentRegister2(ParentRegister2Request request)
+        {
+            var sysTenantInfo = await _sysTenantDAL.GetTenant(request.TenantId);
+            if (sysTenantInfo == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(sysTenantInfo, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var sysVersion = await _sysVersionDAL.GetVersion(sysTenantInfo.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
+            var loginSms = _parentLoginSmsCodeDAL.GetParentLoginSmsCode(string.Empty, request.Phone);
+            if (loginSms == null || loginSms.ExpireAtTime < DateTime.Now || loginSms.SmsCode != request.SmsCode)
+            {
+                return ResponseBase.CommonError("验证码错误");
+            }
+            _parentLoginSmsCodeDAL.RemoveParentLoginSmsCode(request.SmsCode, request.Phone);
+
+            _studentDAL.InitTenantId(sysTenantInfo.Id);
+            var hisStudent = await _studentDAL.GetStudent(request.Name, request.Phone);
+            if (hisStudent != null)
+            {
+                return ResponseBase.CommonError("学员已注册，请直接登录");
+            }
+            //注册学员
+            _tenantConfigDAL.InitTenantId(sysTenantInfo.Id);
+            _userDAL.InitTenantId(sysTenantInfo.Id);
+            var pwd = string.Empty;
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
+            {
+                pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
+            var myuser = await _userDAL.GetAdminUser();
+            var now = DateTime.Now;
+            var etStudent = new EtStudent()
+            {
+                BirthdayMonth = null,
+                BirthdayDay = null,
+                BirthdayTag = null,
+                Age = null,
+                AgeMonth = null,
+                Name = request.Name,
+                Avatar = string.Empty,
+                Birthday = null,
+                CreateBy = myuser.Id,
+                EndClassOt = null,
+                Gender = null,
+                GradeId = null,
+                HomeAddress = request.Address,
+                IntentionLevel = EmStudentIntentionLevel.Low,
+                IsBindingWechat = EmIsBindingWechat.No,
+                IsDeleted = EmIsDeleted.Normal,
+                LastJobProcessTime = now,
+                LastTrackTime = null,
+                LearningManager = null,
+                NextTrackTime = null,
+                Ot = now.Date,
+                Phone = request.Phone,
+                PhoneBak = string.Empty,
+                PhoneBakRelationship = null,
+                PhoneRelationship = 0,
+                Points = 0,
+                Remark = request.Remark,
+                SchoolName = string.Empty,
+                SourceId = null,
+                StudentType = EmStudentType.HiddenStudent,
+                Tags = string.Empty,
+                TenantId = sysTenantInfo.Id,
+                TrackStatus = EmStudentTrackStatus.NotTrack,
+                TrackUser = request.TrackUser,
+                NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
+                RecommendStudentId = null,
+                Password = pwd,
+            };
+            var studentExtendInfos = new List<EtStudentExtendInfo>();
+            if (request.StudentExtendItems != null && request.StudentExtendItems.Any())
+            {
+                foreach (var s in request.StudentExtendItems)
+                {
+                    studentExtendInfos.Add(new EtStudentExtendInfo()
+                    {
+                        ExtendFieldId = s.CId,
+                        IsDeleted = EmIsDeleted.Normal,
+                        Remark = string.Empty,
+                        StudentId = 0,
+                        TenantId = request.TenantId,
+                        Value1 = s.Value
+                    });
+                }
+            }
+            await _studentDAL.AddStudent(etStudent, studentExtendInfos);
+            CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
+            SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(etStudent.TenantId)
+            {
+                Time = etStudent.Ot
+            }, etStudent.TenantId, etStudent.Ot, true);
+
+            return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, string.Empty);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ParentLoginSendSms2(ParentLoginSendSmsRequest request);
 
+        Task<ResponseBase> ParentLoginSendSms3(ParentLoginSendSms3Request request);
+
         Task<ResponseBase> ParentLoginBySms(ParentLoginBySmsRequest request);
 
         Task<ResponseBase> ParentLoginByPwd(ParentLoginByPwdRequest request);
@@ -51,5 +53,7 @@ namespace ETMS.IBusiness
         ResponseBase UploadConfigGet(ParentRequestBase request);
 
         Task<ResponseBase> ParentRegister(ParentRegisterRequest request);
+
+        Task<ResponseBase> ParentRegister2(ParentRegister2Request request);
     }
 }

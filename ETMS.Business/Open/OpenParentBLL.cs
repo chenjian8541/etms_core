@@ -17,6 +17,8 @@ using ETMS.IDataAccess;
 using ETMS.Entity.Dto.Parent.Request;
 using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Dto.OpenParent.Output;
+using System.Collections.Generic;
+using ETMS.Entity.Dto.Student.Output;
 
 namespace ETMS.Business
 {
@@ -24,9 +26,17 @@ namespace ETMS.Business
     {
         private readonly IParentBLL _parentBLL;
 
-        public OpenParentBLL(IParentBLL parentBLL)
+        private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
+
+        public OpenParentBLL(IParentBLL parentBLL, IStudentExtendFieldDAL studentExtendFieldDAL)
         {
             this._parentBLL = parentBLL;
+            this._studentExtendFieldDAL = studentExtendFieldDAL;
+        }
+
+        private void InitTenantId(int tenantId)
+        {
+            this._studentExtendFieldDAL.InitTenantId(tenantId);
         }
 
         public async Task<ResponseBase> ParentLoginSendSms(ParentOpenLoginSendSmsRequest request)
@@ -92,6 +102,66 @@ namespace ETMS.Business
                 SmsCode = request.SmsCode,
                 TenantNo = request.TenantNo,
                 Code = string.Empty
+            });
+        }
+
+        private Tuple<int, long?> GetRegisterInfo(string tno)
+        {
+            var strSp = tno.Split("_");
+            long? trackUser = null;
+            var tenantId = TenantLib.GetIdDecrypt2(strSp[0]);
+            if (!string.IsNullOrEmpty(strSp[1]))
+            {
+                trackUser = TenantLib.GetIdDecrypt(strSp[1]);
+            }
+            return Tuple.Create(tenantId, trackUser);
+        }
+
+        public async Task<ResponseBase> StudentOpenRegisterInit(StudentOpenRegisterInitRequest request)
+        {
+            var registerInfo = GetRegisterInfo(request.Tno);
+            this.InitTenantId(registerInfo.Item1);
+            var output = new StudentOpenRegisterInitOutput()
+            {
+                StudentExtendItems = new List<StudentExtendItemOutput>()
+            };
+            var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
+            foreach (var file in studentExtendFileds)
+            {
+                output.StudentExtendItems.Add(new StudentExtendItemOutput()
+                {
+                    FieldId = file.Id,
+                    FieldDisplayName = file.DisplayName,
+                    Value = string.Empty
+                });
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentOpenRegisterSendSms(StudentOpenRegisterSendSmsRequest request)
+        {
+            var registerInfo = GetRegisterInfo(request.Tno);
+            return await _parentBLL.ParentLoginSendSms3(new ParentLoginSendSms3Request()
+            {
+                Code = string.Empty,
+                Phone = request.Phone,
+                TenantId = registerInfo.Item1
+            });
+        }
+
+        public async Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request)
+        {
+            var registerInfo = GetRegisterInfo(request.Tno);
+            return await _parentBLL.ParentRegister2(new ParentRegister2Request()
+            {
+                TenantId = registerInfo.Item1,
+                TrackUser = registerInfo.Item2,
+                Name = request.Name,
+                Phone = request.Phone,
+                SmsCode = request.SmsCode,
+                StudentExtendItems = request.StudentExtendItems,
+                Address = request.Address,
+                Remark = request.Remark
             });
         }
     }

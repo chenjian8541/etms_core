@@ -81,5 +81,44 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> StudentOpenRegisterInit(StudentOpenRegisterInitRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.StudentOpenRegisterInit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentOpenRegisterSendSms(StudentOpenRegisterSendSmsRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.StudentOpenRegisterSendSms(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.StudentOpenRegisterSubmit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

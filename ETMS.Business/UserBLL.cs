@@ -540,7 +540,7 @@ namespace ETMS.Business
 
         private string GetStudentSelfHelpRegisterUrl(string registerUrl, string tenantNo, long userId)
         {
-            return string.Format(registerUrl, $"{tenantNo}_{userId}");
+            return string.Format(registerUrl, $"{tenantNo}_{TenantLib.GetIdEncryptUrl(userId)}");
         }
 
         public async Task<ResponseBase> UserGetPaging(UserGetPagingRequest request)
