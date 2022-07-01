@@ -74,5 +74,17 @@ namespace ETMS.Business.Common
             var newStr = EtmsHelper2.GetUrlDecrypt(str);
             return newStr.Substring(4).ToLong();
         }
+
+        public static string GetIdEncryptUrl2(int id)
+        {
+            var str = $"8104{id}";
+            return EtmsHelper2.GetUrlEncrypt(str);
+        }
+
+        public static int GetIdDecrypt2(string str)
+        {
+            var newStr = EtmsHelper2.GetUrlDecrypt(str);
+            return newStr.Substring(4).ToInt();
+        }
     }
 }

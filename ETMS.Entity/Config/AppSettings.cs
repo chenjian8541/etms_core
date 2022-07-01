@@ -132,6 +132,8 @@ namespace ETMS.Entity.Config
         public string MicroWebHomeUrl { get; set; }
 
         public string WebApiUrl { get; set; }
+
+        public string StudentSelfHelpRegisterUrl { get; set; }
     }
 
     public class CloudBaiduConfig

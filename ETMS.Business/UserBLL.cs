@@ -538,8 +538,15 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        private string GetStudentSelfHelpRegisterUrl(string registerUrl, string tenantNo, long userId)
+        {
+            return string.Format(registerUrl, $"{tenantNo}_{userId}");
+        }
+
         public async Task<ResponseBase> UserGetPaging(UserGetPagingRequest request)
         {
+            var registerUrl = _appConfigurtaionServices.AppSettings.SysAddressConfig.StudentSelfHelpRegisterUrl;
+            var tenantNo = TenantLib.GetIdEncryptUrl2(request.LoginTenantId);
             request.OnlyShowTeacher = false;
             var userView = await _etUserDAL.GetUserPaging(request);
             return ResponseBase.Success(new ResponsePagingDataBase<UserGetPagingOutput>(userView.Item2, userView.Item1.Select(p => new UserGetPagingOutput()
@@ -558,7 +565,8 @@ namespace ETMS.Business
                 JobType = p.JobType,
                 Value = p.Id,
                 Label = p.Name,
-                IsBindingWechat = string.IsNullOrEmpty(p.WechatOpenid) ? EmIsBindingWechat.No : EmIsBindingWechat.Yes
+                IsBindingWechat = string.IsNullOrEmpty(p.WechatOpenid) ? EmIsBindingWechat.No : EmIsBindingWechat.Yes,
+                StudentSelfHelpRegisterUrl = GetStudentSelfHelpRegisterUrl(registerUrl, tenantNo, p.Id)
             })));
         }
 

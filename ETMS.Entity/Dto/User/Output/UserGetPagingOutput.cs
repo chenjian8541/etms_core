@@ -59,5 +59,7 @@ namespace ETMS.Entity.Dto.User.Output
         /// 是否绑定微信  <see cref="ETMS.Entity.Enum.EmIsBindingWechat"/>
         /// </summary>
         public byte IsBindingWechat { get; set; }
+
+        public string StudentSelfHelpRegisterUrl { get; set; }
     }
 }
