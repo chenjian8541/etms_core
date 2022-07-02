@@ -140,6 +140,8 @@ namespace ETMS.Entity.Database.Manage
 
         public decimal CloudStorageValueMB { get; set; }
 
+        public int FileLimitMB { get; set; }
+
         public DateTime? LastRenewalTime { get; set; }
 
         /// <summary>

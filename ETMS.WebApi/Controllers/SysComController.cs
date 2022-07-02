@@ -77,12 +77,12 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public ResponseBase UploadConfigGet(RequestBase request)
+        public async Task<ResponseBase> UploadConfigGet(RequestBase request)
         {
             try
             {
                 _sysComBLL.InitTenantId(request.LoginTenantId);
-                return _sysComBLL.UploadConfigGet(request);
+                return await _sysComBLL.UploadConfigGet(request);
             }
             catch (Exception ex)
             {
@@ -92,12 +92,12 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
+        public async Task<ResponseBase> UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
         {
             try
             {
                 _sysComBLL.InitTenantId(request.LoginTenantId);
-                return _sysComBLL.UploadConfigGetOpenLink(request);
+                return await _sysComBLL.UploadConfigGetOpenLink(request);
             }
             catch (Exception ex)
             {

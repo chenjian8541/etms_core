@@ -21,5 +21,7 @@ namespace ETMS.Entity.Dto.SysCom.Output
         public DateTime ExTime { get; set; }
 
         public string BascAccessUrlHttps { get; set; }
+
+        public int FileLimitMB { get; set; }
     }
 }

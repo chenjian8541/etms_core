@@ -180,8 +180,9 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
-        private UploadConfigGetOutput UploadConfigGet(int tenantId)
+        private async Task<UploadConfigGetOutput> UploadConfigGet(int tenantId)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(tenantId);
             var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(tenantId);
             return new UploadConfigGetOutput()
             {
@@ -192,18 +193,19 @@ namespace ETMS.Business
                 Basckey = AliyunOssUtil.GetBascKeyPrefix(tenantId, AliyunOssFileTypeEnum.STS),
                 ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
                 BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
-                SecurityToken = aliyunOssSTS.Credentials.SecurityToken
+                SecurityToken = aliyunOssSTS.Credentials.SecurityToken,
+                FileLimitMB = myTenant.FileLimitMB
             };
         }
 
-        public ResponseBase UploadConfigGet(RequestBase request)
+        public async Task<ResponseBase> UploadConfigGet(RequestBase request)
         {
-            return ResponseBase.Success(UploadConfigGet(request.LoginTenantId));
+            return ResponseBase.Success(await UploadConfigGet(request.LoginTenantId));
         }
 
-        public ResponseBase UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
+        public async Task<ResponseBase> UploadConfigGetOpenLink(UploadConfigGetOpenLinkRequest request)
         {
-            return ResponseBase.Success(UploadConfigGet(request.LoginTenantId));
+            return ResponseBase.Success(await UploadConfigGet(request.LoginTenantId));
         }
 
         public async Task<ResponseBase> ClientUpgradeGet(ClientUpgradeGetRequest request)
