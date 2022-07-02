@@ -708,6 +708,48 @@
             "Name": "我的活动",
             "Type": 0
           }
+        ],
+        "ChildrenAction": [
+          {
+            "ActionId": 84,
+            "Name": "制作活动",
+            "Type": 1
+          },
+          {
+            "ActionId": 85,
+            "Name": "绑定活动支付账户",
+            "Type": 1
+          },
+          {
+            "ActionId": 86,
+            "Name": "活动全局设置",
+            "Type": 1
+          },
+          {
+            "ActionId": 87,
+            "Name": "活动编辑",
+            "Type": 1
+          },
+          {
+            "ActionId": 88,
+            "Name": "活动发布",
+            "Type": 1
+          },
+          {
+            "ActionId": 89,
+            "Name": "活动上架",
+            "Type": 1
+          },
+          {
+            "ActionId": 90,
+            "Name": "活动下架",
+            "Type": 1
+          },
+          {
+            "ActionId": 91,
+            "Name": "活动删除",
+            "Type": 1
+          }
         ]
       },
       {

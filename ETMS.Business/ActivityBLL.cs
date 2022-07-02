@@ -89,7 +89,8 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ActivityMainCreateInit(ActivityMainCreateInitRequest request)
         {
-            var activityMain = await _sysActivityDAL.GetSysActivity(TenantLib.GetIdDecrypt(request.SystemId));
+            var mySystemId = TenantLib.GetIdDecrypt(request.SystemId);
+            var activityMain = await _sysActivityDAL.GetSysActivity(mySystemId);
             if (activityMain == null)
             {
                 return ResponseBase.CommonError("活动模板不存在");
