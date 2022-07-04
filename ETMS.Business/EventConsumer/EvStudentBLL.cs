@@ -43,11 +43,13 @@ namespace ETMS.Business.EventConsumer
         private readonly IStudentCourseOpLogDAL _studentCourseOpLogDAL;
 
         private readonly IStudentWechatDAL _studentWechatDAL;
+
+        private readonly IIncomeLogDAL _incomeLogDAL;
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
             IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL, IStudentWechatDAL studentWechatDAL,
-            IStudentCourseOpLogDAL studentCourseOpLogDAL)
+            IStudentCourseOpLogDAL studentCourseOpLogDAL, IIncomeLogDAL incomeLogDAL)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -62,6 +64,7 @@ namespace ETMS.Business.EventConsumer
             this._studentExtendFieldDAL = studentExtendFieldDAL;
             this._studentCourseOpLogDAL = studentCourseOpLogDAL;
             this._studentWechatDAL = studentWechatDAL;
+            this._incomeLogDAL = incomeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -69,7 +72,7 @@ namespace ETMS.Business.EventConsumer
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
                _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL,
-               _studentCourseOpLogDAL, _studentWechatDAL);
+               _studentCourseOpLogDAL, _studentWechatDAL, _incomeLogDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -139,6 +142,7 @@ namespace ETMS.Business.EventConsumer
                     StudentAccountRechargeId = accountLog.Id,
                     TryCount = 0
                 });
+                var strRemark = $"推荐学员注册[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.RegisteredGiveMoney}金额";
                 await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
                 {
                     CgNo = string.Empty,
@@ -150,12 +154,37 @@ namespace ETMS.Business.EventConsumer
                     Ot = now,
                     Phone = accountLog.Phone,
                     RelatedOrderId = null,
-                    Remark = $"推荐学员注册[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.RegisteredGiveMoney}金额",
+                    Remark = strRemark,
                     Status = EmStudentAccountRechargeLogStatus.Normal,
                     StudentAccountRechargeId = accountLog.Id,
                     TenantId = accountLog.TenantId,
                     UserId = request.UserId,
                     Type = EmStudentAccountRechargeLogType.RecommendStudentRegistered
+                });
+
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = string.Empty,
+                    CreateOt = now,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = string.Empty,
+                    OrderId = null,
+                    Ot = now,
+                    PayType = EmPayType.PayAccountRecharge,
+                    ProjectType = EmIncomeLogProjectType.StudentRecommendRewardRegister,
+                    RelationId = null,
+                    Remark = strRemark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = studentRecommendConfig.BuyGiveMoney,
+                    TenantId = request.TenantId,
+                    Type = EmIncomeLogType.AccountOut,
+                    UserId = request.Student.CreateBy
+                });
+                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.TenantId)
+                {
+                    StatisticsDate = now.Date
                 });
             }
         }
@@ -206,6 +235,7 @@ namespace ETMS.Business.EventConsumer
                     TryCount = 0
                 });
 
+                var strRemark = $"推荐学员消费[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.BuyGiveMoney}金额";
                 await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
                 {
                     CgNo = request.Order.No,
@@ -217,12 +247,37 @@ namespace ETMS.Business.EventConsumer
                     Ot = now,
                     Phone = accountLog.Phone,
                     RelatedOrderId = request.Order.Id,
-                    Remark = $"推荐学员消费[{request.Student.Name},{request.Student.Phone}]奖励{studentRecommendConfig.BuyGiveMoney}金额",
+                    Remark = strRemark,
                     Status = EmStudentAccountRechargeLogStatus.Normal,
                     StudentAccountRechargeId = accountLog.Id,
                     TenantId = accountLog.TenantId,
                     UserId = request.UserId,
                     Type = EmStudentAccountRechargeLogType.RecommendStudentBuy
+                });
+
+                await _incomeLogDAL.AddIncomeLog(new EtIncomeLog()
+                {
+                    AccountNo = string.Empty,
+                    CreateOt = now,
+                    IsDeleted = EmIsDeleted.Normal,
+                    No = request.Order.No,
+                    OrderId = request.Order.Id,
+                    Ot = now,
+                    PayType = EmPayType.PayAccountRecharge,
+                    ProjectType = EmIncomeLogProjectType.StudentRecommendRewardConsumer,
+                    RelationId = request.Order.Id,
+                    Remark = strRemark,
+                    RepealOt = null,
+                    RepealUserId = null,
+                    Status = EmIncomeLogStatus.Normal,
+                    Sum = studentRecommendConfig.BuyGiveMoney,
+                    TenantId = request.TenantId,
+                    Type = EmIncomeLogType.AccountOut,
+                    UserId = request.Order.UserId
+                });
+                _eventPublisher.Publish(new StatisticsFinanceIncomeEvent(request.TenantId)
+                {
+                    StatisticsDate = now.Date
                 });
             }
         }

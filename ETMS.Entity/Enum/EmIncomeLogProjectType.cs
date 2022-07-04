@@ -43,6 +43,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const long TeacherSalary = -7;
 
+        /// <summary>
+        /// 推荐学员奖励(注册)
+        /// </summary>
+        public const long StudentRecommendRewardRegister = -8;
+
+        /// <summary>
+        /// 推荐学员奖励（消费）
+        /// </summary>
+        public const long StudentRecommendRewardConsumer = -9;
+
         public static string GetIncomeLogProjectType(List<EtIncomeProjectType> etIncomeProjectTypes, long type)
         {
             if (type >= 0)
@@ -69,6 +79,10 @@ namespace ETMS.Entity.Enum
                     return "账户退款";
                 case TeacherSalary:
                     return "员工工资";
+                case StudentRecommendRewardRegister:
+                    return "推荐学员注册";
+                case StudentRecommendRewardConsumer:
+                    return "推荐学员消费";
             }
             return string.Empty;
         }
@@ -91,6 +105,10 @@ namespace ETMS.Entity.Enum
                     return "账户退款";
                 case TeacherSalary:
                     return "员工工资";
+                case StudentRecommendRewardRegister:
+                    return "推荐学员注册";
+                case StudentRecommendRewardConsumer:
+                    return "推荐学员消费";
             }
             return string.Empty;
         }
