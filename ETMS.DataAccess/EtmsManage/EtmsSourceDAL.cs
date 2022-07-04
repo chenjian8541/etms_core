@@ -23,18 +23,18 @@ namespace ETMS.DataAccess.EtmsManage
             var processSql = string.Format(initSql, tenantId, tenantName, userName, userPhone);
             Log.Debug(processSql, this.GetType());
             var sqls = processSql.Split("GO");
-            using (var ts = GetTransactionScope())
+            //using (var ts = GetTransactionScope())
+            //{
+            foreach (var s in sqls)
             {
-                foreach (var s in sqls)
+                if (string.IsNullOrEmpty(s.Trim()))
                 {
-                    if (string.IsNullOrEmpty(s.Trim()))
-                    {
-                        continue;
-                    }
-                    this._dbWrapper.ExecuteSync(s);
+                    continue;
                 }
-                ts.Complete();
+                this._dbWrapper.ExecuteSync(s);
             }
+            //ts.Complete();
+            //}
         }
     }
 }

@@ -277,11 +277,14 @@ namespace ETMS.Business
 
         public ResponseBase AppConfigGet(RequestBase request)
         {
+            var registerUrl = _appConfigurtaionServices.AppSettings.SysAddressConfig.StudentSelfHelpRegisterUrl;
+            var tenantNoUrl = TenantLib.GetIdEncryptUrl2(request.LoginTenantId);
             var appConfig = _appConfigurtaionServices.AppSettings;
             var tenantNo = TenantLib.GetTenantEncrypt(request.LoginTenantId);
             return ResponseBase.Success(new AppConfigGetOutput()
             {
-                StudentAlbumDetailUrl = string.Format(appConfig.WxConfig.WeChatEntranceConfig.StudentAlbumDetailUrl, tenantNo)
+                StudentAlbumDetailUrl = string.Format(appConfig.WxConfig.WeChatEntranceConfig.StudentAlbumDetailUrl, tenantNo),
+                StudentRegisterUrl = ComBusiness5.GetStudentSelfHelpRegisterUrl(registerUrl, tenantNoUrl)
             });
         }
     }

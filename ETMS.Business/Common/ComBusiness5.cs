@@ -200,5 +200,15 @@ namespace ETMS.Business.Common
         {
             return finishCount >= limitCount ? "已完成" : "进行中";
         }
+
+        public static string GetStudentSelfHelpRegisterUrl(string registerUrl, string tenantNo, long userId)
+        {
+            return string.Format(registerUrl, $"{tenantNo}_{TenantLib.GetIdEncryptUrl(userId)}");
+        }
+
+        public static string GetStudentSelfHelpRegisterUrl(string registerUrl, string tenantNo)
+        {
+            return string.Format(registerUrl, tenantNo);
+        }
     }
 }

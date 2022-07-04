@@ -9,5 +9,7 @@ namespace ETMS.Entity.Dto.BasicData.Output
     public class AppConfigGetOutput
     {
         public string StudentAlbumDetailUrl { get; set; }
+
+        public string StudentRegisterUrl { get; set; }
     }
 }

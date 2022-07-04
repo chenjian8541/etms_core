@@ -110,7 +110,7 @@ namespace ETMS.Business
             var strSp = tno.Split("_");
             long? trackUser = null;
             var tenantId = TenantLib.GetIdDecrypt2(strSp[0]);
-            if (!string.IsNullOrEmpty(strSp[1]))
+            if (strSp.Length > 1)
             {
                 trackUser = TenantLib.GetIdDecrypt(strSp[1]);
             }

@@ -538,11 +538,6 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private string GetStudentSelfHelpRegisterUrl(string registerUrl, string tenantNo, long userId)
-        {
-            return string.Format(registerUrl, $"{tenantNo}_{TenantLib.GetIdEncryptUrl(userId)}");
-        }
-
         public async Task<ResponseBase> UserGetPaging(UserGetPagingRequest request)
         {
             var registerUrl = _appConfigurtaionServices.AppSettings.SysAddressConfig.StudentSelfHelpRegisterUrl;
@@ -566,7 +561,7 @@ namespace ETMS.Business
                 Value = p.Id,
                 Label = p.Name,
                 IsBindingWechat = string.IsNullOrEmpty(p.WechatOpenid) ? EmIsBindingWechat.No : EmIsBindingWechat.Yes,
-                StudentSelfHelpRegisterUrl = GetStudentSelfHelpRegisterUrl(registerUrl, tenantNo, p.Id)
+                StudentSelfHelpRegisterUrl = ComBusiness5.GetStudentSelfHelpRegisterUrl(registerUrl, tenantNo, p.Id)
             })));
         }
 
