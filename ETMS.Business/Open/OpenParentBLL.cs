@@ -162,7 +162,7 @@ namespace ETMS.Business
                 IsHas = false
             };
             this.InitTenantId(registerInfo.Item1);
-            var myStudent = await _studentDAL.GetStudentsByPhoneOne(request.Phone);
+            var myStudent = await _studentDAL.GetStudentsByPhoneOrNameOne(request.Phone);
             if (myStudent != null)
             {
                 output.IsHas = true;

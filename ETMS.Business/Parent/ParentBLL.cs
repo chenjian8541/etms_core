@@ -906,7 +906,7 @@ namespace ETMS.Business
             long? recommendStudentId = null;
             if (!string.IsNullOrEmpty(request.RecommenderPhone))
             {
-                var recommenderStudent = await _studentDAL.GetStudentsByPhoneOne(request.RecommenderPhone);
+                var recommenderStudent = await _studentDAL.GetStudentsByPhoneOrNameOne(request.RecommenderPhone);
                 if (recommenderStudent != null)
                 {
                     recommendStudentId = recommenderStudent.Id;

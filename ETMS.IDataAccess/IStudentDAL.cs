@@ -77,7 +77,7 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStudent>> GetStudentsByPhone(string phone);
 
-        Task<EtStudent> GetStudentsByPhoneOne(string phone);
+        Task<EtStudent> GetStudentsByPhoneOrNameOne(string phone);
 
         Task<List<EtStudent>> GetStudentsByPhoneMini(string phone);
 

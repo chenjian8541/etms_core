@@ -416,10 +416,10 @@ namespace ETMS.DataAccess
             return await this._dbWrapper.FindList<EtStudent>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.Phone == phone);
         }
 
-        public async Task<EtStudent> GetStudentsByPhoneOne(string phone)
+        public async Task<EtStudent> GetStudentsByPhoneOrNameOne(string key)
         {
             var obj = await _dbWrapper.ExecuteObject<EtStudent>(
-                $"SELECT TOP 1 * FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND Phone = '{phone}' ORDER BY Id DESC");
+                $"SELECT TOP 1 * FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND (Phone = '{key}' OR Name = '{key}') ORDER BY Id DESC");
             return obj.FirstOrDefault();
         }
 
