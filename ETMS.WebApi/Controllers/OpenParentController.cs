@@ -108,6 +108,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentPhoneCheck(StudentPhoneCheckRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.StudentPhoneCheck(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request)
         {
             try

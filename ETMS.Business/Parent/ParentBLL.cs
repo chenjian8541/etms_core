@@ -28,6 +28,7 @@ using ETMS.Business.WxCore;
 using ETMS.Entity.Database.Source;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 
 namespace ETMS.Business
 {
@@ -851,6 +852,14 @@ namespace ETMS.Business
             _eventPublisher.Publish(new StatisticsStudentEvent(tenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = ot });
         }
 
+        private void SyncParentStudents(int tenantId, params string[] phones)
+        {
+            _eventPublisher.Publish(new SyncParentStudentsEvent(tenantId)
+            {
+                Phones = phones
+            }); ;
+        }
+
         public async Task<ResponseBase> ParentRegister2(ParentRegister2Request request)
         {
             var sysTenantInfo = await _sysTenantDAL.GetTenant(request.TenantId);
@@ -894,6 +903,16 @@ namespace ETMS.Business
             {
                 pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
             }
+            long? recommendStudentId = null;
+            if (!string.IsNullOrEmpty(request.RecommenderPhone))
+            {
+                var recommenderStudent = await _studentDAL.GetStudentsByPhoneOne(request.RecommenderPhone);
+                if (recommenderStudent != null)
+                {
+                    recommendStudentId = recommenderStudent.Id;
+                }
+            }
+
             var myuser = await _userDAL.GetAdminUser();
             var now = DateTime.Now;
             var etStudent = new EtStudent()
@@ -908,7 +927,7 @@ namespace ETMS.Business
                 Birthday = null,
                 CreateBy = myuser.Id,
                 EndClassOt = null,
-                Gender = null,
+                Gender = request.Gender,
                 GradeId = null,
                 HomeAddress = request.Address,
                 IntentionLevel = EmStudentIntentionLevel.Low,
@@ -933,7 +952,7 @@ namespace ETMS.Business
                 TrackStatus = EmStudentTrackStatus.NotTrack,
                 TrackUser = request.TrackUser,
                 NamePinyin = PinyinHelper.GetPinyinInitials(request.Name).ToLower(),
-                RecommendStudentId = null,
+                RecommendStudentId = recommendStudentId,
                 Password = pwd,
             };
             var studentExtendInfos = new List<EtStudentExtendInfo>();
@@ -953,11 +972,22 @@ namespace ETMS.Business
                 }
             }
             await _studentDAL.AddStudent(etStudent, studentExtendInfos);
-            CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
             SyncStatisticsStudentInfo(new StatisticsStudentCountEvent(etStudent.TenantId)
             {
                 Time = etStudent.Ot
             }, etStudent.TenantId, etStudent.Ot, true);
+            CoreBusiness.ProcessStudentPhoneAboutAdd(etStudent, _eventPublisher);
+            SyncParentStudents(etStudent.TenantId, etStudent.Phone, etStudent.PhoneBak);
+
+            if (etStudent.RecommendStudentId != null)
+            {
+                _eventPublisher.Publish(new StudentRecommendRewardEvent(etStudent.TenantId)
+                {
+                    Student = etStudent,
+                    Type = StudentRecommendRewardType.Registered
+                });
+            }
+            _eventPublisher.Publish(new SysTenantStatistics2Event(etStudent.TenantId));
 
             return await GetParentLoginResult(sysTenantInfo.Id, request.Phone, string.Empty);
         }

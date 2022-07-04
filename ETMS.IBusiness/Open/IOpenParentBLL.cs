@@ -22,6 +22,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentOpenRegisterSendSms(StudentOpenRegisterSendSmsRequest request);
 
+        Task<ResponseBase> StudentPhoneCheck(StudentPhoneCheckRequest request);
+
         Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request);
     }
 }

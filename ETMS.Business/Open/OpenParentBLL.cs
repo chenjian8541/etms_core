@@ -19,6 +19,7 @@ using ETMS.Entity.Dto.Parent.Output;
 using ETMS.Entity.Dto.OpenParent.Output;
 using System.Collections.Generic;
 using ETMS.Entity.Dto.Student.Output;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -28,15 +29,19 @@ namespace ETMS.Business
 
         private readonly IStudentExtendFieldDAL _studentExtendFieldDAL;
 
-        public OpenParentBLL(IParentBLL parentBLL, IStudentExtendFieldDAL studentExtendFieldDAL)
+        private readonly IStudentDAL _studentDAL;
+
+        public OpenParentBLL(IParentBLL parentBLL, IStudentExtendFieldDAL studentExtendFieldDAL, IStudentDAL studentDAL)
         {
             this._parentBLL = parentBLL;
             this._studentExtendFieldDAL = studentExtendFieldDAL;
+            this._studentDAL = studentDAL;
         }
 
         private void InitTenantId(int tenantId)
         {
             this._studentExtendFieldDAL.InitTenantId(tenantId);
+            this._studentDAL.InitTenantId(tenantId);
         }
 
         public async Task<ResponseBase> ParentLoginSendSms(ParentOpenLoginSendSmsRequest request)
@@ -149,6 +154,26 @@ namespace ETMS.Business
             });
         }
 
+        public async Task<ResponseBase> StudentPhoneCheck(StudentPhoneCheckRequest request)
+        {
+            var registerInfo = GetRegisterInfo(request.Tno);
+            var output = new StudentPhoneCheckOutput()
+            {
+                IsHas = false
+            };
+            this.InitTenantId(registerInfo.Item1);
+            var myStudent = await _studentDAL.GetStudentsByPhoneOne(request.Phone);
+            if (myStudent != null)
+            {
+                output.IsHas = true;
+                output.StudentInfo = new StudentPhoneInfo()
+                {
+                    StudentName = myStudent.Name,
+                };
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentOpenRegisterSubmit(StudentOpenRegisterSubmitRequest request)
         {
             var registerInfo = GetRegisterInfo(request.Tno);
@@ -161,7 +186,9 @@ namespace ETMS.Business
                 SmsCode = request.SmsCode,
                 StudentExtendItems = request.StudentExtendItems,
                 Address = request.Address,
-                Remark = request.Remark
+                Remark = request.Remark,
+                Gender = request.Gender,
+                RecommenderPhone = request.RecommenderPhone
             });
         }
     }

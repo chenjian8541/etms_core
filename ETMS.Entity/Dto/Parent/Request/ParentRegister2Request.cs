@@ -24,6 +24,13 @@ namespace ETMS.Entity.Dto.Parent.Request
 
         public string Remark { get; set; }
 
+        /// <summary>
+        /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
+        /// </summary>
+        public byte? Gender { get; set; }
+
+        public string RecommenderPhone { get; set; }
+
         public List<StudentExtendItem> StudentExtendItems { get; set; }
     }
 }
