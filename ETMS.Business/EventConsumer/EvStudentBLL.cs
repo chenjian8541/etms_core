@@ -177,7 +177,7 @@ namespace ETMS.Business.EventConsumer
                     RepealOt = null,
                     RepealUserId = null,
                     Status = EmIncomeLogStatus.Normal,
-                    Sum = studentRecommendConfig.BuyGiveMoney,
+                    Sum = studentRecommendConfig.RegisteredGiveMoney,
                     TenantId = request.TenantId,
                     Type = EmIncomeLogType.AccountOut,
                     UserId = request.Student.CreateBy
