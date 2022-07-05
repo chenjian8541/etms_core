@@ -726,8 +726,9 @@ namespace ETMS.Business
             });
         }
 
-        public ResponseBase UploadConfigGet(ParentRequestBase request)
+        public async Task<ResponseBase> UploadConfigGet(ParentRequestBase request)
         {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var aliyunOssSTS = AliyunOssSTSUtil.GetSTSAccessToken(request.LoginTenantId);
             return ResponseBase.Success(new UploadConfigGetOutput()
             {
@@ -738,7 +739,8 @@ namespace ETMS.Business
                 Basckey = AliyunOssUtil.GetBascKeyPrefix(request.LoginTenantId, AliyunOssFileTypeEnum.STS),
                 ExTime = aliyunOssSTS.Credentials.Expiration.AddMinutes(-5),
                 BascAccessUrlHttps = AliyunOssUtil.OssAccessUrlHttps,
-                SecurityToken = aliyunOssSTS.Credentials.SecurityToken
+                SecurityToken = aliyunOssSTS.Credentials.SecurityToken,
+                FileLimitMB = myTenant.FileLimitMB
             });
         }
 

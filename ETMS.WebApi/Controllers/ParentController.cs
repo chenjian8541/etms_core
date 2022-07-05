@@ -264,11 +264,11 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
-        public ResponseBase UploadConfigGet(ParentRequestBase request)
+        public async Task<ResponseBase> UploadConfigGet(ParentRequestBase request)
         {
             try
             {
-                return _parentBLL.UploadConfigGet(request);
+                return await _parentBLL.UploadConfigGet(request);
             }
             catch (Exception ex)
             {

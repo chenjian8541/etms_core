@@ -50,7 +50,7 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request);
 
-        ResponseBase UploadConfigGet(ParentRequestBase request);
+        Task<ResponseBase> UploadConfigGet(ParentRequestBase request);
 
         Task<ResponseBase> ParentRegister(ParentRegisterRequest request);
 
