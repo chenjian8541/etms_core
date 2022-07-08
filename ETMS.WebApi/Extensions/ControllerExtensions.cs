@@ -4,6 +4,7 @@ using System.Linq;
 using ETMS.Entity.Config;
 using ETMS.Utility;
 using ETMS.Business.Common;
+using ETMS.Entity.View;
 
 namespace ETMS.WebApi.Extensions
 {
@@ -37,6 +38,21 @@ namespace ETMS.WebApi.Extensions
         public static ParentTokenConfig GetParentLoginInfo(this HttpRequest @this)
         {
             return ParentSignatureLib.GetParentLoginInfo(@this.Headers["etms-l"]);
+        }
+
+        /// <summary>
+        /// 小程序授权获取用户ID
+        /// </summary>
+        /// <param name="this"></param>
+        /// <returns></returns>
+        public static GetOpenParent2RequestInfo GetOpenParent2Request(this HttpRequest @this)
+        {
+            return new GetOpenParent2RequestInfo()
+            {
+                MiniPgmUserId = @this.Headers["etms-l"].ToString().ToLong(),
+                OpenId = @this.Headers["etms-o"].ToString(),
+                Unionid = @this.Headers["etms-u"].ToString(),
+            };
         }
     }
 }

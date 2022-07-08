@@ -26,7 +26,7 @@ namespace ETMS.IDataAccess.Activity
 
         Task AddBehaviorCount(long activityId, int addPVCount, int addUVCount, int addTranspondCount, int addVisitCount);
 
-        Task SetEffectCount(long activityId, int joinCount, int routeCount, int finishCount);
+        Task SetEffectCount(long activityId, int joinCount, int routeCount, int finishCount,int finishFullCount);
 
         Task DelActivityMain(long activityId);
     }

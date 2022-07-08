@@ -100,11 +100,12 @@ namespace ETMS.DataAccess.Activity
                 str.Append($" VisitCount = VisitCount + {addVisitCount},");
             }
             await _dbWrapper.Execute($"{str.ToString().TrimEnd(',')} WHERE Id = {activityId}");
+            RemoveCache(_tenantId, activityId);
         }
 
-        public async Task SetEffectCount(long activityId, int joinCount, int routeCount, int finishCount)
+        public async Task SetEffectCount(long activityId, int joinCount, int routeCount, int finishCount, int finishFullCount)
         {
-            var sql = $"UPDATE EtActivityMain SET JoinCount = {joinCount},RouteCount = {routeCount}, FinishCount = {finishCount} WHERE Id = {activityId}";
+            var sql = $"UPDATE EtActivityMain SET JoinCount = {joinCount},RouteCount = {routeCount}, FinishCount = {finishCount},FinishFullCount = {finishFullCount} WHERE Id = {activityId}";
             await _dbWrapper.Execute(sql);
         }
 

@@ -20,6 +20,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
 using Newtonsoft.Json;
 using ETMS.LOG;
+using ETMS.Entity.CacheBucket.RedisLock;
 
 namespace ETMS.Business
 {
@@ -1221,7 +1222,34 @@ namespace ETMS.Business
             });
         }
 
+        /// <summary>
+        /// 存在并发的bug
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<ResponseBase> StudentCheckChoiceStudentCourse(StudentCheckChoiceStudentCourseRequest request)
+        {
+            var lockKey = new StudentCheckChoiceStudentCourseToken(request.LoginTenantId, request.StudentCheckOnLogId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await StudentCheckChoiceStudentCourseProcess(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【StudentCheckChoiceStudentCourse】错误:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("请勿重复操作");
+        }
+
+        private async Task<ResponseBase> StudentCheckChoiceStudentCourseProcess(StudentCheckChoiceStudentCourseRequest request)
         {
             var studentCheckOnLog = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
             if (studentCheckOnLog == null)

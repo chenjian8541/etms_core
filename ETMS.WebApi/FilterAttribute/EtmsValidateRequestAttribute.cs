@@ -28,6 +28,15 @@ namespace ETMS.WebApi.FilterAttribute
         {
             if (context.ActionArguments.Count == 1 && context.ActionArguments.First().Value is IValidate)
             {
+                if (context.ActionArguments.First().Value is OpenParent2RequestBase)
+                {
+                    var request = context.ActionArguments.First().Value as OpenParent2RequestBase;
+                    var openParent2Request = context.HttpContext.Request.GetOpenParent2Request();
+                    request.MiniPgmUserId = openParent2Request.MiniPgmUserId;
+                    request.OpenId = openParent2Request.OpenId;
+                    request.Unionid = openParent2Request.Unionid;
+                }
+
                 var validateRequest = context.ActionArguments.First().Value as IValidate;
                 var errMsg = validateRequest.Validate();
                 if (!string.IsNullOrEmpty(errMsg))

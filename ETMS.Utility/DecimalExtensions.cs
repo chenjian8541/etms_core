@@ -44,5 +44,18 @@ namespace ETMS.Utility
         {
             return @this.ToString("F2");
         }
+
+        public static string EtmsToString3(this decimal @this)
+        {
+            if (@this % 1 == 0)
+            {
+                return @this.ToString("F0");
+            }
+            if ((@this * 10) % 1 == 0)
+            {
+                return @this.ToString("F1");
+            }
+            return @this.ToString("F2");
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace ETMS.WebApi.Controllers
 {
     [Route("api/parentCommon/[action]")]
     [ApiController]
-    [EtmsSignatureAuthorize]
+    [EtmsSignatureParentAuthorize]
     public class ParentCommonController
     {
         private readonly IAppConfigurtaionServices _appConfigurtaionServices;

@@ -148,13 +148,13 @@ namespace ETMS.Business.Common
         {
             if (ruleContent.Item.Count > 1) //多阶拼团 支付定金
             {
-                return Tuple.Create("定金", p.PayValue.EtmsToString2());
+                return Tuple.Create("定金", p.PayValue.EtmsToString3());
             }
             if (p.PayType == EmActivityPayType.Type1)
             {
-                return Tuple.Create("定金", p.PayValue.EtmsToString2());
+                return Tuple.Create("定金", p.PayValue.EtmsToString3());
             }
-            return Tuple.Create("团购价", ruleContent.Item.First().Money.EtmsToString2());
+            return Tuple.Create("团价", ruleContent.Item.First().Money.EtmsToString3());
         }
 
         public static decimal GetActivityPayInfo2(EtActivityMain p, ActivityOfGroupPurchaseRuleContentView ruleContent)

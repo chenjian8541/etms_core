@@ -20,6 +20,8 @@ namespace ETMS.IBusiness.Open
 
         Task<ResponseBase> WxMiniActivityHomeGet2(WxMiniActivityHomeGet2Request request);
 
+        Task<ResponseBase> WxMiniActivityRouteItemMoreGetPaging(WxMiniActivityRouteItemMoreGetPagingRequest request);
+
         Task<ResponseBase> WxMiniActivityGroupPurchaseDiscount(WxMiniActivityGroupPurchaseDiscountRequest request);
 
         Task<ResponseBase> WxMiniActivityGetSimple(WxMiniActivityGetSimpleRequest request);

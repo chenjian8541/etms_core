@@ -30,6 +30,13 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public List<WxMiniActivityHomeJoinRoute> JoinRouteItems { get; set; }
 
         public List<WxMiniActivityHomeHaggleLog> HaggleLogs { get; set; }
+
+        public WxMiniTenantConfig WxMiniTenantConfig { get; set; }
+    }
+
+    public class WxMiniTenantConfig
+    {
+        public string MicroWebHomeUrl { get; set; }
     }
 
     public struct HaggleLogStatusOutput
@@ -87,7 +94,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public List<string> ImageCourse { get; set; }
 
-        public decimal OriginalPrice { get; set; }
+        public string OriginalPrice { get; set; }
 
         public string PayPriceDesc { get; set; }
 
@@ -151,6 +158,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public int FinishCount { get; set; }
 
+        public int FinishFullCount { get; set; }
+
         public int FailCount { get; set; }
 
         public string ShareQRCode { get; set; }
@@ -186,6 +195,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
     public class WxMiniActivityHomeGroupPurchaseRule
     {
+        public int TotalLimitCount { get; set; }
         public List<WxMiniActivityHomeGroupPurchaseRuleItem> Items { get; set; }
     }
 
@@ -194,6 +204,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public int LimitCount { get; set; }
 
         public decimal Money { get; set; }
+
+        public decimal Length { get; set; }
     }
 
     public class WxMiniActivityHomeMyRoute
@@ -213,6 +225,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public int CountShort { get; set; }
 
         public byte CountShortStatus { get; set; }
+
+        public List<WxMiniActivityHomeJoinRouteItemSmall> JoinRouteItems { get; set; }
     }
 
     public class WxMiniActivityHomeJoinRoute
@@ -233,6 +247,12 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public byte CountShortStatus { get; set; }
 
+        public string CurrentAvatarUrl { get; set; }
+
+        public string CurrentStudentNameDesc { get; set; }
+
+        public int CurrentIndex { get; set; }
+
         public List<WxMiniActivityHomeJoinRouteItem> JoinRouteItems { get; set; }
     }
 
@@ -245,6 +265,18 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public long MiniPgmUserId { get; set; }
 
         public string StudentNameDesc { get; set; }
+
+        public string AvatarUrl { get; set; }
+
+        public bool IsTeamLeader { get; set; }
+    }
+
+    public class WxMiniActivityHomeJoinRouteItemSmall {
+        public long ActivityRouteId { get; set; }
+
+        public long ActivityRouteItemId { get; set; }
+
+        public long MiniPgmUserId { get; set; }
 
         public string AvatarUrl { get; set; }
 

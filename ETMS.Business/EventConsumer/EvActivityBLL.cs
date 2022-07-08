@@ -107,7 +107,12 @@ namespace ETMS.Business.EventConsumer
             var joinCount = await _activityRouteDAL.GetJoinCount(request.ActivityId, request.ActivityType);
             var routeCount = await _activityRouteDAL.GetRouteCount(request.ActivityId, request.ActivityType);
             var finishCount = await _activityRouteDAL.GetFinishCount(request.ActivityId, request.ActivityType);
-            await _activityMainDAL.SetEffectCount(request.ActivityId, joinCount, routeCount, finishCount);
+            var finishFullCount = 0;
+            if (request.ActivityType == EmActivityType.GroupPurchase)
+            {
+                finishFullCount = await _activityRouteDAL.GetFinishFullCount(request.ActivityId);
+            }
+            await _activityMainDAL.SetEffectCount(request.ActivityId, joinCount, routeCount, finishCount, finishFullCount);
         }
 
         /// <summary>

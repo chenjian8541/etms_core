@@ -9,13 +9,7 @@ using System.Linq;
 
 namespace ETMS.WebApi.FilterAttribute
 {
-    /// <summary>
-    /// 接口签名授权验证
-    /// 学员端使用签名验证用户信息Headers信息：
-    /// etms-s:签名信息
-    /// etms-l:登录信息
-    /// </summary>
-    public class EtmsSignatureAuthorizeAttribute : Attribute, IAuthorizationFilter
+    public class EtmsSignatureWxminiAuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
@@ -24,14 +18,14 @@ namespace ETMS.WebApi.FilterAttribute
             {
                 return;
             }
-            var strSignature = context.HttpContext.Request.Headers["etms-s"];
-            var strLoginInfo = context.HttpContext.Request.Headers["etms-l"];
+            var strSignature = context.HttpContext.Request.Headers["etms-s"].ToString();
+            var strLoginInfo = context.HttpContext.Request.Headers["etms-l"].ToString();
             if (string.IsNullOrEmpty(strSignature) || string.IsNullOrEmpty(strLoginInfo))
             {
                 Unauthorized(context);
                 return;
             }
-            if (!ParentSignatureLib.CheckSignature(strLoginInfo, strSignature))
+            if (!ParentSignatureLib.CheckOpenParent2Signature(strLoginInfo.ToLong(), strSignature))
             {
                 Unauthorized(context);
                 return;

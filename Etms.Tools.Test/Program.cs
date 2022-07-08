@@ -98,7 +98,10 @@ namespace Etms.Tools.Test
             //new EtmsProcess().ProcessT();
             //GetPwd();
             //Encrypt3DESSqlConnection();
-
+            var aa = 9.90M;
+            var bb = 11.1M;
+            Console.WriteLine(aa.EtmsToString3());
+            Console.WriteLine(bb.EtmsToString3());
             Console.WriteLine("处理完成");
             Console.Read();
         }

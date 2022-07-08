@@ -88,7 +88,7 @@ namespace ETMS.Entity.Database.Source
         /// <summary>
         /// <see cref="EmActivityRouteStatus"/>
         /// </summary>
-        public int RouteStatus { get; set; }
+        public byte RouteStatus { get; set; }
 
         public bool IsTeamLeader { get; set; }
 

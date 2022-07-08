@@ -115,6 +115,8 @@ namespace ETMS.Entity.Database.Source
 
         public int FinishCount { get; set; }
 
+        public int FinishFullCount { get; set; }
+
         public int FailCount { get; set; }
 
         public string ShareQRCode { get; set; }

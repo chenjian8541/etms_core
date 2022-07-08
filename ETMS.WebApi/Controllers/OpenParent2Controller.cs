@@ -9,6 +9,7 @@ using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
 using ETMS.Utility;
 using ETMS.WebApi.Controllers.Open;
+using ETMS.WebApi.FilterAttribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -23,6 +24,7 @@ namespace ETMS.WebApi.Controllers
 {
     [Route("api/openParent2/[action]")]
     [ApiController]
+    [EtmsSignatureWxminiAuthorize]
     public class OpenParent2Controller : ControllerBase
     {
         private readonly IOpenParent2BLL _openParentBLL;
@@ -32,6 +34,7 @@ namespace ETMS.WebApi.Controllers
             this._openParentBLL = openParentBLL;
         }
 
+        [AllowAnonymous]
         public async Task<ResponseBase> WxMiniLogin(WxMiniLoginRequest request)
         {
             try
@@ -89,6 +92,19 @@ namespace ETMS.WebApi.Controllers
             try
             {
                 return await _openParentBLL.WxMiniActivityHomeGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> WxMiniActivityRouteItemMoreGetPaging(WxMiniActivityRouteItemMoreGetPagingRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.WxMiniActivityRouteItemMoreGetPaging(request);
             }
             catch (Exception ex)
             {

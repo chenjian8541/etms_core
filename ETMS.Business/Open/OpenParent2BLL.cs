@@ -51,6 +51,7 @@ namespace ETMS.Business.Open
         private readonly IPaySuixingService _paySuixingService;
 
         private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
+
         public OpenParent2BLL(IAppConfigurtaionServices appConfigurtaionServices, ISysWechatMiniPgmUserDAL sysWechatMiniPgmUserDAL, ISysTenantDAL sysTenantDAL,
            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL, IActivityVisitorDAL activityVisitorDAL,
            ISysActivityRouteItemDAL sysActivityRouteItemDAL, IEventPublisher eventPublisher,
@@ -111,7 +112,9 @@ namespace ETMS.Business.Open
                 S = strSignature,
                 U = miniPgmUserId,
                 OpenId = loginResult.openid,
-                Unionid = loginResult.unionid
+                Unionid = loginResult.unionid,
+                NickName = log.NickName,
+                AvatarUrl = log.AvatarUrl,
             });
         }
 
@@ -199,19 +202,26 @@ namespace ETMS.Business.Open
         private async Task<ResponseBase> WxMiniActivityHomeGetGroupPurchase(WxMiniActivityHomeGetRequest request, EtActivityMain p)
         {
             var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+            var totalLimitCount = ruleContent.Item.Sum(j => j.LimitCount);
+            var maxCount = ruleContent.Item.Last().LimitCount;
             var groupPurchaseRule = new WxMiniActivityHomeGroupPurchaseRule()
             {
                 Items = ruleContent.Item.Select(j => new WxMiniActivityHomeGroupPurchaseRuleItem()
                 {
                     LimitCount = j.LimitCount,
-                    Money = j.Money
-                }).OrderBy(a => a.LimitCount).ToList()
+                    Money = j.Money,
+                    Length = j.LimitCount / Convert.ToDecimal(maxCount) * 100
+                }).OrderBy(a => a.LimitCount).ToList(),
+                TotalLimitCount = totalLimitCount
             };
-            var maxCount = groupPurchaseRule.Items.Last().LimitCount;
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
             var payInfo = ComBusiness5.GetActivityPayInfo(p, ruleContent);
             var output = new WxMiniActivityHomeGetOutput()
             {
+                WxMiniTenantConfig = new WxMiniTenantConfig()
+                {
+                    MicroWebHomeUrl = AddressLib.GetMicroWebHomeUrl(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, p.TenantId)
+                },
                 BascInfo = new WxMiniActivityHomeBascInfo()
                 {
                     ActivityExplan = p.ActivityExplan,
@@ -228,6 +238,7 @@ namespace ETMS.Business.Open
                     EndTime = p.EndTime.Value,
                     FailCount = p.FailCount,
                     FinishCount = p.FinishCount,
+                    FinishFullCount = p.FinishFullCount,
                     GlobalOpenBullet = p.GlobalOpenBullet,
                     GlobalOpenStatistics = p.GlobalOpenStatistics,
                     GlobalPhone = p.GlobalPhone,
@@ -238,7 +249,7 @@ namespace ETMS.Business.Open
                     JoinCount = p.JoinCount,
                     MaxCount = p.MaxCount,
                     Name = p.Name,
-                    OriginalPrice = p.OriginalPrice,
+                    OriginalPrice = p.OriginalPrice.EtmsToString3(),
                     PayType = p.PayType,
                     PayValue = p.PayValue,
                     PublishTime = p.PublishTime,
@@ -287,7 +298,7 @@ namespace ETMS.Business.Open
                 var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
                 var routeLimitResult = ComBusiness5.GetActivityRouteLimit(teamLeaderRoute.CountLimit, maxCount,
                     teamLeaderRoute.CountFinish);
-                output.TeamLeaderRoute = new WxMiniActivityHomeMyRoute()
+                var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
                 {
                     ActivityRouteId = teamLeaderRoute.Id,
                     AvatarUrl = teamLeaderRoute.AvatarUrl,
@@ -298,6 +309,23 @@ namespace ETMS.Business.Open
                     CountShort = routeLimitResult.Item1,
                     CountShortStatus = routeLimitResult.Item2
                 };
+                var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
+                if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
+                {
+                    myTeamLeaderRoute.JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItemSmall>();
+                    foreach (var myActivityRouteItems in teamLeaderRouteBucket.ActivityRouteItems)
+                    {
+                        myTeamLeaderRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItemSmall()
+                        {
+                            ActivityRouteId = myActivityRouteItems.ActivityRouteId,
+                            ActivityRouteItemId = myActivityRouteItems.Id,
+                            AvatarUrl = myActivityRouteItems.AvatarUrl,
+                            IsTeamLeader = myActivityRouteItems.IsTeamLeader,
+                            MiniPgmUserId = myActivityRouteItems.MiniPgmUserId
+                        });
+                    }
+                }
+                output.TeamLeaderRoute = myTeamLeaderRoute;
             }
             var myActivityRouteTop10 = await _activityRouteDAL.ActivityRouteTop10(request.ActivityMainId);
             output.JoinRouteItems = new List<WxMiniActivityHomeJoinRoute>();
@@ -307,14 +335,17 @@ namespace ETMS.Business.Open
                 {
                     var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
                         item.CountFinish);
+                    var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
                     var myJoinRoute = new WxMiniActivityHomeJoinRoute()
                     {
                         ActivityRouteId = item.Id,
                         AvatarUrl = item.AvatarUrl,
+                        CurrentAvatarUrl = item.AvatarUrl,
+                        CurrentStudentNameDesc = tempStudentNameDesc,
                         CountFinish = item.CountFinish,
                         CountLimit = item.CountLimit,
                         MiniPgmUserId = item.MiniPgmUserId,
-                        StudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName),
+                        StudentNameDesc = tempStudentNameDesc,
                         CountShort = myJoinRouteLimitResult.Item1,
                         CountShortStatus = myJoinRouteLimitResult.Item2,
                         JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItem>()
@@ -347,6 +378,10 @@ namespace ETMS.Business.Open
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
             var output = new WxMiniActivityHomeGetOutput()
             {
+                WxMiniTenantConfig = new WxMiniTenantConfig()
+                {
+                    MicroWebHomeUrl = AddressLib.GetMicroWebHomeUrl(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, p.TenantId)
+                },
                 BascInfo = new WxMiniActivityHomeBascInfo()
                 {
                     ActivityExplan = p.ActivityExplan,
@@ -363,6 +398,7 @@ namespace ETMS.Business.Open
                     EndTime = p.EndTime.Value,
                     FailCount = p.FailCount,
                     FinishCount = p.FinishCount,
+                    FinishFullCount = p.FinishFullCount,
                     GlobalOpenBullet = p.GlobalOpenBullet,
                     GlobalOpenStatistics = p.GlobalOpenStatistics,
                     GlobalPhone = p.GlobalPhone,
@@ -373,7 +409,7 @@ namespace ETMS.Business.Open
                     JoinCount = p.JoinCount,
                     MaxCount = p.MaxCount,
                     Name = p.Name,
-                    OriginalPrice = p.OriginalPrice,
+                    OriginalPrice = p.OriginalPrice.EtmsToString3(),
                     PayType = p.PayType,
                     PayValue = p.PayValue,
                     PublishTime = p.PublishTime,
@@ -492,22 +528,87 @@ namespace ETMS.Business.Open
             return ResponseBase.CommonError("无法展示活动信息");
         }
 
+        public async Task<ResponseBase> WxMiniActivityRouteItemMoreGetPaging(WxMiniActivityRouteItemMoreGetPagingRequest request)
+        {
+            this.InitTenantId(request.TenantId);
+            var myActivityMain = await _activityMainDAL.GetActivityMain(request.ActivityMainId);
+            if (myActivityMain == null)
+            {
+                return ResponseBase.CommonError("活动不存在");
+            }
+            var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(myActivityMain.RuleContent);
+            var totalLimitCount = ruleContent.Item.Sum(j => j.LimitCount);
+            var maxCount = ruleContent.Item.Last().LimitCount;
+
+            var output = new List<WxMiniActivityRouteItemMoreGetPagingOutput>();
+            var pagingData = await _activityRouteDAL.GetPagingRoute(request);
+            if (pagingData.Item1.Any())
+            {
+                foreach (var item in pagingData.Item1)
+                {
+                    var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
+                                           item.CountFinish);
+                    var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
+                    var myJoinRoute = new WxMiniActivityRouteItemMoreGetPagingOutput()
+                    {
+                        ActivityRouteId = item.Id,
+                        AvatarUrl = item.AvatarUrl,
+                        CurrentAvatarUrl = item.AvatarUrl,
+                        CurrentStudentNameDesc = tempStudentNameDesc,
+                        CountFinish = item.CountFinish,
+                        CountLimit = item.CountLimit,
+                        MiniPgmUserId = item.MiniPgmUserId,
+                        StudentNameDesc = tempStudentNameDesc,
+                        CountShort = myJoinRouteLimitResult.Item1,
+                        CountShortStatus = myJoinRouteLimitResult.Item2,
+                        JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItem>()
+                    };
+                    var itemDetailBucket = await _activityRouteDAL.GetActivityRouteBucket(item.Id);
+                    if (itemDetailBucket != null && itemDetailBucket.ActivityRouteItems != null &&
+                        itemDetailBucket.ActivityRouteItems.Any())
+                    {
+                        foreach (var routeItem in itemDetailBucket.ActivityRouteItems)
+                        {
+                            myJoinRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItem()
+                            {
+                                ActivityRouteId = routeItem.ActivityRouteId,
+                                ActivityRouteItemId = routeItem.Id,
+                                AvatarUrl = routeItem.AvatarUrl,
+                                IsTeamLeader = routeItem.IsTeamLeader,
+                                MiniPgmUserId = routeItem.MiniPgmUserId,
+                                StudentNameDesc = EtmsHelper.GetNameSecrecy(routeItem.StudentName)
+                            });
+                        }
+                    }
+                    output.Add(myJoinRoute);
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<WxMiniActivityRouteItemMoreGetPagingOutput>(pagingData.Item2, output));
+        }
+
         private async Task<ResponseBase> WxMiniActivityHomeGet2GroupPurchase(WxMiniActivityHomeGet2Request request, EtActivityMain p, EtActivityRouteItem myActivityRouteItemLeader)
         {
             var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+            var totalLimitCount = ruleContent.Item.Sum(j => j.LimitCount);
+            var maxCount = ruleContent.Item.Last().LimitCount;
             var groupPurchaseRule = new WxMiniActivityHomeGroupPurchaseRule()
             {
                 Items = ruleContent.Item.Select(j => new WxMiniActivityHomeGroupPurchaseRuleItem()
                 {
                     LimitCount = j.LimitCount,
-                    Money = j.Money
-                }).OrderBy(a => a.LimitCount).ToList()
+                    Money = j.Money,
+                    Length = j.LimitCount / Convert.ToDecimal(maxCount) * 100
+                }).OrderBy(a => a.LimitCount).ToList(),
+                TotalLimitCount = totalLimitCount
             };
-            var maxCount = groupPurchaseRule.Items.Last().LimitCount;
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
             var payInfo = ComBusiness5.GetActivityPayInfo(p, ruleContent);
             var output = new WxMiniActivityHomeGetOutput()
             {
+                WxMiniTenantConfig = new WxMiniTenantConfig()
+                {
+                    MicroWebHomeUrl = AddressLib.GetMicroWebHomeUrl(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, p.TenantId)
+                },
                 BascInfo = new WxMiniActivityHomeBascInfo()
                 {
                     ActivityExplan = p.ActivityExplan,
@@ -523,6 +624,7 @@ namespace ETMS.Business.Open
                     CreateTime = p.CreateTime,
                     EndTime = p.EndTime.Value,
                     FailCount = p.FailCount,
+                    FinishFullCount = p.FinishFullCount,
                     FinishCount = p.FinishCount,
                     GlobalOpenBullet = p.GlobalOpenBullet,
                     GlobalOpenStatistics = p.GlobalOpenStatistics,
@@ -534,7 +636,7 @@ namespace ETMS.Business.Open
                     JoinCount = p.JoinCount,
                     MaxCount = p.MaxCount,
                     Name = p.Name,
-                    OriginalPrice = p.OriginalPrice,
+                    OriginalPrice = p.OriginalPrice.EtmsToString3(),
                     PayType = p.PayType,
                     PayValue = p.PayValue,
                     PublishTime = p.PublishTime,
@@ -580,7 +682,7 @@ namespace ETMS.Business.Open
             var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItemLeader.ActivityRouteId);
             var myLeaderLimitResult = ComBusiness5.GetActivityRouteLimit(teamLeaderRoute.CountLimit, maxCount,
                         teamLeaderRoute.CountFinish);
-            output.TeamLeaderRoute = new WxMiniActivityHomeMyRoute()
+            var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
             {
                 ActivityRouteId = teamLeaderRoute.Id,
                 AvatarUrl = teamLeaderRoute.AvatarUrl,
@@ -591,6 +693,23 @@ namespace ETMS.Business.Open
                 CountShort = myLeaderLimitResult.Item1,
                 CountShortStatus = myLeaderLimitResult.Item2
             };
+            var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
+            if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
+            {
+                myTeamLeaderRoute.JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItemSmall>();
+                foreach (var myActivityRouteItems in teamLeaderRouteBucket.ActivityRouteItems)
+                {
+                    myTeamLeaderRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItemSmall()
+                    {
+                        ActivityRouteId = myActivityRouteItems.ActivityRouteId,
+                        ActivityRouteItemId = myActivityRouteItems.Id,
+                        AvatarUrl = myActivityRouteItems.AvatarUrl,
+                        IsTeamLeader = myActivityRouteItems.IsTeamLeader,
+                        MiniPgmUserId = myActivityRouteItems.MiniPgmUserId
+                    });
+                }
+            }
+            output.TeamLeaderRoute = myTeamLeaderRoute;
             var myActivityRouteItem = await _activityRouteDAL.GetEtActivityRouteItemByUserId(p.Id, request.MiniPgmUserId);
             if (myActivityRouteItem != null)
             {
@@ -608,14 +727,17 @@ namespace ETMS.Business.Open
                 {
                     var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
                         item.CountFinish);
+                    var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
                     var myJoinRoute = new WxMiniActivityHomeJoinRoute()
                     {
                         ActivityRouteId = item.Id,
                         AvatarUrl = item.AvatarUrl,
+                        CurrentAvatarUrl = item.AvatarUrl,
+                        CurrentStudentNameDesc = tempStudentNameDesc,
                         CountFinish = item.CountFinish,
                         CountLimit = item.CountLimit,
                         MiniPgmUserId = item.MiniPgmUserId,
-                        StudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName),
+                        StudentNameDesc = tempStudentNameDesc,
                         CountShort = myJoinRouteLimitResult.Item1,
                         CountShortStatus = myJoinRouteLimitResult.Item2,
                         JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItem>()
@@ -648,6 +770,10 @@ namespace ETMS.Business.Open
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
             var output = new WxMiniActivityHomeGetOutput()
             {
+                WxMiniTenantConfig = new WxMiniTenantConfig()
+                {
+                    MicroWebHomeUrl = AddressLib.GetMicroWebHomeUrl(_appConfigurtaionServices.AppSettings.SysAddressConfig.MicroWebHomeUrl, p.TenantId)
+                },
                 BascInfo = new WxMiniActivityHomeBascInfo()
                 {
                     ActivityExplan = p.ActivityExplan,
@@ -664,6 +790,7 @@ namespace ETMS.Business.Open
                     EndTime = p.EndTime.Value,
                     FailCount = p.FailCount,
                     FinishCount = p.FinishCount,
+                    FinishFullCount = p.FinishFullCount,
                     GlobalOpenBullet = p.GlobalOpenBullet,
                     GlobalOpenStatistics = p.GlobalOpenStatistics,
                     GlobalPhone = p.GlobalPhone,
@@ -674,7 +801,7 @@ namespace ETMS.Business.Open
                     JoinCount = p.JoinCount,
                     MaxCount = p.MaxCount,
                     Name = p.Name,
-                    OriginalPrice = p.OriginalPrice,
+                    OriginalPrice = p.OriginalPrice.EtmsToString3(),
                     PayType = p.PayType,
                     PayValue = p.PayValue,
                     PublishTime = p.PublishTime,
@@ -795,17 +922,21 @@ namespace ETMS.Business.Open
                 return ResponseBase.CommonError("活动不存在");
             }
             var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+            var totalLimitCount = ruleContent.Item.Sum(j => j.LimitCount);
+            var maxCount = ruleContent.Item.Last().LimitCount;
             var groupPurchaseRule = new WxMiniActivityHomeGroupPurchaseRule()
             {
                 Items = ruleContent.Item.Select(j => new WxMiniActivityHomeGroupPurchaseRuleItem()
                 {
                     LimitCount = j.LimitCount,
-                    Money = j.Money
-                }).OrderBy(a => a.LimitCount).ToList()
+                    Money = j.Money,
+                    Length = j.LimitCount / Convert.ToDecimal(maxCount) * 100
+                }).OrderBy(a => a.LimitCount).ToList(),
+                TotalLimitCount = totalLimitCount
             };
-            var maxCount = groupPurchaseRule.Items.Last().LimitCount;
             var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(myActivityRoute.CountLimit, maxCount,
                       myActivityRoute.CountFinish);
+            var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(myActivityRoute.StudentName);
             var output = new WxMiniActivityGroupPurchaseDiscountOutput()
             {
                 IsMultiGroupPurchase = groupPurchaseRule.Items.Count > 1,
@@ -817,7 +948,9 @@ namespace ETMS.Business.Open
                     CountFinish = myActivityRoute.CountFinish,
                     CountLimit = myActivityRoute.CountLimit,
                     MiniPgmUserId = myActivityRoute.MiniPgmUserId,
-                    StudentNameDesc = EtmsHelper.GetNameSecrecy(myActivityRoute.StudentName),
+                    CurrentAvatarUrl = myActivityRoute.AvatarUrl,
+                    CurrentStudentNameDesc = tempStudentNameDesc,
+                    StudentNameDesc = tempStudentNameDesc,
                     CountShort = myJoinRouteLimitResult.Item1,
                     CountShortStatus = myJoinRouteLimitResult.Item2,
                     JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItem>(),
@@ -901,13 +1034,17 @@ namespace ETMS.Business.Open
             if (p.ActivityType == EmActivityType.GroupPurchase)
             {
                 var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+                var totalLimitCount = ruleContent.Item.Sum(j => j.LimitCount);
+                var maxCount = ruleContent.Item.Last().LimitCount;
                 output.GroupPurchaseRule = new WxMiniActivityHomeGroupPurchaseRule()
                 {
                     Items = ruleContent.Item.Select(j => new WxMiniActivityHomeGroupPurchaseRuleItem()
                     {
                         LimitCount = j.LimitCount,
-                        Money = j.Money
-                    }).OrderBy(a => a.LimitCount).ToList()
+                        Money = j.Money,
+                        Length = j.LimitCount / Convert.ToDecimal(maxCount) * 100
+                    }).OrderBy(a => a.LimitCount).ToList(),
+                    TotalLimitCount = totalLimitCount
                 };
                 output.IsMultiGroupPurchase = output.GroupPurchaseRule.Items.Count > 1;
                 var payInfo = ComBusiness5.GetActivityPayInfo(p, ruleContent);

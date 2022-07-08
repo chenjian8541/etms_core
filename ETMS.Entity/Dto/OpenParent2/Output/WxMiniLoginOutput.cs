@@ -15,5 +15,9 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public string OpenId { get; set; }
 
         public string Unionid { get; set; }
+
+        public string NickName { get; set; }
+
+        public string AvatarUrl { get; set; }
     }
 }

@@ -208,7 +208,22 @@ namespace ETMS.DataAccess.Activity
 
         public async Task<int> GetFinishCount(long activityId, int activityType)
         {
-            var sql = $"SELECT COUNT(0) FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND CountFinish >= CountLimit";
+            var sql = string.Empty;
+            if (activityType == EmActivityType.GroupPurchase)
+            {
+                sql = $"SELECT COUNT(0) FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] == {EmSysActivityRouteItemStatus.FinishItem}";
+            }
+            else
+            {
+                sql = $"SELECT COUNT(0) FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND CountFinish >= CountLimit";
+            }
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetFinishFullCount(long activityId)
+        {
+            var sql = $"SELECT COUNT(0) FROM EtActivityRoute WHERE TenantId = {_tenantId} AND ActivityId = {activityId} AND RouteStatus = {EmActivityRouteStatus.Normal} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] == {EmSysActivityRouteItemStatus.FinishFull}";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }

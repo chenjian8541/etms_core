@@ -14,10 +14,13 @@ namespace ETMS.Business.WxCore
 {
     public abstract class MiniProgramAccessBll
     {
+        protected readonly IAppConfigurtaionServices _appConfigurtaionServices;
+
         protected readonly MiniProgramConfig _miniProgramConfig;
 
         public MiniProgramAccessBll(IAppConfigurtaionServices appConfigurtaionServices)
         {
+            this._appConfigurtaionServices = appConfigurtaionServices;
             this._miniProgramConfig = appConfigurtaionServices.AppSettings.SenparcConfig.SenparcWeixinSetting.MiniProgramConfig;
         }
 

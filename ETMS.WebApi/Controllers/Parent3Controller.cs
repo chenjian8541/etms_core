@@ -20,7 +20,7 @@ namespace ETMS.WebApi.Controllers
 {
     [Route("api/parent3/[action]")]
     [ApiController]
-    [EtmsSignatureAuthorize]
+    [EtmsSignatureParentAuthorize]
     public class Parent3Controller : ControllerBase
     {
         private readonly IParentData4BLL _parentData4BLL;

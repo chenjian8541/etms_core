@@ -8,8 +8,8 @@ namespace ETMS.Business.WxCore
 {
     public class MiniProgramPathConfig
     {
-        public const string ActivityMain = "";
+        public const string ActivityMain = "pages/acdetail/index";
 
-        public const string ActivityRoute = "";
+        public const string ActivityRoute = "pages/acdetail/index";
     }
 }
