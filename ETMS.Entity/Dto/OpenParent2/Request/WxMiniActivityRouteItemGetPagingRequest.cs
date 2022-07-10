@@ -12,7 +12,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
     {
         public override string ToString()
         {
-            return $"IsDeleted = {EmIsDeleted.Normal} AND MiniPgmUserId = {this.MiniPgmUserId} AND RouteStatus = {EmActivityRouteStatus.Normal}";
+            return $"IsDeleted = {EmIsDeleted.Normal} AND MiniPgmUserId = {this.MiniPgmUserId} ";
         }
     }
 }

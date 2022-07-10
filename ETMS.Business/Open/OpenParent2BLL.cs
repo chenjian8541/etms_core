@@ -339,6 +339,11 @@ namespace ETMS.Business.Open
                     CountShort = routeLimitResult.Item1,
                     CountShortStatus = routeLimitResult.Item2
                 };
+                var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
+                myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
+                myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
+                myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+
                 var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
                 if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
                 {
@@ -484,7 +489,7 @@ namespace ETMS.Business.Open
                 output.BascInfo.ActivityRouteId = myActivityRouteItem.ActivityRouteId;
                 output.BascInfo.ActivityRouteItemId = myActivityRouteItem.Id;
                 var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
-                output.TeamLeaderRoute = new WxMiniActivityHomeMyRoute()
+                var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
                 {
                     ActivityRouteId = teamLeaderRoute.Id,
                     AvatarUrl = teamLeaderRoute.AvatarUrl,
@@ -493,6 +498,11 @@ namespace ETMS.Business.Open
                     MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
                     StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
                 };
+                var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
+                myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
+                myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
+                myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+                output.TeamLeaderRoute = myTeamLeaderRoute;
 
                 var myHaggleLog = await _activityRouteDAL.GetActivityHaggleLog(myActivityRouteItem.ActivityId, myActivityRouteItem.ActivityRouteId, request.MiniPgmUserId);
                 if (myHaggleLog == null)
@@ -723,6 +733,10 @@ namespace ETMS.Business.Open
                 CountShort = myLeaderLimitResult.Item1,
                 CountShortStatus = myLeaderLimitResult.Item2
             };
+            var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
+            myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
+            myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
+            myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
             var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
             if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
             {
@@ -873,7 +887,7 @@ namespace ETMS.Business.Open
             output.BascInfo.ActivityRouteId = myActivityRouteItemLeader.ActivityRouteId;
             output.BascInfo.ActivityRouteItemId = myActivityRouteItemLeader.Id;
             var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItemLeader.ActivityRouteId);
-            output.TeamLeaderRoute = new WxMiniActivityHomeMyRoute()
+            var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
             {
                 ActivityRouteId = teamLeaderRoute.Id,
                 AvatarUrl = teamLeaderRoute.AvatarUrl,
@@ -882,6 +896,12 @@ namespace ETMS.Business.Open
                 MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
                 StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
             };
+            var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
+            myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
+            myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
+            myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+            output.TeamLeaderRoute = myTeamLeaderRoute;
+
             if (myActivityRouteItemLeader.MiniPgmUserId == request.MiniPgmUserId)
             {
                 output.HaggleLogStatus = HaggleLogStatusOutput.My;
@@ -1434,7 +1454,8 @@ namespace ETMS.Business.Open
             });
             var output = new WxMiniGroupPurchaseStartGoProcessOutput()
             {
-                IsMustPay = false
+                IsMustPay = false,
+                ActivityRouteItemId = myRouteItem.Id
             };
             if (p.IsOpenPay) //如果需要支付，则支付完成后才算成功
             {
@@ -1622,7 +1643,8 @@ namespace ETMS.Business.Open
             });
             var output = new WxMiniGroupPurchaseJoinProcessOutput()
             {
-                IsMustPay = false
+                IsMustPay = false,
+                ActivityRouteItemId = myRouteItem.Id
             };
             if (p.IsOpenPay) //如果需要支付，则支付完成后才算成功
             {
@@ -1881,7 +1903,8 @@ namespace ETMS.Business.Open
             });
             var output = new WxMiniHagglingStartGoOutput()
             {
-                IsMustPay = false
+                IsMustPay = false,
+                ActivityRouteItemId = myRouteItem.Id
             };
             if (p.IsOpenPay) //如果需要支付，则支付完成后才算成功
             {
@@ -2068,6 +2091,16 @@ namespace ETMS.Business.Open
                 ActivityId = request.ActivityMainId,
                 MiniPgmUserId = request.MiniPgmUserId,
                 BehaviorType = ActivityBehaviorType.Retweet
+            });
+            return ResponseBase.Success();
+        }
+
+        public ResponseBase WxMiniPaySuccess(WxMiniPaySuccessRequest request)
+        {
+            _eventPublisher.Publish(new SuixingPayCallbackEvent(request.TenantId)
+            {
+                ActivityRouteItemId = request.ActivityRouteItemId,
+                PayTime = DateTime.Now
             });
             return ResponseBase.Success();
         }

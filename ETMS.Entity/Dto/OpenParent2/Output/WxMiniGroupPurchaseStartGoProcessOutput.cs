@@ -10,6 +10,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
     {
         public bool IsMustPay { get; set; }
 
+        public long ActivityRouteItemId { get; set; }
+
         public WxMiniGroupPurchasePayInfo PayInfo { get; set; }
     }
 }

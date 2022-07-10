@@ -226,6 +226,12 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public byte CountShortStatus { get; set; }
 
+        public int SurplusHour { get; set; }
+
+        public int SurplusMinute { get; set; }
+
+        public int SurplusSecond { get; set; }
+
         public List<WxMiniActivityHomeJoinRouteItemSmall> JoinRouteItems { get; set; }
     }
 

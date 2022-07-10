@@ -281,5 +281,18 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase WxMiniPaySuccess(WxMiniPaySuccessRequest request)
+        {
+            try
+            {
+                return _openParentBLL.WxMiniPaySuccess(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

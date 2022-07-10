@@ -47,5 +47,7 @@ namespace ETMS.IBusiness.Open
         ResponseBase WxMiniActivityCall(WxMiniActivityCallRequest request);
 
         ResponseBase WxMiniActivityShare(WxMiniActivityShareRequest request);
+
+        ResponseBase WxMiniPaySuccess(WxMiniPaySuccessRequest request);
     }
 }

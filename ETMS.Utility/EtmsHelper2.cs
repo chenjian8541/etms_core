@@ -279,5 +279,21 @@ namespace ETMS.Utility
             var bytes = Convert.FromBase64String(urlDecode);
             return Encoding.UTF8.GetString(bytes);
         }
+
+        /// <summary>
+        /// 获取endTime与当前时间差（时、分、秒）
+        /// </summary>
+        /// <param name="endTime"></param>
+        /// <returns></returns>
+        public static Tuple<int, int, int> GetCountDown(DateTime endTime)
+        {
+            var now = DateTime.Now.AddSeconds(-15);
+            if (endTime < now)
+            {
+                return Tuple.Create(0, 0, 0);
+            }
+            var diff = endTime - now;
+            return Tuple.Create(diff.Days*24+diff.Hours, diff.Minutes, diff.Seconds);
+        }
     }
 }
