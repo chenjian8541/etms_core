@@ -13,6 +13,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
 
         public long ActivityMainId { get; set; }
 
+        public long? ActivityRouteId { get; set; }
+
         public override string Validate()
         {
             if (TenantId <= 0)

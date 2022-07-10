@@ -1050,6 +1050,44 @@ namespace ETMS.Business.Open
                 var payInfo = ComBusiness5.GetActivityPayInfo(p, ruleContent);
                 output.PayPriceDesc = payInfo.Item1;
                 output.PayMustValue = payInfo.Item2;
+                if (request.ActivityRouteId != null && request.ActivityRouteId > 0)
+                {
+                    var myActivityRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(request.ActivityRouteId.Value);
+                    if (myActivityRouteBucket != null)
+                    {
+                        var item = myActivityRouteBucket.ActivityRoute;
+                        var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
+                            item.CountFinish);
+                        var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
+                        var myJoinRoute = new WxMiniActivityHomeMyRoute()
+                        {
+                            ActivityRouteId = item.Id,
+                            AvatarUrl = item.AvatarUrl,
+                            CountFinish = item.CountFinish,
+                            CountLimit = item.CountLimit,
+                            MiniPgmUserId = item.MiniPgmUserId,
+                            StudentNameDesc = tempStudentNameDesc,
+                            CountShort = myJoinRouteLimitResult.Item1,
+                            CountShortStatus = myJoinRouteLimitResult.Item2,
+                            JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItemSmall>()
+                        };
+                        if (myActivityRouteBucket.ActivityRouteItems != null && myActivityRouteBucket.ActivityRouteItems.Any())
+                        {
+                            foreach (var routeItem in myActivityRouteBucket.ActivityRouteItems)
+                            {
+                                myJoinRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItemSmall()
+                                {
+                                    ActivityRouteId = routeItem.ActivityRouteId,
+                                    ActivityRouteItemId = routeItem.Id,
+                                    AvatarUrl = routeItem.AvatarUrl,
+                                    IsTeamLeader = routeItem.IsTeamLeader,
+                                    MiniPgmUserId = routeItem.MiniPgmUserId
+                                });
+                            }
+                        }
+                        output.TeamLeaderRoute = myJoinRoute;
+                    }
+                }
             }
             return ResponseBase.Success(output);
         }

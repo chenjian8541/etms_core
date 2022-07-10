@@ -67,7 +67,7 @@ namespace ETMS.DataAccess
             var endTime = now.AddDays(-1).Date;
             var nowDateDec = now.EtmsToDateString();
             var nowTime = EtmsHelper.GetTimeHourAndMinuteDesc(now.AddMinutes(-30));
-            var sql = $"SELECT COUNT(0) FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND (( ClassOt >= '{startTime}' AND ClassOt <= '{endTime}' ) OR (ClassOt = '{nowDateDec}' AND StartTime <= {nowTime}))";
+            var sql = $"SELECT COUNT(0) FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND DataType = {EmClassTimesDataType.Normal} AND (( ClassOt >= '{startTime}' AND ClassOt <= '{endTime}' ) OR (ClassOt = '{nowDateDec}' AND StartTime <= {nowTime}))";
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }

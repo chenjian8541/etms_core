@@ -111,5 +111,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public string ActivityStatusDesc { get; set; }
 
         public bool IsMultiGroupPurchase { get; set; }
+
+        public WxMiniActivityHomeMyRoute TeamLeaderRoute { get; set; }
     }
 }
