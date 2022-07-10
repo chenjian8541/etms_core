@@ -14,6 +14,8 @@ namespace ETMS.IBusiness.Open
 
         Task<ResponseBase> WxMiniEditUserInfo(WxMiniEditUserInfoRequest request);
 
+        Task<ResponseBase> DecodedPhoneNumber(DecodedPhoneNumberRequest request);
+
         Task<ResponseBase> WxMiniActivityRouteItemGetPaging(WxMiniActivityRouteItemGetPagingRequest request);
 
         Task<ResponseBase> WxMiniActivityHomeGet(WxMiniActivityHomeGetRequest request);

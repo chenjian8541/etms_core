@@ -61,6 +61,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> DecodedPhoneNumber(DecodedPhoneNumberRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.DecodedPhoneNumber(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> WxMiniActivityRouteItemGetPaging(WxMiniActivityRouteItemGetPagingRequest request)
         {
             try

@@ -9,6 +9,8 @@ using ETMS.Utility;
 using Senparc.Weixin;
 using Senparc.Weixin.WxOpen.AdvancedAPIs.Sns;
 using Senparc.Weixin.WxOpen.AdvancedAPIs.WxApp;
+using Senparc.Weixin.WxOpen.Entities;
+using Senparc.Weixin.WxOpen.Helpers;
 
 namespace ETMS.Business.WxCore
 {
@@ -43,6 +45,12 @@ namespace ETMS.Business.WxCore
                 ms.Position = 0;
                 return AliyunOssUtil.PutObject(tenantId, imgKey, imgTag, ms);
             }
+        }
+
+        public DecodedPhoneNumber WxDecodedPhoneNumber(string sessionKey, string encryptedData, string iv)
+        {
+            var result = EncryptHelper.DecryptPhoneNumberBySessionKey(sessionKey, encryptedData, iv);
+            return result;
         }
     }
 }

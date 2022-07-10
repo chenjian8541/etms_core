@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Config;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -113,5 +114,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public bool IsMultiGroupPurchase { get; set; }
 
         public WxMiniActivityHomeMyRoute TeamLeaderRoute { get; set; }
+
+        public ActivityConfig ActivityConfig { get; set; }
     }
 }

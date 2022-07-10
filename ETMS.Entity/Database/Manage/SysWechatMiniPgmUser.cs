@@ -20,6 +20,8 @@ namespace ETMS.Entity.Database.Manage
 
         public string Unionid { get; set; }
 
+        public string SessionKey { get; set;}
+
         public DateTime CreateTime { get; set; }
 
         public DateTime? UpdateTime { get; set; }

@@ -52,11 +52,13 @@ namespace ETMS.Business.Open
 
         private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
 
+        private readonly ITenantConfig2DAL _tenantConfig2DAL;
+
         public OpenParent2BLL(IAppConfigurtaionServices appConfigurtaionServices, ISysWechatMiniPgmUserDAL sysWechatMiniPgmUserDAL, ISysTenantDAL sysTenantDAL,
            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL, IActivityVisitorDAL activityVisitorDAL,
            ISysActivityRouteItemDAL sysActivityRouteItemDAL, IEventPublisher eventPublisher,
            IDistributedLockDAL distributedLockDAL, IStudentDAL studentDAL, IPaySuixingService paySuixingService,
-           ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL)
+           ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, ITenantConfig2DAL tenantConfig2DAL)
             : base(appConfigurtaionServices)
         {
             this._sysWechatMiniPgmUserDAL = sysWechatMiniPgmUserDAL;
@@ -70,6 +72,7 @@ namespace ETMS.Business.Open
             this._studentDAL = studentDAL;
             this._paySuixingService = paySuixingService;
             this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
+            this._tenantConfig2DAL = tenantConfig2DAL;
         }
 
         private void InitTenantId(int tenantId)
@@ -78,6 +81,7 @@ namespace ETMS.Business.Open
             _activityRouteDAL.InitTenantId(tenantId);
             _activityVisitorDAL.InitTenantId(tenantId);
             _studentDAL.InitTenantId(tenantId);
+            _tenantConfig2DAL.InitTenantId(tenantId);
         }
 
         public async Task<ResponseBase> WxMiniLogin(WxMiniLoginRequest request)
@@ -101,9 +105,15 @@ namespace ETMS.Business.Open
                     TenantId = null,
                     UpdateTime = null,
                     OpenId = loginResult.openid,
-                    Unionid = loginResult.unionid
+                    Unionid = loginResult.unionid,
+                    SessionKey = loginResult.session_key
                 };
                 await _sysWechatMiniPgmUserDAL.AddWechatMiniPgmUser(log);
+            }
+            else
+            {
+                log.SessionKey = loginResult.session_key;
+                await _sysWechatMiniPgmUserDAL.EditWechatMiniPgmUser(log);
             }
             var miniPgmUserId = log.Id;
             var strSignature = ParentSignatureLib.GetOpenParent2Signature(miniPgmUserId);
@@ -132,6 +142,26 @@ namespace ETMS.Business.Open
             await _sysWechatMiniPgmUserDAL.EditWechatMiniPgmUser(log);
 
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> DecodedPhoneNumber(DecodedPhoneNumberRequest request)
+        {
+            var log = await _sysWechatMiniPgmUserDAL.GetWechatMiniPgmUser(request.MiniPgmUserId);
+            if (log == null)
+            {
+                LOG.Log.Error("[DecodedPhoneNumber]用户未注册", request, this.GetType());
+                return ResponseBase.CommonError("用户未注册");
+            }
+            var result = base.WxDecodedPhoneNumber(log.SessionKey, request.EncryptedData, request.Iv);
+            if (result == null)
+            {
+                return ResponseBase.CommonError("获取手机号码失败");
+            }
+            var output = new DecodedPhoneNumberPhone()
+            {
+                Phone = result.phoneNumber
+            };
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> WxMiniActivityRouteItemGetPaging(WxMiniActivityRouteItemGetPagingRequest request)
@@ -988,6 +1018,7 @@ namespace ETMS.Business.Open
                 return ResponseBase.CommonError("活动不存在");
             }
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
+            var config = await _tenantConfig2DAL.GetTenantConfig();
             var output = new WxMiniActivityGetSimpleOutput()
             {
                 ActivityMainId = p.Id,
@@ -1029,7 +1060,8 @@ namespace ETMS.Business.Open
                 TenantName = p.TenantName,
                 Title = p.Title,
                 IsMultiGroupPurchase = false,
-                GroupPurchaseRule = null
+                GroupPurchaseRule = null,
+                ActivityConfig = config.ActivityConfig
             };
             if (p.ActivityType == EmActivityType.GroupPurchase)
             {

@@ -45,6 +45,7 @@ namespace ETMS.DataAccess.EtmsManage
         public async Task EditWechatMiniPgmUser(SysWechatMiniPgmUser entity)
         {
             await this.Update(entity);
+            RemoveCache(entity.Id);
         }
 
         public async Task<SysWechatMiniPgmUser> GetWechatMiniPgmUser(string openId)
