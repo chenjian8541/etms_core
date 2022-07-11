@@ -19,7 +19,7 @@ namespace ETMS.IDataAccess
 
         Task<bool> EditClass(EtClass etClass);
 
-        Task UpdateReservationInfo(List<long> classIds, byte newReservationType, int newDurationHour, int newDurationMinute);
+        Task UpdateReservationInfo(List<long> classIds, byte newReservationType, int newDurationHour, int newDurationMinute,int newDunIntervalMinute);
 
         Task<bool> DelClass(long classId, bool isIgnoreCheck = false);
 

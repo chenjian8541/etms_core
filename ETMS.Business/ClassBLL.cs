@@ -186,7 +186,8 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> ClassOneToOneSetReservationBatch(ClassOneToOneSetReservationBatchRequest request)
         {
-            await _classDAL.UpdateReservationInfo(request.ClassIds, request.ReservationType, request.DurationHour, request.DurationMinute);
+            await _classDAL.UpdateReservationInfo(request.ClassIds, request.ReservationType, request.DurationHour, request.DurationMinute,
+                request.DunIntervalMinute);
 
             await _userOperationLogDAL.AddUserLog(request, "批量设置在线约课", EmUserOperationType.ClassManage);
             return ResponseBase.Success();
