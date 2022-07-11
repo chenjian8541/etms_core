@@ -233,6 +233,11 @@
             "Id": 31,
             "Name": "系统公告",
             "Type": 0
+          },
+          {
+            "Id": 35,
+            "Name": "产品培训配置",
+            "Type": 0
           }
         ],
         "ChildrenAction": [

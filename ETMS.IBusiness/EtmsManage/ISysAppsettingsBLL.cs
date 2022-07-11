@@ -17,5 +17,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<TencentCloudAccountView> GetTencentCloudAccount(int tencentCloudId);
 
         Task<EtmsGlobalConfig> GetEtmsGlobalConfig();
+
+        Task<LiveTeachingConfig> GetLiveTeachingConfig();
     }
 }

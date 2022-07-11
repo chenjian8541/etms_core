@@ -172,11 +172,11 @@ namespace ETMS.Business.EtmsManage
                 Tuple<int, int> diffTime;
                 if (beforeDate > afterDate)
                 {
-                    diffTime = EtmsHelper.GetDffTime(afterDate, beforeDate);
+                    diffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(afterDate, beforeDate);
                 }
                 else
                 {
-                    diffTime = EtmsHelper.GetDffTime(beforeDate, afterDate);
+                    diffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(beforeDate, afterDate);
                 }
                 if (diffTime.Item1 > 0)
                 {

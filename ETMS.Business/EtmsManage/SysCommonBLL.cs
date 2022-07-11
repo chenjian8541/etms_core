@@ -82,5 +82,29 @@ namespace ETMS.Business.EtmsManage
                 SecurityToken = aliyunOssSTS.Credentials.SecurityToken
             });
         }
+
+        public async Task<ResponseBase> LiveTeachingConfigGet(AgentRequestBase request)
+        {
+            var config = await _sysAppsettingsBLL.GetLiveTeachingConfig();
+            return ResponseBase.Success(config);
+        }
+
+        public async Task<ResponseBase> LiveTeachingConfigSave(LiveTeachingConfigSaveRequest request)
+        {
+            var data = JsonConvert.SerializeObject(request.config);
+            await _sysAppsettingsDAL.SaveSysAppsettings(data, EmSysAppsettingsType.LiveTeachingConfig);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(new SysAgentOpLog()
+            {
+                AgentId = request.LoginAgentId,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = "修改培训配置信息",
+                Ot = DateTime.Now,
+                Remark = string.Empty,
+                Type = EmSysAgentOpLogType.LiveTeachingConfig
+            }, request.LoginUserId);
+            return ResponseBase.Success();
+        }
     }
 }

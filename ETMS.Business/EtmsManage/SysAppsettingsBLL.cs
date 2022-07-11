@@ -61,5 +61,19 @@ namespace ETMS.Business.EtmsManage
             }
             return Newtonsoft.Json.JsonConvert.DeserializeObject<EtmsGlobalConfig>(log.Data);
         }
+
+        public async Task<LiveTeachingConfig> GetLiveTeachingConfig()
+        {
+            var log = await _sysAppsettingsDAL.GetAppsettings(EmSysAppsettingsType.LiveTeachingConfig);
+            if (log == null || string.IsNullOrEmpty(log.Data))
+            {
+                LOG.Log.Error("[GetLiveTeachingConfig]获取默认产品培训配置失败", this.GetType());
+                return new LiveTeachingConfig()
+                {
+                    Rules = new List<LiveTeachingTimeRule>()
+                };
+            }
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<LiveTeachingConfig>(log.Data);
+        }
     }
 }

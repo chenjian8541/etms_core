@@ -742,5 +742,31 @@ namespace Etms.Agent.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> LiveTeachingConfigGet(AgentRequestBase request)
+        {
+            try
+            {
+                return await _sysCommonBLL.LiveTeachingConfigGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> LiveTeachingConfigSave(LiveTeachingConfigSaveRequest request)
+        {
+            try
+            {
+                return await _sysCommonBLL.LiveTeachingConfigSave(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

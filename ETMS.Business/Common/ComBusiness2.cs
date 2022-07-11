@@ -150,7 +150,7 @@ namespace ETMS.Business.Common
                             {
                                 jsStartDate = startTime.Value;
                             }
-                            var dffTime = EtmsHelper.GetDffTime(jsStartDate, endTime.Value);
+                            var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(jsStartDate, endTime.Value);
                             surplusQuantity = dffTime.Item1;
                             surplusSmallQuantity = dffTime.Item2;
                         }

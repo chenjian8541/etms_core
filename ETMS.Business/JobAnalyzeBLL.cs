@@ -226,7 +226,7 @@ namespace ETMS.Business
             var mokJobProcessTime = studentCourseDetail.LastJobProcessTime;
             var firstDate = request.DeTime.AddDays(1).Date;
             var endDate = studentCourseDetail.EndTime.Value.Date;
-            var dffTime = EtmsHelper.GetDffTime(firstDate, endDate);
+            var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(firstDate, endDate);
             studentCourseDetail.SurplusQuantity = dffTime.Item1;
             studentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
             studentCourseDetail.UseQuantity += 1;

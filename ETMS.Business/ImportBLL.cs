@@ -832,17 +832,17 @@ namespace ETMS.Business
                 }
 
                 var course = await _courseDAL.GetCourse(p.CourseName, p.CourseType);
-                var dayDeff = EtmsHelper.GetDffTime(p.StartTime, p.EndTime.AddDays(1));
+                var dayDeffBuy = EtmsHelper.GetDffTimeAboutBuyQuantity(p.StartTime, p.EndTime);
                 var buyUnit = EmCourseUnit.Month;
                 var priceUnit = EmCoursePriceType.Month;
                 var priceTypeDesc = "按月";
-                var buyQuantity = dayDeff.Item1;
-                if (dayDeff.Item1 == 0)
+                var buyQuantity = dayDeffBuy.Item1;
+                if (dayDeffBuy.Item1 == 0)
                 {
                     buyUnit = EmCourseUnit.Day;
                     priceUnit = EmCoursePriceType.Day;
                     priceTypeDesc = "按天";
-                    buyQuantity = dayDeff.Item2;
+                    buyQuantity = dayDeffBuy.Item2;
                 }
                 decimal price = 0;
                 if (buyQuantity > 0)
@@ -987,7 +987,12 @@ namespace ETMS.Business
                 var surplusSmallQuantity = 0;
                 if (p.EndTime > now.Date)
                 {
-                    var daySurplusQuantityDeff = EtmsHelper.GetDffTime(now.Date, p.EndTime.AddDays(1));
+                    var startDate = now.Date;
+                    if (p.StartTime > startDate)
+                    {
+                        startDate = p.StartTime.Date;
+                    }
+                    var daySurplusQuantityDeff = EtmsHelper.GetDffTimeAboutSurplusQuantity(startDate, p.EndTime);
                     surplusQuantity = daySurplusQuantityDeff.Item1;
                     surplusSmallQuantity = daySurplusQuantityDeff.Item2;
                 }

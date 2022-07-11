@@ -15,5 +15,9 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> EtmsGlobalConfigSave(EtmsGlobalConfigSaveRequest request);
 
         ResponseBase UploadConfigGet(AgentRequestBase request);
+
+        Task<ResponseBase> LiveTeachingConfigGet(AgentRequestBase request);
+
+        Task<ResponseBase> LiveTeachingConfigSave(LiveTeachingConfigSaveRequest request);
     }
 }

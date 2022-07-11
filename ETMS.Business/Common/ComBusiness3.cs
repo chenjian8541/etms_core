@@ -506,7 +506,12 @@ namespace ETMS.Business.Common
                     }
                     if (p.DeType == EmDeClassTimesType.Day && p.StartTime != null && p.EndTime != null)
                     {
-                        var dffTime = EtmsHelper.GetDffTime(DateTime.Now.Date, p.EndTime.Value.AddDays(1));
+                        var tempStartDate = DateTime.Now.Date;
+                        if (p.StartTime.Value > tempStartDate)
+                        {
+                            tempStartDate = p.StartTime.Value.Date;
+                        }
+                        var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(tempStartDate, p.EndTime.Value);
                         p.SurplusQuantity = dffTime.Item1;
                         p.SurplusSmallQuantity = dffTime.Item2;
                     }

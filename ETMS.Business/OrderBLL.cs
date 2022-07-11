@@ -1528,7 +1528,7 @@ namespace ETMS.Business
                                         firstDate = mySourceStudentCourseDetail.StartTime.Value;
                                     }
 
-                                    var dffTime = EtmsHelper.GetDffTime(firstDate, mySourceStudentCourseDetail.EndTime.Value);
+                                    var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(firstDate, mySourceStudentCourseDetail.EndTime.Value);
                                     mySourceStudentCourseDetail.SurplusQuantity = dffTime.Item1;
                                     mySourceStudentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
                                     mySourceStudentCourseDetail.UseQuantity += deDay;

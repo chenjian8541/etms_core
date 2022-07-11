@@ -23,5 +23,10 @@ namespace ETMS.Entity.Enum
         /// 系统配置信息
         /// </summary>
         public const byte EtmsGlobalConfig = 2;
+
+        /// <summary>
+        /// 产品培训直播配置
+        /// </summary>
+        public const byte LiveTeachingConfig = 3;
     }
 }

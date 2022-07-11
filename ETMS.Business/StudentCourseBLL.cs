@@ -666,7 +666,7 @@ namespace ETMS.Business
                 }
                 var beforeSurplusQuantity = studentCourseDetail.SurplusQuantity;
                 var beforeSurplusSmallQuantity = studentCourseDetail.SurplusSmallQuantity;
-                var dffTime = EtmsHelper.GetDffTime(startTime, studentCourseDetail.EndTime.Value.AddDays(1));
+                var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(startTime, studentCourseDetail.EndTime.Value);
                 studentCourseDetail.SurplusQuantity = dffTime.Item1;
                 studentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
 
@@ -880,7 +880,7 @@ namespace ETMS.Business
                 var beforeSurplusQuantity = studentCourseDetail.SurplusQuantity;
                 var beforeSurplusSmallQuantity = studentCourseDetail.SurplusSmallQuantity;
 
-                var dffTime = EtmsHelper.GetDffTime(startTime, studentCourseDetail.EndTime.Value.AddDays(1));
+                var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(startTime, studentCourseDetail.EndTime.Value);
                 studentCourseDetail.SurplusQuantity = dffTime.Item1;
                 studentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
                 //重新计算单价

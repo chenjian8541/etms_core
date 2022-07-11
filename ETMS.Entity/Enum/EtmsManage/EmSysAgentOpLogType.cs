@@ -52,6 +52,9 @@ namespace ETMS.Entity.Enum.EtmsManage
         [Description("校区管理")]
         public const int HeadMgr = 15;
 
+        [Description("产品培训配置")]
+        public const int LiveTeachingConfig = 16;
+
         public static string GetSysAgentOpLogTypeDesc(int type)
         {
             switch (type)
@@ -86,6 +89,8 @@ namespace ETMS.Entity.Enum.EtmsManage
                     return "系统公告";
                 case HeadMgr:
                     return "校区管理";
+                case LiveTeachingConfig:
+                    return "产品培训配置";
             }
             return string.Empty;
         }

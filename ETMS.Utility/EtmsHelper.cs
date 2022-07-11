@@ -179,11 +179,33 @@ namespace ETMS.Utility
             return pageCount;
         }
 
-        public static Tuple<int, int> GetDffTime(DateTime startTime, DateTime endTime)
+        public static Tuple<int, int> GetDffTimeAboutBuyQuantity(DateTime startTime, DateTime endTime)
         {
             if (startTime > endTime)
             {
                 return Tuple.Create(0, 0);
+            }
+            endTime = endTime.AddDays(1);
+            var myDiff = endTime.Date - startTime.Date;
+            if (myDiff.TotalDays > 0 && myDiff.TotalDays < 30)
+            {
+                return Tuple.Create(0, (int)myDiff.TotalDays);
+            }
+
+            var dayDff = new DateDiff(startTime, endTime);
+            var months = dayDff.Years * 12 + dayDff.Months;
+            return Tuple.Create(months, dayDff.Days);
+        }
+
+        public static Tuple<int, int> GetDffTimeAboutSurplusQuantity(DateTime startTime, DateTime endTime)
+        {
+            if (startTime > endTime)
+            {
+                return Tuple.Create(0, 0);
+            }
+            if (startTime > DateTime.Now.Date)
+            {
+                endTime = endTime.AddDays(1);
             }
             var myDiff = endTime.Date - startTime.Date;
             if (myDiff.TotalDays > 0 && myDiff.TotalDays < 30)
