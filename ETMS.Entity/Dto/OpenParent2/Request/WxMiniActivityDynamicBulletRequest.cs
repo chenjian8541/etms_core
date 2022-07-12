@@ -16,7 +16,7 @@ namespace ETMS.Entity.Dto.OpenParent2.Request
 
         public override string ToString()
         {
-            return $"TenantId = {TenantId} AND ActivityId = {ActivityMainId} IsDeleted = {EmIsDeleted.Normal} AND RouteStatus = {EmActivityRouteStatus.Normal}";
+            return $"TenantId = {TenantId} AND ActivityId = {ActivityMainId} AND IsDeleted = {EmIsDeleted.Normal} AND RouteStatus = {EmActivityRouteStatus.Normal}";
         }
 
         public override string Validate()
