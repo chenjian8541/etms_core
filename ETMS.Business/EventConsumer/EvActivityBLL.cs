@@ -271,7 +271,7 @@ namespace ETMS.Business.EventConsumer
             await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myRouteItemId, payTime);
             if (myActivityRouteItem.IsTeamLeader)
             {
-                await _activityRouteDAL.UpdateActivityRouteItemAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, payTime);
+                await _activityRouteDAL.UpdateActivityRouteAboutPayFinishTemp(myActivityRouteItem.ActivityRouteId, payTime);
             }
             var myActivityRoute = await _activityRouteDAL.GetActivityRouteTemp(myActivityRouteItem.ActivityRouteId);
             var myActivity = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);

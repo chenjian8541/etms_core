@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.Business
 {
@@ -86,6 +87,24 @@ namespace ETMS.Business
                     IsHaveUpgrade = false
                 }
             };
+            var liveTeachingConfig = await _sysAppsettingsBLL.GetLiveTeachingConfig();
+            output.LiveTeachingConfig = new LiveTeachingConfigOutput()
+            {
+                Config = liveTeachingConfig,
+                IsLiving = false,
+                IsOpen = liveTeachingConfig.IsOpen
+            };
+            if (liveTeachingConfig.IsOpen && liveTeachingConfig.Rules != null && liveTeachingConfig.Rules.Count > 0)
+            {
+                var nowTime = EtmsHelper.GetTimeHourAndMinuteDesc(DateTime.Now);
+                var nowWeek = (int)DateTime.Now.DayOfWeek;
+                var nowLog = liveTeachingConfig.Rules.FirstOrDefault(j => j.Week == nowWeek && nowTime >= j.StartTime && nowTime < j.EndTime);
+                if (nowLog != null)
+                {
+                    output.LiveTeachingConfig.IsLiving = true;
+                }
+            }
+
             var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
             var minExDate = DateTime.Now.AddDays(SystemConfig.ComConfig.SystemExpireDayLimit);
             output.SystemExpiredInfo = new SystemExpiredInfo()
