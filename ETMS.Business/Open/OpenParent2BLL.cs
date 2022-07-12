@@ -343,6 +343,7 @@ namespace ETMS.Business.Open
                 myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
                 myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
                 myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+                myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
 
                 var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
                 if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
@@ -502,6 +503,7 @@ namespace ETMS.Business.Open
                 myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
                 myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
                 myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+                myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
                 output.TeamLeaderRoute = myTeamLeaderRoute;
 
                 var myHaggleLog = await _activityRouteDAL.GetActivityHaggleLog(myActivityRouteItem.ActivityId, myActivityRouteItem.ActivityRouteId, request.MiniPgmUserId);
@@ -737,6 +739,7 @@ namespace ETMS.Business.Open
             myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
             myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
             myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+            myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
             var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
             if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
             {
@@ -900,6 +903,7 @@ namespace ETMS.Business.Open
             myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
             myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
             myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+            myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
             output.TeamLeaderRoute = myTeamLeaderRoute;
 
             if (myActivityRouteItemLeader.MiniPgmUserId == request.MiniPgmUserId)

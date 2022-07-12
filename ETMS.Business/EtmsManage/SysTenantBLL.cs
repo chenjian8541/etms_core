@@ -311,9 +311,14 @@ namespace ETMS.Business.EtmsManage
             }
             else
             {
+                var tenantTestDay = SystemConfig.TenantDefaultConfig.TenantTestDay;
+                if (request.LoginAgentId == 14) //云上铺开的  试用期15天
+                {
+                    tenantTestDay = SystemConfig.TenantDefaultConfig.TenantTestDayMini;
+                }
                 //15天试用
-                exDate = now.AddDays(SystemConfig.TenantDefaultConfig.TenantTestDay);
-                changeDesc = $"{SystemConfig.TenantDefaultConfig.TenantTestDay}天";
+                exDate = now.AddDays(tenantTestDay);
+                changeDesc = $"{tenantTestDay}天";
             }
             var buyStatus = request.EtmsCount > 0 ? EmSysTenantBuyStatus.Official : EmSysTenantBuyStatus.Test;
 

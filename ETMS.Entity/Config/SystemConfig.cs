@@ -65,6 +65,11 @@ namespace ETMS.Entity.Config
         public int TenantTestDay = 30;
 
         /// <summary>
+        /// 机构试用15天
+        /// </summary>
+        public int TenantTestDayMini = 15;
+
+        /// <summary>
         /// 默认限制机构用户数量100个
         /// </summary>
         public int MaxUserCountDefault = 100;

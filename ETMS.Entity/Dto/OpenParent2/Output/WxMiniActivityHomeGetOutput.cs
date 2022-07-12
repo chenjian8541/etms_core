@@ -232,6 +232,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public int SurplusSecond { get; set; }
 
+        public DateTime ActivityEndTime { get; set; }
+
         public List<WxMiniActivityHomeJoinRouteItemSmall> JoinRouteItems { get; set; }
     }
 
