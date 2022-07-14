@@ -66,6 +66,11 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public decimal PayValue { get; set; }
 
+        /// <summary>
+        /// <see cref="EmActivityHagglingType"/>
+        /// </summary>
+        public int HagglingType { get; set; }
+
         public int MaxCount { get; set; }
 
         /// <summary>

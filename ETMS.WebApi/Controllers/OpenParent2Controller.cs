@@ -294,5 +294,18 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> WxMiniHagglingLogGetPaging(WxMiniHagglingLogGetPagingRequest request)
+        {
+            try
+            {
+                return await _openParentBLL.WxMiniHagglingLogGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

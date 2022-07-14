@@ -100,6 +100,11 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public string PayMustValue { get; set; }
 
+        /// <summary>
+        /// <see cref="EmActivityHagglingType"/>
+        /// </summary>
+        public int HagglingType { get; set; }
+
         public WxMiniActivityHomeGroupPurchaseRule GroupPurchaseRule { get; set; }
 
         public string RuleEx1 { get; set; }
@@ -221,6 +226,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public int CountLimit { get; set; }
 
         public int CountFinish { get; set; }
+
+        public string HagglingProgress { get; set; }
 
         public int CountShort { get; set; }
 

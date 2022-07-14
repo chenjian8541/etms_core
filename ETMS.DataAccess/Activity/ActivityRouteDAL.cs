@@ -135,9 +135,24 @@ namespace ETMS.DataAccess.Activity
             return await _dbWrapper.ExecutePage<EtActivityRoute>("EtActivityRoute", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
+        public async Task<Tuple<IEnumerable<EtActivityRoute>, int>> GetPagingRoute2(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtActivityRoute>("EtActivityRoute", "*", request.PageSize, request.PageCurrent, "Id ASC", request.ToString());
+        }
+
         public async Task<Tuple<IEnumerable<EtActivityRouteItem>, int>> GetPagingRouteItem(IPagingRequest request)
         {
             return await _dbWrapper.ExecutePage<EtActivityRouteItem>("EtActivityRouteItem", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtActivityRouteItem>, int>> GetPagingRouteItem2(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtActivityRouteItem>("EtActivityRouteItem", "*", request.PageSize, request.PageCurrent, "Id ASC", request.ToString());
+        }
+
+        public async Task<Tuple<IEnumerable<EtActivityHaggleLog>, int>> GetPagingHaggleLog(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtActivityHaggleLog>("EtActivityHaggleLog", "*", request.PageSize, request.PageCurrent, "Id ASC", request.ToString());
         }
 
         public async Task AddActivityRoute(EtActivityRoute entity)

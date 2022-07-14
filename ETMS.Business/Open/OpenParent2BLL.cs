@@ -170,7 +170,7 @@ namespace ETMS.Business.Open
             var output = new List<WxMiniActivityRouteItemGetPagingOutput>();
             if (pagingData.Item1.Any())
             {
-         
+
                 foreach (var p in pagingData.Item1)
                 {
                     var tempCountLimit = p.CountLimit;
@@ -181,7 +181,7 @@ namespace ETMS.Business.Open
                             tempCountLimit = p.CountLimitMax;
                         }
                     }
-                    var tempExTimeCountDown  = EtmsHelper2.GetCountDownMillisecond(p.ActivityEndTime);
+                    var tempExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(p.ActivityEndTime);
                     output.Add(new WxMiniActivityRouteItemGetPagingOutput()
                     {
                         ActivityCoverImage = p.ActivityCoverImage,
@@ -427,7 +427,18 @@ namespace ETMS.Business.Open
 
         private async Task<ResponseBase> WxMiniActivityHomeGetHaggling(WxMiniActivityHomeGetRequest request, EtActivityMain p)
         {
+            var hagglingType = EmActivityHagglingType.Pay;
+            var lowPrice = Convert.ToDecimal(p.RuleEx1);
+            if (lowPrice <= 0)
+            {
+                hagglingType = EmActivityHagglingType.Free;
+            }
+            else if (!p.IsOpenPay)
+            {
+                hagglingType = EmActivityHagglingType.AfterPay;
+            }
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
+            var payInfo = ComBusiness5.GetActivityPayInfoHaggling(p);
             var output = new WxMiniActivityHomeGetOutput()
             {
                 WxMiniTenantConfig = new WxMiniTenantConfig()
@@ -494,7 +505,10 @@ namespace ETMS.Business.Open
                     VisitCount = p.VisitCount,
                     GroupPurchaseRule = null,
                     ActivityRouteId = null,
-                    ActivityRouteItemId = null
+                    ActivityRouteItemId = null,
+                    PayPriceDesc = payInfo.Item1,
+                    PayMustValue = payInfo.Item2,
+                    HagglingType = hagglingType
                 }
             };
             var myActivityRouteItem = await _activityRouteDAL.GetEtActivityRouteItemByUserId(request.ActivityMainId, request.MiniPgmUserId);
@@ -506,6 +520,7 @@ namespace ETMS.Business.Open
                 output.BascInfo.ActivityRouteId = myActivityRouteItem.ActivityRouteId;
                 output.BascInfo.ActivityRouteItemId = myActivityRouteItem.Id;
                 var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
+                var myLeaderLimitResult = ComBusiness5.GetActivityRouteLimitHaggling(teamLeaderRoute.CountLimit, teamLeaderRoute.CountFinish);
                 var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
                 {
                     ActivityRouteId = teamLeaderRoute.Id,
@@ -513,7 +528,10 @@ namespace ETMS.Business.Open
                     CountFinish = teamLeaderRoute.CountFinish,
                     CountLimit = teamLeaderRoute.CountLimit,
                     MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
-                    StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
+                    StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName),
+                    CountShortStatus = myLeaderLimitResult.Item2,
+                    CountShort = myLeaderLimitResult.Item1,
+                    HagglingProgress = ComBusiness5.GetProgressHaggling(teamLeaderRoute.CountLimit, teamLeaderRoute.CountFinish)
                 };
                 myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
                 myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
@@ -824,7 +842,18 @@ namespace ETMS.Business.Open
 
         private async Task<ResponseBase> WxMiniActivityHomeGet2Haggling(WxMiniActivityHomeGet2Request request, EtActivityMain p, EtActivityRouteItem myActivityRouteItemLeader)
         {
+            var hagglingType = EmActivityHagglingType.Pay;
+            var lowPrice = Convert.ToDecimal(p.RuleEx1);
+            if (lowPrice <= 0)
+            {
+                hagglingType = EmActivityHagglingType.Free;
+            }
+            else if (!p.IsOpenPay)
+            {
+                hagglingType = EmActivityHagglingType.AfterPay;
+            }
             var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
+            var payInfo = ComBusiness5.GetActivityPayInfoHaggling(p);
             var output = new WxMiniActivityHomeGetOutput()
             {
                 WxMiniTenantConfig = new WxMiniTenantConfig()
@@ -891,7 +920,10 @@ namespace ETMS.Business.Open
                     VisitCount = p.VisitCount,
                     GroupPurchaseRule = null,
                     ActivityRouteId = null,
-                    ActivityRouteItemId = null
+                    ActivityRouteItemId = null,
+                    PayPriceDesc = payInfo.Item1,
+                    PayMustValue = payInfo.Item2,
+                    HagglingType = hagglingType
                 }
             };
 
@@ -900,6 +932,7 @@ namespace ETMS.Business.Open
             output.BascInfo.ActivityRouteId = myActivityRouteItemLeader.ActivityRouteId;
             output.BascInfo.ActivityRouteItemId = myActivityRouteItemLeader.Id;
             var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItemLeader.ActivityRouteId);
+            var myLeaderLimitResult = ComBusiness5.GetActivityRouteLimitHaggling(teamLeaderRoute.CountLimit, teamLeaderRoute.CountFinish);
             var myTeamLeaderRoute = new WxMiniActivityHomeMyRoute()
             {
                 ActivityRouteId = teamLeaderRoute.Id,
@@ -907,7 +940,10 @@ namespace ETMS.Business.Open
                 CountFinish = teamLeaderRoute.CountFinish,
                 CountLimit = teamLeaderRoute.CountLimit,
                 MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
-                StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
+                StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName),
+                CountShortStatus = myLeaderLimitResult.Item2,
+                CountShort = myLeaderLimitResult.Item1,
+                HagglingProgress = ComBusiness5.GetProgressHaggling(teamLeaderRoute.CountLimit, teamLeaderRoute.CountFinish)
             };
             myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
             myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
@@ -1094,6 +1130,23 @@ namespace ETMS.Business.Open
                 GroupPurchaseRule = null,
                 ActivityConfig = config.ActivityConfig
             };
+            if (p.ActivityType == EmActivityType.Haggling)
+            {
+                var payInfo = ComBusiness5.GetActivityPayInfoHaggling(p);
+                output.PayPriceDesc = payInfo.Item1;
+                output.PayMustValue = payInfo.Item2;
+                var hagglingType = EmActivityHagglingType.Pay;
+                var lowPrice = Convert.ToDecimal(p.RuleEx1);
+                if (lowPrice <= 0)
+                {
+                    hagglingType = EmActivityHagglingType.Free;
+                }
+                else if (!p.IsOpenPay)
+                {
+                    hagglingType = EmActivityHagglingType.AfterPay;
+                }
+                output.HagglingType = hagglingType;
+            }
             if (p.ActivityType == EmActivityType.GroupPurchase)
             {
                 var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
@@ -1189,7 +1242,7 @@ namespace ETMS.Business.Open
         {
             var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(activityMain.RuleContent);
             var maxCount = ruleContent.Item.Last().LimitCount;
-            var pagingData = await _activityRouteDAL.GetPagingRouteItem(request);
+            var pagingData = await _activityRouteDAL.GetPagingRouteItem2(request);
             var output = new List<WxMiniActivityDynamicBulletGetPagingOutput>();
             if (pagingData.Item1.Any())
             {
@@ -1228,7 +1281,7 @@ namespace ETMS.Business.Open
         private async Task<ResponseBase> WxMiniActivityDynamicBulletGetPagingHaggling(WxMiniActivityDynamicBulletGetPagingRequest request,
             EtActivityMain activityMain)
         {
-            var pagingData = await _activityRouteDAL.GetPagingRoute(request);
+            var pagingData = await _activityRouteDAL.GetPagingRoute2(request);
             var output = new List<WxMiniActivityDynamicBulletGetPagingOutput>();
             if (pagingData.Item1.Any())
             {
@@ -2131,6 +2184,26 @@ namespace ETMS.Business.Open
                 PayTime = DateTime.Now
             });
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> WxMiniHagglingLogGetPaging(WxMiniHagglingLogGetPagingRequest request)
+        {
+            this.InitTenantId(request.TenantId);
+            var pagingData = await _activityRouteDAL.GetPagingHaggleLog(request);
+            var output = new List<WxMiniHagglingLogGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new WxMiniHagglingLogGetPagingOutput()
+                    {
+                        AvatarUrl = p.AvatarUrl,
+                        NickName = p.NickName,
+                        MiniPgmUserId = p.MiniPgmUserId
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<WxMiniHagglingLogGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

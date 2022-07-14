@@ -37,7 +37,13 @@ namespace ETMS.IDataAccess.Activity
 
         Task<Tuple<IEnumerable<EtActivityRoute>, int>> GetPagingRoute(IPagingRequest request);
 
+        Task<Tuple<IEnumerable<EtActivityRoute>, int>> GetPagingRoute2(IPagingRequest request);
+
         Task<Tuple<IEnumerable<EtActivityRouteItem>, int>> GetPagingRouteItem(IPagingRequest request);
+
+        Task<Tuple<IEnumerable<EtActivityRouteItem>, int>> GetPagingRouteItem2(IPagingRequest request);
+
+        Task<Tuple<IEnumerable<EtActivityHaggleLog>, int>> GetPagingHaggleLog(IPagingRequest request);
 
         Task AddActivityRoute(EtActivityRoute entity);
 

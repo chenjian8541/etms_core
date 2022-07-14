@@ -49,5 +49,7 @@ namespace ETMS.IBusiness.Open
         ResponseBase WxMiniActivityShare(WxMiniActivityShareRequest request);
 
         ResponseBase WxMiniPaySuccess(WxMiniPaySuccessRequest request);
+
+        Task<ResponseBase> WxMiniHagglingLogGetPaging(WxMiniHagglingLogGetPagingRequest request);
     }
 }

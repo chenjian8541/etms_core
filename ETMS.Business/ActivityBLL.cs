@@ -315,6 +315,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("活动模板不存在");
             }
+            if (request.LowPrice <= 0)
+            {
+                request.IsOpenPay = false;
+            }
             if (request.IsOpenPay)
             {
                 var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
@@ -386,7 +390,7 @@ namespace ETMS.Business
                 ScenetypeStyleClass = activityMain.ScenetypeStyleClass,
                 GlobalOpenStatistics = request.GlobalOpenStatistics,
                 IsShowInParent = true,
-                RuleEx1 = request.LowPrice.ToString("F2"),
+                RuleEx1 = request.LowPrice.EtmsToString3(),
                 RuleEx2 = request.LimitMustCount.ToString(),
                 RuleEx3 = request.MyRepeatHaggleHour.ToString(),
                 RuleContent = string.Empty

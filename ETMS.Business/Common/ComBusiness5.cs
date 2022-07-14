@@ -143,6 +143,15 @@ namespace ETMS.Business.Common
             return Tuple.Create(minCount - finishCount, EmActivityRouteCountStatus.None);
         }
 
+        public static Tuple<int, byte> GetActivityRouteLimitHaggling(int limitCount, int finishCount)
+        {
+            if (finishCount >= limitCount)
+            {
+                return Tuple.Create(0, EmActivityRouteCountStatus.CompleteFull);
+            }
+            return Tuple.Create(limitCount - finishCount, EmActivityRouteCountStatus.None);
+        }
+
         public static Tuple<string, string> GetActivityPayInfo(EtActivityMain p
             , ActivityOfGroupPurchaseRuleContentView ruleContent)
         {
@@ -176,6 +185,20 @@ namespace ETMS.Business.Common
                 return p.PayValue;
             }
             return ruleContent.Item.First().Money;
+        }
+
+        public static Tuple<string, string> GetActivityPayInfoHaggling(EtActivityMain p)
+        {
+            return Tuple.Create("砍后价", p.RuleEx1);
+        }
+
+        public static string GetProgressHaggling(int limitCount, int finishCount)
+        {
+            if (finishCount == 0)
+            {
+                return "0";
+            }
+            return ((finishCount / Convert.ToDecimal(limitCount)) * 100).ToString("F0") ;
         }
 
         public static int GetSysActivityRouteItemStatus(int minCount, int maxCount, int finishCount)
