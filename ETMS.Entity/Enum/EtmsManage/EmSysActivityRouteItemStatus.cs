@@ -27,5 +27,21 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 已过期
         /// </summary>
         public const int Expired = 3;
+
+        public static string GetActivityRouteItemStatusDesc(int t)
+        {
+            switch (t)
+            {
+                case Going:
+                    return "进行中";
+                case FinishItem:
+                    return "已成团";
+                case FinishFull:
+                    return "已满团";
+                case Expired:
+                    return "已过期";
+            }
+            return string.Empty;
+        }
     }
 }

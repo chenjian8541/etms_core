@@ -146,6 +146,10 @@ namespace ETMS.Business.Common
         public static Tuple<string, string> GetActivityPayInfo(EtActivityMain p
             , ActivityOfGroupPurchaseRuleContentView ruleContent)
         {
+            if (!p.IsOpenPay)
+            {
+                return Tuple.Create("团价", ruleContent.Item.First().Money.EtmsToString3());
+            }
             if (ruleContent.Item.Count > 1) //多阶拼团 支付定金
             {
                 return Tuple.Create("定金", p.PayValue.EtmsToString3());
@@ -159,6 +163,10 @@ namespace ETMS.Business.Common
 
         public static decimal GetActivityPayInfo2(EtActivityMain p, ActivityOfGroupPurchaseRuleContentView ruleContent)
         {
+            if (!p.IsOpenPay)
+            {
+                return 0;
+            }
             if (ruleContent.Item.Count > 1) //多阶拼团 支付定金
             {
                 return p.PayValue;

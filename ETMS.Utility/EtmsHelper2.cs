@@ -280,20 +280,54 @@ namespace ETMS.Utility
             return Encoding.UTF8.GetString(bytes);
         }
 
-        /// <summary>
-        /// 获取endTime与当前时间差（时、分、秒）
-        /// </summary>
-        /// <param name="endTime"></param>
-        /// <returns></returns>
-        public static Tuple<int, int, int> GetCountDown(DateTime endTime)
+        ///// <summary>
+        ///// 获取endTime与当前时间差（时、分、秒）
+        ///// </summary>
+        ///// <param name="endTime"></param>
+        ///// <returns></returns>
+        //public static Tuple<int, int, int> GetCountDown(DateTime endTime)
+        //{
+        //    var now = DateTime.Now.AddSeconds(-6);
+        //    if (endTime <= now)
+        //    {
+        //        return Tuple.Create(0, 0, 0);
+        //    }
+        //    var diff = endTime - now;
+        //    return Tuple.Create(diff.Days * 24 + diff.Hours, diff.Minutes, diff.Seconds);
+        //}
+
+        public static int GetCountDownMillisecond(DateTime endTime)
         {
-            var now = DateTime.Now.AddSeconds(-15);
-            if (endTime < now)
+            var minTime = DateTime.Now.AddSeconds(5);
+            var maxTime = DateTime.Now.AddHours(22);
+            if (endTime <= minTime || endTime >= maxTime)
             {
-                return Tuple.Create(0, 0, 0);
+                return 0;
+            }
+            var now = DateTime.Now.AddSeconds(-2);
+            if (endTime <= now)
+            {
+                return 0;
             }
             var diff = endTime - now;
-            return Tuple.Create(diff.Days*24+diff.Hours, diff.Minutes, diff.Seconds);
+            var result = 0;
+            if (diff.Days > 0)
+            {
+                result += 24 * 3600 * 1000;
+            }
+            if (diff.Hours > 0)
+            {
+                result += diff.Hours * 3600 * 1000;
+            }
+            if (diff.Minutes > 0)
+            {
+                result += diff.Minutes * 60 * 1000;
+            }
+            if (diff.Seconds > 0)
+            {
+                result += diff.Seconds * 1000;
+            }
+            return result;
         }
     }
 }

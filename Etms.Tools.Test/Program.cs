@@ -98,8 +98,6 @@ namespace Etms.Tools.Test
             //new EtmsProcess().ProcessT();
             //GetPwd();
             //Encrypt3DESSqlConnection();
-            var endTime = Convert.ToDateTime("2022-07-15");
-           var diff= EtmsHelper2.GetCountDown(endTime);
             Console.WriteLine("处理完成");
             Console.Read();
         }

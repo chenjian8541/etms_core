@@ -116,5 +116,13 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         public WxMiniActivityHomeMyRoute TeamLeaderRoute { get; set; }
 
         public ActivityConfig ActivityConfig { get; set; }
+
+        public int NewCountLimit { get; set; }
+
+        public int NewCountFinish { get; set; }
+
+        public int ActivityRouteStatus { get; set; }
+
+        public string ActivityRouteStatusDesc { get; set; }
     }
 }

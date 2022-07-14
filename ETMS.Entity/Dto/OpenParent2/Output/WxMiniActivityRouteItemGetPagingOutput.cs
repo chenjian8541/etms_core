@@ -59,6 +59,8 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
 
         public decimal ActivityOriginalPrice { get; set; }
 
+        public bool ActivityIsOpenPay { get; set; }
+
         public decimal PaySum { get; set; }
 
         public DateTime? PayFinishTime { get; set; }
@@ -71,5 +73,24 @@ namespace ETMS.Entity.Dto.OpenParent2.Output
         /// 拼团状态 <see cref="EmSysActivityRouteItemStatus"/>
         /// </summary>
         public int Status { get; set; }
+
+        public string StatusDesc { get; set; }
+
+        public string ActivityScenetypeDesc { get; set; }
+
+        public string ActivityTypeDesc { get; set; }
+
+        public int ExTimeCountDown { get; set; }
+
+        public int CountLimit { get; set; }
+
+        public int CountFinish { get; set; }
+
+        /// <summary>
+        /// <see cref="EmActivityPayType"/>
+        /// </summary>
+        public int ActivityPayType { get; set; }
+
+        public string ActivityPayTypeDesc { get; set; }
     }
 }

@@ -170,8 +170,18 @@ namespace ETMS.Business.Open
             var output = new List<WxMiniActivityRouteItemGetPagingOutput>();
             if (pagingData.Item1.Any())
             {
+         
                 foreach (var p in pagingData.Item1)
                 {
+                    var tempCountLimit = p.CountLimit;
+                    if (p.ActivityType == EmActivityType.GroupPurchase)
+                    {
+                        if (p.Status == EmSysActivityRouteItemStatus.FinishItem || p.Status == EmSysActivityRouteItemStatus.FinishFull)
+                        {
+                            tempCountLimit = p.CountLimitMax;
+                        }
+                    }
+                    var tempExTimeCountDown  = EtmsHelper2.GetCountDownMillisecond(p.ActivityEndTime);
                     output.Add(new WxMiniActivityRouteItemGetPagingOutput()
                     {
                         ActivityCoverImage = p.ActivityCoverImage,
@@ -199,7 +209,16 @@ namespace ETMS.Business.Open
                         StudentName = p.StudentName,
                         StudentPhone = p.StudentPhone,
                         TenantId = p.TenantId,
-                        Status = p.Status
+                        Status = p.Status,
+                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.Status),
+                        ActivityScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.ActivityScenetype),
+                        ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
+                        CountFinish = p.CountFinish,
+                        CountLimit = tempCountLimit,
+                        ExTimeCountDown = tempExTimeCountDown,
+                        ActivityIsOpenPay = p.ActivityIsOpenPay,
+                        ActivityPayType = p.ActivityPayType,
+                        ActivityPayTypeDesc = EmActivityPayType.GetActivityPayTypeDesc(p.ActivityType, p.ActivityPayType)
                     });
                 }
             }
@@ -339,10 +358,7 @@ namespace ETMS.Business.Open
                     CountShort = routeLimitResult.Item1,
                     CountShortStatus = routeLimitResult.Item2
                 };
-                var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
-                myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
-                myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
-                myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+                myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
                 myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
 
                 var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
@@ -499,10 +515,7 @@ namespace ETMS.Business.Open
                     MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
                     StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
                 };
-                var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
-                myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
-                myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
-                myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+                myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
                 myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
                 output.TeamLeaderRoute = myTeamLeaderRoute;
 
@@ -735,10 +748,7 @@ namespace ETMS.Business.Open
                 CountShort = myLeaderLimitResult.Item1,
                 CountShortStatus = myLeaderLimitResult.Item2
             };
-            var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
-            myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
-            myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
-            myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+            myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
             myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
             var teamLeaderRouteBucket = await _activityRouteDAL.GetActivityRouteBucket(teamLeaderRoute.Id);
             if (teamLeaderRouteBucket != null && teamLeaderRouteBucket.ActivityRouteItems != null && teamLeaderRouteBucket.ActivityRouteItems.Any())
@@ -899,10 +909,7 @@ namespace ETMS.Business.Open
                 MiniPgmUserId = teamLeaderRoute.MiniPgmUserId,
                 StudentNameDesc = EtmsHelper.GetNameSecrecy(teamLeaderRoute.StudentName)
             };
-            var timeSurplus = EtmsHelper2.GetCountDown(teamLeaderRoute.ActivityEndTime);
-            myTeamLeaderRoute.SurplusHour = timeSurplus.Item1;
-            myTeamLeaderRoute.SurplusMinute = timeSurplus.Item2;
-            myTeamLeaderRoute.SurplusSecond = timeSurplus.Item3;
+            myTeamLeaderRoute.ExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(teamLeaderRoute.ActivityEndTime);
             myTeamLeaderRoute.ActivityEndTime = teamLeaderRoute.ActivityEndTime;
             output.TeamLeaderRoute = myTeamLeaderRoute;
 
@@ -1112,36 +1119,47 @@ namespace ETMS.Business.Open
                     if (myActivityRouteBucket != null)
                     {
                         var item = myActivityRouteBucket.ActivityRoute;
-                        var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
-                            item.CountFinish);
-                        var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
-                        var myJoinRoute = new WxMiniActivityHomeMyRoute()
+                        var tempCountLimit = item.CountLimit;
+                        if (item.Status == EmSysActivityRouteItemStatus.FinishItem || item.Status == EmSysActivityRouteItemStatus.FinishFull)
                         {
-                            ActivityRouteId = item.Id,
-                            AvatarUrl = item.AvatarUrl,
-                            CountFinish = item.CountFinish,
-                            CountLimit = item.CountLimit,
-                            MiniPgmUserId = item.MiniPgmUserId,
-                            StudentNameDesc = tempStudentNameDesc,
-                            CountShort = myJoinRouteLimitResult.Item1,
-                            CountShortStatus = myJoinRouteLimitResult.Item2,
-                            JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItemSmall>()
-                        };
-                        if (myActivityRouteBucket.ActivityRouteItems != null && myActivityRouteBucket.ActivityRouteItems.Any())
-                        {
-                            foreach (var routeItem in myActivityRouteBucket.ActivityRouteItems)
-                            {
-                                myJoinRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItemSmall()
-                                {
-                                    ActivityRouteId = routeItem.ActivityRouteId,
-                                    ActivityRouteItemId = routeItem.Id,
-                                    AvatarUrl = routeItem.AvatarUrl,
-                                    IsTeamLeader = routeItem.IsTeamLeader,
-                                    MiniPgmUserId = routeItem.MiniPgmUserId
-                                });
-                            }
+                            tempCountLimit = maxCount;
                         }
-                        output.TeamLeaderRoute = myJoinRoute;
+                        output.NewCountFinish = item.CountFinish;
+                        output.NewCountLimit = tempCountLimit;
+                        output.ActivityRouteStatus = item.Status;
+                        output.ActivityRouteStatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(item.Status);
+
+                        //var item = myActivityRouteBucket.ActivityRoute;
+                        //var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
+                        //    item.CountFinish);
+                        //var tempStudentNameDesc = EtmsHelper.GetNameSecrecy(item.StudentName);
+                        //var myJoinRoute = new WxMiniActivityHomeMyRoute()
+                        //{
+                        //    ActivityRouteId = item.Id,
+                        //    AvatarUrl = item.AvatarUrl,
+                        //    CountFinish = item.CountFinish,
+                        //    CountLimit = item.CountLimit,
+                        //    MiniPgmUserId = item.MiniPgmUserId,
+                        //    StudentNameDesc = tempStudentNameDesc,
+                        //    CountShort = myJoinRouteLimitResult.Item1,
+                        //    CountShortStatus = myJoinRouteLimitResult.Item2,
+                        //    JoinRouteItems = new List<WxMiniActivityHomeJoinRouteItemSmall>()
+                        //};
+                        //if (myActivityRouteBucket.ActivityRouteItems != null && myActivityRouteBucket.ActivityRouteItems.Any())
+                        //{
+                        //    foreach (var routeItem in myActivityRouteBucket.ActivityRouteItems)
+                        //    {
+                        //        myJoinRoute.JoinRouteItems.Add(new WxMiniActivityHomeJoinRouteItemSmall()
+                        //        {
+                        //            ActivityRouteId = routeItem.ActivityRouteId,
+                        //            ActivityRouteItemId = routeItem.Id,
+                        //            AvatarUrl = routeItem.AvatarUrl,
+                        //            IsTeamLeader = routeItem.IsTeamLeader,
+                        //            MiniPgmUserId = routeItem.MiniPgmUserId
+                        //        });
+                        //    }
+                        //}
+                        //output.TeamLeaderRoute = myJoinRoute;
                     }
                 }
             }
@@ -1345,6 +1363,7 @@ namespace ETMS.Business.Open
            SysTenant sysTenant, EtActivityMain p, SysWechatMiniPgmUser user)
         {
             SysTenantSuixingAccount tenantSuixingAccount = null;
+            var mno = string.Empty;
             if (p.IsOpenPay)
             {
                 if (sysTenant.PayUnionType == EmPayUnionType.NotApplied)
@@ -1356,6 +1375,7 @@ namespace ETMS.Business.Open
                 {
                     return ResponseBase.CommonError("机构支付账户异常，操作失败");
                 }
+                mno = tenantSuixingAccount.Mno;
             }
             var student = await this.GetStudent(request.StudentPhone, request.StudentName);
             var ruleContent = JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
@@ -1406,7 +1426,7 @@ namespace ETMS.Business.Open
                 RouteStatus = routeStatus,
                 StudentId = student?.Id,
                 ShareQRCode = string.Empty,
-                PayMno = tenantSuixingAccount.Mno
+                PayMno = mno
             };
             await _activityRouteDAL.AddActivityRoute(myRoute);
             var myRouteItem = new EtActivityRouteItem()
@@ -1448,7 +1468,7 @@ namespace ETMS.Business.Open
                 TenantId = myRoute.TenantId,
                 Unionid = myRoute.Unionid,
                 ShareQRCode = string.Empty,
-                PayMno = tenantSuixingAccount.Mno
+                PayMno = mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 
@@ -1467,7 +1487,7 @@ namespace ETMS.Business.Open
                 output.IsMustPay = true;
                 var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
                 {
-                    mno = tenantSuixingAccount.Mno,
+                    mno = mno,
                     amt = myRouteItem.PaySum,
                     extend = $"{myRouteItem.TenantId}_{myRouteItem.Id}",
                     openid = myRouteItem.OpenId,
@@ -1577,6 +1597,7 @@ namespace ETMS.Business.Open
             SysTenant sysTenant, EtActivityMain p, SysWechatMiniPgmUser user, EtActivityRoute myActivityRoute)
         {
             SysTenantSuixingAccount tenantSuixingAccount = null;
+            var mno = string.Empty;
             if (p.IsOpenPay)
             {
                 if (sysTenant.PayUnionType == EmPayUnionType.NotApplied)
@@ -1588,6 +1609,7 @@ namespace ETMS.Business.Open
                 {
                     return ResponseBase.CommonError("机构支付账户异常，操作失败");
                 }
+                mno = tenantSuixingAccount.Mno;
             }
             var student = await this.GetStudent(request.StudentPhone, request.StudentName);
             var ruleContent = JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
@@ -1637,7 +1659,7 @@ namespace ETMS.Business.Open
                 Tag = string.Empty,
                 TenantId = myActivityRoute.TenantId,
                 ShareQRCode = string.Empty,
-                PayMno = tenantSuixingAccount.Mno
+                PayMno = mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 
@@ -1656,7 +1678,7 @@ namespace ETMS.Business.Open
                 output.IsMustPay = true;
                 var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
                 {
-                    mno = tenantSuixingAccount.Mno,
+                    mno = mno,
                     amt = myRouteItem.PaySum,
                     extend = $"{myRouteItem.TenantId}_{myRouteItem.Id}",
                     openid = myRouteItem.OpenId,
@@ -1794,6 +1816,7 @@ namespace ETMS.Business.Open
             SysTenant sysTenant, EtActivityMain p, SysWechatMiniPgmUser user)
         {
             SysTenantSuixingAccount tenantSuixingAccount = null;
+            var mno = string.Empty;
             if (p.IsOpenPay)
             {
                 if (sysTenant.PayUnionType == EmPayUnionType.NotApplied)
@@ -1805,6 +1828,7 @@ namespace ETMS.Business.Open
                 {
                     return ResponseBase.CommonError("机构支付账户异常，操作失败");
                 }
+                mno = tenantSuixingAccount.Mno;
             }
             var student = await this.GetStudent(request.StudentPhone, request.StudentName);
             var lowPrice = p.RuleEx1.ToDecimal();
@@ -1855,7 +1879,7 @@ namespace ETMS.Business.Open
                 RouteStatus = routeStatus,
                 StudentId = student?.Id,
                 ShareQRCode = string.Empty,
-                PayMno = tenantSuixingAccount.Mno
+                PayMno = mno
             };
             await _activityRouteDAL.AddActivityRoute(myRoute);
             var myRouteItem = new EtActivityRouteItem()
@@ -1897,7 +1921,7 @@ namespace ETMS.Business.Open
                 TenantId = myRoute.TenantId,
                 Unionid = myRoute.Unionid,
                 ShareQRCode = string.Empty,
-                PayMno = tenantSuixingAccount.Mno
+                PayMno = mno
             };
             await _activityRouteDAL.AddActivityRouteItem(myRouteItem);
 
@@ -1916,7 +1940,7 @@ namespace ETMS.Business.Open
                 output.IsMustPay = true;
                 var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
                 {
-                    mno = tenantSuixingAccount.Mno,
+                    mno = mno,
                     amt = myRouteItem.PaySum,
                     extend = $"{myRouteItem.TenantId}_{myRouteItem.Id}",
                     openid = myRouteItem.OpenId,

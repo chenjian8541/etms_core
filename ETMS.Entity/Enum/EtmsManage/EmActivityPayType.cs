@@ -19,5 +19,18 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// 砍价：必须砍到底价才能支付
         /// </summary>
         public const int Type1 = 1;
+
+        public static string GetActivityPayTypeDesc(int activityType, int t)
+        {
+            if (activityType == EmActivityType.GroupPurchase)
+            {
+                return t == Type0 ? "团价" : "定金";
+            }
+            if (activityType == EmActivityType.Haggling)
+            {
+                return "砍后价";
+            }
+            return string.Empty;
+        }
     }
 }

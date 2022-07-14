@@ -139,10 +139,10 @@ namespace ETMS.Business.EventConsumer
                 }
             }
             await _activityRouteDAL.SetFinishCountAndStatus(request.ActivityRouteId, countFinish, status);
+            await _sysActivityRouteItemDAL.UpdateActivityRouteItemInfo(request.TenantId, request.ActivityId, request.ActivityRouteId, status, countFinish);
             if (status != EmSysActivityRouteItemStatus.Going)
             {
                 await _activityRouteDAL.SetActivityRouteItemStatus(request.ActivityRouteId, status);
-                await _sysActivityRouteItemDAL.UpdateActivityRouteItemStatus(request.TenantId, request.ActivityId, request.ActivityRouteId, status);
             }
             _eventPublisher.Publish(new SyncSysActivityRouteItemEvent(request.TenantId)
             {
@@ -165,9 +165,9 @@ namespace ETMS.Business.EventConsumer
         {
             var id = request.MyActivityRouteItem.Id;
             var key = $"qr_route_item_{request.TenantId}_{id}.png";
-            var scene = $"{request.TenantId}_{id}";
+            var scene = $"{request.TenantId}_{request.MyActivityRouteItem.ActivityId}";
             var routeShareQRCodeKey = await GenerateQrCode(request.TenantId,
-                AliyunOssFileTypeEnum.ActivityRouteQrCode, key, MiniProgramPathConfig.ActivityRoute, scene);
+                AliyunOssFileTypeEnum.ActivityRouteQrCode, key, MiniProgramPathConfig.GetMiniProgramPath(request.MyActivityRouteItem.ActivityType), scene);
             await _activityRouteDAL.UpdateActivityRouteItemShareQRCodeInfo(id, routeShareQRCodeKey);
             if (request.MyActivityRouteItem.IsTeamLeader)
             {
@@ -186,6 +186,16 @@ namespace ETMS.Business.EventConsumer
             var log = await _sysActivityRouteItemDAL.GetSysActivityRouteItem(request.TenantId, request.ActivityRouteItemId);
             if (log == null)
             {
+                var myActivityRoute = await _activityRouteDAL.GetActivityRoute(item.ActivityRouteId);
+                var countLimit = myActivityRoute.CountLimit;
+                var countLimitMax = myActivityRoute.CountLimit;
+                var countFinish = myActivityRoute.CountFinish;
+                var p = await _activityMainDAL.GetActivityMain(myActivityRoute.ActivityId);
+                if (myActivityRoute.ActivityType == EmActivityType.GroupPurchase)
+                {
+                    var ruleContent = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityOfGroupPurchaseRuleContentView>(p.RuleContent);
+                    countLimitMax = ruleContent.Item.Last().LimitCount;
+                }
                 await _sysActivityRouteItemDAL.AddSysActivityRouteItem(new SysActivityRouteItem()
                 {
                     TenantId = item.TenantId,
@@ -223,6 +233,11 @@ namespace ETMS.Business.EventConsumer
                     CreateTime = item.CreateTime,
                     Status = item.Status,
                     PayStatus = item.PayStatus,
+                    CountLimit = countLimit,
+                    CountLimitMax = countLimitMax,
+                    CountFinish = countFinish,
+                    ActivityIsOpenPay = p.IsOpenPay,
+                    ActivityPayType = p.PayType
                 });
             }
             else

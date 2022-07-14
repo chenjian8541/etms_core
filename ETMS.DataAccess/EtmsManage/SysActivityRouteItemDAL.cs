@@ -58,9 +58,9 @@ namespace ETMS.DataAccess.EtmsManage
             return await this.ExecutePage<SysActivityRouteItem>("SysActivityRouteItem", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
 
-        public async Task UpdateActivityRouteItemStatus(long tenantId, long activityId, long activityRouteId, int newStatus)
+        public async Task UpdateActivityRouteItemInfo(long tenantId, long activityId, long activityRouteId, int newStatus, int finishCount)
         {
-            var sql = $"UPDATE SysActivityRouteItem SET [Status] = {newStatus} WHERE TenantId = {tenantId} AND ActivityId = {activityId} AND ActivityRouteId = {activityRouteId}";
+            var sql = $"UPDATE SysActivityRouteItem SET [Status] = {newStatus},CountFinish = {finishCount} WHERE TenantId = {tenantId} AND ActivityId = {activityId} AND ActivityRouteId = {activityRouteId}";
             await this.Execute(sql);
         }
     }

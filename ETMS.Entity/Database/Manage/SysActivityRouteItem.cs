@@ -68,6 +68,13 @@ namespace ETMS.Entity.Database.Manage
 
         public decimal ActivityOriginalPrice { get; set; }
 
+        public bool ActivityIsOpenPay { get; set; }
+
+        /// <summary>
+        /// <see cref="EmActivityPayType"/>
+        /// </summary>
+        public int ActivityPayType { get; set; }
+
         public string ActivityRuleItemContent { get; set; }
 
         public string ActivityRuleEx1 { get; set; }
@@ -91,5 +98,11 @@ namespace ETMS.Entity.Database.Manage
         /// <see cref="ETMS.Entity.Enum.EmActivityRoutePayStatus"/>
         /// </summary>
         public int PayStatus { get; set; }
+
+        public int CountLimit { get; set; }
+
+        public int CountLimitMax { get; set; }
+
+        public int CountFinish { get; set; }
     }
 }

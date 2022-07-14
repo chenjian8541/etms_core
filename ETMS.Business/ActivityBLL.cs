@@ -283,7 +283,7 @@ namespace ETMS.Business
             var key = $"qr_main_{request.LoginTenantId}_{entity.Id}.png";
             var scene = $"{request.LoginTenantId}_{entity.Id}";
             var mainShareQRCodeKey = await GenerateQrCode(request.LoginTenantId,
-                AliyunOssFileTypeEnum.ActivityMainQrCode, key, MiniProgramPathConfig.ActivityMain, scene);
+                AliyunOssFileTypeEnum.ActivityMainQrCode, key, MiniProgramPathConfig.GetMiniProgramPath(activityMain.ActivityType), scene);
             await _activityMainDAL.UpdateActivityMainShareQRCode(entity.Id, mainShareQRCodeKey);
 
             await _userOperationLogDAL.AddUserLog(request, $"新建活动-{request.Title}", EmUserOperationType.Activity, now);
@@ -395,7 +395,7 @@ namespace ETMS.Business
             var key = $"qr_main_{request.LoginTenantId}_{entity.Id}.png";
             var scene = $"{request.LoginTenantId}_{entity.Id}";
             var mainShareQRCodeKey = await GenerateQrCode(request.LoginTenantId,
-                AliyunOssFileTypeEnum.ActivityMainQrCode, key, MiniProgramPathConfig.ActivityMain, scene);
+                AliyunOssFileTypeEnum.ActivityMainQrCode, key, MiniProgramPathConfig.GetMiniProgramPath(activityMain.ActivityType), scene);
             await _activityMainDAL.UpdateActivityMainShareQRCode(entity.Id, mainShareQRCodeKey);
 
             await _userOperationLogDAL.AddUserLog(request, $"新建活动-{request.Title}", EmUserOperationType.Activity, now);
