@@ -99,8 +99,9 @@ namespace ETMS.AiFace
             {
                 HttpLib.BaiduAPISendPost<OutputBase<ComOutput>>(_cloudBaiduConfig.FaceGroupAdd, paraList, this._access_token);
             }
-            catch
+            catch (Exception ex)
             {
+                LOG.Log.Error($"[AiBaiduInitGroup]错误：tenantId:{_tenantGroupId}", ex, this.GetType());
             }
         }
 
@@ -258,6 +259,22 @@ namespace ETMS.AiFace
             {
                 Log.Fatal($"[百度云人脸识别]人脸搜索失败，{_tenantId}", ex, this.GetType());
                 return Tuple.Create(0L, string.Empty);
+            }
+        }
+
+        public void Gr0oupDelete(int tenantId)
+        {
+            var paraList = new
+            {
+                group_id = this._tenantGroupId
+            };
+            try
+            {
+                HttpLib.BaiduAPISendPost<OutputBase<ComOutput>>(_cloudBaiduConfig.GroupDelete, paraList, this._access_token);
+            }
+            catch (Exception ex)
+            {
+                LOG.Log.Error($"[Gr0oupDelete]错误：tenantId:{tenantId}", ex, this.GetType());
             }
         }
     }

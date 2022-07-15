@@ -2,6 +2,7 @@
 using ETMS.Entity.Dto.HisData.Request;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.ExternalService.Contract;
+using ETMS.IBusiness.IncrementLib;
 using ETMS.IBusiness.SysOp;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.EtmsManage;
@@ -27,9 +28,11 @@ namespace ETMS.Business.SysOp
         private readonly ISysSafeSmsCodeCheckBLL _sysSafeSmsCodeCheckBLL;
 
         private readonly ISysActivityRouteItemDAL _sysActivityRouteItemDAL;
+
+        private readonly IAiface _aiface;
         public SysDataClearBLL(ISysDataClearDAL sysDataClearDAL, IUserOperationLogDAL userOperationLogDAL, ITempDataCacheDAL tempDataCacheDAL
             , ISysTenantDAL sysTenantDAL, ISysSafeSmsCodeCheckBLL sysSafeSmsCodeCheckBLL,
-            ISysActivityRouteItemDAL sysActivityRouteItemDAL)
+            ISysActivityRouteItemDAL sysActivityRouteItemDAL, IAiface aiface)
         {
             this._sysDataClearDAL = sysDataClearDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -37,10 +40,12 @@ namespace ETMS.Business.SysOp
             this._sysTenantDAL = sysTenantDAL;
             this._sysSafeSmsCodeCheckBLL = sysSafeSmsCodeCheckBLL;
             this._sysActivityRouteItemDAL = sysActivityRouteItemDAL;
+            this._aiface = aiface;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._aiface.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _sysDataClearDAL, _userOperationLogDAL);
         }
 
@@ -86,6 +91,7 @@ namespace ETMS.Business.SysOp
             if (request.IsClearStudent)
             {
                 await this.ClearStudent();
+                _aiface.Gr0oupDelete(request.LoginTenantId);
             }
             if (request.IsClearUser)
             {

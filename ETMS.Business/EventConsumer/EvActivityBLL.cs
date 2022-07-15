@@ -483,6 +483,10 @@ namespace ETMS.Business.EventConsumer
                     RefundTime = DateTime.Now
                 });
             }
+            else
+            {
+                LOG.Log.Warn($"[ActivityAutoRefundRouteItemConsumerEvent]退款失败", request, this.GetType());
+            }
         }
     }
 }

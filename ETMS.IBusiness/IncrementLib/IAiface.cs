@@ -14,5 +14,7 @@ namespace ETMS.IBusiness.IncrementLib
         Task<bool> StudentClearFace(long studentId);
 
         Task<Tuple<long, string>> SearchPerson(string imageBase64);
+
+        void Gr0oupDelete(int tenantId);
     }
 }

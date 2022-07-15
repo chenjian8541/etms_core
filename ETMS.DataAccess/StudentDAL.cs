@@ -398,6 +398,11 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task StudentFaceClear()
+        {
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '' WHERE TenantId = {_tenantId} ");
+        }
+
         public async Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime)
         {
             await _dbWrapper.Execute($"UPDATE EtStudent SET FaceUseLastTime = '{faceUseLastTime.EtmsToString()}' WHERE TenantId = {_tenantId} AND Id = {id} ");

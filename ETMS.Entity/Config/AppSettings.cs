@@ -149,6 +149,8 @@ namespace ETMS.Entity.Config
         public string FaceDetect { get; set; }
 
         public string FaceSearch { get; set; }
+
+        public string GroupDelete { get; set; }
     }
 
     public class MailConfig

@@ -154,5 +154,13 @@ namespace ETMS.Business.IncrementLib
             }
             return result;
         }
+
+        public void Gr0oupDelete(int tenantId)
+        {
+            if (this.AICloudType == EmSysTenantAICloudType.BaiduCloud)
+            {
+                _aiBaiduFaceAccess.Gr0oupDelete(tenantId);
+            }
+        }
     }
 }

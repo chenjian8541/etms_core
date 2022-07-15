@@ -15,5 +15,7 @@ namespace ETMS.IAiFace
         bool StudentClearFace(long studentId);
 
         Tuple<long, string> SearchPerson(string imageBase64);
+
+        void Gr0oupDelete(int tenantId);
     }
 }

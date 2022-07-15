@@ -71,6 +71,8 @@ namespace ETMS.IDataAccess
 
         Task<bool> StudentRelieveFaceKey(long id);
 
+        Task StudentFaceClear();
+
         Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime);
 
         Task<IEnumerable<StudentFaceView>> GetStudentFace();
