@@ -91,7 +91,7 @@ namespace ETMS.Business.SysOp
             if (request.IsClearStudent)
             {
                 await this.ClearStudent();
-                _aiface.Gr0oupDelete(request.LoginTenantId);
+                await _aiface.Gr0oupDelete(request.LoginTenantId);
             }
             if (request.IsClearUser)
             {

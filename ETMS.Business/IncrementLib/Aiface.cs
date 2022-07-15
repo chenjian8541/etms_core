@@ -71,6 +71,7 @@ namespace ETMS.Business.IncrementLib
                 _aiBaiduFaceAccess.InitBaiduCloudConfig(_tenantId, baiduCloudAccount.Appid, baiduCloudAccount.ApiKey,
                     baiduCloudAccount.SecretKey);
             }
+            _isInitTenantTencentCloudConfig = true;
         }
 
         public async Task StudentDelete(long studentId)
@@ -155,8 +156,9 @@ namespace ETMS.Business.IncrementLib
             return result;
         }
 
-        public void Gr0oupDelete(int tenantId)
+        public async Task Gr0oupDelete(int tenantId)
         {
+            await InitTenantCloudConfig();
             if (this.AICloudType == EmSysTenantAICloudType.BaiduCloud)
             {
                 _aiBaiduFaceAccess.Gr0oupDelete(tenantId);

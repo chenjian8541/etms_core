@@ -1332,7 +1332,7 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentFaceClear(RequestBase request)
         {
-            _aiface.Gr0oupDelete(request.LoginTenantId);
+            await _aiface.Gr0oupDelete(request.LoginTenantId);
             await _studentDAL.StudentFaceClear();
             return ResponseBase.Success();
         }
