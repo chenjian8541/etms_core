@@ -28,8 +28,22 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int Expired = 3;
 
-        public static string GetActivityRouteItemStatusDesc(int t)
+        public static string GetActivityRouteItemStatusDesc(int activityType, int t)
         {
+            if (activityType == EmActivityType.Haggling)
+            {
+                switch (t)
+                {
+                    case Going:
+                    case FinishItem:
+                        return "进行中";
+                    case FinishFull:
+                        return "砍价成功";
+                    case Expired:
+                        return "已过期";
+                }
+                return string.Empty;
+            }
             switch (t)
             {
                 case Going:

@@ -210,7 +210,7 @@ namespace ETMS.Business.Open
                         StudentPhone = p.StudentPhone,
                         TenantId = p.TenantId,
                         Status = p.Status,
-                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.Status),
+                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.ActivityScenetype,p.Status),
                         ActivityScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.ActivityScenetype),
                         ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
                         CountFinish = p.CountFinish,
@@ -310,7 +310,7 @@ namespace ETMS.Business.Open
                     RuningCount = p.RuningCount,
                     Scenetype = p.Scenetype,
                     ScenetypeStyleClass = p.ScenetypeStyleClass,
-                    ShareQRCode = p.ShareQRCode,
+                    ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                     StartTime = p.StartTime,
                     StudentFieldName1 = p.StudentFieldName1,
                     StudentFieldName2 = p.StudentFieldName2,
@@ -341,7 +341,7 @@ namespace ETMS.Business.Open
             if (myActivityRouteItem != null)
             {
                 output.IsActivitying = true;
-                output.ShareQRCode = myActivityRouteItem.ShareQRCode;
+                output.ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(myActivityRouteItem.ShareQRCode);
                 output.BascInfo.ActivityRouteId = myActivityRouteItem.ActivityRouteId;
                 output.BascInfo.ActivityRouteItemId = myActivityRouteItem.Id;
                 var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
@@ -484,7 +484,7 @@ namespace ETMS.Business.Open
                     RuningCount = p.RuningCount,
                     Scenetype = p.Scenetype,
                     ScenetypeStyleClass = p.ScenetypeStyleClass,
-                    ShareQRCode = p.ShareQRCode,
+                    ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                     StartTime = p.StartTime,
                     StudentFieldName1 = p.StudentFieldName1,
                     StudentFieldName2 = p.StudentFieldName2,
@@ -516,7 +516,7 @@ namespace ETMS.Business.Open
             {
                 output.IsActivitying = true;
                 output.HaggleLogStatus = HaggleLogStatusOutput.My;
-                output.ShareQRCode = myActivityRouteItem.ShareQRCode;
+                output.ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(myActivityRouteItem.ShareQRCode);
                 output.BascInfo.ActivityRouteId = myActivityRouteItem.ActivityRouteId;
                 output.BascInfo.ActivityRouteItemId = myActivityRouteItem.Id;
                 var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItem.ActivityRouteId);
@@ -721,7 +721,7 @@ namespace ETMS.Business.Open
                     RuningCount = p.RuningCount,
                     Scenetype = p.Scenetype,
                     ScenetypeStyleClass = p.ScenetypeStyleClass,
-                    ShareQRCode = p.ShareQRCode,
+                    ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                     StartTime = p.StartTime,
                     StudentFieldName1 = p.StudentFieldName1,
                     StudentFieldName2 = p.StudentFieldName2,
@@ -749,7 +749,7 @@ namespace ETMS.Business.Open
                 }
             };
             output.IsActivitying = false;
-            output.ShareQRCode = myActivityRouteItemLeader.ShareQRCode;
+            output.ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(myActivityRouteItemLeader.ShareQRCode);
             output.BascInfo.ActivityRouteId = myActivityRouteItemLeader.ActivityRouteId;
             output.BascInfo.ActivityRouteItemId = myActivityRouteItemLeader.Id;
             var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItemLeader.ActivityRouteId);
@@ -789,7 +789,7 @@ namespace ETMS.Business.Open
             if (myActivityRouteItem != null)
             {
                 output.IsActivitying = true;
-                output.ShareQRCode = myActivityRouteItem.ShareQRCode;
+                output.ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(myActivityRouteItem.ShareQRCode);
                 output.BascInfo.ActivityRouteId = myActivityRouteItem.ActivityRouteId;
                 output.BascInfo.ActivityRouteItemId = myActivityRouteItem.Id;
             }
@@ -899,7 +899,7 @@ namespace ETMS.Business.Open
                     RuningCount = p.RuningCount,
                     Scenetype = p.Scenetype,
                     ScenetypeStyleClass = p.ScenetypeStyleClass,
-                    ShareQRCode = p.ShareQRCode,
+                    ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                     StartTime = p.StartTime,
                     StudentFieldName1 = p.StudentFieldName1,
                     StudentFieldName2 = p.StudentFieldName2,
@@ -928,7 +928,7 @@ namespace ETMS.Business.Open
             };
 
             output.IsActivitying = true;
-            output.ShareQRCode = myActivityRouteItemLeader.ShareQRCode;
+            output.ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(myActivityRouteItemLeader.ShareQRCode);
             output.BascInfo.ActivityRouteId = myActivityRouteItemLeader.ActivityRouteId;
             output.BascInfo.ActivityRouteItemId = myActivityRouteItemLeader.Id;
             var teamLeaderRoute = await _activityRouteDAL.GetActivityRoute(myActivityRouteItemLeader.ActivityRouteId);
@@ -1114,7 +1114,7 @@ namespace ETMS.Business.Open
                 RuleEx3 = p.RuleEx3,
                 Scenetype = p.Scenetype,
                 ScenetypeStyleClass = p.ScenetypeStyleClass,
-                ShareQRCode = p.ShareQRCode,
+                ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
                 StartTime = p.StartTime,
                 StudentFieldName1 = p.StudentFieldName1,
                 StudentFieldName2 = p.StudentFieldName2,

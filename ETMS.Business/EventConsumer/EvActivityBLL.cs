@@ -166,7 +166,7 @@ namespace ETMS.Business.EventConsumer
         {
             var id = request.MyActivityRouteItem.Id;
             var key = $"qr_route_item_{request.TenantId}_{id}.png";
-            var scene = $"{request.TenantId}_{request.MyActivityRouteItem.ActivityId}";
+            var scene = $"{request.TenantId}_{request.MyActivityRouteItem.ActivityId}_{id}";
             var routeShareQRCodeKey = await GenerateQrCode(request.TenantId,
                 AliyunOssFileTypeEnum.ActivityRouteQrCode, key, MiniProgramPathConfig.GetMiniProgramPath(request.MyActivityRouteItem.ActivityType), scene);
             await _activityRouteDAL.UpdateActivityRouteItemShareQRCodeInfo(id, routeShareQRCodeKey);

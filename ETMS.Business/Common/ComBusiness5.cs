@@ -241,5 +241,6 @@ namespace ETMS.Business.Common
         {
             return string.Format(registerUrl, tenantNo);
         }
+    
     }
 }
