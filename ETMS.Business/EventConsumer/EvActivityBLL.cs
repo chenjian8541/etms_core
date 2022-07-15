@@ -16,6 +16,7 @@ using ETMS.IDataAccess.EtmsManage;
 using ETMS.IDataAccess.Lcs;
 using ETMS.IEventProvider;
 using ETMS.Pay.Suixing;
+using ETMS.Pay.Suixing.Utility.Dto;
 using ETMS.Pay.Suixing.Utility.ExternalDto.Request;
 using ETMS.Utility;
 using System;
@@ -474,7 +475,7 @@ namespace ETMS.Business.EventConsumer
                 refundReason = "活动失败",
                 extend = $"{myActivityRouteItem.TenantId}_{myActivityRouteItem.Id}"
             });
-            if (refundResult != null)
+            if (refundResult != null && refundResult.bizCode == EmBizCode.Success)
             {
                 _eventPublisher.Publish(new SuixingRefundCallbackEvent(myActivityRouteItem.TenantId)
                 {

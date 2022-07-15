@@ -729,7 +729,7 @@ namespace ETMS.Business
                 }
                 if (request.PerformanceSetDetails != null && request.PerformanceSetDetails.Count > 0)
                 {
-                    var tempStudentDeSum = request.PerformanceSetDetails.FirstOrDefault(p => p.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum && p.ComputeValue >= 100);
+                    var tempStudentDeSum = request.PerformanceSetDetails.FirstOrDefault(p => p.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum && p.ComputeValue > 100);
                     if (tempStudentDeSum != null)
                     {
                         return ResponseBase.CommonError("按课消金额 计算值应该小于100");

@@ -14,6 +14,7 @@ using ETMS.IBusiness;
 using ETMS.IEventProvider;
 using ETMS.Pay.Lcsw;
 using ETMS.Pay.Suixing;
+using ETMS.Pay.Suixing.Utility.Dto;
 using ETMS.Pay.Suixing.Utility.ExternalDto.Request;
 using ETMS.Utility;
 using FubeiOpenApi.CoreSdk.Models.Parameter.Agent;
@@ -498,11 +499,11 @@ namespace ETMS.Business
 
         public async Task<RefundPayOutput> RefundPay(RefundPayRequest request)
         {
-            if (request.Paylog.AgtPayType != _checkTenantAgtPayAccountResult.MyTenant.AgtPayType)
-            {
-                return GetErrResult<RefundPayOutput>("支付订单与所绑定的聚合支付服务商不一致，无法退款");
-            }
-            switch (_checkTenantAgtPayAccountResult.MyTenant.AgtPayType)
+            //if (request.Paylog.AgtPayType != _checkTenantAgtPayAccountResult.MyTenant.AgtPayType)
+            //{
+            //    return GetErrResult<RefundPayOutput>("支付订单与所绑定的聚合支付服务商不一致，无法退款");
+            //}
+            switch (request.Paylog.AgtPayType)
             {
                 case EmAgtPayType.Lcsw:
                     return RefundPay_Lcsw(request);
@@ -624,7 +625,7 @@ namespace ETMS.Business
                 refundReason = "活动失败",
                 extend = $"{paylog.TenantId}_{paylog.RelationId}"
             });
-            if (refundResult != null)
+            if (refundResult != null && refundResult.bizCode == EmBizCode.Success)
             {
                 _eventPublisher.Publish(new SuixingRefundCallbackEvent(paylog.TenantId)
                 {
@@ -639,6 +640,11 @@ namespace ETMS.Business
                     refund_fee = paylog.TotalFee,
                     RefundStatus = EmLcsPayLogStatus.Refunded
                 };
+            }
+            if (refundResult != null && !string.IsNullOrEmpty(refundResult.bizMsg))
+            {
+                return GetErrResult<RefundPayOutput>(refundResult.bizMsg);
+
             }
             return GetErrResult<RefundPayOutput>("退款失败");
         }
