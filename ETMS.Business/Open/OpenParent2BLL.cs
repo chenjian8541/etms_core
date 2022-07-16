@@ -1180,7 +1180,7 @@ namespace ETMS.Business.Open
                         output.NewCountFinish = item.CountFinish;
                         output.NewCountLimit = tempCountLimit;
                         output.ActivityRouteStatus = item.Status;
-                        output.ActivityRouteStatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(item.Status);
+                        output.ActivityRouteStatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(item.ActivityType,item.Status);
 
                         //var item = myActivityRouteBucket.ActivityRoute;
                         //var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,

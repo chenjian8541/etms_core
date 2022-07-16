@@ -11,7 +11,7 @@ namespace ETMS.Entity.Enum
         /// <summary>
         /// 未成团
         /// </summary>
-        public const byte None = 0;
+        public const byte None = 0; 
 
         /// <summary>
         /// 已成团
