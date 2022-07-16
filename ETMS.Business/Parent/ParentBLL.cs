@@ -594,6 +594,7 @@ namespace ETMS.Business
                 _studentDAL.InitTenantId(request.LoginTenantId);
                 await _studentDAL.UpdateStudentIsNotBindingWechat(request.ParentStudentIds);
             }
+            await _studentOperationLogDAL.AddStudentLog(request.ParentStudentIds.First(), request.LoginTenantId, $"学员端退出：{request.LoginPhone}", Entity.Enum.EmStudentOperationLogType.Loginout);
             return ResponseBase.Success();
         }
 

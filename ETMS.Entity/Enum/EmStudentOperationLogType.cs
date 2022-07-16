@@ -29,6 +29,9 @@ namespace ETMS.Entity.Enum
         EvaluateTeacher = 7,
 
         [Description("在线约课")]
-        StudentReservation = 8
+        StudentReservation = 8,
+
+        [Description("退出登陆")]
+        Loginout = 9
     }
 }
