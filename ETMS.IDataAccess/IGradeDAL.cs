@@ -13,5 +13,9 @@ namespace ETMS.IDataAccess
         Task DelGrade(long id);
 
         Task<List<EtGrade>> GetAllGrade();
+
+        Task<EtGrade> GetGrade(long id);
+
+        Task EditGrade(EtGrade entity);
     }
 }

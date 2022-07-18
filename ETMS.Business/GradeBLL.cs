@@ -59,5 +59,19 @@ namespace ETMS.Business
             await _userOperationLogDAL.AddUserLog(request, "删除年级", EmUserOperationType.GradeSetting);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> GradeEdit(GradeEditRequest request)
+        {
+            var myGrade = await _gradeDAL.GetGrade(request.CId);
+            if (myGrade == null)
+            {
+                return ResponseBase.CommonError("年级不存在");
+            }
+            myGrade.Name = request.Name;
+            await _gradeDAL.EditGrade(myGrade);
+
+            await _userOperationLogDAL.AddUserLog(request, $"编辑年级：{request.Name}", EmUserOperationType.GradeSetting);
+            return ResponseBase.Success();
+        }
     }
 }

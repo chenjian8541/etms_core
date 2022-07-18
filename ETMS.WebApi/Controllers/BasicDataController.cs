@@ -323,6 +323,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> GradeEdit(GradeEditRequest request)
+        {
+            try
+            {
+                this._gradeBLL.InitTenantId(request.LoginTenantId);
+                return await _gradeBLL.GradeEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [ActionName("classSetAdd")]
         [HttpPost]
         public async Task<ResponseBase> ClassSetAdd(ClassSetAddRequest request)

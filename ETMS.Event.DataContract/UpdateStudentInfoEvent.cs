@@ -15,6 +15,13 @@ namespace ETMS.Event.DataContract
         public EtStudent MyStudent { get; set; }
 
         public bool IsAnalyzeStudentClass { get; set; }
+
+        /// <summary>
+        /// 课程自动升级
+        /// </summary>
+        public bool IsOpentGradeAutoUpgrade { get; set; }
+
+        public List<EtGrade> AllGrade { get; set; }
     }
 }
 

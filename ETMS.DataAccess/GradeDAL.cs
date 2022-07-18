@@ -2,6 +2,7 @@
 using ETMS.DataAccess.Repository;
 using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.Enum;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using System;
@@ -30,6 +31,17 @@ namespace ETMS.DataAccess
         public async Task<List<EtGrade>> GetAllGrade()
         {
             return await base.GetAll();
+        }
+
+        public async Task<EtGrade> GetGrade(long id)
+        {
+            return await _dbWrapper.Find<EtGrade>(p => p.Id == id && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task EditGrade(EtGrade entity)
+        {
+            await _dbWrapper.Update(entity);
+            await UpdateCache(_tenantId);
         }
     }
 }

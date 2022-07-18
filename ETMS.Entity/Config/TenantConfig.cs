@@ -160,6 +160,15 @@ namespace ETMS.Entity.Config
         /// 自动点名课次超时分钟
         /// </summary>
         public int AutoCheckSignLimitMinute { get; set; }
+
+        /// <summary>
+        /// 课程自动升级
+        /// </summary>
+        public bool IsOpentGradeAutoUpgrade { get; set; }
+
+        public int? GradeAutoUpgradeMonth { get; set; }
+
+        public int? GradeAutoUpgradeDay { get; set; }
     }
 
     /// <summary>

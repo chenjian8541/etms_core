@@ -14,5 +14,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> GradeGet(GradeGetRequest request);
 
         Task<ResponseBase> GradeDel(GradeDelRequest request);
+
+        Task<ResponseBase> GradeEdit(GradeEditRequest request);
     }
 }

@@ -342,10 +342,10 @@ namespace ETMS.Business.EventConsumer
             var myAgeResut = student.Birthday.EtmsGetAge();
             var newAge = myAgeResut?.Item1;
             var newAgeMonth = myAgeResut?.Item2;
-            if (newAge == student.Age && newAgeMonth == student.AgeMonth)
-            {
-                return;
-            }
+            //if (newAge == student.Age && newAgeMonth == student.AgeMonth)
+            //{
+            //    return;
+            //}
 
             var bindingWechatInfo = await _studentWechatDAL.GetStudentWechatByPhone(student.Phone);
             student.Age = newAge;
@@ -376,6 +376,23 @@ namespace ETMS.Business.EventConsumer
 
             //课程状态
             student.CourseStatus = await GetStudentBuyCourseStatus(student.Id);
+
+            //年级自动升级
+            if (request.IsOpentGradeAutoUpgrade && student.GradeId != null)
+            {
+                if (request.AllGrade != null && request.AllGrade.Any())
+                {
+                    if (student.GradeAutoUpDate != null && student.GradeAutoUpDate.Value.Year != DateTime.Now.Year)
+                    {
+                        var nextGrade = request.AllGrade.Where(j => j.Id > student.GradeId).OrderBy(j => j.Id).FirstOrDefault();
+                        if (nextGrade != null)
+                        {
+                            student.GradeId = nextGrade.Id;
+                            student.GradeAutoUpDate = DateTime.Now;
+                        }
+                    }
+                }
+            }
 
             await _studentDAL.EditStudent2(student);
 

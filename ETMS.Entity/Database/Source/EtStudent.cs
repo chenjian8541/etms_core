@@ -117,6 +117,11 @@ namespace ETMS.Entity.Database.Source
         public long? GradeId { get; set; }
 
         /// <summary>
+        /// 年级升级时间
+        /// </summary>
+        public DateTime? GradeAutoUpDate { get; set; }
+
+        /// <summary>
         /// 学校名称
         /// </summary>
         public string SchoolName { get; set; }

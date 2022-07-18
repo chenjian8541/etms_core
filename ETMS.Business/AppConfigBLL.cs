@@ -432,6 +432,9 @@ namespace ETMS.Business
             config.TenantOtherConfig.StudentShowClassTimesUnitValue = request.StudentShowClassTimesUnitValue;
             config.TenantOtherConfig.IsAutoCheckSign = request.IsAutoCheckSign;
             config.TenantOtherConfig.AutoCheckSignLimitMinute = request.AutoCheckSignLimitMinute;
+            config.TenantOtherConfig.IsOpentGradeAutoUpgrade = request.IsOpentGradeAutoUpgrade;
+            config.TenantOtherConfig.GradeAutoUpgradeMonth = request.GradeAutoUpgradeMonth;
+            config.TenantOtherConfig.GradeAutoUpgradeDay = request.GradeAutoUpgradeDay;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();
