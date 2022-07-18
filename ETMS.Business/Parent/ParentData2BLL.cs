@@ -179,6 +179,10 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("上课记录不存在");
             }
+            if (p.Status == EmClassRecordStatus.Revoked)
+            {
+                return ResponseBase.CommonError("上课记录已撤销");
+            }
             var courseTempBox = new DataTempBox<EtCourse>();
             var tempBoxUser = new DataTempBox<EtUser>();
             var classBucket = await _classDAL.GetClassBucket(p.ClassId);

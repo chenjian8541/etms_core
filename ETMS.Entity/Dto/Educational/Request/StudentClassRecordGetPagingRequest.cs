@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.Enum;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -91,10 +92,11 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND StudentId = {StudentId}");
             }
-            if (Status != null)
-            {
-                condition.Append($" AND [Status] = {Status.Value}");
-            }
+            //if (Status != null)
+            //{
+            //    condition.Append($" AND [Status] = {Status.Value}");
+            //}
+            condition.Append($" AND [Status] = {EmClassRecordStatus.Normal}");
             if (StudentCheckStatus != null)
             {
                 condition.Append($" AND StudentCheckStatus = {StudentCheckStatus.Value}");
