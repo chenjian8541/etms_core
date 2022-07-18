@@ -170,7 +170,6 @@ namespace ETMS.Business.Open
             var output = new List<WxMiniActivityRouteItemGetPagingOutput>();
             if (pagingData.Item1.Any())
             {
-
                 foreach (var p in pagingData.Item1)
                 {
                     var tempCountLimit = p.CountLimit;
@@ -209,8 +208,8 @@ namespace ETMS.Business.Open
                         StudentName = p.StudentName,
                         StudentPhone = p.StudentPhone,
                         TenantId = p.TenantId,
-                        Status = p.Status,
-                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.ActivityScenetype,p.Status),
+                        Status = EmSysActivityRouteItemStatus.GetActivityRouteItemStatus(p.Status, p.ActivityEndTime),
+                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.ActivityScenetype, p.Status, p.ActivityEndTime),
                         ActivityScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.ActivityScenetype),
                         ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
                         CountFinish = p.CountFinish,
@@ -1180,7 +1179,8 @@ namespace ETMS.Business.Open
                         output.NewCountFinish = item.CountFinish;
                         output.NewCountLimit = tempCountLimit;
                         output.ActivityRouteStatus = item.Status;
-                        output.ActivityRouteStatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(item.ActivityType,item.Status);
+                        output.ActivityRouteStatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(item.ActivityType, item.Status,
+                            item.ActivityEndTime);
 
                         //var item = myActivityRouteBucket.ActivityRoute;
                         //var myJoinRouteLimitResult = ComBusiness5.GetActivityRouteLimit(item.CountLimit, maxCount,
@@ -1439,6 +1439,7 @@ namespace ETMS.Business.Open
             }
             var now = DateTime.Now;
             var countLimit = ruleContent.Item[0].LimitCount;
+            var countLimitMax = ruleContent.Item.Last().LimitCount;
             var payValue = ComBusiness5.GetActivityPayInfo2(p, ruleContent);
             var myRoute = new EtActivityRoute()
             {
@@ -1479,7 +1480,8 @@ namespace ETMS.Business.Open
                 RouteStatus = routeStatus,
                 StudentId = student?.Id,
                 ShareQRCode = string.Empty,
-                PayMno = mno
+                PayMno = mno,
+                CountLimitMax = countLimitMax
             };
             await _activityRouteDAL.AddActivityRoute(myRoute);
             var myRouteItem = new EtActivityRouteItem()
@@ -1920,6 +1922,7 @@ namespace ETMS.Business.Open
                 AvatarUrl = user.AvatarUrl,
                 CountFinish = 1,
                 CountLimit = limitMustCount,
+                CountLimitMax = limitMustCount,
                 CreateTime = now,
                 Unionid = user.Unionid,
                 NickName = user.NickName,

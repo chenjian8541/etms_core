@@ -255,5 +255,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> ActivityMainGetPaging(ActivityMainGetPagingRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.ActivityMainGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActivityMyGetPaging(ActivityMyGetPagingRequest request)
+        {
+            try
+            {
+                _parentData5BLL.InitTenantId(request.LoginTenantId);
+                return await _parentData5BLL.ActivityMyGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

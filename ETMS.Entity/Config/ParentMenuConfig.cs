@@ -54,6 +54,11 @@ namespace ETMS.Entity.Config
         public const int TryClass = 9;
 
         /// <summary>
+        /// 机构活动
+        /// </summary>
+        public const int ActivityLib = 10;
+
+        /// <summary>
         /// 余额
         /// </summary>
         public const int Balance = 20;
@@ -133,6 +138,9 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(Homework, "课后作业", 15));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));
             AllConfig.Add(new ParentMenuInfo(AlbumLog, "电子相册", 22));
+
+            AllConfig.Add(new ParentMenuInfo(ActivityLib, "机构活动", 23));
+
             AllConfig.Add(new ParentMenuInfo(ReservationMgr, "在线预约", 25));
             AllConfig.Add(new ParentMenuInfo(MallGoods, "在线商城", 27));
             AllConfig.Add(new ParentMenuInfo(MicroWeb, "微官网", 30));

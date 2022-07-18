@@ -4,12 +4,14 @@ using ETMS.Entity.Database.Source;
 using ETMS.Entity.Dto.Parent5.Output;
 using ETMS.Entity.Dto.Parent5.Request;
 using ETMS.Entity.Enum;
+using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Temp;
 using ETMS.Entity.View;
 using ETMS.Event.DataContract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.Parent;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.Activity;
 using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
@@ -44,10 +46,15 @@ namespace ETMS.Business.Parent
 
         private readonly ITryCalssApplyLogDAL _tryCalssApplyLogDAL;
 
+        private readonly IActivityMainDAL _activityMainDAL;
+
+        private readonly IActivityRouteDAL _activityRouteDAL;
+
         public ParentData5BLL(IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             ITeacherSchooltimeConfigDAL teacherSchooltimeConfigDAL, ICourseDAL courseDAL,
             IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IAppConfig2BLL appConfig2BLL,
-            IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL)
+            IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL,
+            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL)
         {
             this._classDAL = classDAL;
             this._userDAL = userDAL;
@@ -60,13 +67,16 @@ namespace ETMS.Business.Parent
             this._eventPublisher = eventPublisher;
             this._studentOperationLogDAL = studentOperationLogDAL;
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
+            this._activityMainDAL = activityMainDAL;
+            this._activityRouteDAL = activityRouteDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _userDAL, _studentDAL, _teacherSchooltimeConfigDAL,
-                _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL, _tryCalssApplyLogDAL);
+                _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL, _tryCalssApplyLogDAL,
+                _activityMainDAL, _activityRouteDAL);
         }
 
         public async Task<ResponseBase> StudentReservation1v1Check(StudentReservation1v1CheckRequest request)
@@ -681,6 +691,128 @@ namespace ETMS.Business.Parent
 
             await _studentOperationLogDAL.AddStudentLog(log.StudentId.Value, request.LoginTenantId, "取消试听申请", EmStudentOperationLogType.StudentReservation);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ActivityMainGetPaging(ActivityMainGetPagingRequest request)
+        {
+            var pagingData = await _activityMainDAL.GetPaging(request);
+            var output = new List<ActivityMainGetPagingRequestOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    var activityStatusResult = EmActivityStatus.GetActivityStatus(p.ActivityStatus, p.EndTime.Value);
+                    output.Add(new ActivityMainGetPagingRequestOutput()
+                    {
+                        CId = p.Id,
+                        ActivityStatus = activityStatusResult.Item1,
+                        ActivityStatusDesc = activityStatusResult.Item2,
+                        CoverImage = p.CoverImage,
+                        EndTime = p.EndTime,
+                        ActivityType = p.ActivityType,
+                        ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
+                        ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                        CreateTime = p.CreateTime,
+                        EndTimeType = p.EndTimeType,
+                        EndValue = p.EndValue,
+                        FailCount = p.FailCount,
+                        FinishCount = p.FinishCount,
+                        FinishFullCount = p.FinishFullCount,
+                        IsOpenPay = p.IsOpenPay,
+                        JoinCount = p.JoinCount,
+                        MaxCount = p.MaxCount,
+                        Name = p.Name,
+                        OriginalPrice = p.OriginalPrice,
+                        PayType = p.PayType,
+                        PayValue = p.PayValue,
+                        PublishTime = p.PublishTime,
+                        PVCount = p.PVCount,
+                        RouteCount = p.RouteCount,
+                        RuleEx1 = p.RuleEx1,
+                        RuleEx2 = p.RuleEx2,
+                        RuleEx3 = p.RuleEx3,
+                        RuningCount = p.RuningCount,
+                        Scenetype = p.Scenetype,
+                        ScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.Scenetype),
+                        ScenetypeStyleClass = p.ScenetypeStyleClass,
+                        ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
+                        StartTime = p.StartTime,
+                        StudentHisLimitType = p.StudentHisLimitType,
+                        StyleBackColor = p.StyleBackColor,
+                        StyleColumnColor = p.StyleColumnColor,
+                        StyleType = p.StyleType,
+                        SystemActivityId = p.SystemActivityId,
+                        Title = p.Title,
+                        TranspondCount = p.TranspondCount,
+                        UVCount = p.UVCount,
+                        VisitCount = p.VisitCount
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActivityMainGetPagingRequestOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActivityMyGetPaging(ActivityMyGetPagingRequest request)
+        {
+            var pagingData = await _activityRouteDAL.GetPagingRouteItem(request);
+            var output = new List<ActivityMyGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    var myRoute = await _activityRouteDAL.GetActivityRoute(p.ActivityRouteId);
+                    if (myRoute == null)
+                    {
+                        continue;
+                    }
+                    var tempCountLimit = myRoute.CountLimit;
+                    if (p.ActivityType == EmActivityType.GroupPurchase)
+                    {
+                        if (p.Status == EmSysActivityRouteItemStatus.FinishItem || p.Status == EmSysActivityRouteItemStatus.FinishFull)
+                        {
+                            tempCountLimit = myRoute.CountLimitMax;
+                        }
+                    }
+                    var tempExTimeCountDown = EtmsHelper2.GetCountDownMillisecond(p.ActivityEndTime);
+                    output.Add(new ActivityMyGetPagingOutput()
+                    {
+                        CId = p.Id,
+                        ActivityCoverImage = p.ActivityCoverImage,
+                        ActivityEndTime = p.ActivityEndTime,
+                        ActivityId = p.ActivityId,
+                        ActivityName = p.ActivityName,
+                        ActivityOriginalPrice = p.ActivityOriginalPrice,
+                        ActivityRouteId = p.ActivityRouteId,
+                        ActivityRuleEx1 = p.ActivityRuleEx1,
+                        ActivityRuleEx2 = p.ActivityRuleEx2,
+                        ActivityScenetype = p.ActivityScenetype,
+                        ActivityScenetypeDesc = EmActivityScenetype.GetActivityScenetypeDesc(p.ActivityScenetype),
+                        ActivityStartTime = p.ActivityStartTime,
+                        ActivityTitle = p.ActivityTitle,
+                        ActivityType = p.ActivityType,
+                        ActivityTypeDesc = EmActivityType.GetActivityTypeDesc(p.ActivityType),
+                        ActivityTypeStyleClass = p.ActivityTypeStyleClass,
+                        CreateTime = p.CreateTime,
+                        IsTeamLeader = p.IsTeamLeader,
+                        MiniPgmUserId = p.MiniPgmUserId,
+                        NickName = p.NickName,
+                        PayFinishTime = p.PayFinishTime,
+                        CountFinish = myRoute.CountFinish,
+                        CountLimit = tempCountLimit,
+                        ExTimeCountDown = tempExTimeCountDown,
+                        PayStatus = p.PayStatus,
+                        PaySum = p.PaySum,
+                        ScenetypeStyleClass = p.ScenetypeStyleClass,
+                        ShareQRCode = AliyunOssUtil.GetAccessUrlHttps(p.ShareQRCode),
+                        Status = EmSysActivityRouteItemStatus.GetActivityRouteItemStatus(p.Status, p.ActivityEndTime),
+                        StatusDesc = EmSysActivityRouteItemStatus.GetActivityRouteItemStatusDesc(p.ActivityScenetype, p.Status, p.ActivityEndTime),
+                        StudentId = p.StudentId,
+                        StudentName = p.StudentName,
+                        StudentPhone = p.StudentPhone
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ActivityMyGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

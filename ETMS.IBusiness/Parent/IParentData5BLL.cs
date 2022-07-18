@@ -27,5 +27,9 @@ namespace ETMS.IBusiness.Parent
         Task<ResponseBase> StudentTryClassSubmit(StudentTryClassSubmitRequest request);
 
         Task<ResponseBase> StudentTryClassCancel(StudentTryClassCancelRequest request);
+
+        Task<ResponseBase> ActivityMainGetPaging(ActivityMainGetPagingRequest request);
+
+        Task<ResponseBase> ActivityMyGetPaging(ActivityMyGetPagingRequest request);
     }
 }

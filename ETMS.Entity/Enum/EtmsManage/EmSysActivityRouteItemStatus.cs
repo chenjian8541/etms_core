@@ -28,8 +28,21 @@ namespace ETMS.Entity.Enum.EtmsManage
         /// </summary>
         public const int Expired = 3;
 
-        public static string GetActivityRouteItemStatusDesc(int activityType, int t)
+        public static int GetActivityRouteItemStatus(int t, DateTime endTime)
         {
+            if (t == Going && DateTime.Now >= endTime)
+            {
+                return Expired;
+            }
+            return t;
+        }
+
+        public static string GetActivityRouteItemStatusDesc(int activityType, int t, DateTime endTime)
+        {
+            if (t == Going && DateTime.Now >= endTime)
+            {
+                return "已过期";
+            }
             if (activityType == EmActivityType.Haggling)
             {
                 switch (t)

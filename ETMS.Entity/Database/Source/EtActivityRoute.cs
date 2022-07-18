@@ -68,6 +68,8 @@ namespace ETMS.Entity.Database.Source
 
         public int CountLimit { get; set; }
 
+        public int CountLimitMax { get; set; }
+
         public int CountFinish { get; set; }
 
         public bool IsNeedPay { get; set; }
