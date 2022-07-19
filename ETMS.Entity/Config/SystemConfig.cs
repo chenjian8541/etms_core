@@ -262,5 +262,15 @@ namespace ETMS.Entity.Config
         /// 默认密码
         /// </summary>
         public string DefaultPwd = "88888888";
+
+        /// <summary>
+        /// 演示账号
+        /// </summary>
+        public int DemoAccountTenantId = 11299;
+
+        /// <summary>
+        /// 演示账号 角色ID
+        /// </summary>
+        public int DemoAccountRouleId = 1635;
     }
 }

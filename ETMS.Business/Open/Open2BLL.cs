@@ -9,6 +9,7 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.ExternalService.Dto.Request;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.ExternalService.Contract;
 using ETMS.IBusiness;
 using ETMS.IBusiness.SysOp;
@@ -272,7 +273,31 @@ namespace ETMS.Business
                     TryApplyLog = log
                 });
             }
+            await SyncTestAccount(request.Name, request.Phone);
             return ResponseBase.Success();
+        }
+
+        private async Task SyncTestAccount(string name, string phone)
+        {
+            this.InitTenantId(SystemConfig.ComConfig.DemoAccountTenantId);
+            var logUser = await _userDAL.GetUser(phone);
+            if (logUser == null)
+            {
+                var user = new EtUser()
+                {
+                    Address = string.Empty,
+                    IsTeacher = true,
+                    Name = name,
+                    Phone = phone,
+                    Remark = string.Empty,
+                    RoleId = SystemConfig.ComConfig.DemoAccountRouleId,
+                    TenantId = SystemConfig.ComConfig.DemoAccountTenantId,
+                    JobType = EmUserJobType.FullTime
+                };
+                await _userDAL.AddUser(user);
+                CoreBusiness.ProcessUserPhoneAboutAdd(user, _eventPublisher);
+                _eventPublisher.Publish(new SysTenantStatistics2Event(SystemConfig.ComConfig.DemoAccountTenantId));
+            }
         }
 
         public async Task<ResponseBase> EvaluateStudentDetail(EvaluateStudentDetailRequest request)
