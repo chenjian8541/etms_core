@@ -292,7 +292,8 @@ namespace ETMS.Business
                     Remark = string.Empty,
                     RoleId = SystemConfig.ComConfig.DemoAccountRouleId,
                     TenantId = SystemConfig.ComConfig.DemoAccountTenantId,
-                    JobType = EmUserJobType.FullTime
+                    JobType = EmUserJobType.FullTime,
+                    Password = CryptogramHelper.Encrypt3DES("88888888", SystemConfig.CryptogramConfig.Key)
                 };
                 await _userDAL.AddUser(user);
                 CoreBusiness.ProcessUserPhoneAboutAdd(user, _eventPublisher);
