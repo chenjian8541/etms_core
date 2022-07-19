@@ -52,6 +52,10 @@ namespace ETMS.AiFace.Common
                 {
                     LOG.Log.Fatal($"[BaiduAPISendPost]{url},{strResult}", typeof(HttpLib));
                 }
+                else
+                {
+                    LOG.Log.Warn($"[BaiduAPISendPost]", result, typeof(HttpLib));
+                }
                 throw new EtmsErrorException("人脸识别出错");
             }
             else
