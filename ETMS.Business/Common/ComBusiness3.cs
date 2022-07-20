@@ -275,6 +275,9 @@ namespace ETMS.Business.Common
                     case RoleOtherSetting.StudentCheckOnWeChatMy:
                         output.IsStudentCheckOnWeChatMy = true;
                         break;
+                    case RoleOtherSetting.EverydayBusinessStatistics:
+                        output.IsEverydayBusinessStatistics = true;
+                        break;
                 }
             }
             if (output.IsStudentLeaveApply || output.IsStudentLeaveApplyMy)

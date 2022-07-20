@@ -166,5 +166,12 @@
     "Title": "每天晚上7点执行JOB",
     "IsCanTryAgain": true,
     "IsCanParallelProcess": false
+  },
+  {
+    "Name": "EveryEvening8Job",
+    "Cron": "0 0 8 * * ?", //每天早上8点
+    "Title": "每天早上8点执行JOB",
+    "IsCanTryAgain": false,
+    "IsCanParallelProcess": false
   }
 ]

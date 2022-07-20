@@ -27,5 +27,7 @@ namespace ETMS.IBusiness.SendNotice
         Task NoticeUserContractsNotArrivedConsumerEvent(NoticeUserContractsNotArrivedEvent request);
 
         Task NoticeUserTryCalssApplyConsumerEvent(NoticeUserTryCalssApplyEvent request);
+
+        Task EveryDayStatisticsConsumerEvent(EveryDayStatisticsEvent request);
     }
 }

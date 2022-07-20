@@ -46,5 +46,7 @@ namespace ETMS.Entity.Dto.User.Request
         public bool IsOpenStudentCheckOnWeChat { get; set; }
 
         public int OpenStudentCheckOnWeChatType { get; set; }
+
+        public bool IsEverydayBusinessStatistics { get; set; }
     }
 }

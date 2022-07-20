@@ -39,5 +39,17 @@ namespace ETMS.IDataAccess
         Task<decimal> GetTenantSurplusClassTimes();
 
         Task<decimal> GetTenantSurplusSurplusMoney();
+
+        Task<int> GetStudentPotentialAddCount(string minDate, string maxDate);
+
+        Task<int> GetStudentReadingAddCount(string minDate, string maxDate);
+
+        Task<int> GetOrderAddCount(string minDate, string maxDate);
+
+        Task<IEnumerable<IncomeLogGroupType>> GetIncomeType(string minDate, string maxDate);
+
+        Task<StatisticsClassTimesView> GetDeClassTimes(string minDate, string maxDate);
+
+        Task<IEnumerable<ETMS.Entity.View.StudentCheckStatusView>> GetStudentCheckStatusView(string classDate);
     }
 }

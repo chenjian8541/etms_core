@@ -57,11 +57,13 @@ namespace ETMS.Business.SendNotice
 
         private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
 
+        private readonly IJobAnalyze2DAL _jobAnalyze2DAL;
+
         public UserSendNoticeBLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IJobAnalyzeDAL jobAnalyzeDAL, ITempUserClassNoticeDAL tempUserClassNoticeDAL, IClassRoomDAL classRoomDAL,
             IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
             IUserDAL userDAL, ISmsService smsService, IWxService wxService, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL)
+            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL, IJobAnalyze2DAL jobAnalyze2DAL)
             : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
@@ -78,6 +80,7 @@ namespace ETMS.Business.SendNotice
             this._activeHomeworkDetailDAL = activeHomeworkDetailDAL;
             this._studentDAL = studentDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
+            this._jobAnalyze2DAL = jobAnalyze2DAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -85,7 +88,7 @@ namespace ETMS.Business.SendNotice
             this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _courseDAL, _classDAL, _jobAnalyzeDAL, _tempUserClassNoticeDAL, _classRoomDAL,
-                _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL);
+                _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL, _jobAnalyze2DAL);
         }
 
         public async Task NoticeUserOfClassTodayGenerateConsumerEvent(NoticeUserOfClassTodayGenerateEvent request)
@@ -571,6 +574,113 @@ namespace ETMS.Business.SendNotice
                     UserName = ComBusiness2.GetParentTeacherName(user),
                     OpendId = await GetOpenId(true, user.Id),
                     Url = url
+                });
+            }
+
+            if (smsReq.Users.Any())
+            {
+                _wxService.NoticeUserMessage(smsReq);
+            }
+        }
+
+        public async Task EveryDayStatisticsConsumerEvent(EveryDayStatisticsEvent request)
+        {
+            var noticeUser = await _userDAL.GetUserAboutNotice(RoleOtherSetting.EverydayBusinessStatistics);
+            if (!noticeUser.Any())
+            {
+                return;
+            }
+            var myDate = request.Time.Date;
+            var minDate = myDate;
+            var endDate = myDate.AddDays(1).Date;
+            var minDateDesc = myDate.EtmsToDateString();
+            var endDateDesc = endDate.EtmsToDateString();
+            var potentialAddCount = await _jobAnalyze2DAL.GetStudentPotentialAddCount(minDateDesc, endDateDesc);
+            var readingAddCount = await _jobAnalyze2DAL.GetStudentReadingAddCount(minDateDesc, endDateDesc);
+            var orderAddCount = await _jobAnalyze2DAL.GetOrderAddCount(minDateDesc, endDateDesc);
+            var result = new EveryDayStatisticsView()
+            {
+                StudentPotentialAddCount = potentialAddCount,
+                StudentReadingAddCount = readingAddCount,
+                OrderAddCount = orderAddCount
+            };
+            var deClassTimes = await _jobAnalyze2DAL.GetDeClassTimes(minDateDesc, endDateDesc);
+            if (deClassTimes != null)
+            {
+                result.DeClassTimes = deClassTimes.TotalClassTimes.EtmsToString();
+                result.DeClassTimesSum = deClassTimes.TotalDeSum;
+            }
+            var incomeTypeView = await _jobAnalyze2DAL.GetIncomeType(minDateDesc, endDateDesc);
+            if (incomeTypeView != null && incomeTypeView.Any())
+            {
+                var inLog = incomeTypeView.FirstOrDefault(j => j.Type == EmIncomeLogType.AccountIn);
+                if (inLog != null)
+                {
+                    result.IncomeIn = inLog.TotalSum;
+                }
+                var outLog = incomeTypeView.FirstOrDefault(j => j.Type == EmIncomeLogType.AccountOut);
+                if (outLog != null)
+                {
+                    result.IncomeOut = outLog.TotalSum;
+                }
+            }
+            var studentCheckStatusView = await _jobAnalyze2DAL.GetStudentCheckStatusView(minDateDesc);
+            if (studentCheckStatusView != null && studentCheckStatusView.Any())
+            {
+                var myClassArrivedCountLog = studentCheckStatusView.FirstOrDefault(j => j.StudentCheckStatus == EmClassStudentCheckStatus.Arrived);
+                if (myClassArrivedCountLog != null)
+                {
+                    result.ClassArrivedCount = myClassArrivedCountLog.Count;
+                }
+                var myClassBeLateCount = studentCheckStatusView.FirstOrDefault(j => j.StudentCheckStatus == EmClassStudentCheckStatus.BeLate);
+                if (myClassBeLateCount != null)
+                {
+                    result.ClassBeLateCount = myClassBeLateCount.Count;
+                }
+                var myClassLeaveCount = studentCheckStatusView.FirstOrDefault(j => j.StudentCheckStatus == EmClassStudentCheckStatus.Leave);
+                if (myClassLeaveCount != null)
+                {
+                    result.ClassLeaveCount = myClassLeaveCount.Count;
+                }
+                var myClassNotArrivedCount = studentCheckStatusView.FirstOrDefault(j => j.StudentCheckStatus == EmClassStudentCheckStatus.NotArrived);
+                if (myClassNotArrivedCount != null)
+                {
+                    result.ClassNotArrivedCount = myClassNotArrivedCount.Count;
+                }
+            }
+            var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Users = new List<NoticeUserMessageUser>(),
+                Title = "机构经营数据通知",
+                OtDesc = myDate.EtmsToDateString()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            smsReq.TemplateIdShort = wxConfig.TemplateNoticeConfig.UserMessage;
+            smsReq.Remark = tenantConfig.UserNoticeConfig.WeChatNoticeRemark;
+
+            var str = new StringBuilder();
+            str.Append($"昨日新增意向学员{result.StudentPotentialAddCount}人;\n");
+            str.Append($"昨日新增正式学员{result.StudentReadingAddCount}人;\n");
+            str.Append($"昨日报课人数{result.OrderAddCount}人;\n");
+            str.Append($"昨日收入{result.IncomeIn}元;\n");
+            str.Append($"昨日支出{result.IncomeOut}元;\n");
+            str.Append($"昨日消课课时{result.DeClassTimes};\n");
+            str.Append($"昨日消课金额{result.DeClassTimesSum}元;\n");
+            str.Append($"昨日到课人数{result.ClassArrivedCount}人;\n");
+            str.Append($"昨日迟到人数{result.ClassBeLateCount}人;\n");
+            str.Append($"昨日请假人数{result.ClassLeaveCount}人;\n");
+            str.Append($"昨日未到人数{result.ClassNotArrivedCount}人;");
+            smsReq.Content = str.ToString();
+
+            foreach (var user in noticeUser)
+            {
+                smsReq.Users.Add(new NoticeUserMessageUser()
+                {
+                    Phone = user.Phone,
+                    UserId = user.Id,
+                    UserName = ComBusiness2.GetParentTeacherName(user),
+                    OpendId = await GetOpenId(true, user.Id),
                 });
             }
 

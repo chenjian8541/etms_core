@@ -71,6 +71,11 @@ namespace ETMS.Entity.Dto.User.Output
         /// </summary>
         public bool IsStudentCheckOnWeChatMy { get; set; }
 
+        /// <summary>
+        ///  接收每日经营统计
+        /// </summary>
+        public bool IsEverydayBusinessStatistics { get; set; }
+
         public bool IsOpenStudentLeaveApply { get; set; }
 
         public int OpenStudentLeaveApplyType { get; set; }

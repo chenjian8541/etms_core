@@ -359,6 +359,10 @@ namespace ETMS.Business
             {
                 mySetting.Add(RoleOtherSetting.AllowWebchatLogin);
             }
+            if (request.IsEverydayBusinessStatistics)
+            {
+                mySetting.Add(RoleOtherSetting.EverydayBusinessStatistics);
+            }
             return EtmsHelper.GetMuIds(mySetting);
         }
 

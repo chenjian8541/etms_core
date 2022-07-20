@@ -123,5 +123,45 @@ namespace ETMS.DataAccess
             }
             return Convert.ToDecimal(obj);
         }
+
+        public async Task<int> GetStudentPotentialAddCount(string minDate, string maxDate)
+        {
+            var sql = $"SELECT COUNT(0) FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentType = {EmStudentType.HiddenStudent} AND Ot >= '{minDate}' AND Ot < '{maxDate}'";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetStudentReadingAddCount(string minDate, string maxDate)
+        {
+            var sql = $"SELECT COUNT(0) FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND StudentType = {EmStudentType.ReadingStudent} AND Ot >= '{minDate}' AND Ot < '{maxDate}'";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetOrderAddCount(string minDate, string maxDate)
+        {
+            var log = await _dbWrapper.ExecuteObject<StudentBuyCourseView>(
+                $"SELECT StudentId,ProductId FROM EtOrderDetail WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] <> {EmOrderStatus.Repeal} AND [OrderType] = {EmOrderType.StudentEnrolment} AND ProductType = {EmProductType.Course} AND Ot >= '{minDate}' AND Ot < '{maxDate}' group by StudentId,ProductId");
+            return log.Count();
+        }
+
+        public async Task<IEnumerable<IncomeLogGroupType>> GetIncomeType(string minDate, string maxDate)
+        {
+            return await _dbWrapper.ExecuteObject<IncomeLogGroupType>
+                ($"SELECT [Type],SUM([Sum]) AS TotalSum FROM EtIncomeLog WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND [Status] = {EmIncomeLogStatus.Normal} AND Ot >= '{minDate}' AND Ot < '{maxDate}' GROUP BY [Type]");
+        }
+
+        public async Task<StatisticsClassTimesView> GetDeClassTimes(string minDate, string maxDate)
+        {
+            var log = await _dbWrapper.ExecuteObject<StatisticsClassTimesView>(
+                $"SELECT SUM(DeSum) as TotalDeSum,SUM(ClassTimes) as TotalClassTimes FROM EtStatisticsClassTimes WHERE IsDeleted = {EmIsDeleted.Normal} AND TenantId = {_tenantId} AND Ot >= '{minDate}' AND Ot < '{maxDate}'");
+            return log.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<ETMS.Entity.View.StudentCheckStatusView>> GetStudentCheckStatusView(string classDate)
+        {
+            var sql = $"SELECT StudentCheckStatus,COUNT(StudentCheckStatus) AS [Count] FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND ClassOt = '{classDate}' GROUP BY StudentCheckStatus";
+            return await _dbWrapper.ExecuteObject<ETMS.Entity.View.StudentCheckStatusView>(sql);
+        }
     }
 }

@@ -1352,5 +1352,10 @@ namespace ETMS.ExternalService.Implement
                 }
             }
         }
+
+        public void NoticeUserEverydayBusinessStatistics(NoticeUserEverydayBusinessStatisticsRequest request)
+        { 
+        
+        }
     }
 }

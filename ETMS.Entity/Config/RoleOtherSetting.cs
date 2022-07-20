@@ -70,5 +70,10 @@ namespace ETMS.Entity.Config
         /// 接收学员考勤通知
         /// </summary>
         public const int StudentCheckOnWeChatMy = 13;
+
+        /// <summary>
+        /// 每日经营统计
+        /// </summary>
+        public const int EverydayBusinessStatistics = 14;
     }
 }
