@@ -180,7 +180,8 @@ namespace ETMS.Business.Common
                 SurplusSmallQuantity = surplusSmallQuantity,
                 TotalMoney = enrolmentCourse.ItemAptSum,
                 UseQuantity = 0,
-                UseUnit = useUnit
+                UseUnit = useUnit,
+                PriceRuleId = priceRule.Id
             };
         }
 
@@ -268,7 +269,8 @@ namespace ETMS.Business.Common
                 InOutType = EmOrderInOutType.In,
                 BuyType = buyType,
                 StudentId = studentId,
-                OrderType = orderType
+                OrderType = orderType,
+                PriceRuleId = priceRule.Id
             }, ruleDesc);
         }
 

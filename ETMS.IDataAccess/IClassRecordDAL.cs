@@ -95,5 +95,7 @@ namespace ETMS.IDataAccess
         Task SyncClassCategoryId(long classId, long? classCategoryId);
 
         Task UpdateClassRecordStudentSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
+
+        Task<int> GetStudentClassCountByTime(long studentId, long courseId, long deStudentCourseDetailId, DateTime start, DateTime end);
     }
 }

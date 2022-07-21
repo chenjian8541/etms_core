@@ -8,6 +8,7 @@ using ETMS.IBusiness.EventConsumer;
 using ETMS.IDataAccess;
 using ETMS.IDataAccess.MallGoodsDAL;
 using ETMS.IDataAccess.TeacherSalary;
+using ETMS.IEventProvider;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -33,11 +34,19 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
 
+        private readonly ICourseDAL _courseDAL;
+
         private readonly IStudentCourseDAL _studentCourseDAL;
+
+        private readonly IStudentCourseOpLogDAL _studentCourseOpLogDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
         public EvEducationBLL(IClassRecordDAL classRecordDAL, ITeacherSalaryClassDAL teacherSalaryClassDAL,
             ITeacherSalaryMonthStatisticsDAL teacherSalaryMonthStatisticsDAL, ITeacherSalaryPayrollDAL teacherSalaryPayrollDAL,
             IUserDAL userDAL, IMallGoodsDAL mallGoodsDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
-            IStudentCourseDAL studentCourseDAL)
+            IStudentCourseDAL studentCourseDAL, ICourseDAL courseDAL, IStudentCourseOpLogDAL studentCourseOpLogDAL,
+            IEventPublisher eventPublisher)
         {
             this._classRecordDAL = classRecordDAL;
             this._teacherSalaryClassDAL = teacherSalaryClassDAL;
@@ -47,12 +56,16 @@ namespace ETMS.Business.EventConsumer
             this._mallGoodsDAL = mallGoodsDAL;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
             this._studentCourseDAL = studentCourseDAL;
+            this._courseDAL = courseDAL;
+            this._studentCourseOpLogDAL = studentCourseOpLogDAL;
+            this._eventPublisher = eventPublisher;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classRecordDAL, _teacherSalaryClassDAL, _teacherSalaryMonthStatisticsDAL,
-                _teacherSalaryPayrollDAL, _userDAL, _mallGoodsDAL, _studentCourseConsumeLogDAL, _studentCourseDAL);
+                _teacherSalaryPayrollDAL, _userDAL, _mallGoodsDAL, _studentCourseConsumeLogDAL, _studentCourseDAL, _courseDAL,
+                _studentCourseOpLogDAL);
         }
 
         public async Task StatisticsTeacherSalaryClassTimesConsumerEvent(StatisticsTeacherSalaryClassTimesEvent request)
@@ -598,6 +611,117 @@ namespace ETMS.Business.EventConsumer
                 });
             }
             await _studentCourseConsumeLogDAL.UpdateStudentCourseConsumeLogSurplusCourseDesc(upLogs);
+        }
+
+        public async Task StudentCourseExTimeDeConsumerEvent(StudentCourseExTimeDeEvent request)
+        {
+            var myCourseBucket = await _courseDAL.GetCourse(request.CourseId);
+            if (myCourseBucket == null || myCourseBucket.Item2 == null || myCourseBucket.Item2.Count == 0)
+            {
+                return;
+            }
+            var rule = myCourseBucket.Item2;
+            var myExLimitRule = rule.Where(j =>
+            j.ExLimitTimeType != null && j.ExLimitTimeType > 0
+            && j.ExLimitTimeValue != null && j.ExLimitTimeValue > 0
+            && j.ExLimitDeValue != null && j.ExLimitDeValue > 0);
+            if (!myExLimitRule.Any())
+            {
+                return;
+            }
+            var now = DateTime.Now.Date;
+            var effectiveCourseDetailsDay = await _studentCourseDAL.GetStudentCourseDetailExLimitTimeAnalysis(request.StudentId, request.CourseId);
+            foreach (var p in effectiveCourseDetailsDay)
+            {
+                if (p.EndTime < now)
+                {
+                    continue;
+                }
+                var myPriceRule = myExLimitRule.FirstOrDefault(j => p.PriceRuleId == j.Id);
+                if (myPriceRule == null)
+                {
+                    continue;
+                }
+                DateTime startTime;
+                DateTime endTime;
+                if (myPriceRule.ExLimitTimeType == EmCoursePriceRuleExTimeLimitTimeType.Week)
+                {
+                    var thisWeek = EtmsHelper2.GetThisWeek(now);
+                    startTime = thisWeek.Item1;
+                    endTime = thisWeek.Item2;
+                }
+                else
+                {
+                    var thisMonth = EtmsHelper2.GetThisMonth(now);
+                    startTime = thisMonth.Item1;
+                    endTime = thisMonth.Item2;
+                }
+                var myClassCount = await _classRecordDAL.GetStudentClassCountByTime(request.StudentId, request.CourseId, p.Id, startTime, endTime);
+                if (myClassCount == 0)
+                {
+                    continue;
+                }
+                if (myClassCount <= myPriceRule.ExLimitTimeValue.Value)
+                {
+                    continue;
+                }
+                var handerLog = await _studentCourseDAL.GetStudentCourseExTimeDeLog(request.StudentId, request.CourseId, p.Id, startTime);
+                var exceedCount = myClassCount - myPriceRule.ExLimitTimeValue.Value; //超过的上课的次数
+                if (handerLog != null)
+                {
+                    exceedCount = exceedCount - handerLog.DeTimes;
+                }
+                if (exceedCount <= 0)
+                {
+                    continue;
+                }
+                var oldEndTime = p.EndTime.Value;
+                var deDays = -exceedCount * myPriceRule.ExLimitDeValue.Value;
+                var newEndTime = p.EndTime.Value.AddDays(deDays);
+                await _studentCourseDAL.UpdateStudentCourseDetailEndTime(p.Id, newEndTime);
+                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.TenantId)
+                {
+                    StudentId = request.StudentId,
+                    CourseId = request.CourseId,
+                    IsNotProcessStudentCourseExTimeDe = true
+                });
+
+                if (handerLog != null)
+                {
+                    handerLog.ClassCount = myClassCount;
+                    handerLog.DeTimes += exceedCount;
+                    await _studentCourseDAL.EditStudentCourseExTimeDeLog(handerLog);
+                }
+                else
+                {
+                    await _studentCourseDAL.AddStudentCourseExTimeDeLog(new EtStudentCourseExTimeDeLog()
+                    {
+                        ClassCount = myClassCount,
+                        DeTimes = exceedCount,
+                        CompDate = startTime,
+                        CourseId = request.CourseId,
+                        IsDeleted = EmIsDeleted.Normal,
+                        StudentCourseDetailId = p.Id,
+                        StudentId = request.StudentId,
+                        TenantId = request.TenantId
+                    });
+                }
+
+                //课程操作日志
+                var adminUser = await _userDAL.GetAdminUser();
+                await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
+                {
+                    CourseId = request.CourseId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OpTime = DateTime.Now,
+                    OpType = EmStudentCourseOpLogType.AdvanceClasses,
+                    StudentId = request.StudentId,
+                    TenantId = request.TenantId,
+                    OpUser = adminUser.Id,
+                    Remark = string.Empty,
+                    OpContent = $"{startTime.EtmsToDateString()}到{endTime.EtmsToDateString()}共上{myClassCount}节课超过{exceedCount}节课未处理，有效期从{oldEndTime.EtmsToDateString()}缩减到{newEndTime.EtmsToDateString()}"
+                });
+            }
         }
     }
 }

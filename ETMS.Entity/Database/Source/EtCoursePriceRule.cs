@@ -11,6 +11,13 @@ namespace ETMS.Entity.Database.Source
     [Table("EtCoursePriceRule")]
     public class EtCoursePriceRule : BaseCoursePrice
     {
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExTimeLimitTimeType"/>
+        /// </summary>
+        public int? ExLimitTimeType { get; set; }
 
+        public int? ExLimitTimeValue { get; set; }
+
+        public int? ExLimitDeValue { get; set; }
     }
 }

@@ -26,6 +26,15 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public int? ExpiredValue { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExTimeLimitTimeType"/>
+        /// </summary>
+        public int? ExLimitTimeType { get; set; }
+
+        public int? ExLimitTimeValue { get; set; }
+
+        public int? ExLimitDeValue { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Name))

@@ -213,5 +213,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtActivityRouteItem> EtActivityRouteItems { get; set; }
         public DbSet<EtActivityHaggleLog> EtActivityHaggleLogs { get; set; }
         public DbSet<EtActivityVisitor> EtActivityVisitors { get; set; }
+        public DbSet<EtStudentCourseExTimeDeLog> EtStudentCourseExTimeDeLogs { get; set; }
     }
 }

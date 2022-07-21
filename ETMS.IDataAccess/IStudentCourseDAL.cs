@@ -28,6 +28,8 @@ namespace ETMS.IDataAccess
 
         Task<List<EtStudentCourseDetail>> GetStudentCourseDetailStop(long studentId, long courseId);
 
+        Task<List<EtStudentCourseDetail>> GetStudentCourseDetailExLimitTimeAnalysis(long studentId, long courseId);
+
         Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId);
 
         Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseIdIsReading(long studentId);
@@ -96,5 +98,13 @@ namespace ETMS.IDataAccess
         Task<bool> CheckStudentIsHasEffectiveCourse(long studentId);
 
         Task ChangeStudentCourseLimitReserve(long student, long courseId, bool isLimitReserve);
+
+        Task<EtStudentCourseExTimeDeLog> GetStudentCourseExTimeDeLog(long studentId, long courseId, long studentCourseDetailId, DateTime compDate);
+
+        Task UpdateStudentCourseDetailEndTime(long id, DateTime newEndTime);
+
+        Task AddStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity);
+
+        Task EditStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity);
     }
 }

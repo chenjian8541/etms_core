@@ -265,6 +265,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtStudentCourseStopLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStudentCourseConsumeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtStudentCourseOpLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtStudentCourseExTimeDeLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             var tempStudentIds = await GetStudentIds();
             var keys = new List<string>();

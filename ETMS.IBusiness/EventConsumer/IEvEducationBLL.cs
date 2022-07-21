@@ -20,5 +20,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SyncMallGoodsRelatedNameConsumerEvent(SyncMallGoodsRelatedNameEvent request);
 
         Task SyncStudentLogOfSurplusCourseConsumerEvent(SyncStudentLogOfSurplusCourseEvent request);
+
+        Task StudentCourseExTimeDeConsumerEvent(StudentCourseExTimeDeEvent request);
     }
 }

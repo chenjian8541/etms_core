@@ -47,5 +47,14 @@ namespace ETMS.Entity.Dto.Product.Output
         public byte? ExpiredType { get; set; }
 
         public int? ExpiredValue { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmCoursePriceRuleExTimeLimitTimeType"/>
+        /// </summary>
+        public int? ExLimitTimeType { get; set; }
+
+        public int? ExLimitTimeValue { get; set; }
+
+        public int? ExLimitDeValue { get; set; }
     }
 }

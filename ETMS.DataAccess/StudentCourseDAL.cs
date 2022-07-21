@@ -108,6 +108,13 @@ namespace ETMS.DataAccess
             && p.IsDeleted == EmIsDeleted.Normal && p.CourseId == courseId && p.Status == EmStudentCourseStatus.StopOfClass);
         }
 
+        public async Task<List<EtStudentCourseDetail>> GetStudentCourseDetailExLimitTimeAnalysis(long studentId, long courseId)
+        {
+            return await _dbWrapper.FindList<EtStudentCourseDetail>(p => p.TenantId == _tenantId && p.StudentId == studentId
+            && p.IsDeleted == EmIsDeleted.Normal && p.CourseId == courseId && p.Status == EmStudentCourseStatus.Normal
+            && p.DeType != EmDeClassTimesType.ClassTimes && p.PriceRuleId != null && p.EndTime != null);
+        }
+
         public async Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId)
         {
             return await _dbWrapper.ExecuteObject<StudentBuyCourse>($"SELECT DISTINCT CourseId FROM EtStudentCourseDetail WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal}");
@@ -414,6 +421,28 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute(
                 $"UPDATE EtStudentCourse SET IsLimitReserve = {limitType} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal}");
             await UpdateCache(_tenantId, studentId);
+        }
+
+        public async Task<EtStudentCourseExTimeDeLog> GetStudentCourseExTimeDeLog(long studentId, long courseId, long studentCourseDetailId, DateTime compDate)
+        {
+            return await _dbWrapper.Find<EtStudentCourseExTimeDeLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.StudentId == studentId && p.CourseId == courseId && p.StudentCourseDetailId == studentCourseDetailId && p.CompDate == compDate);
+        }
+
+        public async Task UpdateStudentCourseDetailEndTime(long id, DateTime newEndTime)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtStudentCourseDetail SET EndTime = '{newEndTime.EtmsToDateString()}' WHERE TenantId = {_tenantId} AND Id = {id}");
+        }
+
+        public async Task AddStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity)
+        {
+            await _dbWrapper.Insert(entity);
+        }
+
+        public async Task EditStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity)
+        {
+            await _dbWrapper.Update(entity);
         }
     }
 }

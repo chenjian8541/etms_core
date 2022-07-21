@@ -41,6 +41,10 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int MarkExceedClassTimes = 6;
 
+        /// <summary>
+        /// 提前上课自动减有效期
+        /// </summary>
+        public const int AdvanceClasses = 7;
         public static string GetStudentCourseOpLogTypeDesc(int type)
         {
             switch (type)
@@ -59,6 +63,8 @@ namespace ETMS.Entity.Enum
                     return "结课";
                 case MarkExceedClassTimes:
                     return "超上课时标记处理";
+                case AdvanceClasses:
+                    return "提前上课自动减有效期";
             }
             return string.Empty;
         }

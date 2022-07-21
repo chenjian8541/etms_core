@@ -120,5 +120,7 @@ namespace ETMS.Entity.Database.Source
         /// 结课备注
         /// </summary>
         public string EndCourseRemark { get; set; }
+
+        public long? PriceRuleId { get; set; }
     }
 }

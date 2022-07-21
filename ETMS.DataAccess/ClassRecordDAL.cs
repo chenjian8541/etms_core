@@ -342,5 +342,12 @@ namespace ETMS.DataAccess
                 }
             }
         }
+
+        public async Task<int> GetStudentClassCountByTime(long studentId, long courseId, long deStudentCourseDetailId, DateTime start, DateTime end)
+        {
+            var sql = $"SELECT COUNT(Id) FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} AND StudentId = {studentId} AND CourseId = {courseId} AND DeType = {EmDeClassTimesType.Day} AND ClassOt >= '{start.EtmsToDateString()}' AND  ClassOt <= '{end.EtmsToDateString()}' AND DeStudentCourseDetailId = {deStudentCourseDetailId}";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            return obj.ToInt();
+        }
     }
 }

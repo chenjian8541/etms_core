@@ -18,8 +18,22 @@ namespace ETMS.DataAccess
 {
     public class UserDAL : DataAccessBase<UserBucket>, IUserDAL
     {
-        public UserDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider) : base(dbWrapper, cacheProvider)
+        private readonly IUserAdminDAL _userAdminDAL;
+        public UserDAL(IDbWrapper dbWrapper, ICacheProvider cacheProvider, IUserAdminDAL userAdminDAL) : base(dbWrapper, cacheProvider)
         {
+            this._userAdminDAL = userAdminDAL;
+        }
+
+        public override void InitTenantId(int tenantId)
+        {
+            base.InitTenantId(tenantId);
+            this._userAdminDAL.InitTenantId(tenantId);
+        }
+
+        public override void ResetTenantId(int tenantId)
+        {
+            base.ResetTenantId(tenantId);
+            this._userAdminDAL.ResetTenantId(tenantId);
         }
 
         protected async override Task<UserBucket> GetDb(params object[] keys)
@@ -49,18 +63,6 @@ namespace ETMS.DataAccess
             };
         }
 
-        public async Task<EtUser> GetAdminUser()
-        {
-            var adminUser = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
-            && p.IsAdmin == true);
-            if (adminUser == null)
-            {
-                //防止admin账号被删除，正常情况下administrator是不允许被删除的
-                adminUser = await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
-            }
-            return adminUser;
-        }
-
         public async Task<EtUser> GetUser(long userId)
         {
             var userBucket = await base.GetCache(_tenantId, userId);
@@ -70,6 +72,11 @@ namespace ETMS.DataAccess
         public async Task<EtUser> GetUser(string phone)
         {
             return await _dbWrapper.Find<EtUser>(p => p.TenantId == _tenantId && p.Phone == phone && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<EtUser> GetAdminUser()
+        {
+            return await _userAdminDAL.GetAdminUser();
         }
 
         public async Task UpdateUserLastLoginTime(long userId, DateTime lastLoginTime)

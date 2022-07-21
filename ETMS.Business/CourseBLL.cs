@@ -120,7 +120,10 @@ namespace ETMS.Business
                         Points = p.Points.EtmsToPoints(),
                         Id = p.Id,
                         ExpiredType = p.ExpiredType,
-                        ExpiredValue = p.ExpiredValue
+                        ExpiredValue = p.ExpiredValue,
+                        ExLimitDeValue = p.ExLimitDeValue,
+                        ExLimitTimeType = p.ExLimitTimeType,
+                        ExLimitTimeValue = p.ExLimitTimeValue
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.ClassTimes);
@@ -142,7 +145,10 @@ namespace ETMS.Business
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
                         Points = p.Points.EtmsToPoints(),
-                        Id = p.Id
+                        Id = p.Id,
+                        ExLimitDeValue = p.ExLimitDeValue,
+                        ExLimitTimeType = p.ExLimitTimeType,
+                        ExLimitTimeValue = p.ExLimitTimeValue
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Month);
@@ -164,7 +170,10 @@ namespace ETMS.Business
                         TotalPrice = p.TotalPrice,
                         TenantId = tenantId,
                         Points = p.Points.EtmsToPoints(),
-                        Id = p.Id
+                        Id = p.Id,
+                        ExLimitDeValue = p.ExLimitDeValue,
+                        ExLimitTimeType = p.ExLimitTimeType,
+                        ExLimitTimeValue = p.ExLimitTimeValue
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Day);
@@ -268,7 +277,10 @@ namespace ETMS.Business
                             Points = p.Points,
                             IsCanModify = true,
                             ExpiredType = p.ExpiredType,
-                            ExpiredValue = p.ExpiredValue
+                            ExpiredValue = p.ExpiredValue,
+                            ExLimitDeValue = p.ExLimitDeValue,
+                            ExLimitTimeType = p.ExLimitTimeType,
+                            ExLimitTimeValue = p.ExLimitTimeValue
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {
@@ -296,7 +308,10 @@ namespace ETMS.Business
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
                             Points = p.Points,
-                            IsCanModify = true
+                            IsCanModify = true,
+                            ExLimitDeValue = p.ExLimitDeValue,
+                            ExLimitTimeType = p.ExLimitTimeType,
+                            ExLimitTimeValue = p.ExLimitTimeValue
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {
@@ -324,7 +339,10 @@ namespace ETMS.Business
                             Quantity = p.Quantity,
                             TotalPrice = p.TotalPrice,
                             Points = p.Points,
-                            IsCanModify = true
+                            IsCanModify = true,
+                            ExLimitDeValue = p.ExLimitDeValue,
+                            ExLimitTimeType = p.ExLimitTimeType,
+                            ExLimitTimeValue = p.ExLimitTimeValue
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {

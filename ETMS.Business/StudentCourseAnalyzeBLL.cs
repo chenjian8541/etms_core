@@ -426,6 +426,14 @@ namespace ETMS.Business
                 {
                     StudentId = request.StudentId
                 });
+                if (!request.IsNotProcessStudentCourseExTimeDe)
+                {
+                    _eventPublisher.Publish(new StudentCourseExTimeDeEvent(request.TenantId)
+                    {
+                        StudentId = request.StudentId,
+                        CourseId = request.CourseId
+                    });
+                }
             }
 
             return new CourseDetailAnalyzeRes()

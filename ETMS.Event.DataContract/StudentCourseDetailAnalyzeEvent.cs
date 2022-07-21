@@ -20,5 +20,7 @@ namespace ETMS.Event.DataContract
         public bool IsNeedCheckCourseIsNotEnough { get; set; }
 
         public bool IsJobExecute { get; set; }
+
+        public bool IsNotProcessStudentCourseExTimeDe { get; set; }
     }
 }
