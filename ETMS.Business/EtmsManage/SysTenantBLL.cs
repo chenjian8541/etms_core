@@ -1331,5 +1331,23 @@ namespace ETMS.Business.EtmsManage
             await _sysAgentLogDAL.AddSysAgentOpLog(request, remeak, EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> TenantChangeVersion(TenantChangeVersionRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            if (tenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (tenant.VersionId == request.NewVersionId)
+            {
+                return ResponseBase.CommonError("系统版本已修改");
+            }
+            tenant.VersionId = request.NewVersionId;
+            await _sysTenantDAL.EditTenant(tenant);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改机构系统版本:{tenant.Name}", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
     }
 }

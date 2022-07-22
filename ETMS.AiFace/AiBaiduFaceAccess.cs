@@ -101,7 +101,7 @@ namespace ETMS.AiFace
             }
             catch (Exception ex)
             {
-                LOG.Log.Error($"[AiBaiduInitGroup]错误：tenantId:{_tenantGroupId}", ex, this.GetType());
+                LOG.Log.Fatal($"[AiBaiduInitGroup]错误：tenantId:{_tenantGroupId}", ex, this.GetType());
             }
         }
 

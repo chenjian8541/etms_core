@@ -257,6 +257,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantChangeVersion(TenantChangeVersionRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantChangeVersion(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
         {
             try
