@@ -23,6 +23,9 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
         /// </summary>
         public bool IsHideKeFu { get; set; }
 
+        public string WebSiteTitle { get; set; }
+
+        public string KefuMobile { get; set; }
         public override string Validate()
         {
             if (TenantId <= 0)

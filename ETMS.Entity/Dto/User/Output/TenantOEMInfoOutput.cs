@@ -18,5 +18,9 @@ namespace ETMS.Entity.Dto.User.Output
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public bool IsHideKeFu { get; set; }
+
+        public string WebSiteTitle { get; set; }
+
+        public string KefuMobile { get; set; }
     }
 }

@@ -75,5 +75,7 @@ namespace ETMS.IBusiness.EtmsManage
         Task<ResponseBase> TenantEtmsLogRepeal(TenantEtmsLogRepealRequest request);
 
         Task<ResponseBase> TenantChangeVersion(TenantChangeVersionRequest request);
+
+        Task<ResponseBase> TenantChangeFileLimitMB(TenantChangeFileLimitMBRequest request);
     }
 }

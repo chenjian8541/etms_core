@@ -143,7 +143,8 @@ namespace ETMS.Business.EtmsManage
                     CloudStorageValueMB = p.CloudStorageValueMB,
                     LastRenewalTime = p.LastRenewalTime,
                     AgtPayType = p.AgtPayType,
-                    AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType)
+                    AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType),
+                    FileLimitMB = p.FileLimitMB
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -429,7 +430,8 @@ namespace ETMS.Business.EtmsManage
                 CloudStorageLimitGB = tenant.CloudStorageLimitGB,
                 CloudStorageValueMB = tenant.CloudStorageValueMB,
                 CloudStorageValueGB = tenant.CloudStorageValueGB,
-                LastRenewalTime = tenant.LastRenewalTime
+                LastRenewalTime = tenant.LastRenewalTime,
+                FileLimitMB = tenant.FileLimitMB
             };
             return ResponseBase.Success(output);
         }
@@ -498,6 +500,7 @@ namespace ETMS.Business.EtmsManage
                 LastRenewalTime = p.LastRenewalTime,
                 AgtPayType = p.AgtPayType,
                 AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType),
+                FileLimitMB = p.FileLimitMB
             };
             return ResponseBase.Success(output);
         }
@@ -1194,6 +1197,8 @@ namespace ETMS.Business.EtmsManage
             output.LoginBgUrl = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginBg);
             output.LoginLogo1Url = AliyunOssUtil.GetAccessUrlHttps(tenantOtherInfo.LoginLogo1);
             output.IsHideKeFu = tenantOtherInfo.IsHideKeFu == EmBool.True;
+            output.WebSiteTitle = tenantOtherInfo.WebSiteTitle;
+            output.KefuMobile = tenantOtherInfo.KefuMobile;
             return ResponseBase.Success(output);
         }
 
@@ -1210,7 +1215,9 @@ namespace ETMS.Business.EtmsManage
                 IsDeleted = EmIsDeleted.Normal,
                 Remark = string.Empty,
                 TenantId = request.TenantId,
-                IsHideKeFu = request.IsHideKeFu ? EmBool.True : EmBool.False
+                IsHideKeFu = request.IsHideKeFu ? EmBool.True : EmBool.False,
+                KefuMobile = request.KefuMobile,
+                WebSiteTitle = request.WebSiteTitle
             };
             await _sysTenantOtherInfoDAL.SaveTenantOtherInfo(entity);
             return ResponseBase.Success();
@@ -1347,6 +1354,20 @@ namespace ETMS.Business.EtmsManage
             await _sysTenantDAL.EditTenant(tenant);
 
             await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改机构系统版本:{tenant.Name}", EmSysAgentOpLogType.TenantMange);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantChangeFileLimitMB(TenantChangeFileLimitMBRequest request)
+        {
+            var tenant = await _sysTenantDAL.GetTenant(request.Id);
+            if (tenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            tenant.FileLimitMB = request.FileLimitMB;
+            await _sysTenantDAL.EditTenant(tenant);
+
+            await _sysAgentLogDAL.AddSysAgentOpLog(request, $"修改机构系统存储:{tenant.Name},{request.FileLimitMB}", EmSysAgentOpLogType.TenantMange);
             return ResponseBase.Success();
         }
     }

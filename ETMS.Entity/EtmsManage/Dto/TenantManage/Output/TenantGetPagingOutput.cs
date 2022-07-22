@@ -125,5 +125,7 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public int AgtPayType { get; set; }
 
         public string AgtPayTypeDesc { get; set; }
+
+        public int FileLimitMB { get; set; }
     }
 }

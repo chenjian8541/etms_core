@@ -270,6 +270,19 @@ namespace Etms.Agent.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantChangeFileLimitMB(TenantChangeFileLimitMBRequest request)
+        {
+            try
+            {
+                return await _sysTenantBLL.TenantChangeFileLimitMB(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> SysSmsLogPaging(SysSmsLogPagingRequest request)
         {
             try

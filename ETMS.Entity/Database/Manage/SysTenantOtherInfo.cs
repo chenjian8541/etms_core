@@ -25,5 +25,9 @@ namespace ETMS.Entity.Database.Manage
         /// <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte IsHideKeFu { get; set; }
+
+        public string WebSiteTitle { get; set; }
+
+        public string KefuMobile { get; set; }
     }
 }
