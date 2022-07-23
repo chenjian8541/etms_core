@@ -128,5 +128,14 @@ namespace ETMS.Utility
         {
             return birthday.ToString("MMdd").ToInt();
         }
+
+        /// <summary>
+        /// 获取GUID
+        /// </summary>
+        /// <returns></returns>
+        public static string GetGUID()
+        {
+            return Guid.NewGuid().ToString();
+        }
     }
 }

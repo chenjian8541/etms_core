@@ -94,6 +94,11 @@ namespace ETMS.Business
             var otherInfo = await _sysTenantOtherInfoDAL.GetSysTenantOtherInfo(tenantId);
             if (otherInfo != null)
             {
+                if (otherInfo.IsHideKeFu == EmBool.False && string.IsNullOrEmpty(otherInfo.HomeLogo1) &&
+                    string.IsNullOrEmpty(otherInfo.HomeLogo2) && string.IsNullOrEmpty(otherInfo.LoginBg) && string.IsNullOrEmpty(otherInfo.LoginLogo1))
+                {
+                    return null;
+                }
                 output = new TenantOEMInfoOutput()
                 {
                     HomeLogo1Url = AliyunOssUtil.GetAccessUrlHttps(otherInfo.HomeLogo1),

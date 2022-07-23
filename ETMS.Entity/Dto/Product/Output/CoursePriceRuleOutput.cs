@@ -56,5 +56,7 @@ namespace ETMS.Entity.Dto.Product.Output
         public int? ExLimitTimeValue { get; set; }
 
         public int? ExLimitDeValue { get; set; }
+
+        public string GuidStr { get; set; }
     }
 }

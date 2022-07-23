@@ -97,6 +97,15 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        private string GetGuid(string oldGuid)
+        {
+            if (string.IsNullOrEmpty(oldGuid))
+            {
+                return EtmsHelper3.GetGUID();
+            }
+            return oldGuid;
+        }
+
         private Tuple<List<EtCoursePriceRule>, byte, string> GetCoursePriceRule(CoursePriceRule coursePriceRule, long courseId, int tenantId)
         {
             var rules = new List<EtCoursePriceRule>();
@@ -123,7 +132,8 @@ namespace ETMS.Business
                         ExpiredValue = p.ExpiredValue,
                         ExLimitDeValue = p.ExLimitDeValue,
                         ExLimitTimeType = p.ExLimitTimeType,
-                        ExLimitTimeValue = p.ExLimitTimeValue
+                        ExLimitTimeValue = p.ExLimitTimeValue,
+                        GuidStr = GetGuid(p.GuidStr)
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.ClassTimes);
@@ -148,7 +158,8 @@ namespace ETMS.Business
                         Id = p.Id,
                         ExLimitDeValue = p.ExLimitDeValue,
                         ExLimitTimeType = p.ExLimitTimeType,
-                        ExLimitTimeValue = p.ExLimitTimeValue
+                        ExLimitTimeValue = p.ExLimitTimeValue,
+                        GuidStr = GetGuid(p.GuidStr)
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Month);
@@ -173,7 +184,8 @@ namespace ETMS.Business
                         Id = p.Id,
                         ExLimitDeValue = p.ExLimitDeValue,
                         ExLimitTimeType = p.ExLimitTimeType,
-                        ExLimitTimeValue = p.ExLimitTimeValue
+                        ExLimitTimeValue = p.ExLimitTimeValue,
+                        GuidStr = GetGuid(p.GuidStr)
                     });
                 }
                 priceTypes.Add(EmCoursePriceType.Day);
@@ -280,7 +292,8 @@ namespace ETMS.Business
                             ExpiredValue = p.ExpiredValue,
                             ExLimitDeValue = p.ExLimitDeValue,
                             ExLimitTimeType = p.ExLimitTimeType,
-                            ExLimitTimeValue = p.ExLimitTimeValue
+                            ExLimitTimeValue = p.ExLimitTimeValue,
+                            GuidStr = p.GuidStr
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {
@@ -311,7 +324,8 @@ namespace ETMS.Business
                             IsCanModify = true,
                             ExLimitDeValue = p.ExLimitDeValue,
                             ExLimitTimeType = p.ExLimitTimeType,
-                            ExLimitTimeValue = p.ExLimitTimeValue
+                            ExLimitTimeValue = p.ExLimitTimeValue,
+                            GuidStr = p.GuidStr
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {
@@ -342,7 +356,8 @@ namespace ETMS.Business
                             IsCanModify = true,
                             ExLimitDeValue = p.ExLimitDeValue,
                             ExLimitTimeType = p.ExLimitTimeType,
-                            ExLimitTimeValue = p.ExLimitTimeValue
+                            ExLimitTimeValue = p.ExLimitTimeValue,
+                            GuidStr = p.GuidStr
                         };
                         if (suitUsedPriceRuleIds.Any())
                         {

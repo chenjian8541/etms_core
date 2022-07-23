@@ -54,5 +54,7 @@ namespace ETMS.Entity.Database.Source
         public byte? ExpiredType { get; set; }
 
         public int? ExpiredValue { get; set; }
+
+        public string GuidStr { get; set; }
     }
 }

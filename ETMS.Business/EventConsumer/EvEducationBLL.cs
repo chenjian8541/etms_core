@@ -637,7 +637,7 @@ namespace ETMS.Business.EventConsumer
                 {
                     continue;
                 }
-                var myPriceRule = myExLimitRule.FirstOrDefault(j => p.PriceRuleId == j.Id);
+                var myPriceRule = myExLimitRule.FirstOrDefault(j => p.PriceRuleGuidStr == j.GuidStr);
                 if (myPriceRule == null)
                 {
                     continue;

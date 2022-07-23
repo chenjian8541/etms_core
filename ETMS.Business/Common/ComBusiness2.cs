@@ -181,7 +181,8 @@ namespace ETMS.Business.Common
                 TotalMoney = enrolmentCourse.ItemAptSum,
                 UseQuantity = 0,
                 UseUnit = useUnit,
-                PriceRuleId = priceRule.Id
+                PriceRuleId = priceRule.Id,
+                PriceRuleGuidStr = priceRule.GuidStr
             };
         }
 
@@ -270,7 +271,8 @@ namespace ETMS.Business.Common
                 BuyType = buyType,
                 StudentId = studentId,
                 OrderType = orderType,
-                PriceRuleId = priceRule.Id
+                PriceRuleId = priceRule.Id,
+                PriceRuleGuidStr = priceRule.GuidStr
             }, ruleDesc);
         }
 

@@ -35,6 +35,8 @@ namespace ETMS.Entity.Dto.Product.Request
 
         public int? ExLimitDeValue { get; set; }
 
+        public string GuidStr { get; set; }
+
         public string Validate()
         {
             if (string.IsNullOrEmpty(Name))

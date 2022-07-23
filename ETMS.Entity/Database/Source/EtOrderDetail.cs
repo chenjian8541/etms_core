@@ -137,5 +137,7 @@ namespace ETMS.Entity.Database.Source
         public string Remark { get; set; }
 
         public long? PriceRuleId { get; set; }
+
+        public string PriceRuleGuidStr { get; set; }
     }
 }

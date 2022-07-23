@@ -112,7 +112,7 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.FindList<EtStudentCourseDetail>(p => p.TenantId == _tenantId && p.StudentId == studentId
             && p.IsDeleted == EmIsDeleted.Normal && p.CourseId == courseId && p.Status == EmStudentCourseStatus.Normal
-            && p.DeType != EmDeClassTimesType.ClassTimes && p.PriceRuleId != null && p.EndTime != null);
+            && p.DeType != EmDeClassTimesType.ClassTimes && !string.IsNullOrEmpty(p.PriceRuleGuidStr) && p.EndTime != null);
         }
 
         public async Task<IEnumerable<StudentBuyCourse>> GetStudentBuyCourseId(long studentId)

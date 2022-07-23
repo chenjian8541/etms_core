@@ -586,6 +586,7 @@ namespace ETMS.Business
         public async Task<ResponseBase> ParentLoginout(ParentLoginoutRequest request)
         {
             _studentWechatDAL.InitTenantId(request.LoginTenantId);
+            _studentOperationLogDAL.InitTenantId(request.LoginTenantId);
             var myStudentWechat = await _studentWechatDAL.GetStudentWechatByPhone(request.LoginPhone);
             if (myStudentWechat != null)
             {
