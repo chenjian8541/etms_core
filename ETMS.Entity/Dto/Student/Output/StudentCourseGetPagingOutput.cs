@@ -109,5 +109,10 @@ namespace ETMS.Entity.Dto.Student.Output
         public string LearningManagerDesc { get; set; }
 
         public string ExTimeDesc { get; set; }
+
+        /// <summary>
+        /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
+        /// </summary>
+        public byte? Gender { get; set; }
     }
 }

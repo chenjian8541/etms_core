@@ -133,6 +133,7 @@ namespace ETMS.Business
                     StudentId = p.StudentId,
                     Value = p.StudentId,
                     Label = p.StudentName,
+                    Gender = p.Gender,
                     ExTimeDesc = ComBusiness4.GetStudentCourseExDateDesc(p.Status, p.DeType, p.StartTime, p.EndTime)
                 };
                 if (request.IsLoadRich)

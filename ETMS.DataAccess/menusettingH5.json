@@ -63,6 +63,15 @@
     "CategoryId": 2
   },
   {
+    "Id": 24,
+    "Name": "班级管理",
+    "Icon": "system/material/teacher/menus/74.png",
+    "PageId": 20,
+    "ActionId": 0,
+    "Sort": 74,
+    "CategoryId": 2
+  },
+  {
     "Id": 8,
     "Name": "我的课表",
     "Icon": "system/material/teacher/menus/80.png",

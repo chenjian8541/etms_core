@@ -112,6 +112,10 @@ namespace ETMS.Entity.View
 
         public string StudentName { get; set; }
 
+        /// <summary>
+        /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
+        /// </summary>
+        public byte? Gender { get; set; }
         public string StudentPhone { get; set; }
 
         /// <summary>
