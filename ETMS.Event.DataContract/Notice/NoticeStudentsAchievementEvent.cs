@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Database.Source;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,7 @@ namespace ETMS.Event.DataContract
         { }
 
         public long AchievementId { get; set; }
+
+        public List<EtAchievementDetail> AchievementDetailList { get; set; }
     }
 }

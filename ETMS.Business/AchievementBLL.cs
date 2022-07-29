@@ -113,6 +113,7 @@ namespace ETMS.Business
             var myAchievementDetail = await _achievementDAL.GetAchievementDetail(request.CId);
             if (myAchievementDetail.Any())
             {
+                var tempDetail = myAchievementDetail.OrderBy(p => p.RankMy);
                 foreach (var item in myAchievementDetail)
                 {
                     var studentBucket = await _studentDAL.GetStudent(item.StudentId);
