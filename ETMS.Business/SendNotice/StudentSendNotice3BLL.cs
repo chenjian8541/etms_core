@@ -684,5 +684,8 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeStudentMessage(req);
             }
         }
+
+        public async Task NoticeStudentsAchievementConsumerEvent(NoticeStudentsAchievementEvent request)
+        { }
     }
 }

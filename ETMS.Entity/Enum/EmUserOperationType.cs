@@ -182,6 +182,9 @@ namespace ETMS.Entity.Enum
         StudentSmsBatchSend = 87,
 
         [Description("小禾招生")]
-        Activity = 88
+        Activity = 88,
+
+        [Description("成绩单")]
+        Achievement = 89
     }
 }

@@ -81,6 +81,15 @@ namespace ETMS.DataAccess.SysOp
             return true;
         }
 
+        public async Task<bool> ClearAchievement()
+        {
+            var sql = new StringBuilder();
+            sql.Append($"UPDATE EtAchievement SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtAchievementDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            await _dbWrapper.Execute(sql.ToString());
+            return true;
+        }
+
         #endregion
 
         #region 营销中心

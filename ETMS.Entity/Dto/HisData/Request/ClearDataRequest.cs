@@ -193,6 +193,11 @@ namespace ETMS.Entity.Dto.HisData.Request
         /// </summary>
         public bool IsClearElectronicAlbum { get; set; }
 
+        /// <summary>
+        /// 是否清除成绩单
+        /// </summary>
+        public bool IsClearAchievement { get; set; }
+
         #endregion
     }
 }

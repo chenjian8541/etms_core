@@ -21,6 +21,8 @@ namespace ETMS.IDataAccess.SysOp
 
         Task<bool> ClearElectronicAlbum();
 
+        Task<bool> ClearAchievement();
+
         #endregion
 
         #region 营销中心

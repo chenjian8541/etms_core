@@ -209,6 +209,10 @@ namespace ETMS.Business.SysOp
             {
                 await this.ClearActivity(request.LoginTenantId);
             }
+            if (request.IsClearAchievement)
+            {
+                await this.ClearAchievement();
+            }
 
             var totalCount = limitBucket == null ? 0 : limitBucket.TotalCount;
             _tempDataCacheDAL.SetClearDataBucket(request.LoginTenantId, now, ++totalCount);
@@ -294,6 +298,7 @@ namespace ETMS.Business.SysOp
 
             await _sysDataClearDAL.ClearStudentCheckLog();
             await _sysDataClearDAL.ClearStudentAccountRecharge();
+            await _sysDataClearDAL.ClearAchievement();
             return true;
         }
 
@@ -593,6 +598,15 @@ namespace ETMS.Business.SysOp
         {
             await _sysDataClearDAL.ClearElectronicAlbum();
             return true;
+        }
+
+        /// <summary>
+        /// 清除成绩单
+        /// </summary>
+        /// <returns></returns>
+        public async Task ClearAchievement()
+        {
+            await _sysDataClearDAL.ClearAchievement();
         }
         #endregion
     }
