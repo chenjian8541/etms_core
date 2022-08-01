@@ -24,7 +24,7 @@ namespace ETMS.Entity.Enum.EtmsManage
         public const int FinishFull = 2;
 
         /// <summary>
-        /// 已过期
+        /// 已结束
         /// </summary>
         public const int Expired = 3;
 
@@ -41,7 +41,7 @@ namespace ETMS.Entity.Enum.EtmsManage
         {
             if (t == Going && DateTime.Now >= endTime)
             {
-                return "已过期";
+                return "已结束";
             }
             if (activityType == EmActivityType.Haggling)
             {
@@ -53,7 +53,7 @@ namespace ETMS.Entity.Enum.EtmsManage
                     case FinishFull:
                         return "砍价成功";
                     case Expired:
-                        return "已过期";
+                        return "已结束";
                 }
                 return string.Empty;
             }
@@ -66,7 +66,7 @@ namespace ETMS.Entity.Enum.EtmsManage
                 case FinishFull:
                     return "已满团";
                 case Expired:
-                    return "已过期";
+                    return "已结束";
             }
             return string.Empty;
         }

@@ -28,6 +28,8 @@ namespace ETMS.Entity.Database.Source
 
         public int StudentMissCount { get; set; }
 
+        public int StudenReadCount { get; set; }
+
         public DateTime ExamOt { get; set; }
 
         /// <summary>

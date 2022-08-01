@@ -39,6 +39,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> AchievementDetailGetPaging(AchievementDetailGetPagingRequest request)
+        {
+            try
+            {
+                _achievementBLL.InitTenantId(request.LoginTenantId);
+                return await _achievementBLL.AchievementDetailGetPaging(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> AchievementGet(AchievementGetRequest request)
         {
             try

@@ -7,13 +7,15 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Educational3.Request
 {
-    public class AchievementGetPagingRequest : RequestPagingBase, IDataLimit
+    public class AchievementDetailGetPagingRequest : RequestPagingBase, IDataLimit
     {
         public string Name { get; set; }
 
+        public long? StudentId { get; set; }
+
         public long? SubjectId { get; set; }
 
-        public byte? Status { get; set; }
+        public byte? CheckStatus { get; set; }
 
         /// <summary>
         /// 查询时间
@@ -76,13 +78,17 @@ namespace ETMS.Entity.Dto.Educational3.Request
             {
                 condition.Append($" AND Name LIKE '%{Name}%'");
             }
+            if (StudentId != null)
+            {
+                condition.Append($" AND StudentId = {StudentId}");
+            }
             if (SubjectId != null)
             {
                 condition.Append($" AND SubjectId = {SubjectId}");
             }
-            if (Status != null)
+            if (CheckStatus != null)
             {
-                condition.Append($" AND [Status] = {Status}");
+                condition.Append($" AND [CheckStatus] = {CheckStatus}");
             }
             if (StartOt != null)
             {

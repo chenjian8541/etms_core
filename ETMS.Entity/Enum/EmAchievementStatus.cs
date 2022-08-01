@@ -20,7 +20,7 @@ namespace ETMS.Entity.Enum
 
         public static string GetAchievementStatusDesc(int t)
         {
-            return t == Save ? "保存" : "发布";
+            return t == Save ? "未发布" : "已发布";
         }
     }
 }

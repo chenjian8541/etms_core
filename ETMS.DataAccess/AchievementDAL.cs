@@ -117,5 +117,10 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtAchievement>("EtAchievement", "*", request.PageSize, request.PageCurrent, "ExamOt DESC", request.ToString());
         }
+
+        public async Task<Tuple<IEnumerable<EtAchievementDetail>, int>> GetPagingDetail(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtAchievementDetail>("EtAchievementDetail", "*", request.PageSize, request.PageCurrent, "ExamOt DESC", request.ToString());
+        }
     }
 }

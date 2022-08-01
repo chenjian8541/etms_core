@@ -556,6 +556,41 @@
         }
       },
       {
+        "Id": 112,
+        "Path": "achievement",
+        "Name": "achievement",
+        "Type": 1,
+        "Component": "@/views/Interaction/achievement",
+        "Meta": {
+          "Title": "成绩单",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "achievementEdit/:cid",
+        "Name": "achievementEdit",
+        "Type": 1,
+        "Component": "@/components/achievement/op/EditAchievement",
+        "Meta": {
+          "Title": "编辑成绩表",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
+        "Path": "achievementCreate",
+        "Name": "achievementCreate",
+        "Type": 1,
+        "Component": "@/components/achievement/op/CreateAchievement",
+        "Meta": {
+          "Title": "新建成绩表",
+          "Icon": "item"
+        }
+      },
+      {
         "Id": 73,
         "Path": "notice",
         "Name": "notice",

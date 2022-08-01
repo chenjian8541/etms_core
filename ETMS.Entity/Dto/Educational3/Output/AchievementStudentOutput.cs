@@ -24,5 +24,10 @@ namespace ETMS.Entity.Dto.Educational3.Output
         public string Comment { get; set; }
 
         public bool IsChanged { get; set; }
+
+        /// <summary>
+        ///  <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte ReadStatus { get; set; }
     }
 }

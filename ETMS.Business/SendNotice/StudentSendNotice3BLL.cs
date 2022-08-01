@@ -56,11 +56,12 @@ namespace ETMS.Business.SendNotice
 
         private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
 
+        private readonly IAchievementDAL _achievementDAL;
         public StudentSendNotice3BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, ISmsService smsService,
             ITenantConfigDAL tenantConfigDAL, IStudentDAL studentDAL, ICouponsDAL couponsDAL, IParentStudentDAL parentStudentDAL,
             IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
             IUserSendNoticeBLL userSendNoticeBLL, IActiveGrowthRecordDAL activeGrowthRecordDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL,
-            IElectronicAlbumDetailDAL electronicAlbumDetailDAL)
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IAchievementDAL achievementDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._wxService = wxService;
@@ -78,6 +79,7 @@ namespace ETMS.Business.SendNotice
             this._activeGrowthRecordDAL = activeGrowthRecordDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
+            this._achievementDAL = achievementDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -87,7 +89,7 @@ namespace ETMS.Business.SendNotice
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this._userSendNoticeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _tenantConfigDAL, _studentDAL, _couponsDAL,
-                _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL, _activeGrowthRecordDAL, _electronicAlbumDetailDAL);
+                _parentStudentDAL, _classTimesDAL, _classDAL, _courseDAL, _activeGrowthRecordDAL, _electronicAlbumDetailDAL, _achievementDAL);
         }
 
         public async Task NoticeStudentCouponsGetConsumerEvent(NoticeStudentCouponsGetEvent request)
@@ -686,6 +688,70 @@ namespace ETMS.Business.SendNotice
         }
 
         public async Task NoticeStudentsAchievementConsumerEvent(NoticeStudentsAchievementEvent request)
-        { }
+        {
+            var achievementDetailList = request.AchievementDetailList;
+            if (achievementDetailList == null)
+            {
+                achievementDetailList = await _achievementDAL.GetAchievementDetail(request.AchievementId);
+            }
+            if (!achievementDetailList.Any())
+            {
+                return;
+            }
+            var firstLog = achievementDetailList.First();
+
+            var req = new NoticeStudentMessageRequest(await GetNoticeRequestBase(request.TenantId, true))
+            {
+                Title = "您收到一份成绩单，请查看",
+                Content = firstLog.Name,
+                OtDesc = firstLog.ExamOt.EtmsToDateString(),
+                Students = new List<NoticeStudentMessageStudent>()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var studentAchievementDetailDetailUrl = wxConfig.TemplateNoticeConfig.StudentAchievementDetailDetailUrl;
+            var tenantNo = TenantLib.GetTenantEncrypt(request.TenantId);
+            foreach (var myItem in achievementDetailList)
+            {
+                var studentBucket = await _studentDAL.GetStudent(myItem.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                var url = string.Format(studentAchievementDetailDetailUrl, tenantNo, myItem.Id);
+                req.Students.Add(new NoticeStudentMessageStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Url = url
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentMessageStudent()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Url = url
+                    });
+                }
+            }
+
+            if (req.Students.Any())
+            {
+                _wxService.NoticeStudentMessage(req);
+            }
+        }
     }
 }

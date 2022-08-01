@@ -30,6 +30,8 @@ namespace ETMS.Entity.Dto.Educational3.Output
 
         public int StudentMissCount { get; set; }
 
+        public int StudenReadCount { get; set; }
+
         public string ExamOt { get; set; }
 
         /// <summary>
@@ -55,5 +57,10 @@ namespace ETMS.Entity.Dto.Educational3.Output
         public byte Status { get; set; }
 
         public string StatusDesc { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsCalculate { get; set; }
     }
 }

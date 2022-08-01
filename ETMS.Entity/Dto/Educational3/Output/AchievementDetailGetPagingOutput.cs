@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
-using ETMS.Entity.Enum.EtmsManage;
-using ETMS.Entity.Enum;
+using System.Threading.Tasks;
 
-namespace ETMS.Entity.Database.Source
+namespace ETMS.Entity.Dto.Educational3.Output
 {
-    [Table("EtAchievementDetail")]
-    public class EtAchievementDetail : Entity<long>
+    public class AchievementDetailGetPagingOutput
     {
+        public long CId { get; set; }
+
         public long AchievementId { get; set; }
 
         public long StudentId { get; set; }
 
+        public string StudentName { get; set; }
+
         public string Name { get; set; }
 
         public long SubjectId { get; set; }
+
+        public string SubjectName { get; set; }
 
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmAchievementDetailCheckStatus"/>
@@ -31,7 +35,7 @@ namespace ETMS.Entity.Database.Source
 
         public string Comment { get; set; }
 
-        public DateTime ExamOt { get; set; }
+        public string ExamOt { get; set; }
 
         /// <summary>
         /// <see cref="ETMS.Entity.Enum.EmAchievementSourceType"/>
@@ -58,8 +62,5 @@ namespace ETMS.Entity.Database.Source
         /// </summary>
         public byte ReadStatus { get; set; }
 
-        public DateTime CreateTime { get; set; }
-
-        public long UserId { get; set; }
     }
 }

@@ -34,5 +34,7 @@ namespace ETMS.IDataAccess
         Task<List<EtAchievementDetail>> GetAchievementDetail(long achievementId);
 
         Task<Tuple<IEnumerable<EtAchievement>, int>> GetPaging(IPagingRequest request);
+
+        Task<Tuple<IEnumerable<EtAchievementDetail>, int>> GetPagingDetail(IPagingRequest request);
     }
 }

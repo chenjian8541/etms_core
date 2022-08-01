@@ -33,6 +33,7 @@ namespace ETMS.Business
         private readonly IUserOperationLogDAL _userOperationLogDAL;
 
         private readonly IEventPublisher _eventPublisher;
+
         public AchievementBLL(IAchievementDAL achievementDAL, ISubjectDAL subjectDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL,
             IEventPublisher eventPublisher)
         {
@@ -77,11 +78,55 @@ namespace ETMS.Business
                         StudentInCount = p.StudentInCount,
                         StudentMissCount = p.StudentMissCount,
                         SubjectId = p.SubjectId,
-                        SubjectName = mySubject?.Name
+                        SubjectName = mySubject?.Name,
+                        IsCalculate = p.IsCalculate,
+                        StudenReadCount = p.StudenReadCount,
                     });
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<AchievementGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> AchievementDetailGetPaging(AchievementDetailGetPagingRequest request)
+        {
+            var pagingData = await _achievementDAL.GetPagingDetail(request);
+            var output = new List<AchievementDetailGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var allSubject = await _subjectDAL.GetAllSubject();
+                var tempBoxStudent = new DataTempBox<EtStudent>();
+                foreach (var p in pagingData.Item1)
+                {
+                    var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, p.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    var mySubject = allSubject.FirstOrDefault(j => j.Id == p.SubjectId);
+                    output.Add(new AchievementDetailGetPagingOutput()
+                    {
+                        ShowRankParent = p.ShowRankParent,
+                        ShowParent = p.ShowParent,
+                        AchievementId = p.AchievementId,
+                        CheckStatus = p.CheckStatus,
+                        Comment = p.Comment,
+                        ExamOt = p.ExamOt.EtmsToDateString(),
+                        Name = p.Name,
+                        RankMy = p.RankMy,
+                        ReadStatus = p.ReadStatus,
+                        ScoreMy = p.ScoreMy,
+                        ScoreTotal = p.ScoreTotal,
+                        SourceType = p.SourceType,
+                        Status = p.Status,
+                        StudentId = p.StudentId,
+                        StudentName = myStudent.Name,
+                        SubjectId = p.SubjectId,
+                        SubjectName = mySubject?.Name,
+                        CId = p.Id,
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<AchievementDetailGetPagingOutput>(pagingData.Item2, output));
         }
 
         public async Task<ResponseBase> AchievementGet(AchievementGetRequest request)
@@ -114,7 +159,7 @@ namespace ETMS.Business
             if (myAchievementDetail.Any())
             {
                 var tempDetail = myAchievementDetail.OrderBy(p => p.RankMy);
-                foreach (var item in myAchievementDetail)
+                foreach (var item in tempDetail)
                 {
                     var studentBucket = await _studentDAL.GetStudent(item.StudentId);
                     if (studentBucket == null || studentBucket.Student == null)
@@ -128,7 +173,8 @@ namespace ETMS.Business
                         ScoreMy = item.ScoreMy,
                         StudentId = item.StudentId,
                         StudentName = studentBucket.Student.Name,
-                        StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType)
+                        StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType),
+                        ReadStatus = item.ReadStatus,
                     });
                 }
             }

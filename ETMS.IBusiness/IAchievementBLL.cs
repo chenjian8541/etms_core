@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace ETMS.IBusiness
 {
-    public interface IAchievementBLL: IBaseBLL
+    public interface IAchievementBLL : IBaseBLL
     {
         Task<ResponseBase> AchievementGetPaging(AchievementGetPagingRequest request);
+
+        Task<ResponseBase> AchievementDetailGetPaging(AchievementDetailGetPagingRequest request);
 
         Task<ResponseBase> AchievementGet(AchievementGetRequest request);
 
