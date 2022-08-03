@@ -172,6 +172,7 @@ namespace ETMS.Business
                     }
                     output.Students.Add(new AchievementStudentOutput()
                     {
+                        DetailId = item.Id,
                         CheckStatus = item.CheckStatus,
                         Comment = item.Comment,
                         ScoreMy = item.ScoreMy,
@@ -353,7 +354,7 @@ namespace ETMS.Business
                 }
             }
 
-            if (isChanged || p.Name != request.Name || p.ShowRankParent != request.ShowRankParent)
+            if (isChanged || p.Name != request.Name || p.ShowRankParent != request.ShowRankParent || p.ShowParent != request.ShowParent)
             {
                 if (isChanged)
                 {
@@ -361,10 +362,11 @@ namespace ETMS.Business
                 }
                 p.Name = request.Name;
                 p.ShowRankParent = request.ShowRankParent;
+                p.ShowParent = request.ShowParent;
                 await _achievementDAL.EditAchievement(p);
-                if (p.Name != request.Name || p.ShowRankParent != request.ShowRankParent)
+                if (p.Name != request.Name || p.ShowRankParent != request.ShowRankParent || p.ShowParent != request.ShowParent)
                 {
-                    await _achievementDAL.UpdateAchievementDetail(request.CId, request.Name, request.ShowRankParent);
+                    await _achievementDAL.UpdateAchievementDetail(request.CId, request.Name, request.ShowRankParent, request.ShowParent);
                 }
                 isChanged = true;
             }

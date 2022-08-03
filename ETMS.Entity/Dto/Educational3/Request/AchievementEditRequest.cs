@@ -13,6 +13,8 @@ namespace ETMS.Entity.Dto.Educational3.Request
 
         public byte ShowRankParent { get; set; }
 
+        public byte ShowParent { get; set; }
+
         public AchievementStudentChange StudentChange { get; set; }
 
         public override string Validate()
@@ -21,7 +23,7 @@ namespace ETMS.Entity.Dto.Educational3.Request
             {
                 return "请求数据格式错误";
             }
-            if (!string.IsNullOrEmpty(Name))
+            if (string.IsNullOrEmpty(Name))
             {
                 return "请输入考试名称";
             }

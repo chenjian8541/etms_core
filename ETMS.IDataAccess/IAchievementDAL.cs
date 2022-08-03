@@ -23,7 +23,7 @@ namespace ETMS.IDataAccess
 
         Task EditAchievementDetails(List<EtAchievementDetail> details);
 
-        Task UpdateAchievementDetail(long achievementId, string name, byte showRankParent);
+        Task UpdateAchievementDetail(long achievementId, string name, byte showRankParent,byte showParent);
 
         Task DelAchievementDetail(List<long> ids);
 

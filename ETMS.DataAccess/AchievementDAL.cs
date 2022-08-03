@@ -68,10 +68,10 @@ namespace ETMS.DataAccess
             await _dbWrapper.UpdateRange(details);
         }
 
-        public async Task UpdateAchievementDetail(long achievementId, string name, byte showRankParent)
+        public async Task UpdateAchievementDetail(long achievementId, string name, byte showRankParent, byte showParent)
         {
             await _dbWrapper.Execute(
-                $"UPDATE EtAchievementDetail SET Name = '{name}',ShowRankParent = {showRankParent} WHERE TenantId = {_tenantId} AND AchievementId = {achievementId}");
+                $"UPDATE EtAchievementDetail SET Name = '{name}',ShowRankParent = {showRankParent},ShowParent = {showParent} WHERE TenantId = {_tenantId} AND AchievementId = {achievementId}");
         }
 
         public async Task DelAchievementDetail(List<long> ids)

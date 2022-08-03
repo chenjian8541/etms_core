@@ -8,6 +8,8 @@ namespace ETMS.Entity.Dto.Educational3.Output
 {
     public class AchievementStudentOutput
     {
+        public long DetailId { get; set; }
+
         public string StudentName { get; set; }
 
         public string StudentPhone { get; set; }
