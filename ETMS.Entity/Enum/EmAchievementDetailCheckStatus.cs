@@ -17,5 +17,10 @@ namespace ETMS.Entity.Enum
         /// 参加考试
         /// </summary>
         public const byte Join = 1;
+
+        public static string GetAchievementDetailCheckStatusDesc(byte t)
+        {
+            return t == NotArrived ? "缺勤" : "参加考试";
+        }
     }
 }

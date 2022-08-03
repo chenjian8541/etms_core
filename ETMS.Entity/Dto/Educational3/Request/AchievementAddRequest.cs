@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace ETMS.Entity.Dto.Educational3.Request
 {
-    public class AchievementAddRequest: RequestBase
+    public class AchievementAddRequest : RequestBase
     {
         public string Name { get; set; }
 
@@ -46,6 +47,11 @@ namespace ETMS.Entity.Dto.Educational3.Request
             if (Students == null || Students.Count == 0)
             {
                 return "请选择考试学员";
+            }
+            var moreThanScoreTotal = Students.FirstOrDefault(j => j.ScoreMy > this.ScoreTotal);
+            if (moreThanScoreTotal != null)
+            {
+                return "学员分数不能超过满分";
             }
             return base.Validate();
         }

@@ -123,6 +123,7 @@ namespace ETMS.Business
                         SubjectId = p.SubjectId,
                         SubjectName = mySubject?.Name,
                         CId = p.Id,
+                        CheckStatusDesc = EmAchievementDetailCheckStatus.GetAchievementDetailCheckStatusDesc(p.CheckStatus)
                     });
                 }
             }
@@ -136,6 +137,8 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("成绩单不存在");
             }
+            var allSubject = await _subjectDAL.GetAllSubject();
+            var mySubject = allSubject.FirstOrDefault(j => j.Id == p.SubjectId);
             var output = new AchievementGetOutput()
             {
                 CId = p.Id,
@@ -153,7 +156,8 @@ namespace ETMS.Business
                 StudentInCount = p.StudentInCount,
                 StudentMissCount = p.StudentMissCount,
                 SubjectId = p.SubjectId,
-                Students = new List<AchievementStudentOutput>()
+                Students = new List<AchievementStudentOutput>(),
+                SubjectDesc = mySubject?.Name
             };
             var myAchievementDetail = await _achievementDAL.GetAchievementDetail(request.CId);
             if (myAchievementDetail.Any())
@@ -175,6 +179,7 @@ namespace ETMS.Business
                         StudentName = studentBucket.Student.Name,
                         StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType),
                         ReadStatus = item.ReadStatus,
+                        RankMy = item.RankMy
                     });
                 }
             }
@@ -269,10 +274,19 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("成绩单不存在");
             }
+
             var isChanged = false;
             if (request.StudentChange != null)
             {
                 var studentChange = request.StudentChange;
+                if (studentChange.Edits != null && studentChange.Edits.Any())
+                {
+                    var moreThanScoreTotal = studentChange.Edits.FirstOrDefault(j => j.ScoreMy > p.ScoreTotal);
+                    if (moreThanScoreTotal != null)
+                    {
+                        return ResponseBase.CommonError("学员分数不能超过满分");
+                    }
+                }
                 if (studentChange.DelDetailIds != null && studentChange.DelDetailIds.Any())
                 {
                     await _achievementDAL.DelAchievementDetail(studentChange.DelDetailIds);

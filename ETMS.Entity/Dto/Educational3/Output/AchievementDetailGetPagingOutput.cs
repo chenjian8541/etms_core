@@ -27,6 +27,7 @@ namespace ETMS.Entity.Dto.Educational3.Output
         /// </summary>
         public byte CheckStatus { get; set; }
 
+        public string CheckStatusDesc { get; set; }
         public decimal ScoreTotal { get; set; }
 
         public decimal ScoreMy { get; set; }

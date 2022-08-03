@@ -29,5 +29,7 @@ namespace ETMS.Entity.Dto.Educational3.Output
         ///  <see cref="ETMS.Entity.Enum.EmBool"/>
         /// </summary>
         public byte ReadStatus { get; set; }
+
+        public int RankMy { get; set; }
     }
 }

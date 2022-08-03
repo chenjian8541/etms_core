@@ -14,6 +14,8 @@ namespace ETMS.Entity.Dto.Educational3.Output
 
         public long SubjectId { get; set; }
 
+        public string SubjectDesc { get; set; }
+
         public decimal ScoreTotal { get; set; }
 
         public decimal ScoreMax { get; set; }

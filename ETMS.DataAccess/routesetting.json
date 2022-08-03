@@ -581,6 +581,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "detailAchievement/:cid",
+        "Name": "detailAchievement",
+        "Type": 1,
+        "Component": "@/components/achievement/op/detailAchievement",
+        "Meta": {
+          "Title": "成绩表详情",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "achievementCreate",
         "Name": "achievementCreate",
         "Type": 1,
