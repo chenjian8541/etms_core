@@ -50,11 +50,14 @@ namespace ETMS.Business.Parent
 
         private readonly IActivityRouteDAL _activityRouteDAL;
 
+        private readonly IAchievementDAL _achievementDAL;
+
+        private readonly ISubjectDAL _subjectDAL;
         public ParentData5BLL(IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             ITeacherSchooltimeConfigDAL teacherSchooltimeConfigDAL, ICourseDAL courseDAL,
             IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IAppConfig2BLL appConfig2BLL,
             IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL,
-            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL)
+            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL, IAchievementDAL achievementDAL, ISubjectDAL subjectDAL)
         {
             this._classDAL = classDAL;
             this._userDAL = userDAL;
@@ -69,6 +72,8 @@ namespace ETMS.Business.Parent
             this._tryCalssApplyLogDAL = tryCalssApplyLogDAL;
             this._activityMainDAL = activityMainDAL;
             this._activityRouteDAL = activityRouteDAL;
+            this._achievementDAL = achievementDAL;
+            this._subjectDAL = subjectDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -76,7 +81,7 @@ namespace ETMS.Business.Parent
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _userDAL, _studentDAL, _teacherSchooltimeConfigDAL,
                 _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL, _tryCalssApplyLogDAL,
-                _activityMainDAL, _activityRouteDAL);
+                _activityMainDAL, _activityRouteDAL, _achievementDAL, _subjectDAL);
         }
 
         public async Task<ResponseBase> StudentReservation1v1Check(StudentReservation1v1CheckRequest request)
@@ -813,6 +818,38 @@ namespace ETMS.Business.Parent
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActivityMyGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> AchievementDetailGetPaging(AchievementDetailGetPagingRequest request)
+        {
+            var pagingData = await _achievementDAL.GetPagingDetail(request);
+            var output = new List<AchievementDetailGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                var myAllSubject = await _subjectDAL.GetAllSubject();
+                foreach (var p in pagingData.Item1)
+                {
+                    var studentBucket = await _studentDAL.GetStudent(p.StudentId);
+                    if (studentBucket == null || studentBucket.Student == null)
+                    {
+                        continue;
+                    }
+                    var mySubject = myAllSubject.FirstOrDefault(a => a.Id == p.SubjectId);
+                    output.Add(new AchievementDetailGetPagingOutput()
+                    {
+                        CheckStatus = p.CheckStatus,
+                        CId = p.Id,
+                        Comment = p.Comment,
+                        ExamOt = p.ExamOt.EtmsToDateString(),
+                        Name = p.Name,
+                        ScoreMy = p.ScoreMy.EtmsToString3(),
+                        ScoreTotal = p.ScoreTotal.EtmsToString3(),
+                        StudentName = studentBucket.Student.Name,
+                        SubjectName = mySubject?.Name
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<AchievementDetailGetPagingOutput>(pagingData.Item2, output));
         }
     }
 }

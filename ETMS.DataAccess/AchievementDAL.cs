@@ -74,6 +74,15 @@ namespace ETMS.DataAccess
                 $"UPDATE EtAchievementDetail SET Name = '{name}',ShowRankParent = {showRankParent},ShowParent = {showParent} WHERE TenantId = {_tenantId} AND AchievementId = {achievementId}");
         }
 
+        public async Task SetAchievementDetailIsRead(long achievementId, long achievementDetailId)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append($"UPDATE EtAchievementDetail SET ReadStatus = {EmBool.True} WHERE Id = {achievementDetailId} ;");
+            strSql.Append($"UPDATE EtAchievement SET StudenReadCount = StudenReadCount+1 WHERE Id = {achievementId}");
+            await _dbWrapper.Execute(strSql.ToString());
+            RemoveCache(_tenantId, achievementId);
+        }
+
         public async Task DelAchievementDetail(List<long> ids)
         {
             if (ids.Count == 0)
@@ -111,6 +120,11 @@ namespace ETMS.DataAccess
         public async Task<List<EtAchievementDetail>> GetAchievementDetail(long achievementId)
         {
             return await _dbWrapper.FindList<EtAchievementDetail>(p => p.TenantId == _tenantId && p.AchievementId == achievementId && p.IsDeleted == EmIsDeleted.Normal);
+        }
+
+        public async Task<EtAchievementDetail> GetAchievementDetailById(long id)
+        {
+            return await _dbWrapper.Find<EtAchievementDetail>(p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
         }
 
         public async Task<Tuple<IEnumerable<EtAchievement>, int>> GetPaging(IPagingRequest request)

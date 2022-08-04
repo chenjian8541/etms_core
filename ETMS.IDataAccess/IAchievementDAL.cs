@@ -25,6 +25,8 @@ namespace ETMS.IDataAccess
 
         Task UpdateAchievementDetail(long achievementId, string name, byte showRankParent,byte showParent);
 
+        Task SetAchievementDetailIsRead(long achievementId,long achievementDetailId);
+
         Task DelAchievementDetail(List<long> ids);
 
         Task DelAchievement(long id);
@@ -32,6 +34,8 @@ namespace ETMS.IDataAccess
         Task PushAchievement(long id);
 
         Task<List<EtAchievementDetail>> GetAchievementDetail(long achievementId);
+
+        Task<EtAchievementDetail> GetAchievementDetailById(long id);
 
         Task<Tuple<IEnumerable<EtAchievement>, int>> GetPaging(IPagingRequest request);
 

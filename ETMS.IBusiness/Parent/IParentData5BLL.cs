@@ -31,5 +31,7 @@ namespace ETMS.IBusiness.Parent
         Task<ResponseBase> ActivityMainGetPaging(ActivityMainGetPagingRequest request);
 
         Task<ResponseBase> ActivityMyGetPaging(ActivityMyGetPagingRequest request);
+
+        Task<ResponseBase> AchievementDetailGetPaging(AchievementDetailGetPagingRequest request);
     }
 }
