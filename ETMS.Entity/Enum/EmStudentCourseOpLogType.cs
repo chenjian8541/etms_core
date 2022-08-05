@@ -45,6 +45,11 @@ namespace ETMS.Entity.Enum
         /// 提前上课自动减有效期
         /// </summary>
         public const int AdvanceClasses = 7;
+
+        /// <summary>
+        /// 快速扣课时
+        /// </summary>
+        public const int FastDeductionClassTimes = 8;
         public static string GetStudentCourseOpLogTypeDesc(int type)
         {
             switch (type)
@@ -65,6 +70,8 @@ namespace ETMS.Entity.Enum
                     return "超上课时标记处理";
                 case AdvanceClasses:
                     return "提前上课自动减有效期";
+                case FastDeductionClassTimes:
+                    return "快速扣课时";
             }
             return string.Empty;
         }

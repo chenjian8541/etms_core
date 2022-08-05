@@ -35,6 +35,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "studentCourseDe/:sid?",
+        "Name": "studentCourseDe",
+        "Type": 1,
+        "Component": "@/components/studentRecord/studentop/StudentCourseFastDeClassTimes",
+        "Meta": {
+          "Title": "快速扣课时",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "studentDetail/:sid",
         "Name": "studentDetail",
         "Type": 1,

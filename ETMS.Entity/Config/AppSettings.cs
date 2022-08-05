@@ -365,7 +365,7 @@ namespace ETMS.Entity.Config
 
         public string TeacherHomeworkDetailUrl { get; set; }
 
-        public string StudentAchievementDetailDetailUrl { get; set; }
+        public string StudentAchievementDetailUrl { get; set; }
     }
 
     public class ServerConfig

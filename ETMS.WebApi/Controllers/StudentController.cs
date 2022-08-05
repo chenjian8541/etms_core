@@ -429,6 +429,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentCourseAboutFastDeClassTimesGet(StudentCourseAboutFastDeClassTimesGetRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseAboutFastDeClassTimesGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentLeaveApplyLogGet(StudentLeaveApplyLogGetRequest request)
         {
             try
@@ -673,6 +687,20 @@ namespace ETMS.WebApi.Controllers
             {
                 _studentCourseBLL.InitTenantId(request.LoginTenantId);
                 return await _studentCourseBLL.StudentCourseChangeTimes(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> StudentCourseFastDeClassTimes(StudentCourseFastDeClassTimesRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseFastDeClassTimes(request);
             }
             catch (Exception ex)
             {

@@ -17,6 +17,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseDetailGet2(StudentCourseDetailGetRequest request);
 
+        Task<ResponseBase> StudentCourseAboutFastDeClassTimesGet(StudentCourseAboutFastDeClassTimesGetRequest request);
+
         Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request);
 
         Task<ResponseBase> StudentCourseStopBatch(StudentCourseStopBatchRequest request);
@@ -34,6 +36,8 @@ namespace ETMS.IBusiness
         Task<ResponseBase> StudentCourseClassOver(StudentCourseClassOverRequest request);
 
         Task<ResponseBase> StudentCourseChangeTimes(StudentCourseChangeTimesRequest request);
+
+         Task<ResponseBase> StudentCourseFastDeClassTimes(StudentCourseFastDeClassTimesRequest request);
 
         Task<ResponseBase> StudentCourseSurplusGet(StudentCourseSurplusGetRequest request);
 

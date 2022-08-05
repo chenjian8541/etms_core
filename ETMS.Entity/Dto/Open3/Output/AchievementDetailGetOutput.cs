@@ -33,5 +33,10 @@ namespace ETMS.Entity.Dto.Open3.Output
         public string SubjectName { get; set; }
 
         public string ScoreTotal { get; set; }
+
+        /// <summary>
+        /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
+        /// </summary>
+        public byte? StudentGender { get; set; }
     }
 }

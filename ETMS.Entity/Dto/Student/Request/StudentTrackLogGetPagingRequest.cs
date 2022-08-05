@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Student.Request
 {
-    public class StudentTrackLogGetPagingRequest : RequestPagingBase
+    public class StudentTrackLogGetPagingRequest : RequestPagingBase, IDataLimit
     {
         public string StudentKey { get; set; }
 
@@ -67,6 +67,11 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public long? TrackUserId { get; set; }
 
+        public string GetDataLimitFilterWhere()
+        {
+            return $" AND TrackUserId = {LoginUserId}";
+        }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -101,6 +106,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (TrackUserId != null)
             {
                 condition.Append($" AND TrackUserId = {TrackUserId.Value}");
+            }
+            if (IsDataLimit)
+            {
+                condition.Append(GetDataLimitFilterWhere());
             }
             return condition.ToString();
         }

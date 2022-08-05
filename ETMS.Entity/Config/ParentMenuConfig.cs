@@ -59,6 +59,11 @@ namespace ETMS.Entity.Config
         public const int ActivityLib = 10;
 
         /// <summary>
+        /// 成绩单
+        /// </summary>
+        public const int Achievement = 11;
+
+        /// <summary>
         /// 余额
         /// </summary>
         public const int Balance = 20;
@@ -136,6 +141,7 @@ namespace ETMS.Entity.Config
             AllConfig.Add(new ParentMenuInfo(TryClass, "试听申请", 7));
             AllConfig.Add(new ParentMenuInfo(GiftExchange, "礼品兑换", 10));
             AllConfig.Add(new ParentMenuInfo(Homework, "课后作业", 15));
+            AllConfig.Add(new ParentMenuInfo(Achievement, "成绩单", 17));
             AllConfig.Add(new ParentMenuInfo(EvaluateTeacher, "评价老师", 20));
             AllConfig.Add(new ParentMenuInfo(AlbumLog, "电子相册", 22));
 

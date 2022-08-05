@@ -150,6 +150,11 @@
             "ActionId": 28,
             "Name": "超上课时处理",
             "Type": 1
+          },
+          {
+            "ActionId": 92,
+            "Name": "快速扣课时",
+            "Type": 1
           }
         ]
       },

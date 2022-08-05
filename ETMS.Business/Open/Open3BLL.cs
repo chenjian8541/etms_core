@@ -77,7 +77,8 @@ namespace ETMS.Business
                 ShowRankParent = p.ShowRankParent,
                 StudentAvatar = AliyunOssUtil.GetAccessUrlHttps(studentBucket.Student.Avatar),
                 StudentName = studentBucket.Student.Name,
-                SubjectName = mySubject?.Name
+                SubjectName = mySubject?.Name,
+                StudentGender = studentBucket.Student.Gender
             };
             return ResponseBase.Success(output);
         }

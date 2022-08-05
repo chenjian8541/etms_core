@@ -712,7 +712,7 @@ namespace ETMS.Business.SendNotice
             req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
             req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
 
-            var studentAchievementDetailDetailUrl = wxConfig.TemplateNoticeConfig.StudentAchievementDetailDetailUrl;
+            var studentAchievementDetailDetailUrl = wxConfig.TemplateNoticeConfig.StudentAchievementDetailUrl;
             var tenantNo = TenantLib.GetTenantEncrypt(request.TenantId);
             foreach (var myItem in achievementDetailList)
             {

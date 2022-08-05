@@ -58,12 +58,14 @@ namespace ETMS.Business
 
         private readonly IGradeDAL _gradeDAL;
 
+        private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
+
         public StudentCourseBLL(ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IStudentDAL studentDAL,
             IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher, IClassRecordDAL classRecordDAL,
             IStudentCourseStopLogDAL studentCourseStopLogDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IOrderDAL orderDAL, IStudentCourseOpLogDAL studentCourseOpLogDAL, IUserDAL userDAL,
-            IStudentSourceDAL studentSourceDAL, IGradeDAL gradeDAL)
+            IStudentSourceDAL studentSourceDAL, IGradeDAL gradeDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
         {
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -82,10 +84,12 @@ namespace ETMS.Business
             this._userDAL = userDAL;
             this._studentSourceDAL = studentSourceDAL;
             this._gradeDAL = gradeDAL;
+            this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
         }
 
         public void InitTenantId(int tenantId)
         {
+            this._studentCourseAnalyzeBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _courseDAL, _studentCourseDAL, _classDAL, _studentDAL, _userOperationLogDAL, _classRecordDAL,
                 _studentCourseStopLogDAL, _studentCourseConsumeLogDAL, _tenantConfigDAL, _orderDAL, _studentCourseOpLogDAL,
                 _userDAL, _gradeDAL, _studentSourceDAL);
@@ -370,6 +374,34 @@ namespace ETMS.Business
                 CourseItems = result.Item1,
                 IsShowSetStudentCheckDefault = isShowSetStudentCheckDefault
             };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> StudentCourseAboutFastDeClassTimesGet(StudentCourseAboutFastDeClassTimesGetRequest request)
+        {
+            var output = new List<StudentCourseAboutFastDeClassTimesGetOutput>();
+            var studentCourse = await _studentCourseDAL.GetStudentCourse(request.SId);
+            var effectiveClassTimesCourse = studentCourse.Where(p => p.Status == EmStudentCourseStatus.Normal && p.DeType == EmDeClassTimesType.ClassTimes);
+            if (effectiveClassTimesCourse.Any())
+            {
+                var courseIds = effectiveClassTimesCourse.OrderByDescending(j => j.Id).Select(p => p.CourseId).Distinct();
+                foreach (var courseId in courseIds)
+                {
+                    var courseResult = await _courseDAL.GetCourse(courseId);
+                    if (courseResult == null || courseResult.Item1 == null)
+                    {
+                        continue;
+                    }
+                    var course = courseResult.Item1;
+                    var myCourse = effectiveClassTimesCourse.Where(p => p.CourseId == courseId).ToList();
+                    output.Add(new StudentCourseAboutFastDeClassTimesGetOutput()
+                    {
+                        CourseId = course.Id,
+                        CourseName = course.Name,
+                        SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse, false)
+                    });
+                }
+            }
             return ResponseBase.Success(output);
         }
 
@@ -923,6 +955,69 @@ namespace ETMS.Business
             _eventPublisher.Publish(new SyncStudentReadTypeEvent(request.LoginTenantId, studentCourseDetail.StudentId));
 
             await _userOperationLogDAL.AddUserLog(request, $"修正课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},课程订单号:{studentCourseDetail.OrderNo}", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentCourseFastDeClassTimes(StudentCourseFastDeClassTimesRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("学员不存在");
+            }
+            var courseResult = await _courseDAL.GetCourse(request.CourseId);
+            if (courseResult == null || courseResult.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+
+            var now = DateTime.Now;
+            var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+            {
+                ClassOt = now.Date,
+                TenantId = request.LoginTenantId,
+                StudentId = request.StudentId,
+                DeClassTimes = request.DeClassTimes,
+                CourseId = request.CourseId
+            });
+            if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+            {
+                await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = deStudentClassTimesResult.DeCourseId,
+                    DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                    DeType = deStudentClassTimesResult.DeType,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = deStudentClassTimesResult.OrderId,
+                    OrderNo = deStudentClassTimesResult.OrderNo,
+                    Ot = now.Date,
+                    SourceType = EmStudentCourseConsumeSourceType.FastDeductionClassTimes,
+                    StudentId = request.StudentId,
+                    TenantId = request.LoginTenantId,
+                    DeClassTimesSmall = 0
+                });
+                //await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
+                //{
+                //    CourseId = request.CourseId,
+                //    IsDeleted = EmIsDeleted.Normal,
+                //    OpTime = DateTime.Now,
+                //    OpType = EmStudentCourseOpLogType.FastDeductionClassTimes,
+                //    OpUser = request.LoginUserId,
+                //    StudentId = request.StudentId,
+                //    TenantId = request.LoginTenantId,
+                //    OpContent = $"快速扣减课时，原剩余课时:{request.SurplusQuantityDesc},扣减数量:{deStudentClassTimesResult.DeClassTimes}",
+                //    Remark = request.Remark
+                //});
+
+                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
+                {
+                    CourseId = request.CourseId,
+                    StudentId = request.StudentId,
+                    IsSendNoticeStudent = true
+                });
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"快速扣课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},扣减课程:{courseResult.Item1.Name},扣减数量:{deStudentClassTimesResult.DeClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
