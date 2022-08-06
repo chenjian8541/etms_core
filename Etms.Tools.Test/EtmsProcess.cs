@@ -53,6 +53,7 @@ using Config = ETMS.Pay.Lcsw.Config;
 using Senparc.Weixin.WxOpen;
 using Senparc.Weixin.WxOpen.AdvancedAPIs.WxApp;
 using ETMS.Business.Common;
+using ETMS.IDataAccess.ShareTemplate;
 
 namespace Etms.Tools.Test
 {
@@ -287,28 +288,29 @@ namespace Etms.Tools.Test
         private IUserDAL _userDAL;
         private IStudentDAL _studentDAL;
         private IAiface _aiface;
+        private IShareTemplateIdDAL _shareTemplateIdDAL;
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
-            var parentMenusConfigDAL = CustomServiceLocator.GetInstance<IParentMenusConfigDAL>();
-            for (var i = 1; i < 11470; i++)
-            {
-                parentMenusConfigDAL.ResetTenantId(i);
-                parentMenusConfigDAL.ClearMenuConfig();
-                Console.WriteLine(i.ToString());
-            }
-            return;
-            var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
-            var a = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
-            {
-                amt = 0.01M,
-                extend = "123",
-                mno = "399220617483310",
-                notifyUrl = "http://172.16.155.45:8080/order/test/call",
-                origUuid = "123123",
-                refundReason = "11",
-                ordNo = OrderNumberLib.SuixingRefundOrder()
-            });
+            //var parentMenusConfigDAL = CustomServiceLocator.GetInstance<IParentMenusConfigDAL>();
+            //for (var i = 1; i < 11470; i++)
+            //{
+            //    parentMenusConfigDAL.ResetTenantId(i);
+            //    parentMenusConfigDAL.ClearMenuConfig();
+            //    Console.WriteLine(i.ToString());
+            //}
+            //return;
+            //var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
+            //var a = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
+            //{
+            //    amt = 0.01M,
+            //    extend = "123",
+            //    mno = "399220617483310",
+            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
+            //    origUuid = "123123",
+            //    refundReason = "11",
+            //    ordNo = OrderNumberLib.SuixingRefundOrder()
+            //});
             //var bb = paySuixingService.MerchantInfoQuery("399200623916234");
             //var aa = paySuixingService.JsapiScanMiniProgram(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.JsapiScanMiniProgramReq()
             //{
@@ -332,33 +334,35 @@ namespace Etms.Tools.Test
             //    origOrderNo = "20112121111212"
             //});
 
-            var ee = paySuixingService.RefundQuery("399200623916234", "TH32333232323232");
-            return;
-            var _cloudFileAutoDelDayBLL = CustomServiceLocator.GetInstance<ICloudFileAutoDelDayBLL>();
-            _cloudFileAutoDelDayBLL.InitTenantId(1);
-            _cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
-            {
-                DelDate = DateTime.Now,
-                FileTag = EmTenantCloudStorageType.microWebConfig
-            });
-            return;
-            var firstDate = new DateTime(2020, 01, 01);
-            var maxDate = new DateTime(2021, 10, 01);
-            while (firstDate < maxDate)
-            {
-                _yearAndMonths.Add(new YearAndMonth()
-                {
-                    Month = firstDate.Month,
-                    Year = firstDate.Year
-                });
-                firstDate = firstDate.AddMonths(1);
-            }
+            //var ee = paySuixingService.RefundQuery("399200623916234", "TH32333232323232");
+            //return;
+            //var _cloudFileAutoDelDayBLL = CustomServiceLocator.GetInstance<ICloudFileAutoDelDayBLL>();
+            //_cloudFileAutoDelDayBLL.InitTenantId(1);
+            //_cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
+            //{
+            //    DelDate = DateTime.Now,
+            //    FileTag = EmTenantCloudStorageType.microWebConfig
+            //});
+            //return;
+            //var firstDate = new DateTime(2020, 01, 01);
+            //var maxDate = new DateTime(2021, 10, 01);
+            //while (firstDate < maxDate)
+            //{
+            //    _yearAndMonths.Add(new YearAndMonth()
+            //    {
+            //        Month = firstDate.Month,
+            //        Year = firstDate.Year
+            //    });
+            //    firstDate = firstDate.AddMonths(1);
+            //}
             _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
             _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
             _classRecordDAL = CustomServiceLocator.GetInstance<IClassRecordDAL>();
             _userDAL = CustomServiceLocator.GetInstance<IUserDAL>();
+            _shareTemplateIdDAL = CustomServiceLocator.GetInstance<IShareTemplateIdDAL>();
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+
             var pageCurrent = 1;
             var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
             if (getTenantsEffectiveResult.Item2 == 0)
@@ -390,7 +394,23 @@ namespace Etms.Tools.Test
 
         private void HandleTenantInitializ(int tenantId)
         {
-            _eventPublisher.Publish(new TenantInitializeEvent(tenantId));
+            _shareTemplateIdDAL.InitTenantId(tenantId);
+            _shareTemplateIdDAL.AddShareTemplate(new EtShareTemplate()
+            {
+                Type = EmShareTemplateType.Link,
+                UseType = EmShareTemplateUseType.Achievement,
+                Name = "默认成绩单分享链接模板",
+                Title = "{{学员姓名}}同学的成绩单",
+                Summary = "{{考试名称}}",
+                ImgKey = "system/material/share/link/3.jpg",
+                Status = EmShareTemplateStatus.Enabled,
+                TenantId = tenantId,
+                CreateTime = DateTime.Now,
+                UpdateTime = null,
+                IsDeleted = EmIsDeleted.Normal,
+                IsSystem = EmBool.True,
+                UserId = 0
+            }).Wait();
         }
 
         private void ExecuteTeacherSalaryClassTimes(int tenantId)
