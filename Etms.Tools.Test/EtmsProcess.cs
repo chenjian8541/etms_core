@@ -290,6 +290,14 @@ namespace Etms.Tools.Test
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
+            var parentMenusConfigDAL = CustomServiceLocator.GetInstance<IParentMenusConfigDAL>();
+            for (var i = 1; i < 11470; i++)
+            {
+                parentMenusConfigDAL.ResetTenantId(i);
+                parentMenusConfigDAL.ClearMenuConfig();
+                Console.WriteLine(i.ToString());
+            }
+            return;
             var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
             var a = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
             {

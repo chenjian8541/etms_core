@@ -78,5 +78,10 @@ namespace ETMS.DataAccess
         {
             await UpdateCache(_tenantId);
         }
+
+        public void ClearMenuConfig()
+        {
+            RemoveCache(_tenantId);
+        }
     }
 }

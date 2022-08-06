@@ -52,6 +52,22 @@ namespace ETMS.DataAccess.Lib
             entitys.Add(new EtShareTemplate()
             {
                 Type = EmShareTemplateType.Link,
+                UseType = EmShareTemplateUseType.Achievement,
+                Name = "默认成绩单分享链接模板",
+                Title = "{{学员姓名}}同学的成绩单",
+                Summary = "{{考试名称}}",
+                ImgKey = "system/material/share/link/3.jpg",
+                Status = EmShareTemplateStatus.Enabled,
+                TenantId = tenantId,
+                CreateTime = now,
+                UpdateTime = null,
+                IsDeleted = EmIsDeleted.Normal,
+                IsSystem = EmBool.True,
+                UserId = 0
+            });
+            entitys.Add(new EtShareTemplate()
+            {
+                Type = EmShareTemplateType.Link,
                 UseType = EmShareTemplateUseType.StudentPhoto,
                 Name = "默认电子相册分享链接模板",
                 Title = "{{学员姓名}}的相册",

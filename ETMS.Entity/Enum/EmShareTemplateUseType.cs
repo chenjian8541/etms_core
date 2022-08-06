@@ -33,6 +33,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int OnlineMall = 6;
 
+        /// <summary>
+        /// 成绩单(分享链接)
+        /// </summary>
+        public const int Achievement = 7;
+
         public static string GetShareTemplateUseTypeDesc(int t)
         {
             switch (t)
@@ -47,6 +52,8 @@ namespace ETMS.Entity.Enum
                     return "微官网";
                 case OnlineMall:
                     return "在线商城";
+                case Achievement:
+                    return "成绩单";
             }
             return string.Empty;
         }

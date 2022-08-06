@@ -12,5 +12,7 @@ namespace ETMS.IDataAccess
         Task<List<ParentMenuConfigOutput>> GetParentMenuConfig();
 
         Task UpdateParentMenuConfig();
+
+        void ClearMenuConfig();
     }
 }
