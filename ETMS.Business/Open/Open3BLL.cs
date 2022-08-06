@@ -1,9 +1,11 @@
-﻿using ETMS.Entity.Common;
+﻿using ETMS.Business.Common;
+using ETMS.Entity.Common;
 using ETMS.Entity.Dto.Open3.Output;
 using ETMS.Entity.Dto.Open3.Request;
 using ETMS.Entity.Enum;
 using ETMS.IBusiness.Open;
 using ETMS.IDataAccess;
+using ETMS.IDataAccess.ShareTemplate;
 using ETMS.Utility;
 using System;
 using System.Collections.Generic;
@@ -20,16 +22,20 @@ namespace ETMS.Business
         private readonly ISubjectDAL _subjectDAL;
 
         private readonly IStudentDAL _studentDAL;
-        public Open3BLL(IAchievementDAL achievementDAL, ISubjectDAL subjectDAL, IStudentDAL studentDAL)
+
+        private readonly IShareTemplateUseTypeDAL _shareTemplateUseTypeDAL;
+
+        public Open3BLL(IAchievementDAL achievementDAL, ISubjectDAL subjectDAL, IStudentDAL studentDAL, IShareTemplateUseTypeDAL shareTemplateUseTypeDAL)
         {
             this._achievementDAL = achievementDAL;
             this._subjectDAL = subjectDAL;
             this._studentDAL = studentDAL;
+            this._shareTemplateUseTypeDAL = shareTemplateUseTypeDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _achievementDAL, _subjectDAL, _studentDAL);
+            this.InitDataAccess(tenantId, _achievementDAL, _subjectDAL, _studentDAL, _shareTemplateUseTypeDAL);
         }
 
         public async Task<ResponseBase> AchievementDetailGet(AchievementDetailGetRequest request)
@@ -80,6 +86,12 @@ namespace ETMS.Business
                 SubjectName = mySubject?.Name,
                 StudentGender = studentBucket.Student.Gender
             };
+            var shareTemplateBucket = await _shareTemplateUseTypeDAL.GetShareTemplate(EmShareTemplateUseType.Achievement);
+            if (shareTemplateBucket != null && shareTemplateBucket.MyShareTemplateLink != null)
+            {
+                output.ShareContent = ShareTemplateHandler.TemplateLinkAchievement(shareTemplateBucket.MyShareTemplateLink,
+                   studentBucket.Student.Name, output.Name, output.SubjectName, output.ExamOt, output.ScoreMy);
+            }
             return ResponseBase.Success(output);
         }
     }

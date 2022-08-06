@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.Dto.Common.Output;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,5 +39,7 @@ namespace ETMS.Entity.Dto.Open3.Output
         /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
         /// </summary>
         public byte? StudentGender { get; set; }
+
+        public ShareContent ShareContent { get; set; }
     }
 }

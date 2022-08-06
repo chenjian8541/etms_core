@@ -171,5 +171,34 @@ namespace ETMS.Business.Common
         }
 
         #endregion
+
+        #region 成绩单
+
+        private static string ReplaceTemplateLinkAchievement(string template, string studentName, string achievementName,
+            string achievementSubjectName, string achievementExamOt, string achievementScoreMy)
+        {
+            return template
+                .Replace("{{学员姓名}}", studentName)
+                .Replace("{{考试名称}}", achievementName)
+                .Replace("{{考试科目}}", achievementSubjectName)
+                .Replace("{{考试时间}}", achievementExamOt)
+                .Replace("{{分数}}", achievementScoreMy);
+        }
+
+        public static ShareContent TemplateLinkAchievement(EtShareTemplate myTemplate, string studentName, string achievementName,
+            string achievementSubjectName, string achievementExamOt, string achievementScoreMy)
+        {
+            if (myTemplate == null)
+            {
+                return null;
+            }
+            return new ShareContent() {
+                Title = ReplaceTemplateLinkAchievement(myTemplate.Title, studentName, achievementName, achievementSubjectName, achievementExamOt, achievementScoreMy),
+                Summary = ReplaceTemplateLinkAchievement(myTemplate.Summary, studentName, achievementName, achievementSubjectName, achievementExamOt, achievementScoreMy),
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+            };
+        }
+
+        #endregion
     }
 }
