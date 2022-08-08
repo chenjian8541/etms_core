@@ -34,7 +34,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentGrowth(myTemplate.Title, studentName, growthContent, growthContentTagDesc, growthOtDesc),
                 Summary = ReplaceContentGrowth(myTemplate.Summary, studentName, growthContent, growthContentTagDesc, growthOtDesc),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -49,7 +49,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentGrowth(myTemplate.Title, studentName, growthContent, growthContentTagDesc, growthOtDesc),
                 Summary = ReplaceContentGrowth(myTemplate.Summary, studentName, growthContent, growthContentTagDesc, growthOtDesc),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -80,7 +80,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentClassEvaluate(myTemplate.Title, studentName, className, courseName, classOt, evaluateContent, teacherName),
                 Summary = ReplaceContentClassEvaluate(myTemplate.Summary, studentName, className, courseName, classOt, evaluateContent, teacherName),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -95,7 +95,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentClassEvaluate(myTemplate.Title, studentName, className, courseName, classOt, evaluateContent, teacherName),
                 Summary = ReplaceContentClassEvaluate(myTemplate.Summary, studentName, className, courseName, classOt, evaluateContent, teacherName),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -120,7 +120,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentStudentPhoto(myTemplate.Title, studentName, photoTitle),
                 Summary = ReplaceContentStudentPhoto(myTemplate.Summary, studentName, photoTitle),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -143,7 +143,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentMicWebsite(myTemplate.Title, tenantName),
                 Summary = ReplaceContentMicWebsite(myTemplate.Summary, tenantName),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -166,7 +166,7 @@ namespace ETMS.Business.Common
             {
                 Title = ReplaceContentOnlineMall(myTemplate.Title, tenantName),
                 Summary = ReplaceContentOnlineMall(myTemplate.Summary, tenantName),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 
@@ -195,7 +195,7 @@ namespace ETMS.Business.Common
             return new ShareContent() {
                 Title = ReplaceTemplateLinkAchievement(myTemplate.Title, studentName, achievementName, achievementSubjectName, achievementExamOt, achievementScoreMy),
                 Summary = ReplaceTemplateLinkAchievement(myTemplate.Summary, studentName, achievementName, achievementSubjectName, achievementExamOt, achievementScoreMy),
-                ImgUrl = AliyunOssUtil.GetAccessUrlHttps(myTemplate.ImgKey)
+                ImgUrl = AliyunOssUtil.GetAccessUrlHttpsAliyun(myTemplate.ImgKey)
             };
         }
 

@@ -79,7 +79,7 @@ namespace Etms.Tools.Test
         {
             AliyunOssUtil.InitAliyunOssConfig(config.BucketName, config.AccessKeyId,
                 config.AccessKeySecret, config.Endpoint, config.OssAccessUrlHttp,
-                config.OssAccessUrlHttps, config.RootFolder);
+                config.OssAccessUrlHttps, config.RootFolder, config.OssAccessUrlHttpAliyun, config.OssAccessUrlHttpsAliyun);
             AliyunOssSTSUtil.InitAliyunSTSConfig(config.STSAccessKeyId, config.STSAccessKeySecret, config.STSRoleArn, config.STSEndpoint);
         }
 

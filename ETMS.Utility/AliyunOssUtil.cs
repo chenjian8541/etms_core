@@ -40,6 +40,16 @@ namespace ETMS.Utility
         public static string OssAccessUrlHttps { get; set; }
 
         /// <summary>
+        /// 外网访问地址(http) Aliyun提供的地址
+        /// </summary>
+        internal static string OssAccessUrlHttpAliyun { get; set; }
+
+        /// <summary>
+        /// 外网访问地址(https) Aliyun提供的地址
+        /// </summary>
+        public static string OssAccessUrlHttpsAliyun { get; set; }
+
+        /// <summary>
         /// 根文件夹
         /// </summary>
         public static string RootFolder { get; set; }
@@ -283,6 +293,15 @@ namespace ETMS.Utility
             return $"{OssAccessUrlHttps}/{key}";
         }
 
+        public static string GetAccessUrlHttpsAliyun(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return string.Empty;
+            }
+            return $"{OssAccessUrlHttpsAliyun}/{key}";
+        }
+
         /// <summary>
         /// 通过访问地址获取key值
         /// </summary>
@@ -337,7 +356,9 @@ namespace ETMS.Utility
             string endpoint,
             string ossAccessUrlHttp,
             string ossAccessUrlHttps,
-            string rootFolder)
+            string rootFolder,
+            string ossAccessUrlHttpAliyun,
+            string ossAccessUrlHttpsAliyun)
         {
             BucketName = bucketName;
             AccessKeyId = accessKeyId;
@@ -346,6 +367,8 @@ namespace ETMS.Utility
             OssAccessUrlHttp = ossAccessUrlHttp;
             OssAccessUrlHttps = ossAccessUrlHttps;
             RootFolder = rootFolder;
+            OssAccessUrlHttpAliyun = ossAccessUrlHttpAliyun;
+            OssAccessUrlHttpsAliyun = ossAccessUrlHttpsAliyun;
         }
     }
 

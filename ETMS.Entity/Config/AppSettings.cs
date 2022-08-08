@@ -188,6 +188,10 @@ namespace ETMS.Entity.Config
 
         public string OssAccessUrlHttps { get; set; }
 
+        public string OssAccessUrlHttpAliyun { get; set; }
+
+        public string OssAccessUrlHttpsAliyun { get; set; }
+
         public string RootFolder { get; set; }
 
         public string STSAccessKeyId { get; set; }
