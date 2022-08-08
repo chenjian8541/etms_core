@@ -122,7 +122,7 @@ namespace ETMS.Business
                         StatusDesc = EmClassTimesReservationLogStatus.GetClassTimesReservationLogStatusDesc(log.Status, now, log.ClassOt),
                         StudentId = log.StudentId,
                         StudentName = student.Name,
-                        StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                        StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                         TimeDesc = $"{EtmsHelper.GetTimeDesc(log.StartTime)}~{EtmsHelper.GetTimeDesc(log.EndTime)}",
                         Week = log.Week,
                         WeekDesc = $"周{EtmsHelper.GetWeekDesc(log.Week)}"

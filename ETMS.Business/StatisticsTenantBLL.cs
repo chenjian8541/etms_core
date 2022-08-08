@@ -120,7 +120,7 @@ namespace ETMS.Business
                 ClassNotArrivedToday = classNotArrivedToday,
                 ClassTimesThisMonth = classTimesThisMonth.EtmsToString(),
                 DeSumThisMonth = deSumThisMonth,
-                IsDataLimit = request.IsDataLimit
+                IsDataLimit = request.GetIsDataLimit()
             };
             return ResponseBase.Success(output);
         }

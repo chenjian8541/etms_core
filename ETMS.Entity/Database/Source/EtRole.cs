@@ -30,6 +30,12 @@ namespace ETMS.Entity.Database.Source
         public string AuthorityValueData { get; set; }
 
         /// <summary>
+        /// 数据权限详情
+        /// <see cref="ETMS.Entity.View.Role.AuthorityValueDataDetailView"/>
+        /// </summary>
+        public string AuthorityValueDataDetail { get; set; }
+
+        /// <summary>
         /// 通知配置  <see cref="ETMS.Entity.Config.RoleOtherSetting"/>
         /// </summary>
         public string NoticeSetting { get; set; }
@@ -38,6 +44,12 @@ namespace ETMS.Entity.Database.Source
         /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
         /// </summary>
         public int SecrecyType { get; set; }
+
+        /// <summary>
+        /// 隐藏类型详情
+        /// <see cref="ETMS.Entity.View.Role.SecrecyDataView"/>
+        /// </summary>
+        public string SecrecyData { get; set; }
 
         /// <summary>
         /// 备注

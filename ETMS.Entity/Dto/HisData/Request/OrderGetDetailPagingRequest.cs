@@ -150,7 +150,7 @@ namespace ETMS.Entity.Dto.HisData.Request
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToString()}'");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(4))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

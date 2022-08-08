@@ -125,7 +125,7 @@ namespace ETMS.Entity.Dto.HisData.Request
             {
                 condition.Append($" AND [Status] = {Status.Value}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(7))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

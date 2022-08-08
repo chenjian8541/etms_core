@@ -95,7 +95,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 condition.Append($" AND Ot < '{EndOt.Value.EtmsToString()}'");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(9))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

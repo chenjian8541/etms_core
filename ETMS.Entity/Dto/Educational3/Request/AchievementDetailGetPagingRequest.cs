@@ -98,7 +98,7 @@ namespace ETMS.Entity.Dto.Educational3.Request
             {
                 condition.Append($" AND ExamOt < '{EndOt.Value.EtmsToString()}'");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(9))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

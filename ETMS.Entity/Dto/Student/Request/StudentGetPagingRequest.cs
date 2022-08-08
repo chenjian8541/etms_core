@@ -270,7 +270,7 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 condition.Append($" AND Remark LIKE '%{Remark}%'");
             }
-            if (IsDataLimit && SceneType == 0)
+            if (GetIsDataLimit(1) && SceneType == 0)
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

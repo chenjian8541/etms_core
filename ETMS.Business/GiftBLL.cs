@@ -196,7 +196,7 @@ namespace ETMS.Business
                 Status = p.Status,
                 StatusDesc = EmGiftExchangeLogStatus.GetStatusDesc(p.Status),
                 StudentName = p.StudentName,
-                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag),
                 TotalCount = p.TotalCount,
                 TotalPoints = p.TotalPoints,
                 ExchangeType = p.ExchangeType,
@@ -218,7 +218,7 @@ namespace ETMS.Business
                 ItemPoints = p.ItemPoints,
                 Ot = p.Ot,
                 StudentName = p.StudentName,
-                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)
+                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag)
             })));
         }
 
@@ -236,7 +236,7 @@ namespace ETMS.Business
                 ItemPoints = p.ItemPoints,
                 Ot = p.Ot,
                 StudentName = p.StudentName,
-                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)
+                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag)
             }));
         }
 

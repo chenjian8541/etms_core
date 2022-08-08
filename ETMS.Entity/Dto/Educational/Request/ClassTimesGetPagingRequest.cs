@@ -129,7 +129,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND [ClassType] = {ClassType.Value} ");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(6))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

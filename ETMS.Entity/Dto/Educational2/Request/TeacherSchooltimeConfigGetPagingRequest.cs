@@ -27,7 +27,7 @@ namespace ETMS.Entity.Dto.Educational2.Request
             {
                 condition.Append($" AND (Name LIKE '%{Key}%' OR Phone LIKE '{Key}%')");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(8))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

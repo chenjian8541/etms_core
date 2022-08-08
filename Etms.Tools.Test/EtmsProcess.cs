@@ -68,7 +68,7 @@ namespace Etms.Tools.Test
                 InitRabbitMq(p, appSettings.RabbitMqConfig);
                 InitPayConfig(appSettings.PayConfig);
                 InitAliyunOssConfig(appSettings.AliyunOssConfig);
-                InitSenparcWeixin(appSettings);
+                //InitSenparcWeixin(appSettings);
             });
             SubscriptionAdapt2.IsSystemLoadingFinish = true;
             Log.Info("[服务]处理服务业务成功...", typeof(ServiceProvider));
@@ -394,7 +394,7 @@ namespace Etms.Tools.Test
 
         private void HandleTenantInitializ(int tenantId)
         {
-            _shareTemplateIdDAL.InitTenantId(tenantId);
+            _shareTemplateIdDAL.ResetTenantId(tenantId);
             _shareTemplateIdDAL.AddShareTemplate(new EtShareTemplate()
             {
                 Type = EmShareTemplateType.Link,
@@ -411,6 +411,7 @@ namespace Etms.Tools.Test
                 IsSystem = EmBool.True,
                 UserId = 0
             }).Wait();
+            Console.WriteLine(tenantId.ToString());
         }
 
         private void ExecuteTeacherSalaryClassTimes(int tenantId)

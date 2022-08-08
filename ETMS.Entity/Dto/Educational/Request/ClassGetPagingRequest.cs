@@ -83,7 +83,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND ReservationType = {ReservationType.Value}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(5))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

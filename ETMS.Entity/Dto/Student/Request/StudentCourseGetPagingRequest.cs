@@ -155,7 +155,7 @@ namespace ETMS.Entity.Dto.Student.Request
                     condition.Append($" AND (EndTime IS NOT NULL AND EndTime <= '{maxEndDate.EtmsToDateString()}')");
                 }
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(1))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

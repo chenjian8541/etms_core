@@ -107,7 +107,7 @@ namespace ETMS.Entity.Dto.Educational.Request
                     condition.Append($" AND [Status] = {Status.Value}");
                 }
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(8))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

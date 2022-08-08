@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.View.Role;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +23,9 @@ namespace ETMS.Entity.Dto.User.Output
         /// 聚合支付状态类型 <see cref="ETMS.Entity.Enum.EtmsManage.EmAgtPayType"/>
         /// </summary>
         public int AgtPayType { get; set; }
+
+        public AuthorityValueDataDetailView AuthorityValueDataBag { get; set; }
+
+        public SecrecyDataView SecrecyDataBag { get; set; }
     }
 }

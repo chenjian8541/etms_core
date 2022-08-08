@@ -91,7 +91,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
                 condition.Append($" AND ClassOt < '{EndOt.Value.EtmsToDateString()}'");
             }
             condition.Append($" AND [Status] = {EmClassRecordStatus.Normal}");
-            if (IsDataLimit)
+            if (GetIsDataLimit(9))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

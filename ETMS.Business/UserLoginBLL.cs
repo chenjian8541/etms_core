@@ -22,6 +22,8 @@ using ETMS.IBusiness.Wechart;
 using ETMS.LOG;
 using ETMS.Business.WxCore;
 using System.Linq;
+using ETMS.Entity.View.Role;
+using Newtonsoft.Json;
 
 namespace ETMS.Business
 {
@@ -477,12 +479,31 @@ namespace ETMS.Business
                 }
             }
 
-            return ResponseBase.Success(new CheckUserCanLoginOutput()
+            var output = new CheckUserCanLoginOutput()
             {
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
                 SecrecyType = role.SecrecyType,
                 AgtPayType = sysTenantInfo.AgtPayType
-            });
+            };
+            if (string.IsNullOrEmpty(role.AuthorityValueDataDetail))
+            {
+                output.AuthorityValueDataBag = new AuthorityValueDataDetailView(output.IsDataLimit);
+            }
+            else
+            {
+                output.AuthorityValueDataBag = JsonConvert.DeserializeObject<AuthorityValueDataDetailView>(role.AuthorityValueDataDetail);
+            }
+
+            if (string.IsNullOrEmpty(role.SecrecyData))
+            {
+                output.SecrecyDataBag = new SecrecyDataView(output.SecrecyType == EmRoleSecrecyType.Secrecy);
+            }
+            else
+            {
+                output.SecrecyDataBag = JsonConvert.DeserializeObject<SecrecyDataView>(role.SecrecyData);
+            }
+
+            return ResponseBase.Success(output);
         }
 
         //public async Task<bool> GetUserDataLimit(RequestBase request)

@@ -167,7 +167,7 @@ namespace ETMS.Business
                     output.IsCanBinding = false;
                     output.IsSameStudent = true;
                     output.SameStudentName = studentBucket.Student.Name;
-                    output.SameStudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType);
+                    output.SameStudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType, request.SecrecyDataBag);
                     return ResponseBase.Success(output);
                 }
                 else
@@ -210,7 +210,7 @@ namespace ETMS.Business
                             ErrMsg = "人脸信息重复",
                             IsSameStudent = true,
                             SameStudentName = otherStudentBucket.Student.Name,
-                            SameStudentPhone = ComBusiness3.PhoneSecrecy(otherStudentBucket.Student.Phone, request.SecrecyType)
+                            SameStudentPhone = ComBusiness3.PhoneSecrecy(otherStudentBucket.Student.Phone, request.SecrecyType, request.SecrecyDataBag)
                         });
                     }
                     else
@@ -335,7 +335,7 @@ namespace ETMS.Business
                     StudentCheckOnLogId = p.Id,
                     StudentId = p.StudentId,
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     Explain = explain,
                     Remark = p.Remark,
                     CheckMedium = checkMedium,
@@ -426,7 +426,7 @@ namespace ETMS.Business
                     StudentCheckOnLogId = p.Id,
                     StudentId = p.StudentId,
                     StudentName = p.StudentName,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag),
                     Explain = explain,
                     Remark = p.Remark,
                     CheckMedium = checkMedium,
@@ -581,7 +581,6 @@ namespace ETMS.Business
                 FaceImageBase64 = request.FaceImageBase64,
                 IpAddress = request.IpAddress,
                 LoginTenantId = request.LoginTenantId,
-                IsDataLimit = request.IsDataLimit,
                 LoginClientType = request.LoginClientType,
                 LoginTimestamp = request.LoginTimestamp,
                 LoginUserId = request.LoginUserId,
@@ -840,7 +839,7 @@ namespace ETMS.Business
                     NeedCheckLogId = p.Id,
                     StartTimeDesc = EtmsHelper.GetTimeDesc(p.StartTime),
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     ClassDesc = p.ClassDesc
                 });
             }
@@ -869,7 +868,7 @@ namespace ETMS.Business
                     CardNo = student.CardNo,
                     NeedCheckLogId = p.Id,
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     ClassDesc = p.ClassDesc,
                     CheckInTimeDesc = p.CheckInOt.EtmsToOnlyMinuteString()
                 }); ;
@@ -905,7 +904,7 @@ namespace ETMS.Business
                     FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
                     CardNo = student.CardNo,
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     ClassName = myClass.Name,
                     ClassOt = p.ClassOt.EtmsToDateString(),
                     TimeDesc = $"{EtmsHelper.GetTimeDesc(p.StartTime)}~{EtmsHelper.GetTimeDesc(p.EndTime)}",
@@ -1114,7 +1113,7 @@ namespace ETMS.Business
                 StudentCourses = new List<MyStudentCourseInfo>(),
                 StudentId = request.StudentId,
                 StudentName = studentBucket.Student.Name,
-                StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType)
+                StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType, request.SecrecyDataBag)
             };
             var myCourse = await _studentCourseDAL.GetStudentCourse(request.StudentId);
             if (myCourse == null || myCourse.Count == 0)

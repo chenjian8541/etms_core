@@ -101,7 +101,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND [HandleStatus] = {HandleStatus.Value}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(3))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

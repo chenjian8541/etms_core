@@ -17,14 +17,15 @@ using ETMS.Entity.Dto.BasicData.Output;
 using ETMS.Event.DataContract;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
+using ETMS.Entity.View.Role;
 
 namespace ETMS.Business.Common
 {
     internal static class ComBusiness3
     {
-        internal static string GetStudentDescPC(EtStudent student, int secrecyType)
+        internal static string GetStudentDescPC(EtStudent student, int secrecyType, SecrecyDataView secrecyDataBag)
         {
-            return $"{student.Name}({PhoneSecrecy(student.Phone, secrecyType)})";
+            return $"{student.Name}({PhoneSecrecy(student.Phone, secrecyType, secrecyDataBag)})";
         }
 
         internal static bool CheckStudentCourseHasSurplus(IEnumerable<EtStudentCourse> studentCourses)
@@ -138,7 +139,7 @@ namespace ETMS.Business.Common
             });
         }
 
-        internal static string PhoneSecrecy(string phone, int secrecyType)
+        internal static string PhoneSecrecy(string phone, int secrecyType, SecrecyDataView secrecyDataBag)
         {
             if (string.IsNullOrEmpty(phone))
             {
@@ -146,6 +147,10 @@ namespace ETMS.Business.Common
             }
             if (secrecyType == EmRoleSecrecyType.Secrecy)
             {
+                if (secrecyDataBag == null || !secrecyDataBag.StudentPhone)
+                {
+                    return phone;
+                }
                 try
                 {
                     return Regex.Replace(phone, "(\\d{3})\\d{4}(\\d{4})", "$1****$2");

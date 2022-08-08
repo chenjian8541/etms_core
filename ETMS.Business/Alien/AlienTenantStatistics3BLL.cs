@@ -8,6 +8,7 @@ using ETMS.Entity.Enum;
 using ETMS.Entity.Enum.EtmsManage;
 using ETMS.Entity.Temp;
 using ETMS.Entity.View.Persistence;
+using ETMS.Entity.View.Role;
 using ETMS.IBusiness;
 using ETMS.IBusiness.Alien;
 using ETMS.IDataAccess;
@@ -390,7 +391,7 @@ namespace ETMS.Business.Alien
                         CheckUserId = classRecord.CheckUserId,
                         NeedAttendNumber = classRecord.NeedAttendNumber,
                         ClassTimes = classRecord.ClassTimes.EtmsToString(),
-                        DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, classRecord.DeSum.EtmsToString2()),
+                        DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, null, classRecord.DeSum.EtmsToString2()),
                         StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                         CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
                         ClassCategoryName = classCategoryName
@@ -438,7 +439,7 @@ namespace ETMS.Business.Alien
                 CheckUserId = classRecord.CheckUserId,
                 NeedAttendNumber = classRecord.NeedAttendNumber,
                 ClassTimes = classRecord.ClassTimes.EtmsToString(),
-                DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, classRecord.DeSum.EtmsToString2()),
+                DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, null, classRecord.DeSum.EtmsToString2()),
                 StatusDesc = EmClassRecordStatus.GetClassRecordStatusDesc(classRecord.Status),
                 CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
                 IsLeaveCharge = myClass.IsLeaveCharge,
@@ -475,7 +476,7 @@ namespace ETMS.Business.Alien
                     CheckPointsDefault = checkPointsDefault,
                     CourseId = p.CourseId,
                     DeClassTimes = deClassTimes,
-                    DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, p.DeSum.EtmsToString2()),
+                    DeSum = EmRoleSecrecyType.GetSecrecyValue(EmRoleSecrecyType.NotLimited, null, p.DeSum.EtmsToString2()),
                     DeType = p.DeType,
                     DeTypeDesc = EmDeClassTimesType.GetDeClassTimesTypeDesc(p.DeType),
                     ExceedClassTimes = p.ExceedClassTimes.EtmsToString(),
@@ -485,7 +486,10 @@ namespace ETMS.Business.Alien
                     StudentCheckStatus = p.StudentCheckStatus,
                     StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
                     StudentName = studentBucket.Student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, EmRoleSecrecyType.NotLimited),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, EmRoleSecrecyType.NotLimited, new SecrecyDataView()
+                    {
+                        StudentPhone = true
+                    }),
                     StudentType = p.StudentType,
                     StudentTypeDesc = EmClassStudentType.GetClassStudentTypeDesc(p.StudentType),
                     DeClassTimesDesc = ComBusiness2.GetDeClassTimesDesc(p.DeType, p.DeClassTimes, p.ExceedClassTimes),

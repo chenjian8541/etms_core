@@ -65,7 +65,7 @@ namespace ETMS.Business
                 if (student != null)
                 {
                     studentName = student.Name;
-                    phone = ComBusiness3.PhoneSecrecy(student.Phone,request.SecrecyType);
+                    phone = ComBusiness3.PhoneSecrecy(student.Phone,request.SecrecyType, request.SecrecyDataBag);
                 }
             }
             else
@@ -120,7 +120,7 @@ namespace ETMS.Business
                     if (student != null)
                     {
                         studentName = student.Name;
-                        phone = ComBusiness3.PhoneSecrecy(student.Phone,request.SecrecyType);
+                        phone = ComBusiness3.PhoneSecrecy(student.Phone,request.SecrecyType, request.SecrecyDataBag);
                     }
                 }
                 else

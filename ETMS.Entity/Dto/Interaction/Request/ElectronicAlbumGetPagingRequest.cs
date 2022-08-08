@@ -39,7 +39,7 @@ namespace ETMS.Entity.Dto.Interaction.Request
             {
                 condition.Append($" AND [Status] = {Status.Value}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(9))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

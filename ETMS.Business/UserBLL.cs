@@ -24,6 +24,8 @@ using ETMS.IEventProvider;
 using ETMS.Entity.Database.Manage;
 using ETMS.IDataAccess.TeacherSalary;
 using ETMS.Event.DataContract.Statistics;
+using ETMS.Entity.View.Role;
+using Newtonsoft.Json;
 
 namespace ETMS.Business
 {
@@ -375,6 +377,15 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> RoleAdd(RoleAddRequest request)
         {
+            if (request.AuthorityValueDataBag == null)
+            {
+                request.AuthorityValueDataBag = new AuthorityValueDataDetailView();
+            }
+            if (request.SecrecyDataBag == null)
+            {
+                request.SecrecyDataBag = new SecrecyDataView();
+            }
+
             await _roleDAL.AddRole(new EtRole()
             {
                 AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit),
@@ -384,7 +395,9 @@ namespace ETMS.Business
                 Remark = request.Remark,
                 TenantId = request.LoginTenantId,
                 NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting),
-                SecrecyType = request.SecrecyType
+                SecrecyType = request.SecrecyType,
+                AuthorityValueDataDetail = JsonConvert.SerializeObject(request.AuthorityValueDataBag),
+                SecrecyData = JsonConvert.SerializeObject(request.SecrecyDataBag)
             });
             await _userOperationLogDAL.AddUserLog(request, $"添加角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -397,12 +410,24 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("角色不存在");
             }
+            if (request.AuthorityValueDataBag == null)
+            {
+                request.AuthorityValueDataBag = new AuthorityValueDataDetailView();
+            }
+            if (request.SecrecyDataBag == null)
+            {
+                request.SecrecyDataBag = new SecrecyDataView();
+            }
+
             role.Name = request.Name;
             role.Remark = request.Remark;
             role.AuthorityValueMenu = ComBusiness4.GetAuthorityValueMenu(request.PageIds, request.ActionIds, request.PageRouteIds);
             role.AuthorityValueData = EmDataLimitType.GetAuthorityValueData(request.IsMyDataLimit);
             role.NoticeSetting = GetNoticeSetting(request.RoleNoticeSetting);
             role.SecrecyType = request.SecrecyType;
+            role.AuthorityValueDataDetail = JsonConvert.SerializeObject(request.AuthorityValueDataBag);
+            role.SecrecyData = JsonConvert.SerializeObject(request.SecrecyDataBag);
+
             await _roleDAL.EditRole(role);
             await _userOperationLogDAL.AddUserLog(request, $"编辑角色-{request.Name}", EmUserOperationType.RoleSetting);
             return ResponseBase.Success();
@@ -422,7 +447,7 @@ namespace ETMS.Business
             var authorityCoreAction = new AuthorityCore(actionWeight);
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(request.LoginTenantId);
             ComBusiness4.MenuConfigsHandle(myAllMenus, authorityCorePage, authorityCoreAction);
-            return ResponseBase.Success(new RoleGetOutput()
+            var output = new RoleGetOutput()
             {
                 Name = role.Name,
                 Remark = role.Remark,
@@ -430,7 +455,26 @@ namespace ETMS.Business
                 IsDataLimit = EmDataLimitType.GetIsDataLimit(role.AuthorityValueData),
                 RoleNoticeSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting),
                 SecrecyType = role.SecrecyType
-            });
+            };
+            if (string.IsNullOrEmpty(role.AuthorityValueDataDetail))
+            {
+                output.AuthorityValueDataBag = new AuthorityValueDataDetailView(output.IsDataLimit);
+            }
+            else
+            {
+                output.AuthorityValueDataBag = JsonConvert.DeserializeObject<AuthorityValueDataDetailView>(role.AuthorityValueDataDetail);
+            }
+
+            if (string.IsNullOrEmpty(role.SecrecyData))
+            {
+                output.SecrecyDataBag = new SecrecyDataView(output.SecrecyType == EmRoleSecrecyType.Secrecy);
+            }
+            else
+            {
+                output.SecrecyDataBag = JsonConvert.DeserializeObject<SecrecyDataView>(role.SecrecyData);
+            }
+
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> RoleDefaultGet(RoleDefaultGetRequest request)

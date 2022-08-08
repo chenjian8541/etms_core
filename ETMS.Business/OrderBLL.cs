@@ -19,6 +19,7 @@ using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
 using Microsoft.AspNetCore.Http;
 using ETMS.IDataAccess.MallGoodsDAL;
+using ETMS.Entity.View.Role;
 
 namespace ETMS.Business
 {
@@ -96,7 +97,7 @@ namespace ETMS.Business
         }
 
         private DataTempBox<EtStudent> tempBoxStudent = null;
-        private async Task<OrderStudentView> OrderStudentGet(EtOrder order, int secrecyType)
+        private async Task<OrderStudentView> OrderStudentGet(EtOrder order, int secrecyType, SecrecyDataView secrecyDataBag)
         {
             if (tempBoxStudent == null)
             {
@@ -111,7 +112,7 @@ namespace ETMS.Business
                 var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, order.StudentId);
                 if (myStudent != null)
                 {
-                    orderStudentView.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, secrecyType);
+                    orderStudentView.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, secrecyType, secrecyDataBag);
                     orderStudentView.StudentName = myStudent.Name;
                     orderStudentView.StudentCardNo = myStudent.CardNo;
                     orderStudentView.StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myStudent.Avatar);
@@ -140,7 +141,7 @@ namespace ETMS.Business
             var tempBoxUser = new DataTempBox<EtUser>();
             foreach (var p in pagingData.Item1)
             {
-                var studentInfo = await OrderStudentGet(p, request.SecrecyType);
+                var studentInfo = await OrderStudentGet(p, request.SecrecyType, request.SecrecyDataBag);
                 orderOutput.Add(new OrderGetPagingOutput()
                 {
                     AptSum = p.AptSum,
@@ -231,7 +232,7 @@ namespace ETMS.Business
                         continue;
                     }
                     item.StudentName = myStudent.Name;
-                    item.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, request.SecrecyType);
+                    item.StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Phone, request.SecrecyType, request.SecrecyDataBag);
                     var myUser = await ComBusiness.GetUser(tempBoxUser, _userDAL, p.UserId);
                     if (myUser != null)
                     {
@@ -321,7 +322,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType,request.SecrecyDataBag);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
@@ -596,7 +597,7 @@ namespace ETMS.Business
                 OutList = new List<OrderTransferCoursesGetDetailOut>()
             };
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType, request.SecrecyDataBag);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderTransferCoursesGetDetailBascInfo()
             {
@@ -706,7 +707,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetSimpleDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType, request.SecrecyDataBag);
             output.BascInfo = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,
@@ -777,7 +778,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("订单不存在");
             }
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order, request.SecrecyType);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType, request.SecrecyDataBag);
             var output = new OrderGetDetailBascInfo()
             {
                 ArrearsSum = order.ArrearsSum,

@@ -1,4 +1,5 @@
 ﻿using ETMS.Entity.Common;
+using ETMS.Entity.View.Role;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +24,10 @@ namespace ETMS.Entity.Dto.User.Request
         /// 隐私类型 <see cref="ETMS.Entity.Enum.EmRoleSecrecyType"/>
         /// </summary>
         public int SecrecyType { get; set; }
+
+        public AuthorityValueDataDetailView AuthorityValueDataBag { get; set; }
+
+        public SecrecyDataView SecrecyDataBag { get; set; }
 
         public RoleNoticeSettingRequest RoleNoticeSetting { get; set; }
 

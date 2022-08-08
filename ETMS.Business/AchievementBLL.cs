@@ -178,7 +178,7 @@ namespace ETMS.Business
                         ScoreMy = item.ScoreMy,
                         StudentId = item.StudentId,
                         StudentName = studentBucket.Student.Name,
-                        StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType),
+                        StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
                         ReadStatus = item.ReadStatus,
                         RankMy = item.RankMy
                     });

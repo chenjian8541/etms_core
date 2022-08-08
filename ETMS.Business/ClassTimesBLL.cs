@@ -17,6 +17,7 @@ using ETMS.Event.DataContract;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
 using ETMS.Entity.Temp;
+using ETMS.Entity.View.Role;
 
 namespace ETMS.Business
 {
@@ -147,7 +148,7 @@ namespace ETMS.Business
                 {
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, 0, 0, null,
-                        etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False, request.SecrecyType);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), EmBool.False, request.SecrecyType, request.SecrecyDataBag);
                     if (classTimesStudent != null)
                     {
                         if (classTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
@@ -189,7 +190,7 @@ namespace ETMS.Business
                     var classTimesStudent = await GetClassTimesStudent(cMyStudent.ClassId, cMyStudent.StudentId,
                         cMyStudent.CourseId, EmClassStudentType.ClassStudent, classTimes.Id, 0, null,
                         etClass.EtClass.DefaultClassTimes.EtmsToString(),
-                        EmBool.False, request.SecrecyType, classOt);
+                        EmBool.False, request.SecrecyType, request.SecrecyDataBag, classOt);
                     if (classTimesStudent != null)
                     {
                         if (classTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
@@ -223,7 +224,8 @@ namespace ETMS.Business
                 {
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
-                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType, classOt);
+                        etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType,
+                        request.SecrecyDataBag,classOt);
                     if (tempTimesStudent != null)
                     {
                         if (tempTimesStudent.StudentType == EmClassStudentType.TempStudent && tempTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
@@ -257,7 +259,7 @@ namespace ETMS.Business
         DataTempBox<EtCourse> tempBoxCourse;
         private async Task<ClassTimesStudentGetOutput> GetClassTimesStudent(long classId, long studentId, long courseId, byte studentType,
             long classTimesId, long classTimesStudentId, long? studentTryCalssLogId, string defaultClassTimes,
-            byte isReservation, int requestSecrecyType, DateTime? classOt = null)
+            byte isReservation, int requestSecrecyType, SecrecyDataView secrecyDataBag, DateTime? classOt = null)
         {
             var myStudent = await _studentDAL.GetStudent(studentId);
             if (myStudent == null)
@@ -284,7 +286,7 @@ namespace ETMS.Business
                 GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
                 StudentId = studentId,
                 StudentName = myStudent.Student.Name,
-                StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, requestSecrecyType),
+                StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, requestSecrecyType, secrecyDataBag),
                 CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
                 StudentType = studentType,
                 ClassTimesId = classTimesId,
@@ -538,7 +540,6 @@ namespace ETMS.Business
                 CId = request.CId,
                 CourseId = courseId,
                 IpAddress = request.IpAddress,
-                IsDataLimit = request.IsDataLimit,
                 LoginTenantId = request.LoginTenantId,
                 LoginUserId = request.LoginUserId,
                 StudentId = request.StudentId

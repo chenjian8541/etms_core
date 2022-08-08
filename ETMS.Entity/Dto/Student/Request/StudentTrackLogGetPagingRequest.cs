@@ -107,7 +107,7 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 condition.Append($" AND TrackUserId = {TrackUserId.Value}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(2))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

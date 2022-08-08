@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETMS.Entity.View.Role;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,10 +19,14 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int Secrecy = 1;
 
-        public static string GetSecrecyValue(int secrecyType, string value)
+        public static string GetSecrecyValue(int secrecyType, SecrecyDataView secrecyDataBag, string value)
         {
             if (secrecyType == EmRoleSecrecyType.Secrecy)
             {
+                if (secrecyDataBag == null || !secrecyDataBag.ClassRecordDeSum)
+                {
+                    return value;
+                }
                 return "***";
             }
             return value;

@@ -161,7 +161,7 @@ namespace ETMS.Entity.Dto.HisData.Request
             {
                 condition.Append($" AND ArrearsSum > 0 AND [Status] <> {EmOrderStatus.Repeal}");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(4))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

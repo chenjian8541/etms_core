@@ -67,6 +67,8 @@ namespace ETMS.WebApi.FilterAttribute
                     request.IsDataLimit = userLoginInfo.IsDataLimit;
                     request.SecrecyType = userLoginInfo.SecrecyType;
                     request.AgtPayType = userLoginInfo.AgtPayType;
+                    request.AuthorityValueDataBag = userLoginInfo.AuthorityValueDataBag;
+                    request.SecrecyDataBag = userLoginInfo.SecrecyDataBag;
                 }
                 if (context.ActionArguments.First().Value is ParentRequestBase)
                 {

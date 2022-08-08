@@ -136,7 +136,7 @@ namespace ETMS.Entity.Dto.Educational.Request
             {
                 condition.Append($" AND Remark LIKE '%{Remark}%'");
             }
-            if (IsDataLimit)
+            if (GetIsDataLimit(3))
             {
                 condition.Append(GetDataLimitFilterWhere());
             }

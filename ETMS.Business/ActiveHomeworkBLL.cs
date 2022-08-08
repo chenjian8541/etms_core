@@ -494,7 +494,7 @@ namespace ETMS.Business
                     StudentAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, studentBucket.Student.Avatar),
                     StudentId = p.StudentId,
                     StudentName = studentBucket.Student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(studentBucket.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     OtDateDesc = p.OtDate.EtmsToDateString()
                 });
             }

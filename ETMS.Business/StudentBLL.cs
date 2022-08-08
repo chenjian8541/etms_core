@@ -457,7 +457,7 @@ namespace ETMS.Business
                 var recommendStudentBucket = await _studentDAL.GetStudent(student.RecommendStudentId.Value);
                 if (recommendStudentBucket != null && recommendStudentBucket.Student != null)
                 {
-                    recommendStudentDesc = ComBusiness3.GetStudentDescPC(recommendStudentBucket.Student, request.SecrecyType);
+                    recommendStudentDesc = ComBusiness3.GetStudentDescPC(recommendStudentBucket.Student, request.SecrecyType, request.SecrecyDataBag);
                 }
             }
             var studentGetOutput = new StudentGetOutput()
@@ -479,8 +479,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
-                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType),
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType, request.SecrecyDataBag),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -615,8 +615,8 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
-                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType),
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
+                PhoneBak = ComBusiness3.PhoneSecrecy(student.PhoneBak, request.SecrecyType, request.SecrecyDataBag),
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,
                 Points = student.Points,
@@ -958,7 +958,7 @@ namespace ETMS.Business
                     TrackTimeDesc = p.TrackTime.EtmsToMinuteString(),
                     NextTrackTimeDesc = p.NextTrackTime.EtmsToDateString(),
                     TrackContent = p.TrackContent,
-                    StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType)),
+                    StudentDesc = EtmsHelper.PeopleDesc(p.StudentName, ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag)),
                     TrackUserName = myUser?.Name,
                     TrackImgUrl = EtmsHelper2.GetMediasUrl(p.TrackImg),
                     TrackUserAvatarUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, myUser?.Avatar),
@@ -977,7 +977,7 @@ namespace ETMS.Business
                 Ot = p.Ot,
                 Remark = p.Remark,
                 StudentName = p.StudentName,
-                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag),
                 TypeDesc = EnumDataLib.GetStudentOperationTypeDesc.FirstOrDefault(j => j.Value == p.Type)?.Label
             })));
         }
@@ -1022,7 +1022,7 @@ namespace ETMS.Business
                 HandleUserDesc = handleUserDesc,
                 LeaveContent = applyLog.LeaveContent,
                 StudentName = student.Name,
-                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                 LeaveMediasUrl = EtmsHelper2.GetMediasUrl(applyLog.LeaveMedias),
                 StudentAvatarUrl = AliyunOssUtil.GetAccessUrlHttps(student.Avatar),
                 LeaveRemark = applyLog.LeaveRemark
@@ -1052,7 +1052,7 @@ namespace ETMS.Business
                     HandleUserDesc = p.HandleUser == null ? string.Empty : await ComBusiness.GetUserName(tempBoxUser, _userDAL, p.HandleUser.Value),
                     LeaveContent = p.LeaveContent,
                     StudentName = p.StudentName,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(p.StudentPhone, request.SecrecyType, request.SecrecyDataBag),
                     LeaveRemark = p.LeaveRemark
                 });
             }
@@ -1291,7 +1291,7 @@ namespace ETMS.Business
                 LearningManager = student.LearningManager,
                 TrackStatus = student.TrackStatus,
                 Name = student.Name,
-                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                 PhoneBak = student.PhoneBak,
                 SourceId = student.SourceId,
                 SchoolName = student.SchoolName,

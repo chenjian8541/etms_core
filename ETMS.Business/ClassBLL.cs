@@ -286,7 +286,7 @@ namespace ETMS.Business
                 CourseList = etClass.CourseList,
                 CourseDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, etClass.CourseList),
                 OneToOneStudentName = student?.Name,
-                OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType),
+                OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType, request.SecrecyDataBag),
                 TypeDesc = EmClassType.GetClassTypeDesc(etClass.Type),
                 IsCanOnlineSelClass = etClass.IsCanOnlineSelClass,
                 ReservationType = etClass.ReservationType,
@@ -586,7 +586,7 @@ namespace ETMS.Business
                     CompleteStatusDesc = EmClassCompleteStatus.GetClassCompleteStatusDesc(p.CompleteStatus),
                     CompleteTimeDesc = p.CompleteTime.EtmsToDateString(),
                     OneToOneStudentName = student?.Name,
-                    OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType),
+                    OneToOneStudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType, request.SecrecyDataBag),
                     ScheduleStatusDesc = EmClassScheduleStatus.GetClassScheduleStatusDesc(p.ScheduleStatus),
                     TeachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, p.Teachers),
                     CourseDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, p.CourseList),
@@ -754,7 +754,7 @@ namespace ETMS.Business
                         GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
                         StudentId = students.StudentId,
                         StudentName = myStudent.Student.Name,
-                        StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, request.SecrecyType),
+                        StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
                         CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
                         CId = students.Id
                     });

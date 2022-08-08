@@ -154,7 +154,7 @@ namespace ETMS.Business
                     StudentCheckStatus = p.StudentCheckStatus,
                     StudentCheckStatusDesc = EmClassStudentCheckStatus.GetClassStudentCheckStatus(p.StudentCheckStatus),
                     StudentName = student.Student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     ClassRecordId = p.ClassRecordId,
                     ClassRecordStudentId = p.Id,
                     EvaluateCount = p.EvaluateCount,
@@ -305,7 +305,7 @@ namespace ETMS.Business
                     EvaluateUserName = evaluateUserName,
                     IsRead = evaluateStudent.IsRead,
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     EvaluateMedias = ComBusiness3.GetMediasUrl(evaluateStudent.EvaluateImg),
                     EvaluateUserAvatar = evaluateUserAvatar
                 });
@@ -337,7 +337,7 @@ namespace ETMS.Business
                     ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(evaluateTeacher.StartTime)}~{EtmsHelper.GetTimeDesc(evaluateTeacher.EndTime)}",
                     WeekDesc = $"周{EtmsHelper.GetWeekDesc(evaluateTeacher.Week)}",
                     StudentName = student.Name,
-                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType),
+                    StudentPhone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
                     EvaluateTeacherRecordId = evaluateTeacher.Id,
                     Ot = evaluateTeacher.Ot,
                     StarValue = evaluateTeacher.StarValue,
