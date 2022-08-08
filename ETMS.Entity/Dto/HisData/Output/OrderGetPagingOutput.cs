@@ -115,5 +115,20 @@ namespace ETMS.Entity.Dto.HisData.Output
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        /// <summary>
+        /// 订单总金额
+        /// </summary>
+        public decimal Sum2 { get; set; }
+
+        /// <summary>
+        /// 应收金额
+        /// </summary>
+        public decimal AptSum2 { get; set; }
+
+        /// <summary>
+        /// 支付金额
+        /// </summary>
+        public decimal PaySum2 { get; set; }
     }
 }

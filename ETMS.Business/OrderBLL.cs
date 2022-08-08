@@ -142,7 +142,7 @@ namespace ETMS.Business
             foreach (var p in pagingData.Item1)
             {
                 var studentInfo = await OrderStudentGet(p, request.SecrecyType, request.SecrecyDataBag);
-                orderOutput.Add(new OrderGetPagingOutput()
+                var item = new OrderGetPagingOutput()
                 {
                     AptSum = p.AptSum,
                     ArrearsSum = p.ArrearsSum,
@@ -171,8 +171,18 @@ namespace ETMS.Business
                     InOutType = p.InOutType,
                     OrderTypeDesc = EmOrderType.GetOrderTypeDesc(p.OrderType),
                     OrderSource = p.OrderSource,
-                    OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(p.OrderSource)
-                });
+                    OrderSourceDesc = EmOrderSource.GetOrderSourceDesc(p.OrderSource),
+                    AptSum2 = p.AptSum,
+                    PaySum2 = p.PaySum,
+                    Sum2 = p.Sum
+                };
+                if (p.InOutType == EmOrderInOutType.Out)
+                {
+                    item.AptSum2 = -item.AptSum2;
+                    item.PaySum2 = -item.PaySum2;
+                    item.Sum2 = -item.Sum2;
+                }
+                orderOutput.Add(item);
             }
             return ResponseBase.Success(new ResponsePagingDataBase<OrderGetPagingOutput>(pagingData.Item2, orderOutput));
         }
@@ -322,7 +332,7 @@ namespace ETMS.Business
             }
             var output = new OrderGetDetailOutput();
             var tempBoxUser = new DataTempBox<EtUser>();
-            var studentInfo = await OrderStudentGet(order, request.SecrecyType,request.SecrecyDataBag);
+            var studentInfo = await OrderStudentGet(order, request.SecrecyType, request.SecrecyDataBag);
             var commissionUsers = await ComBusiness.GetUserMultiSelectValue(tempBoxUser, _userDAL, order.CommissionUser);
             output.BascInfo = new OrderGetDetailBascInfo()
             {

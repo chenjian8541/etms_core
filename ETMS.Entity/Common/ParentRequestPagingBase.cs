@@ -24,6 +24,10 @@ namespace ETMS.Entity.Common
         {
             if (PageSize > 0 && PageCurrent > 0)
             {
+                if (PageSize > 500)
+                {
+                    return "每页最多500条数据";
+                }
                 return string.Empty;
             }
             else
