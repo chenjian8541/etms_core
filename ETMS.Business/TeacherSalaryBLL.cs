@@ -382,7 +382,8 @@ namespace ETMS.Business
                                         {
                                             MinLimit = myTempSetDetailsClassFirst.MinLimit,
                                             MaxLimit = myTempSetDetailsClassFirst.MaxLimit,
-                                            ComputeValue = myTempSetDetailsClassFirst.ComputeValue
+                                            ComputeValue = myTempSetDetailsClassFirst.ComputeValue,
+                                            ComputeValueType = myTempSetDetailsClassFirst.ComputeValueType,
                                         });
                                     }
                                     else
@@ -393,7 +394,8 @@ namespace ETMS.Business
                                             {
                                                 MinLimit = myClassSetDetail.MinLimit,
                                                 MaxLimit = myClassSetDetail.MaxLimit,
-                                                ComputeValue = myClassSetDetail.ComputeValue
+                                                ComputeValue = myClassSetDetail.ComputeValue,
+                                                ComputeValueType = myClassSetDetail.ComputeValueType
                                             });
                                         }
                                     }
@@ -405,9 +407,11 @@ namespace ETMS.Business
                                 {
                                     MaxLimit = null,
                                     MinLimit = null,
-                                    ComputeValue = 0
+                                    ComputeValue = 0,
+                                    ComputeValueType = EmTeacherSalaryComputeValueType.Proportion
                                 });
                             }
+                            performanceSetClass.ComputeValueType = performanceSetClass.SetDetails.First().ComputeValueType;
                             performanceSetClass.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetClass.ComputeMode);
                             performanceSetClass.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetClass.ComputeMode);
                             performanceSetClass.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetClass.ComputeMode);
@@ -467,7 +471,8 @@ namespace ETMS.Business
                                         {
                                             MinLimit = myTempSetDetailsCourseFirst.MinLimit,
                                             MaxLimit = myTempSetDetailsCourseFirst.MaxLimit,
-                                            ComputeValue = myTempSetDetailsCourseFirst.ComputeValue
+                                            ComputeValue = myTempSetDetailsCourseFirst.ComputeValue,
+                                            ComputeValueType = myTempSetDetailsCourseFirst.ComputeValueType
                                         });
                                     }
                                     else
@@ -478,7 +483,8 @@ namespace ETMS.Business
                                             {
                                                 MinLimit = myCourseSetDetail.MinLimit,
                                                 MaxLimit = myCourseSetDetail.MaxLimit,
-                                                ComputeValue = myCourseSetDetail.ComputeValue
+                                                ComputeValue = myCourseSetDetail.ComputeValue,
+                                                ComputeValueType = myCourseSetDetail.ComputeValueType
                                             });
                                         }
                                     }
@@ -490,9 +496,11 @@ namespace ETMS.Business
                                 {
                                     MaxLimit = null,
                                     MinLimit = null,
-                                    ComputeValue = 0
+                                    ComputeValue = 0,
+                                    ComputeValueType = EmTeacherSalaryComputeValueType.Proportion
                                 });
                             }
+                            performanceSetCourse.ComputeValueType = performanceSetCourse.SetDetails.First().ComputeValueType;
                             performanceSetCourse.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetCourse.ComputeMode);
                             performanceSetCourse.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetCourse.ComputeMode);
                             performanceSetCourse.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetCourse.ComputeMode);
@@ -514,7 +522,8 @@ namespace ETMS.Business
                             {
                                 MinLimit = myTempSetDetailsGlobalFirst.MinLimit,
                                 MaxLimit = myTempSetDetailsGlobalFirst.MaxLimit,
-                                ComputeValue = myTempSetDetailsGlobalFirst.ComputeValue
+                                ComputeValue = myTempSetDetailsGlobalFirst.ComputeValue,
+                                ComputeValueType = myTempSetDetailsGlobalFirst.ComputeValueType
                             });
                         }
                         else
@@ -526,7 +535,8 @@ namespace ETMS.Business
                                 {
                                     MinLimit = myGlobalSetDetail.MinLimit,
                                     MaxLimit = myGlobalSetDetail.MaxLimit,
-                                    ComputeValue = myGlobalSetDetail.ComputeValue
+                                    ComputeValue = myGlobalSetDetail.ComputeValue,
+                                    ComputeValueType = myGlobalSetDetail.ComputeValueType
                                 });
                             }
                         }
@@ -544,6 +554,7 @@ namespace ETMS.Business
                         setDetailsGlobal.Add(new TeacherSalaryContractPerformanceSetDetail()
                         {
                             ComputeValue = 0,
+                            ComputeValueType = EmTeacherSalaryComputeValueType.Proportion,
                             MaxLimit = null,
                             MinLimit = null
                         });
@@ -565,6 +576,7 @@ namespace ETMS.Business
                             RelationName ="所有班级",
                             LessonBascValue =bascValue,
                             SetDetails =setDetailsGlobal,
+                            ComputeValueType = setDetailsGlobal.First().ComputeValueType,
                             ComputeModeDesc =  EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(computeModeGlobal),
                             ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal),
                             ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(computeModeGlobal),
@@ -729,7 +741,7 @@ namespace ETMS.Business
                 }
                 if (request.PerformanceSetDetails != null && request.PerformanceSetDetails.Count > 0)
                 {
-                    var tempStudentDeSum = request.PerformanceSetDetails.FirstOrDefault(p => p.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum && p.ComputeValue > 100);
+                    var tempStudentDeSum = request.PerformanceSetDetails.FirstOrDefault(p => p.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum && p.ComputeValueType == EmTeacherSalaryComputeValueType.Proportion && p.ComputeValue > 100);
                     if (tempStudentDeSum != null)
                     {
                         return ResponseBase.CommonError("按课消金额 计算值应该小于100");
@@ -807,6 +819,7 @@ namespace ETMS.Business
                                     ComputeMode = p.ComputeMode,
                                     ComputeType = performanceSet.ComputeType,
                                     ComputeValue = p.ComputeValue,
+                                    ComputeValueType = p.ComputeValueType,
                                     IsDeleted = EmIsDeleted.Normal,
                                     MaxLimit = p.MaxLimit,
                                     MinLimit = p.MinLimit,
@@ -853,6 +866,7 @@ namespace ETMS.Business
                                     ComputeMode = p.ComputeMode,
                                     ComputeType = performanceSet.ComputeType,
                                     ComputeValue = p.ComputeValue,
+                                    ComputeValueType = p.ComputeValueType,
                                     IsDeleted = EmIsDeleted.Normal,
                                     MaxLimit = p.MaxLimit,
                                     MinLimit = p.MinLimit,
@@ -890,6 +904,7 @@ namespace ETMS.Business
                                 performanceSetDetails.Add(new EtTeacherSalaryContractPerformanceSetDetail()
                                 {
                                     ComputeValue = p.ComputeValue,
+                                    ComputeValueType = p.ComputeValueType,
                                     ComputeMode = p.ComputeMode,
                                     ComputeType = performanceSet.ComputeType,
                                     IsDeleted = EmIsDeleted.Normal,

@@ -86,6 +86,11 @@ namespace ETMS.Entity.Dto.Teacher.Request
         /// </summary>
         public byte ComputeMode { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeValueType"/>
+        /// </summary>
+        public byte ComputeValueType { get; set; }
+
         public decimal? MinLimit { get; set; }
 
         public decimal? MaxLimit { get; set; }

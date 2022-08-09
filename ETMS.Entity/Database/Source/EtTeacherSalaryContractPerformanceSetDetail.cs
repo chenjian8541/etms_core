@@ -32,5 +32,9 @@ namespace ETMS.Entity.Database.Source
 
         public decimal ComputeValue { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeValueType"/>
+        /// </summary>
+        public byte ComputeValueType { get; set; }
     }
 }

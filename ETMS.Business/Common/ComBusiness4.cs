@@ -23,21 +23,29 @@ namespace ETMS.Business.Common
     {
         internal static Tuple<string, string> GetTeacherSalaryContractPerformanceSetDetailDesc(EtTeacherSalaryContractPerformanceSetDetail item, decimal bascValue)
         {
+            var computeValueType = item.ComputeValueType;
             var unitTag = string.Empty;
-            switch (item.ComputeMode)
+            if (computeValueType == EmTeacherSalaryComputeValueType.Proportion)
             {
-                case EmTeacherSalaryComputeMode.TeacherClassTimes:
-                    unitTag = "元/课时";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentAttendeesCount:
-                    unitTag = "元/人次";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentDeSum:
-                    unitTag = "%课消比";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentClassTimes:
-                    unitTag = "元/课时";
-                    break;
+                switch (item.ComputeMode)
+                {
+                    case EmTeacherSalaryComputeMode.TeacherClassTimes:
+                        unitTag = "元/课时";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentAttendeesCount:
+                        unitTag = "元/人次";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentDeSum:
+                        unitTag = "%课消比";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentClassTimes:
+                        unitTag = "元/课时";
+                        break;
+                }
+            }
+            else
+            {
+                unitTag = "元";
             }
             var strDesc = new StringBuilder();
             if (bascValue > 0)
@@ -57,20 +65,28 @@ namespace ETMS.Business.Common
             var myItem = items.OrderBy(p => p.MinLimit);
             var firstItem = myItem.First();
             var unitTag = string.Empty;
-            switch (firstItem.ComputeMode)
+            var computeValueType = firstItem.ComputeValueType;
+            if (computeValueType == EmTeacherSalaryComputeValueType.Proportion)
             {
-                case EmTeacherSalaryComputeMode.TeacherClassTimes:
-                    unitTag = "元/课时";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentAttendeesCount:
-                    unitTag = "元/人次";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentDeSum:
-                    unitTag = "%课消比";
-                    break;
-                case EmTeacherSalaryComputeMode.StudentClassTimes:
-                    unitTag = "元/课时";
-                    break;
+                switch (firstItem.ComputeMode)
+                {
+                    case EmTeacherSalaryComputeMode.TeacherClassTimes:
+                        unitTag = "元/课时";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentAttendeesCount:
+                        unitTag = "元/人次";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentDeSum:
+                        unitTag = "%课消比";
+                        break;
+                    case EmTeacherSalaryComputeMode.StudentClassTimes:
+                        unitTag = "元/课时";
+                        break;
+                }
+            }
+            else
+            {
+                unitTag = "元";
             }
             var strDesc = new StringBuilder();
             if (bascValue > 0)

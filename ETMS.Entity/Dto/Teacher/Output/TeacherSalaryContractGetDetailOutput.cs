@@ -75,6 +75,11 @@ namespace ETMS.Entity.Dto.Teacher.Output
 
         public decimal LessonBascValue { get; set; }
 
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeValueType"/>
+        /// </summary>
+        public byte ComputeValueType { get; set; }
+
         public List<TeacherSalaryContractPerformanceSetDetail> SetDetails { get; set; }
     }
 
@@ -85,5 +90,10 @@ namespace ETMS.Entity.Dto.Teacher.Output
         public decimal? MaxLimit { get; set; }
 
         public decimal ComputeValue { get; set; }
+
+        /// <summary>
+        /// <see cref="ETMS.Entity.Enum.EmTeacherSalaryComputeValueType"/>
+        /// </summary>
+        public byte ComputeValueType { get; set; }
     }
 }
