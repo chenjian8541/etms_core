@@ -105,6 +105,10 @@ namespace ETMS.Business
             {
                 return 0;
             }
+            if (setRule.ComputeValueType == EmTeacherSalaryComputeValueType.FixedAmount)
+            {
+                return setRule.ComputeValue;
+            }
             if (setRule.ComputeMode == EmTeacherSalaryComputeMode.StudentDeSum) //课消金额按比例绩效
             {
                 if (setRule.ComputeValue <= 0)
@@ -140,6 +144,7 @@ namespace ETMS.Business
             {
                 foreach (var p in myRules)
                 {
+                    var isFixedAmount = p.ComputeValueType == EmTeacherSalaryComputeValueType.FixedAmount;
                     if (p.ComputeValue <= 0) //防止0作为除数
                     {
                         if (p.MaxLimit == null)
@@ -156,18 +161,18 @@ namespace ETMS.Business
 
                     if (p.MaxLimit == null) //最后一项
                     {
-                        totalMoney += surplusRelationValue * p.ComputeValue / 100;
+                        totalMoney += isFixedAmount ? p.ComputeValue : surplusRelationValue * p.ComputeValue / 100;
                         break;
                     }
                     var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
                     if (surplusRelationValue > intervalValue)
                     {
-                        totalMoney += intervalValue * p.ComputeValue / 100;
+                        totalMoney += isFixedAmount ? p.ComputeValue : intervalValue * p.ComputeValue / 100;
                         surplusRelationValue -= intervalValue;
                     }
                     else
                     {
-                        totalMoney += surplusRelationValue * p.ComputeValue / 100;
+                        totalMoney += isFixedAmount ? p.ComputeValue : surplusRelationValue * p.ComputeValue / 100;
                         break;
                     }
                 }
@@ -176,20 +181,21 @@ namespace ETMS.Business
             {
                 foreach (var p in myRules)
                 {
+                    var isFixedAmount = p.ComputeValueType == EmTeacherSalaryComputeValueType.FixedAmount;
                     if (p.MaxLimit == null) //最后一项
                     {
-                        totalMoney += surplusRelationValue * p.ComputeValue;
+                        totalMoney += isFixedAmount ? p.ComputeValue : surplusRelationValue * p.ComputeValue;
                         break;
                     }
                     var intervalValue = p.MaxLimit.Value - p.MinLimit.Value;
                     if (surplusRelationValue > intervalValue)
                     {
-                        totalMoney += intervalValue * p.ComputeValue;
+                        totalMoney += isFixedAmount ? p.ComputeValue : intervalValue * p.ComputeValue;
                         surplusRelationValue -= intervalValue;
                     }
                     else
                     {
-                        totalMoney += surplusRelationValue * p.ComputeValue;
+                        totalMoney += isFixedAmount ? p.ComputeValue : surplusRelationValue * p.ComputeValue;
                         break;
                     }
                 }
@@ -213,18 +219,19 @@ namespace ETMS.Business
             var myRules = setRules.OrderByDescending(p => p.MinLimit);
             foreach (var p in myRules)
             {
+                var isFixedAmount = p.ComputeValueType == EmTeacherSalaryComputeValueType.FixedAmount;
                 if (computeRelationValue > p.MinLimit.Value)
                 {
                     if (computeMode == EmTeacherSalaryComputeMode.StudentDeSum)
                     {
                         if (p.ComputeValue > 0)
                         {
-                            return computeRelationValue * p.ComputeValue / 100;
+                            return isFixedAmount ? p.ComputeValue : computeRelationValue * p.ComputeValue / 100;
                         }
                     }
                     else
                     {
-                        return computeRelationValue * p.ComputeValue;
+                        return isFixedAmount ? p.ComputeValue : computeRelationValue * p.ComputeValue;
                     }
                     break;
                 }
