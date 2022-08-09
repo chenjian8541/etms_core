@@ -170,7 +170,8 @@ namespace ETMS.Business
                 attach = myTenant.Id.ToString(),
                 merchant_no = myLcsAccount.MerchantNo,
                 order_body = request.OrderDesc,
-                total_fee = request.PayMoneyCent.ToString()
+                total_fee = request.PayMoneyCent.ToString(),
+                terminal_ip = request.IpAddress
             };
             var resPay = _payLcswService.BarcodePay(payRequest);
             if (!resPay.IsRequestSuccess())
@@ -306,7 +307,8 @@ namespace ETMS.Business
                 notify_url = SysWebApiAddressConfig.LcsPayJspayCallbackUrl,
                 total_fee = request.PayMoneyCent.ToString(),
                 sub_appid = request.SubAppid,
-                attach = $"{myTenant.Id}_{request.PayLogId}"
+                attach = $"{myTenant.Id}_{request.PayLogId}",
+                terminal_ip = request.IpAddress
             };
             var unifiedOrderResult = _payLcswService.UnifiedOrder(unifiedOrderRequest);
             if (unifiedOrderResult.IsSuccess())

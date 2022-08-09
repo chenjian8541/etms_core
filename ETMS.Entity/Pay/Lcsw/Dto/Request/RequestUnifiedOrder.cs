@@ -46,5 +46,7 @@ namespace ETMS.Entity.Pay.Lcsw.Dto.Request
         public string attach { get; set; }
 
         public string sub_appid { get; set; }
+
+        public string terminal_ip { get; set; }
     }
 }

@@ -174,6 +174,7 @@ namespace ETMS.Pay.Lcsw
             param.Add("key_sign", MD5Helper.GetSign(param, requesParam.access_token));
             param.Add("order_body", requesParam.order_body);
             param.Add("attach", requesParam.attach);
+            param.Add("terminal_ip", requesParam.terminal_ip);
             return Post.PostGetJson<ResponseBarcodePay>(ApiAddress.BarcodePay, param);
         }
 
@@ -209,6 +210,7 @@ namespace ETMS.Pay.Lcsw
             param.Add("order_body", requesParam.order_body);
             param.Add("notify_url", requesParam.notify_url);
             param.Add("attach", requesParam.attach);
+            param.Add("terminal_ip", requesParam.terminal_ip);
             return Post.PostGetJson<ResponseUnifiedOrder>(ApiAddress.UnifiedOrder, param);
         }
 

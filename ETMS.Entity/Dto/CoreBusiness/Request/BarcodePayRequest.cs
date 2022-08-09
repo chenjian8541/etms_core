@@ -25,5 +25,7 @@ namespace ETMS.Entity.Dto.CoreBusiness.Request
         /// 支付金额（分）
         /// </summary>
         public int PayMoneyCent { get; set; }
+
+        public string IpAddress { get; set; }
     }
 }

@@ -27,6 +27,7 @@ using ETMS.IEventProvider;
 using ETMS.LOG;
 using ETMS.Pay.Lcsw;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -64,13 +65,15 @@ namespace ETMS.Business.Parent
 
         private readonly IElectronicAlbumDetailDAL _electronicAlbumDetailDAL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public ParentData4BLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL,
             IMallGoodsDAL mallGoodsDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IComponentAccessBLL componentAccessBLL, IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
             IDistributedLockDAL distributedLockDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
             IAgtPayServiceBLL agtPayServiceBLL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
-            IElectronicAlbumDetailDAL electronicAlbumDetailDAL)
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IHttpContextAccessor httpContextAccessor)
             : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
@@ -86,6 +89,7 @@ namespace ETMS.Business.Parent
             this._agtPayServiceBLL = agtPayServiceBLL;
             this._classRecordEvaluateDAL = classRecordEvaluateDAL;
             this._electronicAlbumDetailDAL = electronicAlbumDetailDAL;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public void InitTenantId(int tenantId)
@@ -273,7 +277,8 @@ namespace ETMS.Business.Parent
                 PayLogId = payLogId,
                 PayMoney = totalMoney,
                 PayMoneyCent = EtmsHelper3.GetCent(totalMoney),
-                SubAppid = tenantWechartAuth.AuthorizerAppid
+                SubAppid = tenantWechartAuth.AuthorizerAppid,
+                IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
             };
             _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
             var unifiedOrderResult = await _agtPayServiceBLL.UnifiedOrder(unifiedOrderRequest);

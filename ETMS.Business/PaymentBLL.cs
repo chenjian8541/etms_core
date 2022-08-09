@@ -27,6 +27,7 @@ using ETMS.IEventProvider;
 using ETMS.Pay.Lcsw;
 using ETMS.Pay.Suixing.Utility.Dto;
 using ETMS.Utility;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,9 +48,12 @@ namespace ETMS.Business
 
         private readonly IAgtPayServiceBLL _agtPayServiceBLL;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
            IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
-            IEventPublisher eventPublisher, ITenantFubeiAccountDAL tenantFubeiAccountDAL, IAgtPayServiceBLL agtPayServiceBLL)
+            IEventPublisher eventPublisher, ITenantFubeiAccountDAL tenantFubeiAccountDAL, IAgtPayServiceBLL agtPayServiceBLL,
+            IHttpContextAccessor httpContextAccessor)
             : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
         {
             this._studentDAL = studentDAL;
@@ -57,6 +61,7 @@ namespace ETMS.Business
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;
             this._eventPublisher = eventPublisher;
             this._agtPayServiceBLL = agtPayServiceBLL;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public void InitTenantId(int tenantId)
@@ -160,7 +165,8 @@ namespace ETMS.Business
                 OrderDesc = request.OrderDesc,
                 OrderNo = orderNo,
                 PayMoney = request.PayMoney,
-                PayMoneyCent = EtmsHelper3.GetCent(request.PayMoney)
+                PayMoneyCent = EtmsHelper3.GetCent(request.PayMoney),
+                IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
             };
             _agtPayServiceBLL.Initialize(checkTenantLcsAccountResult);
             var resPay = await _agtPayServiceBLL.BarcodePay(payRequest);
