@@ -301,10 +301,16 @@ namespace ETMS.DataAccess
             }
         }
 
-        public async Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut(DateTime date, int minEndTime)
+        public async Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut1(DateTime date, int minEndTime)
         {
             return await _dbWrapper.ExecuteObject<EtClassTimes>(
                 $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{date.EtmsToDateString()}' AND EndTime <= {minEndTime}");
+        }
+
+        public async Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut2(DateTime date, int minStartTime)
+        {
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{date.EtmsToDateString()}' AND StartTime <= {minStartTime}");
         }
     }
 }

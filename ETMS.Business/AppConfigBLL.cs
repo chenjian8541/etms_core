@@ -435,6 +435,8 @@ namespace ETMS.Business
             config.TenantOtherConfig.IsOpentGradeAutoUpgrade = request.IsOpentGradeAutoUpgrade;
             config.TenantOtherConfig.GradeAutoUpgradeMonth = request.GradeAutoUpgradeMonth;
             config.TenantOtherConfig.GradeAutoUpgradeDay = request.GradeAutoUpgradeDay;
+            config.TenantOtherConfig.AutoCheckSignTimeType = request.AutoCheckSignTimeType;
+            config.TenantOtherConfig.AutoCheckSignCheckStudentType = request.AutoCheckSignCheckStudentType;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

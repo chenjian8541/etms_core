@@ -66,13 +66,21 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             var now = DateTime.Now;
-            var minEndDateTime = now.AddMinutes(-config.TenantOtherConfig.AutoCheckSignLimitMinute);
-            if (now.Date != minEndDateTime.Date)
+            var minDateTime = now.AddMinutes(-config.TenantOtherConfig.AutoCheckSignLimitMinute);
+            if (now.Date != minDateTime.Date)
             {
                 return;
             }
-            var minEndTimeVaule = EtmsHelper.GetTimeHourAndMinuteDesc(minEndDateTime);
-            var unRollcallAndTimeOutData = await _classTimesDAL.GetUnRollcallAndTimeOut(now, minEndTimeVaule);
+            var minEndTimeVaule = EtmsHelper.GetTimeHourAndMinuteDesc(minDateTime);
+            IEnumerable<EtClassTimes> unRollcallAndTimeOutData;
+            if (config.TenantOtherConfig.AutoCheckSignTimeType == EmAutoCheckSignTimeType.EndTime)
+            {
+                unRollcallAndTimeOutData = await _classTimesDAL.GetUnRollcallAndTimeOut1(now, minEndTimeVaule);
+            }
+            else
+            {
+                unRollcallAndTimeOutData = await _classTimesDAL.GetUnRollcallAndTimeOut2(now, minEndTimeVaule);
+            }
             if (unRollcallAndTimeOutData.Any())
             {
                 foreach (var p in unRollcallAndTimeOutData)
@@ -80,7 +88,8 @@ namespace ETMS.Business.EventConsumer
                     _eventPublisher.Publish(new AutoCheckSignClassTimesEvent(request.TenantId)
                     {
                         ClassTimesId = p.Id,
-                        MakeupIsDeClassTimes = config.ClassCheckSignConfig.MakeupIsDeClassTimes
+                        MakeupIsDeClassTimes = config.ClassCheckSignConfig.MakeupIsDeClassTimes,
+                        AutoCheckSignCheckStudentType = config.TenantOtherConfig.AutoCheckSignCheckStudentType
                     });
                 }
             }
@@ -148,6 +157,13 @@ namespace ETMS.Business.EventConsumer
             var studentLeaveCheck = new StudentIsLeaveCheck(studentLeave);
             studentLeave = studentLeaveCheck.GetStudentLeaveList(myClassTimes.StartTime, myClassTimes.EndTime, classOt);
 
+            //考勤
+            List<EtStudentCheckOnLog> checkInLog = null;
+            if (request.AutoCheckSignCheckStudentType == EmAutoCheckSignCheckStudentType.StudentCheckOn)
+            {
+                checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(request.ClassTimesId);
+            }
+
             var classRecordStudents = new List<EtClassRecordStudent>();
             var tempBoxCouese = new DataTempBox<EtCourse>();
             if (myClassStudent != null && myClassStudent.Any())
@@ -171,6 +187,7 @@ namespace ETMS.Business.EventConsumer
                     var rewardPoints = myCourse.CheckPoints;
                     var remark = string.Empty;
                     var studentCheckStatus1 = EmClassStudentCheckStatus.Arrived;
+                    var deClassTimes = myClass.DefaultClassTimes;
                     if (studentLeave != null && studentLeave.Count > 0) //是否请假
                     {
                         var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
@@ -180,6 +197,21 @@ namespace ETMS.Business.EventConsumer
                             isRewardPoints = false;
                             rewardPoints = 0;
                             remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                        }
+                    }
+                    if (request.AutoCheckSignCheckStudentType == EmAutoCheckSignCheckStudentType.StudentCheckOn)
+                    {
+                        studentCheckStatus1 = EmClassStudentCheckStatus.NotArrived;
+                        if (checkInLog != null && checkInLog.Count > 0)
+                        {
+                            var myCheckLog = checkInLog.FirstOrDefault(p => p.StudentId == student.StudentId);
+                            if (myCheckLog != null)
+                            {
+                                studentCheckStatus1 = EmClassStudentCheckStatus.Arrived;
+                                isRewardPoints = myCheckLog.Points > 0;
+                                rewardPoints = myCheckLog.Points;
+                                remark = $"考勤时间:{myCheckLog.CheckOt.EtmsToMinuteString()}";
+                            }
                         }
                     }
 
@@ -192,7 +224,7 @@ namespace ETMS.Business.EventConsumer
                         ClassOt = classOt,
                         ClassRoomIds = classRoomIds,
                         CourseId = student.CourseId,
-                        DeClassTimes = myClass.DefaultClassTimes,
+                        DeClassTimes = deClassTimes,
                         EvaluateTeacherNum = 0,
                         DeSum = 0,
                         StartTime = myClassTimes.StartTime,
@@ -274,6 +306,22 @@ namespace ETMS.Business.EventConsumer
                             isRewardPoints = false;
                             rewardPoints = 0;
                             remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
+                        }
+                    }
+
+                    if (request.AutoCheckSignCheckStudentType == EmAutoCheckSignCheckStudentType.StudentCheckOn)
+                    {
+                        studentCheckStatus2 = EmClassStudentCheckStatus.NotArrived;
+                        if (checkInLog != null && checkInLog.Count > 0)
+                        {
+                            var myCheckLog = checkInLog.FirstOrDefault(p => p.StudentId == student.StudentId);
+                            if (myCheckLog != null)
+                            {
+                                studentCheckStatus2 = EmClassStudentCheckStatus.Arrived;
+                                isRewardPoints = myCheckLog.Points > 0;
+                                rewardPoints = myCheckLog.Points;
+                                remark = $"考勤时间:{myCheckLog.CheckOt.EtmsToMinuteString()}";
+                            }
                         }
                     }
 

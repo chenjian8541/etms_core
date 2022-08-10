@@ -61,5 +61,17 @@ namespace ETMS.Entity.Dto.BasicData.Request
         public int? GradeAutoUpgradeMonth { get; set; }
 
         public int? GradeAutoUpgradeDay { get; set; }
+
+        /// <summary>
+        /// 自动点名 时间类型
+        /// <see cref="ETMS.Entity.Enum.EmAutoCheckSignTimeType"/>
+        /// </summary>
+        public int AutoCheckSignTimeType { get; set; }
+
+        /// <summary>
+        /// 自动点名 考勤类型
+        /// <see cref="ETMS.Entity.Enum.EmAutoCheckSignCheckStudentType"/>
+        /// </summary>
+        public int AutoCheckSignCheckStudentType { get; set; }
     }
 }

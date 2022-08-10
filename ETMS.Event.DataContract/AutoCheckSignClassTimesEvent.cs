@@ -18,5 +18,11 @@ namespace ETMS.Event.DataContract
         /// 补课是否扣课时
         /// </summary>
         public bool MakeupIsDeClassTimes { get; set; }
+
+        /// <summary>
+        /// 自动点名 考勤类型
+        /// <see cref="ETMS.Entity.Enum.EmAutoCheckSignCheckStudentType"/>
+        /// </summary>
+        public int AutoCheckSignCheckStudentType { get; set; }
     }
 }

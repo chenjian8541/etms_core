@@ -157,9 +157,21 @@ namespace ETMS.Entity.Config
         public bool IsAutoCheckSign { get; set; }
 
         /// <summary>
+        /// 自动点名 时间类型
+        /// <see cref="ETMS.Entity.Enum.EmAutoCheckSignTimeType"/>
+        /// </summary>
+        public int AutoCheckSignTimeType { get; set; }
+
+        /// <summary>
         /// 自动点名课次超时分钟
         /// </summary>
         public int AutoCheckSignLimitMinute { get; set; }
+
+        /// <summary>
+        /// 自动点名 考勤类型
+        /// <see cref="ETMS.Entity.Enum.EmAutoCheckSignCheckStudentType"/>
+        /// </summary>
+        public int AutoCheckSignCheckStudentType { get; set; }
 
         /// <summary>
         /// 课程自动升级
