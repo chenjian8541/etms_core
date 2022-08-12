@@ -412,7 +412,7 @@ namespace ETMS.Business
                                 });
                             }
                             performanceSetClass.ComputeValueType = performanceSetClass.SetDetails.First().ComputeValueType;
-                            performanceSetClass.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetClass.ComputeMode);
+                            performanceSetClass.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetClass.ComputeMode, performanceSetClass.ComputeValueType);
                             performanceSetClass.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetClass.ComputeMode);
                             performanceSetClass.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetClass.ComputeMode);
                             performanceSetClass.ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(performanceSetClass.ComputeMode);
@@ -501,7 +501,7 @@ namespace ETMS.Business
                                 });
                             }
                             performanceSetCourse.ComputeValueType = performanceSetCourse.SetDetails.First().ComputeValueType;
-                            performanceSetCourse.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetCourse.ComputeMode);
+                            performanceSetCourse.ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(performanceSetCourse.ComputeMode, performanceSetCourse.ComputeValueType);
                             performanceSetCourse.ComputeModeDesc = EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(performanceSetCourse.ComputeMode);
                             performanceSetCourse.ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(performanceSetCourse.ComputeMode);
                             performanceSetCourse.ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(performanceSetCourse.ComputeMode);
@@ -568,6 +568,7 @@ namespace ETMS.Business
                             bascValue = myGlobalLessonBasc.ComputeValue;
                         }
                     }
+                    var tempComputeValueType = setDetailsGlobal.First().ComputeValueType;
                     output = new List<TeacherSalaryContractPerformanceSet>() {
                         new TeacherSalaryContractPerformanceSet(){
                             ComputeMode =computeModeGlobal,
@@ -576,9 +577,9 @@ namespace ETMS.Business
                             RelationName ="所有班级",
                             LessonBascValue =bascValue,
                             SetDetails =setDetailsGlobal,
-                            ComputeValueType = setDetailsGlobal.First().ComputeValueType,
+                            ComputeValueType =tempComputeValueType ,
                             ComputeModeDesc =  EmTeacherSalaryComputeMode.GetTeacherSalaryComputeModeDesc2(computeModeGlobal),
-                            ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal),
+                            ComputeModeUnitDesc = EmTeacherSalaryComputeMode.GetModelUnitDesc(computeModeGlobal,tempComputeValueType),
                             ComputeValueMaxLength = EmTeacherSalaryComputeMode.GetSalaryComputeModeValueMaxLength(computeModeGlobal),
                             ComputeModeHint = EmTeacherSalaryComputeMode.GetSalaryComputeModeHint(computeModeGlobal)
                         }};

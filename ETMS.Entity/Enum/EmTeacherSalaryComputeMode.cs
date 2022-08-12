@@ -95,8 +95,12 @@ namespace ETMS.Entity.Enum
             return string.Empty;
         }
 
-        public static string GetModelUnitDesc(byte t)
+        public static string GetModelUnitDesc(byte t, int computeValueType)
         {
+            if (computeValueType == EmTeacherSalaryComputeValueType.FixedAmount)
+            {
+                return "元";
+            }
             switch (t)
             {
                 case EmTeacherSalaryComputeMode.TeacherClassTimes:
