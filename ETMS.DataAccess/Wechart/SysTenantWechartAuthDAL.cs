@@ -67,5 +67,11 @@ namespace ETMS.DataAccess.Wechart
             }
             return true;
         }
+
+        public async Task DelSysTenantWechartAuth(int tenantId)
+        {
+            await this.Execute($"UPDATE SysTenantWechartAuth SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {tenantId}");
+            RemoveCache(tenantId);
+        }
     }
 }

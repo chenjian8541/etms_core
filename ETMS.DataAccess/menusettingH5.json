@@ -99,6 +99,15 @@
     "CategoryId": 3
   },
   {
+    "Id": 25,
+    "Name": "通知管理",
+    "Icon": "system/material/teacher/menus/105.png",
+    "PageId": 70,
+    "ActionId": 0,
+    "Sort": 105,
+    "CategoryId": 3
+  },
+  {
     "Id": 11,
     "Name": "跟进记录",
     "Icon": "system/material/teacher/menus/110.png",

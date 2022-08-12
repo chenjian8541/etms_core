@@ -10,5 +10,7 @@ namespace ETMS.IBusiness.Wechart
     public interface IWxAccessBLL:IBaseBLL
     {
         Task<ResponseBase> WxConfigBascGet(WxConfigBascGetRequest request);
+
+        Task<ResponseBase> WxUnbound(WxUnboundRequest request);
     }
 }

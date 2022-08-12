@@ -13,5 +13,7 @@ namespace ETMS.IDataAccess.Wechart
         Task<bool> SaveSysTenantWechartAuth(SysTenantWechartAuth entity);
 
         Task<bool> OnUnauthorizeTenantWechart(string authorizerAppid);
+
+        Task DelSysTenantWechartAuth(int tenantId);
     }
 }
