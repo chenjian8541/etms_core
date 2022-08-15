@@ -34,6 +34,8 @@ namespace ETMS.Manage.Jobs
             {
                 AnalyzeDate = _analyzeDate
             });
+
+            _eventPublisher.Publish(new AutoSyncTenantClassEvent(tenant.Id));
         }
     }
 }

@@ -312,5 +312,16 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<EtClassTimes>(
                 $"SELECT * FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND DataType = {EmClassTimesDataType.Normal} AND [Status] = {EmClassTimesStatus.UnRollcall} AND ClassOt = '{date.EtmsToDateString()}' AND StartTime <= {minStartTime}");
         }
+
+        public async Task<string> GetClassTimesStudentIdsClass(long classId)
+        {
+            var sql = $"SELECT TOP 1 StudentIdsClass FROM EtClassTimes WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return null;
+            }
+            return obj.ToString();
+        }
     }
 }

@@ -106,5 +106,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut1(DateTime date, int minEndTime);
 
         Task<IEnumerable<EtClassTimes>> GetUnRollcallAndTimeOut2(DateTime date, int minStartTime);
+
+        Task<string> GetClassTimesStudentIdsClass(long classId);
     }
 }

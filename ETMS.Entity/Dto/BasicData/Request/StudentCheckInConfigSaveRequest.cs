@@ -115,9 +115,9 @@ namespace ETMS.Entity.Dto.BasicData.Request
             {
                 return "间隔时间范围5~6000秒";
             }
-            if (RelationClassTimesLimitMinuteCard > 60 || RelationClassTimesLimitMinuteFace > 60)
+            if (RelationClassTimesLimitMinuteCard > 200 || RelationClassTimesLimitMinuteFace > 200)
             {
-                return "考勤时间与上课时间的间隔范围0~60分钟";
+                return "考勤时间与上课时间的间隔范围0~200分钟";
             }
             return base.Validate();
         }

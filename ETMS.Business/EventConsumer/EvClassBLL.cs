@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using ETMS.Entity.Database.Source;
 using ETMS.Business.Common;
 using ETMS.Entity.Temp;
+using ETMS.Entity.Dto.Educational.Request;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -314,6 +315,61 @@ namespace ETMS.Business.EventConsumer
         {
             await _statisticsEducationDAL.SyncClassCategoryId(request.ClassId, request.NewClassCategoryId);
             await _classRecordDAL.SyncClassCategoryId(request.ClassId, request.NewClassCategoryId);
+        }
+
+        public async Task AutoSyncTenantClassConsumerEvent(AutoSyncTenantClassEvent request)
+        {
+            var pagingRequest = new ClassGetPagingRequest()
+            {
+                PageCurrent = 1,
+                PageSize = 100,
+                LoginTenantId = request.TenantId,
+                Type = EmClassType.OneToMany,
+                CompleteStatus = EmClassCompleteStatus.UnComplete
+            };
+            var itemResult = await _classDAL.GetPaging(pagingRequest);
+            if (itemResult.Item2 == 0)
+            {
+                return;
+            }
+            ProcessAutoSyncTenantClassConsumerEvent(request.TenantId, itemResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(itemResult.Item2, pagingRequest.PageSize);
+            pagingRequest.PageCurrent++;
+            while (pagingRequest.PageCurrent <= totalPage)
+            {
+                itemResult = await _classDAL.GetPaging(pagingRequest);
+                ProcessAutoSyncTenantClassConsumerEvent(request.TenantId, itemResult.Item1);
+                pagingRequest.PageCurrent++;
+            }
+        }
+
+        private void ProcessAutoSyncTenantClassConsumerEvent(int tenantId, IEnumerable<EtClass> items)
+        {
+            foreach (var item in items)
+            {
+                if (string.IsNullOrEmpty(item.StudentIds))
+                {
+                    continue;
+                }
+                _eventPublisher.Publish(new AutoSyncTenantClassDetailEvent(tenantId)
+                {
+                    ClassId = item.Id,
+                    MyClass = item
+                });
+            }
+        }
+
+        public async Task AutoSyncTenantClassDetailConsumerEvent(AutoSyncTenantClassDetailEvent request)
+        {
+            var classTimesStudentIdsClass = await _classTimesDAL.GetClassTimesStudentIdsClass(request.ClassId);
+            if (classTimesStudentIdsClass == null)
+            {
+                return;
+            }
+            if (request.MyClass.StudentIds != classTimesStudentIdsClass)
+            {
+                _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, request.ClassId));
+            }
         }
     }
 }
