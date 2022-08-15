@@ -18,5 +18,7 @@ namespace ETMS.Entity.Temp
         public string StudentCountSurplusDesc { get; set; }
 
         public string CantReservationErrDesc { get; set; }
+
+        public int NewStudentCount { get; set; }
     }
 }

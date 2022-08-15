@@ -65,12 +65,15 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             IEventPublisher eventPublisher, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
            IAppConfig2BLL appConfig2BLL, IUserDAL userDAL, IClassTimesDAL classTimesDAL, IStudentCourseDAL studentCourseDAL,
            IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
-           IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentOperationLogDAL studentOperationLogDAL)
+           IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentOperationLogDAL studentOperationLogDAL,
+           IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -91,6 +94,7 @@ namespace ETMS.Business
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentOperationLogDAL = studentOperationLogDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -99,7 +103,8 @@ namespace ETMS.Business
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
                 _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeLogDAL,
-                _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL, _studentOperationLogDAL);
+                _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL, _studentOperationLogDAL,
+                _studentLeaveApplyLogDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -449,12 +454,58 @@ namespace ETMS.Business
             }));
         }
 
-        private ClassTimesReservationLimit CheckClassTimesReservationLimit(EtClassTimes myClassTimes, long studentId, DateTime now)
+        private List<EtStudentLeaveApplyLog> _studentLeaves;
+
+        private bool _isGetStudentLeaves;
+
+        private StudentIsLeaveCheck _studentLeaveCheck;
+
+        /// <summary>
+        /// 获取一节课中学员的个数（移除请假的学员）
+        /// </summary>
+        /// <param name="myClassTimes"></param>
+        /// <returns></returns>
+        private async Task<int> GetClassTimesEffectiveStudentCount(EtClassTimes myClassTimes)
+        {
+            if (!_isGetStudentLeaves)
+            {
+                var allStudentLeaves = await _studentLeaveApplyLogDAL.GetStudentLeaveApplyPassLog(myClassTimes.ClassOt);
+                _isGetStudentLeaves = true;
+                _studentLeaveCheck = new StudentIsLeaveCheck(allStudentLeaves);
+            }
+            _studentLeaves = _studentLeaveCheck.GetStudentLeaveList(myClassTimes.StartTime, myClassTimes.EndTime, myClassTimes.ClassOt);
+            if (_studentLeaves == null || _studentLeaves.Count == 0)
+            {
+                return myClassTimes.StudentCount;
+            }
+            var allStudents = new List<long>();
+            if (!string.IsNullOrEmpty(myClassTimes.StudentIdsClass))
+            {
+                allStudents.AddRange(EtmsHelper.AnalyzeMuIds(myClassTimes.StudentIdsClass));
+            }
+            if (!string.IsNullOrEmpty(myClassTimes.StudentIdsTemp))
+            {
+                allStudents.AddRange(EtmsHelper.AnalyzeMuIds(myClassTimes.StudentIdsTemp));
+            }
+            if (!string.IsNullOrEmpty(myClassTimes.StudentIdsReservation))
+            {
+                allStudents.AddRange(EtmsHelper.AnalyzeMuIds(myClassTimes.StudentIdsReservation));
+            }
+            if (allStudents.Count == 0)
+            {
+                return myClassTimes.StudentCount;
+            }
+            var isMyLeavesCount = _studentLeaves.Where(p => allStudents.Exists(j => j == p.StudentId)).Select(p => p.StudentId).Distinct().Count();
+            return myClassTimes.StudentCount - isMyLeavesCount;
+        }
+
+        private async Task<ClassTimesReservationLimit> CheckClassTimesReservationLimit(EtClassTimes myClassTimes, long studentId, DateTime now)
         {
             var result = new ClassTimesReservationLimit()
             {
                 IsCanReservation = false,
-                Status = EmStudentReservationTimetableOutputStatus.Normal
+                Status = EmStudentReservationTimetableOutputStatus.Normal,
+                NewStudentCount = myClassTimes.StudentCount
             };
             var thisDate = now.Date;
             var thisTime = EtmsHelper.GetTimeHourAndMinuteDesc(now.AddMinutes(-1));//至少要提前一分钟预约
@@ -509,8 +560,10 @@ namespace ETMS.Business
             }
             else
             {
+                var myStudentCount = await GetClassTimesEffectiveStudentCount(myClassTimes);
+                result.NewStudentCount = myStudentCount;
                 result.StudentCountLimitDesc = myClassTimes.LimitStudentNums.Value.ToString();
-                if (myClassTimes.StudentCount >= myClassTimes.LimitStudentNums &&
+                if (myStudentCount >= myClassTimes.LimitStudentNums &&
                     myClassTimes.LimitStudentNumsType == EmLimitStudentNumsType.NotOverflow)
                 {
                     result.IsCanReservation = false;
@@ -522,13 +575,13 @@ namespace ETMS.Business
                 }
                 else
                 {
-                    if (myClassTimes.StudentCount >= myClassTimes.LimitStudentNums)
+                    if (myStudentCount >= myClassTimes.LimitStudentNums)
                     {
                         result.StudentCountSurplusDesc = "0";
                     }
                     else
                     {
-                        result.StudentCountSurplusDesc = (myClassTimes.LimitStudentNums.Value - myClassTimes.StudentCount).ToString();
+                        result.StudentCountSurplusDesc = (myClassTimes.LimitStudentNums.Value - myStudentCount).ToString();
                     }
                 }
 
@@ -565,7 +618,7 @@ namespace ETMS.Business
                     {
                         courseStyleColor = SystemConfig.ComConfig.CourseDefaultStyleColor;
                     }
-                    var reservationLimit = CheckClassTimesReservationLimit(myClassTimes, request.StudentId, now);
+                    var reservationLimit = await CheckClassTimesReservationLimit(myClassTimes, request.StudentId, now);
                     output.Add(new StudentReservationTimetableDetailOutput()
                     {
                         ClassName = etClass.Name,
@@ -578,7 +631,7 @@ namespace ETMS.Business
                         Status = reservationLimit.Status,
                         StatusDesc = EmStudentReservationTimetableOutputStatus.GetStudentReservationTimetableOutputStatusDesc(reservationLimit.Status),
                         IsCanReservation = reservationLimit.IsCanReservation,
-                        StudentCountFinish = myClassTimes.StudentCount,
+                        StudentCountFinish = reservationLimit.NewStudentCount,
                         StudentCountLimitDesc = reservationLimit.StudentCountLimitDesc,
                         StartTime = myClassTimes.StartTime,
                         EndTime = myClassTimes.EndTime
@@ -595,7 +648,7 @@ namespace ETMS.Business
             var classTimesCourseIds = EtmsHelper.AnalyzeMuIds(classTimes.CourseList);
             var cantReservationErrDesc = string.Empty;
             var courseId = 0L;
-            var reservationLimit = CheckClassTimesReservationLimit(classTimes, studentId, now);
+            var reservationLimit = await CheckClassTimesReservationLimit(classTimes, studentId, now);
             cantReservationErrDesc = reservationLimit.CantReservationErrDesc;
 
             var diffTime = classDateTime - now;
@@ -762,6 +815,7 @@ namespace ETMS.Business
             result.StudentCountSurplusDesc = reservationLimit.StudentCountSurplusDesc;
             result.CourseId = courseId;
             result.CantReservationErrDesc = cantReservationErrDesc;
+            result.NewStudentCount = reservationLimit.NewStudentCount;
             return result;
         }
 
@@ -815,7 +869,7 @@ namespace ETMS.Business
                 ClassTimesId = classTimes.Id,
                 CourseListDesc = await ComBusiness.GetCourseNames(tempBoxCourse, _courseDAL, classTimes.CourseList),
                 IsCanReservation = limitResult.IsCanReservation,
-                StudentCountFinish = classTimes.StudentCount,
+                StudentCountFinish = limitResult.NewStudentCount,
                 StudentCountLimitDesc = limitResult.StudentCountLimitDesc,
                 StudentCountSurplusDesc = limitResult.StudentCountSurplusDesc,
                 TeachersDesc = await ComBusiness.GetParentTeachers(tempBoxUser, _userDAL, classTimes.Teachers, "未安排老师"),

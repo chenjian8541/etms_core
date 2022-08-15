@@ -32,5 +32,7 @@ namespace ETMS.Entity.Temp
         public bool IsCanCancel { get; set; }
 
         public long CourseId { get; set; }
+
+        public int NewStudentCount { get; set; }
     }
 }

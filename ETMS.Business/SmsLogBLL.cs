@@ -91,7 +91,10 @@ namespace ETMS.Business
         {
             if (request.SecrecyType == EmRoleSecrecyType.Secrecy)
             {
-                return ResponseBase.CommonError("您无法访问学员手机号码");
+                if (request.SecrecyDataBag != null && request.SecrecyDataBag.StudentPhone)
+                {
+                    return ResponseBase.CommonError("您无法访问学员手机号码");
+                }
             }
             var lockKey = new StudentSmsBatchSendToken(request.LoginTenantId);
             if (_distributedLockDAL.LockTake(lockKey))
