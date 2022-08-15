@@ -188,17 +188,6 @@ namespace ETMS.Business.EventConsumer
                     var remark = string.Empty;
                     var studentCheckStatus1 = EmClassStudentCheckStatus.Arrived;
                     var deClassTimes = myClass.DefaultClassTimes;
-                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
-                    {
-                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
-                        if (myLeaveLog != null)
-                        {
-                            studentCheckStatus1 = EmClassStudentCheckStatus.Leave;
-                            isRewardPoints = false;
-                            rewardPoints = 0;
-                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
-                        }
-                    }
                     if (request.AutoCheckSignCheckStudentType == EmAutoCheckSignCheckStudentType.StudentCheckOn)
                     {
                         studentCheckStatus1 = EmClassStudentCheckStatus.NotArrived;
@@ -212,6 +201,17 @@ namespace ETMS.Business.EventConsumer
                                 rewardPoints = myCheckLog.Points;
                                 remark = $"考勤时间:{myCheckLog.CheckOt.EtmsToMinuteString()}";
                             }
+                        }
+                    }
+                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                    {
+                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
+                        if (myLeaveLog != null)
+                        {
+                            studentCheckStatus1 = EmClassStudentCheckStatus.Leave;
+                            isRewardPoints = false;
+                            rewardPoints = 0;
+                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
                         }
                     }
 
@@ -297,18 +297,6 @@ namespace ETMS.Business.EventConsumer
                     var rewardPoints = myCourse.CheckPoints;
                     var remark = string.Empty;
                     var studentCheckStatus2 = EmClassStudentCheckStatus.Arrived;
-                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
-                    {
-                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
-                        if (myLeaveLog != null)
-                        {
-                            studentCheckStatus2 = EmClassStudentCheckStatus.Leave;
-                            isRewardPoints = false;
-                            rewardPoints = 0;
-                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
-                        }
-                    }
-
                     if (request.AutoCheckSignCheckStudentType == EmAutoCheckSignCheckStudentType.StudentCheckOn)
                     {
                         studentCheckStatus2 = EmClassStudentCheckStatus.NotArrived;
@@ -322,6 +310,17 @@ namespace ETMS.Business.EventConsumer
                                 rewardPoints = myCheckLog.Points;
                                 remark = $"考勤时间:{myCheckLog.CheckOt.EtmsToMinuteString()}";
                             }
+                        }
+                    }
+                    if (studentLeave != null && studentLeave.Count > 0) //是否请假
+                    {
+                        var myLeaveLog = studentLeaveCheck.GeStudentLeaveLog(myClassTimes.StartTime, myClassTimes.EndTime, student.StudentId, classOt);
+                        if (myLeaveLog != null)
+                        {
+                            studentCheckStatus2 = EmClassStudentCheckStatus.Leave;
+                            isRewardPoints = false;
+                            rewardPoints = 0;
+                            remark = $"请假时间：{myLeaveLog.StartDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.StartTime)}~{myLeaveLog.EndDate.EtmsToDateString()} {EtmsHelper.GetTimeDesc(myLeaveLog.EndTime)}";
                         }
                     }
 
