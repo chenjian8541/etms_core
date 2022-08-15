@@ -678,12 +678,28 @@ namespace ETMS.Business.EventConsumer
                 var oldEndTime = p.EndTime.Value;
                 var deDays = -exceedCount * myPriceRule.ExLimitDeValue.Value;
                 var newEndTime = p.EndTime.Value.AddDays(deDays);
-                await _studentCourseDAL.UpdateStudentCourseDetailEndTime(p.Id, newEndTime);
+                var newStartTime = p.StartTime.Value;
+                if (newStartTime < DateTime.Now.Date)
+                {
+                    newStartTime = DateTime.Now.Date;
+                }
+                var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(newStartTime, newEndTime);
+                p.SurplusQuantity = dffTime.Item1;
+                p.SurplusSmallQuantity = dffTime.Item2;
+                if (newEndTime <= newStartTime)
+                {
+                    p.SurplusQuantity = 0;
+                    p.SurplusSmallQuantity = 0;
+                }
+
+                await _studentCourseDAL.UpdateStudentCourseDetail(p);
+
                 _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.TenantId)
                 {
                     StudentId = request.StudentId,
                     CourseId = request.CourseId,
-                    IsNotProcessStudentCourseExTimeDe = true
+                    IsNotProcessStudentCourseExTimeDe = true,
+                    IsSendNoticeStudent = true
                 });
 
                 if (handerLog != null)

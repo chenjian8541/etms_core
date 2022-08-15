@@ -14,7 +14,7 @@ namespace ETMS.Entity.CacheBucket.RedisLock
 
         public int TenantId { get; set; }
 
-        public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(20);
+        public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(60);
 
         public string GetKey()
         {
