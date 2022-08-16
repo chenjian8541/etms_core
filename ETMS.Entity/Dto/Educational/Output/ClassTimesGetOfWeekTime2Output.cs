@@ -131,5 +131,10 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 班级类型  <see cref="ETMS.Entity.Enum.EmClassType"/>
         /// </summary>
         public byte Type { get; set; }
+
+        /// <summary>
+        /// 点名记录
+        /// </summary>
+        public long? ClassRecordId { get; set; }
     }
 }

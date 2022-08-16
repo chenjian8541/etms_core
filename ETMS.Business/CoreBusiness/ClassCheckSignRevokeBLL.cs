@@ -202,6 +202,12 @@ namespace ETMS.Business
                     ClassTimesId = classRecord.ClassTimesId.Value
                 });
             }
+            else
+            {
+                //如果是未排课，但是点名时生成了临时课表，删除
+                await _classTimesDAL.DelClassTimesByClassRecordId(classRecord.Id);
+            }
+
             _eventPublisher.Publish(new NoticeStudentClassCheckSignRevokeEvent(classRecord.TenantId)
             {
                 ClassRecord = classRecord,

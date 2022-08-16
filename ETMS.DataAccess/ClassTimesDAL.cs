@@ -323,5 +323,10 @@ namespace ETMS.DataAccess
             }
             return obj.ToString();
         }
+
+        public async Task DelClassTimesByClassRecordId(long classRecordId)
+        {
+            await _dbWrapper.Execute($"UPDATE EtClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId}");
+        }
     }
 }

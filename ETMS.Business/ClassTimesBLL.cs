@@ -225,7 +225,7 @@ namespace ETMS.Business
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
                         etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType,
-                        request.SecrecyDataBag,classOt);
+                        request.SecrecyDataBag, classOt);
                     if (tempTimesStudent != null)
                     {
                         if (tempTimesStudent.StudentType == EmClassStudentType.TempStudent && tempTimesStudent.IsStopCoure && request.Type == ClassTimesGetStudentType.ClassCheckSign)
@@ -1357,6 +1357,7 @@ namespace ETMS.Business
                         ReservationType = classTimes.ReservationType,
                         IsTry = etClass.DataType == EmClassDataType.Temp,
                         Type = etClass.Type,
+                        ClassRecordId = classTimes.ClassRecordId,
                         LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                     };
                     output.Add(temp);
@@ -1447,6 +1448,7 @@ namespace ETMS.Business
                         ReservationType = classTimes.ReservationType,
                         IsTry = etClass.DataType == EmClassDataType.Temp,
                         Type = etClass.Type,
+                        ClassRecordId = classTimes.ClassRecordId,
                         LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                     };
                     switch (classTimes.ClassOt.DayOfWeek)
@@ -1581,6 +1583,7 @@ namespace ETMS.Business
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp,
                             Type = etClass.Type,
+                            ClassRecordId = classTimes.ClassRecordId,
                             LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);
@@ -1717,6 +1720,7 @@ namespace ETMS.Business
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp,
                             Type = etClass.Type,
+                            ClassRecordId = classTimes.ClassRecordId,
                             LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);
@@ -1837,6 +1841,7 @@ namespace ETMS.Business
                             ReservationType = classTimes.ReservationType,
                             IsTry = etClass.DataType == EmClassDataType.Temp,
                             Type = etClass.Type,
+                            ClassRecordId = classTimes.ClassRecordId,
                             LimitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType)
                         };
                         myProcessedClassTimes.Add(temp);

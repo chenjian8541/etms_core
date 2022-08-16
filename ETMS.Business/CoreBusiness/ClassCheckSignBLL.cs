@@ -573,6 +573,43 @@ namespace ETMS.Business
                 Time = request.ClassRecord.ClassOt
             });
             _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId, StatisticsWeekAndMonthType.ClassTimes));
+
+            if (request.ClassRecord.ClassTimesId == null)
+            {
+                var myClassRecord = request.ClassRecord;
+                await _classTimesDAL.AddClassTimes(new EtClassTimes()
+                {
+                    ClassContent = myClassRecord.ClassContent,
+                    ClassId = myClassRecord.ClassId,
+                    ClassOt = myClassRecord.ClassOt,
+                    ClassRecordId = myClassRecord.Id,
+                    IsDeleted = myClassRecord.IsDeleted,
+                    DataType = EmClassTimesDataType.Normal,
+                    CourseListIsAlone = false,
+                    CourseList = myClassRecord.CourseList,
+                    ClassType = etClassBucket.EtClass.Type,
+                    ClassRoomIds = myClassRecord.ClassRoomIds,
+                    LimitStudentNums = etClassBucket.EtClass.LimitStudentNums,
+                    ClassRoomIdsIsAlone = false,
+                    EndTime = myClassRecord.EndTime,
+                    LimitStudentNumsIsAlone = false,
+                    LimitStudentNumsType = etClassBucket.EtClass.LimitStudentNumsType,
+                    ReservationType = EmBool.False,
+                    RuleId = 0,
+                    StartTime = myClassRecord.StartTime,
+                    Status = EmClassTimesStatus.BeRollcall,
+                    StudentCount = myClassRecord.NeedAttendNumber,
+                    StudentIdsClass = myClassRecord.StudentIds,
+                    StudentIdsReservation = null,
+                    StudentIdsTemp = null,
+                    StudentTempCount = 0,
+                    TeacherNum = myClassRecord.TeacherNum,
+                    Teachers = myClassRecord.Teachers,
+                    TeachersIsAlone = false,
+                    TenantId = myClassRecord.TenantId,
+                    Week = myClassRecord.Week
+                });
+            }
         }
 
         private async Task<DeStudentClassTimesResult> DeStudentClassTimes(EtClassRecordStudent classRecordStudent, bool isLeaveCharge, bool isNotComeCharge)
