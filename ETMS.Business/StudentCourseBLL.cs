@@ -1254,26 +1254,41 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCourseNotEnoughRemindCancel(StudentCourseNotEnoughRemindCancelRequest request)
         {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("不存在此学员");
+            }
             await _studentCourseDAL.CancelStudentCourseNotEnoughRemind(request.StudentId, request.CourseId);
 
             _eventPublisher.Publish(new ResetTenantToDoThingEvent(request.LoginTenantId));
-            await _userOperationLogDAL.AddUserLog(request, "取消学员课程不足续费预警", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"取消学员课程不足续费预警,学员名称:{studentBucket.Student.Name}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> StudentCourseSetCheckDefault(StudentCourseSetCheckDefaultRequest request)
         {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("不存在此学员");
+            }
             await _studentCourseDAL.StudentCourseSetCheckDefault(request.StudentId, request.CourseId);
 
-            await _userOperationLogDAL.AddUserLog(request, "设置学员考勤记上课课程", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"设置学员考勤记上课课程,学员名称:{studentBucket.Student.Name}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
 
         public async Task<ResponseBase> StudentCourseSetIsLimitReserve(StudentCourseSetIsLimitReserveRequest request)
         {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                return ResponseBase.CommonError("不存在此学员");
+            }
             await _studentCourseDAL.ChangeStudentCourseLimitReserve(request.StudentId, request.CourseId, request.IsLimitReserve);
 
-            await _userOperationLogDAL.AddUserLog(request, "设置学员课程是否允许约课", EmUserOperationType.StudentCourseManage);
+            await _userOperationLogDAL.AddUserLog(request, $"设置学员课程是否允许约课,学员名称:{studentBucket.Student.Name}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
     }
