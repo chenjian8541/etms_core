@@ -716,6 +716,10 @@ namespace ETMS.Business
                 TenantId = request.LoginTenantId
             });
 
+            _eventPublisher.Publish(new SyncStudentAccountRechargeRelationStudentIdsEvent(request.LoginTenantId)
+            {
+                StudentAccountRechargeId = accountLog.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, $"添加关联学员-账户:{accountLog.Phone},学员:{studentBucket.Student.Name}({studentBucket.Student.Phone})", EmUserOperationType.StudentAccountRechargeManage);
             return ResponseBase.Success();
         }
@@ -740,6 +744,10 @@ namespace ETMS.Business
 
             await _studentAccountRechargeDAL.StudentAccountRechargeBinderRemove(accountLog.Phone, request.StudentAccountRechargeBinderId, request.StudentId);
 
+            _eventPublisher.Publish(new SyncStudentAccountRechargeRelationStudentIdsEvent(request.LoginTenantId)
+            {
+                StudentAccountRechargeId = accountLog.Id
+            });
             await _userOperationLogDAL.AddUserLog(request, $"移除关联学员-账户:{accountLog.Phone},学员:{studentBucket.Student.Name}({studentBucket.Student.Phone})", EmUserOperationType.StudentAccountRechargeManage);
             return ResponseBase.Success();
         }

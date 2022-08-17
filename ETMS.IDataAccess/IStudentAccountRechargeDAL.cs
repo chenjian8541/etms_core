@@ -1,6 +1,7 @@
 ﻿using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
+using ETMS.Entity.View.OnlyOneFiled;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,5 +30,9 @@ namespace ETMS.IDataAccess
         Task<bool> StudentAccountRechargeBinderAdd(string phone, EtStudentAccountRechargeBinder entity);
 
         Task<bool> StudentAccountRechargeBinderRemove(string phone, long rechargeBinderId,long studentId);
+
+        Task<IEnumerable<OnlyOneFiledStudentId>> GetStudentAccountRechargeStudentIds(long studentAccountRechargeId);
+
+        Task UpdatetStudentAccountRechargeStudentIds(long studentAccountRechargeId, string newRelationStudentIds);
     }
 }

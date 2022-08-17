@@ -29,6 +29,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public decimal? RechargeGiveSumMax { get; set; }
 
+        public long? StudentId { get; set; }
+
         /// <summary>
         /// 获取SQL语句
         /// </summary>
@@ -79,6 +81,10 @@ namespace ETMS.Entity.Dto.Student.Request
             if (RechargeGiveSumMax != null)
             {
                 condition.Append($" AND RechargeGiveSum <= {RechargeGiveSumMax}");
+            }
+            if (StudentId != null)
+            {
+                condition.Append($" AND RelationStudentIds LIKE '%,{StudentId},%'");
             }
             return condition.ToString();
         }

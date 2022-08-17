@@ -3,6 +3,7 @@ using ETMS.Entity.CacheBucket;
 using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
+using ETMS.Entity.View.OnlyOneFiled;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using System;
@@ -112,6 +113,18 @@ namespace ETMS.DataAccess
             _studentAccountRechargeBinderCacheDAL.RemoveStudentAccountRechargeBinder(studentId);
             await UpdateCache(_tenantId, phone);
             return true;
+        }
+
+        public async Task<IEnumerable<OnlyOneFiledStudentId>> GetStudentAccountRechargeStudentIds(long studentAccountRechargeId)
+        {
+            return await _dbWrapper.ExecuteObject<OnlyOneFiledStudentId>(
+                $"SELECT StudentId FROM EtStudentAccountRechargeBinder WHERE TenantId = {_tenantId} AND StudentAccountRechargeId = {studentAccountRechargeId} AND IsDeleted = {EmIsDeleted.Normal}");
+        }
+
+        public async Task UpdatetStudentAccountRechargeStudentIds(long studentAccountRechargeId, string newRelationStudentIds)
+        {
+            await _dbWrapper.Execute(
+                $"UPDATE EtStudentAccountRecharge SET RelationStudentIds = '{newRelationStudentIds}' WHERE Id = {studentAccountRechargeId} AND TenantId = {_tenantId}");
         }
     }
 }
