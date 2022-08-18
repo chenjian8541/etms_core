@@ -36,9 +36,11 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
         public JobAnalyzeBLL(IJobAnalyzeDAL analyzeClassTimesDAL, IClassDAL classDAL, IHolidaySettingDAL holidaySettingDAL, IClassRecordDAL classRecordDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL,
-            IParentStudentDAL parentStudentDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL)
+            IParentStudentDAL parentStudentDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
+            IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._analyzeClassTimesDAL = analyzeClassTimesDAL;
             this._classDAL = classDAL;
@@ -49,13 +51,14 @@ namespace ETMS.Business
             this._jobAnalyzeDAL = jobAnalyzeDAL;
             this._parentStudentDAL = parentStudentDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL,
                 _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL, _parentStudentDAL,
-                _studentAccountRechargeLogDAL);
+                _studentAccountRechargeLogDAL, _classTimesRuleStudentDAL);
         }
 
         public void ResetTenantId(int tenantId)
@@ -144,9 +147,10 @@ namespace ETMS.Business
                     }
 
                     var studentIdsClass = string.Empty;
-                    if (etClass.EtClassStudents != null && etClass.EtClassStudents.Any())
+                    var myClassStudents = (await ComBusiness6.GetClassStudent(etClass, _classTimesRuleStudentDAL, request.ClassTimesRuleId)).ToList();
+                    if (myClassStudents != null && myClassStudents.Any())
                     {
-                        studentIdsClass = EtmsHelper.GetMuIds(etClass.EtClassStudents.Select(p => p.StudentId));
+                        studentIdsClass = EtmsHelper.GetMuIds(myClassStudents.Select(p => p.StudentId));
                     }
 
                     await _analyzeClassTimesDAL.AddClassTimes(new EtClassTimes()

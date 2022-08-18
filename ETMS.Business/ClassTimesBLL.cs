@@ -55,11 +55,13 @@ namespace ETMS.Business
 
         private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
         public ClassTimesBLL(IClassDAL classDAL, IClassRoomDAL classRoomDAL, IStudentCourseDAL studentCourseDAL, IClassTimesDAL classTimesDAL,
             IUserDAL userDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IUserOperationLogDAL userOperationLogDAL, IStudentTrackLogDAL studentTrackLogDAL,
             ITryCalssLogDAL tryCalssLogDAL, IClassRecordDAL classRecordDAL, IEventPublisher eventPublisher,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
-            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
+            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classDAL = classDAL;
             this._classRoomDAL = classRoomDAL;
@@ -77,12 +79,14 @@ namespace ETMS.Business
             this._httpContextAccessor = httpContextAccessor;
             this._appConfigurtaionServices = appConfigurtaionServices;
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _classRoomDAL, _studentCourseDAL, _classTimesDAL, _userDAL, _courseDAL, _studentDAL,
-                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL);
+                _userOperationLogDAL, this._studentTrackLogDAL, _tryCalssLogDAL, _classRecordDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL,
+                _classTimesRuleStudentDAL);
         }
 
         public async Task<ResponseBase> ClassTimesGetView(ClassTimesGetViewRequest request)
@@ -174,7 +178,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("课次所在班级不存在");
             }
-            var classStudent = etClass.EtClassStudents;
+            var classStudent = (await ComBusiness6.GetClassStudent(etClass, _classTimesRuleStudentDAL, classTimes.RuleId)).ToList();
             var tempStudent = await _classTimesDAL.GetClassTimesStudent(request.CId);
             var checkInLog = await _studentCheckOnLogDAL.GetStudentCheckOnLogByClassTimesId(classTimes.Id);
             var output = new List<ClassTimesStudentGetOutput>();
@@ -1178,9 +1182,10 @@ namespace ETMS.Business
                             Name = myClassBucket.EtClass.Name,
                             StudentNames = string.Empty
                         };
-                        if (myClassBucket.EtClassStudents != null && myClassBucket.EtClassStudents.Any())
+                        var myClassStudents = (await ComBusiness6.GetClassStudent(myClassBucket, _classTimesRuleStudentDAL, classTimes.RuleId)).ToList();
+                        if (myClassStudents != null && myClassStudents.Any())
                         {
-                            foreach (var s in myClassBucket.EtClassStudents)
+                            foreach (var s in myClassStudents)
                             {
                                 var myStudent = await ComBusiness.GetStudent(tempBoxStudent, _studentDAL, s.StudentId);
                                 if (myStudent != null)

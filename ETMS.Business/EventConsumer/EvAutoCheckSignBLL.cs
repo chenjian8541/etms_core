@@ -36,9 +36,11 @@ namespace ETMS.Business.EventConsumer
 
         private readonly IStudentCourseDAL _studentCourseDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
         public EvAutoCheckSignBLL(IClassTimesDAL classTimesDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IEventPublisher eventPublisher, IClassDAL classDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL,
-            ICourseDAL courseDAL, IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IStudentCourseDAL studentCourseDAL)
+            ICourseDAL courseDAL, IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IStudentCourseDAL studentCourseDAL,
+            IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classTimesDAL = classTimesDAL;
             this._classRecordDAL = classRecordDAL;
@@ -50,12 +52,13 @@ namespace ETMS.Business.EventConsumer
             this._courseDAL = courseDAL;
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
             this._studentCourseDAL = studentCourseDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classTimesDAL, _classRecordDAL, _tenantConfigDAL, _classDAL,
-                _studentCheckOnLogDAL, _userDAL, _courseDAL, _studentLeaveApplyLogDAL, _studentCourseDAL);
+                _studentCheckOnLogDAL, _userDAL, _courseDAL, _studentLeaveApplyLogDAL, _studentCourseDAL, _classTimesRuleStudentDAL);
         }
 
         public async Task AutoCheckSignTenantConsumerEvent(AutoCheckSignTenantEvent request)
@@ -123,7 +126,7 @@ namespace ETMS.Business.EventConsumer
                 return;
             }
             var myClass = etClassBucket.EtClass;
-            var myClassStudent = etClassBucket.EtClassStudents;
+            var myClassStudent = (await ComBusiness6.GetClassStudent(etClassBucket, _classTimesRuleStudentDAL, myClassTimes.RuleId)).ToList();
             var classTimesStudent = await _classTimesDAL.GetClassTimesStudent(request.ClassTimesId);
             if ((myClassStudent == null || myClassStudent.Count == 0) && (classTimesStudent == null || classTimesStudent.Count == 0))
             {

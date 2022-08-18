@@ -74,11 +74,13 @@ namespace ETMS.Business
 
         private List<EtStudentCourseConsumeLog> _studentCourseConsumeLogs;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
         public StudentCheckOnGenerateClassRecordHandler(IClassDAL classDAL, IClassTimesDAL classTimesDAL, ICourseDAL courseDAL,
              IStudentCourseDAL studentCourseDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL, IClassRecordDAL classRecordDAL,
              IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
              ITryCalssLogDAL tryCalssLogDAL, IEventPublisher eventPublisher, IStudentDAL studentDAL, IStudentTrackLogDAL studentTrackLogDAL,
-             IUserDAL userDAL)
+             IUserDAL userDAL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classDAL = classDAL;
             this._classTimesDAL = classTimesDAL;
@@ -93,6 +95,7 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._studentTrackLogDAL = studentTrackLogDAL;
             this._userDAL = userDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         private EtClassRecordStudent InitAnClassRecordStudent(EtClassTimes myClassTimes, long checkUserId, string teachers, int teacherNum)
@@ -277,7 +280,7 @@ namespace ETMS.Business
             }
 
             var attendStudentIds = new List<long>();
-            var classStudent = etClassBucket.EtClassStudents;
+            var classStudent = (await ComBusiness6.GetClassStudent(etClassBucket, _classTimesRuleStudentDAL, _myClassTimes.RuleId)).ToList();
             if (classStudent != null && classStudent.Any()) //班级学员
             {
                 foreach (var myStudent in classStudent)

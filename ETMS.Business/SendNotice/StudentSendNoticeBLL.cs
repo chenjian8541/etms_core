@@ -61,6 +61,7 @@ namespace ETMS.Business
 
         private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
         public StudentSendNoticeBLL(ITenantConfigDAL tenantConfigDAL, ITempDataCacheDAL tempDataCacheDAL, IJobAnalyzeDAL jobAnalyzeDAL,
             IEventPublisher eventPublisher, IStudentDAL studentDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, ISmsService smsService,
             IClassDAL classDAL, ITempStudentClassNoticeDAL tempStudentClassNoticeDAL, IStudentCourseDAL studentCourseDAL,
@@ -68,7 +69,7 @@ namespace ETMS.Business
             IStudentWechatDAL studentWechatDAL, IUserDAL userDAL, ISysTenantDAL sysTenantDAL,
             IComponentAccessBLL componentAccessBLL, IActiveWxMessageDAL activeWxMessageDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL,
-            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
+            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._tenantConfigDAL = tenantConfigDAL;
@@ -89,6 +90,7 @@ namespace ETMS.Business
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -97,7 +99,8 @@ namespace ETMS.Business
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _jobAnalyzeDAL, _studentDAL, _courseDAL, _classRoomDAL, _classDAL,
                 _tempStudentClassNoticeDAL, _studentCourseDAL,
-                _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL);
+                _studentWechatDAL, _userDAL, _activeWxMessageDAL, _studentCheckOnLogDAL, _studentLeaveApplyLogDAL,
+                _classTimesRuleStudentDAL);
         }
 
         public async Task NoticeStudentsOfClassBeforeDayTenant(NoticeStudentsOfClassBeforeDayTenantEvent request)
@@ -152,7 +155,7 @@ namespace ETMS.Business
                 Log.Info($"[NoticeStudentsOfClassBeforeDayClassTimes]未找到对应的班级信息:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimes.Id}", this.GetType());
                 return;
             }
-            var classStudent = classBucket.EtClassStudents;
+            var classStudent = (await ComBusiness6.GetClassStudent(classBucket, _classTimesRuleStudentDAL, request.ClassTimes.RuleId)).ToList();
             if (!classTimesStudents.Any() && !classStudent.Any())
             {
                 Log.Info($"[NoticeStudentsOfClassBeforeDayClassTimes]未查询到要提醒的学生:TenantId:{request.TenantId},ClassTimesId:{request.ClassTimes.Id}", this.GetType());
@@ -396,7 +399,7 @@ namespace ETMS.Business
                 Log.Info($"[NoticeStudentsOfClassTodayClassTimes]未找到对应的班级信息:TenantId:{request.TenantId},ClassTimesId:{classTimes.Id}", this.GetType());
                 return;
             }
-            var classStudent = classBucket.EtClassStudents;
+            var classStudent = (await ComBusiness6.GetClassStudent(classBucket, _classTimesRuleStudentDAL, classTimes.RuleId)).ToList();
             if (!classTimesStudents.Any() && !classStudent.Any())
             {
                 Log.Info($"[NoticeStudentsOfClassTodayClassTimes]未查询到要提醒的学生:TenantId:{request.TenantId},ClassTimesId:{classTimes.Id}", this.GetType());

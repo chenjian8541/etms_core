@@ -53,6 +53,7 @@ namespace ETMS.Business.EventConsumer
         private readonly ITryCalssLogDAL _tryCalssLogDAL;
 
         private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
         public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL,
             IStatisticsEducationDAL statisticsEducationDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, ICourseDAL courseDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
@@ -136,7 +137,7 @@ namespace ETMS.Business.EventConsumer
                 LOG.Log.Error("[SyncClassTimesStudentConsumerEvent]班级不存在", request, this.GetType());
                 return;
             }
-            var classStudent = classBucket.EtClassStudents;
+            var classStudent = (await ComBusiness6.GetClassStudent(classBucket, _classTimesRuleStudentDAL, classTimes.RuleId)).ToList();
             var classTimesStudent = await _classTimesDAL.GetClassTimesStudent(classTimes.Id);
             if (request.DelStudentId > 0)
             {
@@ -228,7 +229,7 @@ namespace ETMS.Business.EventConsumer
             var adminUser = await _userDAL.GetAdminUser();
             var handler = new StudentCheckOnGenerateClassRecordHandler(_classDAL, _classTimesDAL, _courseDAL, _studentCourseDAL,
                 _studentCheckOnLogDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _tryCalssLogDAL,
-                _eventPublisher, _studentDAL, _studentTrackLogDAL, _userDAL);
+                _eventPublisher, _studentDAL, _studentTrackLogDAL, _userDAL, _classTimesRuleStudentDAL);
             foreach (var p in checkOnClassTimesIds)
             {
                 try

@@ -23,18 +23,22 @@ namespace ETMS.Business
 
         private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
         public TempDataGenerateBLL(IClassTimesDAL classTimesDAL, IClassDAL classDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
-            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
+            IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classTimesDAL = classTimesDAL;
             this._classDAL = classDAL;
             this._tempStudentNeedCheckDAL = tempStudentNeedCheckDAL;
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _classTimesDAL, _classDAL, _tempStudentNeedCheckDAL, _studentLeaveApplyLogDAL);
+            this.InitDataAccess(tenantId, _classTimesDAL, _classDAL, _tempStudentNeedCheckDAL, _studentLeaveApplyLogDAL,
+                _classTimesRuleStudentDAL);
         }
 
         public async Task TempStudentNeedCheckGenerateConsumerEvent(TempStudentNeedCheckGenerateEvent request)
@@ -107,9 +111,10 @@ namespace ETMS.Business
                         });
                     }
                 }
-                if (myClassBucket.EtClassStudents != null && myClassBucket.EtClassStudents.Count > 0)
+                var myClassStudents = (await ComBusiness6.GetClassStudent(myClassBucket, _classTimesRuleStudentDAL, classTimes.RuleId)).ToList();
+                if (myClassStudents != null && myClassStudents.Count > 0)
                 {
-                    foreach (var p in myClassBucket.EtClassStudents)
+                    foreach (var p in myClassStudents)
                     {
                         if (studentLeaveCheck.IsCheckStudentIsLeave(classTimes.StartTime, classTimes.EndTime, p.StudentId, classOt))
                         {
