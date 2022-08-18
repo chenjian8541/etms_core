@@ -226,6 +226,11 @@ namespace ETMS.Business
             {
                 foreach (var tMyStudent in tempStudent)
                 {
+                    var exist = output.Exists(j => j.StudentId == tMyStudent.StudentId);
+                    if (exist)
+                    {
+                        continue;
+                    }
                     var tempTimesStudent = await GetClassTimesStudent(tMyStudent.ClassId, tMyStudent.StudentId, tMyStudent.CourseId,
                         tMyStudent.StudentType, tMyStudent.ClassTimesId, tMyStudent.Id, tMyStudent.StudentTryCalssLogId,
                         etClass.EtClass.DefaultClassTimes.EtmsToString(), tMyStudent.IsReservation, request.SecrecyType,

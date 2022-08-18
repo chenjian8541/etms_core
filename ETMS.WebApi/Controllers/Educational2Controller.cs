@@ -68,6 +68,62 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ReservationCourseSetGet(RequestBase request)
+        {
+            try
+            {
+                _classReservationBLL.InitTenantId(request.LoginTenantId);
+                return await _classReservationBLL.ReservationCourseSetGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetAdd(ReservationCourseSetAddRequest request)
+        {
+            try
+            {
+                _classReservationBLL.InitTenantId(request.LoginTenantId);
+                return await _classReservationBLL.ReservationCourseSetAdd(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetEdit(ReservationCourseSetEditRequest request)
+        {
+            try
+            {
+                _classReservationBLL.InitTenantId(request.LoginTenantId);
+                return await _classReservationBLL.ReservationCourseSetEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetDel(ReservationCourseSetDelRequest request)
+        {
+            try
+            {
+                _classReservationBLL.InitTenantId(request.LoginTenantId);
+                return await _classReservationBLL.ReservationCourseSetDel(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> TeacherSchooltimeConfigGetPaging(TeacherSchooltimeConfigGetPagingRequest request)
         {
             try

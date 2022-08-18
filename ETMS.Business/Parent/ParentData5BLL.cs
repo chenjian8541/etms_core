@@ -53,11 +53,14 @@ namespace ETMS.Business.Parent
         private readonly IAchievementDAL _achievementDAL;
 
         private readonly ISubjectDAL _subjectDAL;
+
+        private readonly IReservationCourseSetDAL _reservationCourseSetDAL;
         public ParentData5BLL(IClassDAL classDAL, IUserDAL userDAL, IStudentDAL studentDAL,
             ITeacherSchooltimeConfigDAL teacherSchooltimeConfigDAL, ICourseDAL courseDAL,
             IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IAppConfig2BLL appConfig2BLL,
             IEventPublisher eventPublisher, IStudentOperationLogDAL studentOperationLogDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL,
-            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL, IAchievementDAL achievementDAL, ISubjectDAL subjectDAL)
+            IActivityMainDAL activityMainDAL, IActivityRouteDAL activityRouteDAL, IAchievementDAL achievementDAL, ISubjectDAL subjectDAL,
+            IReservationCourseSetDAL reservationCourseSetDAL)
         {
             this._classDAL = classDAL;
             this._userDAL = userDAL;
@@ -74,6 +77,7 @@ namespace ETMS.Business.Parent
             this._activityRouteDAL = activityRouteDAL;
             this._achievementDAL = achievementDAL;
             this._subjectDAL = subjectDAL;
+            this._reservationCourseSetDAL = reservationCourseSetDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -81,7 +85,7 @@ namespace ETMS.Business.Parent
             this._appConfig2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _classDAL, _userDAL, _studentDAL, _teacherSchooltimeConfigDAL,
                 _courseDAL, _holidaySettingDAL, _classTimesDAL, _studentOperationLogDAL, _tryCalssApplyLogDAL,
-                _activityMainDAL, _activityRouteDAL, _achievementDAL, _subjectDAL);
+                _activityMainDAL, _activityRouteDAL, _achievementDAL, _subjectDAL, _reservationCourseSetDAL);
         }
 
         public async Task<ResponseBase> StudentReservation1v1Check(StudentReservation1v1CheckRequest request)
@@ -263,7 +267,9 @@ namespace ETMS.Business.Parent
         /// </summary>
         private ClassReservationSettingView _ruleConfig;
 
-        private Check1v1ClassReservationLimitOutput Check1v1ClassReservationLimit(DateTime classDateTime, DateTime now, int isReservationCourseCount)
+        private List<EtReservationCourseSet> _reservationCourseSetList;
+        private async Task<Check1v1ClassReservationLimitOutput> Check1v1ClassReservationLimit(DateTime classDateTime,
+            DateTime now, int isReservationCourseCount, long courseId)
         {
             var diffTime = classDateTime - now;
             var diffTotalMinutes = diffTime.TotalMinutes;
@@ -330,7 +336,20 @@ namespace ETMS.Business.Parent
 
             if (_ruleConfig.MaxCountClassReservaLimitType != EmMaxCountClassReservaLimitType.NotLimit) //预约次数限制
             {
-                if (isReservationCourseCount >= _ruleConfig.MaxCountClassReservaLimitValue)
+                if (_reservationCourseSetList == null)
+                {
+                    _reservationCourseSetList = await _reservationCourseSetDAL.GetReservationCourseSet();
+                }
+                var limitValue = _ruleConfig.MaxCountClassReservaLimitValue;
+                if (_reservationCourseSetList != null && _reservationCourseSetList.Any())
+                {
+                    var log = _reservationCourseSetList.FirstOrDefault(j => j.CourseId == courseId);
+                    if (log != null)
+                    {
+                        limitValue = log.LimitCount;
+                    }
+                }
+                if (limitValue > 0 && isReservationCourseCount >= limitValue)
                 {
                     return new Check1v1ClassReservationLimitOutput("预约次数限制，无法预约");
                 }
@@ -444,7 +463,7 @@ namespace ETMS.Business.Parent
                         else
                         {
                             //预约配置判断
-                            var checkRuleLimit = Check1v1ClassReservationLimit(myStartTime, now, sameCount);
+                            var checkRuleLimit = await Check1v1ClassReservationLimit(myStartTime, now, sameCount, request.CourseId);
                             if (!checkRuleLimit.IsCanReservation)
                             {
                                 status = EmStudentReservation1v1LessonsStatus.Invalid;
@@ -501,7 +520,7 @@ namespace ETMS.Business.Parent
             var myStartTime = EtmsHelper3.GetDateTime(request.ClassOt.Value, request.StartTime);
             var sameCount = await _classTimesDAL.ClassTimesReservationLogGetCount(request.CourseId, request.StudentId, now);
             _ruleConfig = await _appConfig2BLL.GetClassReservationSetting();
-            var checkRuleLimit = Check1v1ClassReservationLimit(myStartTime, now, sameCount);
+            var checkRuleLimit = await Check1v1ClassReservationLimit(myStartTime, now, sameCount, request.CourseId);
             if (!checkRuleLimit.IsCanReservation)
             {
                 return ResponseBase.CommonError(checkRuleLimit.ErrMsg);

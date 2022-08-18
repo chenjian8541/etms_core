@@ -29,8 +29,10 @@ namespace ETMS.Business
 
         private readonly ICourseDAL _courseDAL;
 
+        private readonly IReservationCourseSetDAL _reservationCourseSetDAL;
+
         public ClassReservationBLL(IAppConfig2BLL appConfig2BLL, IUserOperationLogDAL userOperationLogDAL, IClassTimesDAL classTimesDAL,
-           IStudentDAL studentDAL, IClassDAL classDAL, ICourseDAL courseDAL)
+           IStudentDAL studentDAL, IClassDAL classDAL, ICourseDAL courseDAL, IReservationCourseSetDAL reservationCourseSetDAL)
         {
             this._appConfig2BLL = appConfig2BLL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -38,12 +40,13 @@ namespace ETMS.Business
             this._studentDAL = studentDAL;
             this._classDAL = classDAL;
             this._courseDAL = courseDAL;
+            this._reservationCourseSetDAL = reservationCourseSetDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._appConfig2BLL.InitTenantId(tenantId);
-            this.InitDataAccess(tenantId, _userOperationLogDAL, _classTimesDAL, _studentDAL, _classDAL, _courseDAL);
+            this.InitDataAccess(tenantId, _userOperationLogDAL, _classTimesDAL, _studentDAL, _classDAL, _courseDAL, _reservationCourseSetDAL);
         }
 
         public async Task<ResponseBase> ClassReservationRuleGet(RequestBase request)
@@ -84,6 +87,8 @@ namespace ETMS.Business
             rule.StartClassReservaLimitTimeValueDesc = EtmsHelper.GetTimeDesc(request.StartClassReservaLimitTimeValue);
 
             await _appConfig2BLL.SaveClassReservationSetting(request.LoginTenantId, rule);
+
+            await _userOperationLogDAL.AddUserLog(request, "约课设置", EmUserOperationType.ClassTimesReservationSetting);
             return ResponseBase.Success();
         }
 
@@ -130,6 +135,66 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassReservationLogGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetGet(RequestBase request)
+        {
+            var output = new List<ReservationCourseSetGetOutput>();
+            var logs = await _reservationCourseSetDAL.GetReservationCourseSet();
+            if (logs != null && logs.Any())
+            {
+                foreach (var p in logs)
+                {
+                    var myCourseBucket = await _courseDAL.GetCourse(p.CourseId);
+                    if (myCourseBucket == null || myCourseBucket.Item1 == null)
+                    {
+                        continue;
+                    }
+                    output.Add(new ReservationCourseSetGetOutput()
+                    {
+                        CId = p.Id,
+                        CourseId = p.CourseId,
+                        LimitCount = p.LimitCount,
+                        CourseName = myCourseBucket.Item1.Name
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetAdd(ReservationCourseSetAddRequest request)
+        {
+            var isExist = await _reservationCourseSetDAL.ExistReservationCourse(request.CourseId);
+            if (isExist)
+            {
+                return ResponseBase.CommonError("课程已设置");
+            }
+            await _reservationCourseSetDAL.AddReservationCourseSet(new EtReservationCourseSet()
+            {
+                CourseId = request.CourseId,
+                IsDeleted = EmIsDeleted.Normal,
+                LimitCount = request.LimitCount,
+                TenantId = request.LoginTenantId
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, "约课设置", EmUserOperationType.ClassTimesReservationSetting);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetEdit(ReservationCourseSetEditRequest request)
+        {
+            await _reservationCourseSetDAL.UpdateReservationCourseSet(request.CId, request.LimitCount);
+
+            await _userOperationLogDAL.AddUserLog(request, "约课设置", EmUserOperationType.ClassTimesReservationSetting);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> ReservationCourseSetDel(ReservationCourseSetDelRequest request)
+        {
+            await _reservationCourseSetDAL.DelReservationCourseSet(request.CId);
+
+            await _userOperationLogDAL.AddUserLog(request, "约课设置", EmUserOperationType.ClassTimesReservationSetting);
+            return ResponseBase.Success();
         }
     }
 }

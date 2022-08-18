@@ -67,13 +67,15 @@ namespace ETMS.Business
 
         private readonly IStudentLeaveApplyLogDAL _studentLeaveApplyLogDAL;
 
+        private readonly IReservationCourseSetDAL _reservationCourseSetDAL;
+
         public ParentData3BLL(IActiveWxMessageDAL activeWxMessageDAL, IStudentDAL studentDAL, IActiveWxMessageParentReadDAL activeWxMessageParentReadDAL,
             IActiveGrowthRecordDAL activeGrowthRecordDAL, ITryCalssApplyLogDAL tryCalssApplyLogDAL, IStudentCheckOnLogDAL studentCheckOnLogDAL,
             IEventPublisher eventPublisher, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
            IAppConfig2BLL appConfig2BLL, IUserDAL userDAL, IClassTimesDAL classTimesDAL, IStudentCourseDAL studentCourseDAL,
            IClassDAL classDAL, ICourseDAL courseDAL, IClassRoomDAL classRoomDAL, IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL,
            IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices, IStudentOperationLogDAL studentOperationLogDAL,
-           IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL)
+           IStudentLeaveApplyLogDAL studentLeaveApplyLogDAL, IReservationCourseSetDAL reservationCourseSetDAL)
         {
             this._activeWxMessageDAL = activeWxMessageDAL;
             this._studentDAL = studentDAL;
@@ -95,6 +97,7 @@ namespace ETMS.Business
             this._studentOperationLogDAL = studentOperationLogDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
             this._studentLeaveApplyLogDAL = studentLeaveApplyLogDAL;
+            this._reservationCourseSetDAL = reservationCourseSetDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -104,7 +107,7 @@ namespace ETMS.Business
             this.InitDataAccess(tenantId, _activeWxMessageDAL, _studentDAL, _activeWxMessageParentReadDAL, _activeGrowthRecordDAL,
                 _tryCalssApplyLogDAL, _studentCheckOnLogDAL, _studentAccountRechargeLogDAL,
                 _userDAL, _classTimesDAL, _studentCourseDAL, _classDAL, _courseDAL, _classRoomDAL, _studentOperationLogDAL,
-                _studentLeaveApplyLogDAL);
+                _studentLeaveApplyLogDAL, _reservationCourseSetDAL);
         }
 
         public async Task<ResponseBase> WxMessageDetailPaging(WxMessageDetailPagingRequest request)
@@ -641,6 +644,7 @@ namespace ETMS.Business
             return ResponseBase.Success(output.OrderByDescending(p => p.IsCanReservation).ThenBy(p => p.StartTime));
         }
 
+        private List<EtReservationCourseSet> _reservationCourseSetList;
         private async Task<ClassTimesReservationLimit2> GetCheckClassTimesReservationLimit2(EtClassTimes classTimes, long studentId, DateTime now)
         {
             var result = new ClassTimesReservationLimit2();
@@ -767,13 +771,29 @@ namespace ETMS.Business
 
             if (ruleConfig.MaxCountClassReservaLimitType != EmMaxCountClassReservaLimitType.NotLimit) //预约次数限制
             {
-                var sameCount = await _classTimesDAL.ClassTimesReservationLogGetCount(courseId, studentId, now);
-                if (sameCount >= ruleConfig.MaxCountClassReservaLimitValue)
+                if (_reservationCourseSetList == null)
                 {
-                    reservationLimit.IsCanReservation = false;
-                    cantReservationErrDesc = "预约次数限制，无法预约";
+                    _reservationCourseSetList = await _reservationCourseSetDAL.GetReservationCourseSet();
                 }
-                result.RuleMaxCountClassReservaLimitDesc = $"同一门课程最多可约{ruleConfig.MaxCountClassReservaLimitValue}次";
+                var limitValue = ruleConfig.MaxCountClassReservaLimitValue;
+                if (_reservationCourseSetList != null && _reservationCourseSetList.Any())
+                {
+                    var log = _reservationCourseSetList.FirstOrDefault(j => j.CourseId == courseId);
+                    if (log != null)
+                    {
+                        limitValue = log.LimitCount;
+                    }
+                }
+                if (limitValue > 0)
+                {
+                    var sameCount = await _classTimesDAL.ClassTimesReservationLogGetCount(courseId, studentId, now);
+                    if (sameCount >= limitValue)
+                    {
+                        reservationLimit.IsCanReservation = false;
+                        cantReservationErrDesc = "预约次数限制，无法预约";
+                    }
+                    result.RuleMaxCountClassReservaLimitDesc = $"同一门课程最多可约{limitValue}次";
+                }
             }
 
             switch (ruleConfig.CancelClassReservaType)

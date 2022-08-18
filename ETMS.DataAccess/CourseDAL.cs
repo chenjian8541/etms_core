@@ -117,6 +117,7 @@ namespace ETMS.DataAccess
         public async Task<bool> DelCourse(long id)
         {
             await _dbWrapper.Execute($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id};DELETE EtCoursePriceRule WHERE CourseId = {id}");
+            await _dbWrapper.Execute($"UPDATE EtReservationCourseSet SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId}");
             await _dbWrapper.Execute($"UPDATE EtMallGoods SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ProductType = {EmProductType.Course} AND RelatedId = {id}");
             base.RemoveCache(_tenantId, id);
             return true;
@@ -133,6 +134,7 @@ namespace ETMS.DataAccess
             var sql = new StringBuilder();
             sql.Append($"UPDATE EtCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE id = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtCoursePriceRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtReservationCourseSet SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtOrderDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE ProductType = {EmProductType.Course} and  TenantId = {_tenantId} and ProductId = {id} ;");
             sql.Append($"UPDATE EtOrder SET IsDeleted = {EmIsDeleted.Deleted} WHERE id in (select OrderId from EtOrderDetail where ProductType = {EmProductType.Course} and  TenantId = {_tenantId} and ProductId = {id}) and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentCourse SET IsDeleted = {EmIsDeleted.Deleted} WHERE CourseId = {id} AND TenantId = {_tenantId} ;");
