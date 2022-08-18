@@ -54,10 +54,11 @@ namespace ETMS.Business
 
         private readonly IStudentCourseBLL _studentCourseBLL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
         public ClassBLL(IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL, IClassCategoryDAL classCategoryDAL,
            IUserDAL userDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IDistributedLockDAL distributedLockDAL,
            IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IEventPublisher eventPublisher, IStudentCourseDAL studentCourseDAL,
-           IStudentCourseBLL studentCourseBLL)
+           IStudentCourseBLL studentCourseBLL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classDAL = classDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -72,12 +73,13 @@ namespace ETMS.Business
             this._eventPublisher = eventPublisher;
             this._studentCourseDAL = studentCourseDAL;
             this._studentCourseBLL = studentCourseBLL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _userOperationLogDAL, _classCategoryDAL, _userDAL, _classRoomDAL, _courseDAL, _studentDAL,
-                _holidaySettingDAL, _classTimesDAL, _studentCourseDAL);
+                _holidaySettingDAL, _classTimesDAL, _studentCourseDAL, _classTimesRuleStudentDAL);
             this._studentCourseBLL.InitTenantId(tenantId);
         }
 
@@ -709,6 +711,7 @@ namespace ETMS.Business
                 var myStudentLog = etClassBucket.EtClassStudents.FirstOrDefault(p => p.Id == request.CId);
                 if (myStudentLog != null)
                 {
+                    await _classTimesRuleStudentDAL.DelClassTimesRuleStudentByStudentId(myStudentLog.StudentId, request.ClassId);
                     _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.LoginTenantId)
                     {
                         StudentId = myStudentLog.StudentId
@@ -1755,6 +1758,19 @@ namespace ETMS.Business
                     Sql = s
                 });
             }
+
+            var isSetRuleIds = await _classTimesRuleStudentDAL.GetIsSetRuleStudent(request.ClassId);
+            if (isSetRuleIds.Any())
+            {
+                foreach (var p in isSetRuleIds)
+                {
+                    _eventPublisher.Publish(new SyncClassTimesRuleStudentInfoEvent(request.TenantId)
+                    {
+                        ClassId = request.ClassId,
+                        RuleId = p.RuleId
+                    });
+                }
+            }
         }
 
         public async Task<ResponseBase> ClassTimesRuleGet(ClassTimesRuleGetRequest request)
@@ -1887,6 +1903,7 @@ namespace ETMS.Business
 
             //处理原班级
             await _classDAL.DelClassStudent(request.ClassId, request.CId);
+            await _classTimesRuleStudentDAL.DelClassTimesRuleStudentByStudentId(request.StudentId, request.ClassId);
             _eventPublisher.Publish(new SyncClassInfoEvent(request.LoginTenantId, request.ClassId));
 
             //新班级
@@ -2129,6 +2146,158 @@ namespace ETMS.Business
                 desc = $"{desc}：{request.Remark}";
             }
             await _userOperationLogDAL.AddUserLog(request, desc, EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleStudentGet(ClassTimesRuleStudentGetRequest request)
+        {
+            var output = new List<ClassTimesRuleStudentGetOutput>();
+            var myStudents = await _classTimesRuleStudentDAL.GetClassTimesRuleStudent(request.ClassId, request.RuleId);
+            if (myStudents != null && myStudents.Any())
+            {
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                foreach (var item in myStudents)
+                {
+                    var myStudent = await _studentDAL.GetStudent(item.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, item.CourseId);
+                    if (myCourse == null)
+                    {
+                        continue;
+                    }
+                    var studentCourse = await _studentCourseDAL.GetStudentCourse(item.StudentId, item.CourseId);
+                    output.Add(new ClassTimesRuleStudentGetOutput()
+                    {
+                        CourseId = item.CourseId,
+                        ClassId = item.ClassId,
+                        CourseName = myCourse.Name,
+                        Gender = myStudent.Student.Gender,
+                        GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
+                        StudentId = item.StudentId,
+                        StudentName = myStudent.Student.Name,
+                        StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
+                        CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
+                        Id = item.Id,
+                        RuleId = item.RuleId
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleStudentAdd(ClassTimesRuleStudentAddRequest request)
+        {
+            var classBucket = await _classDAL.GetClassBucket(request.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+
+            var myClass = classBucket.EtClass;
+            var addEntitys = new List<EtClassTimesRuleStudent>();
+            foreach (var p in request.StudentItems)
+            {
+                var isExist = await _classTimesRuleStudentDAL.ExistStudent(p.StudentId, request.ClassId, request.RuleId);
+                if (isExist)
+                {
+                    continue;
+                }
+                addEntitys.Add(new EtClassTimesRuleStudent()
+                {
+                    CourseId = p.CourseId,
+                    ClassId = request.ClassId,
+                    IsDeleted = myClass.IsDeleted,
+                    Remark = string.Empty,
+                    RuleId = request.RuleId,
+                    StudentId = p.StudentId,
+                    TenantId = myClass.TenantId,
+                    Type = myClass.Type
+                });
+            }
+            if (addEntitys.Count == 0)
+            {
+                return ResponseBase.CommonError("学员已存在");
+            }
+
+            await _classTimesRuleStudentDAL.AddClassTimesRuleStudent(addEntitys);
+
+            _eventPublisher.Publish(new SyncClassTimesRuleStudentInfoEvent(request.LoginTenantId)
+            {
+                ClassId = request.ClassId,
+                RuleId = request.RuleId
+            });
+
+            var studetnNames = string.Join(',', request.StudentItems.Select(p => p.StudentName));
+            await _userOperationLogDAL.AddUserLog(request, $"班级排课添加上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleStudentRemove(ClassTimesRuleStudentRemoveRequest request)
+        {
+            var classBucket = await _classDAL.GetClassBucket(request.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            await _classTimesRuleStudentDAL.DelClassTimesRuleStudent(request.Id, request.ClassId, request.RuleId);
+
+            _eventPublisher.Publish(new SyncClassTimesRuleStudentInfoEvent(request.LoginTenantId)
+            {
+                ClassId = request.ClassId,
+                RuleId = request.RuleId
+            });
+            await _userOperationLogDAL.AddUserLog(request, $"班级排课移除上课学员-班级:{classBucket.EtClass.Name},学员:{request.StudentName}", EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleStudentBatchSet(ClassTimesRuleStudentBatchSetRequest request)
+        {
+            var classBucket = await _classDAL.GetClassBucket(request.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+            var myClass = classBucket.EtClass;
+
+            //清除旧数据
+            await _classTimesRuleStudentDAL.ClearClassTimesRuleStudent(request.ClassId, request.RuleIds);
+
+            if (request.StudentItems != null && request.StudentItems.Any())
+            {
+                var addEntitys = new List<EtClassTimesRuleStudent>();
+                foreach (var myRuleId in request.RuleIds)
+                {
+                    foreach (var p in request.StudentItems)
+                    {
+                        addEntitys.Add(new EtClassTimesRuleStudent()
+                        {
+                            CourseId = p.CourseId,
+                            ClassId = request.ClassId,
+                            IsDeleted = myClass.IsDeleted,
+                            Remark = string.Empty,
+                            RuleId = myRuleId,
+                            StudentId = p.StudentId,
+                            TenantId = myClass.TenantId,
+                            Type = myClass.Type
+                        });
+                    }
+                }
+                await _classTimesRuleStudentDAL.AddClassTimesRuleStudent(addEntitys);
+            }
+
+            foreach (var ruleId in request.RuleIds)
+            {
+                _eventPublisher.Publish(new SyncClassTimesRuleStudentInfoEvent(request.LoginTenantId)
+                {
+                    ClassId = request.ClassId,
+                    RuleId = ruleId
+                });
+            }
+            var studetnNames = string.Join(',', request.StudentItems.Select(p => p.StudentName));
+            await _userOperationLogDAL.AddUserLog(request, $"班级排课批量设置上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
     }

@@ -312,6 +312,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtClassTimesStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtTempStudentClassNotice SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtClassTimesReservationLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtClassTimesRuleStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             _cacheProvider.Remove(_tenantId, new TempStudentClassNoticeBucket().GetKeyFormat(_tenantId, DateTime.Now));
             await _dbWrapper.Execute(sql.ToString());
             return true;
@@ -397,6 +398,7 @@ namespace ETMS.DataAccess.SysOp
             sql.Append($"UPDATE EtClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtClassStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             sql.Append($"UPDATE EtClassTimesRule SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
+            sql.Append($"UPDATE EtClassTimesRuleStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId};");
             await _dbWrapper.Execute(sql.ToString());
             return true;
         }

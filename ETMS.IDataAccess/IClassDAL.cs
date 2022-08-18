@@ -115,5 +115,7 @@ namespace ETMS.IDataAccess
         Task UpdateClassTimesRuleDataType(long id, byte newDataType);
 
         Task UpdateClassTimesRuleDataType(List<long> ids, byte newDataType);
+
+        Task<EtClassStudent> GetClassStudentById(long id);
     }
 }

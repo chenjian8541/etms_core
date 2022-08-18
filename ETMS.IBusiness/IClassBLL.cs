@@ -62,5 +62,13 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesRuleChangeDataType(ClassTimesRuleChangeDataTypeRequest request);
 
         Task<ResponseBase> ClassTimesRuleChangeDataTypeBatch(ClassTimesRuleChangeDataTypeBatchRequest request);
+
+        Task<ResponseBase> ClassTimesRuleStudentGet(ClassTimesRuleStudentGetRequest request);
+
+        Task<ResponseBase> ClassTimesRuleStudentAdd(ClassTimesRuleStudentAddRequest request);
+
+        Task<ResponseBase> ClassTimesRuleStudentRemove(ClassTimesRuleStudentRemoveRequest request);
+
+        Task<ResponseBase> ClassTimesRuleStudentBatchSet(ClassTimesRuleStudentBatchSetRequest request);
     }
 }

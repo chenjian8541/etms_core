@@ -289,6 +289,7 @@ namespace Etms.Tools.Test
         private IStudentDAL _studentDAL;
         private IAiface _aiface;
         private IShareTemplateIdDAL _shareTemplateIdDAL;
+        private IStudentAccountRechargeDAL _studentAccountRechargeDAL;
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
@@ -362,6 +363,7 @@ namespace Etms.Tools.Test
             _userDAL = CustomServiceLocator.GetInstance<IUserDAL>();
             _shareTemplateIdDAL = CustomServiceLocator.GetInstance<IShareTemplateIdDAL>();
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
+            _studentAccountRechargeDAL = CustomServiceLocator.GetInstance<IStudentAccountRechargeDAL>();
 
             var pageCurrent = 1;
             var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
@@ -388,7 +390,44 @@ namespace Etms.Tools.Test
             }
             foreach (var tenant in tenantList)
             {
-                HandleTenantInitializ(tenant.Id);
+                ProcessStudentAccountRecharge(tenant.Id);
+            }
+        }
+
+        private void ProcessStudentAccountRecharge(int tenantId)
+        {
+            _studentAccountRechargeDAL.ResetTenantId(tenantId);
+            var query = new StudentAccountRechargeGetPagingRequest()
+            {
+                LoginTenantId = tenantId,
+                PageCurrent = 1,
+                PageSize = 100,
+            };
+            var pagingData = _studentAccountRechargeDAL.GetPaging(query).Result;
+            if (pagingData.Item2 == 0)
+            {
+                return;
+            }
+            HandleStudentAccountRecharge(tenantId, pagingData.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(pagingData.Item2, _pageSize);
+            query.PageCurrent++;
+            while (query.PageCurrent <= totalPage)
+            {
+                pagingData = _studentAccountRechargeDAL.GetPaging(query).Result;
+                HandleStudentAccountRecharge(tenantId, pagingData.Item1);
+                query.PageCurrent++;
+            }
+        }
+
+        private void HandleStudentAccountRecharge(int tenantId, IEnumerable<EtStudentAccountRecharge> studentAccountRecharges)
+        {
+            foreach (var p in studentAccountRecharges)
+            {
+                _eventPublisher.Publish(new SyncStudentAccountRechargeRelationStudentIdsEvent(tenantId)
+                {
+                    StudentAccountRechargeId = p.Id
+                });
+                Console.WriteLine(p.Id);
             }
         }
 

@@ -328,5 +328,11 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Execute($"UPDATE EtClassTimes SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND ClassRecordId = {classRecordId}");
         }
+
+        public async Task UpdatetClassTimesStudents(long classId, long ruleId, string newStudentIds, int newStudentCount)
+        {
+            var sql = $"UPDATE EtClassTimes SET StudentIdsClass = '{newStudentIds}',StudentCount = StudentTempCount + {newStudentCount} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal}";
+            await _dbWrapper.Execute(sql);
+        }
     }
 }

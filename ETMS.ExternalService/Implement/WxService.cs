@@ -51,21 +51,30 @@ namespace ETMS.ExternalService.Implement
 
         private string GetFirstDesc(NoticeRequestBase requestBase, string first)
         {
-            if (requestBase.WechartAuthorizerId == 0)
+            if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
             {
-                if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
-                {
-                    return $"『 {requestBase.TenantName}』\r\n{first}";
-                }
-                else
-                {
-                    return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
-                }
+                return $"『 {requestBase.TenantName}』\r\n{first}";
             }
             else
             {
-                return first;
+                return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
             }
+
+            //if (requestBase.WechartAuthorizerId == 0)
+            //{
+            //    if (string.IsNullOrEmpty(requestBase.TenantSmsSignature))
+            //    {
+            //        return $"『 {requestBase.TenantName}』\r\n{first}";
+            //    }
+            //    else
+            //    {
+            //        return $"『 {requestBase.TenantSmsSignature} 』\r\n{first}";
+            //    }
+            //}
+            //else
+            //{
+            //    return first;
+            //}
         }
 
         private string ResetTemplateId(NoticeRequestBase requestBase)
@@ -1354,8 +1363,8 @@ namespace ETMS.ExternalService.Implement
         }
 
         public void NoticeUserEverydayBusinessStatistics(NoticeUserEverydayBusinessStatisticsRequest request)
-        { 
-        
+        {
+
         }
     }
 }

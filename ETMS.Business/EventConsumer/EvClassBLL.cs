@@ -52,11 +52,13 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ITryCalssLogDAL _tryCalssLogDAL;
 
+        private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
         public EvClassBLL(IClassDAL classDAL, IEventPublisher eventPublisher, IClassTimesDAL classTimesDAL,
             IStatisticsEducationDAL statisticsEducationDAL, IClassRecordDAL classRecordDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentCheckOnLogDAL studentCheckOnLogDAL, ICourseDAL courseDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
-            IStudentTrackLogDAL studentTrackLogDAL, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL)
+            IStudentTrackLogDAL studentTrackLogDAL, IStudentDAL studentDAL, ITryCalssLogDAL tryCalssLogDAL,
+            IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
         {
             this._classDAL = classDAL;
             this._eventPublisher = eventPublisher;
@@ -73,13 +75,15 @@ namespace ETMS.Business.EventConsumer
             this._studentTrackLogDAL = studentTrackLogDAL;
             this._studentDAL = studentDAL;
             this._tryCalssLogDAL = tryCalssLogDAL;
+            this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _classTimesDAL, _statisticsEducationDAL,
                 _classRecordDAL, _tenantConfigDAL, _studentCheckOnLogDAL, _courseDAL, _userDAL, _studentCourseDAL,
-                _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _studentTrackLogDAL, _tryCalssLogDAL, _studentDAL);
+                _studentCourseConsumeLogDAL, _tempStudentNeedCheckDAL, _studentTrackLogDAL, _tryCalssLogDAL, _studentDAL,
+                _classTimesRuleStudentDAL);
         }
 
         public async Task ClassOfOneAutoOverConsumerEvent(ClassOfOneAutoOverEvent request)
@@ -370,6 +374,21 @@ namespace ETMS.Business.EventConsumer
             {
                 _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, request.ClassId));
             }
+        }
+
+        public async Task SyncClassTimesRuleStudentInfoConsumerEvent(SyncClassTimesRuleStudentInfoEvent request)
+        {
+            var etClassBucket = await _classDAL.GetClassBucket(request.ClassId);
+            var etClass = etClassBucket.EtClass;
+            var myRuleStudents = await _classTimesRuleStudentDAL.GetClassTimesRuleStudent(request.ClassId, request.RuleId);
+            var newStudentIds = etClass.StudentIds;
+            var newStudentCount = etClass.StudentNums;
+            if (myRuleStudents != null && myRuleStudents.Count > 0)
+            {
+                newStudentCount = myRuleStudents.Count;
+                newStudentIds = EtmsHelper.GetMuIds(myRuleStudents.Select(p => p.StudentId));
+            }
+            await _classTimesDAL.UpdatetClassTimesStudents(request.ClassId, request.RuleId, newStudentIds, newStudentCount);
         }
     }
 }

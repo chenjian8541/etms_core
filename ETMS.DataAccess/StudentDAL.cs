@@ -121,6 +121,7 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtStudentCheckOnLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND StudentId = {studentId} ;");
             sql.Append($"UPDATE EtStudentWechat SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtClassStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassTimesRuleStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTryCalssApplyLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtTryCalssLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentPointsLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
@@ -154,6 +155,7 @@ namespace ETMS.DataAccess
             sql.Append($"UPDATE EtStudentCourseDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtStudentWechat SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtClassStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
+            sql.Append($"UPDATE EtClassTimesRuleStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtClassTimesStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtClassTimesReservationLog SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
             sql.Append($"UPDATE EtClassRecordStudent SET IsDeleted = {EmIsDeleted.Deleted} WHERE StudentId = {studentId} and TenantId = {_tenantId} ;");
@@ -193,6 +195,7 @@ namespace ETMS.DataAccess
                     var sql2 = new StringBuilder();
                     sql2.Append($"UPDATE EtClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {classId}; ");
                     sql2.Append($"DELETE EtClassStudent WHERE ClassId = {classId} and TenantId = {_tenantId} ; ");
+                    sql2.Append($"DELETE EtClassTimesRuleStudent WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
                     sql2.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId} and TenantId = {_tenantId} ;");
                     sql2.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} and TenantId = {_tenantId} ;");
                     sql2.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId} and TenantId = {_tenantId} ;");

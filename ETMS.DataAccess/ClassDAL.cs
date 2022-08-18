@@ -86,6 +86,7 @@ namespace ETMS.DataAccess
             strSql.Append($"UPDATE EtClass SET IsDeleted = {EmIsDeleted.Deleted} WHERE Id = {classId}; ");
             strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
             strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
+            strSql.Append($"DELETE EtClassTimesRuleStudent WHERE ClassId = {classId};");
             strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId};");
             strSql.Append($"UPDATE EtClassTimesReservationLog SET [Status] = {EmClassTimesReservationLogStatus.Invalidation} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesReservationLogStatus.Normal} ;");
@@ -194,6 +195,7 @@ namespace ETMS.DataAccess
                 strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}',StudentIds = '',StudentNums = 0 WHERE Id = {classId};");
                 strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
                 strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
+                strSql.Append($"DELETE EtClassTimesRuleStudent WHERE ClassId = {classId};");
                 strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
                 strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
             }
@@ -211,6 +213,7 @@ namespace ETMS.DataAccess
             strSql.Append($"UPDATE EtClass SET CompleteStatus = {EmClassCompleteStatus.Completed},CompleteTime = '{overTime.EtmsToString()}',StudentIds = '',StudentNums = 0 WHERE Id = {classId};");
             strSql.Append($"DELETE EtClassStudent WHERE ClassId = {classId}; ");
             strSql.Append($"DELETE EtClassTimesRule WHERE ClassId = {classId};");
+            strSql.Append($"DELETE EtClassTimesRuleStudent WHERE ClassId = {classId};");
             strSql.Append($"DELETE EtClassTimes WHERE ClassId  = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
             strSql.Append($"DELETE EtClassTimesStudent WHERE ClassId = {classId} AND Status = {EmClassTimesStatus.UnRollcall};");
             await _dbWrapper.Execute(strSql.ToString());
@@ -334,6 +337,8 @@ namespace ETMS.DataAccess
         public async Task<bool> DelClassTimesRule(long classId, long ruleId)
         {
             var strSql = $"DELETE EtClassTimesRule WHERE Id = {ruleId} ;";
+            await _dbWrapper.Execute(strSql);
+            strSql = $"DELETE EtClassTimesRuleStudent WHERE RuleId = {ruleId} ;";
             await _dbWrapper.Execute(strSql);
             strSql = $"DELETE EtClassTimes WHERE RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall};";
             await _dbWrapper.Execute(strSql);
@@ -520,6 +525,11 @@ namespace ETMS.DataAccess
                 await _dbWrapper.Execute(
                     $"UPDATE EtClassTimesRule SET DataType = {newDataType} WHERE Id IN ({string.Join(',', ids)}) AND TenantId = {_tenantId}");
             }
+        }
+
+        public async Task<EtClassStudent> GetClassStudentById(long id)
+        {
+            return await _dbWrapper.Find<EtClassStudent>(p => p.Id == id && p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal);
         }
     }
 }
