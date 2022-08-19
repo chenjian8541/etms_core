@@ -17,5 +17,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtStudentCourseConsumeLog>, int>> GetPaging(RequestPagingBase request);
 
         Task UpdateStudentCourseConsumeLogSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
+
+        Task<DateTime?> GetLastConsumeTime(long studentId, long coueseId);
     }
 }

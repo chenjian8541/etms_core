@@ -401,7 +401,7 @@ namespace ETMS.Business.Common
                 {
                     StudentId = _request.Student.Id,
                     CourseId = deStudentClassTimesResult.DeCourseId,
-                    IsNeedCheckCourseIsNotEnough = true
+                    IsNeedCheckCourseIsNotEnough = true,
                 });
                 output.CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(res.NewCourse);
                 output.IsCourseNotEnough = res.IsCourseNotEnough;
@@ -481,7 +481,7 @@ namespace ETMS.Business.Common
                         {
                             StudentId = _request.Student.Id,
                             CourseId = deStudentClassTimesResult.DeCourseId,
-                            IsNeedCheckCourseIsNotEnough = true
+                            IsNeedCheckCourseIsNotEnough = true,
                         });
                         output.CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(res.NewCourse);
                         output.IsCourseNotEnough = res.IsCourseNotEnough;

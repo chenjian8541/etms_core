@@ -37,10 +37,12 @@ namespace ETMS.Business
         private readonly IStudentAccountRechargeLogDAL _studentAccountRechargeLogDAL;
 
         private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
+        private readonly IStudentCourseDAL _studentCourseDAL;
         public JobAnalyzeBLL(IJobAnalyzeDAL analyzeClassTimesDAL, IClassDAL classDAL, IHolidaySettingDAL holidaySettingDAL, IClassRecordDAL classRecordDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IEventPublisher eventPublisher, IJobAnalyzeDAL jobAnalyzeDAL,
             IParentStudentDAL parentStudentDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
-            IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
+            IClassTimesRuleStudentDAL classTimesRuleStudentDAL, IStudentCourseDAL studentCourseDAL)
         {
             this._analyzeClassTimesDAL = analyzeClassTimesDAL;
             this._classDAL = classDAL;
@@ -52,13 +54,14 @@ namespace ETMS.Business
             this._parentStudentDAL = parentStudentDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
+            this._studentCourseDAL = studentCourseDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _analyzeClassTimesDAL, _classDAL,
                 _holidaySettingDAL, _classRecordDAL, _studentCourseConsumeLogDAL, _jobAnalyzeDAL, _parentStudentDAL,
-                _studentAccountRechargeLogDAL, _classTimesRuleStudentDAL);
+                _studentAccountRechargeLogDAL, _classTimesRuleStudentDAL, _studentCourseDAL);
         }
 
         public void ResetTenantId(int tenantId)
@@ -269,6 +272,7 @@ namespace ETMS.Business
                 CourseId = studentCourseDetail.CourseId,
                 StudentId = studentCourseDetail.StudentId
             });
+            await _studentCourseDAL.UpdateLastDeTime(studentCourseDetail.StudentId, studentCourseDetail.CourseId, mokJobProcessTime.Value);
         }
 
         public async Task<Tuple<IEnumerable<HasCourseStudent>, int>> GetHasCourseStudent(int pageSize, int pageCurrent)

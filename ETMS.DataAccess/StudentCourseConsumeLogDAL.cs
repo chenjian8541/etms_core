@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.View;
+using ETMS.Entity.Enum;
 
 namespace ETMS.DataAccess
 {
@@ -82,6 +83,17 @@ namespace ETMS.DataAccess
                     await _dbWrapper.Execute($"UPDATE EtStudentCourseConsumeLog SET SurplusCourseDesc = '{p.SurplusCourseDesc}' WHERE Id = {p.Id}");
                 }
             }
+        }
+
+        public async Task<DateTime?> GetLastConsumeTime(long studentId, long coueseId)
+        {
+            var sql = $"SELECT TOP 1 Ot FROM EtStudentCourseConsumeLog WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {coueseId} AND IsDeleted = {EmIsDeleted.Normal} AND SourceType NOT IN (5,6,7,8,11) ORDER BY Ot DESC";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return null;
+            }
+            return Convert.ToDateTime(obj);
         }
     }
 }

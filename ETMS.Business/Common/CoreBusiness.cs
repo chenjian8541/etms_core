@@ -134,6 +134,7 @@ namespace ETMS.Business.Common
                 await studentCourseDAL.SaveNotbuyStudentExceedClassTimes(GetExceedClassTimes(classRecordStudent, surplusDeClassTimes));
             }
             var thisDeClassTimes = classRecordStudent.DeClassTimes - surplusDeClassTimes; //扣减的课时
+            await studentCourseDAL.UpdateLastDeTime(classRecordStudent.StudentId, classRecordStudent.CourseId, DateTime.Now);
             return new DeStudentClassTimesResult()
             {
                 DeSum = lastDeStudentCourseDetail.Price * thisDeClassTimes,

@@ -444,5 +444,12 @@ namespace ETMS.DataAccess
         {
             await _dbWrapper.Update(entity);
         }
+
+        public async Task UpdateLastDeTime(long studentId, long courseId, DateTime newDeTime)
+        {
+            var sql = $"UPDATE EtStudentCourse SET LastDeTime = '{newDeTime.EtmsToString()}' WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal}";
+            await _dbWrapper.Execute(sql);
+            RemoveCache(_tenantId, studentId);
+        }
     }
 }

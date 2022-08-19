@@ -491,7 +491,7 @@ namespace ETMS.Business
                 await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(student.TenantId)
                 {
                     StudentId = student.StudentId,
-                    CourseId = student.CourseId
+                    CourseId = student.CourseId,
                 });
             }
             if (classRecordAbsenceLogs.Any())

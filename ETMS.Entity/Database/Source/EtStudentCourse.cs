@@ -130,5 +130,7 @@ namespace ETMS.Entity.Database.Source
         /// 是否限制约课
         /// </summary>
         public bool IsLimitReserve { get; set; }
+
+        public DateTime? LastDeTime { get; set; }
     }
 }

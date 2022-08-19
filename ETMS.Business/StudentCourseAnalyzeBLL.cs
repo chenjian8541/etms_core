@@ -25,16 +25,20 @@ namespace ETMS.Business
 
         private readonly ITenantConfigDAL _tenantConfigDAL;
 
-        public StudentCourseAnalyzeBLL(IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL)
+        private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
+        public StudentCourseAnalyzeBLL(IStudentCourseDAL studentCourseDAL, IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL,
+            IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
         {
             this._studentCourseDAL = studentCourseDAL;
             this._eventPublisher = eventPublisher;
             this._tenantConfigDAL = tenantConfigDAL;
+            this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
-            this.InitDataAccess(tenantId, _studentCourseDAL, _tenantConfigDAL);
+            this.InitDataAccess(tenantId, _studentCourseDAL, _tenantConfigDAL, _studentCourseConsumeLogDAL);
         }
 
         public async Task CourseAnalyze(StudentCourseAnalyzeEvent request)
@@ -335,6 +339,20 @@ namespace ETMS.Business
                 if (maxDate != null)
                 {
                     courseDay.EndTime = maxDate;
+                }
+            }
+
+            if (request.IsJobExecute) //处理最后一次消课时间
+            {
+                var lastDeTime = await _studentCourseConsumeLogDAL.GetLastConsumeTime(request.StudentId, request.CourseId);
+                if (lastDeTime != null)
+                {
+                    var oldLasDeTime = courseClassTimes.LastDeTime ?? courseDay.LastDeTime;
+                    if (oldLasDeTime == null || lastDeTime > oldLasDeTime)
+                    {
+                        courseClassTimes.LastDeTime = lastDeTime;
+                        courseDay.LastDeTime = lastDeTime;
+                    }
                 }
             }
 

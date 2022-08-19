@@ -106,5 +106,7 @@ namespace ETMS.IDataAccess
         Task AddStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity);
 
         Task EditStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity);
+
+        Task UpdateLastDeTime(long studentId,long courseId,DateTime newDeTime);
     }
 }
