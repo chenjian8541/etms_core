@@ -159,5 +159,12 @@ namespace ETMS.Entity.View
         /// 是否限制约课
         /// </summary>
         public bool IsLimitReserve { get; set; }
+
+        public DateTime? LastDeTime { get; set; }
+
+        /// <summary>
+        /// 剩余学费
+        /// </summary>
+        public decimal SurplusMoney { get; set; }
     }
 }

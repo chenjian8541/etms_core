@@ -114,5 +114,12 @@ namespace ETMS.Entity.Dto.Student.Output
         /// 性别  <see cref="ETMS.Entity.Enum.EmGender"/>
         /// </summary>
         public byte? Gender { get; set; }
+
+        public string LastDeTimeDesc { get; set; }
+
+        /// <summary>
+        /// 剩余学费
+        /// </summary>
+        public string SurplusMoneyDesc { get; set; }
     }
 }

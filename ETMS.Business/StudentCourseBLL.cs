@@ -139,7 +139,9 @@ namespace ETMS.Business
                     Value = p.StudentId,
                     Label = p.StudentName,
                     Gender = p.Gender,
-                    ExTimeDesc = ComBusiness4.GetStudentCourseExDateDesc(p.Status, p.DeType, p.StartTime, p.EndTime)
+                    ExTimeDesc = ComBusiness4.GetStudentCourseExDateDesc(p.Status, p.DeType, p.StartTime, p.EndTime),
+                    SurplusMoneyDesc = p.SurplusMoney.EtmsToString2(),
+                    LastDeTimeDesc = p.LastDeTime.EtmsToDateString()
                 };
                 if (request.IsLoadRich)
                 {
@@ -345,7 +347,7 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("学员不存在");
             }
             var myStudent = studentBucket.Student;
-            var result = await GetStudentCourseDetail(myStudent, request.SecrecyType,request.SecrecyDataBag);
+            var result = await GetStudentCourseDetail(myStudent, request.SecrecyType, request.SecrecyDataBag);
             return ResponseBase.Success(result.Item1);
         }
 
