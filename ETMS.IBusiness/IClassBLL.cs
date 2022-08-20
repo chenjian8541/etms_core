@@ -70,5 +70,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ClassTimesRuleStudentRemove(ClassTimesRuleStudentRemoveRequest request);
 
         Task<ResponseBase> ClassTimesRuleStudentBatchSet(ClassTimesRuleStudentBatchSetRequest request);
+
+        Task<ResponseBase> ClassTimesRuleStudentAdd2(ClassTimesRuleStudentAdd2Request request);
     }
 }

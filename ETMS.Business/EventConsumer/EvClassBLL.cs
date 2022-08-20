@@ -391,5 +391,62 @@ namespace ETMS.Business.EventConsumer
             }
             await _classTimesDAL.UpdatetClassTimesStudents(request.ClassId, request.RuleId, newStudentIds, newStudentCount);
         }
+
+        public async Task SyncClassAddBatchStudentConsumerEvent(SyncClassAddBatchStudentEvent request)
+        {
+            var etClassBucket = await _classDAL.GetClassBucket(request.ClassId);
+            if (etClassBucket == null || etClassBucket.EtClass == null)
+            {
+                return;
+            }
+            var myClass = etClassBucket.EtClass;
+            var myClassStudent = etClassBucket.EtClassStudents;
+
+            var classStudents = new List<EtClassStudent>();
+            foreach (var item in request.StudentIds)
+            {
+                if (myClassStudent.Any())
+                {
+                    var oldLog = myClassStudent.Exists(a => a.StudentId == item.Value);
+                    if (oldLog)
+                    {
+                        continue;
+                    }
+                }
+                if (classStudents.Any())
+                {
+                    var newLog = classStudents.Exists(a => a.StudentId == item.Value);
+                    if (newLog)
+                    {
+                        continue;
+                    }
+                }
+
+                classStudents.Add(new EtClassStudent()
+                {
+                    ClassId = request.ClassId,
+                    CourseId = request.CourseId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    Remark = string.Empty,
+                    StudentId = item.Value,
+                    TenantId = request.TenantId,
+                    Type = myClass.Type
+                });
+            }
+            if (!classStudents.Any())
+            {
+                return;
+            }
+            await _classDAL.AddClassStudent(classStudents);
+            foreach (var p in classStudents)
+            {
+                _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.TenantId)
+                {
+                    StudentId = p.StudentId
+                });
+                _eventPublisher.Publish(new SyncStudentStudentClassIdsEvent(request.TenantId, p.StudentId));
+            }
+            _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, request.ClassId));
+        }
     }
 }

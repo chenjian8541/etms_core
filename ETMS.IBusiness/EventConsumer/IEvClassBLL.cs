@@ -32,5 +32,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task AutoSyncTenantClassDetailConsumerEvent(AutoSyncTenantClassDetailEvent request);
 
         Task SyncClassTimesRuleStudentInfoConsumerEvent(SyncClassTimesRuleStudentInfoEvent request);
+
+        Task SyncClassAddBatchStudentConsumerEvent(SyncClassAddBatchStudentEvent request);
     }
 }

@@ -2377,6 +2377,12 @@ namespace ETMS.Business
                 {
                     continue;
                 }
+                var newExist = addEntitys.Exists(a => a.StudentId == p.StudentId);
+                if (newExist)
+                {
+                    continue;
+                }
+
                 addEntitys.Add(new EtClassTimesRuleStudent()
                 {
                     CourseId = p.CourseId,
@@ -2470,6 +2476,66 @@ namespace ETMS.Business
             }
             var studetnNames = string.Join(',', request.StudentItems.Select(p => p.StudentName));
             await _userOperationLogDAL.AddUserLog(request, $"班级排课批量设置上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
+            return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
+        }
+
+        public async Task<ResponseBase> ClassTimesRuleStudentAdd2(ClassTimesRuleStudentAdd2Request request)
+        {
+            var classBucket = await _classDAL.GetClassBucket(request.ClassId);
+            if (classBucket == null || classBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+
+            var myClass = classBucket.EtClass;
+            var addEntitys = new List<EtClassTimesRuleStudent>();
+            foreach (var p in request.StudentIds)
+            {
+                var isExist = await _classTimesRuleStudentDAL.ExistStudent(p.Value, request.ClassId, request.RuleId);
+                if (isExist)
+                {
+                    continue;
+                }
+                var newExist = addEntitys.Exists(a => a.StudentId == p.Value);
+                if (newExist)
+                {
+                    continue;
+                }
+
+                addEntitys.Add(new EtClassTimesRuleStudent()
+                {
+                    CourseId = request.CourseId,
+                    ClassId = request.ClassId,
+                    IsDeleted = myClass.IsDeleted,
+                    Remark = string.Empty,
+                    RuleId = request.RuleId,
+                    StudentId = p.Value,
+                    TenantId = myClass.TenantId,
+                    Type = myClass.Type
+                });
+            }
+            if (addEntitys.Count == 0)
+            {
+                return ResponseBase.CommonError("学员已存在");
+            }
+
+            await _classTimesRuleStudentDAL.AddClassTimesRuleStudent(addEntitys);
+
+            _eventPublisher.Publish(new SyncClassTimesRuleStudentInfoEvent(request.LoginTenantId)
+            {
+                ClassId = request.ClassId,
+                RuleId = request.RuleId
+            });
+
+            _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
+            {
+                ClassId = request.ClassId,
+                StudentIds = request.StudentIds,
+                CourseId = request.CourseId
+            });
+
+            var studetnNames = string.Join(',', request.StudentIds.Select(p => p.Label));
+            await _userOperationLogDAL.AddUserLog(request, $"班级排课添加上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
     }
