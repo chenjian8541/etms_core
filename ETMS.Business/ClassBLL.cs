@@ -994,6 +994,8 @@ namespace ETMS.Business
             }
             var etClass = etClassBucket.EtClass;
 
+            var reqTeacherIds = EtmsHelper.GetMuIds(request.TeacherIds);
+            var reqClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
             //初始信息
             var preInfo = GetClassTimesPreInfo(new GetClassTimesPreInfoRequest()
             {
@@ -1091,8 +1093,64 @@ namespace ETMS.Business
             if (sameTimeRule.Any())
             {
                 var errMsg = "存在有重叠的排课时间，请重新设置";
+                var isExist = false;
                 foreach (var ruleLog in sameTimeRule)
                 {
+                    //判断是否是不同的老师和不同的教室
+                    if (!string.IsNullOrEmpty(reqTeacherIds) && !string.IsNullOrEmpty(ruleLog.Teachers)) //同时设置了老师
+                    {
+                        var oneArrayTeachers = EtmsHelper.AnalyzeMuIds(reqTeacherIds);
+                        var twoArrayTeachers = EtmsHelper.AnalyzeMuIds(ruleLog.Teachers);
+                        isExist = false;
+                        foreach (var a1 in oneArrayTeachers)
+                        {
+                            foreach (var a2 in twoArrayTeachers)
+                            {
+                                if (a1 == a2)
+                                {
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if (isExist)
+                            {
+                                break;
+                            }
+                        }
+                        if (!isExist) //老师不重叠，则判断是否在不同的班级
+                        {
+                            if (string.IsNullOrEmpty(etClass.ClassRoomIds))
+                            {
+                                continue;
+                            }
+                            if (!string.IsNullOrEmpty(etClass.ClassRoomIds) && !string.IsNullOrEmpty(reqClassRoomIds) && !string.IsNullOrEmpty(ruleLog.ClassRoomIds))
+                            {
+                                var oneArrayClassRoom = EtmsHelper.AnalyzeMuIds(reqClassRoomIds);
+                                var twoArrayClassRoom = EtmsHelper.AnalyzeMuIds(ruleLog.ClassRoomIds);
+                                isExist = false;
+                                foreach (var b1 in oneArrayClassRoom)
+                                {
+                                    foreach (var b2 in twoArrayClassRoom)
+                                    {
+                                        if (b1 == b2)
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (isExist)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if (!isExist)
+                                {
+                                    continue;  //老师和教室都不同，允许排课
+                                }
+                            }
+                        }
+                    }
+
                     if (endDate != null) //判断是否有结束日期
                     {
                         if (ruleLog.EndDate == null)
@@ -1217,7 +1275,7 @@ namespace ETMS.Business
                     Remark = string.Empty,
                     IsNeedLoop = !isOver,
                     ClassId = request.ClassId,
-                    ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds),
+                    ClassRoomIds = reqClassRoomIds,
                     StartDate = request.StartDate,
                     EndDate = endDate,
                     Week = week,
@@ -1225,7 +1283,7 @@ namespace ETMS.Business
                     EndTime = request.EndTime,
                     IsDeleted = EmIsDeleted.Normal,
                     IsJumpHoliday = request.IsJumpHoliday,
-                    Teachers = EtmsHelper.GetMuIds(request.TeacherIds),
+                    Teachers = reqTeacherIds,
                     CourseList = EtmsHelper.GetMuIds(request.CourseIds),
                     LastJobProcessTime = currentDate.AddDays(-1),
                     TenantId = request.LoginTenantId,
@@ -1266,6 +1324,8 @@ namespace ETMS.Business
             }
             var etClass = etClassBucket.EtClass;
 
+            var reqTeacherIds = EtmsHelper.GetMuIds(request.TeacherIds);
+            var reqClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
             var preInfo = GetClassTimesPreInfo(new GetClassTimesPreInfoRequest()
             {
                 ClassRoomIds = request.ClassRoomIds,
@@ -1353,8 +1413,64 @@ namespace ETMS.Business
             if (sameTimeRule.Any())
             {
                 var errMsg = "存在有重叠的排课时间，请重新设置";
+                var isExist = false;
                 foreach (var ruleLog in sameTimeRule)
                 {
+                    //判断是否是不同的老师和不同的教室
+                    if (!string.IsNullOrEmpty(reqTeacherIds) && !string.IsNullOrEmpty(ruleLog.Teachers)) //同时设置了老师
+                    {
+                        var oneArrayTeachers = EtmsHelper.AnalyzeMuIds(reqTeacherIds);
+                        var twoArrayTeachers = EtmsHelper.AnalyzeMuIds(ruleLog.Teachers);
+                        isExist = false;
+                        foreach (var a1 in oneArrayTeachers)
+                        {
+                            foreach (var a2 in twoArrayTeachers)
+                            {
+                                if (a1 == a2)
+                                {
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if (isExist)
+                            {
+                                break;
+                            }
+                        }
+                        if (!isExist) //老师不重叠，则判断是否在不同的班级
+                        {
+                            if (string.IsNullOrEmpty(etClass.ClassRoomIds))
+                            {
+                                continue;
+                            }
+                            if (!string.IsNullOrEmpty(etClass.ClassRoomIds) && !string.IsNullOrEmpty(reqClassRoomIds) && !string.IsNullOrEmpty(ruleLog.ClassRoomIds))
+                            {
+                                var oneArrayClassRoom = EtmsHelper.AnalyzeMuIds(reqClassRoomIds);
+                                var twoArrayClassRoom = EtmsHelper.AnalyzeMuIds(ruleLog.ClassRoomIds);
+                                isExist = false;
+                                foreach (var b1 in oneArrayClassRoom)
+                                {
+                                    foreach (var b2 in twoArrayClassRoom)
+                                    {
+                                        if (b1 == b2)
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (isExist)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if (!isExist)
+                                {
+                                    continue;  //老师和教室都不同，允许排课
+                                }
+                            }
+                        }
+                    }
+
                     if (endDate != null) //判断是否有结束日期
                     {
                         if (ruleLog.EndDate == null)
@@ -1472,7 +1588,7 @@ namespace ETMS.Business
                     Remark = string.Empty,
                     IsNeedLoop = false,
                     ClassId = request.ClassId,
-                    ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds),
+                    ClassRoomIds = reqClassRoomIds,
                     StartDate = request.StartDate.Value,
                     EndDate = endDate,
                     Week = week,
@@ -1480,7 +1596,7 @@ namespace ETMS.Business
                     EndTime = request.EndTime,
                     IsDeleted = EmIsDeleted.Normal,
                     IsJumpHoliday = request.IsJumpHoliday,
-                    Teachers = EtmsHelper.GetMuIds(request.TeacherIds),
+                    Teachers = reqTeacherIds,
                     CourseList = EtmsHelper.GetMuIds(request.CourseIds),
                     LastJobProcessTime = currentDate.AddDays(-1),
                     TenantId = request.LoginTenantId,
@@ -1520,6 +1636,8 @@ namespace ETMS.Business
                 return ResponseBase.CommonError("排课规则已超过限制条数");
             }
             var etClass = etClassBucket.EtClass;
+            var reqTeacherIds = EtmsHelper.GetMuIds(request.TeacherIds);
+            var reqClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds);
 
             var preInfo = GetClassTimesPreInfo(new GetClassTimesPreInfoRequest()
             {
@@ -1593,8 +1711,62 @@ namespace ETMS.Business
             if (sameTimeRule.Any())
             {
                 var errMsg = "存在有重叠的排课时间，请重新设置";
+                var isExist = false;
                 foreach (var ruleLog in sameTimeRule)
-                {
+                { //判断是否是不同的老师和不同的教室
+                    if (!string.IsNullOrEmpty(reqTeacherIds) && !string.IsNullOrEmpty(ruleLog.Teachers)) //同时设置了老师
+                    {
+                        var oneArrayTeachers = EtmsHelper.AnalyzeMuIds(reqTeacherIds);
+                        var twoArrayTeachers = EtmsHelper.AnalyzeMuIds(ruleLog.Teachers);
+                        isExist = false;
+                        foreach (var a1 in oneArrayTeachers)
+                        {
+                            foreach (var a2 in twoArrayTeachers)
+                            {
+                                if (a1 == a2)
+                                {
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if (isExist)
+                            {
+                                break;
+                            }
+                        }
+                        if (!isExist) //老师不重叠，则判断是否在不同的班级
+                        {
+                            if (string.IsNullOrEmpty(etClass.ClassRoomIds))
+                            {
+                                continue;
+                            }
+                            if (!string.IsNullOrEmpty(etClass.ClassRoomIds) && !string.IsNullOrEmpty(reqClassRoomIds) && !string.IsNullOrEmpty(ruleLog.ClassRoomIds))
+                            {
+                                var oneArrayClassRoom = EtmsHelper.AnalyzeMuIds(reqClassRoomIds);
+                                var twoArrayClassRoom = EtmsHelper.AnalyzeMuIds(ruleLog.ClassRoomIds);
+                                isExist = false;
+                                foreach (var b1 in oneArrayClassRoom)
+                                {
+                                    foreach (var b2 in twoArrayClassRoom)
+                                    {
+                                        if (b1 == b2)
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (isExist)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if (!isExist)
+                                {
+                                    continue;  //老师和教室都不同，允许排课
+                                }
+                            }
+                        }
+                    }
                     foreach (var myTime in classTimes)
                     {
                         if (myTime.Week == ruleLog.Week)
@@ -1683,7 +1855,7 @@ namespace ETMS.Business
                     Remark = string.Empty,
                     IsNeedLoop = false,
                     ClassId = request.ClassId,
-                    ClassRoomIds = EtmsHelper.GetMuIds(request.ClassRoomIds),
+                    ClassRoomIds = reqClassRoomIds,
                     StartDate = myTime.ClassOt,
                     EndDate = myTime.ClassOt,
                     Week = myTime.Week,
@@ -1691,7 +1863,7 @@ namespace ETMS.Business
                     EndTime = request.EndTime,
                     IsDeleted = EmIsDeleted.Normal,
                     IsJumpHoliday = request.IsJumpHoliday,
-                    Teachers = EtmsHelper.GetMuIds(request.TeacherIds),
+                    Teachers = reqTeacherIds,
                     CourseList = EtmsHelper.GetMuIds(request.CourseIds),
                     LastJobProcessTime = myTime.ClassOt,
                     TenantId = request.LoginTenantId,
