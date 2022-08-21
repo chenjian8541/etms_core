@@ -1934,6 +1934,10 @@ namespace ETMS.Business
             await _classDAL.ClassEditStudentInfo(request.ClassId, studentIds, studentCount);
 
             //同步课次信息（授课课程、教室、老师、班级学员） 
+            await _classDAL.SyncClassStudentInfo(request.ClassId, studentIds, etClass.CourseList,
+                etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum, etClass.LimitStudentNums, etClass.LimitStudentNumsType,
+                studentCount);
+
             var sqlList = _classDAL.GetSyncClassInfoSql(request.ClassId, studentIds, etClass.CourseList,
                 etClass.ClassRoomIds, etClass.Teachers, etClass.TeacherNum, etClass.LimitStudentNums, etClass.LimitStudentNumsType,
                 studentCount);

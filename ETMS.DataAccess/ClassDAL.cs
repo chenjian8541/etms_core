@@ -357,12 +357,18 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task SyncClassStudentInfo(long classId, string studentIdsClass, string courseList, string classRoomIds,
+            string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType, int studentClassCount)
+        {
+            var sql = $"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}',StudentCount = StudentTempCount + {studentClassCount} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ";
+            await _dbWrapper.Execute(sql);
+        }
+
         public List<string> GetSyncClassInfoSql(long classId, string studentIdsClass,
             string courseList, string classRoomIds, string teachers, int teacherNum, int? limitStudentNums, int limitStudentNumsType,
             int studentClassCount)
         {
             var sql = new List<string>();
-            sql.Add($"UPDATE EtClassTimes SET StudentIdsClass = '{studentIdsClass}',StudentCount = StudentTempCount + {studentClassCount} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
             sql.Add($"UPDATE EtClassTimes SET CourseList = '{courseList}' WHERE TenantId = {_tenantId} AND ClassId = {classId} AND CourseListIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
             sql.Add($"UPDATE EtClassTimes SET ClassRoomIds = '{classRoomIds}' WHERE TenantId = {_tenantId} AND ClassId = {classId} AND ClassRoomIdsIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
             sql.Add($"UPDATE EtClassTimes SET Teachers = '{teachers}',TeacherNum = {teacherNum} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND TeachersIsAlone = {EmBool.False} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} ");
