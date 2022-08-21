@@ -8,9 +8,9 @@ using System.Text;
 
 namespace ETMS.Entity.Dto.Educational.Request
 {
-    public class ClassTimesRuleStudentAdd2Request : RequestBase
+    public class ClassTimesRuleStudentBatchSet2Request : RequestBase
     {
-        public long RuleId { get; set; }
+        public List<long> RuleIds { get; set; }
 
         public long ClassId { get; set; }
 
@@ -20,13 +20,17 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public override string Validate()
         {
-            if (RuleId <= 0 || ClassId <= 0 || CourseId <= 0)
+            if (ClassId <= 0 || CourseId <= 0)
             {
                 return "请求数据格式错误";
             }
             if (StudentIds == null || StudentIds.Count == 0)
             {
                 return "请选择学员";
+            }
+            if (RuleIds == null || RuleIds.Count == 0)
+            {
+                return "请选择排课记录";
             }
             return string.Empty;
         }

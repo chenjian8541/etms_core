@@ -1915,7 +1915,21 @@ namespace ETMS.Business
             var studentCount = etClassStudents.Count;
             if (etClassStudents.Any())
             {
-                studentIds = EtmsHelper.GetMuIds(etClassStudents.Select(p => p.StudentId));
+                //去除重复项
+                var myStudentIds = new List<long>();
+                foreach (var item in etClassStudents)
+                {
+                    if (myStudentIds.Exists(j => j == item.StudentId))
+                    {
+                        //删除重复项
+                        await _classDAL.DelClassStudent(request.ClassId, item.Id);
+                        continue;
+                    }
+                    myStudentIds.Add(item.StudentId);
+                }
+
+                studentIds = EtmsHelper.GetMuIds(myStudentIds);
+                studentCount = myStudentIds.Count();
             }
             await _classDAL.ClassEditStudentInfo(request.ClassId, studentIds, studentCount);
 
@@ -2474,6 +2488,20 @@ namespace ETMS.Business
                     RuleId = ruleId
                 });
             }
+
+            if (request.StudentItems != null && request.StudentItems.Any())
+            {
+                _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
+                {
+                    ClassId = request.ClassId,
+                    Students = request.StudentItems.Select(j => new ClassAddBatchStudent()
+                    {
+                        CourseId = j.CourseId,
+                        StudentId = j.StudentId,
+                    }).ToList(),
+                });
+            }
+
             var studetnNames = string.Join(',', request.StudentItems.Select(p => p.StudentName));
             await _userOperationLogDAL.AddUserLog(request, $"班级排课批量设置上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
@@ -2530,13 +2558,17 @@ namespace ETMS.Business
             _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
             {
                 ClassId = request.ClassId,
-                StudentIds = request.StudentIds,
-                CourseId = request.CourseId
+                Students = request.StudentIds.Select(p => new ClassAddBatchStudent()
+                {
+                    CourseId = request.CourseId,
+                    StudentId = p.Value
+                }).ToList(),
             });
 
             var studetnNames = string.Join(',', request.StudentIds.Select(p => p.Label));
             await _userOperationLogDAL.AddUserLog(request, $"班级排课添加上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }
+
     }
 }

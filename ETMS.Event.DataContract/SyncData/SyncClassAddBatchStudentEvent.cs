@@ -16,8 +16,13 @@ namespace ETMS.Event.DataContract
 
         public long ClassId { get; set; }
 
-        public long CourseId { get; set; }
+        public List<ClassAddBatchStudent> Students { get; set; }
+    }
 
-        public List<MultiSelectValueRequest> StudentIds { get; set; }
+    public class ClassAddBatchStudent {
+
+        public long StudentId { get; set; }
+
+        public long CourseId { get; set; }
     }
 }

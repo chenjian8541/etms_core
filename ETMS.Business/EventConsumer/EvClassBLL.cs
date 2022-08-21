@@ -403,11 +403,11 @@ namespace ETMS.Business.EventConsumer
             var myClassStudent = etClassBucket.EtClassStudents;
 
             var classStudents = new List<EtClassStudent>();
-            foreach (var item in request.StudentIds)
+            foreach (var item in request.Students)
             {
                 if (myClassStudent.Any())
                 {
-                    var oldLog = myClassStudent.Exists(a => a.StudentId == item.Value);
+                    var oldLog = myClassStudent.Exists(a => a.StudentId == item.StudentId);
                     if (oldLog)
                     {
                         continue;
@@ -415,7 +415,7 @@ namespace ETMS.Business.EventConsumer
                 }
                 if (classStudents.Any())
                 {
-                    var newLog = classStudents.Exists(a => a.StudentId == item.Value);
+                    var newLog = classStudents.Exists(a => a.StudentId == item.StudentId);
                     if (newLog)
                     {
                         continue;
@@ -425,10 +425,10 @@ namespace ETMS.Business.EventConsumer
                 classStudents.Add(new EtClassStudent()
                 {
                     ClassId = request.ClassId,
-                    CourseId = request.CourseId,
+                    CourseId = item.CourseId,
                     IsDeleted = EmIsDeleted.Normal,
                     Remark = string.Empty,
-                    StudentId = item.Value,
+                    StudentId = item.StudentId,
                     TenantId = request.TenantId,
                     Type = myClass.Type
                 });
