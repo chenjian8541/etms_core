@@ -314,6 +314,37 @@ namespace ETMS.Business
                             isStudentShowClassTimesUnit, studentShowClassTimesUnitValue);
                         var myStudentCourseDetailList = studentCourseDetail.Where(p => p.CourseId == courseId).ToList();
                         myStudentCourseDetail.ExpireDateDesc = ComBusiness.GetStudentCourseExpireDateDesc(myStudentCourseDetailList);
+                        myStudentCourseDetail.StudentCourseDetail = new List<StudentCourseDetailOutput>();
+                        foreach (var p in myStudentCourseDetailList)
+                        {
+                            int giveQuantity = 0, giveSmallQuantity = 0;
+                            if (p.GiveUnit == EmCourseUnit.Day)
+                            {
+                                giveSmallQuantity = p.GiveQuantity;
+                            }
+                            else
+                            {
+                                giveQuantity = p.GiveQuantity;
+                            }
+                            myStudentCourseDetail.StudentCourseDetail.Add(new StudentCourseDetailOutput()
+                            {
+                                DeType = p.DeType,
+                                OrderId = p.OrderId,
+                                OrderNo = p.OrderNo,
+                                Status = p.Status,
+                                ExpirationDate = ComBusiness.GetExpirationDate(p),
+                                BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(p.BuyQuantity, 0, p.BugUnit, EmProductType.Course),
+                                GiveQuantityDesc = ComBusiness.GetGiveQuantityDesc(giveQuantity, giveSmallQuantity, p.DeType),
+                                CId = p.Id,
+                                SurplusQuantityDesc = ComBusiness.GetSurplusQuantityDesc(p.SurplusQuantity, p.SurplusSmallQuantity, p.DeType),
+                                UseQuantityDesc = ComBusiness.GetUseQuantityDesc(p.UseQuantity, p.DeType),
+                                StatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(p.Status),
+                                EndCourseRemark = p.EndCourseRemark,
+                                SurplusQuantity = p.SurplusQuantity,
+                                SurplusSmallQuantity = p.SurplusSmallQuantity,
+                                EndTime = p.EndTime.EtmsToDateString()
+                            });
+                        }
                         //foreach (var theCourse in myCourse)
                         //{
                         //    myStudentCourseDetail.Status = theCourse.Status;
