@@ -40,5 +40,7 @@ namespace ETMS.Entity.Temp
         public bool IsJumpTeacherLimit { get; set; }
 
         public bool IsJumpStudentLimit { get; set; }
+
+        public bool IsJumpClassRoomLimit { get; set; }
     }
 }

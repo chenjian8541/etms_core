@@ -302,6 +302,30 @@ namespace ETMS.DataAccess
                 $"SELECT TOP {topCount} * FROM EtClassTimes WHERE [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} AND (StudentIdsClass LIKE '%,{studentId},%' OR StudentTempCount LIKE '%,{studentId},%') AND ClassOt >= '{startDate.EtmsToDateString()}' AND {weekWhere} AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
         }
 
+        public async Task<IEnumerable<EtClassTimes>> GetClassTimesRuleClassRoom(long classRoomId, int startTime,
+            int endTime, List<byte> weekDay, DateTime startDate, DateTime? endDate, int topCount, long excRuleId = 0)
+        {
+            var weekWhere = new StringBuilder();
+            if (weekDay.Count > 1)
+            {
+                weekWhere.Append($" [Week] IN ({string.Join(',', weekDay)})");
+            }
+            else
+            {
+                weekWhere.Append($" [Week] = {weekDay[0]}");
+            }
+            if (endDate != null)
+            {
+                weekWhere.Append($" AND ClassOt <= '{endDate.EtmsToDateString()}'");
+            }
+            if (excRuleId > 0)
+            {
+                weekWhere.Append($" AND RuleId <> {excRuleId}");
+            }
+            return await _dbWrapper.ExecuteObject<EtClassTimes>(
+                $"SELECT TOP {topCount} * FROM EtClassTimes WHERE [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal} AND ClassRoomIds LIKE '%,{classRoomId},%' AND ClassOt >= '{startDate.EtmsToDateString()}' AND {weekWhere} AND ((StartTime<='{startTime}' AND EndTime > '{startTime}') OR (StartTime<'{endTime}' AND EndTime >= '{endTime}') OR (StartTime>='{startTime}' AND EndTime <= '{endTime}'))");
+        }
+
         public async Task<List<EtClassTimesRule>> GetClassTimesRule(long classId)
         {
             return await _dbWrapper.FindList<EtClassTimesRule>(p => p.TenantId == _tenantId && p.ClassId == classId && p.IsDeleted == EmIsDeleted.Normal);

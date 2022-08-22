@@ -12,8 +12,12 @@ namespace ETMS.Entity.Dto.Educational.Output
 
         public bool IsLimitStudent { get; set; }
 
+        public bool IsLimitClassRoom { get; set; }
+
         public string LimitTeacherName { get; set; }
 
         public string LimitStudentName { get; set; }
+
+        public string LimitClassRoomName { get; set; }
     }
 }

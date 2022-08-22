@@ -848,7 +848,8 @@ namespace ETMS.Business
                     CourseIds = request.CourseIds,
                     ReservationType = request.ReservationType,
                     IsJumpTeacherLimit = request.IsJumpTeacherLimit,
-                    IsJumpStudentLimit = request.IsJumpStudentLimit
+                    IsJumpStudentLimit = request.IsJumpStudentLimit,
+                    IsJumpClassRoomLimit = request.IsJumpClassRoomLimit,
                 });
             }
             return await ProcessClassTimesRuleAddOfLimitCount(request);
@@ -1196,7 +1197,7 @@ namespace ETMS.Business
             //判断老师上课时间是否有重叠
             if (!request.IsJumpTeacherLimit)
             {
-                var teacherIds = new List<long>();
+                List<long> teacherIds = null;
                 if (request.TeacherIds != null && request.TeacherIds.Count > 0)
                 {
                     teacherIds = request.TeacherIds;
@@ -1243,6 +1244,46 @@ namespace ETMS.Business
                         IsLimitStudent = true,
                         LimitStudentName = strStudentConflict
                     });
+                }
+            }
+
+            //判断教室是否重叠
+            if (!request.IsJumpClassRoomLimit)
+            {
+                List<long> myClassRoomIds = null;
+                if (request.ClassRoomIds != null && request.ClassRoomIds.Count > 0)
+                {
+                    myClassRoomIds = request.ClassRoomIds;
+                }
+                else
+                {
+                    myClassRoomIds = EtmsHelper.AnalyzeMuIds(etClass.ClassRoomIds);
+                }
+                if (myClassRoomIds.Count > 0)
+                {
+                    var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                    var limitClassRooms = new List<string>();
+                    foreach (var myClassRoomId in myClassRoomIds)
+                    {
+                        var classRoomLimit = await _classDAL.GetClassTimesRuleClassRoom(myClassRoomId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 1);
+                        if (classRoomLimit != null && classRoomLimit.Any())
+                        {
+                            var classRoom = allClassRoom.FirstOrDefault(j => j.Id == myClassRoomId);
+                            if (classRoom != null)
+                            {
+                                limitClassRooms.Add(classRoom.Name);
+                            }
+                        }
+                    }
+                    if (limitClassRooms.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimitClassRoom = true,
+                            LimitClassRoomName = string.Join(',', limitClassRooms)
+                        });
+                    }
                 }
             }
 
@@ -1566,6 +1607,46 @@ namespace ETMS.Business
                 }
             }
 
+            //判断教室是否重叠
+            if (!request.IsJumpClassRoomLimit)
+            {
+                List<long> myClassRoomIds = null;
+                if (request.ClassRoomIds != null && request.ClassRoomIds.Count > 0)
+                {
+                    myClassRoomIds = request.ClassRoomIds;
+                }
+                else
+                {
+                    myClassRoomIds = EtmsHelper.AnalyzeMuIds(etClass.ClassRoomIds);
+                }
+                if (myClassRoomIds.Count > 0)
+                {
+                    var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                    var limitClassRooms = new List<string>();
+                    foreach (var myClassRoomId in myClassRoomIds)
+                    {
+                        var classRoomLimit = await _classDAL.GetClassTimesRuleClassRoom(myClassRoomId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 1);
+                        if (classRoomLimit != null && classRoomLimit.Any())
+                        {
+                            var classRoom = allClassRoom.FirstOrDefault(j => j.Id == myClassRoomId);
+                            if (classRoom != null)
+                            {
+                                limitClassRooms.Add(classRoom.Name);
+                            }
+                        }
+                    }
+                    if (limitClassRooms.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimitClassRoom = true,
+                            LimitClassRoomName = string.Join(',', limitClassRooms)
+                        });
+                    }
+                }
+            }
+
             //插入排课规则
             foreach (var week in weekDays)
             {
@@ -1787,7 +1868,7 @@ namespace ETMS.Business
             //判断老师上课时间是否有重叠
             if (!request.IsJumpTeacherLimit)
             {
-                var teacherIds = new List<long>();
+                List<long> teacherIds = null;
                 if (request.TeacherIds != null && request.TeacherIds.Count > 0)
                 {
                     teacherIds = request.TeacherIds;
@@ -1842,6 +1923,54 @@ namespace ETMS.Business
                         IsLimitStudent = true,
                         LimitStudentName = strStudentConflict
                     });
+                }
+            }
+
+            //判断教室是否重叠
+            if (!request.IsJumpClassRoomLimit)
+            {
+                List<long> myClassRoomIds = null;
+                if (request.ClassRoomIds != null && request.ClassRoomIds.Count > 0)
+                {
+                    myClassRoomIds = request.ClassRoomIds;
+                }
+                else
+                {
+                    myClassRoomIds = EtmsHelper.AnalyzeMuIds(etClass.ClassRoomIds);
+                }
+                if (myClassRoomIds.Count > 0)
+                {
+                    var endDate = myDateList.Max();
+                    var startDate = myDateList.Min();
+                    var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+                    var limitClassRooms = new List<string>();
+                    foreach (var myClassRoomId in myClassRoomIds)
+                    {
+                        var classRoomLimit = await _classDAL.GetClassTimesRuleClassRoom(myClassRoomId, request.StartTime,
+                            request.EndTime, weekDays, startDate, endDate, 100);
+                        if (classRoomLimit != null && classRoomLimit.Any())
+                        {
+                            foreach (var p in classRoomLimit)
+                            {
+                                if (myDateList.Exists(j => j == p.ClassOt))
+                                {
+                                    var classRoom = allClassRoom.FirstOrDefault(j => j.Id == myClassRoomId);
+                                    if (classRoom != null)
+                                    {
+                                        limitClassRooms.Add(classRoom.Name);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (limitClassRooms.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleAddOutput()
+                        {
+                            IsLimitClassRoom = true,
+                            LimitClassRoomName = string.Join(',', limitClassRooms)
+                        });
+                    }
                 }
             }
 
@@ -2232,6 +2361,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("排课信息未找到");
             }
+            var etClassBucket = await _classDAL.GetClassBucket(classRule.ClassId);
+            if (etClassBucket == null || etClassBucket.EtClass == null)
+            {
+                return ResponseBase.CommonError("班级不存在");
+            }
+
             //判断老师上课时间是否有重叠
             var weekDays = new List<byte>() { classRule.Week };
             if (!request.IsJumpTeacherLimit)
@@ -2263,11 +2398,6 @@ namespace ETMS.Business
                 }
             }
 
-            var etClassBucket = await _classDAL.GetClassBucket(classRule.ClassId);
-            if (etClassBucket == null || etClassBucket.EtClass == null)
-            {
-                return ResponseBase.CommonError("班级不存在");
-            }
             if (!request.IsJumpStudentLimit)
             {
                 var strStudentConflict = await CheckClassTimesStudentTimeConflict2(etClassBucket.EtClassStudents, weekDays, request.StartTime,
@@ -2279,6 +2409,36 @@ namespace ETMS.Business
                         IsLimitStudent = true,
                         LimitStudentName = strStudentConflict
                     });
+                }
+            }
+
+            if (!request.IsJumpClassRoomLimit)
+            {
+                if (request.ClassRoomIds != null && request.ClassRoomIds.Count > 0)
+                {
+                    var allClassRooms = await _classRoomDAL.GetAllClassRoom();
+                    var limitClassRooms = new List<string>();
+                    foreach (var myClassRoomId in request.ClassRoomIds)
+                    {
+                        var classRoomLimit = await _classDAL.GetClassTimesRuleClassRoom(myClassRoomId, request.StartTime,
+                            request.EndTime, weekDays, classRule.StartDate, classRule.EndDate, 1, request.ClassRuleId);
+                        if (classRoomLimit != null && classRoomLimit.Any())
+                        {
+                            var myClassRoom = allClassRooms.FirstOrDefault(j => j.Id == myClassRoomId);
+                            if (myClassRoom != null)
+                            {
+                                limitClassRooms.Add(myClassRoom.Name);
+                            }
+                        }
+                    }
+                    if (limitClassRooms.Count > 0)
+                    {
+                        return ResponseBase.Success(new ClassTimesRuleEditOutput()
+                        {
+                            IsLimitClassRoom = true,
+                            LimitClassRoomName = string.Join(',', limitClassRooms)
+                        });
+                    }
                 }
             }
 
