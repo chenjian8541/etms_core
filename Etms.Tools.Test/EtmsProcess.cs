@@ -365,6 +365,8 @@ namespace Etms.Tools.Test
             _eventPublisher = CustomServiceLocator.GetInstance<IEventPublisher>();
             _studentAccountRechargeDAL = CustomServiceLocator.GetInstance<IStudentAccountRechargeDAL>();
 
+            ProcessClass(11271);
+            return;
             var pageCurrent = 1;
             var getTenantsEffectiveResult = _sysTenantDAL.GetTenantsEffective(_pageSize, pageCurrent).Result;
             if (getTenantsEffectiveResult.Item2 == 0)
@@ -799,6 +801,42 @@ namespace Etms.Tools.Test
             });
             await _sysTenantDAL.UpdateTenantLcswInfo(myTenant.Id, lcswStatus.LcswApplyStatus, lcswStatus.LcswOpenStatus);
             return string.Empty;
+        }
+
+        private void ProcessClass(int tenantId)
+        {
+            _classDAL.ResetTenantId(tenantId);
+            var pagingRequest = new ClassGetPagingRequest()
+            {
+                PageCurrent = 1,
+                PageSize = 100,
+                LoginTenantId = tenantId,
+                Type = EmClassType.OneToMany,
+                CompleteStatus = EmClassCompleteStatus.UnComplete
+            };
+            var itemResult = _classDAL.GetPaging(pagingRequest).Result;
+            if (itemResult.Item2 == 0)
+            {
+                return;
+            }
+            ProcessAutoSyncTenantClassConsumerEvent(tenantId, itemResult.Item1);
+            var totalPage = EtmsHelper.GetTotalPage(itemResult.Item2, pagingRequest.PageSize);
+            pagingRequest.PageCurrent++;
+            while (pagingRequest.PageCurrent <= totalPage)
+            {
+                itemResult = _classDAL.GetPaging(pagingRequest).Result;
+                ProcessAutoSyncTenantClassConsumerEvent(tenantId, itemResult.Item1);
+                pagingRequest.PageCurrent++;
+            }
+        }
+
+        private void ProcessAutoSyncTenantClassConsumerEvent(int tenantId, IEnumerable<EtClass> items)
+        {
+            foreach (var p in items)
+            {
+                Console.WriteLine(p.Id);
+                _eventPublisher.Publish(new SyncClassInfoEvent(tenantId, p.Id));
+            }
         }
     }
 }
