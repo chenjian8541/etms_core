@@ -174,5 +174,11 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Execute($"UPDATE SysTenant SET PayUnionType = {newPayUnionType} WHERE Id = {id} ");
             await UpdateCache(id);
         }
+
+        public async Task UpdateTenantIpAddress(int id, string province, string city, string district, string ipAddress, DateTime upDate)
+        {
+            await this.Execute($"UPDATE SysTenant SET Province = '{province}',City = '{city}',District = '{district}',IpAddress='{ipAddress}',IpUpdateOt = '{upDate.EtmsToString()}' WHERE Id = {id}");
+            await UpdateCache(id);
+        }
     }
 }

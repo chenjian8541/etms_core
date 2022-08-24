@@ -127,5 +127,15 @@ namespace ETMS.Entity.EtmsManage.View
         public DateTime? LastRenewalTime { get; set; }
 
         public int FileLimitMB { get; set; }
+
+        public string Province { get; set; }
+
+        public string City { get; set; }
+
+        public string District { get; set; }
+
+        public string IpAddress { get; set; }
+
+        public DateTime? IpUpdateOt { get; set; }
     }
 }

@@ -148,5 +148,15 @@ namespace ETMS.Entity.Database.Manage
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmPayUnionType"/>
         /// </summary>
         public int PayUnionType { get; set; }
+
+        public string Province { get; set; }
+
+        public string City { get; set; }
+
+        public string District { get; set; }
+
+        public string IpAddress { get; set; }
+
+        public DateTime? IpUpdateOt { get; set; }
     }
 }

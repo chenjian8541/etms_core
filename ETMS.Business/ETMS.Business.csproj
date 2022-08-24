@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ETMS.AI.Baidu\ETMS.AI.Baidu.csproj" />
     <ProjectReference Include="..\ETMS.AiFace\ETMS.AiFace.csproj" />
     <ProjectReference Include="..\ETMS.Authority\ETMS.Authority.csproj" />
     <ProjectReference Include="..\ETMS.DataAccess\ETMS.DataAccess.csproj" />

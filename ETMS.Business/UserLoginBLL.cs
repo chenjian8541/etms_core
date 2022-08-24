@@ -24,6 +24,9 @@ using ETMS.Business.WxCore;
 using System.Linq;
 using ETMS.Entity.View.Role;
 using Newtonsoft.Json;
+using ETMS.IEventProvider;
+using ETMS.Event.DataContract;
+using Microsoft.AspNetCore.Http;
 
 namespace ETMS.Business
 {
@@ -52,11 +55,16 @@ namespace ETMS.Business
         private readonly ISysTenantUserDAL _sysTenantUserDAL;
 
         private readonly ISysVersionDAL _sysVersionDAL;
+
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public UserLoginBLL(ISysTenantDAL sysTenantDAL, IUserDAL etUserDAL, IUserOperationLogDAL etUserOperationLogDAL,
             IUserLoginFailedRecordDAL userLoginFailedRecordDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ISmsService smsService, IUserLoginSmsCodeDAL userLoginSmsCodeDAL, IRoleDAL roleDAL,
             IAppAuthorityDAL appAuthorityDAL, ITempDataCacheDAL tempDataCacheDAL, IComponentAccessBLL componentAccessBLL,
-            IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL, ISysVersionDAL sysVersionDAL)
+            IUserWechatDAL userWechatDAL, ISysTenantUserDAL sysTenantUserDAL, ISysVersionDAL sysVersionDAL, IEventPublisher eventPublisher,
+            IHttpContextAccessor httpContextAccessor)
             : base(componentAccessBLL, appConfigurtaionServices)
         {
             this._sysTenantDAL = sysTenantDAL;
@@ -71,6 +79,8 @@ namespace ETMS.Business
             this._userWechatDAL = userWechatDAL;
             this._sysTenantUserDAL = sysTenantUserDAL;
             this._sysVersionDAL = sysVersionDAL;
+            this._eventPublisher = eventPublisher;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ResponseBase> UserGetAuthorizeUrl(UserGetAuthorizeUrlRequest request)
@@ -427,6 +437,10 @@ namespace ETMS.Business
             });
             var myAllMenus = await _appAuthorityDAL.GetTenantMenuConfig(userInfo.TenantId);
             _tempDataCacheDAL.SetUserLoginOnlineBucket(userInfo.TenantId, userInfo.Id, nowTimestamp, clientType);
+            _eventPublisher.Publish(new UpdateTenantIpAddressEvent(userInfo.TenantId)
+            {
+                IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
+            });
             return new UserLoginOutput()
             {
                 Token = token,

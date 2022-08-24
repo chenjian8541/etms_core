@@ -26,5 +26,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task SysTenantStatisticsWeekAndMonthConsumerEvent(SysTenantStatisticsWeekAndMonthEvent request);
 
         Task SmsBatchSendConsumerEvent(SmsBatchSendEvent request);
+
+        Task UpdateTenantIpAddressConsumerEvent(UpdateTenantIpAddressEvent request);
     }
 }

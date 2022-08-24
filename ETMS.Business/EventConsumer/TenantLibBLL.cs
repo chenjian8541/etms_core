@@ -1,4 +1,5 @@
-﻿using ETMS.Entity.Config;
+﻿using ETMS.AI.Baidu;
+using ETMS.Entity.Config;
 using ETMS.Entity.Database.Manage;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
@@ -45,11 +46,16 @@ namespace ETMS.Business.EventConsumer
 
         private readonly ISmsLogDAL _studentSmsLogDAL;
 
+        private readonly ISysExternalConfigDAL _sysExternalConfigDAL;
+
+        private readonly IBaiduAIAccess _baiduAIAccess;
+
         public TenantLibBLL(IStudentDAL studentDAL, ICourseDAL courseDAL, IClassDAL classDAL, INoticeConfigDAL noticeConfigDAL,
             IComDAL comDAL, IUserOperationLogDAL userOperationLogDAL, ISysTenantDAL sysTenantDAL,
             ISysTenantCloudStorageDAL sysTenantCloudStorageDAL, IJobAnalyze2DAL jobAnalyze2DAL,
             ISysTenantStatistics2DAL sysTenantStatistics2DAL, ISysTenantStatisticsWeekDAL sysTenantStatisticsWeekDAL,
-            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL, ISmsLogDAL smsLogDAL)
+            ISysTenantStatisticsMonthDAL sysTenantStatisticsMonthDAL, ISmsLogDAL smsLogDAL, ISysExternalConfigDAL sysExternalConfigDAL,
+            IBaiduAIAccess baiduAIAccess)
         {
             this._studentDAL = studentDAL;
             this._courseDAL = courseDAL;
@@ -64,6 +70,8 @@ namespace ETMS.Business.EventConsumer
             this._sysTenantStatisticsWeekDAL = sysTenantStatisticsWeekDAL;
             this._sysTenantStatisticsMonthDAL = sysTenantStatisticsMonthDAL;
             this._studentSmsLogDAL = smsLogDAL;
+            this._sysExternalConfigDAL = sysExternalConfigDAL;
+            this._baiduAIAccess = baiduAIAccess;
         }
 
         public void InitTenantId(int tenantId)
@@ -406,6 +414,36 @@ namespace ETMS.Business.EventConsumer
             {
                 await _studentSmsLogDAL.AddStudentSmsLog(smsLog);
             }
+        }
+
+        public async Task UpdateTenantIpAddressConsumerEvent(UpdateTenantIpAddressEvent request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.TenantId);
+            var limitTime = DateTime.Now.AddHours(-1);
+            if (myTenant.IpUpdateOt != null && myTenant.IpUpdateOt > limitTime)
+            {
+                //一小时更新一次
+                return;
+            }
+            var setLog = await _sysExternalConfigDAL.GetSysExternalConfigByType(EmSysExternalConfigType.BaiduMapLocation);
+            if (setLog == null)
+            {
+                return;
+            }
+            var url = $"{setLog.Data1}{request.IpAddress}";
+            var locationInfo = await _baiduAIAccess.GetLocationInfo(url);
+            if (locationInfo == null || locationInfo.status != "0")
+            {
+                return;
+            }
+            var addressContent = locationInfo.content.address_detail;
+            await _sysTenantDAL.UpdateTenantIpAddress(request.TenantId,
+                addressContent.province,
+                addressContent.city,
+                addressContent.district,
+                locationInfo.content.address,
+                DateTime.Now
+                );
         }
     }
 }
