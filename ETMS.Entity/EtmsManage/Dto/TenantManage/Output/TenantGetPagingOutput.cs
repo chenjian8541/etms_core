@@ -127,5 +127,13 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string AgtPayTypeDesc { get; set; }
 
         public int FileLimitMB { get; set; }
+
+        public string Province { get; set; }
+
+        public string City { get; set; }
+
+        public string District { get; set; }
+
+        public string IpAddress { get; set; }
     }
 }

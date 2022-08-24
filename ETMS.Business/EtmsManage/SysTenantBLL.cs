@@ -144,7 +144,11 @@ namespace ETMS.Business.EtmsManage
                     LastRenewalTime = p.LastRenewalTime,
                     AgtPayType = p.AgtPayType,
                     AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType),
-                    FileLimitMB = p.FileLimitMB
+                    FileLimitMB = p.FileLimitMB,
+                    City = p.City,
+                    District = p.District,
+                    IpAddress = p.IpAddress,
+                    Province = p.Province
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -500,7 +504,11 @@ namespace ETMS.Business.EtmsManage
                 LastRenewalTime = p.LastRenewalTime,
                 AgtPayType = p.AgtPayType,
                 AgtPayTypeDesc = EmAgtPayType.GetAgtPayTypeDesc(p.AgtPayType),
-                FileLimitMB = p.FileLimitMB
+                FileLimitMB = p.FileLimitMB,
+                City = p.City,
+                District = p.District,
+                IpAddress = p.IpAddress,
+                Province = p.Province
             };
             return ResponseBase.Success(output);
         }

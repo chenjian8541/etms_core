@@ -147,6 +147,8 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
 
         public int? AgtPayType { get; set; }
 
+        public string IpAddress { get; set; }
+
         /// <summary>
         /// 是否需要限制用户数据
         /// </summary>
@@ -257,6 +259,10 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Request
                 var minDate = new DateTime(time.Year, time.Month, 1);
                 var maxDate = minDate.AddMonths(1);
                 condition.Append($" AND ExDate >= '{minDate.EtmsToDateString()}' AND ExDate < '{maxDate.EtmsToDateString()}'");
+            }
+            if (!string.IsNullOrEmpty(IpAddress))
+            {
+                condition.Append($" AND IpAddress LIKE '%{IpAddress}%'");
             }
             return condition.ToString();
         }
