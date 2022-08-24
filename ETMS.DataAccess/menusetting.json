@@ -155,6 +155,11 @@
             "ActionId": 92,
             "Name": "快速扣课时",
             "Type": 1
+          },
+          {
+            "ActionId": 93,
+            "Name": "批量扣课时",
+            "Type": 1
           }
         ]
       },

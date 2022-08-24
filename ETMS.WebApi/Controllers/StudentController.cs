@@ -709,6 +709,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentCourseFastDeClassTimesBatch(StudentCourseFastDeClassTimesBatchRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseFastDeClassTimesBatch(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentPointLogPaging(StudentPointLogPagingRequest request)
         {
             try

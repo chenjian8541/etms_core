@@ -47,6 +47,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "studentCourseDeBatch",
+        "Name": "studentCourseDeBatch",
+        "Type": 1,
+        "Component": "@/components/studentRecord/studentop/StudentCourseFastDeClassTimesBatch",
+        "Meta": {
+          "Title": "批量扣课时",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "studentDetail/:sid",
         "Name": "studentDetail",
         "Type": 1,

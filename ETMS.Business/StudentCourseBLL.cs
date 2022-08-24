@@ -1025,6 +1025,60 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentCourseFastDeClassTimesBatch(StudentCourseFastDeClassTimesBatchRequest request)
+        {
+            var courseResult = await _courseDAL.GetCourse(request.CourseId);
+            if (courseResult == null || courseResult.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+
+            var now = DateTime.Now;
+            var studentCourseConsumeLogList = new List<EtStudentCourseConsumeLog>();
+            foreach (var studentId in request.StudentIds)
+            {
+                var deStudentClassTimesResult = await CoreBusiness.DeStudentClassTimes(_studentCourseDAL, new DeStudentClassTimesTempRequest()
+                {
+                    ClassOt = now.Date,
+                    TenantId = request.LoginTenantId,
+                    StudentId = studentId,
+                    DeClassTimes = request.DeClassTimes,
+                    CourseId = request.CourseId
+                });
+                if (deStudentClassTimesResult.DeType != EmDeClassTimesType.NotDe)
+                {
+                    studentCourseConsumeLogList.Add(new EtStudentCourseConsumeLog()
+                    {
+                        CourseId = deStudentClassTimesResult.DeCourseId,
+                        DeClassTimes = deStudentClassTimesResult.DeClassTimes,
+                        DeType = deStudentClassTimesResult.DeType,
+                        IsDeleted = EmIsDeleted.Normal,
+                        OrderId = deStudentClassTimesResult.OrderId,
+                        OrderNo = deStudentClassTimesResult.OrderNo,
+                        Ot = now.Date,
+                        SourceType = EmStudentCourseConsumeSourceType.BatchDeductionClassTimes,
+                        StudentId = studentId,
+                        TenantId = request.LoginTenantId,
+                        DeClassTimesSmall = 0
+                    });
+                    await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
+                    {
+                        CourseId = request.CourseId,
+                        StudentId = studentId,
+                        IsSendNoticeStudent = true
+                    });
+                }
+            }
+
+            if (studentCourseConsumeLogList.Any())
+            {
+                _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogList);
+            }
+
+            await _userOperationLogDAL.AddUserLog(request, $"批量扣课时:学员数量:{studentCourseConsumeLogList.Count},扣减课程:{courseResult.Item1.Name},扣减数量:{request.DeClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
+            return ResponseBase.Success();
+        }
+
         private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, decimal deClassTimes, decimal deClassTimesSmall, byte sourceType, DateTime ot)
         {
             await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
