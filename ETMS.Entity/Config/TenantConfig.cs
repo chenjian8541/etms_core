@@ -181,6 +181,18 @@ namespace ETMS.Entity.Config
         public int? GradeAutoUpgradeMonth { get; set; }
 
         public int? GradeAutoUpgradeDay { get; set; }
+
+        public bool IsStudentShowOrderRemark { get; set; }
+
+        /// <summary>
+        /// 学员端是否限制查看课表
+        /// </summary>
+        public bool IsStudentLimitShowClassTimes { get; set; }
+
+        /// <summary>
+        /// 只能查看多久之内的课表
+        /// </summary>
+        public int StudentLimitShowClassTimesValue { get; set; }
     }
 
     /// <summary>

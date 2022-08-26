@@ -17,6 +17,8 @@ namespace ETMS.Entity.Dto.Parent.Output
 
     public class ParentOrderGetDetailBascInfo
     {
+        public bool isShowRemark { get; set; }
+
         public long Id { get; set; }
 
         /// <summary>
@@ -86,6 +88,11 @@ namespace ETMS.Entity.Dto.Parent.Output
         /// 支出类型 <see cref="ETMS.Entity.Enum.EmOrderInOutType"/>
         /// </summary>
         public byte InOutType { get; set; }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remark { get; set; }
     }
 
     public class ParentOrderGetDetailCoupons

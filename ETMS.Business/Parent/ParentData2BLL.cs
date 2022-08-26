@@ -443,6 +443,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("订单不存在");
             }
+            var config = await _tenantConfigDAL.GetTenantConfig();
             var output = new StudentOrderDetailGetOutput();
             var student = await OrderStudentGet(order);
             output.BascInfo = new ParentOrderGetDetailBascInfo()
@@ -466,7 +467,9 @@ namespace ETMS.Business
                 UnionOrderId = order.UnionOrderId.ToString(),
                 UnionOrderNo = order.UnionOrderNo,
                 IsReturn = order.IsReturn,
-                IsTransferCourse = order.IsTransferCourse
+                IsTransferCourse = order.IsTransferCourse,
+                Remark = order.Remark,
+                isShowRemark = config.TenantOtherConfig.IsStudentShowOrderRemark
             };
             if (!string.IsNullOrEmpty(order.CouponsIds) && !string.IsNullOrEmpty(order.CouponsStudentGetIds))
             {

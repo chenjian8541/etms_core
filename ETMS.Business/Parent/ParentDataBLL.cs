@@ -428,6 +428,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentClassTimetableCountGet(StudentClassTimetableCountGetRequest request)
         {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.IsStudentLimitShowClassTimes && config.TenantOtherConfig.StudentLimitShowClassTimesValue > 0)
+            {
+                request.LimitDate = DateTime.Now.AddMonths(config.TenantOtherConfig.StudentLimitShowClassTimesValue);
+            }
             var classTimeGroupCount = await _classTimesDAL.ClassTimesClassOtGroupCount(request);
             return ResponseBase.Success(classTimeGroupCount.Select(p => new StudentTimetableCountOutput()
             {
@@ -438,6 +443,11 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentClassTimetableGet(StudentClassTimetableRequest request)
         {
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.IsStudentLimitShowClassTimes && config.TenantOtherConfig.StudentLimitShowClassTimesValue > 0)
+            {
+                request.LimitDate = DateTime.Now.AddMonths(config.TenantOtherConfig.StudentLimitShowClassTimesValue);
+            }
             var classTimesData = (await _classTimesDAL.GetList(request)).OrderBy(p => p.ClassOt).ThenBy(p => p.StartTime);
             return ResponseBase.Success(await GetStudentClassTimetableOutput(request, classTimesData));
         }

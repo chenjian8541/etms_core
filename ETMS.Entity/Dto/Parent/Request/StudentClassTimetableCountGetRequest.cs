@@ -63,6 +63,9 @@ namespace ETMS.Entity.Dto.Parent.Request
         /// </summary>
         public bool IsReqLeave { get; set; }
 
+        public DateTime? LimitDate { get; set; }
+
+
         protected override string DataFilterWhere(string studentFieldName = "StudentId")
         {
             if (ParentStudentIds.Count == 0)
@@ -102,6 +105,10 @@ namespace ETMS.Entity.Dto.Parent.Request
             if (IsReqLeave)
             {
                 condition.Append($" AND ClassOt >= '{DateTime.Now.EtmsToDateString()}' AND [Status] = {EmClassTimesStatus.UnRollcall}");
+            }
+            if (LimitDate != null)
+            {
+                condition.Append($" AND ClassOt < '{LimitDate.Value.EtmsToDateString()}'");
             }
             return condition.ToString();
         }
