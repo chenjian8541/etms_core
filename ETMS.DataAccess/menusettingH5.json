@@ -45,6 +45,24 @@
     "CategoryId": 1
   },
   {
+    "Id": 26,
+    "Name": "快速扣课时",
+    "Icon": "system/material/teacher/menus/52.png",
+    "PageId": 0,
+    "ActionId": 92,
+    "Sort": 52,
+    "CategoryId": 1
+  },
+  {
+    "Id": 27,
+    "Name": "批量扣课时",
+    "Icon": "system/material/teacher/menus/55.png",
+    "PageId": 0,
+    "ActionId": 93,
+    "Sort": 55,
+    "CategoryId": 1
+  },
+  {
     "Id": 6,
     "Name": "请假申请",
     "Icon": "system/material/teacher/menus/60.png",
