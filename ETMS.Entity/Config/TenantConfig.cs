@@ -193,6 +193,8 @@ namespace ETMS.Entity.Config
         /// 只能查看多久之内的课表
         /// </summary>
         public int StudentLimitShowClassTimesValue { get; set; }
+
+        public bool IsClassTimeRuleSetStudentAutoSyncClass { get; set; } = true;
     }
 
     /// <summary>

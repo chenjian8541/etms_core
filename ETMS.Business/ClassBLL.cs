@@ -55,10 +55,13 @@ namespace ETMS.Business
         private readonly IStudentCourseBLL _studentCourseBLL;
 
         private readonly IClassTimesRuleStudentDAL _classTimesRuleStudentDAL;
+
+        private readonly ITenantConfigDAL _tenantConfigDAL;
+
         public ClassBLL(IClassDAL classDAL, IUserOperationLogDAL userOperationLogDAL, IClassCategoryDAL classCategoryDAL,
            IUserDAL userDAL, IClassRoomDAL classRoomDAL, ICourseDAL courseDAL, IStudentDAL studentDAL, IDistributedLockDAL distributedLockDAL,
            IHolidaySettingDAL holidaySettingDAL, IClassTimesDAL classTimesDAL, IEventPublisher eventPublisher, IStudentCourseDAL studentCourseDAL,
-           IStudentCourseBLL studentCourseBLL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL)
+           IStudentCourseBLL studentCourseBLL, IClassTimesRuleStudentDAL classTimesRuleStudentDAL, ITenantConfigDAL tenantConfigDAL)
         {
             this._classDAL = classDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -74,12 +77,13 @@ namespace ETMS.Business
             this._studentCourseDAL = studentCourseDAL;
             this._studentCourseBLL = studentCourseBLL;
             this._classTimesRuleStudentDAL = classTimesRuleStudentDAL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _classDAL, _userOperationLogDAL, _classCategoryDAL, _userDAL, _classRoomDAL, _courseDAL, _studentDAL,
-                _holidaySettingDAL, _classTimesDAL, _studentCourseDAL, _classTimesRuleStudentDAL);
+                _holidaySettingDAL, _classTimesDAL, _studentCourseDAL, _classTimesRuleStudentDAL, _tenantConfigDAL);
             this._studentCourseBLL.InitTenantId(tenantId);
         }
 
@@ -2653,17 +2657,21 @@ namespace ETMS.Business
                 });
             }
 
-            if (request.StudentItems != null && request.StudentItems.Any())
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.IsClassTimeRuleSetStudentAutoSyncClass)
             {
-                _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
+                if (request.StudentItems != null && request.StudentItems.Any())
                 {
-                    ClassId = request.ClassId,
-                    Students = request.StudentItems.Select(j => new ClassAddBatchStudent()
+                    _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
                     {
-                        CourseId = j.CourseId,
-                        StudentId = j.StudentId,
-                    }).ToList(),
-                });
+                        ClassId = request.ClassId,
+                        Students = request.StudentItems.Select(j => new ClassAddBatchStudent()
+                        {
+                            CourseId = j.CourseId,
+                            StudentId = j.StudentId,
+                        }).ToList(),
+                    });
+                }
             }
 
             var studetnNames = string.Join(',', request.StudentItems.Select(p => p.StudentName));
@@ -2719,15 +2727,19 @@ namespace ETMS.Business
                 RuleId = request.RuleId
             });
 
-            _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
+            var config = await _tenantConfigDAL.GetTenantConfig();
+            if (config.TenantOtherConfig.IsClassTimeRuleSetStudentAutoSyncClass)
             {
-                ClassId = request.ClassId,
-                Students = request.StudentIds.Select(p => new ClassAddBatchStudent()
+                _eventPublisher.Publish(new SyncClassAddBatchStudentEvent(request.LoginTenantId)
                 {
-                    CourseId = request.CourseId,
-                    StudentId = p.Value
-                }).ToList(),
-            });
+                    ClassId = request.ClassId,
+                    Students = request.StudentIds.Select(p => new ClassAddBatchStudent()
+                    {
+                        CourseId = request.CourseId,
+                        StudentId = p.Value
+                    }).ToList(),
+                });
+            }
 
             var studetnNames = string.Join(',', request.StudentIds.Select(p => p.Label));
             await _userOperationLogDAL.AddUserLog(request, $"班级排课添加上课学员-班级:{classBucket.EtClass.Name},学员:{studetnNames}", EmUserOperationType.ClassManage);
