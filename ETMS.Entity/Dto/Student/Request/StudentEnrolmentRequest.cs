@@ -249,6 +249,11 @@ namespace ETMS.Entity.Dto.Student.Request
         public List<string> ErangeOt { get; set; }
 
         /// <summary>
+        /// 一对一上课老师
+        /// </summary>
+        public List<long> Teachers { get; set; }
+
+        /// <summary>
         /// 过期时间
         /// </summary>
         public string ExOt { get; set; }

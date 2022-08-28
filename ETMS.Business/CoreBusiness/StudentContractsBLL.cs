@@ -183,7 +183,7 @@ namespace ETMS.Business
                     }
                     if (course.Item1.Type == EmCourseType.OneToOne)
                     {
-                        oneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student));
+                        oneToOneClassLst.Add(ComBusiness2.GetOneToOneClass(course.Item1, student, p.Teachers));
                     }
                     studentCourseDetails.Add(ComBusiness2.GetStudentCourseDetail(course.Item1, priceRule, p, no, request.StudentId, request.LoginTenantId));
                     if (myCourseDetail != null && myCourseDetail.Count > 0)
@@ -573,13 +573,13 @@ namespace ETMS.Business
                         Remark = string.Empty,
                         ScheduleStatus = EmClassScheduleStatus.Unscheduled,
                         StudentNums = myClass.StudentNums,
-                        TeacherNum = 0,
-                        Teachers = string.Empty,
+                        TeacherNum = myClass.TeacherNum,
+                        Teachers = myClass.Teachers,
                         TenantId = request.TenantId,
                         Type = myClass.Type,
                         UserId = request.Order.UserId,
                         StudentIds = $",{string.Join(',', myClass.Students.Select(p => p.StudentId))},",
-                        OrderId = orderId
+                        OrderId = orderId,
                     });
                     foreach (var student in myClass.Students)
                     {

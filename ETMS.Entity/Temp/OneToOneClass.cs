@@ -14,6 +14,10 @@ namespace ETMS.Entity.Temp
 
         public byte Type { get; set; }
 
+        public string Teachers { get; set; }
+
+        public int TeacherNum { get; set; }
+
         public List<OneToOneClassStudent> Students { get; set; }
     }
 

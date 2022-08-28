@@ -25,14 +25,24 @@ namespace ETMS.Business.Common
         /// </summary>
         /// <param name="course"></param>
         /// <param name="student"></param>
+        /// <param name="teacherList"></param>
         /// <returns></returns>
-        internal static OneToOneClass GetOneToOneClass(EtCourse course, EtStudent student)
+        internal static OneToOneClass GetOneToOneClass(EtCourse course, EtStudent student, List<long> teacherList = null)
         {
+            var teachers = string.Empty;
+            var teacherNum = 0;
+            if (teacherList != null && teacherList.Any())
+            {
+                teachers = EtmsHelper.GetMuIds(teacherList);
+                teacherNum = teacherList.Count;
+            }
             return new OneToOneClass()
             {
                 CourseId = course.Id,
                 StudentNums = 1,
                 Type = EmClassType.OneToOne,
+                TeacherNum = teacherNum,
+                Teachers = teachers,
                 Name = $"{course.Name}_{student.Name}",
                 Students = new List<OneToOneClassStudent>() {
                   new OneToOneClassStudent(){
