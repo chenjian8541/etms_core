@@ -442,7 +442,7 @@ namespace ETMS.Business
             str.Append($"课程停课，停课日期({stopTime.EtmsToDateString()})");
             if (request.RestoreTime != null)
             {
-                str.Append($"，复课日期({stopTime.EtmsToDateString()})");
+                str.Append($"，复课日期({request.RestoreTime.EtmsToDateString()})");
             }
             await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
             {
@@ -471,7 +471,7 @@ namespace ETMS.Business
             str.Append($"课程停课，停课日期({stopTime.EtmsToDateString()})");
             if (request.RestoreTime != null)
             {
-                str.Append($"，复课日期({stopTime.EtmsToDateString()})");
+                str.Append($"，复课日期({request.RestoreTime.EtmsToDateString()})");
             }
             foreach (var p in request.StudentIds)
             {
