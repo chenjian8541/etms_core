@@ -33,7 +33,7 @@ namespace ETMS.Business.BaseBLL
             var myTenantAgtPayInfo = ComBusiness4.GetTenantAgtPayInfo(myTenant);
             var isOpenAgtPay = myTenantAgtPayInfo.IsOpenAgtPay;
             var agtPayType = myTenantAgtPayInfo.AgtPayType;
-            if (!isOpenAgtPay)
+            if (agtPayType != EmAgtPayType.Suixing && !isOpenAgtPay)
             {
                 return new CheckTenantLcsAccountView("机构未开通聚合支付");
             }
