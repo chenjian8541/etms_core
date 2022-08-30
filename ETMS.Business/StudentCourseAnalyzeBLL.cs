@@ -357,7 +357,7 @@ namespace ETMS.Business
             }
 
             var newCourse = new List<EtStudentCourse>();
-            if (courseClassTimes.BuyQuantity > 0 || courseClassTimes.ExceedTotalClassTimes > 0)
+            if (courseClassTimes.BuyQuantity > 0 || courseClassTimes.ExceedTotalClassTimes > 0 || courseClassTimes.GiveQuantity > 0)
             {
                 newCourse.Add(courseClassTimes);
             }

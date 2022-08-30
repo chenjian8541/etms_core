@@ -1170,7 +1170,7 @@ namespace ETMS.Business
                     giveLog.SurplusQuantity += request.GiveClassTimes;
                     await _studentCourseDAL.UpdateStudentCourseDetail(giveLog);
                 }
-                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
+                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
                 {
                     CourseId = request.CourseId,
                     StudentId = studentId,
