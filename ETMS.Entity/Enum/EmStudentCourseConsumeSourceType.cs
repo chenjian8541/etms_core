@@ -84,6 +84,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const byte BatchDeductionClassTimes = 15;
 
+        /// <summary>
+        /// 批量赠送课时
+        /// </summary>
+        public const byte FastGiveClassTimes = 16;
+
         public static string GetStudentCourseConsumeSourceType(int b)
         {
             switch (b)
@@ -118,6 +123,8 @@ namespace ETMS.Entity.Enum
                     return "快速扣课时";
                 case BatchDeductionClassTimes:
                     return "批量扣课时";
+                case FastGiveClassTimes:
+                    return "批量赠送课时";
             }
             return string.Empty;
         }
@@ -142,7 +149,8 @@ namespace ETMS.Entity.Enum
                 case UndoStudentClassRecord:
                 case ModifyStudentClassRecordAdd:
                 case StudentCheckInRevoke:
-                    return "返还";
+                case FastGiveClassTimes:
+                    return "增加";
             }
             return string.Empty;
         }

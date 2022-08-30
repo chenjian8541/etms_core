@@ -14,6 +14,8 @@ namespace ETMS.IDataAccess
     {
         bool AddStudentCourseDetail(List<EtStudentCourseDetail> studentCourseDetails);
 
+        Task AddStudentCourseDetail(EtStudentCourseDetail studentCourseDetail);
+
         Task<List<EtStudentCourse>> GetStudentCourse(long studentId, long courseId);
 
         Task<List<long>> GetStudentCourseId(long studentId);
@@ -108,5 +110,7 @@ namespace ETMS.IDataAccess
         Task EditStudentCourseExTimeDeLog(EtStudentCourseExTimeDeLog entity);
 
         Task UpdateLastDeTime(long studentId,long courseId,DateTime newDeTime);
+
+        Task<EtStudentCourseDetail> GetJustGiveLog(long studentId, long courseId);
     }
 }

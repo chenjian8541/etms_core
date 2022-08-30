@@ -1,4 +1,5 @@
 ﻿using ETMS.Business.Common;
+using ETMS.Entity.CacheBucket.RedisLock;
 using ETMS.Entity.Common;
 using ETMS.Entity.Config;
 using ETMS.Entity.Database.Source;
@@ -15,6 +16,7 @@ using ETMS.IDataAccess;
 using ETMS.IEventProvider;
 using ETMS.Utility;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,12 +63,14 @@ namespace ETMS.Business
 
         private readonly IStudentCourseAnalyzeBLL _studentCourseAnalyzeBLL;
 
+        private IDistributedLockDAL _distributedLockDAL;
+
         public StudentCourseBLL(ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL, IStudentDAL studentDAL,
             IUserOperationLogDAL userOperationLogDAL, IEventPublisher eventPublisher, IClassRecordDAL classRecordDAL,
             IStudentCourseStopLogDAL studentCourseStopLogDAL, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
             ITenantConfigDAL tenantConfigDAL, IHttpContextAccessor httpContextAccessor, IAppConfigurtaionServices appConfigurtaionServices,
             IOrderDAL orderDAL, IStudentCourseOpLogDAL studentCourseOpLogDAL, IUserDAL userDAL,
-            IStudentSourceDAL studentSourceDAL, IGradeDAL gradeDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL)
+            IStudentSourceDAL studentSourceDAL, IGradeDAL gradeDAL, IStudentCourseAnalyzeBLL studentCourseAnalyzeBLL, IDistributedLockDAL distributedLockDAL)
         {
             this._courseDAL = courseDAL;
             this._studentCourseDAL = studentCourseDAL;
@@ -86,6 +90,7 @@ namespace ETMS.Business
             this._studentSourceDAL = studentSourceDAL;
             this._gradeDAL = gradeDAL;
             this._studentCourseAnalyzeBLL = studentCourseAnalyzeBLL;
+            this._distributedLockDAL = distributedLockDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -1086,6 +1091,114 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> StudentCourseGiveClassTimes(StudentCourseGiveClassTimesRequest request)
+        {
+            var lockKey = new StudentCourseGiveClassTimesToken(request.LoginTenantId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await StudentCourseGiveClassTimesProcess(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【StudentCourseGiveClassTimes】错误:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("请勿重复操作");
+        }
+
+        private async Task<ResponseBase> StudentCourseGiveClassTimesProcess(StudentCourseGiveClassTimesRequest request)
+        {
+            var courseResult = await _courseDAL.GetCourse(request.CourseId);
+            if (courseResult == null || courseResult.Item1 == null)
+            {
+                return ResponseBase.CommonError("课程不存在");
+            }
+
+            var now = DateTime.Now;
+            var consumeLogs = new List<EtStudentCourseConsumeLog>();
+            foreach (var studentId in request.StudentIds)
+            {
+                var giveLog = await _studentCourseDAL.GetJustGiveLog(studentId, request.CourseId);
+                if (giveLog == null)
+                {
+                    giveLog = new EtStudentCourseDetail()
+                    {
+                        StartTime = null,
+                        PriceRuleId = null,
+                        PriceRuleGuidStr = string.Empty,
+                        BugUnit = EmCourseUnit.ClassTimes,
+                        BuyQuantity = 0,
+                        CourseId = request.CourseId,
+                        DeType = EmDeClassTimesType.ClassTimes,
+                        EndCourseRemark = null,
+                        EndCourseTime = null,
+                        EndCourseUser = null,
+                        EndTime = null,
+                        GiveQuantity = request.GiveClassTimes,
+                        GiveUnit = EmCourseUnit.ClassTimes,
+                        IsDeleted = EmIsDeleted.Normal,
+                        LastJobProcessTime = null,
+                        OrderId = 0,
+                        OrderNo = string.Empty,
+                        Price = 0,
+                        Status = EmStudentCourseStatus.Normal,
+                        StudentId = studentId,
+                        SurplusQuantity = request.GiveClassTimes,
+                        SurplusSmallQuantity = 0,
+                        TenantId = request.LoginTenantId,
+                        TotalMoney = 0,
+                        UseQuantity = 0,
+                        UseUnit = EmCourseUnit.ClassTimes,
+                        IsGiveOrder = true,
+                    };
+                    await _studentCourseDAL.AddStudentCourseDetail(giveLog);
+                }
+                else
+                {
+                    if (giveLog.Status == EmStudentCourseStatus.EndOfClass)
+                    {
+                        giveLog.Status = EmStudentCourseStatus.Normal;
+                    }
+                    giveLog.GiveQuantity += request.GiveClassTimes;
+                    giveLog.SurplusQuantity += request.GiveClassTimes;
+                    await _studentCourseDAL.UpdateStudentCourseDetail(giveLog);
+                }
+                await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
+                {
+                    CourseId = request.CourseId,
+                    StudentId = studentId,
+                    IsSendNoticeStudent = true
+                });
+                consumeLogs.Add(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = request.CourseId,
+                    DeClassTimes = request.GiveClassTimes,
+                    DeType = EmDeClassTimesType.ClassTimes,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = null,
+                    OrderNo = string.Empty,
+                    Ot = now.Date,
+                    SourceType = EmStudentCourseConsumeSourceType.FastGiveClassTimes,
+                    StudentId = studentId,
+                    TenantId = request.LoginTenantId,
+                    DeClassTimesSmall = 0,
+                    DeSum = 0,
+                    Remark = request.Remark
+                });
+            }
+            _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(consumeLogs);
+
+            await _userOperationLogDAL.AddUserLog(request, $"批量赠送课时-学员个数:{request.StudentIds.Count},赠送课程:{courseResult.Item1.Name},赠送数量:{request.GiveClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage, now);
+            return ResponseBase.Success();
+        }
+
         private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, decimal deClassTimes, decimal deClassTimesSmall, byte sourceType, DateTime ot,
             decimal deSum, string remark)
         {
@@ -1179,7 +1292,7 @@ namespace ETMS.Business
                     StudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType, request.SecrecyDataBag),
                     SurplusCourseDesc = p.SurplusCourseDesc,
                     DeSum = p.DeSum,
-                    Remark = p.Remark 
+                    Remark = p.Remark
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseConsumeLogGetPagingOutput>(pagingData.Item2, output));

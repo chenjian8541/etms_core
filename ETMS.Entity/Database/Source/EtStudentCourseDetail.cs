@@ -124,5 +124,7 @@ namespace ETMS.Entity.Database.Source
         public long? PriceRuleId { get; set; }
 
         public string PriceRuleGuidStr { get; set; }
+
+        public bool IsGiveOrder { get; set; }
     }
 }

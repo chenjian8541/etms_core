@@ -160,6 +160,11 @@
             "ActionId": 93,
             "Name": "批量扣课时",
             "Type": 1
+          },
+          {
+            "ActionId": 94,
+            "Name": "批量赠送课时",
+            "Type": 1
           }
         ]
       },

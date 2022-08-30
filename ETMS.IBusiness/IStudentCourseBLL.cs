@@ -41,6 +41,10 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentCourseFastDeClassTimesBatch(StudentCourseFastDeClassTimesBatchRequest request);
 
+        Task<ResponseBase> StudentCourseGiveClassTimes(StudentCourseGiveClassTimesRequest request);
+
+        //Task<ResponseBase> StudentCourseGiveClassTimesBatch(StudentCourseGiveClassTimesBatchRequest request);
+
         Task<ResponseBase> StudentCourseSurplusGet(StudentCourseSurplusGetRequest request);
 
         Task<ResponseBase> StudentCourseConsumeLogGetPaging(StudentCourseConsumeLogGetPagingRequest request);

@@ -44,6 +44,11 @@ namespace ETMS.DataAccess
             return _dbWrapper.InsertRange(studentCourseDetails);
         }
 
+        public async Task AddStudentCourseDetail(EtStudentCourseDetail studentCourseDetail)
+        {
+            await _dbWrapper.Insert(studentCourseDetail);
+        }
+
         public async Task<List<EtStudentCourse>> GetStudentCourse(long studentId, long courseId)
         {
             var allCourse = await base.GetCache(_tenantId, studentId);
@@ -450,6 +455,12 @@ namespace ETMS.DataAccess
             var sql = $"UPDATE EtStudentCourse SET LastDeTime = '{newDeTime.EtmsToString()}' WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND CourseId = {courseId} AND IsDeleted = {EmIsDeleted.Normal}";
             await _dbWrapper.Execute(sql);
             RemoveCache(_tenantId, studentId);
+        }
+
+        public async Task<EtStudentCourseDetail> GetJustGiveLog(long studentId, long courseId)
+        {
+            return await _dbWrapper.Find<EtStudentCourseDetail>(p => p.TenantId == _tenantId && p.StudentId == studentId && p.CourseId == courseId
+            && p.IsGiveOrder);
         }
     }
 }

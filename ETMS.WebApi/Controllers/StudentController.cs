@@ -723,6 +723,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentCourseGiveClassTimes(StudentCourseGiveClassTimesRequest request)
+        {
+            try
+            {
+                _studentCourseBLL.InitTenantId(request.LoginTenantId);
+                return await _studentCourseBLL.StudentCourseGiveClassTimes(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> StudentPointLogPaging(StudentPointLogPagingRequest request)
         {
             try
