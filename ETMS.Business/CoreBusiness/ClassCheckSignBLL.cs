@@ -426,7 +426,8 @@ namespace ETMS.Business
                         SourceType = EmStudentCourseConsumeSourceType.ClassCheckSign,
                         StudentId = student.StudentId,
                         TenantId = student.TenantId,
-                        DeClassTimesSmall = 0
+                        DeClassTimesSmall = 0,
+                        DeSum = deStudentClassTimesResult.DeSum
                     });
                 }
             }

@@ -390,7 +390,8 @@ namespace ETMS.Business.Common
                     SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
                     StudentId = _request.Student.Id,
                     TenantId = _request.LoginTenantId,
-                    DeClassTimesSmall = 0
+                    DeClassTimesSmall = 0,
+                    DeSum = deStudentClassTimesResult.DeSum
                 });
                 //_eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
                 //{
@@ -470,7 +471,8 @@ namespace ETMS.Business.Common
                             SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
                             StudentId = _request.Student.Id,
                             TenantId = _request.LoginTenantId,
-                            DeClassTimesSmall = 0
+                            DeClassTimesSmall = 0,
+                            DeSum = deStudentClassTimesResult.DeSum
                         });
                         //_eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(_request.LoginTenantId)
                         //{

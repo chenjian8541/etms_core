@@ -627,7 +627,8 @@ namespace ETMS.Business
                         SourceType = EmStudentCourseConsumeSourceType.MarkExceedClassTimes,
                         StudentId = myDeClassTimeCourse.StudentId,
                         TenantId = myDeClassTimeCourse.TenantId,
-                        DeClassTimesSmall = 0
+                        DeClassTimesSmall = 0,
+                        DeSum = deResult.DeSum
                     });
                     deTimesDesc = $"扣减{deResult.DeClassTimes.EtmsToString()}课时";
                 }
@@ -712,7 +713,8 @@ namespace ETMS.Business
                     studentCourseDetail.EndTime.Value);
 
                 await AddStudentCourseConsumeLog(studentCourseDetail, (beforeSurplusQuantity - studentCourseDetail.SurplusQuantity),
-                    (beforeSurplusSmallQuantity - studentCourseDetail.SurplusSmallQuantity), EmStudentCourseConsumeSourceType.SetExpirationDate, DateTime.Now);
+                    (beforeSurplusSmallQuantity - studentCourseDetail.SurplusSmallQuantity), EmStudentCourseConsumeSourceType.SetExpirationDate, DateTime.Now, 0,
+                    string.Empty);
 
                 desc = $"设置课程起止日期:{studentCourseDetail.StartTime.EtmsToDateString()}~{studentCourseDetail.EndTime.EtmsToDateString()}";
             }
@@ -762,7 +764,7 @@ namespace ETMS.Business
             if (studentCourseDetail.SurplusQuantity > 0 || studentCourseDetail.SurplusSmallQuantity > 0)
             {
                 await AddStudentCourseConsumeLog(studentCourseDetail, studentCourseDetail.SurplusQuantity, studentCourseDetail.SurplusSmallQuantity, EmStudentCourseConsumeSourceType.CourseClearance,
-                    DateTime.Now);
+                    DateTime.Now, 0, request.Remark);
             }
             studentCourseDetail.Status = EmStudentCourseStatus.EndOfClass;
             studentCourseDetail.SurplusQuantity = 0;
@@ -835,12 +837,12 @@ namespace ETMS.Business
             if (surplusQuantityClassTiems != null
                 && (surplusQuantityClassTiems.SurplusQuantity > 0 || surplusQuantityClassTiems.SurplusSmallQuantity > 0))
             {
-                await AddStudentCourseConsumeLog(surplusQuantityClassTiems, EmStudentCourseConsumeSourceType.StudentCourseOver, now);
+                await AddStudentCourseConsumeLog(surplusQuantityClassTiems, EmStudentCourseConsumeSourceType.StudentCourseOver, now, 0, request.Remark);
             }
             if (surplusQuantityDay != null
                 && (surplusQuantityDay.SurplusQuantity > 0 || surplusQuantityDay.SurplusSmallQuantity > 0))
             {
-                await AddStudentCourseConsumeLog(surplusQuantityDay, EmStudentCourseConsumeSourceType.StudentCourseOver, now);
+                await AddStudentCourseConsumeLog(surplusQuantityDay, EmStudentCourseConsumeSourceType.StudentCourseOver, now, 0, request.Remark);
             }
 
             _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
@@ -898,7 +900,7 @@ namespace ETMS.Business
                 studentCourseDetail.SurplusQuantity = Convert.ToDecimal(request.NewSurplusQuantity);
 
                 await AddStudentCourseConsumeLog(studentCourseDetail, beforSurplusQuantity - studentCourseDetail.SurplusQuantity,
-                    0, EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now);
+                    0, EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now, 0, request.Remark);
             }
             else
             {
@@ -925,7 +927,8 @@ namespace ETMS.Business
                     studentCourseDetail.EndTime.Value);
 
                 await AddStudentCourseConsumeLog(studentCourseDetail, (beforeSurplusQuantity - studentCourseDetail.SurplusQuantity),
-                    (beforeSurplusSmallQuantity - studentCourseDetail.SurplusSmallQuantity), EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now);
+                    (beforeSurplusSmallQuantity - studentCourseDetail.SurplusSmallQuantity), EmStudentCourseConsumeSourceType.CorrectStudentCourse, DateTime.Now,
+                    0, request.Remark);
             }
             if (studentCourseDetail.Status == EmStudentCourseStatus.EndOfClass)
             {
@@ -998,7 +1001,9 @@ namespace ETMS.Business
                     SourceType = EmStudentCourseConsumeSourceType.FastDeductionClassTimes,
                     StudentId = request.StudentId,
                     TenantId = request.LoginTenantId,
-                    DeClassTimesSmall = 0
+                    DeClassTimesSmall = 0,
+                    DeSum = deStudentClassTimesResult.DeSum,
+                    Remark = request.Remark
                 });
                 //await _studentCourseOpLogDAL.AddStudentCourseOpLog(new EtStudentCourseOpLog()
                 //{
@@ -1059,7 +1064,9 @@ namespace ETMS.Business
                         SourceType = EmStudentCourseConsumeSourceType.BatchDeductionClassTimes,
                         StudentId = studentId,
                         TenantId = request.LoginTenantId,
-                        DeClassTimesSmall = 0
+                        DeClassTimesSmall = 0,
+                        DeSum = deStudentClassTimesResult.DeSum,
+                        Remark = request.Remark
                     });
                     await _studentCourseAnalyzeBLL.CourseDetailAnalyze(new StudentCourseDetailAnalyzeEvent(request.LoginTenantId)
                     {
@@ -1079,7 +1086,8 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
-        private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, decimal deClassTimes, decimal deClassTimesSmall, byte sourceType, DateTime ot)
+        private async Task AddStudentCourseConsumeLog(EtStudentCourseDetail log, decimal deClassTimes, decimal deClassTimesSmall, byte sourceType, DateTime ot,
+            decimal deSum, string remark)
         {
             await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
             {
@@ -1093,11 +1101,13 @@ namespace ETMS.Business
                 OrderId = log.OrderId,
                 OrderNo = log.OrderNo,
                 StudentId = log.StudentId,
-                SourceType = sourceType
+                SourceType = sourceType,
+                DeSum = deSum,
+                Remark = remark
             });
         }
 
-        private async Task AddStudentCourseConsumeLog(EtStudentCourse log, byte sourceType, DateTime ot)
+        private async Task AddStudentCourseConsumeLog(EtStudentCourse log, byte sourceType, DateTime ot, decimal deSum, string remark)
         {
             await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
             {
@@ -1111,7 +1121,9 @@ namespace ETMS.Business
                 OrderId = null,
                 OrderNo = string.Empty,
                 StudentId = log.StudentId,
-                SourceType = sourceType
+                SourceType = sourceType,
+                DeSum = deSum,
+                Remark = remark
             });
         }
 
@@ -1165,7 +1177,9 @@ namespace ETMS.Business
                     CourseName = await ComBusiness.GetCourseName(tempBoxCourse, _courseDAL, p.CourseId),
                     StudentName = student?.Name,
                     StudentPhone = ComBusiness3.PhoneSecrecy(student?.Phone, request.SecrecyType, request.SecrecyDataBag),
-                    SurplusCourseDesc = p.SurplusCourseDesc
+                    SurplusCourseDesc = p.SurplusCourseDesc,
+                    DeSum = p.DeSum,
+                    Remark = p.Remark 
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCourseConsumeLogGetPagingOutput>(pagingData.Item2, output));

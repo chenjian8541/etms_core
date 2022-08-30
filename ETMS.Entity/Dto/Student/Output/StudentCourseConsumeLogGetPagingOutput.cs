@@ -53,5 +53,9 @@ namespace ETMS.Entity.Dto.Student.Output
         public string DeClassTimesDesc { get; set; }
 
         public string SurplusCourseDesc { get; set; }
+
+        public decimal DeSum { get; set; }
+
+        public string Remark { get; set; }
     }
 }

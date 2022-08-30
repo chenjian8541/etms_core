@@ -118,7 +118,8 @@ namespace ETMS.Business
                         Ot = now,
                         SourceType = EmStudentCourseConsumeSourceType.UndoStudentClassRecord,
                         StudentId = p.StudentId,
-                        TenantId = p.TenantId
+                        TenantId = p.TenantId,
+                        DeSum = 0
                     });
 
                     await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);

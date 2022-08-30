@@ -263,7 +263,8 @@ namespace ETMS.Business
                     Ot = mokJobProcessTime.Value,
                     SourceType = EmStudentCourseConsumeSourceType.AutoConsumeDay,
                     StudentId = studentCourseDetail.StudentId,
-                    TenantId = studentCourseDetail.TenantId
+                    TenantId = studentCourseDetail.TenantId,
+                    DeSum = studentCourseDetail.Price
                 });
             }
             _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogs);

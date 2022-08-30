@@ -670,7 +670,9 @@ namespace ETMS.Business
                         Ot = now,
                         SourceType = EmStudentCourseConsumeSourceType.ModifyStudentClassRecordAdd,
                         StudentId = p.StudentId,
-                        TenantId = p.TenantId
+                        TenantId = p.TenantId,
+                        DeSum = 0,
+                        Remark = p.Remark,
                     });
 
                     await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);
@@ -726,7 +728,9 @@ namespace ETMS.Business
                     SourceType = EmStudentCourseConsumeSourceType.ModifyStudentClassRecordDe,
                     StudentId = p.StudentId,
                     TenantId = p.TenantId,
-                    DeClassTimesSmall = 0
+                    DeClassTimesSmall = 0,
+                    DeSum = deStudentClassTimesResult.DeSum,
+                    Remark = request.NewRemark
                 });
             }
             if (studentCourseConsumeLogs.Count > 0)

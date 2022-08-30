@@ -656,7 +656,8 @@ namespace ETMS.Business
                         SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
                         StudentId = studentCheckOnLog.StudentId,
                         TenantId = studentCheckOnLog.TenantId,
-                        DeClassTimesSmall = 0
+                        DeClassTimesSmall = 0,
+                        DeSum = deStudentClassTimesResult.DeSum
                     });
                     _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(studentCheckOnLog.TenantId)
                     {
@@ -730,7 +731,8 @@ namespace ETMS.Business
                             Ot = DateTime.Now,
                             SourceType = EmStudentCourseConsumeSourceType.StudentCheckInRevoke,
                             StudentId = p.StudentId,
-                            TenantId = p.TenantId
+                            TenantId = p.TenantId,
+                            DeSum = 0
                         });
 
                         await _commonHandlerBLL.AnalyzeStudentCourseDetailRestoreNormalStatus(p.DeStudentCourseDetailId.Value);
@@ -1037,7 +1039,8 @@ namespace ETMS.Business
                         SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
                         StudentId = log.StudentId,
                         TenantId = log.TenantId,
-                        DeClassTimesSmall = 0
+                        DeClassTimesSmall = 0,
+                        DeSum = deStudentClassTimesResult.DeSum
                     });
                     _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(log.TenantId)
                     {
@@ -1302,7 +1305,8 @@ namespace ETMS.Business
                     SourceType = EmStudentCourseConsumeSourceType.StudentCheckIn,
                     StudentId = studentCheckOnLog.StudentId,
                     TenantId = studentCheckOnLog.TenantId,
-                    DeClassTimesSmall = 0
+                    DeClassTimesSmall = 0,
+                    DeSum = deStudentClassTimesResult.DeSum
                 });
                 _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(studentCheckOnLog.TenantId)
                 {

@@ -54,5 +54,9 @@ namespace ETMS.Entity.Database.Source
         public decimal DeClassTimesSmall { get; set; }
 
         public string SurplusCourseDesc { get; set; }
+
+        public decimal DeSum { get; set; }
+
+        public string Remark { get; set; }
     }
 }
