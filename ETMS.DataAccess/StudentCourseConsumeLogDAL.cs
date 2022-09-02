@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.Entity.View;
 using ETMS.Entity.Enum;
+using ETMS.Utility;
 
 namespace ETMS.DataAccess
 {
@@ -94,6 +95,13 @@ namespace ETMS.DataAccess
                 return null;
             }
             return Convert.ToDateTime(obj);
+        }
+
+        public async Task<CourseConsumeLogDeInfoView> GetDirectDeClassTimesDeSumInfo(DateTime ot)
+        {
+            var sql = $"SELECT SUM(DeSum) as TotalDeSum,SUM(DeClassTimes) as TotalDeClassTimes FROM EtStudentCourseConsumeLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND SourceType IN (14,15) AND Ot = '{ot.EtmsToDateString()}'";
+            var log = await _dbWrapper.ExecuteObject<CourseConsumeLogDeInfoView>(sql);
+            return log.FirstOrDefault();
         }
     }
 }

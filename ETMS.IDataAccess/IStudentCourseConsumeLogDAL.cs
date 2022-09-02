@@ -19,5 +19,7 @@ namespace ETMS.IDataAccess
         Task UpdateStudentCourseConsumeLogSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
 
         Task<DateTime?> GetLastConsumeTime(long studentId, long coueseId);
+
+        Task<CourseConsumeLogDeInfoView> GetDirectDeClassTimesDeSumInfo(DateTime ot);
     }
 }

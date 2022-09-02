@@ -18,9 +18,14 @@ namespace ETMS.Entity.Enum
         public const int WeChat = 1;
 
         /// <summary>
-        /// 安卓端
+        /// 安卓端和IOS
         /// </summary>
         public const int Android = 2;
+
+        /// <summary>
+        /// PC端安装程序
+        /// </summary>
+        public const int PcInstall = 3;
 
         /// <summary>
         /// 家长端 
@@ -38,6 +43,8 @@ namespace ETMS.Entity.Enum
                     return "微信公众号";
                 case 2:
                     return "手机APP";
+                case 3:
+                    return "PC端考勤助手";
             }
             return string.Empty;
         }

@@ -1031,6 +1031,11 @@ namespace ETMS.Business
                 });
             }
 
+            _eventPublisher.Publish(new StatisticsClassEvent(request.LoginTenantId)
+            {
+                ClassOt = now.Date
+            });
+
             await _userOperationLogDAL.AddUserLog(request, $"快速扣课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},扣减课程:{courseResult.Item1.Name},扣减数量:{deStudentClassTimesResult.DeClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
         }
@@ -1086,6 +1091,11 @@ namespace ETMS.Business
             {
                 _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(studentCourseConsumeLogList);
             }
+
+            _eventPublisher.Publish(new StatisticsClassEvent(request.LoginTenantId)
+            {
+                ClassOt = now.Date
+            });
 
             await _userOperationLogDAL.AddUserLog(request, $"批量扣课时:学员数量:{studentCourseConsumeLogList.Count},扣减课程:{courseResult.Item1.Name},扣减数量:{request.DeClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();

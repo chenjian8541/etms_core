@@ -41,10 +41,12 @@ namespace ETMS.Business
 
         private readonly IEventPublisher _eventPublisher;
 
+        private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
+
         public StatisticsClassBLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
             IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -56,13 +58,14 @@ namespace ETMS.Business
             this._classRecordDAL = classRecordDAL;
             this._classCategoryDAL = classCategoryDAL;
             this._eventPublisher = eventPublisher;
+            this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsClassDAL, _courseDAL, _userDAL,
                 _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL, _classRecordDAL,
-                _classCategoryDAL);
+                _classCategoryDAL, _studentCourseConsumeLogDAL);
         }
 
         public async Task StatisticsClassConsumeEvent(StatisticsClassEvent request)
@@ -149,6 +152,14 @@ namespace ETMS.Business
                         log.ClassTimes += p.ClassTimes;
                     }
                 }
+            }
+
+            //快速扣课时和批量扣课时的课消金额
+            var directDeClassTimesDeSumInfo = await _studentCourseConsumeLogDAL.GetDirectDeClassTimesDeSumInfo(classOt);
+            if (directDeClassTimesDeSumInfo != null)
+            {
+                myStatisticsClassTimes.DeSum += directDeClassTimesDeSumInfo.TotalDeSum;
+                myStatisticsClassTimes.ClassTimes += directDeClassTimesDeSumInfo.TotalDeClassTimes;
             }
 
             await _statisticsClassDAL.SaveStatisticsClass(classOt, myStatisticsClassTimes, myStatisticsClassAttendances,
