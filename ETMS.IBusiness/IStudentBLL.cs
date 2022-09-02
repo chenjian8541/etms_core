@@ -47,6 +47,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentTrackLogGetPaging(StudentTrackLogGetPagingRequest request);
 
+        Task<ResponseBase> StudentTodayWorkPlanGet(RequestBase request);
+
         Task<ResponseBase> StudentOperationLogPaging(StudentOperationLogPagingRequest request);
 
         ResponseBase StudentOperationLogTypeGet(RequestBase request);

@@ -525,5 +525,11 @@ namespace ETMS.DataAccess
                 }
             }
         }
+
+        public async Task<IEnumerable<EtStudent>> GetTrackMustToday(long userId, DateTime date)
+        {
+            return await _dbWrapper.ExecuteObject<EtStudent>(
+                $"SELECT TOP 50 * FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND TrackUser = {userId} AND NextTrackTime = '{date.EtmsToDateString()}'");
+        }
     }
 }

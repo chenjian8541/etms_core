@@ -821,6 +821,10 @@ namespace ETMS.Business
             {
                 student.NextTrackTime = request.NextTrackTime.Value;
             }
+            else
+            {
+                student.NextTrackTime = null;
+            }
             if (student.TrackStatus == EmStudentTrackStatus.NotTrack)
             {
                 student.TrackStatus = EmStudentTrackStatus.IsTracking;
@@ -965,6 +969,31 @@ namespace ETMS.Business
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentTrackLogGetPagingOutput>(gtudentTrackLogGetPagingInfo.Item2, trackLog));
+        }
+
+        public async Task<ResponseBase> StudentTodayWorkPlanGet(RequestBase request)
+        {
+            var nowDate = DateTime.Now.Date;
+            var output = new StudentTodayWorkPlanGetOutput();
+            var studentMustTrack = await _studentDAL.GetTrackMustToday(request.LoginUserId, nowDate);
+            if (studentMustTrack.Any())
+            {
+                output.IsShow = true;
+                output.Tracks = new List<StudentTodayWorkPlanTrack>();
+                foreach (var student in studentMustTrack)
+                {
+                    output.Tracks.Add(new StudentTodayWorkPlanTrack()
+                    {
+                        CId = student.Id,
+                        Age = student.Age,
+                        AgeMonth = student.AgeMonth,
+                        LastTrackTimeDesc = student.LastTrackTime.EtmsToDateString(),
+                        Name = student.Name,
+                        Phone = ComBusiness3.PhoneSecrecy(student.Phone, request.SecrecyType, request.SecrecyDataBag),
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> StudentOperationLogPaging(StudentOperationLogPagingRequest request)

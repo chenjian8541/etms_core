@@ -327,6 +327,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> StudentTodayWorkPlanGet(RequestBase request)
+        {
+            try
+            {
+                _studentBLL.InitTenantId(request.LoginTenantId);
+                return await _studentBLL.StudentTodayWorkPlanGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [ActionName("studentOperationLogPaging")]
         [HttpPost]
         public async Task<ResponseBase> StudentOperationLogPaging(StudentOperationLogPagingRequest request)

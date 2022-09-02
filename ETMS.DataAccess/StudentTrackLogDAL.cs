@@ -32,7 +32,7 @@ namespace ETMS.DataAccess
 
         public async Task<long> AddStudentTrackLog(EtStudentTrackLog etStudentTrackLog)
         {
-             await _dbWrapper.Insert(etStudentTrackLog, async () => { await UpdateCache(_tenantId, etStudentTrackLog.StudentId); });
+            await _dbWrapper.Insert(etStudentTrackLog, async () => { await UpdateCache(_tenantId, etStudentTrackLog.StudentId); });
             return etStudentTrackLog.Id;
         }
 
