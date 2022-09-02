@@ -65,9 +65,9 @@ namespace ETMS.IDataAccess
 
         Task<bool> StudentRelieveCardNo(long id, string cardNo);
 
-        Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo);
+        Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo, byte newHkCardStatus);
 
-        Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey);
+        Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey, byte newHkFaceStatus);
 
         Task<bool> StudentRelieveFaceKey(long id);
 

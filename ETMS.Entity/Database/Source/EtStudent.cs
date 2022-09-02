@@ -235,5 +235,9 @@ namespace ETMS.Entity.Database.Source
         /// 报读课程
         /// </summary>
         public string CourseIds { get; set; }
+
+        public byte HkFaceStatus { get; set; }
+
+        public byte HkCardStatus { get; set; }
     }
 }

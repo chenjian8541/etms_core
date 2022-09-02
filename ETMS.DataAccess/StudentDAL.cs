@@ -369,15 +369,15 @@ namespace ETMS.DataAccess
 
         public async Task<bool> StudentRelieveCardNo(long id, string cardNo)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '',HkCardStatus = {EmBool.False} WHERE TenantId = {_tenantId} AND Id = {id}");
             await base.UpdateCache(_tenantId, id);
             _student2DAL.RemoveCache(cardNo);
             return true;
         }
 
-        public async Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo)
+        public async Task<bool> StudentBindingCardNo(long id, string cardNo, string oldCardNo, byte newHkCardStatus)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '{cardNo}' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await _dbWrapper.Execute($"UPDATE EtStudent SET CardNo = '{cardNo}',HkCardStatus = {newHkCardStatus} WHERE TenantId = {_tenantId} AND Id = {id}");
             await base.UpdateCache(_tenantId, id);
             await _student2DAL.UpdateCache(cardNo);
             if (!string.IsNullOrEmpty(oldCardNo))
@@ -387,23 +387,23 @@ namespace ETMS.DataAccess
             return true;
         }
 
-        public async Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey)
+        public async Task<bool> StudentBindingFaceKey(long id, string faceKey, string faceGreyKey, byte newHkFaceStatus)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '{faceKey}' ,FaceGreyKey = '{faceGreyKey}' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '{faceKey}' ,FaceGreyKey = '{faceGreyKey}',HkFaceStatus = {newHkFaceStatus} WHERE TenantId = {_tenantId} AND Id = {id}");
             await base.UpdateCache(_tenantId, id);
             return true;
         }
 
         public async Task<bool> StudentRelieveFaceKey(long id)
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '' WHERE TenantId = {_tenantId} AND Id = {id}");
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '',HkFaceStatus = {EmBool.False} WHERE TenantId = {_tenantId} AND Id = {id}");
             await base.UpdateCache(_tenantId, id);
             return true;
         }
 
         public async Task StudentFaceClear()
         {
-            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '' WHERE TenantId = {_tenantId} ");
+            await _dbWrapper.Execute($"UPDATE EtStudent SET FaceKey = '' ,FaceGreyKey = '',HkFaceStatus = {EmBool.False} WHERE TenantId = {_tenantId} ");
         }
 
         public async Task<bool> UpdateStudentFaceUseLastTime(long id, DateTime faceUseLastTime)

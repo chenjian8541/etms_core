@@ -229,7 +229,7 @@ namespace ETMS.Business
                 AliyunOssUtil.DeleteObject(imgOssKey);
                 return ResponseBase.Success(new StudentBindingFaceOutput(StudentBindingFaceOutputState.Fail, initFaceResult.Item2));
             }
-            await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey);
+            await _studentDAL.StudentBindingFaceKey(request.CId, imgOssKey, imgOssKey, request.HkFaceStatus);
 
             if (!string.IsNullOrEmpty(student.FaceKey) || !string.IsNullOrEmpty(student.FaceGreyKey))
             {

@@ -11,6 +11,7 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public string NewCardNo { get; set; }
 
+        public byte HkCardStatus { get; set; }
         public override string Validate()
         {
             if (CId <= 0)

@@ -165,6 +165,11 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public int? BirthdayNearDay { get; set; }
 
+
+        public byte? HkFaceStatus { get; set; }
+
+        public byte? HkCardStatus { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -323,6 +328,14 @@ namespace ETMS.Entity.Dto.Student.Request
                     var maxTag = EtmsHelper3.GetBirthdayTag(limitDay);
                     condition.Append($" AND BirthdayTag >= {minTag} AND BirthdayTag <= {maxTag}");
                 }
+            }
+            if (HkFaceStatus != null)
+            {
+                condition.Append($" AND HkFaceStatus = {HkFaceStatus.Value}");
+            }
+            if (HkCardStatus != null)
+            {
+                condition.Append($" AND HkCardStatus = {HkCardStatus.Value}");
             }
             return condition.ToString();
         }

@@ -513,6 +513,8 @@ namespace ETMS.Business
                 BirthdayMonth = student.BirthdayMonth,
                 BirthdayDay = student.BirthdayDay,
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
+                HkCardStatus = student.HkCardStatus,
+                HkFaceStatus = student.HkFaceStatus
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var file in studentExtendFileds)
@@ -651,7 +653,9 @@ namespace ETMS.Business
                 BirthdayDay = student.BirthdayDay,
                 BirthdayMonth = student.BirthdayMonth,
                 CourseStatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(student.CourseStatus),
-                FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey)
+                FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
+                HkCardStatus = student.HkCardStatus,
+                HkFaceStatus = student.HkFaceStatus
             })));
         }
 
@@ -1388,7 +1392,7 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("学员已绑定此卡片");
             }
-            await _studentDAL.StudentBindingCardNo(request.CId, newCardNo, student.CardNo);
+            await _studentDAL.StudentBindingCardNo(request.CId, newCardNo, student.CardNo, request.HkCardStatus);
 
             await _userOperationLogDAL.AddUserLog(request, $"绑定学员卡片-姓名:{student.Name},手机号码:{student.Phone},卡号:{newCardNo}", EmUserOperationType.StudentManage);
             return ResponseBase.Success();

@@ -16,6 +16,8 @@ namespace ETMS.Entity.Dto.Student.Request
         /// </summary>
         public bool IsIgnoreSameStudent { get; set; }
 
+        public byte HkFaceStatus { get; set; }
+
         public override string Validate()
         {
             if (CId <= 0)
