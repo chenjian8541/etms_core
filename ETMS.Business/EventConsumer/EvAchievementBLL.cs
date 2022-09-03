@@ -96,7 +96,14 @@ namespace ETMS.Business.EventConsumer
             p.StudentMissCount = studentMissCount;
             p.ScoreMax = temp.Min(j => j.ScoreMy);
             p.ScoreMax = temp.Max(j => j.ScoreMy);
-            p.ScoreAverage = totalScore / studentInCount;
+            if (studentInCount > 0)
+            {
+                p.ScoreAverage = totalScore / studentInCount;
+            }
+            else
+            {
+                p.ScoreAverage = 0;
+            }
 
             await _achievementDAL.EditAchievement(p);
             await _achievementDAL.EditAchievementDetails(myDetails);
