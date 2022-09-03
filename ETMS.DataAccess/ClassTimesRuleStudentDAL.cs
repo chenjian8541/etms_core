@@ -112,5 +112,19 @@ namespace ETMS.DataAccess
             var sql = $"SELECT RuleId FROM EtClassTimesRuleStudent WHERE TenantId = {_tenantId} AND ClassId = {classId} AND IsDeleted = {EmIsDeleted.Normal}  GROUP BY RuleId";
             return await _dbWrapper.ExecuteObject<OnlyOneFiledRuleId>(sql);
         }
+
+        public async Task<IEnumerable<OnlyOneFiledClassIdAndRuleId>> GetClassIdByStudentAndDel(long studentId)
+        {
+            var sql = $"SELECT TOP 50 RuleId,ClassId FROM EtClassTimesRuleStudent WHERE TenantId = {_tenantId} AND StudentId = {studentId}";
+            var data = await _dbWrapper.ExecuteObject<OnlyOneFiledClassIdAndRuleId>(sql);
+            if (data.Any())
+            {
+                foreach (var p in data)
+                {
+                    RemoveCache(_tenantId, p.ClassId, p.RuleId);
+                }
+            }
+            return data;
+        }
     }
 }

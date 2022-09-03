@@ -23,5 +23,7 @@ namespace ETMS.IDataAccess
         Task ClearClassTimesRuleStudent(long classId, List<long> ruleIds);
 
         Task<IEnumerable<OnlyOneFiledRuleId>> GetIsSetRuleStudent(long classId);
+
+        Task<IEnumerable<OnlyOneFiledClassIdAndRuleId>> GetClassIdByStudentAndDel(long studentId);
     }
 }

@@ -17,6 +17,7 @@ using ETMS.Entity.Database.Source;
 using ETMS.Business.Common;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Dto.Educational.Request;
+using System.Linq;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -260,11 +261,33 @@ namespace ETMS.Business.EventConsumer
                 }
             }
 
+            //班级排课学员信息
+            var myClassInClassIds = new List<long>();
+            var ruleData = await _classTimesRuleStudentDAL.GetClassIdByStudentAndDel(request.StudentId);
+            if (ruleData.Any())
+            {
+                myClassInClassIds = ruleData.Select(p => p.ClassId).Distinct().ToList();
+            }
+            if (myClassInClassIds.Any())
+            {
+                foreach (var myClassId in myClassInClassIds)
+                {
+                    _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myClassId)
+                    {
+                        DelStudentId = request.StudentId
+                    });
+                }
+            }
+
             var myClass = await _classDAL.GetStudentClass(request.StudentId);
             if (myClass.Any())
             {
                 foreach (var myItem in myClass)
                 {
+                    if (myClassInClassIds.Any() && myClassInClassIds.Exists(j => j == myItem.Id))
+                    {
+                        continue;
+                    }
                     _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myItem.Id)
                     {
                         DelStudentId = request.StudentId

@@ -14,19 +14,26 @@ namespace ETMS.Business.Common
         public static async Task<IEnumerable<BaseClassStudent>> GetClassStudent(ClassBucket myClassBucket,
             IClassTimesRuleStudentDAL classTimesRuleStudentDAL, long ruleId)
         {
-            if (myClassBucket == null || myClassBucket.EtClass == null || myClassBucket.EtClassStudents == null ||
-                myClassBucket.EtClassStudents.Count == 0)
+            if (myClassBucket == null || myClassBucket.EtClass == null)
             {
                 return new List<EtClassStudent>();
             }
             if (ruleId == 0)
             {
+                if (myClassBucket.EtClassStudents == null)
+                {
+                    return new List<EtClassStudent>();
+                }
                 return myClassBucket.EtClassStudents;
             }
             var classTimesRuleStudents = await classTimesRuleStudentDAL.GetClassTimesRuleStudent(myClassBucket.EtClass.Id, ruleId);
             if (classTimesRuleStudents != null && classTimesRuleStudents.Any())
             {
                 return classTimesRuleStudents;
+            }
+            if (myClassBucket.EtClassStudents == null)
+            {
+                return new List<EtClassStudent>();
             }
             return myClassBucket.EtClassStudents;
         }
