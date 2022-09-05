@@ -122,5 +122,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> AchievementStudentIncreaseGet(AchievementStudentIncreaseGetRequest request)
+        {
+            try
+            {
+                _achievementBLL.InitTenantId(request.LoginTenantId);
+                return await _achievementBLL.AchievementStudentIncreaseGet(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ using System.Linq;
 using ETMS.Entity.Dto.Educational3.Request;
 using ETMS.Entity.Dto.Educational3.Output;
 using ETMS.Event.DataContract.Achievement;
+using ETMS.Entity.Dto.HisData.Output;
 
 namespace ETMS.Business
 {
@@ -191,10 +192,11 @@ namespace ETMS.Business
         {
             var status = request.IsPublish ? EmAchievementStatus.Publish : EmAchievementStatus.Save;
             var now = DateTime.Now;
+            var examOt = request.ExamOt.Value.Date;
             var myAchievement = new EtAchievement()
             {
                 IsCalculate = EmBool.True,
-                ExamOt = request.ExamOt.Value,
+                ExamOt = examOt,
                 CreateTime = now,
                 IsDeleted = EmIsDeleted.Normal,
                 Name = request.Name,
@@ -399,6 +401,30 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, $"发布成绩单—{p.Name}", EmUserOperationType.Achievement);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> AchievementStudentIncreaseGet(AchievementStudentIncreaseGetRequest request)
+        {
+            var output = new AchievementStudentIncreaseGetOutput()
+            {
+                ScoreMyIncrease = new EchartsBar<decimal>(),
+                RankMyIncrease = new EchartsBar<int>(),
+            };
+            var myAchievementDetail = await _achievementDAL.GetAchievementDetail(request.StudentId, request.SubjectId, request.StartOt.Value, request.EndOt.Value);
+            if (myAchievementDetail.Any())
+            {
+                var newAchievementDetail = myAchievementDetail.OrderBy(p => p.ExamOt);
+                foreach (var p in newAchievementDetail)
+                {
+                    var otDesc = p.ExamOt.EtmsToDateString();
+                    output.ScoreMyIncrease.XData.Add(otDesc);
+                    output.ScoreMyIncrease.MyData.Add(p.ScoreMy);
+
+                    output.RankMyIncrease.XData.Add(otDesc);
+                    output.RankMyIncrease.MyData.Add(-p.RankMy);
+                }
+            }
+            return ResponseBase.Success(output);
         }
     }
 }

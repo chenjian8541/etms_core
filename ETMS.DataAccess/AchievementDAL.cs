@@ -136,5 +136,11 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtAchievementDetail>("EtAchievementDetail", "*", request.PageSize, request.PageCurrent, "ExamOt DESC", request.ToString());
         }
+
+        public async Task<List<EtAchievementDetail>> GetAchievementDetail(long studentId, long subjectId, DateTime startTime, DateTime endTime)
+        {
+            return await _dbWrapper.FindListShort<EtAchievementDetail>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal &&
+            p.StudentId == studentId && p.SubjectId == subjectId && p.ExamOt >= startTime && p.ExamOt <= endTime && p.CheckStatus == EmAchievementDetailCheckStatus.Join);
+        }
     }
 }

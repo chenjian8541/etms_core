@@ -23,5 +23,7 @@ namespace ETMS.IBusiness
         Task<ResponseBase> AchievementEdit(AchievementEditRequest request);
 
         Task<ResponseBase> AchievementPush(AchievementPushRequest request);
+
+        Task<ResponseBase> AchievementStudentIncreaseGet(AchievementStudentIncreaseGetRequest request);
     }
 }

@@ -40,5 +40,7 @@ namespace ETMS.IDataAccess
         Task<Tuple<IEnumerable<EtAchievement>, int>> GetPaging(IPagingRequest request);
 
         Task<Tuple<IEnumerable<EtAchievementDetail>, int>> GetPagingDetail(IPagingRequest request);
+
+        Task<List<EtAchievementDetail>> GetAchievementDetail(long studentId, long subjectId, DateTime startTime, DateTime endTime);
     }
 }
