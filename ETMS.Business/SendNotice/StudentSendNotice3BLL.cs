@@ -753,5 +753,67 @@ namespace ETMS.Business.SendNotice
                 _wxService.NoticeStudentMessage(req);
             }
         }
+
+        public async Task NoticeStudentToClassConsumerEvent(NoticeStudentToClassEvent request)
+        {
+            var req = new NoticeStudentCustomizeMsgRequest(await GetNoticeRequestBase(request.TenantId, true))
+            {
+                OtTime = DateTime.Now.EtmsToMinuteString(),
+                Students = new List<NoticeStudentCustomizeMsgStudent>()
+            };
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            var now = DateTime.Now.Date;
+            foreach (var myStudentId in request.StudentIds)
+            {
+                var studentBucket = await _studentDAL.GetStudent(myStudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                var title = string.Empty;
+                if (student.LastGoClassTime == null || now == student.LastGoClassTime)
+                {
+                    title = $"您已经很久没来上课啦，请按时来上课呦";
+                }
+                else
+                {
+                    var tempDay = now - student.LastGoClassTime.Value;
+                    title = $"您已经{tempDay.TotalDays}天没来上课啦，请按时来上课呦";
+                }
+                req.Students.Add(new NoticeStudentCustomizeMsgStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Title = title
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentCustomizeMsgStudent()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Title = title
+                    });
+                }
+            }
+
+            if (req.Students.Any())
+            {
+                _wxService.NoticeStudentCustomizeMsg(req);
+            }
+        }
     }
 }

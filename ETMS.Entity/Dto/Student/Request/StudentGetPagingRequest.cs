@@ -172,6 +172,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public int? LastGoClassTimeDay { get; set; }
 
+        public DateTime? LastGoClassTime { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -343,6 +345,10 @@ namespace ETMS.Entity.Dto.Student.Request
             {
                 var minDate = DateTime.Now.AddDays(-LastGoClassTimeDay.Value).Date.EtmsToDateString();
                 condition.Append($" AND Ot < '{minDate}' AND (LastGoClassTime IS NULL OR LastGoClassTime < '{minDate}')");
+            }
+            if (LastGoClassTime != null)
+            {
+                condition.Append($" AND LastGoClassTime = '{LastGoClassTime.EtmsToDateString()}'");
             }
             return condition.ToString();
         }
