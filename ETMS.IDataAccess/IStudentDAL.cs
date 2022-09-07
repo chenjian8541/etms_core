@@ -104,5 +104,7 @@ namespace ETMS.IDataAccess
         Task UpdateStudentCourseRestoreTime(List<long> studentIds);
 
         Task<IEnumerable<EtStudent>> GetTrackMustToday(long userId, DateTime date);
+
+        Task UpdateStudentLastGoClassTime(long studentId, DateTime? time);
     }
 }

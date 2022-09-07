@@ -531,5 +531,18 @@ namespace ETMS.DataAccess
             return await _dbWrapper.ExecuteObject<EtStudent>(
                 $"SELECT TOP 50 * FROM EtStudent WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND TrackUser = {userId} AND NextTrackTime = '{date.EtmsToDateString()}'");
         }
+
+        public async Task UpdateStudentLastGoClassTime(long studentId, DateTime? time)
+        {
+            if (time == null)
+            {
+                await _dbWrapper.Execute($"UPDATE [EtStudent] SET LastGoClassTime = null WHERE Id = {studentId} AND TenantId = {_tenantId}");
+            }
+            else
+            {
+                await _dbWrapper.Execute($"UPDATE [EtStudent] SET LastGoClassTime = '{time.EtmsToString()}' WHERE Id = {studentId} AND TenantId = {_tenantId}");
+            }
+            RemoveCache(_tenantId, studentId);
+        }
     }
 }

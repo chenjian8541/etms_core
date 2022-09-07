@@ -36,5 +36,7 @@ namespace ETMS.IDataAccess
         Task<int> GetStudentOneDayAttendClassCount(long studentId, DateTime date);
 
         Task<IEnumerable<OnlyId>> GetOneDayStudentCheckInAllClassTimes(DateTime date);
+
+        Task<DateTime?> GetStudentLastGoClassTime(long studentId);
     }
 }

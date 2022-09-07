@@ -123,5 +123,16 @@ namespace ETMS.DataAccess
             var sql = $"SELECT ClassTimesId AS Id FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND [Status] = {EmStudentCheckOnLogStatus.NormalAttendClass} AND [IsDeleted] = {EmIsDeleted.Normal} AND ClassTimesId IS NOT NULL AND CheckOtDate = '{date.EtmsToDateString()}' GROUP BY ClassTimesId";
             return await _dbWrapper.ExecuteObject<OnlyId>(sql);
         }
+
+        public async Task<DateTime?> GetStudentLastGoClassTime(long studentId)
+        {
+            var sql = $"SELECT TOP 1 CheckOt FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmStudentCheckOnLogStatus.NormalAttendClass} ORDER BY CheckOt DESC ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return null;
+            }
+            return Convert.ToDateTime(obj);
+        }
     }
 }

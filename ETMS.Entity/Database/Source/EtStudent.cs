@@ -239,5 +239,7 @@ namespace ETMS.Entity.Database.Source
         public byte HkFaceStatus { get; set; }
 
         public byte HkCardStatus { get; set; }
+
+        public DateTime? LastGoClassTime { get; set; }
     }
 }

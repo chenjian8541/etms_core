@@ -45,11 +45,17 @@ namespace ETMS.Business.EventConsumer
         private readonly IStudentWechatDAL _studentWechatDAL;
 
         private readonly IIncomeLogDAL _incomeLogDAL;
+
+        private readonly IClassRecordDAL _classRecordDAL;
+
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public EvStudentBLL(IStudentDAL studentDAL, IStudentPointsLogDAL studentPointsLogDAL, IStudentAccountRechargeDAL studentAccountRechargeDAL,
             IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL, IAppConfigDAL appConfigDAL, ITenantConfigDAL tenantConfigDAL,
             IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, IStudentCourseDAL studentCourseDAL, IClassDAL classDAL,
             IEventPublisher eventPublisher, IStudentExtendFieldDAL studentExtendFieldDAL, IStudentWechatDAL studentWechatDAL,
-            IStudentCourseOpLogDAL studentCourseOpLogDAL, IIncomeLogDAL incomeLogDAL)
+            IStudentCourseOpLogDAL studentCourseOpLogDAL, IIncomeLogDAL incomeLogDAL, IClassRecordDAL classRecordDAL,
+            IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._studentDAL = studentDAL;
             this._studentPointsLogDAL = studentPointsLogDAL;
@@ -65,6 +71,8 @@ namespace ETMS.Business.EventConsumer
             this._studentCourseOpLogDAL = studentCourseOpLogDAL;
             this._studentWechatDAL = studentWechatDAL;
             this._incomeLogDAL = incomeLogDAL;
+            this._classRecordDAL = classRecordDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -72,7 +80,7 @@ namespace ETMS.Business.EventConsumer
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _studentPointsLogDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL,
                _appConfigDAL, _tenantConfigDAL, _studentCourseDAL, _classDAL, _studentExtendFieldDAL,
-               _studentCourseOpLogDAL, _studentWechatDAL, _incomeLogDAL);
+               _studentCourseOpLogDAL, _studentWechatDAL, _incomeLogDAL, _classRecordDAL, _studentCheckOnLogDAL);
         }
 
         public async Task StudentRecommendRewardConsumerEvent(StudentRecommendRewardEvent request)
@@ -282,6 +290,21 @@ namespace ETMS.Business.EventConsumer
             }
         }
 
+        private async Task<DateTime?> GetStudentLastGoClassTime(long studentId)
+        {
+            var time1 = await _classRecordDAL.GetStudentLastGoClassTime(studentId);
+            var time2 = await _studentCheckOnLogDAL.GetStudentLastGoClassTime(studentId);
+            if (time1 == null)
+            {
+                return time2;
+            }
+            if (time2 == null)
+            {
+                return time1;
+            }
+            return time1 > time2 ? time1 : time2;
+        }
+
         public async Task StudentAutoMarkGraduationConsumerEvent(StudentAutoMarkGraduationEvent request)
         {
             var config = await _tenantConfigDAL.GetTenantConfig();
@@ -393,6 +416,8 @@ namespace ETMS.Business.EventConsumer
                     }
                 }
             }
+
+            student.LastGoClassTime = await GetStudentLastGoClassTime(student.Id);
 
             await _studentDAL.EditStudent2(student);
 
@@ -558,6 +583,12 @@ namespace ETMS.Business.EventConsumer
                     _eventPublisher.Publish(new StatisticsStudentEvent(request.TenantId) { OpType = EmStatisticsStudentType.StudentType, StatisticsDate = DateTime.Now });
                 }
             }
+        }
+
+        public async Task SyncStudentLastGoClassTimeConsumerEvent(SyncStudentLastGoClassTimeEvent request)
+        {
+            var lastGoClassTime = await GetStudentLastGoClassTime(request.StudentId);
+            await _studentDAL.UpdateStudentLastGoClassTime(request.StudentId, lastGoClassTime);
         }
     }
 }

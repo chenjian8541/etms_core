@@ -97,5 +97,7 @@ namespace ETMS.IDataAccess
         Task UpdateClassRecordStudentSurplusCourseDesc(List<UpdateStudentLogOfSurplusCourseView> upLogs);
 
         Task<int> GetStudentClassCountByTime(long studentId, long courseId, long deStudentCourseDetailId, DateTime start, DateTime end);
+
+        Task<DateTime?> GetStudentLastGoClassTime(long studentId);
     }
 }

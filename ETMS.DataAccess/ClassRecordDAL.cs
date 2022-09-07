@@ -349,5 +349,16 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(sql);
             return obj.ToInt();
         }
+
+        public async Task<DateTime?> GetStudentLastGoClassTime(long studentId)
+        {
+            var sql = $"SELECT TOP 1 ClassOt FROM EtClassRecordStudent WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND IsDeleted = {EmIsDeleted.Normal} AND [Status] = {EmClassRecordStatus.Normal} ORDER BY ClassOt DESC";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return null;
+            }
+            return Convert.ToDateTime(obj);
+        }
     }
 }
