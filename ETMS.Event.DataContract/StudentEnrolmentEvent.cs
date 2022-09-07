@@ -24,5 +24,7 @@ namespace ETMS.Event.DataContract
         public List<long> CouponsStudentGetIds { get; set; }
 
         public bool IsMallOrder { get; set; }
+
+        public decimal AddToAccountRechargeMoney { get; set; }
     }
 }

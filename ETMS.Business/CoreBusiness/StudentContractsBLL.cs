@@ -51,11 +51,12 @@ namespace ETMS.Business
 
         private readonly IStudentAccountRechargeCoreBLL _studentAccountRechargeCoreBLL;
 
+        private readonly ITenantConfigDAL _tenantConfigDAL;
         public StudentContractsBLL(IStudentDAL studentDAL, ICouponsDAL couponsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL,
             IEventPublisher eventPublisher, IOrderDAL orderDAL, IStudentPointsLogDAL studentPointsLog, IIncomeLogDAL incomeLogDAL,
             IStudentCourseDAL studentCourseDAL, IUserOperationLogDAL userOperationLogDAL, IClassDAL classDAL,
             IStudentAccountRechargeDAL studentAccountRechargeDAL, IStudentAccountRechargeLogDAL studentAccountRechargeLogDAL,
-            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL)
+            IStudentAccountRechargeCoreBLL studentAccountRechargeCoreBLL, ITenantConfigDAL tenantConfigDAL)
         {
             this._studentDAL = studentDAL;
             this._couponsDAL = couponsDAL;
@@ -72,13 +73,14 @@ namespace ETMS.Business
             this._studentAccountRechargeDAL = studentAccountRechargeDAL;
             this._studentAccountRechargeLogDAL = studentAccountRechargeLogDAL;
             this._studentAccountRechargeCoreBLL = studentAccountRechargeCoreBLL;
+            this._tenantConfigDAL = tenantConfigDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this._studentAccountRechargeCoreBLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentDAL, _couponsDAL, _courseDAL, _goodsDAL, _costDAL, _incomeLogDAL, _studentCourseDAL, _userOperationLogDAL,
-                _orderDAL, _studentPointsLog, _classDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL);
+                _orderDAL, _studentPointsLog, _classDAL, _studentAccountRechargeDAL, _studentAccountRechargeLogDAL, _tenantConfigDAL);
         }
 
         public async Task<ResponseBase> StudentEnrolment(StudentEnrolmentRequest request)
@@ -302,6 +304,20 @@ namespace ETMS.Business
             {
                 status = EmOrderStatus.MakeUpMoney;
             }
+            var addToAccountRechargeMoney = 0M;
+            if (arrearsSum < 0)
+            {
+                arrearsSum = 0;
+                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                if (!tenantConfig.TenantOtherConfig.IsAllowStudentOverpayment)
+                {
+                    return ResponseBase.CommonError("支付金额应该小于等于应付金额");
+                }
+                if (tenantConfig.TenantOtherConfig.StudentOverpaymentProcessType == EmStudentOverpaymentProcessType.GoStudentAccountRecharge)
+                {
+                    addToAccountRechargeMoney = paySum - aptSum;
+                }
+            }
             var order = new EtOrder()
             {
                 TenantId = request.LoginTenantId,
@@ -414,7 +430,8 @@ namespace ETMS.Business
                 CreateTime = now,
                 OneToOneClassList = oneToOneClassLst,
                 CouponsStudentGetIds = request.CouponsStudentGetIds,
-                LoginClientType = request.LoginClientType
+                LoginClientType = request.LoginClientType,
+                AddToAccountRechargeMoney = addToAccountRechargeMoney
             };
 
             //异步执行
@@ -653,6 +670,25 @@ namespace ETMS.Business
                     Type = (int)EmUserOperationType.StudentEnrolment,
                     OpContent = opContent.ToString(),
                     ClientType = request.LoginClientType
+                });
+            }
+            if (request.AddToAccountRechargeMoney > 0)
+            {
+                var paytype = EmPayType.Cash;
+                if (request.IncomeLogs != null && request.IncomeLogs.Any())
+                {
+                    paytype = request.IncomeLogs.First().PayType;
+                }
+                _eventPublisher.Publish(new StudentAutoAddAccountRechargeEvent(request.TenantId)
+                {
+                    StudentId = request.Order.StudentId,
+                    AddMoney = request.AddToAccountRechargeMoney,
+                    RechargeLogType = EmStudentAccountRechargeLogType.StudentContractsOverpayment,
+                    PayType = paytype,
+                    UserId = request.Order.UserId,
+                    OrderNo = request.Order.No,
+                    OrderId = request.Order.Id,
+                    Remark = request.Order.Remark
                 });
             }
         }

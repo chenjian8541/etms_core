@@ -10,5 +10,7 @@ namespace ETMS.IBusiness.EventConsumer
     public interface IEvStudentAccountRechargeBLL : IBaseBLL
     {
         Task SyncStudentAccountRechargeRelationStudentIdsConsumerEvent(SyncStudentAccountRechargeRelationStudentIdsEvent request);
+
+        Task StudentAutoAddAccountRechargeConsumerEvent(StudentAutoAddAccountRechargeEvent request);
     }
 }

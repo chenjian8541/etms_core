@@ -334,6 +334,14 @@ namespace ETMS.Business
             {
                 pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
             }
+            if (!config.TenantOtherConfig.IsAllowStudentOverpayment)
+            {
+                var studentOverpaymentLog = request.ImportCourseTimess.FirstOrDefault(p => p.PaySum > p.AptSum);
+                if (studentOverpaymentLog != null)
+                {
+                    return ResponseBase.CommonError("支付金额应该小于等于应付金额");
+                }
+            }
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var p in request.ImportCourseTimess)
@@ -484,6 +492,16 @@ namespace ETMS.Business
 
                 var no = OrderNumberLib.EnrolmentOrderNumber();
                 var arrearsSum = p.AptSum - p.PaySum;
+                var addToAccountRechargeMoney = 0M;
+                if (arrearsSum < 0)
+                {
+                    arrearsSum = 0;
+                    if (config.TenantOtherConfig.IsAllowStudentOverpayment &&
+                        config.TenantOtherConfig.StudentOverpaymentProcessType == EmStudentOverpaymentProcessType.GoStudentAccountRecharge)
+                    {
+                        addToAccountRechargeMoney = p.PaySum - p.AptSum;
+                    }
+                }
                 var status = EmOrderStatus.Normal;
                 if (p.PaySum == 0 && p.AptSum > 0)
                 {
@@ -547,9 +565,9 @@ namespace ETMS.Business
                 //订单
                 var orderId = await _orderDAL.AddOrder(order, new List<EtOrderDetail>() { orderDetail });
 
+                var payType = EmPayType.Cash;
                 if (p.PaySum > 0)
                 {
-                    var payType = EmPayType.Cash;
                     if (!string.IsNullOrEmpty(p.PayTypeName))
                     {
                         payType = EmPayType.GetPayType(p.PayTypeName);
@@ -611,6 +629,21 @@ namespace ETMS.Business
                 if (course.Type == EmCourseType.OneToOne || p.CourseType == EmCourseType.OneToOne)
                 {
                     await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
+                }
+
+                if (addToAccountRechargeMoney > 0)
+                {
+                    _eventPublisher.Publish(new StudentAutoAddAccountRechargeEvent(request.LoginTenantId)
+                    {
+                        StudentId = order.StudentId,
+                        AddMoney = addToAccountRechargeMoney,
+                        RechargeLogType = EmStudentAccountRechargeLogType.StudentImportOverpayment,
+                        PayType = payType,
+                        UserId = order.UserId,
+                        OrderNo = order.No,
+                        OrderId = order.Id,
+                        Remark = order.Remark
+                    });
                 }
 
                 _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)
@@ -718,6 +751,14 @@ namespace ETMS.Business
             if (!string.IsNullOrEmpty(config.StudentConfig.InitialPassword))
             {
                 pwd = CryptogramHelper.Encrypt3DES(config.StudentConfig.InitialPassword, SystemConfig.CryptogramConfig.Key);
+            }
+            if (!config.TenantOtherConfig.IsAllowStudentOverpayment)
+            {
+                var studentOverpaymentLog = request.ImportCourseDays.FirstOrDefault(p => p.PaySum > p.AptSum);
+                if (studentOverpaymentLog != null)
+                {
+                    return ResponseBase.CommonError("支付金额应该小于等于应付金额");
+                }
             }
             var studentExtendInfos = new List<EtStudentExtendInfo>();
             var studentExtendFieldAll = await _studentExtendFieldDAL.GetAllStudentExtendField();
@@ -882,6 +923,16 @@ namespace ETMS.Business
 
                 var no = OrderNumberLib.EnrolmentOrderNumber();
                 var arrearsSum = p.AptSum - p.PaySum;
+                var addToAccountRechargeMoney = 0M;
+                if (arrearsSum < 0)
+                {
+                    arrearsSum = 0;
+                    if (config.TenantOtherConfig.IsAllowStudentOverpayment &&
+                        config.TenantOtherConfig.StudentOverpaymentProcessType == EmStudentOverpaymentProcessType.GoStudentAccountRecharge)
+                    {
+                        addToAccountRechargeMoney = p.PaySum - p.AptSum;
+                    }
+                }
                 var status = EmOrderStatus.Normal;
                 if (p.PaySum == 0 && p.AptSum > 0)
                 {
@@ -945,9 +996,9 @@ namespace ETMS.Business
                 //订单
                 var orderId = await _orderDAL.AddOrder(order, new List<EtOrderDetail>() { orderDetail });
 
+                var payType = EmPayType.Cash;
                 if (p.PaySum > 0)
                 {
-                    var payType = EmPayType.Cash;
                     if (!string.IsNullOrEmpty(p.PayTypeName))
                     {
                         payType = EmPayType.GetPayType(p.PayTypeName);
@@ -1031,6 +1082,21 @@ namespace ETMS.Business
                 if (course.Type == EmCourseType.OneToOne || p.CourseType == EmCourseType.OneToOne)
                 {
                     await AddOneToOneClass(course.Id, course.Name, student.Name, now, request.LoginTenantId, orderId, student.Id, request.LoginUserId);
+                }
+
+                if (addToAccountRechargeMoney > 0)
+                {
+                    _eventPublisher.Publish(new StudentAutoAddAccountRechargeEvent(request.LoginTenantId)
+                    {
+                        StudentId = order.StudentId,
+                        AddMoney = addToAccountRechargeMoney,
+                        RechargeLogType = EmStudentAccountRechargeLogType.StudentImportOverpayment,
+                        PayType = payType,
+                        UserId = order.UserId,
+                        OrderNo = order.No,
+                        OrderId = order.Id,
+                        Remark = order.Remark
+                    });
                 }
 
                 _eventPublisher.Publish(new StudentCourseAnalyzeEvent(request.LoginTenantId)

@@ -441,6 +441,8 @@ namespace ETMS.Business
             config.TenantOtherConfig.IsStudentLimitShowClassTimes = request.IsStudentLimitShowClassTimes;
             config.TenantOtherConfig.StudentLimitShowClassTimesValue = request.StudentLimitShowClassTimesValue;
             config.TenantOtherConfig.IsClassTimeRuleSetStudentAutoSyncClass = request.IsClassTimeRuleSetStudentAutoSyncClass;
+            config.TenantOtherConfig.IsAllowStudentOverpayment = request.IsAllowStudentOverpayment;
+            config.TenantOtherConfig.StudentOverpaymentProcessType = request.StudentOverpaymentProcessType;
             await _tenantConfigDAL.SaveTenantConfig(config);
             await _userOperationLogDAL.AddUserLog(request, "机构设置", EmUserOperationType.SystemConfigModify);
             return ResponseBase.Success();

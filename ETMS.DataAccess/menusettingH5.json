@@ -18,6 +18,15 @@
     "CategoryId": 2
   },
   {
+    "Id": 29,
+    "Name": "到课记录",
+    "Icon": "system/material/teacher/menus/25.png",
+    "PageId": 103,
+    "ActionId": 0,
+    "Sort": 25,
+    "CategoryId": 2
+  },
+  {
     "Id": 3,
     "Name": "课后点评",
     "Icon": "system/material/teacher/menus/30.png",
@@ -63,6 +72,15 @@
     "CategoryId": 1
   },
   {
+    "Id": 28,
+    "Name": "学员课程",
+    "Icon": "system/material/teacher/menus/53.png",
+    "PageId": 18,
+    "ActionId": 0,
+    "Sort": 53,
+    "CategoryId": 2
+  },
+  {
     "Id": 6,
     "Name": "请假申请",
     "Icon": "system/material/teacher/menus/60.png",
@@ -90,6 +108,15 @@
     "CategoryId": 2
   },
   {
+    "Id": 30,
+    "Name": "考勤记录",
+    "Icon": "system/material/teacher/menus/76.png",
+    "PageId": 85,
+    "ActionId": 0,
+    "Sort": 76,
+    "CategoryId": 2
+  },
+  {
     "Id": 8,
     "Name": "我的课表",
     "Icon": "system/material/teacher/menus/80.png",
@@ -114,6 +141,15 @@
     "PageId": 70,
     "ActionId": 0,
     "Sort": 100,
+    "CategoryId": 3
+  },
+  {
+    "Id": 31,
+    "Name": "成绩单",
+    "Icon": "system/material/teacher/menus/102.png",
+    "PageId": 112,
+    "ActionId": 0,
+    "Sort": 102,
     "CategoryId": 3
   },
   {
@@ -178,6 +214,15 @@
     "ActionId": 0,
     "Sort": 160,
     "CategoryId": 5
+  },
+  {
+    "Id": 32,
+    "Name": "经营汇总",
+    "Icon": "system/material/teacher/menus/165.png",
+    "PageId": 108,
+    "ActionId": 0,
+    "Sort": 165,
+    "CategoryId": 6
   },
   {
     "Id": 17,

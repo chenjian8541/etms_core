@@ -195,6 +195,18 @@ namespace ETMS.Entity.Config
         public int StudentLimitShowClassTimesValue { get; set; }
 
         public bool IsClassTimeRuleSetStudentAutoSyncClass { get; set; } = true;
+
+        /// <summary>
+        /// 是否允许学员多支付
+        /// 涉及：报名、导入课程等
+        /// </summary>
+        public bool IsAllowStudentOverpayment { get; set; }
+
+        /// <summary>
+        /// 学员多支付的金额处理
+        /// <see cref="ETMS.Entity.Enum.EmStudentOverpaymentProcessType"/>
+        /// </summary>
+        public byte StudentOverpaymentProcessType { get; set; }
     }
 
     /// <summary>

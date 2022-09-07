@@ -36,6 +36,16 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int RecommendStudentBuy = 5;
 
+        /// <summary>
+        /// 多支付(报名/续费)
+        /// </summary>
+        public const int StudentContractsOverpayment = 6;
+
+        /// <summary>
+        /// 多支付(导入学员课程)
+        /// </summary>
+        public const int StudentImportOverpayment = 7;
+
         public static string GetStudentAccountRechargeLogTypeDesc(int type)
         {
             switch (type)
@@ -52,6 +62,10 @@ namespace ETMS.Entity.Enum
                     return "推荐有奖(注册)";
                 case RecommendStudentBuy:
                     return "推荐有奖(报名/续费)";
+                case StudentContractsOverpayment:
+                    return "多支付(报名/续费)";
+                case StudentImportOverpayment:
+                    return "多支付(导入学员课程)";
             }
             return string.Empty;
         }
@@ -72,6 +86,11 @@ namespace ETMS.Entity.Enum
                     return EmValueChangeType.Add;
                 case RecommendStudentBuy:
                     return EmValueChangeType.Add;
+                case StudentContractsOverpayment:
+                    return EmValueChangeType.Add;
+                case StudentImportOverpayment:
+                    return EmValueChangeType.Add;
+
             }
             return EmValueChangeType.Add;
         }
@@ -95,6 +114,10 @@ namespace ETMS.Entity.Enum
                 case RecommendStudentRegistered:
                     return $"+￥{value.ToString("F2")}";
                 case RecommendStudentBuy:
+                    return $"+￥{value.ToString("F2")}";
+                case StudentContractsOverpayment:
+                    return $"+￥{value.ToString("F2")}";
+                case StudentImportOverpayment:
                     return $"+￥{value.ToString("F2")}";
             }
             return string.Empty;

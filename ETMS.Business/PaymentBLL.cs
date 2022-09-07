@@ -293,18 +293,18 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> LcsPayRefund(LcsPayRefundRequest request)
         {
-            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount(request.LoginTenantId);
-            if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
-            {
-                return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
-            }
-
             var now = DateTime.Now;
             var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
             if (paylog.Status != EmLcsPayLogStatus.PaySuccess)
             {
                 return ResponseBase.CommonError("此订单无法执行退款");
             }
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount2(request.LoginTenantId, paylog.AgtPayType);
+            if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
+            {
+                return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
+            }
+
             var limitRefundDate = DateTime.Now.Date.AddDays(-SystemConfig.ComConfig.LcsRefundOrderLimitDay);
             if (paylog.PayFinishOt.Value <= limitRefundDate)
             {
