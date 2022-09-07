@@ -95,9 +95,9 @@ namespace Etms.Tools.Test
 
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
-            new EtmsProcess().ProcessT();
+            //new EtmsProcess().ProcessT();
             //GetPwd();
-            //Encrypt3DESSqlConnection();
+            Encrypt3DESSqlConnection();
             Console.WriteLine("处理完成");
             Console.Read();
         }
@@ -294,7 +294,7 @@ namespace Etms.Tools.Test
 
         private static void Encrypt3DESSqlConnection()
         {
-            var conStr = "server=iZsgar6gznjelyZ;user id=sa;password=Abc8594432<>?;database=EtmsSource012;min pool size=4;max pool size=512";
+            var conStr = "server=iZsgar6gznjelyZ;user id=sa;password=Abc8594432<>?;database=EtmsSource014;min pool size=4;max pool size=512";
             //Console.WriteLine(conStr);
             //try
             //{

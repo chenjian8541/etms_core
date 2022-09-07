@@ -1251,7 +1251,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem(student.Title),
+                        first = new TemplateDataItem(GetFirstDesc(request,student.Title)),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(request.OtTime, DefaultColor),
                         keyword3,
