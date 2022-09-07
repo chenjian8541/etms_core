@@ -235,6 +235,47 @@ namespace ETMS.Business
                 OpType = StatisticsSalesOrderOpType.Repeal
             });
             _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(request.TenantId));
+
+            //多支付，退还储值账户的钱
+            var overpaymentLog = await _studentAccountRechargeLogDAL.GetAccountRechargeLogByOrderIdAboutOverpayment(order.Id);
+            if (overpaymentLog != null)
+            {
+                var myOverpaymentAccountRecharge = await _studentAccountRechargeDAL.GetStudentAccountRecharge(overpaymentLog.StudentAccountRechargeId);
+                if (myOverpaymentAccountRecharge == null)
+                {
+                    LOG.Log.Error($"[OrderStudentEnrolmentRepealEventProcess]订单作废时，多支付的充值账户未找到", request, this.GetType());
+                }
+                else
+                {
+                    await _studentAccountRechargeCoreBLL.StudentAccountRechargeChange(new StudentAccountRechargeChangeEvent(order.TenantId)
+                    {
+                        AddBalanceReal = -overpaymentLog.CgBalanceReal,
+                        AddBalanceGive = 0,
+                        AddRechargeSum = -overpaymentLog.CgBalanceReal,
+                        AddRechargeGiveSum = 0,
+                        StudentAccountRechargeId = myOverpaymentAccountRecharge.Id,
+                        TryCount = 0
+                    });
+                    await _studentAccountRechargeLogDAL.AddStudentAccountRechargeLog(new EtStudentAccountRechargeLog()
+                    {
+                        TenantId = order.TenantId,
+                        CgBalanceGive = 0,
+                        CgBalanceReal = overpaymentLog.CgBalanceReal,
+                        CgNo = order.No,
+                        CgServiceCharge = 0,
+                        CommissionUser = string.Empty,
+                        IsDeleted = order.IsDeleted,
+                        Ot = DateTime.Now,
+                        Phone = myOverpaymentAccountRecharge.Phone,
+                        Remark = "订单作废",
+                        RelatedOrderId = order.Id,
+                        Status = EmStudentAccountRechargeLogStatus.Normal,
+                        StudentAccountRechargeId = myOverpaymentAccountRecharge.Id,
+                        Type = EmStudentAccountRechargeLogType.OverpaymentOrderRepeal,
+                        UserId = order.UserId
+                    });
+                }
+            }
         }
 
         public async Task OrderReturnProductEventProcess(OrderReturnProductEvent request)

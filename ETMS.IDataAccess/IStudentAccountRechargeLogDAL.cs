@@ -16,5 +16,7 @@ namespace ETMS.IDataAccess
         Task UpdateStudentAccountRechargeLogPhone(long studentAccountRechargeId,string phone);
 
         Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderId(long orderId);
+
+        Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderIdAboutOverpayment(long orderId);
     }
 }

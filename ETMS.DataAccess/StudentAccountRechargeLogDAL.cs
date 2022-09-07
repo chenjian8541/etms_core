@@ -34,7 +34,16 @@ namespace ETMS.DataAccess
 
         public async Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderId(long orderId)
         {
-            return await _dbWrapper.Find<EtStudentAccountRechargeLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal && p.RelatedOrderId == orderId);
+            return await _dbWrapper.Find<EtStudentAccountRechargeLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.RelatedOrderId == orderId && p.Type != EmStudentAccountRechargeLogType.StudentContractsOverpayment &&
+            p.Type != EmStudentAccountRechargeLogType.StudentImportOverpayment);
+        }
+
+        public async Task<EtStudentAccountRechargeLog> GetAccountRechargeLogByOrderIdAboutOverpayment(long orderId)
+        {
+            return await _dbWrapper.Find<EtStudentAccountRechargeLog>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal
+            && p.RelatedOrderId == orderId && (p.Type == EmStudentAccountRechargeLogType.StudentContractsOverpayment ||
+            p.Type == EmStudentAccountRechargeLogType.StudentImportOverpayment));
         }
     }
 }

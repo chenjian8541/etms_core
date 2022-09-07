@@ -46,6 +46,11 @@ namespace ETMS.Entity.Enum
         /// </summary>
         public const int StudentImportOverpayment = 7;
 
+        /// <summary>
+        /// 多支付(订单作废)
+        /// </summary>
+        public const int OverpaymentOrderRepeal = 8;
+
         public static string GetStudentAccountRechargeLogTypeDesc(int type)
         {
             switch (type)
@@ -66,6 +71,8 @@ namespace ETMS.Entity.Enum
                     return "多支付(报名/续费)";
                 case StudentImportOverpayment:
                     return "多支付(导入学员课程)";
+                case OverpaymentOrderRepeal:
+                    return "多支付(订单作废)";
             }
             return string.Empty;
         }
@@ -90,6 +97,8 @@ namespace ETMS.Entity.Enum
                     return EmValueChangeType.Add;
                 case StudentImportOverpayment:
                     return EmValueChangeType.Add;
+                case OverpaymentOrderRepeal:
+                    return EmValueChangeType.Deduction;
 
             }
             return EmValueChangeType.Add;
@@ -119,6 +128,8 @@ namespace ETMS.Entity.Enum
                     return $"+￥{value.ToString("F2")}";
                 case StudentImportOverpayment:
                     return $"+￥{value.ToString("F2")}";
+                case OverpaymentOrderRepeal:
+                    return $"-￥{value.ToString("F2")}";
             }
             return string.Empty;
         }
