@@ -64,6 +64,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public int? MaxValidityDay { get; set; }
 
+        public int? ExceedTotalClassTimesType { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -153,6 +155,17 @@ namespace ETMS.Entity.Dto.Student.Request
                 {
                     var maxEndDate = now.AddDays(MaxValidityDay.Value);
                     condition.Append($" AND (EndTime IS NOT NULL AND EndTime <= '{maxEndDate.EtmsToDateString()}')");
+                }
+            }
+            if (ExceedTotalClassTimesType != null)
+            {
+                if (ExceedTotalClassTimesType == 0)
+                {
+                    condition.Append(" AND ExceedTotalClassTimes = 0");
+                }
+                else
+                {
+                    condition.Append(" AND ExceedTotalClassTimes > 0");
                 }
             }
             if (GetIsDataLimit(1))
