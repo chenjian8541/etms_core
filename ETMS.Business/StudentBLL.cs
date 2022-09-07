@@ -655,7 +655,8 @@ namespace ETMS.Business
                 CourseStatusDesc = EmStudentCourseStatus.GetStudentCourseStatusDesc(student.CourseStatus),
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
                 HkCardStatus = student.HkCardStatus,
-                HkFaceStatus = student.HkFaceStatus
+                HkFaceStatus = student.HkFaceStatus,
+                LastGoClassTime = student.LastGoClassTime.EtmsToDateString()
             })));
         }
 

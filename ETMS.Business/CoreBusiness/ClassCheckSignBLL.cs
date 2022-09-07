@@ -494,6 +494,14 @@ namespace ETMS.Business
                     StudentId = student.StudentId,
                     CourseId = student.CourseId,
                 });
+                if (EmClassStudentCheckStatus.CheckIsAttend(student.StudentCheckStatus))
+                {
+                    _eventPublisher.Publish(new SyncStudentLastGoClassTimeEvent(student.TenantId)
+                    {
+                        StudentId = student.StudentId,
+                        ClassOt = request.ClassRecord.ClassOt
+                    });
+                }
             }
             if (classRecordAbsenceLogs.Any())
             {

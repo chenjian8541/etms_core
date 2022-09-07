@@ -170,6 +170,8 @@ namespace ETMS.Entity.Dto.Student.Request
 
         public byte? HkCardStatus { get; set; }
 
+        public int? LastGoClassTimeDay { get; set; }
+
         public string GetDataLimitFilterWhere()
         {
             return $" AND (CreateBy = {LoginUserId} OR TrackUser = {LoginUserId} OR LearningManager = {LoginUserId})";
@@ -336,6 +338,11 @@ namespace ETMS.Entity.Dto.Student.Request
             if (HkCardStatus != null)
             {
                 condition.Append($" AND HkCardStatus = {HkCardStatus.Value}");
+            }
+            if (LastGoClassTimeDay != null && LastGoClassTimeDay > 0)
+            {
+                var minDate = DateTime.Now.AddDays(-LastGoClassTimeDay.Value).Date.EtmsToDateString();
+                condition.Append($" AND Ot < '{minDate}' AND (LastGoClassTime IS NULL OR LastGoClassTime < '{minDate}')");
             }
             return condition.ToString();
         }

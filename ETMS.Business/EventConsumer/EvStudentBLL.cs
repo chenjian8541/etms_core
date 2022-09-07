@@ -418,6 +418,10 @@ namespace ETMS.Business.EventConsumer
             }
 
             student.LastGoClassTime = await GetStudentLastGoClassTime(student.Id);
+            if (student.LastGoClassTime != null)
+            {
+                student.LastGoClassTime = student.LastGoClassTime.Value.Date;
+            }
 
             await _studentDAL.EditStudent2(student);
 
@@ -587,7 +591,12 @@ namespace ETMS.Business.EventConsumer
 
         public async Task SyncStudentLastGoClassTimeConsumerEvent(SyncStudentLastGoClassTimeEvent request)
         {
-            var lastGoClassTime = await GetStudentLastGoClassTime(request.StudentId);
+            var lastGoClassTime = request.ClassOt.Date;
+            var myLogTime = await GetStudentLastGoClassTime(request.StudentId);
+            if (myLogTime != null && myLogTime > lastGoClassTime)
+            {
+                lastGoClassTime = myLogTime.Value;
+            }
             await _studentDAL.UpdateStudentLastGoClassTime(request.StudentId, lastGoClassTime);
         }
     }

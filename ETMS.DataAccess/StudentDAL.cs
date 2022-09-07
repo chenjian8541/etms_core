@@ -540,7 +540,7 @@ namespace ETMS.DataAccess
             }
             else
             {
-                await _dbWrapper.Execute($"UPDATE [EtStudent] SET LastGoClassTime = '{time.EtmsToString()}' WHERE Id = {studentId} AND TenantId = {_tenantId}");
+                await _dbWrapper.Execute($"UPDATE [EtStudent] SET LastGoClassTime = '{time.EtmsToDateString()}' WHERE Id = {studentId} AND TenantId = {_tenantId}");
             }
             RemoveCache(_tenantId, studentId);
         }

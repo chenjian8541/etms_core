@@ -675,6 +675,14 @@ namespace ETMS.Business.Common
                 TrackUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.TrackUser),
                 LearningManagerDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, _request.Student.LearningManager)
             };
+            if (!string.IsNullOrEmpty(courseName))
+            {
+                _eventPublisher.Publish(new SyncStudentLastGoClassTimeEvent(_request.LoginTenantId)
+                {
+                    StudentId = _request.Student.Id,
+                    ClassOt = _request.CheckOt
+                });
+            }
             if (_request.LoginTenantId == 7321) //要求展示跟进记录的客户
             {
                 var studentTrackLogs = await _studentTrackLogDAL.GetStudentTrackLog(_request.Student.Id);
