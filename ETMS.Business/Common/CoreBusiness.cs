@@ -39,6 +39,31 @@ namespace ETMS.Business.Common
             };
         }
 
+        public static EtStudentCourse GetExceedClassTimes(int tenantId, long studentId, long courseId, decimal addExceedTotalClassTimes)
+        {
+            return new EtStudentCourse()
+            {
+                ExceedTotalClassTimes = addExceedTotalClassTimes,
+                DeType = EmDeClassTimesType.ClassTimes,
+                BugUnit = EmCourseUnit.ClassTimes,
+                BuyQuantity = 0,
+                CourseId = courseId,
+                GiveQuantity = 0,
+                GiveSmallQuantity = 0,
+                IsDeleted = EmIsDeleted.Normal,
+                LastJobProcessTime = DateTime.Now,
+                RestoreTime = null,
+                Status = EmStudentCourseStatus.Normal,
+                StopTime = null,
+                StudentId = studentId,
+                SurplusQuantity = 0,
+                SurplusSmallQuantity = 0,
+                TenantId = tenantId,
+                UseQuantity = 0,
+                UseUnit = EmCourseUnit.ClassTimes
+            };
+        }
+
         /// <summary>
         /// 扣减学员课程
         /// </summary>

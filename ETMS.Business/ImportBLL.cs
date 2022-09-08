@@ -597,6 +597,12 @@ namespace ETMS.Business
                 var useQuantity = p.BuyQuantity + p.GiveQuantity - p.SurplusQuantity;
                 var courseDetailPrice = ComBusiness2.GetOneClassDeSum(p.AptSum, EmDeClassTimesType.ClassTimes,
                     p.BuyQuantity + p.GiveQuantity, 0, null, null);
+                if (p.SurplusQuantity < 0)
+                {
+                    await _studentCourseDAL.SaveNotbuyStudentExceedClassTimes(CoreBusiness.GetExceedClassTimes(request.LoginTenantId,
+                        student.Id, course.Id, Math.Abs(p.SurplusQuantity)));
+                    p.SurplusQuantity = 0;
+                }
                 var studentCourseDetail = new EtStudentCourseDetail()
                 {
                     BugUnit = EmCourseUnit.ClassTimes,
