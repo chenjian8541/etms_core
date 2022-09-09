@@ -405,7 +405,7 @@ namespace ETMS.Business.EventConsumer
             {
                 if (request.AllGrade != null && request.AllGrade.Any())
                 {
-                    if (student.GradeAutoUpDate != null && student.GradeAutoUpDate.Value.Year != DateTime.Now.Year)
+                    if (student.GradeAutoUpDate == null || student.GradeAutoUpDate.Value.Year != DateTime.Now.Year)
                     {
                         var nextGrade = request.AllGrade.Where(j => j.Id > student.GradeId).OrderBy(j => j.Id).FirstOrDefault();
                         if (nextGrade != null)

@@ -96,8 +96,8 @@ namespace Etms.Tools.Test
             //var s = EtmsHelper2.GetTenantEncryptOpenApi99(5402);
 
             //new EtmsProcess().ProcessT();
-            //GetPwd();
-            Encrypt3DESSqlConnection();
+            GetPwd();
+            //Encrypt3DESSqlConnection();
             Console.WriteLine("处理完成");
             Console.Read();
         }
