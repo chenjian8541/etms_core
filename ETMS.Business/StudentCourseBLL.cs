@@ -414,6 +414,61 @@ namespace ETMS.Business
             return ResponseBase.Success(output);
         }
 
+        public async Task<ResponseBase> StudentCourseAboutFastDeClassTimesGet2(StudentCourseAboutFastDeClassTimesGetRequest request)
+        {
+            var output = new List<StudentCourseAboutFastDeClassTimesGet2>();
+            var studentCourse = await _studentCourseDAL.GetStudentCourse(request.SId);
+            var effectiveClassTimesCourse = studentCourse.Where(p => p.Status == EmStudentCourseStatus.Normal && p.DeType == EmDeClassTimesType.ClassTimes);
+            if (effectiveClassTimesCourse.Any())
+            {
+                var courseIds = effectiveClassTimesCourse.OrderByDescending(j => j.Id).Select(p => p.CourseId).Distinct();
+                foreach (var courseId in courseIds)
+                {
+                    var courseResult = await _courseDAL.GetCourse(courseId);
+                    if (courseResult == null || courseResult.Item1 == null)
+                    {
+                        continue;
+                    }
+                    var course = courseResult.Item1;
+                    var myCourse = effectiveClassTimesCourse.Where(p => p.CourseId == courseId).ToList();
+                    output.Add(new StudentCourseAboutFastDeClassTimesGet2()
+                    {
+                        CourseId = course.Id,
+                        CourseName = course.Name,
+                        SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse, false),
+                        DeType = EmDeClassTimesType.ClassTimes,
+                        DeTypeDesc = "按课时"
+                    });
+                }
+            }
+            var effectiveDayCourse = studentCourse.Where(p => p.Status == EmStudentCourseStatus.Normal
+            && p.StartTime != null && p.EndTime != null && p.EndTime >= DateTime.Now.Date
+            && p.DeType == EmDeClassTimesType.Day);
+            if (effectiveDayCourse.Any())
+            {
+                var courseIds = effectiveDayCourse.OrderByDescending(j => j.Id).Select(p => p.CourseId).Distinct();
+                foreach (var courseId in courseIds)
+                {
+                    var courseResult = await _courseDAL.GetCourse(courseId);
+                    if (courseResult == null || courseResult.Item1 == null)
+                    {
+                        continue;
+                    }
+                    var course = courseResult.Item1;
+                    var myCourse = effectiveDayCourse.Where(p => p.CourseId == courseId).ToList();
+                    output.Add(new StudentCourseAboutFastDeClassTimesGet2()
+                    {
+                        CourseId = course.Id,
+                        CourseName = course.Name,
+                        SurplusQuantityDesc = ComBusiness.GetStudentCourseDesc(myCourse, false),
+                        DeType = EmDeClassTimesType.Day,
+                        DeTypeDesc = "按天"
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentCourseStop(StudentCourseStopRequest request)
         {
             var studentBucket = await _studentDAL.GetStudent(request.StudentId);
@@ -1038,6 +1093,92 @@ namespace ETMS.Business
 
             await _userOperationLogDAL.AddUserLog(request, $"快速扣课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},扣减课程:{courseResult.Item1.Name},扣减数量:{deStudentClassTimesResult.DeClassTimes},备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> StudentCourseFastDeClassTimes2(StudentCourseFastDeClassTimes2 request)
+        {
+            if (request.DeType == EmDeClassTimesType.ClassTimes)
+            {
+                return await StudentCourseFastDeClassTimes(new StudentCourseFastDeClassTimesRequest()
+                {
+                    AgtPayType = request.AgtPayType,
+                    AuthorityValueDataBag = request.AuthorityValueDataBag,
+                    CourseId = request.CourseId,
+                    DeClassTimes = request.DeClassTimes,
+                    IpAddress = request.IpAddress,
+                    IsDataLimit = false,
+                    LoginClientType = request.LoginClientType,
+                    LoginTenantId = request.LoginTenantId,
+                    LoginTimestamp = request.LoginTimestamp,
+                    LoginUserId = request.LoginUserId,
+                    Remark = request.Remark,
+                    SecrecyDataBag = request.SecrecyDataBag,
+                    SecrecyType = request.SecrecyType,
+                    StudentId = request.StudentId,
+                    SurplusQuantityDesc = request.SurplusQuantityDesc
+                });
+            }
+            else
+            {
+                var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    return ResponseBase.CommonError("学员不存在");
+                }
+                var courseResult = await _courseDAL.GetCourse(request.CourseId);
+                if (courseResult == null || courseResult.Item1 == null)
+                {
+                    return ResponseBase.CommonError("课程不存在");
+                }
+                var now = DateTime.Now.Date;
+                var myAllCourseDetail = await _studentCourseDAL.GetStudentCourseDetail(request.StudentId, request.CourseId);
+                var myDeDayCourseDetail = myAllCourseDetail.Where(p => p.Status == EmStudentCourseStatus.Normal
+                && p.DeType == EmDeClassTimesType.Day && p.StartTime != null && p.EndTime != null && p.EndTime >= now);
+                if (!myDeDayCourseDetail.Any())
+                {
+                    return ResponseBase.CommonError("学员剩余课时不足，无法扣课");
+                }
+                EtStudentCourseDetail deStudentCourseDetail = null;
+                if (myDeDayCourseDetail.Count() == 1)
+                {
+                    deStudentCourseDetail = myDeDayCourseDetail.First();
+                }
+                else
+                {
+                    deStudentCourseDetail = myDeDayCourseDetail.OrderBy(j => j.Id).FirstOrDefault();
+                }
+                var deDays = Convert.ToInt32(request.DeClassTimes);
+                deStudentCourseDetail.EndTime = deStudentCourseDetail.EndTime.Value.AddDays(-deDays);
+                var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(deStudentCourseDetail.StartTime.Value, deStudentCourseDetail.EndTime.Value);
+                deStudentCourseDetail.SurplusQuantity = dffTime.Item1;
+                deStudentCourseDetail.SurplusSmallQuantity = dffTime.Item2;
+                deStudentCourseDetail.UseQuantity += 1;
+                await _studentCourseDAL.UpdateStudentCourseDetail(deStudentCourseDetail);
+                await _studentCourseConsumeLogDAL.AddStudentCourseConsumeLog(new EtStudentCourseConsumeLog()
+                {
+                    CourseId = deStudentCourseDetail.CourseId,
+                    DeClassTimes = 0,
+                    DeClassTimesSmall = 1,
+                    DeType = EmDeClassTimesType.Day,
+                    IsDeleted = EmIsDeleted.Normal,
+                    OrderId = deStudentCourseDetail.OrderId,
+                    OrderNo = deStudentCourseDetail.OrderNo,
+                    Ot = now,
+                    SourceType = EmStudentCourseConsumeSourceType.FastDeductionClassTimes,
+                    StudentId = deStudentCourseDetail.StudentId,
+                    TenantId = deStudentCourseDetail.TenantId,
+                    DeSum = deStudentCourseDetail.Price
+                });
+                _eventPublisher.Publish(new StudentCourseDetailAnalyzeEvent(deStudentCourseDetail.TenantId)
+                {
+                    CourseId = deStudentCourseDetail.CourseId,
+                    StudentId = deStudentCourseDetail.StudentId,
+                    IsSendNoticeStudent = true
+                });
+
+                await _userOperationLogDAL.AddUserLog(request, $"快速扣课时-学员:{studentBucket.Student.Name},手机号码:{studentBucket.Student.Phone},扣减课程:{courseResult.Item1.Name},扣减数量:{deDays}天,备注:{request.Remark}", EmUserOperationType.StudentCourseManage);
+                return ResponseBase.Success();
+            }
         }
 
         public async Task<ResponseBase> StudentCourseFastDeClassTimesBatch(StudentCourseFastDeClassTimesBatchRequest request)

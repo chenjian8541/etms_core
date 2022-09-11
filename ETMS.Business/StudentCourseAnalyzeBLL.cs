@@ -274,6 +274,8 @@ namespace ETMS.Business
                 }
                 if (myDetailDay.Status == EmStudentCourseStatus.EndOfClass)
                 {
+                    myDetailDay.SurplusQuantity = 0;
+                    myDetailDay.SurplusSmallQuantity = 0;
                     continue;
                 }
                 //自动结课 （剩余课时=0  过期）
