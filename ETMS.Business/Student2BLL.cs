@@ -591,6 +591,28 @@ namespace ETMS.Business
 
         public async Task<ResponseBase> StudentCheckChoiceClass(StudentCheckChoiceClassRequest request)
         {
+            var lockKey = new StudentCheckChoiceClassToken(request.LoginTenantId, request.StudentCheckOnLogId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await StudentCheckChoiceClassProcess(request);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Error($"【StudentCheckChoiceClass】错误:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                    throw;
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            return ResponseBase.CommonError("请勿重复操作");
+        }
+
+        private async Task<ResponseBase> StudentCheckChoiceClassProcess(StudentCheckChoiceClassRequest request)
+        {
             var studentCheckOnLog = await _studentCheckOnLogDAL.GetStudentCheckOnLog(request.StudentCheckOnLogId);
             if (studentCheckOnLog == null)
             {
