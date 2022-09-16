@@ -92,7 +92,9 @@ namespace ETMS.Business.Common
                 Status = EmStudentCheckOnLogStatus.NormalNotClass,
                 TenantId = _request.Student.TenantId,
                 CheckMedium = _request.CheckMedium,
-                DeType = EmDeClassTimesType.NotDe
+                DeType = EmDeClassTimesType.NotDe,
+                CurrTemperature = _request.CurrTemperature,
+                IsAbnomalTemperature = _request.IsAbnomalTemperature,
             });
         }
 
@@ -134,7 +136,9 @@ namespace ETMS.Business.Common
                 DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId,
                 ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes,
                 DeSum = deStudentClassTimesResult.DeSum,
-                Points = points
+                Points = points,
+                CurrTemperature = _request.CurrTemperature,
+                IsAbnomalTemperature = _request.IsAbnomalTemperature,
             });
         }
 
@@ -175,7 +179,9 @@ namespace ETMS.Business.Common
                 DeStudentCourseDetailId = deStudentClassTimesResult.DeStudentCourseDetailId,
                 ExceedClassTimes = deStudentClassTimesResult.ExceedClassTimes,
                 DeSum = deStudentClassTimesResult.DeSum,
-                Points = points
+                Points = points,
+                CurrTemperature = _request.CurrTemperature,
+                IsAbnomalTemperature = _request.IsAbnomalTemperature,
             });
         }
 
@@ -778,6 +784,17 @@ namespace ETMS.Business.Common
         public StudentCheckInConfig StudentCheckInConfig { get; set; }
 
         public TenantConfig TenantConfig { get; set; }
+
+        /// <summary>
+        /// 温度
+        /// </summary>
+        public decimal CurrTemperature { get; set; }
+
+        /// <summary>
+        /// 温度是否异常
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsAbnomalTemperature { get; set; }
     }
 
     public class StudentBeginClassRelationClassTimesOutput

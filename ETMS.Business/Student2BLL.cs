@@ -343,7 +343,9 @@ namespace ETMS.Business
                     CourseName = courseName,
                     DeClassTimesDesc = deClassTimesDesc,
                     StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status),
-                    StudentTrackUserName = studentTrackUserName
+                    StudentTrackUserName = studentTrackUserName,
+                    CurrTemperature = p.CurrTemperature,
+                    IsAbnomalTemperature = p.IsAbnomalTemperature
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));
@@ -434,7 +436,9 @@ namespace ETMS.Business
                     CourseName = courseName,
                     DeClassTimesDesc = deClassTimesDesc,
                     StatusDesc = EmStudentCheckOnLogStatus.GetStatusDesc(p.Status),
-                    StudentTrackUserName = studentTrackUserName
+                    StudentTrackUserName = studentTrackUserName,
+                    CurrTemperature = p.CurrTemperature,
+                    IsAbnomalTemperature = p.IsAbnomalTemperature
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnLogGetPagingOutput>(pagingData.Item2, output));
@@ -587,6 +591,58 @@ namespace ETMS.Business
                 StudentId = faceResult.Item1,
                 ImageIsFaceWhite = true
             });
+        }
+
+        public async Task<ResponseBase> StudentCheckByHk(StudentCheckByHkRequest request)
+        {
+            var studentBucket = await _studentDAL.GetStudent(request.StudentId);
+            if (studentBucket == null || studentBucket.Student == null)
+            {
+                await _aiface.StudentDelete(request.StudentId);
+                return ResponseBase.CommonError("未找到此学员");
+            }
+            var student = studentBucket.Student;
+            if (request.CheckForm == EmStudentCheckOnLogCheckForm.Face)
+            {
+                request.FaceImageBase64 = request.FaceImageBase64.Substring(request.FaceImageBase64.IndexOf(",") + 1);
+                return await StudentCheckByFace(new StudentCheckByFaceRequest()
+                {
+                    FaceImageBase64 = request.FaceImageBase64,
+                    IpAddress = request.IpAddress,
+                    LoginTenantId = request.LoginTenantId,
+                    LoginClientType = request.LoginClientType,
+                    LoginTimestamp = request.LoginTimestamp,
+                    LoginUserId = request.LoginUserId,
+                    StudentId = studentBucket.Student.Id,
+                    ImageIsFaceWhite = true
+                });
+            }
+            else
+            {
+                var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+                var studentUseCardCheckInConfig = tenantConfig.StudentCheckInConfig.StudentUseCardCheckIn;
+                var studentCheckProcess = new StudentCheckProcess(new StudentCheckProcessRequest(tenantConfig)
+                {
+                    CurrTemperature = request.CurrTemperature,
+                    IsAbnomalTemperature = request.IsAbnomalTemperature,
+                    CheckForm = EmStudentCheckOnLogCheckForm.Card,
+                    CheckMedium = request.CardNo,
+                    CheckOt = DateTime.Now,
+                    IntervalTime = studentUseCardCheckInConfig.IntervalTimeCard,
+                    Student = student,
+                    IsRelationClassTimes = studentUseCardCheckInConfig.IsRelationClassTimesCard,
+                    RelationClassTimesLimitMinute = studentUseCardCheckInConfig.RelationClassTimesLimitMinuteCard,
+                    IsMustCheckOut = studentUseCardCheckInConfig.IsMustCheckOutCard,
+                    LoginTenantId = request.LoginTenantId,
+                    RequestBase = request,
+                    FaceWhite = null,
+                    MakeupIsDeClassTimes = tenantConfig.ClassCheckSignConfig.MakeupIsDeClassTimes,
+                    FaceAvatar = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, ComBusiness2.GetStudentImage(student.Avatar, student.FaceKey))
+                }, _classTimesDAL, _classDAL, _courseDAL, _eventPublisher, _studentCheckOnLogDAL, _userDAL, _studentCourseDAL, _studentCourseConsumeLogDAL,
+                _userOperationLogDAL, _tempStudentNeedCheckDAL, _tempDataCacheDAL, _studentCourseAnalyzeBLL, _studentDAL, _studentPointsLogDAL,
+                _distributedLockDAL, _studentTrackLogDAL);
+                return await studentCheckProcess.Process();
+            }
         }
 
         public async Task<ResponseBase> StudentCheckChoiceClass(StudentCheckChoiceClassRequest request)

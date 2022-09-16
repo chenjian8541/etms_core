@@ -101,5 +101,16 @@ namespace ETMS.Entity.Database.Source
         /// 赠送积分
         /// </summary>
         public int Points { get; set; }
+
+        /// <summary>
+        /// 温度
+        /// </summary>
+        public decimal CurrTemperature { get; set; }
+
+        /// <summary>
+        /// 温度是否异常
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsAbnomalTemperature { get; set; }
     }
 }

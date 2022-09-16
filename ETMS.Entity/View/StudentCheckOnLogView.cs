@@ -119,5 +119,16 @@ namespace ETMS.Entity.View
         public string StudentPhone { get; set; }
 
         public long? TrackUser { get; set; }
+
+        /// <summary>
+        /// 温度
+        /// </summary>
+        public decimal CurrTemperature { get; set; }
+
+        /// <summary>
+        /// 温度是否异常
+        /// <see cref="ETMS.Entity.Enum.EmBool"/>
+        /// </summary>
+        public byte IsAbnomalTemperature { get; set; }
     }
 }
