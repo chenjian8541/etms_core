@@ -48,5 +48,7 @@ namespace ETMS.IDataAccess.EtmsManage
         Task UpdateTenantSetPayUnionType(int id, int newPayUnionType);
 
         Task UpdateTenantIpAddress(int id,string province,string city,string district,string ipAddress,DateTime upDate);
+
+        Task UpdateLoginPhone(int id, string loginPhone);
     }
 }

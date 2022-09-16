@@ -18,6 +18,7 @@ using ETMS.Business.Common;
 using ETMS.Entity.Temp;
 using ETMS.Entity.Dto.Educational.Request;
 using System.Linq;
+using ETMS.Entity.View;
 
 namespace ETMS.Business.EventConsumer
 {
@@ -284,13 +285,88 @@ namespace ETMS.Business.EventConsumer
             {
                 foreach (var myItem in myClass)
                 {
-                    if (myClassInClassIds.Any() && myClassInClassIds.Exists(j => j == myItem.Id))
+                    if (myItem.Type == EmClassType.OneToOne)
                     {
-                        continue;
+                        //删除学员一对一班级
+                        await DelOneToOneClass(request.TenantId, myItem.Id);
+                        _eventPublisher.Publish(new SyncStudentClassInfoEvent(request.TenantId)
+                        {
+                            StudentId = request.StudentId
+                        });
                     }
-                    _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myItem.Id)
+                    else
                     {
-                        DelStudentId = request.StudentId
+                        if (myClassInClassIds.Any() && myClassInClassIds.Exists(j => j == myItem.Id))
+                        {
+                            continue;
+                        }
+                        _eventPublisher.Publish(new SyncClassInfoEvent(request.TenantId, myItem.Id)
+                        {
+                            DelStudentId = request.StudentId
+                        });
+                    }
+                }
+            }
+        }
+
+        private async Task DelOneToOneClass(int tenantId, long classId)
+        {
+            var classRecordAllDate = await _classDAL.GetClassRecordAllDate(classId);
+            var classRecordALLTeachers = await _classDAL.GetClassRecordTeacherInfoView(classId);
+            await _classDAL.DelClassDepth(classId);
+
+            var myChangeDate = new List<YearAndMonth>();
+            //处理班级教务数据
+            if (classRecordAllDate.Any())
+            {
+                foreach (var myClassRecordDate in classRecordAllDate)
+                {
+                    _eventPublisher.Publish(new StatisticsEducationEvent(tenantId)
+                    {
+                        Time = myClassRecordDate.Ot
+                    });
+                    _eventPublisher.Publish(new StatisticsClassEvent(tenantId)
+                    {
+                        ClassOt = myClassRecordDate.Ot
+                    });
+                    _eventPublisher.Publish(new StatisticsTeacherSalaryClassDayEvent(tenantId)
+                    {
+                        Time = myClassRecordDate.Ot
+                    });
+                    var log = myChangeDate.FirstOrDefault(p => p.Year == myClassRecordDate.Ot.Year && p.Month == myClassRecordDate.Ot.Month);
+                    if (log == null)
+                    {
+                        myChangeDate.Add(new YearAndMonth()
+                        {
+                            Year = myClassRecordDate.Ot.Year,
+                            Month = myClassRecordDate.Ot.Month
+                        });
+                    }
+                }
+            }
+
+            //处理班级点名记录 所影响的老师课时
+            if (classRecordALLTeachers.Any())
+            {
+                var classDeepDelAllTeacherId = new List<long>();
+                foreach (var p in classRecordALLTeachers)
+                {
+                    var allTeacherId = EtmsHelper.AnalyzeMuIds(p.Teachers);
+                    foreach (var teacherId in allTeacherId)
+                    {
+                        var log = classDeepDelAllTeacherId.Exists(j => j == teacherId);
+                        if (!log)
+                        {
+                            classDeepDelAllTeacherId.Add(teacherId);
+                        }
+                    }
+                }
+                if (classDeepDelAllTeacherId.Any())
+                {
+                    _eventPublisher.Publish(new SyncTeacherMonthClassTimesEvent(tenantId)
+                    {
+                        YearAndMonthList = myChangeDate,
+                        TeacherIds = classDeepDelAllTeacherId
                     });
                 }
             }

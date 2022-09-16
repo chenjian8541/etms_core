@@ -557,6 +557,11 @@ namespace ETMS.Business
             }
             await _etUserDAL.EditUser(user);
 
+            if (user.IsAdmin && oldPhone != user.Phone)
+            {
+                await _sysTenantDAL.UpdateLoginPhone(request.LoginTenantId, request.Phone);
+            }
+
             CoreBusiness.ProcessUserPhoneAboutEdit(oldPhone, user, _eventPublisher);
 
             _eventPublisher.Publish(new SysTenantStatistics2Event(request.LoginTenantId));

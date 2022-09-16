@@ -135,5 +135,7 @@ namespace ETMS.Entity.EtmsManage.Dto.TenantManage.Output
         public string District { get; set; }
 
         public string IpAddress { get; set; }
+
+        public string LoginPhone { get; set; }
     }
 }

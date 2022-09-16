@@ -180,5 +180,11 @@ namespace ETMS.DataAccess.EtmsManage
             await this.Execute($"UPDATE SysTenant SET Province = '{province}',City = '{city}',District = '{district}',IpAddress='{ipAddress}',IpUpdateOt = '{upDate.EtmsToString()}' WHERE Id = {id}");
             await UpdateCache(id);
         }
+
+        public async Task UpdateLoginPhone(int id, string loginPhone)
+        {
+            await this.Execute($"UPDATE SysTenant SET LoginPhone = '{loginPhone}' WHERE Id = {id}");
+            await UpdateCache(id);
+        }
     }
 }

@@ -137,5 +137,7 @@ namespace ETMS.Entity.EtmsManage.View
         public string IpAddress { get; set; }
 
         public DateTime? IpUpdateOt { get; set; }
+
+        public string LoginPhone { get; set; }
     }
 }

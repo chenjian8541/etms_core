@@ -148,7 +148,8 @@ namespace ETMS.Business.EtmsManage
                     City = p.City,
                     District = p.District,
                     IpAddress = p.IpAddress,
-                    Province = p.Province
+                    Province = p.Province,
+                    LoginPhone = p.LoginPhone
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<TenantGetPagingOutput>(tenantView.Item2, outList));
@@ -508,7 +509,8 @@ namespace ETMS.Business.EtmsManage
                 City = p.City,
                 District = p.District,
                 IpAddress = p.IpAddress,
-                Province = p.Province
+                Province = p.Province,
+                LoginPhone = p.LoginPhone
             };
             return ResponseBase.Success(output);
         }
