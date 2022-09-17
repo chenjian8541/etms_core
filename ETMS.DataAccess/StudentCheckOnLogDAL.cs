@@ -134,5 +134,60 @@ namespace ETMS.DataAccess
             }
             return Convert.ToDateTime(obj);
         }
+
+        public async Task<int> GetStatisticsCheckInCount(DateTime date)
+        {
+            var sql = $"SELECT COUNT(0) FROM (SELECT COUNT(StudentId) as MyStudentId FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND CheckOtDate = '{date.EtmsToDateString()}' AND [CheckType] = {EmStudentCheckOnLogCheckType.CheckIn} GROUP BY StudentId) tb ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return 0;
+            }
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetStatisticsCheckOutCount(DateTime date)
+        {
+            var sql = $"SELECT COUNT(0) FROM (SELECT COUNT(StudentId) as MyStudentId FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND CheckOtDate = '{date.EtmsToDateString()}' AND [CheckType] = {EmStudentCheckOnLogCheckType.CheckOut} GROUP BY StudentId) tb ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return 0;
+            }
+            return obj.ToInt();
+        }
+
+        public async Task<int> GetStatisticsCheckAttendClassCount(DateTime date)
+        {
+            var sql = $"SELECT COUNT(0) FROM (SELECT COUNT(StudentId) as MyStudentId FROM EtStudentCheckOnLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND CheckOtDate = '{date.EtmsToDateString()}' AND [CheckType] = {EmStudentCheckOnLogCheckType.CheckIn} AND [Status] IN (1,2) GROUP BY StudentId) tb ";
+            var obj = await _dbWrapper.ExecuteScalar(sql);
+            if (obj == null)
+            {
+                return 0;
+            }
+            return obj.ToInt();
+        }
+
+        public async Task SaveStudentCheckOnStatistics(EtStudentCheckOnStatistics entity)
+        {
+            var hisLog = await _dbWrapper.Find<EtStudentCheckOnStatistics>(p => p.TenantId == _tenantId && p.IsDeleted == EmIsDeleted.Normal &&
+            p.Ot == entity.Ot);
+            if (hisLog == null)
+            {
+                await _dbWrapper.Insert(entity);
+            }
+            else
+            {
+                hisLog.CheckInCount = entity.CheckInCount;
+                hisLog.CheckOutCount = entity.CheckOutCount;
+                hisLog.CheckAttendClassCount = entity.CheckAttendClassCount;
+                await _dbWrapper.Update(hisLog);
+            }
+        }
+
+        public async Task<Tuple<IEnumerable<EtStudentCheckOnStatistics>, int>> GetPagingStatistics(IPagingRequest request)
+        {
+            return await _dbWrapper.ExecutePage<EtStudentCheckOnStatistics>("EtStudentCheckOnStatistics", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
+        }
     }
 }

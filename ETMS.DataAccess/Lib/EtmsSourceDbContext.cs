@@ -218,5 +218,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<EtAchievementDetail> EtAchievementDetails { get; set; }
         public DbSet<EtClassTimesRuleStudent> EtClassTimesRuleStudents { get; set; }
         public DbSet<EtReservationCourseSet> EtReservationCourseSets { get; set; }
+        public DbSet<EtStudentCheckOnStatistics> EtStudentCheckOnStatisticss { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using ETMS.Entity.Dto.Student.Output;
 using ETMS.Entity.Enum;
 using ETMS.Entity.Temp;
 using ETMS.Event.DataContract;
+using ETMS.Event.DataContract.Statistics;
 using ETMS.IBusiness;
 using ETMS.IDataAccess;
 using ETMS.IEventProvider;
@@ -710,6 +711,10 @@ namespace ETMS.Business.Common
             }
             output.FaceWhite = _request.FaceWhite;
             await _userOperationLogDAL.AddUserLog(_request.RequestBase, $"学员:{output.CheckResult.StudentName},手机号码:{output.CheckResult.StudentPhone} 考勤{output.CheckResult.CheckTypeDesc} {deClassTimesDesc}", EmUserOperationType.StudentCheckOn, _request.CheckOt);
+            _eventPublisher.Publish(new StatisticsStudentCheckEvent(_request.LoginTenantId)
+            {
+                CheckOt = _request.CheckOt.Date
+            });
             return ResponseBase.Success(output);
         }
     }

@@ -38,5 +38,15 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<OnlyId>> GetOneDayStudentCheckInAllClassTimes(DateTime date);
 
         Task<DateTime?> GetStudentLastGoClassTime(long studentId);
+
+        Task<int> GetStatisticsCheckInCount(DateTime date);
+
+        Task<int> GetStatisticsCheckOutCount(DateTime date);
+
+        Task<int> GetStatisticsCheckAttendClassCount(DateTime date);
+
+        Task SaveStudentCheckOnStatistics(EtStudentCheckOnStatistics entity);
+
+        Task<Tuple<IEnumerable<EtStudentCheckOnStatistics>, int>> GetPagingStatistics(IPagingRequest request);
     }
 }

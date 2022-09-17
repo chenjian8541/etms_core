@@ -47,6 +47,10 @@ namespace ETMS.Manage.Jobs
             _eventPublisher.Publish(new SyncTenantLastOpTimeEvent(tenant.Id));
             _eventPublisher.Publish(new SysTenantStatistics2Event(tenant.Id));
             _eventPublisher.Publish(new SysTenantStatisticsWeekAndMonthEvent(tenant.Id));
+            _eventPublisher.Publish(new StatisticsStudentCheckEvent(tenant.Id)
+            {
+                CheckOt = _now
+            });
         }
     }
 }

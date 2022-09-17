@@ -77,12 +77,12 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("无法撤销30天前的点名记录");
             }
-            var classRecordAbsenceLogs = await _classRecordDAL.GetClassRecordAbsenceLogByClassRecordId(request.CId);
-            var isMarkFinish = classRecordAbsenceLogs.FirstOrDefault(p => p.HandleStatus == EmClassRecordAbsenceHandleStatus.MarkFinish);
-            if (isMarkFinish != null)
-            {
-                return ResponseBase.CommonError("存在补课记录无法撤销");
-            }
+            //var classRecordAbsenceLogs = await _classRecordDAL.GetClassRecordAbsenceLogByClassRecordId(request.CId);
+            //var isMarkFinish = classRecordAbsenceLogs.FirstOrDefault(p => p.HandleStatus == EmClassRecordAbsenceHandleStatus.MarkFinish);
+            //if (isMarkFinish != null)
+            //{
+            //    return ResponseBase.CommonError("存在补课记录无法撤销");
+            //}
             await _classRecordDAL.SetClassRecordRevoke(request.CId);
             _eventPublisher.Publish(new ClassCheckSignRevokeEvent(request.LoginTenantId)
             {
