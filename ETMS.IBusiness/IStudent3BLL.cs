@@ -10,5 +10,9 @@ namespace ETMS.IBusiness
     public interface IStudent3BLL : IBaseBLL
     {
         Task<ResponseBase> SendToClassNotice(SendToClassNoticeRequest request);
+
+        Task<ResponseBase> SendArrearageNoticeBatch(SendArrearageNoticeBatchRequest request);
+
+        Task<ResponseBase> SendStudentCourseNotEnoughBatch(SendStudentCourseNotEnoughBatchRequest request);
     }
 }

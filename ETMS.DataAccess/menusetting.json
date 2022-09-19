@@ -547,6 +547,11 @@
             "Id": 85,
             "Name": "考勤记录",
             "Type": 0
+          },
+          {
+            "Id": 116,
+            "Name": "考勤统计",
+            "Type": 0
           }
         ],
         "ChildrenAction": [

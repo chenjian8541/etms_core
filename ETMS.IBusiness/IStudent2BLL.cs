@@ -17,6 +17,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> StudentBindingFace(StudentBindingFaceKeyRequest request);
 
+        Task<ResponseBase> StudentCheckOnStatisticsGetPaging(StudentCheckOnStatisticsGetPagingRequest request);
+
         Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request);
 
         Task<ResponseBase> StudentCheckByCard(StudentCheckByCardRequest request);

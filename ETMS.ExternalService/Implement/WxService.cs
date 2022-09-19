@@ -1251,7 +1251,7 @@ namespace ETMS.ExternalService.Implement
                     }
                     var data = new
                     {
-                        first = new TemplateDataItem(GetFirstDesc(request,student.Title)),
+                        first = new TemplateDataItem(GetFirstDesc(request, student.Title)),
                         keyword1 = new TemplateDataItem(student.Name, DefaultColor),
                         keyword2 = new TemplateDataItem(request.OtTime, DefaultColor),
                         keyword3,
@@ -1365,6 +1365,58 @@ namespace ETMS.ExternalService.Implement
         public void NoticeUserEverydayBusinessStatistics(NoticeUserEverydayBusinessStatisticsRequest request)
         {
 
+        }
+
+
+        public void NoticeStudentArrearage(NoticeStudentArrearageRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var tenantNameDesc = string.Empty;
+                    if (string.IsNullOrEmpty(request.TenantSmsSignature))
+                    {
+                        tenantNameDesc = request.TenantName;
+                    }
+                    else
+                    {
+                        tenantNameDesc = request.TenantSmsSignature;
+                    }
+                    var myContentColor = DefaultColor;
+                    if (!string.IsNullOrEmpty(student.Url))
+                    {
+                        myContentColor = LinkColor;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, student.Title), DefaultColor),
+                        keyword1 = new TemplateDataItem(student.Name, DefaultColor),
+                        keyword2 = new TemplateDataItem(student.ArrearageDesc, myContentColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentArrearage]微信消息:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[NoticeStudentArrearage]微信消息:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
         }
     }
 }

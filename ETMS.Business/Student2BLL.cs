@@ -240,6 +240,26 @@ namespace ETMS.Business
             return ResponseBase.Success(new StudentBindingFaceOutput(StudentBindingFaceOutputState.Success, initFaceResult.Item2));
         }
 
+        public async Task<ResponseBase> StudentCheckOnStatisticsGetPaging(StudentCheckOnStatisticsGetPagingRequest request)
+        {
+            var pagingData = await _studentCheckOnLogDAL.GetPagingStatistics(request);
+            var output = new List<StudentCheckOnStatisticsGetPagingOutput>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var p in pagingData.Item1)
+                {
+                    output.Add(new StudentCheckOnStatisticsGetPagingOutput()
+                    {
+                        CheckAttendClassCount = p.CheckAttendClassCount,
+                        CheckInCount = p.CheckInCount,
+                        CheckOutCount = p.CheckOutCount,
+                        OtDesc = p.Ot.EtmsToDateString()
+                    });
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<StudentCheckOnStatisticsGetPagingOutput>(pagingData.Item2, output));
+        }
+
         public async Task<ResponseBase> StudentCheckOnLogGetPaging(StudentCheckOnLogGetPagingRequest request)
         {
             if (request.TrackUser == null) //客户要求  考勤记录增加跟进人查询

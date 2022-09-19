@@ -327,6 +327,8 @@ namespace ETMS.Entity.Config
 
         public string UserMessage { get; set; }
 
+        public string StudentArrearage { get; set; }
+
         public string ClassRecordDetailFrontUrl { get; set; }
 
         public string StudentLeaveApplyDetailFrontUrl { get; set; }

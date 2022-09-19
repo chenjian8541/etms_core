@@ -109,6 +109,16 @@ namespace ETMS.Entity.Dto.BasicData.Request
         /// </summary>
         public byte IsGoPrintFace { get; set; }
 
+        /// <summary>
+        /// 是否允许扣减不足的课程
+        /// </summary>
+        public byte IsCanDeNotEnoughCourseCard { get; set; }
+
+        /// <summary>
+        /// 是否允许扣减不足的课程
+        /// </summary>
+        public byte IsCanDeNotEnoughCourseFace { get; set; }
+
         public override string Validate()
         {
             if (IntervalTimeCard < 5 || IntervalTimeFace < 5 || IntervalTimeCard > 6000 || IntervalTimeFace > 6000)

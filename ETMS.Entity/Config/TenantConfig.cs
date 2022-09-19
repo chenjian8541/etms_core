@@ -336,6 +336,11 @@ namespace ETMS.Entity.Config
         /// 打印小票
         /// </summary>
         public byte IsGoPrintCard { get; set; }
+
+        /// <summary>
+        /// 是否允许扣减不足的课程
+        /// </summary>
+        public byte IsCanDeNotEnoughCourseCard { get; set; }
     }
 
     public class StudentUseFaceCheckIn
@@ -374,6 +379,11 @@ namespace ETMS.Entity.Config
         /// 打印小票
         /// </summary>
         public byte IsGoPrintFace { get; set; }
+
+        /// <summary>
+        /// 是否允许扣减不足的课程
+        /// </summary>
+        public byte IsCanDeNotEnoughCourseFace { get; set; }
     }
 
     public class UserNoticeConfig

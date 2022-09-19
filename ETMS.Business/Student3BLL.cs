@@ -51,5 +51,27 @@ namespace ETMS.Business
 
             return ResponseBase.Success();
         }
+
+        public async Task<ResponseBase> SendArrearageNoticeBatch(SendArrearageNoticeBatchRequest request)
+        {
+            _eventPublisher.Publish(new NoticeSendArrearageBatchEvent(request.LoginTenantId)
+            {
+                OrderIds = request.OrderIds
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"学员欠费提醒-给{request.OrderIds.Count}位学员发送欠费提醒", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> SendStudentCourseNotEnoughBatch(SendStudentCourseNotEnoughBatchRequest request)
+        {
+            _eventPublisher.Publish(new NoticeStudentCourseNotEnoughBatchEvent(request.LoginTenantId)
+            {
+                StudentCourses = request.StudentCourses
+            });
+
+            await _userOperationLogDAL.AddUserLog(request, $"续费提醒-给{request.StudentCourses.Count}位学员发送课程不足待续费提醒", EmUserOperationType.StudentManage);
+            return ResponseBase.Success();
+        }
     }
 }

@@ -37,5 +37,33 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public async Task<ResponseBase> SendArrearageNoticeBatch(SendArrearageNoticeBatchRequest request)
+        {
+            try
+            {
+                _student3BLL.InitTenantId(request.LoginTenantId);
+                return await _student3BLL.SendArrearageNoticeBatch(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> SendStudentCourseNotEnoughBatch(SendStudentCourseNotEnoughBatchRequest request)
+        {
+            try
+            {
+                _student3BLL.InitTenantId(request.LoginTenantId);
+                return await _student3BLL.SendStudentCourseNotEnoughBatch(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

@@ -364,12 +364,14 @@ namespace ETMS.Business
             config.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesLimitMinuteCard = request.RelationClassTimesLimitMinuteCard;
             config.StudentCheckInConfig.StudentUseCardCheckIn.IsShowQuickCardCheck = request.IsShowQuickCardCheck;
             config.StudentCheckInConfig.StudentUseCardCheckIn.IsGoPrintCard = request.IsGoPrintCard;
+            config.StudentCheckInConfig.StudentUseCardCheckIn.IsCanDeNotEnoughCourseCard = request.IsCanDeNotEnoughCourseCard;
 
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IntervalTimeFace = request.IntervalTimeFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsMustCheckOutFace = request.IsMustCheckOutFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsRelationClassTimesFace = request.IsRelationClassTimesFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesLimitMinuteFace = request.RelationClassTimesLimitMinuteFace;
             config.StudentCheckInConfig.StudentUseFaceCheckIn.IsGoPrintFace = request.IsGoPrintFace;
+            config.StudentCheckInConfig.StudentUseFaceCheckIn.IsCanDeNotEnoughCourseFace = request.IsCanDeNotEnoughCourseFace;
 
             config.StudentCheckInConfig.StudentCheckInLimitTimeType = request.StudentCheckInLimitTimeType;
             if (request.StudentCheckInLimitTimeType == EmStudentCheckInLimitTimeType.Time)

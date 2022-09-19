@@ -57,12 +57,15 @@ namespace ETMS.Business.SendNotice
 
         private readonly ISysSmsTemplate2BLL _sysSmsTemplate2BLL;
 
+        private readonly IEventPublisher _eventPublisher;
+
+        private readonly IOrderDAL _orderDAL;
         public StudentSendNotice2BLL(IStudentWechatDAL studentWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL,
             IWxService wxService, IAppConfigurtaionServices appConfigurtaionServices, IUserDAL userDAL, ITenantConfigDAL tenantConfigDAL,
             IActiveHomeworkDetailDAL activeHomeworkDetailDAL, IStudentDAL studentDAL, IActiveGrowthRecordDAL activeGrowthRecordDAL,
             IClassDAL classDAL, IClassRecordDAL classRecordDAL, ICourseDAL courseDAL, IStudentCourseDAL studentCourseDAL,
             IClassTimesDAL classTimesDAL, ISmsService smsService, IStudentCheckOnLogDAL studentCheckOnLogDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL
-            , ITenantLibBLL tenantLibBLL)
+            , ITenantLibBLL tenantLibBLL, IEventPublisher eventPublisher, IOrderDAL orderDAL)
             : base(studentWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._wxService = wxService;
@@ -80,6 +83,8 @@ namespace ETMS.Business.SendNotice
             this._smsService = smsService;
             this._studentCheckOnLogDAL = studentCheckOnLogDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
+            this._eventPublisher = eventPublisher;
+            this._orderDAL = orderDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -88,7 +93,7 @@ namespace ETMS.Business.SendNotice
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _studentWechatDAL, _userDAL, _tenantConfigDAL, _activeHomeworkDetailDAL,
                 _studentDAL, _activeGrowthRecordDAL, _classDAL, _classRecordDAL, _courseDAL, _studentCourseDAL, _classTimesDAL,
-                _studentCheckOnLogDAL);
+                _studentCheckOnLogDAL, _orderDAL);
         }
 
         public async Task NoticeStudentsOfHomeworkAddConsumeEvent(NoticeStudentsOfHomeworkAddEvent request)
@@ -1151,6 +1156,113 @@ namespace ETMS.Business.SendNotice
                     req.SmsTemplate = await _sysSmsTemplate2BLL.GetSmsTemplate(tenantId, EmSysSmsTemplateType.StudentCheckOnLogCheckOut);
                     await _smsService.NoticeStudentCheckOut(req);
                 }
+            }
+        }
+
+        public async Task NoticeSendArrearageBatchConsumerEvent(NoticeSendArrearageBatchEvent request)
+        {
+            if (request.OrderIds == null || request.OrderIds.Count == 0)
+            {
+                return;
+            }
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            var req = new NoticeStudentArrearageRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat))
+            {
+                Students = new List<NoticeStudentArrearageItem>(),
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.StudentArrearage;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+            foreach (var itemOrderId in request.OrderIds)
+            {
+                var myOrder = await _orderDAL.GetOrder(itemOrderId);
+                if (myOrder == null)
+                {
+                    continue;
+                }
+                if (myOrder.Status == EmOrderStatus.Repeal)
+                {
+                    continue;
+                }
+                if (myOrder.ArrearsSum <= 0)
+                {
+                    continue;
+                }
+                var studentBucket = await _studentDAL.GetStudent(myOrder.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeSendArrearageBatchConsumerEvent]未找到学员信息,StudentId:{myOrder.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentOrderDetailFrontUrl, itemOrderId);
+                var myArrearageDesc = $"{myOrder.ArrearsSum.EtmsToString2()}元";
+                var buyDesc = new StringBuilder();
+                if (!string.IsNullOrEmpty(myOrder.BuyCourse))
+                {
+                    buyDesc.Append(myOrder.BuyCourse);
+                }
+                if (!string.IsNullOrEmpty(myOrder.BuyGoods))
+                {
+                    if (buyDesc.Length > 0)
+                    {
+                        buyDesc.Append(" ");
+                    }
+                    buyDesc.Append(myOrder.BuyGoods);
+                }
+                if (!string.IsNullOrEmpty(myOrder.BuyCost))
+                {
+                    if (buyDesc.Length > 0)
+                    {
+                        buyDesc.Append(" ");
+                    }
+                    buyDesc.Append(myOrder.BuyCost);
+                }
+                var title = $"亲爱的${student.Name}同学，您在{myOrder.Ot.EtmsToDateString()}购买的({buyDesc})欠费${myArrearageDesc}，请及时支付相关费用。";
+                req.Students.Add(new NoticeStudentArrearageItem()
+                {
+                    StudentId = student.Id,
+                    Name = student.Name,
+                    Phone = student.Phone,
+                    OpendId = await GetOpenId(true, student.Phone),
+                    Url = url,
+                    ArrearageDesc = myArrearageDesc,
+                    Title = title
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentArrearageItem()
+                    {
+                        StudentId = student.Id,
+                        Name = student.Name,
+                        Phone = student.PhoneBak,
+                        OpendId = await GetOpenId(true, student.PhoneBak),
+                        Url = url,
+                        ArrearageDesc = myArrearageDesc,
+                        Title = title
+                    });
+                }
+            }
+            if (req.Students.Count > 0)
+            {
+                _wxService.NoticeStudentArrearage(req);
+            }
+        }
+
+        public void NoticeStudentCourseNotEnoughBatchConsumerEvent(NoticeStudentCourseNotEnoughBatchEvent request)
+        {
+            foreach (var p in request.StudentCourses)
+            {
+                _eventPublisher.Publish(new NoticeStudentCourseNotEnoughEvent(request.TenantId)
+                {
+                    IsOwnTrigger = true,
+                    StudentId = p.StudentId,
+                    CourseId = p.CourseId
+                });
             }
         }
     }
