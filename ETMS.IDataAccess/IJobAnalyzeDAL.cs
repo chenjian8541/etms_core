@@ -11,7 +11,7 @@ namespace ETMS.IDataAccess
     {
         Task UpdateClassTimesRuleLoopStatus();
 
-        Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent);
+        Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent, DateTime maxLimitTime);
 
         Task<EtClassTimesRule> GetClassTimesRule(long id);
 

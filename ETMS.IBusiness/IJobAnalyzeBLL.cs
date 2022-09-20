@@ -12,7 +12,7 @@ namespace ETMS.IBusiness
     {
         Task UpdateClassTimesRuleLoopStatus();
 
-        Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent);
+        Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent, DateTime maxLimitTime);
 
         Task GenerateClassTimesEvent(GenerateClassTimesEvent request);
 

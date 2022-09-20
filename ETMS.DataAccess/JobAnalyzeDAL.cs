@@ -22,10 +22,10 @@ namespace ETMS.DataAccess
             await _dbWrapper.Execute($"UPDATE EtClassTimesRule SET IsNeedLoop = {EmBool.False} WHERE TenantId = {_tenantId} AND EndDate IS NOT NULL AND LastJobProcessTime >= EndDate AND IsDeleted = {EmIsDeleted.Normal}");
         }
 
-        public async Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent)
+        public async Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent, DateTime maxLimitTime)
         {
             return await _dbWrapper.ExecutePage<LoopClassTimesRule>("EtClassTimesRule", "Id,ClassId", pageSize, pageCurrent, "Id DESC",
-                $" TenantId = {_tenantId} AND IsNeedLoop = {EmBool.True} AND IsDeleted = {EmIsDeleted.Normal}");
+                $" TenantId = {_tenantId} AND IsNeedLoop = {EmBool.True} AND IsDeleted = {EmIsDeleted.Normal} AND (EndDate IS NULL OR LastJobProcessTime < EndDate) AND LastJobProcessTime <= '{maxLimitTime.EtmsToString()}'");
         }
 
         public async Task<EtClassTimesRule> GetClassTimesRule(long id)

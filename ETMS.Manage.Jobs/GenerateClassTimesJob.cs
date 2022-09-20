@@ -28,11 +28,14 @@ namespace ETMS.Manage.Jobs
 
         private const int _pageSize = 100;
 
+        private DateTime _maxLimitTime;
+
         public GenerateClassTimesJob(ISysTenantDAL sysTenantDAL, IJobAnalyzeBLL analyzeClassTimesBLL,
             IEventPublisher eventPublisher) : base(sysTenantDAL)
         {
             this._analyzeClassTimesBLL = analyzeClassTimesBLL;
             this._eventPublisher = eventPublisher;
+            _maxLimitTime = EtmsHelper3.GetClassTimesMaxDate();
         }
 
         public override async Task ProcessTenant(SysTenant tenant)
@@ -40,7 +43,7 @@ namespace ETMS.Manage.Jobs
             var pageCurrent = 1;
             this._analyzeClassTimesBLL.ResetTenantId(tenant.Id);
             await _analyzeClassTimesBLL.UpdateClassTimesRuleLoopStatus();
-            var loopClassTimesRuleResult = await _analyzeClassTimesBLL.GetNeedLoopClassTimesRule(_pageSize, pageCurrent);
+            var loopClassTimesRuleResult = await _analyzeClassTimesBLL.GetNeedLoopClassTimesRule(_pageSize, pageCurrent, _maxLimitTime);
             if (loopClassTimesRuleResult.Item2 == 0)
             {
                 return;
@@ -50,7 +53,7 @@ namespace ETMS.Manage.Jobs
             pageCurrent++;
             while (pageCurrent <= totalPage)
             {
-                var ruleResult = await _analyzeClassTimesBLL.GetNeedLoopClassTimesRule(_pageSize, pageCurrent);
+                var ruleResult = await _analyzeClassTimesBLL.GetNeedLoopClassTimesRule(_pageSize, pageCurrent, _maxLimitTime);
                 HandleClassTimesRule(tenant.Id, ruleResult.Item1);
                 pageCurrent++;
             }

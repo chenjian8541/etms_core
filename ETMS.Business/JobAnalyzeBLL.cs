@@ -74,9 +74,9 @@ namespace ETMS.Business
             await _analyzeClassTimesDAL.UpdateClassTimesRuleLoopStatus();
         }
 
-        public async Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent)
+        public async Task<Tuple<IEnumerable<LoopClassTimesRule>, int>> GetNeedLoopClassTimesRule(int pageSize, int pageCurrent, DateTime maxLimitTime)
         {
-            return await _analyzeClassTimesDAL.GetNeedLoopClassTimesRule(pageSize, pageCurrent);
+            return await _analyzeClassTimesDAL.GetNeedLoopClassTimesRule(pageSize, pageCurrent, maxLimitTime);
         }
 
         public async Task GenerateClassTimesEvent(GenerateClassTimesEvent request)
@@ -90,7 +90,7 @@ namespace ETMS.Business
             {
                 return;
             }
-            var maxLimitTime = ComBusiness5.GetClassTimesMaxDate();
+            var maxLimitTime = EtmsHelper3.GetClassTimesMaxDate();
             if (classRule.LastJobProcessTime > maxLimitTime)
             {
                 return;
