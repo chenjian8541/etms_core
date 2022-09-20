@@ -55,6 +55,8 @@ namespace ETMS.Business.Common
 
         private readonly IStudentTrackLogDAL _studentTrackLogDAL;
 
+        private byte _isCanDeNotEnoughCourse;
+
         public StudentCheckProcess(StudentCheckProcessRequest request, IClassTimesDAL classTimesDAL, IClassDAL classDAL, ICourseDAL courseDAL,
             IEventPublisher eventPublisher, IStudentCheckOnLogDAL studentCheckOnLogDAL, IUserDAL userDAL, IStudentCourseDAL studentCourseDAL,
             IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL, IUserOperationLogDAL userOperationLogDAL, ITempStudentNeedCheckDAL tempStudentNeedCheckDAL,
@@ -275,8 +277,15 @@ namespace ETMS.Business.Common
             var myValidCourse = myStudentCourse.Where(p => p.Status != EmStudentCourseStatus.EndOfClass); //是否存在未结课的课程
             if (myValidCourse.Count() == 0)
             {
-                output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到学员“未结课”的课程");
-                return output;
+                if (_isCanDeNotEnoughCourse == EmBool.False)
+                {
+                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "未查询到学员“未结课”的课程");
+                    return output;
+                }
+                else
+                {
+                    myValidCourse = myStudentCourse;
+                }
             }
             var courseIds = myValidCourse.Select(p => p.CourseId).Distinct(); //是否有多门课程
             var deCourseId = 0L;
@@ -338,9 +347,16 @@ namespace ETMS.Business.Common
                 var vaildEndCourse = myStudentCourse.FirstOrDefault(p => p.StudentCheckDefault == EmBool.True && p.Status == EmStudentCourseStatus.EndOfClass);
                 if (vaildEndCourse != null)
                 {
-                    output.IsCourseNotEnough = true;
-                    output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员课时不足");
-                    return output;
+                    if (_isCanDeNotEnoughCourse == EmBool.False)
+                    {
+                        output.IsCourseNotEnough = true;
+                        output.StudentCheckOnLogId = await AddNotDeStudentCheckOnLog(checkType, "学员课时不足");
+                        return output;
+                    }
+                    else
+                    {
+                        deCourseId = vaildEndCourse.CourseId;
+                    }
                 }
                 else
                 {
@@ -611,12 +627,14 @@ namespace ETMS.Business.Common
                 {
                     dayLimitValueDeStudentCourse = _request.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType1DayLimitValue;
                     relationClassTimesType = _request.StudentCheckInConfig.StudentUseFaceCheckIn.RelationClassTimesFaceType;
+                    _isCanDeNotEnoughCourse = _request.StudentCheckInConfig.StudentUseFaceCheckIn.IsCanDeNotEnoughCourseFace;
                 }
                 else
                 {
                     //刷卡、忘记带卡老师手动补签
                     dayLimitValueDeStudentCourse = _request.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType1DayLimitValue;
                     relationClassTimesType = _request.StudentCheckInConfig.StudentUseCardCheckIn.RelationClassTimesCardType;
+                    _isCanDeNotEnoughCourse = _request.StudentCheckInConfig.StudentUseCardCheckIn.IsCanDeNotEnoughCourseCard;
                 }
                 if (relationClassTimesType == EmAttendanceRelationClassTimesType.RelationClassTimes)
                 {
