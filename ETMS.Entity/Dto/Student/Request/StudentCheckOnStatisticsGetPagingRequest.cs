@@ -19,5 +19,14 @@ namespace ETMS.Entity.Dto.Student.Request
             }
             return condition.ToString();
         }
+
+        public override string Validate()
+        {
+            if (CheckOt != null && CheckOt.Value > DateTime.Now.Date)
+            {
+                return "考勤日期不能大于当前日期";
+            }
+            return base.Validate();
+        }
     }
 }
