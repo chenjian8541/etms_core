@@ -1166,7 +1166,7 @@ namespace ETMS.Business.SendNotice
                 return;
             }
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
-            var req = new NoticeStudentArrearageRequest(await GetNoticeRequestBase(request.TenantId, tenantConfig.StudentNoticeConfig.StudentCheckOnWeChat))
+            var req = new NoticeStudentArrearageRequest(await GetNoticeRequestBase(request.TenantId, true))
             {
                 Students = new List<NoticeStudentArrearageItem>(),
             };
@@ -1222,7 +1222,7 @@ namespace ETMS.Business.SendNotice
                     }
                     buyDesc.Append(myOrder.BuyCost);
                 }
-                var title = $"亲爱的${student.Name}同学，您在{myOrder.Ot.EtmsToDateString()}购买的({buyDesc})欠费${myArrearageDesc}，请及时支付相关费用。";
+                var title = $"亲爱的{student.Name}同学，您在{myOrder.Ot.EtmsToDateString()}购买的({buyDesc})欠费{myArrearageDesc}，请及时支付相关费用。";
                 req.Students.Add(new NoticeStudentArrearageItem()
                 {
                     StudentId = student.Id,
