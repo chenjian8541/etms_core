@@ -1116,6 +1116,7 @@ namespace ETMS.Business
                 var courseStyleColor = string.Empty;
                 var className = string.Empty;
                 var teachersDesc = string.Empty;
+                var limitStudentNumsDesc = string.Empty;
                 if (request.IsGetComplexInfo)
                 {
                     var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classTimes.ClassId);
@@ -1129,6 +1130,7 @@ namespace ETMS.Business
                     courseListDesc = courseInfo.Item1;
                     courseStyleColor = courseInfo.Item2;
                     teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classTimes.Teachers);
+                    limitStudentNumsDesc = EmLimitStudentNumsType.GetLimitStudentNumsDesc2(classTimes.StudentCount, etClass.LimitStudentNums, etClass.LimitStudentNumsType);
                 }
                 output.Add(new ClassTimesGetPagingOutput()
                 {
@@ -1152,7 +1154,8 @@ namespace ETMS.Business
                     Teachers = classTimes.Teachers,
                     TeachersDesc = teachersDesc,
                     ReservationType = classTimes.ReservationType,
-                    StatusDesc = classTimes.Status == EmClassTimesStatus.BeRollcall ? "已点名" : ""
+                    StatusDesc = classTimes.Status == EmClassTimesStatus.BeRollcall ? "已点名" : "",
+                    LimitStudentNumsDesc = limitStudentNumsDesc
                 });
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassTimesGetPagingOutput>(pagingData.Item2, output));

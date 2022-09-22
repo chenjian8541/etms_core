@@ -155,6 +155,10 @@ namespace ETMS.Business
         public async Task<ResponseBase> ClassRecordGet(ClassRecordGetRequest request)
         {
             var classRecord = await _classRecordDAL.GetClassRecord(request.ClassRecordId);
+            if (classRecord == null)
+            {
+                return ResponseBase.CommonError("上课记录不存在");
+            }
             var etClass = await _classDAL.GetClassBucket(classRecord.ClassId);
             if (etClass == null || etClass.EtClass == null)
             {

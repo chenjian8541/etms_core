@@ -83,5 +83,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         public byte ReservationType { get; set; }
 
         public string StatusDesc { get; set; }
+
+        public string LimitStudentNumsDesc { get; set; }
     }
 }
