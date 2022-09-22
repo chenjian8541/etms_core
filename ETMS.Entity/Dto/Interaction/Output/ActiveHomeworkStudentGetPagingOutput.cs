@@ -59,5 +59,7 @@ namespace ETMS.Entity.Dto.Interaction.Output
         public List<string> WorkMediasUrl { get; set; }
 
         public string ExDateDesc { get; set; }
+
+        public bool IsCanModify { get; set; }
     }
 }

@@ -34,5 +34,7 @@ namespace ETMS.IDataAccess
         Task<byte> GetHomeworkStudentAnswerStatus(long homeworkId, long studentId);
 
         Task<bool> ExistHomeworkDetail(long homeworkId, DateTime otDate);
+
+        Task UpdateHomeworkDetail(long homeworkId,string title,string workContent,string workMedias);
     }
 }

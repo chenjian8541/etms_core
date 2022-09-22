@@ -21,6 +21,8 @@ namespace ETMS.ExternalService.Contract
 
         void HomeworkAdd(HomeworkAddRequest request);
 
+        void HomeworkEdit(HomeworkEditRequest request);
+
         void HomeworkExpireRemind(HomeworkExpireRemindRequest request);
 
         void HomeworkComment(HomeworkCommentRequest request);

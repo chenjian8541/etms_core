@@ -556,6 +556,31 @@ namespace ETMS.Business
             return ResponseBase.Success();
         }
 
+        public async Task<ResponseBase> ActiveHomeworkEdit(ActiveHomeworkEditRequest request)
+        {
+            var p = await _activeHomeworkDAL.GetActiveHomework(request.CId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var workMedias = string.Empty;
+            if (request.WorkMediasKeys != null && request.WorkMediasKeys.Count > 0)
+            {
+                workMedias = string.Join('|', request.WorkMediasKeys);
+            }
+            p.Title = request.Title;
+            p.WorkContent = request.WorkContent;
+            p.WorkMedias = workMedias;
+            await _activeHomeworkDAL.EditActiveHomework(p);
+
+            _eventPublisher.Publish(new ActiveHomeworkEditEvent(request.LoginTenantId)
+            {
+                ActiveHomework = p
+            });
+            await _userOperationLogDAL.AddUserLog(request, $"编辑作业-{request.Title}", EmUserOperationType.ActiveHomeworkMgr);
+            return ResponseBase.Success();
+        }
+
         public async Task<ResponseBase> ActiveHomeworkCommentDel(ActiveHomeworkCommentDelRequest request)
         {
             await _activeHomeworkDetailDAL.DelActiveHomeworkDetailComment(request.HomeworkDetailId, request.CommentId);
@@ -571,6 +596,7 @@ namespace ETMS.Business
             {
                 var tempBoxUser = new DataTempBox<EtUser>();
                 var tempBoxClass = new DataTempBox<EtClass>();
+                var limitDateTime = DateTime.Now.AddDays(-7);
                 foreach (var p in pagingData.Item1)
                 {
                     var myClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, p.ClassId);
@@ -590,7 +616,8 @@ namespace ETMS.Business
                         AnswerOtDesc = p.AnswerOt.EtmsToMinuteString(),
                         WorkContent = p.WorkContent,
                         WorkMediasUrl = GetMediasUrl(p.WorkMedias),
-                        ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString()
+                        ExDateDesc = p.ExDate == null ? string.Empty : p.ExDate.EtmsToMinuteString(),
+                        IsCanModify = p.Ot >= limitDateTime
                     });
                 }
             }

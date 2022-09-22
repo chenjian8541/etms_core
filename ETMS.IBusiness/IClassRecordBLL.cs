@@ -11,6 +11,10 @@ namespace ETMS.IBusiness
     {
         Task<ResponseBase> ClassRecordGetPaging(ClassRecordGetPagingRequest request);
 
+        Task<ResponseBase> ClassRecordGetPagingSimple(ClassRecordGetPagingRequest request);
+
+        Task<ResponseBase> ClassRecordStudentGetSimple(ClassRecordStudentGetSimpleRequest request);
+
         Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingRequest request);
 
         Task<ResponseBase> ClassRecordGet(ClassRecordGetRequest request);

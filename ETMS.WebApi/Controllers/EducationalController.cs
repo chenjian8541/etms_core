@@ -658,6 +658,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ClassRecordGetPagingSimple(ClassRecordGetPagingRequest request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordGetPagingSimple(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ClassRecordStudentGetSimple(ClassRecordStudentGetSimpleRequest request)
+        {
+            try
+            {
+                _classRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _classRecordBLL.ClassRecordStudentGetSimple(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingRequest request)
         {
             try

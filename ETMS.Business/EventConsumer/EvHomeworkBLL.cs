@@ -114,5 +114,17 @@ namespace ETMS.Business.EventConsumer
             await _activeHomeworkDAL.UpdateHomeworkAnswerAndReadCount(request.HomeworkId,
                 answerAndReadInfo.ReadCount, answerAndReadInfo.AnswerCount);
         }
+
+        public async Task ActiveHomeworkEditConsumerEvent(ActiveHomeworkEditEvent request)
+        {
+            var myHomework = request.ActiveHomework;
+            await _activeHomeworkDetailDAL.UpdateHomeworkDetail(myHomework.Id, myHomework.Title,
+                myHomework.WorkContent, myHomework.WorkMedias);
+
+            _eventPublisher.Publish(new NoticeStudentsOfHomeworkEditEvent(request.TenantId)
+            {
+                HomeworkId = myHomework.Id
+            });
+        }
     }
 }

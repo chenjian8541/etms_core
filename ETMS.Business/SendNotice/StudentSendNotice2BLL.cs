@@ -177,6 +177,93 @@ namespace ETMS.Business.SendNotice
             }
         }
 
+        public async Task NoticeStudentsOfHomeworkEditConsumeEvent(NoticeStudentsOfHomeworkEditEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentHomeworkWeChat)
+            {
+                return;
+            }
+            var date = DateTime.Now.Date;
+            var homeworkDetails = await _activeHomeworkDetailDAL.GetActiveHomeworkDetail(request.HomeworkId, date);
+            if (homeworkDetails.Count == 0)
+            {
+                return;
+            }
+
+            var exDateDesc = string.Empty;
+            if (homeworkDetails[0].ExDate != null)
+            {
+                exDateDesc = homeworkDetails[0].ExDate.Value.EtmsToMinuteString();
+            }
+            var myClassBucket = await _classDAL.GetClassBucket(homeworkDetails[0].ClassId);
+            if (myClassBucket == null || myClassBucket.EtClass == null)
+            {
+                return;
+            }
+            var req = new HomeworkEditRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                HomeworkTitle = homeworkDetails[0].Title,
+                ExDateDesc = exDateDesc,
+                Students = new List<HomeworkAddEdit>(),
+                ClassName = myClassBucket.EtClass.Name
+            };
+
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.HomeworkExpireRemind;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentHomework);
+            foreach (var myHomeWorkDetail in homeworkDetails)
+            {
+                if (this.CheckLimitNoticeClass(myHomeWorkDetail.ClassId))
+                {
+                    continue;
+                }
+                if (this.CheckLimitNoticeStudent(myHomeWorkDetail.StudentId))
+                {
+                    continue;
+                }
+                var studentBucket = await _studentDAL.GetStudent(myHomeWorkDetail.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfHomeworkEditConsumeEvent]未找到学员信息,StudentId:{myHomeWorkDetail.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentHomeworkDetailUrl, myHomeWorkDetail.Id, myHomeWorkDetail.AnswerStatus);
+                req.Students.Add(new HomeworkAddEdit()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Url = url
+                });
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new HomeworkAddEdit()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Url = url
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.HomeworkEdit(req);
+            }
+        }
+
         public async Task NoticeStudentsOfHomeworkAddCommentConsumeEvent(NoticeStudentsOfHomeworkAddCommentEvent request)
         {
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();

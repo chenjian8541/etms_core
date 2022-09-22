@@ -439,6 +439,44 @@ namespace ETMS.ExternalService.Implement
             }
         }
 
+        public void HomeworkEdit(HomeworkEditRequest request)
+        {
+            request.TemplateId = GetTemplateId(request);
+            if (string.IsNullOrEmpty(request.TemplateId))
+            {
+                return;
+            }
+            foreach (var student in request.Students)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(student.OpendId))
+                    {
+                        continue;
+                    }
+                    var data = new
+                    {
+                        first = new TemplateDataItem(GetFirstDesc(request, $"{student.Name}同学，您的作业已被修改，请及时查看")),
+                        keyword1 = new TemplateDataItem(request.ClassName, DefaultColor),
+                        keyword2 = new TemplateDataItem(request.HomeworkTitle, DefaultColor),
+                        keyword3 = new TemplateDataItem("点击查看详情", LinkColor),
+                        remark = new TemplateDataItem(request.Remark, DefaultColor)
+                    };
+                    TemplateApi.SendTemplateMessage(request.AccessToken, student.OpendId, request.TemplateId, student.Url, data);
+                }
+                catch (ErrorJsonResultException exJsonResultException)
+                {
+                    LOG.Log.Fatal($"[HomeworkEdit]作业修改2:{JsonConvert.SerializeObject(request)}", exJsonResultException, this.GetType());
+                    ProcessStudentEequireSubscribe(request.LoginTenantId, student.StudentId, student.Phone, student.OpendId, exJsonResultException.Message);
+                    ProcessInvalidTemplateId(request, exJsonResultException.Message);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Log.Fatal($"[HomeworkEdit]作业修改:{JsonConvert.SerializeObject(request)}", ex, this.GetType());
+                }
+            }
+        }
+
         public void HomeworkExpireRemind(HomeworkExpireRemindRequest request)
         {
             request.TemplateId = GetTemplateId(request);

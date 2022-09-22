@@ -4,6 +4,7 @@ using ETMS.Entity.Common;
 using ETMS.Entity.Database.Source;
 using ETMS.Entity.Enum;
 using ETMS.Entity.View;
+using ETMS.Entity.View.OnlyOneFiled;
 using ETMS.ICache;
 using ETMS.IDataAccess;
 using ETMS.Utility;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ETMS.DataAccess
 {
@@ -124,6 +126,19 @@ namespace ETMS.DataAccess
             var obj = await _dbWrapper.ExecuteScalar(
                 $"SELECT TOP 1 0 FROM EtActiveHomeworkDetail WHERE TenantId = {_tenantId} AND HomeworkId = {homeworkId} AND OtDate = '{otDate.EtmsToDateString()}' AND IsDeleted = {EmIsDeleted.Normal}");
             return obj != null;
+        }
+
+        public async Task UpdateHomeworkDetail(long homeworkId, string title, string workContent, string workMedias)
+        {
+            var myIds = await _dbWrapper.ExecuteObject<OnlyOneFiledId>($"SELECT top 200 Id FROM EtActiveHomeworkDetail WHERE HomeworkId = {homeworkId}");
+            if (myIds.Any())
+            {
+                foreach (var id in myIds)
+                {
+                    RemoveCache(_tenantId, id);
+                }
+            }
+            await _dbWrapper.Execute($"UPDATE EtActiveHomeworkDetail SET Title = '{title}',WorkContent = '{workContent}',WorkMedias = '{workMedias}' WHERE HomeworkId = {homeworkId}");
         }
     }
 }

@@ -104,6 +104,10 @@ namespace ETMS.Business
                     var teachersDesc = string.Empty;
                     var classCategoryName = string.Empty;
                     var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
                     var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
                     classRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds);
                     className = etClass.Name;
@@ -145,6 +149,95 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ClassRecordGetPagingSimple(ClassRecordGetPagingRequest request)
+        {
+            var pagingData = await _classRecordDAL.GetPaging(request);
+            var output = new List<ClassRecordGetPagingSimpleOutput>();
+            var allClassRoom = await _classRoomDAL.GetAllClassRoom();
+            var tempBoxCourse = new DataTempBox<EtCourse>();
+            var tempBoxUser = new DataTempBox<EtUser>();
+            var tempBoxClass = new DataTempBox<EtClass>();
+            if (pagingData.Item1.Any())
+            {
+                foreach (var classRecord in pagingData.Item1)
+                {
+                    var courseListDesc = string.Empty;
+                    var className = string.Empty;
+                    var teachersDesc = string.Empty;
+                    var etClass = await ComBusiness.GetClass(tempBoxClass, _classDAL, classRecord.ClassId);
+                    if (etClass == null)
+                    {
+                        continue;
+                    }
+                    var courseInfo = await ComBusiness.GetCourseNameAndColor(tempBoxCourse, _courseDAL, classRecord.CourseList);
+                    className = etClass.Name;
+                    courseListDesc = courseInfo.Item1;
+                    teachersDesc = await ComBusiness.GetUserNames(tempBoxUser, _userDAL, classRecord.Teachers);
+                    var item = new ClassRecordGetPagingSimpleOutput()
+                    {
+                        CId = classRecord.Id,
+                        ClassId = classRecord.ClassId,
+                        ClassName = className,
+                        ClassOtDesc = classRecord.ClassOt.EtmsToDateString(),
+                        ClassTimeDesc = $"{EtmsHelper.GetTimeDesc(classRecord.StartTime)}~{EtmsHelper.GetTimeDesc(classRecord.EndTime)}",
+                        ClassRoomIdsDesc = ComBusiness.GetDesc(allClassRoom, classRecord.ClassRoomIds),
+                        CourseListDesc = courseListDesc,
+                        WeekDesc = $"周{EtmsHelper.GetWeekDesc(classRecord.Week)}",
+                        TeachersDesc = teachersDesc,
+                        AttendNumber = classRecord.AttendNumber,
+                        CheckOt = classRecord.CheckOt,
+                        CheckUserId = classRecord.CheckUserId,
+                        NeedAttendNumber = classRecord.NeedAttendNumber,
+                        ClassTimes = classRecord.ClassTimes.EtmsToString(),
+                        DeSum = EmRoleSecrecyType.GetSecrecyValue(request.SecrecyType, request.SecrecyDataBag, classRecord.DeSum.EtmsToString2()),
+                        CheckUserDesc = await ComBusiness.GetUserName(tempBoxUser, _userDAL, classRecord.CheckUserId),
+                    };
+                    item.Label = $"{className}-{item.ClassOtDesc}({ item.WeekDesc }){item.ClassTimeDesc}";
+                    item.Value = classRecord.Id;
+                    output.Add(item);
+                }
+            }
+            return ResponseBase.Success(new ResponsePagingDataBase<ClassRecordGetPagingSimpleOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ClassRecordStudentGetSimple(ClassRecordStudentGetSimpleRequest request)
+        {
+            var classRecordStudents = await _classRecordDAL.GetClassRecordStudents(request.ClassRecordId);
+            var output = new List<ClassRecordStudentGetSimpleOutput>();
+            if (classRecordStudents != null && classRecordStudents.Any())
+            {
+                var tempBoxCourse = new DataTempBox<EtCourse>();
+                foreach (var students in classRecordStudents)
+                {
+                    var myStudent = await _studentDAL.GetStudent(students.StudentId);
+                    if (myStudent == null)
+                    {
+                        continue;
+                    }
+                    var myCourse = await ComBusiness.GetCourse(tempBoxCourse, _courseDAL, students.CourseId);
+                    if (myCourse == null)
+                    {
+                        continue;
+                    }
+                    var studentCourse = await _studentCourseDAL.GetStudentCourse(students.StudentId, students.CourseId);
+                    output.Add(new ClassRecordStudentGetSimpleOutput()
+                    {
+                        CourseId = students.CourseId,
+                        ClassId = students.ClassId,
+                        CourseName = myCourse.Name,
+                        Gender = myStudent.Student.Gender,
+                        GenderDesc = EmGender.GetGenderDesc(myStudent.Student.Gender),
+                        StudentId = students.StudentId,
+                        StudentName = myStudent.Student.Name,
+                        StudentPhone = ComBusiness3.PhoneSecrecy(myStudent.Student.Phone, request.SecrecyType, request.SecrecyDataBag),
+                        CourseSurplusDesc = ComBusiness.GetStudentCourseDesc(studentCourse),
+                        CId = students.Id
+                    });
+                }
+            }
+            return ResponseBase.Success(output);
         }
 
         public async Task<ResponseBase> ClassRecordGetPagingH5(ClassRecordGetPagingRequest request)

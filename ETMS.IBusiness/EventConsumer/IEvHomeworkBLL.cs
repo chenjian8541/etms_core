@@ -12,5 +12,7 @@ namespace ETMS.IBusiness.EventConsumer
         Task GenerateContinuousHomeworkConsumerEvent(GenerateContinuousHomeworkEvent request);
 
         Task SyncHomeworkReadAndFinishCountConsumerEvent(SyncHomeworkReadAndFinishCountEvent request);
+
+        Task ActiveHomeworkEditConsumerEvent(ActiveHomeworkEditEvent request);
     }
 }
