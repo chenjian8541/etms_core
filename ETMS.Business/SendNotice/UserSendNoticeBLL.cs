@@ -59,11 +59,14 @@ namespace ETMS.Business.SendNotice
 
         private readonly IJobAnalyze2DAL _jobAnalyze2DAL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public UserSendNoticeBLL(IEventPublisher eventPublisher, ITenantConfigDAL tenantConfigDAL, ICourseDAL courseDAL, IClassDAL classDAL,
             IJobAnalyzeDAL jobAnalyzeDAL, ITempUserClassNoticeDAL tempUserClassNoticeDAL, IClassRoomDAL classRoomDAL,
             IUserWechatDAL userWechatDAL, IComponentAccessBLL componentAccessBLL, ISysTenantDAL sysTenantDAL, IAppConfigurtaionServices appConfigurtaionServices,
             IUserDAL userDAL, ISmsService smsService, IWxService wxService, IActiveHomeworkDetailDAL activeHomeworkDetailDAL,
-            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL, IJobAnalyze2DAL jobAnalyze2DAL)
+            IStudentDAL studentDAL, ISysSmsTemplate2BLL sysSmsTemplate2BLL, ITenantLibBLL tenantLibBLL, IJobAnalyze2DAL jobAnalyze2DAL,
+            IStudentCheckOnLogDAL studentCheckOnLogDAL)
             : base(userWechatDAL, componentAccessBLL, sysTenantDAL, tenantLibBLL)
         {
             this._eventPublisher = eventPublisher;
@@ -81,6 +84,7 @@ namespace ETMS.Business.SendNotice
             this._studentDAL = studentDAL;
             this._sysSmsTemplate2BLL = sysSmsTemplate2BLL;
             this._jobAnalyze2DAL = jobAnalyze2DAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
@@ -88,7 +92,7 @@ namespace ETMS.Business.SendNotice
             this._tenantLibBLL.InitTenantId(tenantId);
             this._sysSmsTemplate2BLL.InitTenantId(tenantId);
             this.InitDataAccess(tenantId, _tenantConfigDAL, _courseDAL, _classDAL, _jobAnalyzeDAL, _tempUserClassNoticeDAL, _classRoomDAL,
-                _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL, _jobAnalyze2DAL);
+                _userWechatDAL, _userDAL, _activeHomeworkDetailDAL, _studentDAL, _jobAnalyze2DAL, _studentCheckOnLogDAL);
         }
 
         public async Task NoticeUserOfClassTodayGenerateConsumerEvent(NoticeUserOfClassTodayGenerateEvent request)
@@ -648,6 +652,11 @@ namespace ETMS.Business.SendNotice
                     result.ClassNotArrivedCount = myClassNotArrivedCount.Count;
                 }
             }
+
+            var myCheckInCount = await _studentCheckOnLogDAL.GetStatisticsCheckInCount(myDate) ;
+            var myCheckOutCount = await _studentCheckOnLogDAL.GetStatisticsCheckOutCount(myDate);
+            var myCheckAttendClassCount = await _studentCheckOnLogDAL.GetStatisticsCheckAttendClassCount(myDate);
+            
             var smsReq = new NoticeUserMessageRequest(await GetNoticeRequestBase(request.TenantId))
             {
                 Users = new List<NoticeUserMessageUser>(),
@@ -665,12 +674,15 @@ namespace ETMS.Business.SendNotice
             str.Append($"昨日报课人数{result.OrderAddCount}人;\n");
             str.Append($"昨日收入{result.IncomeIn}元;\n");
             str.Append($"昨日支出{result.IncomeOut}元;\n");
+            str.Append($"昨日考勤签到人数{myCheckInCount};\n");
+            str.Append($"昨日考勤签退人数{myCheckOutCount};\n");
+            str.Append($"昨日考勤记上课人数{myCheckAttendClassCount};\n");
             str.Append($"昨日消课课时{result.DeClassTimes};\n");
             str.Append($"昨日消课金额{result.DeClassTimesSum}元;\n");
-            str.Append($"昨日到课人数{result.ClassArrivedCount}人;\n");
-            str.Append($"昨日迟到人数{result.ClassBeLateCount}人;\n");
-            str.Append($"昨日请假人数{result.ClassLeaveCount}人;\n");
-            str.Append($"昨日未到人数{result.ClassNotArrivedCount}人;");
+            str.Append($"昨日点名到课人数{result.ClassArrivedCount}人;\n");
+            str.Append($"昨日点名迟到人数{result.ClassBeLateCount}人;\n");
+            str.Append($"昨日点名请假人数{result.ClassLeaveCount}人;\n");
+            str.Append($"昨日点名未到人数{result.ClassNotArrivedCount}人;");
             smsReq.Content = str.ToString();
 
             foreach (var user in noticeUser)
