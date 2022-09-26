@@ -43,10 +43,13 @@ namespace ETMS.Business
 
         private readonly IStudentCourseConsumeLogDAL _studentCourseConsumeLogDAL;
 
+        private readonly IStudentCheckOnLogDAL _studentCheckOnLogDAL;
+
         public StatisticsClassBLL(IStatisticsClassDAL statisticsClassDAL, ICourseDAL courseDAL, IUserDAL userDAL,
             IStatisticsClassAttendanceTagDAL statisticsClassAttendanceTagDAL, IStatisticsEducationDAL statisticsEducationDAL,
             IClassDAL classDAL, IStudentDAL studentDAL, IClassRecordDAL classRecordDAL, IClassCategoryDAL classCategoryDAL,
-            IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL)
+            IEventPublisher eventPublisher, IStudentCourseConsumeLogDAL studentCourseConsumeLogDAL,
+            IStudentCheckOnLogDAL studentCheckOnLogDAL)
         {
             this._statisticsClassDAL = statisticsClassDAL;
             this._courseDAL = courseDAL;
@@ -59,13 +62,14 @@ namespace ETMS.Business
             this._classCategoryDAL = classCategoryDAL;
             this._eventPublisher = eventPublisher;
             this._studentCourseConsumeLogDAL = studentCourseConsumeLogDAL;
+            this._studentCheckOnLogDAL = studentCheckOnLogDAL;
         }
 
         public void InitTenantId(int tenantId)
         {
             this.InitDataAccess(tenantId, _statisticsClassDAL, _courseDAL, _userDAL,
                 _statisticsClassAttendanceTagDAL, _statisticsEducationDAL, _classDAL, _studentDAL, _classRecordDAL,
-                _classCategoryDAL, _studentCourseConsumeLogDAL);
+                _classCategoryDAL, _studentCourseConsumeLogDAL, _studentCheckOnLogDAL);
         }
 
         public async Task StatisticsClassConsumeEvent(StatisticsClassEvent request)
@@ -161,6 +165,15 @@ namespace ETMS.Business
                 myStatisticsClassTimes.DeSum += directDeClassTimesDeSumInfo.TotalDeSum;
                 myStatisticsClassTimes.ClassTimes += directDeClassTimesDeSumInfo.TotalDeClassTimes;
             }
+
+            //考勤记上课
+            var myStudentCheckDeSumInfo = await _studentCheckOnLogDAL.GetStudentCheckOnDeInfo(classOt);
+            if (myStudentCheckDeSumInfo != null)
+            {
+                myStatisticsClassTimes.DeSum += myStudentCheckDeSumInfo.TotalDeSum;
+                myStatisticsClassTimes.ClassTimes += myStudentCheckDeSumInfo.TotalDeClassTimes;
+            }
+
 
             await _statisticsClassDAL.SaveStatisticsClass(classOt, myStatisticsClassTimes, myStatisticsClassAttendances,
                 myStatisticsClassCourse, myStatisticsClassTeacher);

@@ -382,6 +382,74 @@ namespace ETMS.Business
             return res;
         }
 
+        public async Task<ResponseBase> UserEnterH5(UserEnterH5Request request)
+        {
+            var output = new UserEnterH5Output();
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            if (request.LoginTenantId == tenantId)
+            {
+                return ResponseBase.Success(output);
+            }
+            var thisTenant = await _sysTenantDAL.GetTenant(tenantId);
+            if (thisTenant == null)
+            {
+                Log.Error($"[UserEnterH5]机构不存在，TenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var sysVersion = await _sysVersionDAL.GetVersion(thisTenant.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, request.LoginClientType))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
+            _etUserDAL.InitTenantId(request.LoginTenantId);
+            var userInfo = await _etUserDAL.GetUser(request.LoginUserId);
+
+            _etUserDAL.ResetTenantId(thisTenant.Id);
+            var thisUser = await _etUserDAL.GetUser(userInfo.Phone);
+            if (thisUser == null)
+            {
+                return ResponseBase.CommonError("用户不存在");
+            }
+            if (!ComBusiness2.CheckUserCanLogin(thisUser, out var msg))
+            {
+                return ResponseBase.CommonError(msg);
+            }
+
+            await _sysTenantUserDAL.UpdateTenantUserOpTime(thisTenant.Id, thisUser.Phone, DateTime.Now);
+            _etUserOperationLogDAL.InitTenantId(thisTenant.Id);
+
+            _roleDAL.InitTenantId(userInfo.TenantId);
+            var role = await _roleDAL.GetRole(userInfo.RoleId);
+            var roleSetting = ComBusiness3.AnalyzeNoticeSetting(role.NoticeSetting, userInfo.IsAdmin);
+            if (!userInfo.IsAdmin)
+            {
+                if (!ComBusiness2.CheckRoleCanLogin(roleSetting, request.LoginClientType, out var msgRoleLimit))
+                {
+                    return ResponseBase.CommonError(msgRoleLimit);
+                }
+            }
+            var result = await LoginSuccessProcess(thisUser, request.IpAddress, thisTenant.TenantCode, thisUser.Phone, request.LoginClientType, role,
+                roleSetting);
+            var loginInfo = new UserLoginBySmsH5Output()
+            {
+                ExpiresTime = result.ExpiresTime,
+                Token = result.Token,
+                IsBindWeChatOfficialAccount = await CheckIsBindWeChatOfficialAccount(thisTenant.Id)
+            };
+            output.IsOtherLogin = true;
+            output.LoginIngo = loginInfo;
+            return ResponseBase.Success(output);
+        }
+
         private async Task SaveUserWechat(string phone, long userId, int tenantId, string wechatCode)
         {
             try

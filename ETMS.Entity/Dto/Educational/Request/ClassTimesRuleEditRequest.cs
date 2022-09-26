@@ -34,6 +34,8 @@ namespace ETMS.Entity.Dto.Educational.Request
 
         public bool IsJumpClassRoomLimit { get; set; }
 
+        public DateTime? EndDate { get; set; }
+
         public override string Validate()
         {
             if (ClassRuleId <= 0)

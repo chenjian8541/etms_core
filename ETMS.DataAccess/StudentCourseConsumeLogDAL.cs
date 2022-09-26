@@ -99,7 +99,7 @@ namespace ETMS.DataAccess
 
         public async Task<CourseConsumeLogDeInfoView> GetDirectDeClassTimesDeSumInfo(DateTime ot)
         {
-            var sql = $"SELECT SUM(DeSum) as TotalDeSum,SUM(DeClassTimes) as TotalDeClassTimes FROM EtStudentCourseConsumeLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND SourceType IN (14,15) AND Ot = '{ot.EtmsToDateString()}'";
+            var sql = $"SELECT ISNULL(SUM(DeSum),0) as TotalDeSum,ISNULL(SUM(DeClassTimes),0) as TotalDeClassTimes FROM EtStudentCourseConsumeLog WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND SourceType IN (14,15) AND Ot = '{ot.EtmsToDateString()}'";
             var log = await _dbWrapper.ExecuteObject<CourseConsumeLogDeInfoView>(sql);
             return log.FirstOrDefault();
         }

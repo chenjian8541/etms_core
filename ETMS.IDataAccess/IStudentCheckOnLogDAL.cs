@@ -48,5 +48,7 @@ namespace ETMS.IDataAccess
         Task SaveStudentCheckOnStatistics(EtStudentCheckOnStatistics entity);
 
         Task<Tuple<IEnumerable<EtStudentCheckOnStatistics>, int>> GetPagingStatistics(IPagingRequest request);
+
+        Task<StudentCheckOnDeInfoView> GetStudentCheckOnDeInfo(DateTime ot);
     }
 }

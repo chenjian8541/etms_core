@@ -189,5 +189,13 @@ namespace ETMS.DataAccess
         {
             return await _dbWrapper.ExecutePage<EtStudentCheckOnStatistics>("EtStudentCheckOnStatistics", "*", request.PageSize, request.PageCurrent, "Id DESC", request.ToString());
         }
+
+        public async Task<StudentCheckOnDeInfoView> GetStudentCheckOnDeInfo(DateTime ot)
+        {
+            var obj = await _dbWrapper.ExecuteObject<StudentCheckOnDeInfoView>(
+                $"select ISNULL(SUM(DeSum),0) as TotalDeSum,ISNULL(SUM(DeClassTimes),0) as TotalDeClassTimes from EtStudentCheckOnLog where TenantId = {_tenantId} and IsDeleted = {EmIsDeleted.Normal} and CheckType = {EmStudentCheckOnLogCheckType.CheckIn} and CheckOtDate = '{ot.EtmsToDateString()}' and [Status] = {EmStudentCheckOnLogStatus.NormalAttendClass} AND DeClassTimes > 0");
+
+            return obj.FirstOrDefault();
+        }
     }
 }

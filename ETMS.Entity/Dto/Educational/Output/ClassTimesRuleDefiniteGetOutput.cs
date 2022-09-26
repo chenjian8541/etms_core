@@ -39,5 +39,7 @@ namespace ETMS.Entity.Dto.Educational.Output
         /// 备注
         /// </summary>
         public string Remark { get; set; }
+
+        public string EndDate { get; set; }
     }
 }

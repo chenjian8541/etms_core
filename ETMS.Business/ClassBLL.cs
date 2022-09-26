@@ -2353,6 +2353,7 @@ namespace ETMS.Business
                 Remark = classRule.Remark,
                 ReservationType = classRule.ReservationType,
                 TeacherIds = EtmsHelper.AnalyzeMuIds(classRule.Teachers),
+                EndDate = classRule.EndDate.EtmsToDateString(),
                 Id = classRule.Id
             };
             return ResponseBase.Success(output);
@@ -2455,6 +2456,10 @@ namespace ETMS.Business
             classRule.CourseList = EtmsHelper.GetMuIds(request.CourseIds);
             classRule.ClassContent = request.ClassContent;
             classRule.ReservationType = request.ReservationType;
+            if (request.EndDate != classRule.EndDate)
+            { 
+            
+            }
             await _classDAL.EditClassTimesRule(classRule);
             await _classTimesDAL.SyncClassTimesOfClassTimesRule(classRule);
 

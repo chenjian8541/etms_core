@@ -252,6 +252,19 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> UserEnterH5(UserEnterH5Request request)
+        {
+            try
+            {
+                return await _userLoginBLL.UserEnterH5(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [AllowAnonymous]
         public async Task<ResponseBase> GetOemLogin(GetOemLoginRequest request)
         {
