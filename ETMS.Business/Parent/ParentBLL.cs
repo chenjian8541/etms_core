@@ -716,6 +716,44 @@ namespace ETMS.Business
             return await GetParentLoginResult(thisTenant.Id, request.LoginPhone, null);
         }
 
+        public async Task<ResponseBase> ParentEnterH5(ParentEnterH5Request request)
+        {
+            var output = new ParentEnterH5Output();
+            var tenantId = TenantLib.GetTenantDecrypt(request.TenantNo);
+            if (request.LoginTenantId == tenantId)
+            {
+                return ResponseBase.Success(output);
+            }
+            var thisTenant = await _sysTenantDAL.GetTenant(tenantId);
+            if (thisTenant == null)
+            {
+                Log.Error($"[ParentEnterH5]机构不存在，TenantId:{tenantId}", this.GetType());
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (!ComBusiness2.CheckTenantCanLogin(thisTenant, out var myMsg))
+            {
+                return ResponseBase.CommonError(myMsg);
+            }
+            var sysVersion = await _sysVersionDAL.GetVersion(thisTenant.VersionId);
+            if (sysVersion == null)
+            {
+                return ResponseBase.CommonError("系统版本信息错误");
+            }
+            if (!ComBusiness2.CheckSysVersionCanLogin(sysVersion, EmUserOperationLogClientType.WxParent))
+            {
+                return ResponseBase.CommonError("机构未开通此模块");
+            }
+
+            var loginInfoRes = await GetParentLoginResult(thisTenant.Id, request.LoginPhone, null);
+            if (!loginInfoRes.IsResponseSuccess())
+            {
+                return loginInfoRes;
+            }
+            output.IsOtherLogin = true;
+            output.LoginIngo = (ParentLoginBySmsOutput)loginInfoRes.resultData;
+            return ResponseBase.Success(output);
+        }
+
         public async Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request)
         {
             _tenantConfigDAL.InitTenantId(request.LoginTenantId);

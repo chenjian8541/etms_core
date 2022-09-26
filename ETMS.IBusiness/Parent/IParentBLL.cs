@@ -48,6 +48,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ParentTenantEntrance(ParentTenantEntranceRequest request);
 
+        Task<ResponseBase> ParentEnterH5(ParentEnterH5Request request);
+
         Task<ResponseBase> StudentRecommendRuleGet(ParentRequestBase request);
 
         Task<ResponseBase> UploadConfigGet(ParentRequestBase request);
