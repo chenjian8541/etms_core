@@ -22,6 +22,8 @@ namespace ETMS.IBusiness
 
         Task ActiveGrowthRecordAddConsumerEvent(ActiveGrowthRecordAddEvent request);
 
+        Task ActiveGrowthRecordEditConsumerEvent(ActiveGrowthRecordEditEvent request);
+
         Task<ResponseBase> ActiveGrowthRecordGet(ActiveGrowthRecordGetRequest request);
 
         Task<ResponseBase> ActiveGrowthRecordDel(ActiveGrowthRecordDelRequest request);
@@ -31,5 +33,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> ActiveGrowthCommentDel(ActiveGrowthCommentDelRequest request);
 
         Task<ResponseBase> ActiveGrowthStudentGetPaging(ActiveGrowthStudentGetPagingRequest request);
+
+        Task<ResponseBase> ActiveGrowthGetForEdit(ActiveGrowthGetForEditRequest request);
+
+        Task<ResponseBase> ActiveGrowthEdit(ActiveGrowthEditRequest request);
     }
 }

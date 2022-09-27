@@ -17,6 +17,7 @@ using ETMS.Event.DataContract;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using ETMS.Entity.Config;
+using ETMS.Entity.Dto.Common;
 
 namespace ETMS.Business
 {
@@ -346,6 +347,23 @@ namespace ETMS.Business
             }
         }
 
+        public async Task ActiveGrowthRecordEditConsumerEvent(ActiveGrowthRecordEditEvent request)
+        {
+            var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.GrowthRecordId);
+            if (activeGrowthRecordBucket == null || activeGrowthRecordBucket.ActiveGrowthRecord == null)
+            {
+                LOG.Log.Error($"[ActiveGrowthRecordEditConsumerEvent]：未找到数据,{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var activeGrowthRecord = activeGrowthRecordBucket.ActiveGrowthRecord;
+            await _activeGrowthRecordDAL.UpdateActiveGrowthRecordDetail(activeGrowthRecord.Id, activeGrowthRecord.GrowthContent, activeGrowthRecord.GrowthMedias);
+
+            _eventPublisher.Publish(new NoticeStudentsOfGrowthRecordEditEvent(request.TenantId)
+            {
+                GrowthRecordId = activeGrowthRecord.Id
+            });
+        }
+
         public async Task<ResponseBase> ActiveGrowthRecordGet(ActiveGrowthRecordGetRequest request)
         {
             var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.CId);
@@ -534,6 +552,63 @@ namespace ETMS.Business
                 }
             }
             return ResponseBase.Success(new ResponsePagingDataBase<ActiveGrowthStudentGetPagingOutput>(pagingData.Item2, output));
+        }
+
+        public async Task<ResponseBase> ActiveGrowthGetForEdit(ActiveGrowthGetForEditRequest request)
+        {
+            var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.CId);
+            if (activeGrowthRecordBucket == null || activeGrowthRecordBucket.ActiveGrowthRecord == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            var myActiveGrowthRecord = activeGrowthRecordBucket.ActiveGrowthRecord;
+            var output = new ActiveGrowthGetForEditOutput()
+            {
+                CId = myActiveGrowthRecord.Id,
+                GrowthContent = myActiveGrowthRecord.GrowthContent,
+                GrowthMediasKeys = new List<Img>()
+            };
+            if (!string.IsNullOrEmpty(myActiveGrowthRecord.GrowthMedias))
+            {
+                var myMedias = myActiveGrowthRecord.GrowthMedias.Split('|');
+                foreach (var item in myMedias)
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        output.GrowthMediasKeys.Add(new Img()
+                        {
+                            Key = item,
+                            Url = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, item)
+                        });
+                    }
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ActiveGrowthEdit(ActiveGrowthEditRequest request)
+        {
+            var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.CId);
+            if (activeGrowthRecordBucket == null || activeGrowthRecordBucket.ActiveGrowthRecord == null)
+            {
+                return ResponseBase.CommonError("成长档案不存在");
+            }
+            var myActiveGrowthRecord = activeGrowthRecordBucket.ActiveGrowthRecord;
+            var growthMedias = string.Empty;
+            if (request.GrowthMediasKeys != null && request.GrowthMediasKeys.Count > 0)
+            {
+                growthMedias = string.Join('|', request.GrowthMediasKeys);
+            }
+            myActiveGrowthRecord.GrowthContent = request.GrowthContent;
+            myActiveGrowthRecord.GrowthMedias = growthMedias;
+            await _activeGrowthRecordDAL.EditActiveGrowthRecord(myActiveGrowthRecord);
+
+            _eventPublisher.Publish(new ActiveGrowthRecordEditEvent(request.LoginTenantId)
+            {
+                GrowthRecordId = myActiveGrowthRecord.Id
+            });
+            await _userOperationLogDAL.AddUserLog(request, $"编辑成长档案-{request.GrowthContent}", EmUserOperationType.ActiveGrowthRecord);
+            return ResponseBase.Success();
         }
     }
 }

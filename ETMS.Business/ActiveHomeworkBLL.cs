@@ -383,7 +383,7 @@ namespace ETMS.Business
                 WorkContent = p.WorkContent,
                 WorkMediasKeys = new List<Img>()
             };
-            if (p.WorkMedias != null && p.WorkMedias.Any())
+            if (!string.IsNullOrEmpty(p.WorkMedias))
             {
                 var myMedias = p.WorkMedias.Split('|');
                 foreach (var item in myMedias)

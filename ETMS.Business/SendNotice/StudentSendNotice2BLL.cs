@@ -440,6 +440,105 @@ namespace ETMS.Business.SendNotice
             }
         }
 
+        public async Task NoticeStudentsOfGrowthRecordEditConsumerEvent(NoticeStudentsOfGrowthRecordEditEvent request)
+        {
+            var tenantConfig = await _tenantConfigDAL.GetTenantConfig();
+            if (!tenantConfig.StudentNoticeConfig.StudentGrowUpRecordWeChat)
+            {
+                return;
+            }
+
+            var activeGrowthRecordBucket = await _activeGrowthRecordDAL.GetActiveGrowthRecord(request.GrowthRecordId);
+            if (activeGrowthRecordBucket == null || activeGrowthRecordBucket.ActiveGrowthRecord == null)
+            {
+                Log.Error($"[NoticeStudentsOfGrowthRecordEditConsumerEvent]成长档案不存在:{JsonConvert.SerializeObject(request)}", this.GetType());
+                return;
+            }
+            var activeGrowthRecord = activeGrowthRecordBucket.ActiveGrowthRecord;
+            if (activeGrowthRecord.SendType == EmActiveGrowthRecordSendType.No)
+            {
+                return;
+            }
+
+            await this.InitNoticeConfig(EmNoticeConfigScenesType.StudentGrowUpRecord);
+            if (activeGrowthRecord.Type == EmActiveGrowthRecordType.Class)
+            {
+                var strClass = activeGrowthRecord.RelatedIds.Trim(',').Split(',');
+                if (!string.IsNullOrEmpty(strClass[0]))
+                {
+                    var classId = strClass[0].ToLong();
+                    if (this.CheckLimitNoticeClass(classId))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            var growthRecordDetails = await _activeGrowthRecordDAL.GetGrowthRecordDetailView(request.GrowthRecordId);
+            if (!growthRecordDetails.Any())
+            {
+                return;
+            }
+
+            var req = new NoticeStudentMessageRequest(await GetNoticeRequestBase(request.TenantId))
+            {
+                Title = "您的成长档案已修改，点击查看详情",
+                Content = activeGrowthRecord.GrowthContent,
+                OtDesc = DateTime.Now.EtmsToMinuteString(),
+                Students = new List<NoticeStudentMessageStudent>()
+            };
+            var wxConfig = _appConfigurtaionServices.AppSettings.WxConfig;
+            req.TemplateIdShort = wxConfig.TemplateNoticeConfig.WxMessage;
+            req.Url = string.Empty;
+            req.Remark = tenantConfig.StudentNoticeConfig.WeChatNoticeRemark;
+
+            foreach (var myGrowthRecordDetail in growthRecordDetails)
+            {
+                if (this.CheckLimitNoticeStudent(myGrowthRecordDetail.StudentId))
+                {
+                    continue;
+                }
+                var studentBucket = await _studentDAL.GetStudent(myGrowthRecordDetail.StudentId);
+                if (studentBucket == null || studentBucket.Student == null)
+                {
+                    Log.Warn($"[NoticeStudentsOfGrowthRecordEditConsumerEvent]未找到学员信息,StudentId:{myGrowthRecordDetail.StudentId}", this.GetType());
+                    continue;
+                }
+                var student = studentBucket.Student;
+                if (string.IsNullOrEmpty(student.Phone))
+                {
+                    continue;
+                }
+
+                var url = string.Format(wxConfig.TemplateNoticeConfig.StudentGrowthRecordDetailUrl, myGrowthRecordDetail.Id, request.TenantId);
+                req.Students.Add(new NoticeStudentMessageStudent()
+                {
+                    Name = student.Name,
+                    OpendId = await GetOpenId(true, student.Phone),
+                    Phone = student.Phone,
+                    StudentId = student.Id,
+                    Url = url
+                });
+
+                if (!string.IsNullOrEmpty(student.PhoneBak) && EtmsHelper.IsMobilePhone(student.PhoneBak))
+                {
+                    req.Students.Add(new NoticeStudentMessageStudent()
+                    {
+                        Name = student.Name,
+                        OpendId = await GetOpenId(true, student.PhoneBak),
+                        Phone = student.PhoneBak,
+                        StudentId = student.Id,
+                        Url = url
+                    });
+                }
+            }
+
+            if (req.Students.Count > 0)
+            {
+                _wxService.NoticeStudentMessage(req);
+            }
+        }
+
         public async Task NoticeStudentsOfStudentEvaluateConsumeEvent(NoticeStudentsOfStudentEvaluateEvent request)
         {
             var tenantConfig = await _tenantConfigDAL.GetTenantConfig();

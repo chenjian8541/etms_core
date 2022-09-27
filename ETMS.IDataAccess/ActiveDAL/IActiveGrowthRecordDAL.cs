@@ -14,6 +14,8 @@ namespace ETMS.IDataAccess
     {
         Task<bool> AddActiveGrowthRecord(EtActiveGrowthRecord entity);
 
+        Task EditActiveGrowthRecord(EtActiveGrowthRecord entity);
+
         Task UpdateActiveGrowthRecordTotalCount(long growthRecordId, int totalCount);
 
         Task<ActiveGrowthRecordBucket> GetActiveGrowthRecord(long id);
@@ -47,5 +49,7 @@ namespace ETMS.IDataAccess
         Task<IEnumerable<GrowthRecordDetailView>> GetGrowthRecordDetailView(long growthRecordId);
 
         Task DelActiveGrowthRecordDetailAboutRelatedInfo(int sceneType,long relatedId,long studentId);
+
+        Task UpdateActiveGrowthRecordDetail(long growthRecordId,string growthContent,string growthMedias);
     }
 }

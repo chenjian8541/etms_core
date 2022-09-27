@@ -44,6 +44,12 @@ namespace ETMS.DataAccess
             return true;
         }
 
+        public async Task EditActiveGrowthRecord(EtActiveGrowthRecord entity)
+        {
+            await this._dbWrapper.Update(entity);
+            await UpdateCache(_tenantId, entity.Id);
+        }
+
         public async Task UpdateActiveGrowthRecordTotalCount(long growthRecordId, int totalCount)
         {
             await _dbWrapper.Execute($"UPDATE [EtActiveGrowthRecord] SET TotalCount = {totalCount} WHERE Id = {growthRecordId} ");
@@ -146,6 +152,11 @@ namespace ETMS.DataAccess
         {
             var sql = $"UPDATE EtActiveGrowthRecordDetail SET IsDeleted = {EmIsDeleted.Deleted} WHERE TenantId = {_tenantId} AND StudentId = {studentId} AND SceneType = {sceneType} AND RelatedId = {relatedId} ";
             await _dbWrapper.Execute(sql);
+        }
+
+        public async Task UpdateActiveGrowthRecordDetail(long growthRecordId, string growthContent, string growthMedias)
+        {
+            await _dbWrapper.Execute($"UPDATE EtActiveGrowthRecordDetail SET GrowthContent = '{growthContent}',GrowthMedias = '{growthMedias}' WHERE TenantId = {_tenantId} AND GrowthRecordId = {growthRecordId}");
         }
     }
 }

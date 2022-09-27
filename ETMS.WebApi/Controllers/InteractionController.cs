@@ -357,6 +357,34 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveGrowthGetForEdit(ActiveGrowthGetForEditRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthGetForEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> ActiveGrowthEdit(ActiveGrowthEditRequest request)
+        {
+            try
+            {
+                _activeGrowthRecordBLL.InitTenantId(request.LoginTenantId);
+                return await _activeGrowthRecordBLL.ActiveGrowthEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActiveWxMessageAdd(ActiveWxMessageAddRequest request)
         {
             try
