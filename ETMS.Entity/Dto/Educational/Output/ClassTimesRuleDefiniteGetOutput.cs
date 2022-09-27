@@ -41,5 +41,9 @@ namespace ETMS.Entity.Dto.Educational.Output
         public string Remark { get; set; }
 
         public string EndDate { get; set; }
+
+        public string StartDate { get; set; }
+
+        public bool IsCanChangeEndDate { get; set; }
     }
 }

@@ -2354,8 +2354,14 @@ namespace ETMS.Business
                 ReservationType = classRule.ReservationType,
                 TeacherIds = EtmsHelper.AnalyzeMuIds(classRule.Teachers),
                 EndDate = classRule.EndDate.EtmsToDateString(),
-                Id = classRule.Id
+                StartDate = classRule.StartDate.EtmsToDateString(),
+                Id = classRule.Id,
+                IsCanChangeEndDate = false
             };
+            if (classRule.Type == EmClassTimesRuleType.Loop)
+            {
+                output.IsCanChangeEndDate = true;
+            }
             return ResponseBase.Success(output);
         }
 
@@ -2365,6 +2371,10 @@ namespace ETMS.Business
             if (classRule == null)
             {
                 return ResponseBase.CommonError("排课信息未找到");
+            }
+            if (request.EndDate != null && request.EndDate <= classRule.StartDate)
+            {
+                return ResponseBase.CommonError("结束日期必须大于开始日期");
             }
             var etClassBucket = await _classDAL.GetClassBucket(classRule.ClassId);
             if (etClassBucket == null || etClassBucket.EtClass == null)
@@ -2456,13 +2466,54 @@ namespace ETMS.Business
             classRule.CourseList = EtmsHelper.GetMuIds(request.CourseIds);
             classRule.ClassContent = request.ClassContent;
             classRule.ReservationType = request.ReservationType;
-            if (request.EndDate != classRule.EndDate)
-            { 
-            
+            var isChangeEndDate = false;
+            if (classRule.Type == EmClassTimesRuleType.Loop && request.EndDate != classRule.EndDate) //修改结束日期
+            {
+                classRule.EndDate = request.EndDate;
+                isChangeEndDate = true;
+                if (classRule.EndDate == null)
+                {
+                    classRule.DateDesc = $"{classRule.StartDate.EtmsToDateString()}开始(每周{EtmsHelper.GetWeekDesc(classRule.Week)})";
+                }
+                else
+                {
+                    classRule.DateDesc = $"{classRule.StartDate.EtmsToDateString()}~{classRule.EndDate.EtmsToDateString()}(每周{EtmsHelper.GetWeekDesc(classRule.Week)})";
+                }
+                var lastClassTimesDate = await _classTimesDAL.GetClassTimesLastDateBuyRule(classRule.Id);
+                if (classRule.EndDate != null)
+                {
+                    if (lastClassTimesDate != null)
+                    {
+                        if (lastClassTimesDate >= classRule.EndDate)
+                        {
+                            classRule.IsNeedLoop = false;
+                        }
+                        else
+                        {
+                            classRule.IsNeedLoop = true;
+                        }
+                    }
+                    else
+                    {
+                        classRule.IsNeedLoop = true;
+                    }
+                }
+                else
+                {
+                    classRule.IsNeedLoop = true;
+                }
             }
             await _classDAL.EditClassTimesRule(classRule);
             await _classTimesDAL.SyncClassTimesOfClassTimesRule(classRule);
 
+            if (isChangeEndDate) //修改结束日期
+            {
+                _eventPublisher.Publish(new GenerateClassTimesEvent(request.LoginTenantId)
+                {
+                    ClassTimesRuleId = classRule.Id,
+                    ClassId = classRule.ClassId
+                });
+            }
             await _userOperationLogDAL.AddUserLog(request, $"编辑排课-{etClassBucket.EtClass.Name}", EmUserOperationType.ClassManage);
             return ResponseBase.Success(new ClassTimesRuleEditOutput() { IsLimit = false });
         }

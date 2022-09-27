@@ -112,5 +112,7 @@ namespace ETMS.IDataAccess
         Task DelClassTimesByClassRecordId(long classRecordId);
 
         Task UpdatetClassTimesStudents(long classId, long ruleId, string newStudentIds, int newStudentCount);
+
+        Task<DateTime?> GetClassTimesLastDateBuyRule(long ruleId);
     }
 }

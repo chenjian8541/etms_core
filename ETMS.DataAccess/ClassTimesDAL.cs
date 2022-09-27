@@ -334,5 +334,15 @@ namespace ETMS.DataAccess
             var sql = $"UPDATE EtClassTimes SET StudentIdsClass = '{newStudentIds}',StudentCount = StudentTempCount + {newStudentCount} WHERE TenantId = {_tenantId} AND ClassId = {classId} AND RuleId = {ruleId} AND [Status] = {EmClassTimesStatus.UnRollcall} AND IsDeleted = {EmIsDeleted.Normal}";
             await _dbWrapper.Execute(sql);
         }
+
+        public async Task<DateTime?> GetClassTimesLastDateBuyRule(long ruleId)
+        {
+            var obj = await _dbWrapper.ExecuteScalar($"SELECT TOP 1 ClassOt FROM EtClassTimes WHERE TenantId = {_tenantId} AND IsDeleted = {EmIsDeleted.Normal} AND RuleId = {ruleId} ORDER BY ClassOt DESC");
+            if (obj == null)
+            {
+                return null;
+            }
+            return Convert.ToDateTime(obj);
+        }
     }
 }
