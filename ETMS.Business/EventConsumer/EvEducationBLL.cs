@@ -686,6 +686,7 @@ namespace ETMS.Business.EventConsumer
                 var dffTime = EtmsHelper.GetDffTimeAboutSurplusQuantity(newStartTime, newEndTime);
                 p.SurplusQuantity = dffTime.Item1;
                 p.SurplusSmallQuantity = dffTime.Item2;
+                p.EndTime = newEndTime;
                 if (newEndTime <= newStartTime)
                 {
                     p.SurplusQuantity = 0;
