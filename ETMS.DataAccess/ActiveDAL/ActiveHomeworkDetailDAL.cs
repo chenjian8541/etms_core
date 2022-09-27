@@ -130,12 +130,12 @@ namespace ETMS.DataAccess
 
         public async Task UpdateHomeworkDetail(long homeworkId, string title, string workContent, string workMedias)
         {
-            var myIds = await _dbWrapper.ExecuteObject<OnlyOneFiledId>($"SELECT top 200 Id FROM EtActiveHomeworkDetail WHERE HomeworkId = {homeworkId}");
-            if (myIds.Any())
+            var myOnlyOneFileds = await _dbWrapper.ExecuteObject<OnlyOneFiledId>($"SELECT top 200 Id FROM EtActiveHomeworkDetail WHERE HomeworkId = {homeworkId}");
+            if (myOnlyOneFileds.Any())
             {
-                foreach (var id in myIds)
+                foreach (var item in myOnlyOneFileds)
                 {
-                    RemoveCache(_tenantId, id);
+                    RemoveCache(_tenantId, item.Id);
                 }
             }
             await _dbWrapper.Execute($"UPDATE EtActiveHomeworkDetail SET Title = '{title}',WorkContent = '{workContent}',WorkMedias = '{workMedias}' WHERE HomeworkId = {homeworkId}");
