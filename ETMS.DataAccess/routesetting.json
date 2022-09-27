@@ -524,6 +524,18 @@
       {
         "Id": 0,
         "Hidden": true,
+        "Path": "homeworkEdit/:gid?",
+        "Name": "homeworkEdit",
+        "Type": 1,
+        "Component": "@/components/Homework/EditHomeWork",
+        "Meta": {
+          "Title": "编辑作业",
+          "Icon": "item"
+        }
+      },
+      {
+        "Id": 0,
+        "Hidden": true,
         "Path": "homeworkDetail/:cid",
         "Name": "homeworkDetail",
         "Type": 1,

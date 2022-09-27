@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ETMS.IEventProvider;
 using ETMS.Event.DataContract;
+using ETMS.Entity.Dto.Common;
 
 namespace ETMS.Business
 {
@@ -363,6 +364,38 @@ namespace ETMS.Business
                         StudentId = studentId,
                         StudentName = studentBucket.Student.Name
                     });
+                }
+            }
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> ActiveHomeworkGetForEdit(ActiveHomeworkGetForEditRequest request)
+        {
+            var p = await _activeHomeworkDAL.GetActiveHomework(request.CId);
+            if (p == null)
+            {
+                return ResponseBase.CommonError("作业不存在");
+            }
+            var output = new ActiveHomeworkGetForEditOutput()
+            {
+                HomeworkId = p.Id,
+                Title = p.Title,
+                WorkContent = p.WorkContent,
+                WorkMediasKeys = new List<Img>()
+            };
+            if (p.WorkMedias != null && p.WorkMedias.Any())
+            {
+                var myMedias = p.WorkMedias.Split('|');
+                foreach (var item in myMedias)
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        output.WorkMediasKeys.Add(new Img()
+                        {
+                            Key = item,
+                            Url = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, item)
+                        });
+                    }
                 }
             }
             return ResponseBase.Success(output);

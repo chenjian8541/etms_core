@@ -17,6 +17,8 @@ namespace ETMS.IBusiness
 
         Task<ResponseBase> ActiveHomeworkGetBasc(ActiveHomeworkGetBascRequest request);
 
+        Task<ResponseBase> ActiveHomeworkGetForEdit(ActiveHomeworkGetForEditRequest request);
+
         Task<ResponseBase> ActiveHomeworkStudentGetAnswered(ActiveHomeworkGetAnsweredRequest request);
 
         Task<ResponseBase> ActiveHomeworkStudentGetUnanswered(ActiveHomeworkGetUnansweredRequest request);

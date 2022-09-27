@@ -91,6 +91,20 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> ActiveHomeworkGetForEdit(ActiveHomeworkGetForEditRequest request)
+        {
+            try
+            {
+                _activeHomeworkBLL.InitTenantId(request.LoginTenantId);
+                return await _activeHomeworkBLL.ActiveHomeworkGetForEdit(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         public async Task<ResponseBase> ActiveHomeworkStudentGetAnswered(ActiveHomeworkGetAnsweredRequest request)
         {
             try
