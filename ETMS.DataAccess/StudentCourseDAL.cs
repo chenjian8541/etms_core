@@ -82,7 +82,7 @@ namespace ETMS.DataAccess
             }
             if (allCourseBucket.StudentCourses != null && allCourseBucket.StudentCourses.Count > 0)
             {
-                return allCourseBucket.StudentCourses.Where(p => !p.IsLimitReserve).Select(p => p.CourseId).ToList();
+                return allCourseBucket.StudentCourses.Where(p => !p.IsLimitReserve && p.Status == EmStudentCourseStatus.Normal).Select(p => p.CourseId).ToList();
             }
             return null;
         }
