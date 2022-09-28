@@ -135,7 +135,7 @@ namespace ETMS.DataAccess
         public async Task<IEnumerable<CouponsStudentGetView>> GetCouponsCanUse(long studentId)
         {
             var now = DateTime.Now.EtmsToDateString();
-            var sql = $"select top 50 * from CouponsStudentGetView where TenantId = {_tenantId} AND [Status] = {EmCouponsStudentStatus.Unused} AND studentId = {studentId} and (LimitUseTime <= '{now}' or LimitUseTime is null) and (ExpiredTime > '{now}' or ExpiredTime is null) and IsDeleted = {EmIsDeleted.Normal}";
+            var sql = $"select top 50 * from CouponsStudentGetView where TenantId = {_tenantId} AND [Status] = {EmCouponsStudentStatus.Unused} AND studentId = {studentId} and (LimitUseTime <= '{now}' or LimitUseTime is null) and (ExpiredTime >= '{now}' or ExpiredTime is null) and IsDeleted = {EmIsDeleted.Normal}";
             return await _dbWrapper.ExecuteObject<CouponsStudentGetView>(sql);
         }
 
