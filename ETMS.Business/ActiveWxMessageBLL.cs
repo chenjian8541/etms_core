@@ -57,9 +57,9 @@ namespace ETMS.Business
         {
             var now = DateTime.Now;
             var limitBucket = _tempDataCacheDAL.GetWxMessageLimitBucket(request.LoginTenantId, now);
-            if (limitBucket != null && limitBucket.TotalCount >= 20)
+            if (limitBucket != null && limitBucket.TotalCount >= 100)
             {
-                return ResponseBase.CommonError("每天最多发送20次微信通知");
+                return ResponseBase.CommonError("每天最多发送100次微信通知");
             }
             var entity = new EtActiveWxMessage()
             {
