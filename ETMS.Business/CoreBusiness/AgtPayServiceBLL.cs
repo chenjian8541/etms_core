@@ -290,7 +290,7 @@ namespace ETMS.Business
             {
                 ordNo = request.OrderNo,
                 authCode = request.AuthNo,
-                trmIp = "120.229.32.230",
+                trmIp = request.IpAddress,
                 subject = request.OrderDesc,
                 mno = mySuixingAccount.Mno,
                 amt = request.PayMoney.ToString("F2"),
