@@ -28,6 +28,8 @@ namespace ETMS.IBusiness
 
         SuixingPayCallbackOutput SuixingPayCallback(SuixingPayCallbackRequest request);
 
-        SuixingRefundCallbackOutput SuixingRefundCallback(SuixingRefundCallbackRequest request);
+        Task<SuixingPayCallbackOutput> SuixingPayCallback2(SuixingPayCallbackRequest request);
+
+        Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request);
     }
 }

@@ -35,6 +35,11 @@ namespace ETMS.DataAccess.Lcs
             return await this._dbWrapper.Find<EtTenantLcsPayLog>(p => p.OutTradeNo == outTradeNo);
         }
 
+        public async Task<EtTenantLcsPayLog> GetTenantLcsPayLogBuyOrderNo(string orderno)
+        {
+            return await this._dbWrapper.Find<EtTenantLcsPayLog>(p => p.OrderNo == orderno);
+        }
+
         public async Task EditTenantLcsPayLog(EtTenantLcsPayLog entity)
         {
             await this._dbWrapper.Update(entity);
@@ -53,6 +58,11 @@ namespace ETMS.DataAccess.Lcs
         public async Task UpdateTenantLcsPayLogRefund(int agtPayType, long relationId)
         {
             await _dbWrapper.Execute($"UPDATE EtTenantLcsPayLog SET [Status] = {EmLcsPayLogStatus.Refunded} WHERE TenantId = {_tenantId} AND AgtPayType = {agtPayType} AND RelationId = {relationId}");
+        }
+
+        public async Task UpdateTenantLcsPayLogOutTradeNo(long id, string outTradeNo)
+        {
+            await _dbWrapper.Execute($"UPDATE EtTenantLcsPayLog SET OutTradeNo = '{outTradeNo}' WHERE Id = {id}");
         }
     }
 }

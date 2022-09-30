@@ -410,6 +410,32 @@ namespace ETMS.WebApi.Controllers
             }
         }
 
+        public async Task<ResponseBase> TenantSuixingAccountGet2(RequestBase request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantSuixingAccountGet2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountBind2(TenantSuixingAccountBind2Request request)
+        {
+            try
+            {
+                return await _paymentMerchantBLL.TenantSuixingAccountBind2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
+
         [AllowAnonymous]
         public SuixingPayCallbackOutput SuixingPayCallback(SuixingPayCallbackRequest request)
         {
@@ -426,12 +452,27 @@ namespace ETMS.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        public SuixingRefundCallbackOutput SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        public async Task<SuixingPayCallbackOutput> SuixingPayCallback2(SuixingPayCallbackRequest request)
+        {
+            try
+            {
+                LOG.Log.Info("[SuixingPayCallback2]随行付支付回调", request, this.GetType());
+                return await _paymentBLL.SuixingPayCallback2(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[SuixingPayCallback2]随行付支付回调处理失败", request, ex, this.GetType());
+                return SuixingPayCallbackOutput.Fail();
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
         {
             try
             {
                 LOG.Log.Info("[SuixingRefundCallback]随行付退款回调", request, this.GetType());
-                return _paymentBLL.SuixingRefundCallback(request);
+                return await _paymentBLL.SuixingRefundCallback(request);
             }
             catch (Exception ex)
             {

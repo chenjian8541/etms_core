@@ -19,12 +19,19 @@ namespace ETMS.Business.BaseBLL
 
         protected readonly ITenantFubeiAccountDAL _tenantFubeiAccountDAL;
 
+        private readonly ISysTenantSuixingAccountDAL _sysTenantSuixingAccountDAL;
+
+        private readonly ISysTenantSuixingAccount2DAL _sysTenantSuixingAccount2DAL;
+
         public TenantLcsAccountBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL,
-            ITenantFubeiAccountDAL tenantFubeiAccountDAL)
+            ITenantFubeiAccountDAL tenantFubeiAccountDAL, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL,
+            ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
         {
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
             this._sysTenantDAL = sysTenantDAL;
             this._tenantFubeiAccountDAL = tenantFubeiAccountDAL;
+            this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
+            this._sysTenantSuixingAccount2DAL = sysTenantSuixingAccount2DAL;
         }
 
         protected async Task<CheckTenantLcsAccountView> CheckTenantAgtPayAccount(int tenantId)
@@ -39,6 +46,7 @@ namespace ETMS.Business.BaseBLL
             }
             SysTenantLcsAccount myLcsAccount = null;
             SysTenantFubeiAccount myFubeiAccount = null;
+            SysTenantSuixingAccount2 mySysTenantSuixingAccount = null;
             TenantAgtPayAccountInfo myAgtPayAccountInfo = null;
             switch (agtPayType)
             {
@@ -72,6 +80,21 @@ namespace ETMS.Business.BaseBLL
                         TerminalId = myFubeiAccount.MerchantId.ToString()
                     };
                     break;
+                case EmAgtPayType.Suixing:
+                    mySysTenantSuixingAccount = await _sysTenantSuixingAccount2DAL.GetTenantSuixingAccount(myTenant.Id);
+                    if (mySysTenantSuixingAccount == null)
+                    {
+                        LOG.Log.Error($"[CheckTenantLcsAccount]随行付账户异常tenantId:{tenantId}", this.GetType());
+                        return new CheckTenantLcsAccountView("随行付账户异常，无法支付");
+                    }
+                    myAgtPayAccountInfo = new TenantAgtPayAccountInfo()
+                    {
+                        MerchantName = mySysTenantSuixingAccount.MerName,
+                        MerchantType = 0,
+                        MerchantNo = mySysTenantSuixingAccount.Mno,
+                        TerminalId = mySysTenantSuixingAccount.Mno
+                    };
+                    break;
             }
             return new CheckTenantLcsAccountView()
             {
@@ -79,17 +102,20 @@ namespace ETMS.Business.BaseBLL
                 MyAgtPayAccountInfo = myAgtPayAccountInfo,
                 MyLcsAccount = myLcsAccount,
                 MyFubeiAccount = myFubeiAccount,
+                MySysTenantSuixingAccount = mySysTenantSuixingAccount,
                 ErrMsg = null
             };
         }
 
-        protected async Task<CheckTenantLcsAccountView> CheckTenantAgtPayAccount2(int tenantId, int agtPayType)
+        protected async Task<CheckTenantLcsAccountView> CheckTenantAgtPayAccountAboutRefund(int tenantId, int agtPayType,
+            int orderType)
         {
             var myTenant = await _sysTenantDAL.GetTenant(tenantId);
             var myTenantAgtPayInfo = ComBusiness4.GetTenantAgtPayInfo(myTenant);
             var isOpenAgtPay = myTenantAgtPayInfo.IsOpenAgtPay;
             SysTenantLcsAccount myLcsAccount = null;
             SysTenantFubeiAccount myFubeiAccount = null;
+            BaseTenantSuixingAccount mySysTenantSuixingAccount = null;
             TenantAgtPayAccountInfo myAgtPayAccountInfo = null;
             switch (agtPayType)
             {
@@ -123,6 +149,28 @@ namespace ETMS.Business.BaseBLL
                         TerminalId = myFubeiAccount.MerchantId.ToString()
                     };
                     break;
+                case EmAgtPayType.Suixing:
+                    if (orderType == EmLcsPayLogOrderType.Activity)
+                    {
+                        mySysTenantSuixingAccount = await _sysTenantSuixingAccountDAL.GetTenantSuixingAccount(myTenant.Id);
+                    }
+                    else
+                    {
+                        mySysTenantSuixingAccount = await _sysTenantSuixingAccount2DAL.GetTenantSuixingAccount(myTenant.Id);
+                    }
+                    if (mySysTenantSuixingAccount == null)
+                    {
+                        LOG.Log.Error($"[CheckTenantLcsAccount]随行付账户异常tenantId:{tenantId}", this.GetType());
+                        return new CheckTenantLcsAccountView("随行付账户异常，无法支付");
+                    }
+                    myAgtPayAccountInfo = new TenantAgtPayAccountInfo()
+                    {
+                        MerchantName = mySysTenantSuixingAccount.MerName,
+                        MerchantType = 0,
+                        MerchantNo = mySysTenantSuixingAccount.Mno,
+                        TerminalId = mySysTenantSuixingAccount.Mno
+                    };
+                    break;
             }
             return new CheckTenantLcsAccountView()
             {
@@ -130,6 +178,7 @@ namespace ETMS.Business.BaseBLL
                 MyAgtPayAccountInfo = myAgtPayAccountInfo,
                 MyLcsAccount = myLcsAccount,
                 MyFubeiAccount = myFubeiAccount,
+                MySysTenantSuixingAccount = mySysTenantSuixingAccount,
                 ErrMsg = null
             };
         }

@@ -27,10 +27,10 @@ namespace ETMS.Entity.Dto.PaymentService.Request
             {
                 return "请求数据格式错误";
             }
-            if (string.IsNullOrEmpty(out_trade_no))
-            {
-                return "请求数据格式错误";
-            }
+            //if (string.IsNullOrEmpty(out_trade_no))
+            //{
+            //    return "请求数据格式错误";
+            //}
             return base.Validate();
         }
     }

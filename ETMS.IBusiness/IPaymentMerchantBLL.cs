@@ -35,5 +35,9 @@ namespace ETMS.IBusiness
         Task<ResponseBase> TenantSuixingAccountGet(RequestBase request);
 
         Task<ResponseBase> TenantSuixingAccountBind(TenantSuixingAccountBindRequest request);
+
+        Task<ResponseBase> TenantSuixingAccountGet2(RequestBase request);
+
+        Task<ResponseBase> TenantSuixingAccountBind2(TenantSuixingAccountBind2Request request);
     }
 }

@@ -12,12 +12,14 @@ namespace ETMS.Pay.Suixing
     {
         MerchantInfoQueryResponse MerchantInfoQuery(string mno);
 
-        JsapiScanResponse JsapiScanMiniProgram(JsapiScanMiniProgramReq request);
+        JsapiScanResponse JsapiScan(JsapiScanMiniProgramReq request);
 
         TradeQueryResponse TradeQuery(string mno, string ordNo);
 
         RefundResponse Refund(RefundReq request);
 
         RefundQueryResponse RefundQuery(string mno, string outOrdNo);
+
+        ReverseScanResponse ReverseScan(ReverseScanReq request);
     }
 }

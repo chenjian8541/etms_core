@@ -31,7 +31,7 @@ namespace ETMS.Pay.Suixing
             return null;
         }
 
-        public JsapiScanResponse JsapiScanMiniProgram(JsapiScanMiniProgramReq request)
+        public JsapiScanResponse JsapiScan(JsapiScanMiniProgramReq request)
         {
             var req = new RequestBase<JsapiScanRequest>()
             {
@@ -134,6 +134,26 @@ namespace ETMS.Pay.Suixing
             var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
             req.sign = strSignResult;
             var result = Post.PostGetJson<ResponseBase<RefundQueryResponse>>(SuiXingConfig._merchantInfoQuery, req);
+            if (result.code == EmResponseCode.Success)
+            {
+                return result.respData;
+            }
+            return null;
+        }
+
+        public ReverseScanResponse ReverseScan(ReverseScanReq request)
+        {
+            var req = new RequestBase<ReverseScanReq>()
+            {
+                orgId = SuiXingConfig._orgId,
+                reqId = Com.GetReqId(),
+                timestamp = Com.GetTimestamp(),
+                reqData = request
+            };
+            string strSignTemp = PackReflectionEntity<RequestBase<ReverseScanReq>>.GetEntityToString(req);
+            var strSignResult = RSAUtil.RSASign(strSignTemp, SuiXingConfig._privateKeyPem);
+            req.sign = strSignResult;
+            var result = Post.PostGetJson<ResponseBase<ReverseScanResponse>>(SuiXingConfig._reverseScan, req);
             if (result.code == EmResponseCode.Success)
             {
                 return result.respData;

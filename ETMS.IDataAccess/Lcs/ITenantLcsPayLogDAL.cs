@@ -16,6 +16,8 @@ namespace ETMS.IDataAccess.Lcs
 
         Task<EtTenantLcsPayLog> GetTenantLcsPayLogBuyOutTradeNo(string outTradeNo);
 
+        Task<EtTenantLcsPayLog> GetTenantLcsPayLogBuyOrderNo(string orderno);
+
         Task EditTenantLcsPayLog(EtTenantLcsPayLog entity);
 
         Task<Tuple<IEnumerable<EtTenantLcsPayLog>, int>> GetTenantLcsPayLogPaging(IPagingRequest request);
@@ -23,5 +25,7 @@ namespace ETMS.IDataAccess.Lcs
         Task UpdateTenantLcsPayLog(long id, string outTradeNo, string payType, string subAppid, string totalFee);
 
         Task UpdateTenantLcsPayLogRefund(int agtPayType, long relationId);
+
+        Task UpdateTenantLcsPayLogOutTradeNo(long id, string outTradeNo);
     }
 }

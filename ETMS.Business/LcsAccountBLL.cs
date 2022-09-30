@@ -12,8 +12,9 @@ namespace ETMS.Business
 {
     public class LcsAccountBLL : TenantLcsAccountBLL, ILcsAccountBLL
     {
-        public LcsAccountBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL)
-            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
+        public LcsAccountBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
+            ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL, sysTenantSuixingAccountDAL, sysTenantSuixingAccount2DAL)
         {
         }
 

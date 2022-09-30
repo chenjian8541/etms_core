@@ -129,13 +129,21 @@ namespace ETMS.Business.Common
                         AgtPayDesc = "扫呗支付",
                         AgtPayDesc2 = "扫呗",
                         IsOpenAgtPay = EmLcswApplyStatus.IsSuccess(tenant.LcswApplyStatus) && tenant.LcswOpenStatus == EmBool.True
-                    }; ;
+                    };
                 case EmAgtPayType.Fubei:
                     return new TenantAgtPayInfoView()
                     {
                         AgtPayType = tenant.AgtPayType,
                         AgtPayDesc = "付呗支付",
                         AgtPayDesc2 = "付呗",
+                        IsOpenAgtPay = true
+                    };
+                case EmAgtPayType.Suixing:
+                    return new TenantAgtPayInfoView()
+                    {
+                        AgtPayType = tenant.AgtPayType,
+                        AgtPayDesc = "随行付",
+                        AgtPayDesc2 = "随行付",
                         IsOpenAgtPay = true
                     };
             }

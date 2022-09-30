@@ -12,5 +12,7 @@ namespace ETMS.Entity.Dto.CoreBusiness.Output
         /// <see cref="ETMS.Entity.Enum.EtmsManage.EmLcsPayLogStatus"/>
         /// </summary>
         public int PayResultType { get; set; }
+
+        public string OutTradeNo { get; set; }
     }
 }

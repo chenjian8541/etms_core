@@ -95,7 +95,8 @@ namespace Etms.Tools.Test
             var wxPay = payConfig.WxPay;
             ETMS.Pay.Suixing.SuiXingConfig.InitConfig(suixingConfig.PrivateKeyPem, suixingConfig.PublicKeyPem, suixingConfig.OrgId,
                suixingConfig.MerchantInfoQuery, suixingConfig.JsapiScan, suixingConfig.TradeQuery,
-               suixingConfig.Refund, suixingConfig.RefundQuery, wxPay.WxOfficialAccountAppid, wxPay.WxMiniProgramAppid);
+               suixingConfig.Refund, suixingConfig.RefundQuery, wxPay.WxOfficialAccountAppid, wxPay.WxMiniProgramAppid,
+               suixingConfig.ReverseScan);
         }
 
         private void InitRabbitMq(ContainerBuilder container, RabbitMqConfig config)

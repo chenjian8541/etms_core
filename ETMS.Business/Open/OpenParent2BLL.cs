@@ -1540,7 +1540,7 @@ namespace ETMS.Business.Open
             {
                 var no = OrderNumberLib.SuixingPayOrder();
                 output.IsMustPay = true;
-                var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
+                var res = _paySuixingService.JsapiScan(new JsapiScanMiniProgramReq()
                 {
                     mno = mno,
                     amt = myRouteItem.PaySum,
@@ -1731,7 +1731,7 @@ namespace ETMS.Business.Open
             {
                 var no = OrderNumberLib.SuixingPayOrder();
                 output.IsMustPay = true;
-                var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
+                var res = _paySuixingService.JsapiScan(new JsapiScanMiniProgramReq()
                 {
                     mno = mno,
                     amt = myRouteItem.PaySum,
@@ -1994,7 +1994,7 @@ namespace ETMS.Business.Open
             {
                 var no = OrderNumberLib.SuixingPayOrder();
                 output.IsMustPay = true;
-                var res = _paySuixingService.JsapiScanMiniProgram(new JsapiScanMiniProgramReq()
+                var res = _paySuixingService.JsapiScan(new JsapiScanMiniProgramReq()
                 {
                     mno = mno,
                     amt = myRouteItem.PaySum,

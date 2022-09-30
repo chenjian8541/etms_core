@@ -99,5 +99,6 @@ namespace ETMS.DataAccess.Lib
         public DbSet<SysWechatMiniPgmUser> SysWechatMiniPgmUsers { get; set; }
         public DbSet<SysActivity> SysActivitys { get; set; }
         public DbSet<SysActivityRouteItem> SysActivityRouteItems { get; set; }
+        public DbSet<SysTenantSuixingAccount2> SysTenantSuixingAccount2s { get; set; }
     }
 }

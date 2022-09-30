@@ -18,7 +18,15 @@ namespace ETMS.Entity.Config
 
         public static string FubeiRefundApiNotify;
 
+        /// <summary>
+        /// 处理小程序支付成功回调
+        /// </summary>
         public static string SuixingPayCallbackUrl;
+
+        /// <summary>
+        /// 处理其他支付成功回调
+        /// </summary>
+        public static string SuixingPayCallbackUrl2;
 
         public static string SuixingRefundCallbackUrl;
 
@@ -30,6 +38,7 @@ namespace ETMS.Entity.Config
             FubeiApiNotifyUrl = $"{baseUrl}/pay/FubeiApiNotify";
             FubeiRefundApiNotify = $"{baseUrl}/pay/FubeiRefundApiNotify";
             SuixingPayCallbackUrl = $"{baseUrl}/pay/SuixingPayCallback";
+            SuixingPayCallbackUrl2 = $"{baseUrl}/pay/SuixingPayCallback2";
             SuixingRefundCallbackUrl = $"{baseUrl}/pay/SuixingRefundCallback";
         }
     }

@@ -25,6 +25,8 @@ namespace ETMS.Entity.Temp
 
         public SysTenantFubeiAccount MyFubeiAccount { get; set; }
 
+        public BaseTenantSuixingAccount MySysTenantSuixingAccount { get; set; }
+
         public string ErrMsg { get; set; }
     }
 

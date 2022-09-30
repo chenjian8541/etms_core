@@ -99,6 +99,8 @@ namespace ETMS.Entity.Config
         public string Refund { get; set; }
 
         public string RefundQuery { get; set; }
+
+        public string ReverseScan { get; set; }
     }
 
     public class FubeiConfig

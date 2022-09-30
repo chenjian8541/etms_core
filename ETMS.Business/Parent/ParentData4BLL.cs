@@ -73,8 +73,9 @@ namespace ETMS.Business.Parent
             IMallOrderDAL mallOrder, IEventPublisher eventPublisher, IMallPrepayDAL mallPrepayDAL,
             IDistributedLockDAL distributedLockDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
             IAgtPayServiceBLL agtPayServiceBLL, IClassRecordEvaluateDAL classRecordEvaluateDAL,
-            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IHttpContextAccessor httpContextAccessor)
-            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
+            IElectronicAlbumDetailDAL electronicAlbumDetailDAL, IHttpContextAccessor httpContextAccessor,
+            ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL, sysTenantSuixingAccountDAL, sysTenantSuixingAccount2DAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
             this._tenantLcsPayLogDAL = tenantLcsPayLogDAL;

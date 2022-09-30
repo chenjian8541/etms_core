@@ -43,8 +43,8 @@ namespace ETMS.Business
         public MallGoodsBLL(IMallGoodsDAL mallGoodsDAL, ICourseDAL courseDAL, IGoodsDAL goodsDAL, ICostDAL costDAL, ISuitDAL suitDAL,
             IUserOperationLogDAL userOperationLogDAL, IAppConfigurtaionServices appConfigurtaionServices,
             ITenantConfig2DAL tenantConfig2DAL, ITenantLcsAccountDAL tenantLcsAccountDAL, ISysTenantDAL sysTenantDAL,
-            ITenantFubeiAccountDAL tenantFubeiAccountDAL)
-            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
+            ITenantFubeiAccountDAL tenantFubeiAccountDAL, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL, sysTenantSuixingAccountDAL, sysTenantSuixingAccount2DAL)
         {
             this._mallGoodsDAL = mallGoodsDAL;
             this._courseDAL = courseDAL;

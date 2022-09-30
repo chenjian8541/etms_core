@@ -53,8 +53,8 @@ namespace ETMS.Business
         public PaymentBLL(ITenantLcsAccountDAL tenantLcsAccountDAL, IStudentDAL studentDAL, ISysTenantDAL sysTenantDAL,
            IUserOperationLogDAL userOperationLogDAL, ITenantLcsPayLogDAL tenantLcsPayLogDAL,
             IEventPublisher eventPublisher, ITenantFubeiAccountDAL tenantFubeiAccountDAL, IAgtPayServiceBLL agtPayServiceBLL,
-            IHttpContextAccessor httpContextAccessor)
-            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL)
+            IHttpContextAccessor httpContextAccessor, ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
+            : base(tenantLcsAccountDAL, sysTenantDAL, tenantFubeiAccountDAL, sysTenantSuixingAccountDAL, sysTenantSuixingAccount2DAL)
         {
             this._studentDAL = studentDAL;
             this._userOperationLogDAL = userOperationLogDAL;
@@ -272,6 +272,10 @@ namespace ETMS.Business
             if (status != EmLcsPayLogStatus.Unpaid)
             {
                 var paylog = await _tenantLcsPayLogDAL.GetTenantLcsPayLog(request.LcsAccountId);
+                if (!string.IsNullOrEmpty(payResult.OutTradeNo))
+                {
+                    paylog.OutTradeNo = payResult.OutTradeNo;
+                }
                 paylog.PayFinishOt = payFinishOt;
                 paylog.PayFinishDate = payFinishDate;
                 paylog.Status = status;
@@ -299,7 +303,8 @@ namespace ETMS.Business
             {
                 return ResponseBase.CommonError("此订单无法执行退款");
             }
-            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccount2(request.LoginTenantId, paylog.AgtPayType);
+            var checkTenantLcsAccountResult = await CheckTenantAgtPayAccountAboutRefund(request.LoginTenantId, paylog.AgtPayType,
+                paylog.OrderType);
             if (!string.IsNullOrEmpty(checkTenantLcsAccountResult.ErrMsg))
             {
                 return ResponseBase.CommonError(checkTenantLcsAccountResult.ErrMsg);
@@ -547,7 +552,44 @@ namespace ETMS.Business
             }
         }
 
-        public SuixingRefundCallbackOutput SuixingRefundCallback(SuixingRefundCallbackRequest request)
+        public async Task<SuixingPayCallbackOutput> SuixingPayCallback2(SuixingPayCallbackRequest request)
+        {
+            var tenantId = request.extend.ToInt();
+            this.InitTenantId(tenantId);
+            var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOrderNo(request.ordNo);
+            if (payLog == null)
+            {
+                return SuixingPayCallbackOutput.Fail();
+            }
+            //随行付扫码支付的时候 uuid可能未生成
+            await _tenantLcsPayLogDAL.UpdateTenantLcsPayLogOutTradeNo(payLog.Id, request.uuid);
+            if (request.bizCode == EmBizCode.Success)
+            {
+                _eventPublisher.Publish(new ParentBuyMallGoodsPaySuccessEvent(tenantId)
+                {
+                    LcsPayLogId = payLog.Id,
+                    Now = DateTime.Now
+                });
+                return SuixingPayCallbackOutput.Success();
+            }
+            else
+            {
+                payLog.Status = EmLcsPayLogStatus.PayFail;
+                payLog.DataType = EmTenantLcsPayLogDataType.Normal;
+                await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                return SuixingPayCallbackOutput.Fail();
+            }
+        }
+
+        /// <summary>
+        /// 参考地址
+        /// https://payapi-test.suixingpay.com/app/doc/api.html?limit_spec=1357
+        /// 
+        /// 注：只会推送退款成功的消息
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<SuixingRefundCallbackOutput> SuixingRefundCallback(SuixingRefundCallbackRequest request)
         {
             var strSp = request.extend.Split('_');
             var tenantId = strSp[0].ToInt();
@@ -555,11 +597,37 @@ namespace ETMS.Business
             this.InitTenantId(tenantId);
             if (request.bizCode == EmBizCode.Success)
             {
-                _eventPublisher.Publish(new SuixingRefundCallbackEvent(tenantId)
+                var payLog = await _tenantLcsPayLogDAL.GetTenantLcsPayLogBuyOutTradeNo(request.uuid);
+                if (payLog == null)
                 {
-                    ActivityRouteItemId = myRouteItemId,
-                    RefundTime = DateTime.Now
-                });
+                    return SuixingRefundCallbackOutput.Fail();
+                }
+                if (payLog.OrderType == EmLcsPayLogOrderType.Activity)
+                {
+                    _eventPublisher.Publish(new SuixingRefundCallbackEvent(tenantId)
+                    {
+                        ActivityRouteItemId = myRouteItemId,
+                        RefundTime = DateTime.Now
+                    });
+                }
+                else
+                {
+                    var now = DateTime.Now;
+                    payLog.RefundOt = now;
+                    payLog.RefundDate = now.Date;
+                    payLog.RefundFee = EtmsHelper3.GetCent(Convert.ToDecimal(request.amt)).ToString();
+                    payLog.Status = EmLcsPayLogStatus.Refunded;
+                    await _tenantLcsPayLogDAL.EditTenantLcsPayLog(payLog);
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = now.Date
+                    });
+                    _eventPublisher.Publish(new StatisticsLcsPayEvent(tenantId)
+                    {
+                        StatisticsDate = payLog.PayFinishOt.Value.Date
+                    });
+
+                }
                 return SuixingRefundCallbackOutput.Success();
             }
             else

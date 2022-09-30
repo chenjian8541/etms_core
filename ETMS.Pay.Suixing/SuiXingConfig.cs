@@ -30,6 +30,8 @@ namespace ETMS.Pay.Suixing
 
         internal static string _subAppidMiniProgram;
 
+        internal static string _reverseScan;
+
         public static void InitConfig(
             string privateKeyPem,
             string publicKeyPem,
@@ -40,7 +42,8 @@ namespace ETMS.Pay.Suixing
             string refund,
             string refundQuery,
             string subAppidWx,
-            string subAppidMiniProgram)
+            string subAppidMiniProgram,
+            string reverseScan)
         {
             _privateKeyPem = privateKeyPem;
             _publicKeyPem = publicKeyPem;
@@ -52,6 +55,7 @@ namespace ETMS.Pay.Suixing
             _refundQuery = refundQuery;
             _subAppidWx = subAppidWx;
             _subAppidMiniProgram = subAppidMiniProgram;
+            _reverseScan = reverseScan;
         }
     }
 }

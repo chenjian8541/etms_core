@@ -51,11 +51,13 @@ namespace ETMS.Business
 
         private IDistributedLockDAL _distributedLockDAL;
 
+        private readonly ISysTenantSuixingAccount2DAL _sysTenantSuixingAccount2DAL;
+
         public PaymentMerchantBLL(ISysTenantDAL sysTenantDAL, ITenantLcsAccountDAL tenantLcsAccountDAL, IPayLcswService payLcswService,
             IUserOperationLogDAL userOperationLogDAL, ITenantFubeiAccountDAL tenantFubeiAccountDAL,
             IAgtPayServiceBLL agtPayServiceBLL, IAppConfigurtaionServices appConfigurtaionServices,
             ISysTenantSuixingAccountDAL sysTenantSuixingAccountDAL, IPaySuixingService paySuixingService,
-            IDistributedLockDAL distributedLockDAL)
+            IDistributedLockDAL distributedLockDAL, ISysTenantSuixingAccount2DAL sysTenantSuixingAccount2DAL)
         {
             this._sysTenantDAL = sysTenantDAL;
             this._tenantLcsAccountDAL = tenantLcsAccountDAL;
@@ -67,6 +69,7 @@ namespace ETMS.Business
             this._sysTenantSuixingAccountDAL = sysTenantSuixingAccountDAL;
             this._paySuixingService = paySuixingService;
             this._distributedLockDAL = distributedLockDAL;
+            this._sysTenantSuixingAccount2DAL = sysTenantSuixingAccount2DAL;
         }
 
         public async Task<ResponseBase> TenantPaymentSetGet(RequestBase request)
@@ -1000,8 +1003,176 @@ namespace ETMS.Business
 
             await _sysTenantDAL.UpdateTenantSetPayUnionType(request.LoginTenantId, EmPayUnionType.Suixing);
             _userOperationLogDAL.InitTenantId(request.LoginTenantId);
-            await _userOperationLogDAL.AddUserLog(request, $"绑定随行付：{merchantInfo.mecDisNm}", EmUserOperationType.LcsMgr);
+            await _userOperationLogDAL.AddUserLog(request, $"小禾招生-绑定随行付：{merchantInfo.mecDisNm}", EmUserOperationType.LcsMgr);
             return ResponseBase.Success();
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountGet2(RequestBase request)
+        {
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            if (myTenant.AgtPayType == EmAgtPayType.NotApplied)
+            {
+                return ResponseBase.Success(new TenantSuixingAccountGet2Output()
+                {
+                    AgtPayType = myTenant.AgtPayType
+                });
+            }
+            var p = await _sysTenantSuixingAccount2DAL.GetTenantSuixingAccount(request.LoginTenantId);
+            if (p == null)
+            {
+                return ResponseBase.Success(new TenantSuixingAccountGet2Output()
+                {
+                    AgtPayType = myTenant.AgtPayType
+                });
+            }
+            var output = new TenantSuixingAccountGet2Output()
+            {
+                AgtPayType = myTenant.AgtPayType,
+                AccountInfo = new TenantSuixingAccountGet2OutputInfo()
+                {
+                    ActNm = p.ActNm,
+                    CprRegAddr = p.CprRegAddr,
+                    Email = p.Email,
+                    HaveLicenseNo = p.HaveLicenseNo,
+                    IdentityName = p.IdentityName,
+                    IndependentModel = p.IndependentModel,
+                    LbnkNm = p.LbnkNm,
+                    MblNo = p.MblNo,
+                    MecDisNm = p.MecDisNm,
+                    MecTypeFlag = p.MecTypeFlag,
+                    MerchantStatus = p.MerchantStatus,
+                    MerName = p.MerName,
+                    Mno = p.Mno,
+                    OnlineName = p.OnlineName,
+                    OperationalType = p.OperationalType,
+                    ParentMno = p.ParentMno,
+                    Status = p.Status
+                }
+            };
+            return ResponseBase.Success(output);
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountBind2(TenantSuixingAccountBind2Request request)
+        {
+            var merchantInfo = _paySuixingService.MerchantInfoQuery(request.Mno);
+            if (merchantInfo == null)
+            {
+                return ResponseBase.CommonError("商户信息查询失败");
+            }
+            if (merchantInfo.bizCode != EmBizCode.Success)
+            {
+                return ResponseBase.CommonError($"绑定商户失败:{merchantInfo.bizMsg}");
+            }
+            var myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId);
+            if (myTenant == null)
+            {
+                return ResponseBase.CommonError("机构不存在");
+            }
+            var lockKey = new TenantSuixingAccountBind2Token(request.LoginTenantId);
+            if (_distributedLockDAL.LockTake(lockKey))
+            {
+                try
+                {
+                    return await this.TenantSuixingAccountBind2Process(request, merchantInfo, myTenant);
+                }
+                finally
+                {
+                    _distributedLockDAL.LockRelease(lockKey);
+                }
+            }
+            else
+            {
+                return ResponseBase.CommonError("服务器正在处理，请稍后再试");
+            }
+        }
+
+        public async Task<ResponseBase> TenantSuixingAccountBind2Process(TenantSuixingAccountBind2Request request,
+            MerchantInfoQueryResponse merchantInfo, SysTenant myTenant)
+        {
+            this._userOperationLogDAL.InitTenantId(request.LoginTenantId);
+            if (merchantInfo.merchantStatus == "01")
+            {
+                return ResponseBase.CommonError("商户已停用");
+            }
+            if (merchantInfo.merchantStatus == "02")
+            {
+                return ResponseBase.CommonError("商户已注销");
+            }
+            var now = DateTime.Now;
+            var account = await _sysTenantSuixingAccount2DAL.GetTenantSuixingAccount(request.LoginTenantId);
+            if (account == null)
+            {
+                account = new SysTenantSuixingAccount2()
+                {
+                    TenantId = request.LoginTenantId,
+                    AgentId = myTenant.AgentId,
+                    IsDeleted = EmIsDeleted.Normal,
+                    ActNm = merchantInfo.actNm,
+                    CprRegAddr = merchantInfo.cprRegAddr,
+                    Email = merchantInfo.email,
+                    HaveLicenseNo = merchantInfo.haveLicenseNo,
+                    IdentityName = merchantInfo.identityName,
+                    IndependentModel = merchantInfo.independentModel,
+                    LbnkNm = merchantInfo.lbnkNm,
+                    MblNo = merchantInfo.mblNo,
+                    MecDisNm = merchantInfo.mecDisNm,
+                    MecTypeFlag = merchantInfo.mecTypeFlag,
+                    MerchantStatus = merchantInfo.merchantStatus,
+                    MerName = merchantInfo.merName,
+                    Mno = request.Mno,
+                    OnlineName = merchantInfo.onlineName,
+                    OperationalType = merchantInfo.operationalType,
+                    ParentMno = merchantInfo.parentMno,
+                    Status = EmTenantSuixingAccountStatus.Enable
+                };
+                await _sysTenantSuixingAccount2DAL.AddTenantSuixingAccount(account);
+            }
+            else
+            {
+                account.AgentId = myTenant.AgentId;
+                account.IsDeleted = EmIsDeleted.Normal;
+                account.ActNm = merchantInfo.actNm;
+                account.CprRegAddr = merchantInfo.cprRegAddr;
+                account.Email = merchantInfo.email;
+                account.HaveLicenseNo = merchantInfo.haveLicenseNo;
+                account.IdentityName = merchantInfo.identityName;
+                account.IndependentModel = merchantInfo.independentModel;
+                account.LbnkNm = merchantInfo.lbnkNm;
+                account.MblNo = merchantInfo.mblNo;
+                account.MecDisNm = merchantInfo.mecDisNm;
+                account.MecTypeFlag = merchantInfo.mecTypeFlag;
+                account.MerchantStatus = merchantInfo.merchantStatus;
+                account.MerName = merchantInfo.merName;
+                account.Mno = request.Mno;
+                account.OnlineName = merchantInfo.onlineName;
+                account.OperationalType = merchantInfo.operationalType;
+                account.ParentMno = merchantInfo.parentMno;
+                account.Status = EmTenantSuixingAccountStatus.Enable;
+                await _sysTenantSuixingAccount2DAL.EditTenantSuixingAccount(account);
+            }
+            myTenant = await _sysTenantDAL.GetTenant(request.LoginTenantId); //获取最新的机构信息
+            myTenant.AgtPayType = EmAgtPayType.Suixing;
+            myTenant.LcswOpenStatus = EmBool.True;
+            await _sysTenantDAL.EditTenant(myTenant);
+
+            await _userOperationLogDAL.AddUserLog(new EtUserOperationLog()
+            {
+                ClientType = EmUserOperationLogClientType.PC,
+                IpAddress = string.Empty,
+                IsDeleted = EmIsDeleted.Normal,
+                OpContent = "绑定随行付账户",
+                Ot = now,
+                Remark = string.Empty,
+                TenantId = myTenant.Id,
+                Type = (int)EmUserOperationType.LcsMgr,
+                UserId = request.LoginUserId
+            });
+            return ResponseBase.Success();
+
         }
     }
 }

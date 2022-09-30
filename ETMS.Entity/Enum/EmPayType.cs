@@ -73,6 +73,10 @@ namespace ETMS.Entity.Enum
                     {
                         return "付呗支付";
                     }
+                    if (agtPayType == EmAgtPayType.Suixing)
+                    {
+                        return "随行付";
+                    }
                     return "扫呗支付";
             }
             return string.Empty;
