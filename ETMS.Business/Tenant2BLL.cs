@@ -135,5 +135,14 @@ namespace ETMS.Business
             await _tenantConfig2DAL.SaveTenantConfig(tenantConfig);
             return ResponseBase.Success();
         }
+
+        public ResponseBase TenantCustomized(RequestBase request)
+        {
+            var output = new TenantCustomizedOutput()
+            {
+                IsShow12104 = request.LoginTenantId == 12104
+            };
+            return ResponseBase.Success(output);
+        }
     }
 }

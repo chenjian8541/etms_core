@@ -65,5 +65,19 @@ namespace ETMS.WebApi.Controllers
                 return ResponseBase.UnKnownError();
             }
         }
+
+        public ResponseBase TenantCustomized(RequestBase request)
+        {
+            try
+            {
+                this._tenant2BLL.InitTenantId(request.LoginTenantId);
+                return _tenant2BLL.TenantCustomized(request);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(request, ex, this.GetType());
+                return ResponseBase.UnKnownError();
+            }
+        }
     }
 }

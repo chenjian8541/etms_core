@@ -709,6 +709,28 @@ namespace ETMS.Business.Common
             return string.Empty;
         }
 
+        internal static string GetBuyQuantityDesc(List<EtStudentCourse> myStudentCourse)
+        {
+            if (myStudentCourse == null || myStudentCourse.Count == 0)
+            {
+                return string.Empty;
+            }
+            var strDesc = new StringBuilder();
+            var classTimesLog = myStudentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.ClassTimes);
+            if (classTimesLog != null)
+            {
+                strDesc.Append(GetBuyQuantityDesc(classTimesLog.BuyQuantity, classTimesLog.BuySmallQuantity,
+                    classTimesLog.BugUnit, EmProductType.Course));
+            }
+            var dayLog = myStudentCourse.FirstOrDefault(p => p.DeType == EmDeClassTimesType.Day);
+            if (dayLog != null)
+            {
+                strDesc.Append(GetBuyQuantityDesc(dayLog.BuyQuantity, dayLog.BuySmallQuantity,
+                    dayLog.BugUnit, EmProductType.Course));
+            }
+            return strDesc.ToString();
+        }
+
         /// <summary>
         /// 此方法为了兼容 EtStudentCourse，单位永远是按月，则通过判断"buySmallQuantity"属性来判断具体是按月 还是按天 
         /// </summary>

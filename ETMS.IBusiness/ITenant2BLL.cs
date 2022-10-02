@@ -9,12 +9,14 @@ using ETMS.Event.DataContract;
 
 namespace ETMS.IBusiness
 {
-    public interface ITenant2BLL: IBaseBLL
+    public interface ITenant2BLL : IBaseBLL
     {
         Task<ResponseBase> TenantStatisticsGet(RequestBase request);
 
         Task<ResponseBase> ActivityConfigGet(RequestBase request);
 
         Task<ResponseBase> ActivityConfigSave(ActivityConfigSaveRequest request);
+
+        ResponseBase TenantCustomized(RequestBase request);
     }
 }

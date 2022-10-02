@@ -575,6 +575,20 @@ namespace ETMS.Business
                         item.StudentPhone = myStudent.Phone;
                     }
                 }
+                if (request.LoginTenantId == 12104)
+                {
+                    item.IsShowBuy = true;
+                    var myHisData = output.FirstOrDefault(j => j.StudentId == p.StudentId && j.CourseId == p.CourseId);
+                    if (myHisData == null)
+                    {
+                        var myCourse = await _studentCourseDAL.GetStudentCourse(p.StudentId, p.CourseId);
+                        item.BuyQuantityDesc = ComBusiness.GetBuyQuantityDesc(myCourse);
+                    }
+                    else
+                    {
+                        item.BuyQuantityDesc = myHisData.BuyQuantityDesc;
+                    }
+                }
                 output.Add(item);
             }
             return ResponseBase.Success(new ResponsePagingDataBase<StudentClassRecordGetPagingOutput>(pagingData.Item2, output));
