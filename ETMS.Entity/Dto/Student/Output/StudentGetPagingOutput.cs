@@ -214,5 +214,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte HkCardStatus { get; set; }
 
         public string LastGoClassTime { get; set; }
+
+        public string StuNo { get; set; }
     }
 }

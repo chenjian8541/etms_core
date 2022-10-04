@@ -368,7 +368,8 @@ namespace ETMS.Business
                     Age = student.Age,
                     PhoneBakRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneBakRelationship, "备用号码"),
                     PhoneRelationshipDesc = ComBusiness2.GetStudentRelationshipDesc(studentRelationship, student.PhoneRelationship, "手机号码"),
-                    LearningManager = learningManager
+                    LearningManager = learningManager,
+                    StuNo = TenantLib.GetIdEncryptUrl(student.Id)
                 });
             }
             return ResponseBase.Success(output);

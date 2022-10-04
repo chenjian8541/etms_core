@@ -210,5 +210,7 @@ namespace ETMS.Entity.Dto.Student.Output
         public byte HkFaceStatus { get; set; }
 
         public byte HkCardStatus { get; set; }
+
+        public string StuNo { get; set; }
     }
 }

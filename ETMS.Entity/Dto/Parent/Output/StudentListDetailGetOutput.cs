@@ -73,5 +73,7 @@ namespace ETMS.Entity.Dto.Parent.Output
         public int Points { get; set; }
 
         public string LearningManager { get; set; }
+
+        public string StuNo { get; set; }
     }
 }

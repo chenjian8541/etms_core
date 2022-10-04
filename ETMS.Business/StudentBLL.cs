@@ -514,7 +514,8 @@ namespace ETMS.Business
                 BirthdayDay = student.BirthdayDay,
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
                 HkCardStatus = student.HkCardStatus,
-                HkFaceStatus = student.HkFaceStatus
+                HkFaceStatus = student.HkFaceStatus,
+                StuNo = TenantLib.GetIdEncryptUrl(student.Id)
             };
             var studentExtendFileds = await _studentExtendFieldDAL.GetAllStudentExtendField();
             foreach (var file in studentExtendFileds)
@@ -656,7 +657,8 @@ namespace ETMS.Business
                 FaceKeyUrl = UrlHelper.GetUrl(_httpContextAccessor, _appConfigurtaionServices.AppSettings.StaticFilesConfig.VirtualPath, student.FaceKey),
                 HkCardStatus = student.HkCardStatus,
                 HkFaceStatus = student.HkFaceStatus,
-                LastGoClassTime = student.LastGoClassTime.EtmsToDateString()
+                LastGoClassTime = student.LastGoClassTime.EtmsToDateString(),
+                StuNo = TenantLib.GetIdEncryptUrl(student.Id)
             })));
         }
 
