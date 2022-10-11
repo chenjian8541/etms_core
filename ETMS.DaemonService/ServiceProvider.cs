@@ -235,7 +235,7 @@ namespace ETMS.DaemonService
                         {
                             LOG.Log.Error($"[authorizerTokenRefreshedFunc]componentAppId:{componentAppId},auhtorizerId:{auhtorizerId}", ex, typeof(ServiceProvider));
                         }
-                    }, "【小禾帮培训管理系统】开放平台");
+                    }, "【】开放平台");
             });
 
             Console.WriteLine($"[服务]前缓存策略: {CacheStrategyFactory.GetObjectCacheStrategyInstance()}");
