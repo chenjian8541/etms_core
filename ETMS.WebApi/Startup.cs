@@ -219,7 +219,7 @@ namespace ETMS.WebApi
             }, true).UseSenparcWeixin(senparcWeixinSetting, (weixinRegister, registerService) =>
             {
                 weixinRegister.UseSenparcWeixinCacheCsRedis();
-                weixinRegister.RegisterWxOpenAccount(senparcWeixinSetting, "¡¾Ğ¡ºÌ°ïÅàÑµ¹ÜÀíÏµÍ³¡¿Ğ¡³ÌĞò");
+                weixinRegister.RegisterWxOpenAccount(senparcWeixinSetting, "ã€å°ç¦¾å¸®åŸ¹è®­ç®¡ç†ç³»ç»Ÿã€‘å°ç¨‹åº");
                 weixinRegister.RegisterOpenComponent(senparcWeixinSetting,
                     async componentAppId =>
                     {
@@ -288,7 +288,7 @@ namespace ETMS.WebApi
                         {
                             LOG.Log.Error($"[authorizerTokenRefreshedFunc]componentAppId:{componentAppId},auhtorizerId:{auhtorizerId}", ex, this.GetType());
                         }
-                    }, "¡¾Ğ¡ºÌ°ïÅàÑµ¹ÜÀíÏµÍ³¡¿¿ª·ÅÆ½Ì¨");
+                    }, "ã€ã€‘å¼€æ”¾å¹³å°");
             });
         }
     }
