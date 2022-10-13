@@ -1,3 +1,6 @@
+使用MassTransit来集成rabbitmq服务
+https://github.com/chenjian8541/etms_core/blob/master/ETMS.ServiceBus/SubscriptionAdapt2.cs
+
 rabbitmq消费者订阅消息
 https://github.com/chenjian8541/etms_core/blob/master/ETMS.DaemonService/ServiceProvider.cs
 
