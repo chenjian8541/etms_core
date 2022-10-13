@@ -26,4 +26,14 @@ https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/Extensions/Ser
 https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/FilterAttribute/EtmsSignatureWxminiAuthorizeAttribute.cs
 https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/FilterAttribute/EtmsSignatureParentAuthorizeAttribute.cs
 
+多租户下对应的redis不同的库
+https://github.com/chenjian8541/etms_core/blob/master/ETMS.Cache.Redis/Wrapper/CSRedisWrapper.cs
+
+解决.net core webapi返回长整形数据到前端时精度丢失的bug（js设计缺陷导致的）
+https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/Lib/Json/EtmsContractResolver.cs
+https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/Lib/Json/JsonConverterLong.cs
+
+
+
+
 
