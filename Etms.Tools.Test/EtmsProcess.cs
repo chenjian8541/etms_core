@@ -245,7 +245,7 @@ namespace Etms.Tools.Test
                         {
                             ETMS.LOG.Log.Error($"[authorizerTokenRefreshedFunc]componentAppId:{componentAppId},auhtorizerId:{auhtorizerId}", ex, typeof(ServiceProvider));
                         }
-                    }, "【小禾帮培训管理系统】开放平台");
+                    }, "【】开放平台");
             });
 
             Console.WriteLine($"[服务]前缓存策略: {CacheStrategyFactory.GetObjectCacheStrategyInstance()}");
@@ -294,69 +294,6 @@ namespace Etms.Tools.Test
         private List<YearAndMonth> _yearAndMonths = new List<YearAndMonth>();
         public void ProcessT()
         {
-            //var parentMenusConfigDAL = CustomServiceLocator.GetInstance<IParentMenusConfigDAL>();
-            //for (var i = 1; i < 11470; i++)
-            //{
-            //    parentMenusConfigDAL.ResetTenantId(i);
-            //    parentMenusConfigDAL.ClearMenuConfig();
-            //    Console.WriteLine(i.ToString());
-            //}
-            //return;
-            //var paySuixingService = CustomServiceLocator.GetInstance<IPaySuixingService>();
-            //var a = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
-            //{
-            //    amt = 0.01M,
-            //    extend = "123",
-            //    mno = "399220617483310",
-            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
-            //    origUuid = "123123",
-            //    refundReason = "11",
-            //    ordNo = OrderNumberLib.SuixingRefundOrder()
-            //});
-            //var bb = paySuixingService.MerchantInfoQuery("399200623916234");
-            //var aa = paySuixingService.JsapiScanMiniProgram(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.JsapiScanMiniProgramReq()
-            //{
-            //    mno = "399200623916234",
-            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
-            //    subject = "跆拳道课程",
-            //    ordNo = "20112121111212",
-            //    amt = 1.25M,
-            //    openid = "2088100953812025",
-            //     extend ="121222121"
-            //});
-            //var cc = paySuixingService.TradeQuery("399200623916234", "20112121111212");
-            //var dd = paySuixingService.Refund(new ETMS.Pay.Suixing.Utility.ExternalDto.Request.RefundReq()
-            //{
-            //    amt = 1.25M,
-            //    refundReason = "退货",
-            //    mno = "399200623916234",
-            //    ordNo = "TH32333232323232",
-            //    notifyUrl = "http://172.16.155.45:8080/order/test/call",
-            //    extend = "22222",
-            //    origOrderNo = "20112121111212"
-            //});
-
-            //var ee = paySuixingService.RefundQuery("399200623916234", "TH32333232323232");
-            //return;
-            //var _cloudFileAutoDelDayBLL = CustomServiceLocator.GetInstance<ICloudFileAutoDelDayBLL>();
-            //_cloudFileAutoDelDayBLL.InitTenantId(1);
-            //_cloudFileAutoDelDayBLL.CloudFileAutoDelDayConsumerEvent(new CloudFileAutoDelDayEvent(1)
-            //{
-            //    DelDate = DateTime.Now,
-            //    FileTag = EmTenantCloudStorageType.microWebConfig
-            //});
-            //return;
-            //var firstDate = new DateTime(2020, 01, 01);
-            //var maxDate = new DateTime(2021, 10, 01);
-            //while (firstDate < maxDate)
-            //{
-            //    _yearAndMonths.Add(new YearAndMonth()
-            //    {
-            //        Month = firstDate.Month,
-            //        Year = firstDate.Year
-            //    });
-            //    firstDate = firstDate.AddMonths(1);
-            //}
             _sysTenantDAL = CustomServiceLocator.GetInstance<ISysTenantDAL>();
             _classDAL = CustomServiceLocator.GetInstance<IClassDAL>();
             _roleDAL = CustomServiceLocator.GetInstance<IRoleDAL>();
