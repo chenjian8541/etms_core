@@ -35,7 +35,7 @@ https://github.com/chenjian8541/etms_core/blob/master/ETMS.WebApi/Lib/Json/JsonC
 
 分布式事务锁执行处理程序
 https://github.com/chenjian8541/etms_core/blob/master/ETMS.EventConsumer/Lib/LockTakeHandler.cs
->示例https://github.com/chenjian8541/etms_core/blob/master/ETMS.EventConsumer/AutoCheckSignTenantConsumer.cs
+https://github.com/chenjian8541/etms_core/blob/master/ETMS.EventConsumer/AutoCheckSignTenantConsumer.cs
 
 
 
