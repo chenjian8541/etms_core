@@ -166,7 +166,7 @@ namespace ETMS.DaemonService
             register.UseSenparcWeixin(senparcWeixinSetting, (weixinRegister, registerService) =>
             {
                 weixinRegister.UseSenparcWeixinCacheCsRedis();
-                weixinRegister.RegisterWxOpenAccount(senparcWeixinSetting, "【小禾帮培训管理系统】小程序");
+                weixinRegister.RegisterWxOpenAccount(senparcWeixinSetting, "【】小程序");
                 weixinRegister.RegisterOpenComponent(senparcWeixinSetting,
                     async componentAppId =>
                     {
